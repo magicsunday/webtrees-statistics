@@ -1,0 +1,104 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+use Fisharebest\Webtrees\I18N;
+use Fisharebest\Webtrees\Tree;
+use MagicSunday\Webtrees\Statistic\Statistic;
+
+/**
+ * @var string    $module    The name of the module
+ * @var Tree      $tree      The current tree
+ * @var Statistic $statistic
+ */
+?>
+
+<style>
+
+    body {
+        --bs-progress-label-color: rgb(89, 89, 89);
+
+        --bs-progress-label-gradient-start: white;
+        --bs-progress-label-gradient-end: purple;
+    }
+
+    .card-title {
+        font-weight: 600;
+    }
+
+    .card-body {
+        text-align: center;
+    }
+
+    body {
+        --bs-progress-bar-bg-deaths-month: rgb(255, 187, 131);
+        --bs-progress-bar-bg-deaths-century: rgb(31, 102, 74);
+    }
+
+    .progress-deaths-month {
+        background-color: var(--bs-progress-bar-bg-deaths-month) !important;
+    }
+
+    .progress-deaths-century {
+        background-color: var(--bs-progress-bar-bg-deaths-century) !important;
+    }
+
+</style>
+
+<div class="container">
+    <div class="row row-cols-1 row-cols-md-2 g-3">
+        <div class="col">
+            <div class="card h-100">
+                <?php
+                    $deathsByMonth = $statistic->getDeathsByMonth();
+                    $totalDeaths   = array_sum($deathsByMonth);
+                ?>
+                <div class="card-header">
+                    <h5 class="card-title">Sterbemonate</h5>
+                    <small><?= I18N::number($totalDeaths) ?> Personen mit Sterbemonat</small>
+                </div>
+                <div class="card-body">
+                    <?php
+                        echo view(
+                            $module . '::modules/statistics-chart/Partials/ProgressList',
+                            [
+                                'class' => 'progress-deaths-month',
+                                'data'  => $deathsByMonth,
+                            ]
+                        );
+                    ?>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100">
+                <?php
+                    $deathsByCentury = $statistic->getDeathsByCentury();
+                    $totalDeaths     = array_sum($deathsByCentury);
+                ?>
+                <div class="card-header">
+                    <h5 class="card-title">Sterbestatistik nach Jahrhundert</h5>
+                    <small><?= I18N::number($totalDeaths) ?> Personen mit Sterbejahr</small>
+                </div>
+                <div class="card-body">
+                    <?php
+                        echo view(
+                            $module . '::modules/statistics-chart/Partials/ProgressList',
+                            [
+                                'class' => 'progress-deaths-century',
+                                'data'  => $deathsByCentury,
+                            ]
+                        );
+                    ?>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,74 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+use Fisharebest\Webtrees\Tree;
+
+/**
+ * @var Tree               $tree
+ * @var array<string, int> $data
+ * @var string             $class
+ */
+?>
+
+<style>
+
+    .progress-bar-table {
+        border-collapse: collapse;
+        border-spacing: 0;
+        width: 100%;
+    }
+
+    .progress-bar-table .label {
+        color: var(--bs-progress-label-color);
+        text-align: left;
+        font-weight: 400;
+    }
+
+    .progress-bar-table .value {
+        color: var(--bs-progress-label-color);
+        text-align: right;
+        font-weight: 400;
+    }
+
+    .progress-bar-table .progress-bar {
+        border-radius: var(--bs-progress-border-radius);
+    }
+
+</style>
+
+<div class="wt-births-list">
+    <table class="progress-bar-table">
+        <tbody>
+            <?php $maximum = max($data); ?>
+            <?php foreach ($data as $key => $value) : ?>
+                <?php $width = $value * 100.0 / $maximum; ?>
+
+                <tr>
+                    <td class="label"><small><?= $key ?></small></td>
+                    <td class="value"><small><?= $value ?></small></td>
+                </tr>
+                <tr>
+                    <td colspan="2" class="pb-2">
+                        <div class="progress" role="progressbar"
+                             aria-label="<?= $key ?>"
+                             aria-valuenow="<?= $width ?>"
+                             aria-valuemin="0"
+                             aria-valuemax="100"
+                             style="height: 16px;"
+                        >
+                            <div class="progress-bar <?= $class ?>" style="width: calc(16px + <?= $width ?>%); background-color: color-mix(in srgb, var(--bs-progress-label-gradient-start), var(--bs-progress-label-gradient-end) <?= $width ?>%)"></div>
+                        </div>
+                    </td>
+                </tr>
+            <?php endforeach ?>
+        </tbody>
+    </table>
+</div>

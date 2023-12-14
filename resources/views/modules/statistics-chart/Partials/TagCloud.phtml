@@ -1,0 +1,47 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+use Fisharebest\Webtrees\I18N;
+use Fisharebest\Webtrees\Individual;
+use Fisharebest\Webtrees\Tree;
+
+/**
+ * @var Tree  $tree
+ * @var array $data
+ */
+
+$maximum = max(array_map(static fn (array $x): int => $x['value'], $data));
+$minimum = min(array_map(static fn (array $x): int => $x['value'], $data));
+?>
+
+<style>
+
+    .wt-surnames-tag-cloud span.tag:hover {
+        text-decoration: underline;
+        cursor: pointer;
+    }
+
+</style>
+
+<div class="wt-surnames-tag-cloud">
+    <?php foreach ($data as $entry) : ?>
+        <?php
+            $size = $maximum === $minimum ? 0.8 : 0.8 + (1.2 * ($entry['value'] - $minimum) / ($maximum - $minimum));
+
+            if ($entry['label'] === Individual::NOMEN_NESCIO) {
+                $label = I18N::translateContext('Unknown surname', '…');
+            } else {
+                $label = e($entry['label']);
+            }
+        ?>
+        <span class="tag text-nowrap ut p-1" style="font-size:<?= $size ?>rem" dir="auto" title="<?= $entry['value'] ?> Personen mit diesem Nachnamen"><?= $label ?></span>
+    <?php endforeach ?>
+</div>

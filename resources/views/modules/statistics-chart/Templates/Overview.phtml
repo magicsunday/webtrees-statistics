@@ -1,0 +1,245 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+use Fisharebest\Webtrees\I18N;
+use Fisharebest\Webtrees\Tree;
+use MagicSunday\Webtrees\Statistic\Statistic;
+
+/**
+ * @var string    $module    The name of the module
+ * @var Tree      $tree      The current tree
+ * @var Statistic $statistic
+ */
+?>
+
+<style>
+
+    [dir] figure {
+        margin: 0;
+    }
+
+    .card-title {
+        font-weight: 600;
+    }
+
+    .card-body {
+        text-align: center;
+    }
+
+    .dot {
+        height: 10px;
+        width: 10px;
+        background-color: rgb(200, 200, 200);
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    table.legend {
+        margin-top: 20px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    table.legend td {
+        padding: 0 5px;
+    }
+
+    table.legend td {
+        text-align: left;
+    }
+
+    table.legend td:nth-child(3) {
+        text-align: right;
+    }
+
+
+    svg.donutChart path.slice {
+        cursor: pointer;
+    }
+
+    .male {
+        fill: var(--sex-m-fg, rgb(129, 169, 203));
+        background-color: var(--sex-m-fg, rgb(129, 169, 203));
+    }
+
+    .female {
+        fill: var(--sex-f-fg, rgb(255, 32, 128));
+        background-color: var(--sex-f-fg, rgb(255, 32, 128));
+    }
+
+    .unknown {
+        fill: var(--sex-u-fg, rgb(129, 169, 203));
+        background-color: var(--sex-u-fg, rgb(129, 169, 203));
+    }
+
+    .living {
+        fill: #8dba9f;
+        background-color: #8dba9f;
+    }
+
+    .deceased {
+        fill: #cccccc;
+        background-color: #cccccc;
+    }
+
+    .married {
+        fill: #B5B1FF;
+        background-color: #B5B1FF;
+    }
+
+    .alone {
+        fill: #ACB5C4;
+        background-color: #ACB5C4;
+    }
+
+    .widowed {
+        fill: #8DBA9F;
+        background-color: #8DBA9F;
+    }
+
+    .divorced {
+        fill: #FFC99C;
+        background-color: #FFC99C;
+    }
+
+    svg.donutChart path.slice:hover {
+        opacity: .8;
+    }
+
+</style>
+
+<div class="container">
+    <div class="row row-cols-1 row-cols-md-2 g-3">
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title">Geschlecht</h5>
+                    <small><?= I18N::number($statistic->getTotalIndividuals()) ?> Personen</small>
+                </div>
+                <div class="card-body">
+                    <?php
+                        echo view(
+                            $module . '::modules/statistics-chart/Partials/DonutChart',
+                            [
+                                'identifier' => 'gender-donut-chart',
+                                'data'       => $statistic->getTotalIndividualsData(),
+                            ]
+                        );
+                    ?>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title">Lebend bzw. Verstorben</h5>
+                    <small><?= I18N::number($statistic->getTotalIndividuals()) ?> Personen</small>
+                </div>
+                <div class="card-body">
+                    <?php
+                        echo view(
+                            $module . '::modules/statistics-chart/Partials/DonutChart',
+                            [
+                                'identifier' => 'living-donut-chart',
+                                'data'       => $statistic->getTotalLivingDeceasedData(),
+                            ]
+                        );
+                    ?>
+                </div>
+            </div>
+        </div>
+
+<?php /*
+
+ TODO
+
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title">Verwandtschaftsstatus</h5>
+                    <small><?= I18N::number($statistic->getTotalIndividuals()) ?> Personen</small>
+                </div>
+                <div class="card-body">
+                    <?php
+                        echo view(
+                            $module . '::modules/statistics-chart/Partials/DonutChart',
+                            [
+                                'identifier' => 'family-status-donut-chart',
+                                'data'       => $statistic->getFamilyStatusData(),
+                            ]
+                        );
+                    ?>
+                </div>
+            </div>
+        </div>
+*/ ?>
+    </div>
+
+    <div class="row row-cols-1 row-cols-lg-3 g-3 mt-1 mb-3">
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title">Gängige Nachnamen</h5>
+                    <small><?= I18N::number($statistic->getTotalSurnames()) ?> Nachnamen (zeigt Top 15)</small>
+                </div>
+                <div class="card-body">
+                    <?php
+                        echo view(
+                            $module . '::modules/statistics-chart/Partials/TagCloud',
+                            [
+                                'data' => $statistic->getTopSurnames(15),
+                            ]
+                        );
+                    ?>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title">Beliebte Vornamen - Männlich</h5>
+                    <small><?= I18N::number($statistic->getTotalMaleGivenNames()) ?> männliche Vornamen (zeigt Top 15)</small>
+                </div>
+                <div class="card-body">
+                    <?php
+                        echo view(
+                            $module . '::modules/statistics-chart/Partials/TagCloud',
+                            [
+                                'data' => $statistic->getTopMaleGivenNames(15),
+                            ]
+                        );
+                    ?>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title">Beliebte Vornamen - Weiblich</h5>
+                    <small><?= I18N::number($statistic->getTotalFemaleGivenNames()) ?> weibliche Vornamen (zeigt Top 15)</small>
+                </div>
+                <div class="card-body">
+                    <?php
+                        echo view(
+                            $module . '::modules/statistics-chart/Partials/TagCloud',
+                            [
+                                'data' => $statistic->getTopFemaleGivenNames(15),
+                            ]
+                        );
+                    ?>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

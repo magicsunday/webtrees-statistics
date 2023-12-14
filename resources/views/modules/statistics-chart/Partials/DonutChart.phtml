@@ -1,0 +1,72 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+use Fisharebest\Webtrees\I18N;
+
+/**
+ * @var string $identifier
+ * @var array  $data
+ */
+?>
+
+<style>
+
+    .donut-chart-container {
+
+    }
+
+    .donut-chart-container .donut-chart {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        /*width: 100%;*/
+        height: 250px;
+    }
+
+</style>
+
+<div class="donut-chart-container">
+    <div id="<?= $identifier ?>" class="donut-chart"></div>
+
+    <table class="legend">
+        <?php foreach ($data as $entry): ?>
+            <tr>
+                <td>
+                    <span class="dot<?= isset($entry['class']) ? (' ' . $entry['class']) : '' ?>"
+                        <?= isset($entry['fill']) ? (' style="background-color: ' . $entry['fill'] . ';"') : '' ?>
+                    ></span>
+                </td>
+                <td><?= $entry['label'] ?></td>
+                <td><?= I18N::number($entry['value']) ?></td>
+            </tr>
+        <?php endforeach; ?>
+    </table>
+</div>
+
+<script>
+
+webtreesStatistics.draw(
+    <?= json_encode($identifier, JSON_THROW_ON_ERROR) ?>,
+    <?= json_encode($data, JSON_THROW_ON_ERROR) ?>,
+    {
+        type: "donut",
+
+        // width: 500,
+        // height: 400,
+
+        // margin: 10,
+
+        holeSize: 90
+    }
+)
+
+</script>
+

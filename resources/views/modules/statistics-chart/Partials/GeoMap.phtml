@@ -1,0 +1,59 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+use Fisharebest\Webtrees\Tree;
+
+/**
+ * @var string $identifier
+ * @var Tree   $tree
+ * @var array  $data
+ */
+?>
+
+<style>
+
+    .world-map-container .world-map {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+    }
+
+    .world-map-container .world-map svg path {
+        stroke: #ddd;
+        stroke-width: 0.5px;
+    }
+
+</style>
+
+<div class="world-map-container">
+    <div id="<?= $identifier ?>" class="world-map"></div>
+</div>
+
+<script>
+
+webtreesStatistics.draw(
+    <?= json_encode($identifier, JSON_THROW_ON_ERROR) ?>,
+    <?= json_encode($data, JSON_THROW_ON_ERROR) ?>,
+    {
+        type: "world-map",
+        color: {
+            range: {
+                start: window.getComputedStyle(document.getElementById(<?= json_encode($identifier, JSON_THROW_ON_ERROR) ?>)).getPropertyValue('--bs-progress-label-gradient-start'),
+                end:   window.getComputedStyle(document.getElementById(<?= json_encode($identifier, JSON_THROW_ON_ERROR) ?>)).getPropertyValue('--bs-progress-label-gradient-end')
+            }
+        },
+        width: 900,
+        height: 510
+    }
+);
+
+</script>
