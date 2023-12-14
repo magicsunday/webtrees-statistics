@@ -1,0 +1,95 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+use Fisharebest\Webtrees\Tree;
+use Fisharebest\Webtrees\View;
+
+/**
+ * @var Tree                 $tree       The current tree
+ * @var array<string,string> $tabs
+ * @var string               $module     The name of the module
+ * @var string               $title
+ * @var string               $javascript The javascript library to use
+ */
+?>
+
+<h2 class="wt-page-title">
+    <?= $title ?>
+</h2>
+
+<div class="wt-page-content wt-chart wt-statistics-chart" id="statistics-tabs">
+    <ul class="nav nav-tabs mb-3" role="tablist">
+        <?php foreach ($tabs as $label => $url) : ?>
+            <?php $hash = e(md5($url)); ?>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link"
+                        id="<?= $hash ?>-tab"
+                        href="#tab-<?= $hash ?>"
+                        data-bs-toggle="tab"
+                        data-wt-href="<?= e($url) ?>"
+                        role="tab"
+                        aria-controls="tab-<?= $hash ?>"
+                        aria-selected="false"
+                >
+                    <?= $label ?>
+                </a>
+            </li>
+        <?php endforeach ?>
+    </ul>
+
+    <div class="tab-content">
+        <?php foreach ($tabs as $url) : ?>
+            <?php $hash = e(md5($url)); ?>
+            <div class="tab-pane fade wt-ajax-load"
+                 role="tabpanel"
+                 id="tab-<?= $hash ?>"
+                 aria-labelledby="<?= $hash ?>-tab"></div>
+        <?php endforeach ?>
+    </div>
+</div>
+
+<?php View::push('javascript') ?>
+<script>
+
+'use strict';
+
+// Bootstrap tabs - load content dynamically using AJAX
+$('#statistics-tabs a[data-bs-toggle="tab"][data-wt-href]').on("show.bs.tab", function () {
+    $(this.getAttribute("href") + ":empty").load(this.dataset.wtHref);
+});
+
+// If the URL contains a fragment, then activate the corresponding tab.
+// Use a prefix on the fragment, to prevent scrolling to the element.
+let target = window.location.hash.replace("tab-", "");
+let tab = document.querySelector("#statistics-tabs .nav-link[href='" + target + "']");
+
+// If not, then activate the first tab.
+tab = tab ?? document.querySelector("#statistics-tabs .nav-link");
+tab.click();
+
+// If the user selects a tab, update the URL to reflect this
+$('#statistics-tabs a[data-bs-toggle="tab"]').on("shown.bs.tab", function (e) {
+    window.location.hash = "tab-" + e.target.href.substring(e.target.href.indexOf('#') + 1);
+});
+
+</script>
+<?php View::endpush() ?>
+
+
+<?php View::push('javascript'); ?>
+<script src="<?= e($javascript) ?>"></script>
+<script>
+
+// Create chart instance
+const webtreesStatistics = new WebtreesStatistic.Statistic();
+
+</script>
+<?php View::endpush(); ?>
