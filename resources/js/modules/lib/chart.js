@@ -5,8 +5,6 @@
  * LICENSE file distributed with this source code.
  */
 
-import * as d3 from "./../lib/d3";
-import * as topojson from "./../lib/topojson";
 import {DonutChart} from "./chart/donut-chart.js";
 import {WorldMap} from "./chart/world-map.js";
 

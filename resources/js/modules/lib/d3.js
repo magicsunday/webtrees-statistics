@@ -9,14 +9,10 @@
 https://github.com/d3/d3-array
 https://github.com/d3/d3-fetch
 https://github.com/d3/d3-geo
-https://github.com/d3/d3-hierarchy
-https://github.com/d3/d3-interpolate
 https://github.com/d3/d3-scale
-https://github.com/d3/d3-scale-chromatic
 https://github.com/d3/d3-selection
 https://github.com/d3/d3-shape
 https://github.com/d3/d3-transition
-https://github.com/d3/d3-zoom
 */
 
 export {
@@ -24,7 +20,7 @@ export {
 } from "d3-array";
 
 export {
-    json, text
+    json
 } from "d3-fetch";
 
 export {
@@ -32,23 +28,11 @@ export {
 } from "d3-geo";
 
 export {
-    hierarchy, partition
-} from "d3-hierarchy";
-
-export {
-    quantize
-} from "d3-interpolate";
-
-export {
-    scaleLinear, scaleOrdinal
+    scaleLinear
 } from "d3-scale";
 
 export {
-    interpolateSpectral
-} from "d3-scale-chromatic";
-
-export {
-    create, select, selectAll, pointer
+    select, selectAll, pointer
 } from "d3-selection";
 
 export {
@@ -58,5 +42,3 @@ export {
 export {
     transition
 } from "d3-transition";
-
-export * from "d3-zoom";
