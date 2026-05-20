@@ -16,8 +16,10 @@ use Fisharebest\Webtrees\StatisticsData;
 use MagicSunday\Webtrees\Statistic\Repository\EventRepository;
 use MagicSunday\Webtrees\Statistic\Repository\FamilyRepository;
 use MagicSunday\Webtrees\Statistic\Repository\NameRepository;
+use MagicSunday\Webtrees\Statistic\Repository\TreeHealthRepository;
 
 use function array_sum;
+use function array_values;
 use function count;
 use function is_array;
 use function usort;
@@ -39,19 +41,25 @@ final readonly class Statistic
     private const int NAME_FREQUENCY_THRESHOLD = 1;
 
     /**
-     * @param StatisticsData   $data             Core data accessor for individual, family and event counts
-     * @param FamilyRepository $familyRepository Census-style marital classification not exposed by core
-     * @param EventRepository  $eventRepository  Zodiac-sign grouping not exposed by core
-     * @param NameRepository   $nameRepository   Distinct primary-name counts (bypass commonSurnames/GivenNames limit-zero quirk)
+     * @param StatisticsData       $data                 Core data accessor for individual, family and event counts
+     * @param FamilyRepository     $familyRepository     Census-style marital classification not exposed by core
+     * @param EventRepository      $eventRepository      Zodiac-sign grouping not exposed by core
+     * @param NameRepository       $nameRepository       Distinct primary-name counts (bypass commonSurnames/GivenNames limit-zero quirk)
+     * @param TreeHealthRepository $treeHealthRepository Data-quality metrics: source coverage, missing-event gaps, generation length
      */
     public function __construct(
         private StatisticsData $data,
         private FamilyRepository $familyRepository,
         private EventRepository $eventRepository,
         private NameRepository $nameRepository,
+        private TreeHealthRepository $treeHealthRepository,
     ) {
     }
 
+    /**
+     * Total individuals in the tree (every status, including the
+     * unknown-sex and the deceased).
+     */
     public function getTotalIndividuals(): int
     {
         return $this->data->countIndividuals();
@@ -100,6 +108,10 @@ final readonly class Statistic
         ];
     }
 
+    /**
+     * Count of distinct primary surnames in the tree, computed from the
+     * same aggregation that feeds the Top-N tag cloud.
+     */
     public function getTotalSurnames(): int
     {
         return $this->nameRepository->countDistinctSurnames(self::NAME_FREQUENCY_THRESHOLD);
@@ -117,6 +129,10 @@ final readonly class Statistic
         );
     }
 
+    /**
+     * Count of distinct primary given names recorded on male
+     * individuals.
+     */
     public function getTotalMaleGivenNames(): int
     {
         return $this->nameRepository->countDistinctGivenNames('M', self::NAME_FREQUENCY_THRESHOLD);
@@ -134,6 +150,10 @@ final readonly class Statistic
         );
     }
 
+    /**
+     * Count of distinct primary given names recorded on female
+     * individuals.
+     */
     public function getTotalFemaleGivenNames(): int
     {
         return $this->nameRepository->countDistinctGivenNames('F', self::NAME_FREQUENCY_THRESHOLD);
@@ -215,6 +235,40 @@ final readonly class Statistic
     public function getDeathsByCountry(): array
     {
         return [];
+    }
+
+    /**
+     * Source-citation coverage as `{value, total}`, ready for the
+     * ProgressList partial to derive the percentage and absolute counts.
+     *
+     * @return array{value: int, total: int}
+     */
+    public function getSourceCitationCoverage(): array
+    {
+        return $this->treeHealthRepository->sourceCitationCoverage();
+    }
+
+    /**
+     * Missing-event gap rates for BIRT / DEAT, each split into "event
+     * missing" and "place missing" rows. Returned as `{event, kind,
+     * value, total}` tuples so the consumer can render its own label
+     * (keeping translations next to their consuming markup).
+     *
+     * @return array<int, array{event: string, kind: string, value: int, total: int}>
+     */
+    public function getMissingEventGaps(): array
+    {
+        return array_values($this->treeHealthRepository->missingEventGaps());
+    }
+
+    /**
+     * Average years between a parent's birth and a child's birth across
+     * every parent-child pair where both ends carry a parseable BIRT
+     * date. Returns null when the tree has no usable pair.
+     */
+    public function getAverageGenerationLength(): ?float
+    {
+        return $this->treeHealthRepository->averageGenerationLength();
     }
 
     /**

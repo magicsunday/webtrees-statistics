@@ -1,0 +1,63 @@
+0 HEAD
+1 SOUR webtrees-statistics-fixture
+2 NAME tree-health
+1 DEST ANSTFILE
+1 CHAR UTF-8
+1 SUBM @SUBM1@
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+0 @SUBM1@ SUBM
+1 NAME Fixture
+0 @S1@ SOUR
+1 TITL Church Register
+0 @I1@ INDI
+1 NAME Wellsourced Parent /Source/
+1 SEX M
+1 BIRT
+2 DATE 1 JAN 1900
+2 PLAC Berlin, Brandenburg, Germany
+2 SOUR @S1@
+1 DEAT
+2 DATE 1 JAN 1970
+2 PLAC Berlin, Brandenburg, Germany
+2 SOUR @S1@
+1 FAMS @F1@
+0 @I2@ INDI
+1 NAME Halfknown Parent /Halfdata/
+1 SEX F
+1 BIRT
+2 DATE 1 JAN 1902
+1 FAMS @F1@
+0 @F1@ FAM
+1 HUSB @I1@
+1 WIFE @I2@
+1 MARR
+2 DATE 1 JAN 1925
+1 CHIL @I3@
+1 CHIL @I4@
+0 @I3@ INDI
+1 NAME Known Child /Source/
+1 SEX M
+1 BIRT
+2 DATE 1 JAN 1928
+2 PLAC Berlin, Brandenburg, Germany
+2 SOUR @S1@
+1 DEAT
+2 DATE 1 JAN 2010
+2 PLAC Berlin, Brandenburg, Germany
+1 FAMC @F1@
+0 @I4@ INDI
+1 NAME Sparse Child /Nodata/
+1 SEX F
+1 FAMC @F1@
+0 @I5@ INDI
+1 NAME Onlybirth Person /Nosource/
+1 SEX F
+1 BIRT
+2 DATE 1 JAN 1950
+2 PLAC Hamburg, Germany
+0 @I6@ INDI
+1 NAME Nothing Recorded /Stub/
+1 SEX U
+0 TRLR

@@ -18,13 +18,12 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\MaritalBucket;
 use MagicSunday\Webtrees\Statistic\Model\FamilyRow;
+use MagicSunday\Webtrees\Statistic\Support\GedcomScanner;
 
 use function array_key_exists;
 use function array_unique;
 use function array_values;
 use function is_string;
-use function str_contains;
-use function str_ends_with;
 
 /**
  * Classifies every living individual in a tree into exactly one marital
@@ -216,7 +215,7 @@ final readonly class FamilyRepository
             }
 
             $out[$partnerId] = ($partnerGedcom !== null)
-                && $this->hasAnyTagAnchored($partnerGedcom, Gedcom::DEATH_EVENTS);
+                && GedcomScanner::hasAnyTagAnchored($partnerGedcom, Gedcom::DEATH_EVENTS);
         }
 
         return $out;
@@ -242,8 +241,8 @@ final readonly class FamilyRepository
 
             $partnerId = $this->partnerIdOf($row);
 
-            $isMarriage = $this->hasAnyTagAnchored($row->familyGedcom, self::MARRIAGE_TAGS);
-            $isDivorced = $this->hasAnyTagAnchored($row->familyGedcom, self::DIVORCE_TAGS);
+            $isMarriage = GedcomScanner::hasAnyTagAnchored($row->familyGedcom, self::MARRIAGE_TAGS);
+            $isDivorced = GedcomScanner::hasAnyTagAnchored($row->familyGedcom, self::DIVORCE_TAGS);
 
             // A family that is neither a marriage nor an ended marriage does
             // not contribute to any bucket — the individual stays in
@@ -309,31 +308,6 @@ final readonly class FamilyRepository
         }
 
         return ($partner === $row->individualId) ? null : $partner;
-    }
-
-    /**
-     * True if the GEDCOM blob contains `\n1 <tag>` for any tag in the list,
-     * anchored so substring tags (e.g. `DIV` vs `DIVF`) do not collide. The
-     * anchor is one of: trailing space, trailing newline, or end-of-string.
-     *
-     * @param string             $gedcom Raw GEDCOM record body
-     * @param array<int, string> $tags   Level-1 tags to test for
-     */
-    private function hasAnyTagAnchored(string $gedcom, array $tags): bool
-    {
-        foreach ($tags as $tag) {
-            $prefix = "\n1 " . $tag;
-
-            if (
-                str_contains($gedcom, $prefix . ' ')
-                || str_contains($gedcom, $prefix . "\n")
-                || str_ends_with($gedcom, $prefix)
-            ) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**

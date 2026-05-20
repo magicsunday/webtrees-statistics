@@ -16,9 +16,101 @@ use MagicSunday\Webtrees\Statistic\Statistic;
  * @var string    $module    The name of the module
  * @var Statistic $statistic
  */
+$sourceCoverage = $statistic->getSourceCitationCoverage();
+$gaps           = $statistic->getMissingEventGaps();
+$generation     = $statistic->getAverageGenerationLength();
+
+$gapLabels = [
+    'BIRT.event' => I18N::translate('Missing birth event'),
+    'BIRT.place' => I18N::translate('Missing birth place'),
+    'DEAT.event' => I18N::translate('Missing death event'),
+    'DEAT.place' => I18N::translate('Missing death place'),
+];
+
+$gapRows = [];
+
+foreach ($gaps as $gap) {
+    $key       = $gap['event'] . '.' . $gap['kind'];
+    $gapRows[] = [
+        'label' => $gapLabels[$key] ?? ($gap['event'] . ' / ' . $gap['kind']),
+        'value' => $gap['value'],
+        'total' => $gap['total'],
+    ];
+}
 ?>
 <div class="container">
-    <div class="alert alert-light mb-0" role="status">
-        <?php echo I18N::translate('Tree-health metrics will populate this tab in a follow-up release.'); ?>
+    <div class="row row-cols-1 row-cols-md-2 g-3">
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('Source-citation coverage'); ?></h5>
+                    <small><?php echo I18N::translate('Individuals with at least one source linked to their record.'); ?></small>
+                </div>
+                <div class="card-body">
+                    <?php
+                        echo view(
+                            $module . '::modules/statistics-chart/Partials/RateList',
+                            [
+                                'class' => 'progress-tree-health',
+                                'data'  => [
+                                    [
+                                        'label' => I18N::translate('Documented individuals'),
+                                        'value' => $sourceCoverage['value'],
+                                        'total' => $sourceCoverage['total'],
+                                    ],
+                                ],
+                            ],
+                        );
+?>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('Average generation length'); ?></h5>
+                    <small><?php echo I18N::translate('Mean parent-to-child birth-year delta across the whole tree.'); ?></small>
+                </div>
+                <div class="card-body d-flex align-items-center justify-content-center">
+                    <?php
+    echo view(
+        $module . '::modules/statistics-chart/Partials/Scalar',
+        [
+            'value' => ($generation !== null)
+                ? I18N::number((int) round($generation))
+                : I18N::translate('no data'),
+            'unit'    => ($generation !== null) ? I18N::translate('years') : null,
+            'caption' => ($generation !== null)
+                ? I18N::translate('Parent-to-child birth-year delta, averaged across every usable pair.')
+                : I18N::translate('At least one parent-child pair with parseable birth dates is required.'),
+        ],
+    );
+?>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 g-3 mt-1 mb-3">
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('Missing-event gaps'); ?></h5>
+                    <small><?php echo I18N::translate('Share of individuals without a recorded birth or death event, with or without a place.'); ?></small>
+                </div>
+                <div class="card-body">
+                    <?php
+    echo view(
+        $module . '::modules/statistics-chart/Partials/RateList',
+        [
+            'class' => 'progress-tree-health-gap',
+            'data'  => $gapRows,
+        ],
+    );
+?>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

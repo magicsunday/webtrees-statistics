@@ -18,6 +18,7 @@ use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Services\GedcomImportService;
 use Fisharebest\Webtrees\Services\MigrationService;
 use Fisharebest\Webtrees\Services\TreeService;
+use Fisharebest\Webtrees\Site;
 use Fisharebest\Webtrees\Tree;
 use Fisharebest\Webtrees\Webtrees;
 use Illuminate\Database\Capsule\Manager as Capsule;
@@ -49,6 +50,12 @@ abstract class IntegrationTestCase extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        // Drop any site preferences cached from a previous test —
+        // MigrationService reads WT_SCHEMA_VERSION from this static and
+        // a stale value would skip the schema build, leaving us with an
+        // empty :memory: database that the seed phase then can't query.
+        Site::$preferences = [];
 
         // Boot webtrees' DI container so Registry::container() resolves —
         // every service the import path touches (Log, Site, Gedcom factory)
@@ -83,6 +90,11 @@ abstract class IntegrationTestCase extends TestCase
     protected function tearDown(): void
     {
         DB::connection()->disconnect();
+
+        // Wipe the static site-preferences cache so the next test's
+        // fresh :memory: database does not see this run's schema version.
+        Site::$preferences = [];
+
         parent::tearDown();
     }
 

@@ -32,6 +32,13 @@
     --wmstats-gradient-deaths-start:       rgb(188, 186, 184);
     --wmstats-gradient-deaths-end:         rgb(92, 81, 70);
 
+    --wmstats-gradient-tree-health-start:  rgb(204, 224, 215);
+    --wmstats-gradient-tree-health-end:    rgb(64, 144, 116);
+    --wmstats-gradient-tree-health-gap-start: rgb(244, 213, 192);
+    --wmstats-gradient-tree-health-gap-end:   rgb(214, 122, 80);
+
+    --wmstats-scalar-value:                var(--bs-emphasis-color, rgb(33, 37, 41));
+
     --wmstats-sex-male:                    var(--sex-m-fg, rgb(129, 169, 203));
     --wmstats-sex-female:                  var(--sex-f-fg, rgb(255, 32, 128));
     --wmstats-sex-unknown:                 var(--sex-u-fg, rgb(129, 169, 203));
@@ -57,6 +64,11 @@
     --wmstats-gradient-births-end:         rgb(82, 174, 137);
     --wmstats-gradient-deaths-start:       rgb(160, 156, 152);
     --wmstats-gradient-deaths-end:         rgb(178, 162, 144);
+
+    --wmstats-gradient-tree-health-start:  rgb(110, 160, 140);
+    --wmstats-gradient-tree-health-end:    rgb(72, 184, 138);
+    --wmstats-gradient-tree-health-gap-start: rgb(200, 150, 120);
+    --wmstats-gradient-tree-health-gap-end:   rgb(232, 142, 88);
 
     --wmstats-sex-male:                    var(--sex-m-fg, rgb(120, 160, 210));
     --wmstats-sex-female:                  var(--sex-f-fg, rgb(245, 130, 175));
@@ -220,6 +232,46 @@
 
 .wt-statistics-chart .progress-deaths-century {
     background-color: var(--wmstats-progress-bg-deaths-century) !important;
+}
+
+/* ----------------------------------------------------------------------
+   Tree-health rate bars + scalar readout
+   -------------------------------------------------------------------- */
+
+.wt-statistics-chart .progress-tree-health {
+    --bs-progress-label-gradient-start: var(--wmstats-gradient-tree-health-start);
+    --bs-progress-label-gradient-end:   var(--wmstats-gradient-tree-health-end);
+}
+
+.wt-statistics-chart .progress-tree-health-gap {
+    --bs-progress-label-gradient-start: var(--wmstats-gradient-tree-health-gap-start);
+    --bs-progress-label-gradient-end:   var(--wmstats-gradient-tree-health-gap-end);
+}
+
+.wt-statistics-chart .wt-stat-scalar {
+    padding: 1.5rem 0;
+}
+
+.wt-statistics-chart .wt-stat-scalar-value {
+    font-size:        clamp(2rem, 4vw, 3rem);
+    font-weight:      600;
+    line-height:      1.1;
+    color:            var(--wmstats-scalar-value);
+    font-variant-numeric: tabular-nums;
+}
+
+.wt-statistics-chart .wt-stat-scalar-unit {
+    font-size:   0.5em;
+    font-weight: 400;
+    color:       var(--wmstats-card-muted);
+    margin-left: 0.25em;
+}
+
+.wt-statistics-chart .wt-stat-scalar-caption {
+    display:    block;
+    margin-top: 0.5rem;
+    max-width:  28em;
+    margin-inline: auto;
 }
 
 /* ----------------------------------------------------------------------

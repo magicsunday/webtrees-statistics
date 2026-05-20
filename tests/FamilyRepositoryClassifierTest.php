@@ -12,8 +12,9 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test;
 
 use MagicSunday\Webtrees\Statistic\MaritalBucket;
-use MagicSunday\Webtrees\Statistic\Repository\FamilyRepository;
 use MagicSunday\Webtrees\Statistic\Model\FamilyRow;
+use MagicSunday\Webtrees\Statistic\Repository\FamilyRepository;
+use MagicSunday\Webtrees\Statistic\Support\GedcomScanner;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -91,7 +92,9 @@ final class FamilyRepositoryClassifierTest extends TestCase
 
     /**
      * Anchored tag matching must distinguish `1 DIV` from `1 DIVF` so the
-     * "Divorced" bucket does not absorb annulment-filed records.
+     * "Divorced" bucket does not absorb annulment-filed records. The
+     * classifier delegates to {@see GedcomScanner::hasAnyTagAnchored()},
+     * so the contract test runs against the shared helper directly.
      *
      * @param list<string> $tags
      */
@@ -99,8 +102,7 @@ final class FamilyRepositoryClassifierTest extends TestCase
     #[DataProvider('anchoredTagSamples')]
     public function hasAnyTagAnchoredRecognisesLevelOneTags(string $gedcom, array $tags, bool $expected): void
     {
-        $actual = $this->invokeHasAnyTagAnchored($gedcom, $tags);
-        self::assertSame($expected, $actual);
+        self::assertSame($expected, GedcomScanner::hasAnyTagAnchored($gedcom, $tags));
     }
 
     /**
@@ -249,17 +251,6 @@ final class FamilyRepositoryClassifierTest extends TestCase
         $repo   = $this->newRepoWithoutTree();
 
         return $method->invoke($repo, $row);
-    }
-
-    /**
-     * @param list<string> $tags
-     */
-    private function invokeHasAnyTagAnchored(string $gedcom, array $tags): bool
-    {
-        $method = new ReflectionMethod(FamilyRepository::class, 'hasAnyTagAnchored');
-        $repo   = $this->newRepoWithoutTree();
-
-        return $method->invoke($repo, $gedcom, $tags);
     }
 
     /**

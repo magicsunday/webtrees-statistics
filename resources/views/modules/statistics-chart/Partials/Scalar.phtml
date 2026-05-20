@@ -1,0 +1,30 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
+
+/**
+ * Renders a single big-number readout — used by data-quality cards that
+ * surface one tree-wide metric (e.g. average generation length).
+ *
+ * @var string      $value   Pre-formatted primary value (e.g. "28 years")
+ * @var string      $caption Short caption shown beneath the value
+ * @var string|null $unit    Optional unit appended to the value (kept null when the value is already formatted)
+ */
+$unit ??= null;
+?>
+<div class="wt-stat-scalar text-center">
+    <div class="wt-stat-scalar-value">
+        <?php echo e($value); ?>
+        <?php if ($unit !== null && $unit !== '') { ?>
+            <span class="wt-stat-scalar-unit"><?php echo e($unit); ?></span>
+        <?php } ?>
+    </div>
+    <small class="wt-stat-scalar-caption text-muted"><?php echo e($caption); ?></small>
+</div>
