@@ -16,12 +16,13 @@ use Fisharebest\Webtrees\I18N;
  * @var array<int, array{label: string, value: int, class?: string, fill?: string}> $data Slice payload
  */
 ?>
-<div class="donut-chart-container"
-     data-widget="donut"
-     data-payload="<?php echo e(json_encode($data, JSON_THROW_ON_ERROR)); ?>"
-     data-options="<?php echo e(json_encode(['holeSize' => 90], JSON_THROW_ON_ERROR)); ?>"
->
-    <div id="<?php echo e($identifier); ?>" class="donut-chart"></div>
+<div class="donut-chart-container">
+    <div id="<?php echo e($identifier); ?>"
+         class="donut-chart"
+         data-widget="donut"
+         data-payload="<?php echo e(json_encode($data, JSON_THROW_ON_ERROR)); ?>"
+         data-options="<?php echo e(json_encode(['holeSize' => 90, 'width' => 250, 'height' => 250], JSON_THROW_ON_ERROR)); ?>"
+    ></div>
 
     <table class="legend">
         <?php foreach ($data as $entry) { ?>

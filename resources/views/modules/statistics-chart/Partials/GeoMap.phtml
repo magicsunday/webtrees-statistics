@@ -17,10 +17,11 @@ use Fisharebest\Webtrees\Tree;
  * @var array<int, array{countryCode: string, label: string, count: int}> $data
  */
 ?>
-<div class="world-map-container"
-     data-widget="world-map"
-     data-payload="<?php echo e(json_encode($data, JSON_THROW_ON_ERROR)); ?>"
-     data-options="<?php echo e(json_encode(['width' => 900, 'height' => 510], JSON_THROW_ON_ERROR)); ?>"
->
-    <div id="<?php echo e($identifier); ?>" class="world-map"></div>
+<div class="world-map-container">
+    <div id="<?php echo e($identifier); ?>"
+         class="world-map"
+         data-widget="world-map"
+         data-payload="<?php echo e(json_encode($data, JSON_THROW_ON_ERROR)); ?>"
+         data-options="<?php echo e(json_encode(['width' => 900, 'height' => 510], JSON_THROW_ON_ERROR)); ?>"
+    ></div>
 </div>

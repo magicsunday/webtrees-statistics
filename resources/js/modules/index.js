@@ -5,22 +5,79 @@
  * LICENSE file distributed with this source code.
  */
 
-import drawDonut from "./widgets/donut.js";
-import drawWorldMap from "./widgets/world-map.js";
-import drawStreamGraph from "./widgets/stream-graph.js";
-import drawSankeyFlow from "./widgets/sankey-flow.js";
+import { json } from "d3-fetch";
+import { geoMercator } from "d3-geo";
+
+import { DonutChart, SankeyFlow, StreamGraph, WorldMap } from "@magicsunday/webtrees-chart-lib";
+
+const WORLD_GEOJSON_URL =
+    "/index.php?route=%2Fmodule%2F_webtrees-statistics_%2FAsset&asset=js/world-map.geojson";
+
+let cachedGeoJson = null;
+
+/**
+ * Lazily load (and cache) the world GeoJSON. The chart-lib WorldMap
+ * widget needs the FeatureCollection up-front in its options; we
+ * fetch it once per page load and reuse for every map render.
+ *
+ * @returns {Promise<object>} The parsed FeatureCollection.
+ */
+async function loadWorldGeoJson() {
+    if (cachedGeoJson === null) {
+        cachedGeoJson = await json(WORLD_GEOJSON_URL);
+    }
+    return cachedGeoJson;
+}
+
+/**
+ * Adapter that turns a chart-lib widget class (`new Widget(node, opts).draw(data)`)
+ * into the functional `(node, data, options)` shape the dispatcher
+ * uses. Keeps the dispatch table flat.
+ *
+ * @param {{new (node: HTMLElement, options: object): {draw: (data: unknown) => unknown}}} Widget Chart-lib widget class.
+ *
+ * @returns {(node: HTMLElement, data: unknown, options: object) => unknown}
+ */
+function fromChartLib(Widget) {
+    return (node, data, options) => new Widget(node, options).draw(data);
+}
+
+/**
+ * Asynchronous world-map dispatcher. Fetches (and caches) the
+ * geojson, then hands it to the chart-lib WorldMap widget alongside
+ * a d3-geo Mercator projection. Same async return shape as the
+ * other widgets even though they resolve synchronously, so callers
+ * never have to special-case the map.
+ *
+ * @param {HTMLElement} node
+ * @param {unknown}     data
+ * @param {object}      options
+ *
+ * @returns {Promise<unknown>}
+ */
+async function drawWorldMap(node, data, options) {
+    const geojson = await loadWorldGeoJson();
+    const widget = new WorldMap(node, {
+        ...options,
+        geojson,
+        projection: geoMercator(),
+    });
+    return widget.draw(data);
+}
 
 /**
  * Dispatch table mapping a `data-widget` attribute value to its
- * draw function. Each draw is `(node, data, options) => Node|null`.
+ * draw function. Every widget is a chart-lib widget; the world map
+ * just needs a pre-fetch hop to load the GeoJSON the widget
+ * consumes via its constructor.
  *
- * @type {Object<String, function(HTMLElement, *, Object): Node|null>}
+ * @type {Object<string, (node: HTMLElement, data: unknown, options: object) => unknown>}
  */
 const WIDGETS = {
-    donut: drawDonut,
+    donut: fromChartLib(DonutChart),
     "world-map": drawWorldMap,
-    "stream-graph": drawStreamGraph,
-    "sankey-flow": drawSankeyFlow,
+    "stream-graph": fromChartLib(StreamGraph),
+    "sankey-flow": fromChartLib(SankeyFlow),
 };
 
 /**
@@ -62,7 +119,7 @@ export function renderWidgets(root) {
  * so a corrupt payload is debuggable but never breaks the render
  * loop for sibling widgets.
  *
- * @param {String|undefined} raw      The serialised JSON string.
+ * @param {string|undefined} raw      The serialised JSON string.
  * @param {*}                fallback Value returned when parse fails / input is empty.
  *
  * @returns {*}
@@ -75,7 +132,6 @@ function parseJsonAttribute(raw, fallback) {
     try {
         return JSON.parse(raw);
     } catch (error) {
-        // eslint-disable-next-line no-console
         console.error("renderWidgets: unable to parse widget payload", error);
         return fallback;
     }

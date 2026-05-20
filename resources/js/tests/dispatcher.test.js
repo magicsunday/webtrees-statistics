@@ -11,28 +11,76 @@
 
 import { describe, expect, jest, test, beforeEach, afterEach } from "@jest/globals";
 
-// Mock every widget so the dispatcher's wiring (parse, lookup, call)
-// can be observed without dragging d3 into the test bundle.
-const drawDonut = jest.fn();
-const drawWorldMap = jest.fn();
-const drawStreamGraph = jest.fn();
-const drawSankeyFlow = jest.fn();
+// Mock the chart-lib widget classes so the dispatcher's wiring
+// (parse, lookup, call) can be observed without dragging d3 into
+// the test bundle. Each class mock exposes a single `draw` spy
+// reachable through the instance.
+const donutDrawSpy = jest.fn();
+const streamGraphDrawSpy = jest.fn();
+const sankeyFlowDrawSpy = jest.fn();
+const worldMapDrawSpy = jest.fn();
 
-jest.unstable_mockModule("../modules/widgets/donut.js", () => ({ default: drawDonut }));
-jest.unstable_mockModule("../modules/widgets/world-map.js", () => ({ default: drawWorldMap }));
-jest.unstable_mockModule("../modules/widgets/stream-graph.js", () => ({
-    default: drawStreamGraph,
+class DonutChart {
+    constructor(node, options) {
+        this.node = node;
+        this.options = options;
+    }
+    draw(data) {
+        donutDrawSpy(this.node, data, this.options);
+    }
+}
+class StreamGraph {
+    constructor(node, options) {
+        this.node = node;
+        this.options = options;
+    }
+    draw(data) {
+        streamGraphDrawSpy(this.node, data, this.options);
+    }
+}
+class SankeyFlow {
+    constructor(node, options) {
+        this.node = node;
+        this.options = options;
+    }
+    draw(data) {
+        sankeyFlowDrawSpy(this.node, data, this.options);
+    }
+}
+class WorldMap {
+    constructor(node, options) {
+        this.node = node;
+        this.options = options;
+    }
+    draw(data) {
+        worldMapDrawSpy(this.node, data, this.options);
+    }
+}
+
+jest.unstable_mockModule("@magicsunday/webtrees-chart-lib", () => ({
+    DonutChart,
+    StreamGraph,
+    SankeyFlow,
+    WorldMap,
 }));
-jest.unstable_mockModule("../modules/widgets/sankey-flow.js", () => ({ default: drawSankeyFlow }));
+
+// world-map dispatch is async (geojson fetch); mock d3-fetch + d3-geo
+// so the fetch resolves to an empty FeatureCollection synchronously.
+jest.unstable_mockModule("d3-fetch", () => ({
+    json: () => Promise.resolve({ type: "FeatureCollection", features: [] }),
+}));
+jest.unstable_mockModule("d3-geo", () => ({
+    geoMercator: () => ({ fitSize: () => {} }),
+}));
 
 const { renderWidgets } = await import("../modules/index.js");
 
 describe("renderWidgets", () => {
     beforeEach(() => {
-        drawDonut.mockClear();
-        drawWorldMap.mockClear();
-        drawStreamGraph.mockClear();
-        drawSankeyFlow.mockClear();
+        donutDrawSpy.mockClear();
+        worldMapDrawSpy.mockClear();
+        streamGraphDrawSpy.mockClear();
+        sankeyFlowDrawSpy.mockClear();
         document.body.innerHTML = "";
     });
 
@@ -49,8 +97,8 @@ describe("renderWidgets", () => {
 
         renderWidgets(document.body);
 
-        expect(drawDonut).toHaveBeenCalledTimes(1);
-        const [node, data, options] = drawDonut.mock.calls[0];
+        expect(donutDrawSpy).toHaveBeenCalledTimes(1);
+        const [node, data, options] = donutDrawSpy.mock.calls[0];
         expect(node.id).toBe("d1");
         expect(data).toEqual([{ label: "Male", value: 1, class: "male" }]);
         expect(options).toEqual({});
@@ -66,8 +114,8 @@ describe("renderWidgets", () => {
 
         renderWidgets(document.body);
 
-        expect(drawStreamGraph).toHaveBeenCalledTimes(1);
-        const [, , options] = drawStreamGraph.mock.calls[0];
+        expect(streamGraphDrawSpy).toHaveBeenCalledTimes(1);
+        const [, , options] = streamGraphDrawSpy.mock.calls[0];
         expect(options).toEqual({ height: 280 });
     });
 
@@ -76,17 +124,17 @@ describe("renderWidgets", () => {
 
         renderWidgets(document.body);
 
-        expect(drawDonut).not.toHaveBeenCalled();
-        expect(drawWorldMap).not.toHaveBeenCalled();
-        expect(drawStreamGraph).not.toHaveBeenCalled();
-        expect(drawSankeyFlow).not.toHaveBeenCalled();
+        expect(donutDrawSpy).not.toHaveBeenCalled();
+        expect(worldMapDrawSpy).not.toHaveBeenCalled();
+        expect(streamGraphDrawSpy).not.toHaveBeenCalled();
+        expect(sankeyFlowDrawSpy).not.toHaveBeenCalled();
     });
 
     test("skips unknown widget types without throwing", () => {
         document.body.innerHTML = '<div data-widget="unknown-widget" data-payload="[]"></div>';
 
         expect(() => renderWidgets(document.body)).not.toThrow();
-        expect(drawDonut).not.toHaveBeenCalled();
+        expect(donutDrawSpy).not.toHaveBeenCalled();
     });
 
     test("recovers from a corrupt data-payload by passing the fallback", () => {
@@ -101,14 +149,14 @@ describe("renderWidgets", () => {
         renderWidgets(document.body);
 
         expect(errorSpy).toHaveBeenCalled();
-        expect(drawDonut).toHaveBeenCalledTimes(2);
-        expect(drawDonut.mock.calls[0][1]).toBeNull();
-        expect(drawDonut.mock.calls[1][1]).toEqual([{ label: "X", value: 2 }]);
+        expect(donutDrawSpy).toHaveBeenCalledTimes(2);
+        expect(donutDrawSpy.mock.calls[0][1]).toBeNull();
+        expect(donutDrawSpy.mock.calls[1][1]).toEqual([{ label: "X", value: 2 }]);
 
         errorSpy.mockRestore();
     });
 
-    test("dispatches every widget type in a multi-card tab", () => {
+    test("dispatches every widget type in a multi-card tab", async () => {
         document.body.innerHTML = `
             <div data-widget="donut"        data-payload='[]'></div>
             <div data-widget="world-map"    data-payload='[]'></div>
@@ -118,10 +166,14 @@ describe("renderWidgets", () => {
 
         renderWidgets(document.body);
 
-        expect(drawDonut).toHaveBeenCalledTimes(1);
-        expect(drawWorldMap).toHaveBeenCalledTimes(1);
-        expect(drawStreamGraph).toHaveBeenCalledTimes(1);
-        expect(drawSankeyFlow).toHaveBeenCalledTimes(1);
+        // world-map resolves through a Promise — flush the microtask queue.
+        await Promise.resolve();
+        await Promise.resolve();
+
+        expect(donutDrawSpy).toHaveBeenCalledTimes(1);
+        expect(worldMapDrawSpy).toHaveBeenCalledTimes(1);
+        expect(streamGraphDrawSpy).toHaveBeenCalledTimes(1);
+        expect(sankeyFlowDrawSpy).toHaveBeenCalledTimes(1);
     });
 
     test("initialises Bootstrap popovers attached to chart-header info buttons", () => {
