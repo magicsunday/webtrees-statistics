@@ -14,6 +14,8 @@ namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 use MagicSunday\Webtrees\Statistic\Repository\GivenNameTrendsRepository;
 use PHPUnit\Framework\Attributes\Test;
 
+use function count;
+
 /**
  * End-to-end test of the per-decade given-name aggregator against a
  * curated fixture covering: a name peaking in one decade, a name with
@@ -39,9 +41,15 @@ final class GivenNameTrendsRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('name-trends.ged');
         $result = (new GivenNameTrendsRepository($tree))->countByDecade(10);
 
-        // Decades present in the fixture (the 1900 birth contributes to
-        // the 1900s decade, the 1905 birth also lands there).
-        self::assertSame([1850, 1860, 1900, 1950, 1960], $result['decades']);
+        // Decades span the entire dated population (1850 → 1960) in
+        // ten-year steps, including the two gap decades (1870s, 1880s,
+        // 1890s, 1910s, 1920s, 1930s, 1940s) where the top names have
+        // no births. Holding the full range stable lets the renderer
+        // show fade-out tails at both ends of the stream.
+        self::assertSame(
+            [1850, 1860, 1870, 1880, 1890, 1900, 1910, 1920, 1930, 1940, 1950, 1960],
+            $result['decades'],
+        );
 
         // Top-N order: arsort is stable, so within a tie the first-seen
         // name wins. The fixture insertion order is Anna, Friedrich,
@@ -57,7 +65,14 @@ final class GivenNameTrendsRepositoryIntegrationTest extends IntegrationTestCase
             [
                 1850 => 2,
                 1860 => 0,
+                1870 => 0,
+                1880 => 0,
+                1890 => 0,
                 1900 => 1,
+                1910 => 0,
+                1920 => 0,
+                1930 => 0,
+                1940 => 0,
                 1950 => 0,
                 1960 => 0,
             ],
@@ -65,27 +80,9 @@ final class GivenNameTrendsRepositoryIntegrationTest extends IntegrationTestCase
             'Anna peaks twice — in the 1850s and again in the 1900s',
         );
 
-        self::assertSame(
-            [
-                1850 => 0,
-                1860 => 2,
-                1900 => 0,
-                1950 => 0,
-                1960 => 0,
-            ],
-            $result['series']['Friedrich'],
-        );
-
-        self::assertSame(
-            [
-                1850 => 0,
-                1860 => 0,
-                1900 => 0,
-                1950 => 3,
-                1960 => 0,
-            ],
-            $result['series']['Hans'],
-        );
+        self::assertSame(3, $result['series']['Hans'][1950] ?? null);
+        self::assertSame(2, $result['series']['Friedrich'][1860] ?? null);
+        self::assertSame(0, $result['series']['Friedrich'][1900] ?? null);
     }
 
     /**
@@ -101,9 +98,17 @@ final class GivenNameTrendsRepositoryIntegrationTest extends IntegrationTestCase
         $result = (new GivenNameTrendsRepository($tree))->countByDecade(2);
 
         self::assertSame(['Anna', 'Hans'], $result['names']);
-        self::assertSame([1850, 1900, 1950], $result['decades']);
 
-        self::assertSame([1850 => 2, 1900 => 1, 1950 => 0], $result['series']['Anna']);
-        self::assertSame([1850 => 0, 1900 => 0, 1950 => 3], $result['series']['Hans']);
+        // Decade range still spans the entire population's birth history
+        // (1850–1960). The smaller top-N only narrows the bands, never
+        // the x-axis.
+        self::assertSame(12, count($result['decades']));
+        self::assertSame(1850, $result['decades'][0]);
+        self::assertSame(1960, $result['decades'][11]);
+
+        self::assertSame(2, $result['series']['Anna'][1850]);
+        self::assertSame(1, $result['series']['Anna'][1900]);
+        self::assertSame(0, $result['series']['Anna'][1950]);
+        self::assertSame(3, $result['series']['Hans'][1950]);
     }
 }

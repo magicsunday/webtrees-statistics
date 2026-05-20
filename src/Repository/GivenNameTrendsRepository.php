@@ -20,10 +20,15 @@ use MagicSunday\Webtrees\Statistic\Support\GedcomScanner;
 use function array_keys;
 use function array_slice;
 use function arsort;
-use function explode;
 use function intdiv;
 use function is_string;
+use function max;
+use function min;
 use function preg_match;
+use function preg_split;
+use function range;
+
+use const PREG_SPLIT_NO_EMPTY;
 
 /**
  * Per-decade frequency of the top-N given names across the tree.
@@ -101,8 +106,12 @@ final readonly class GivenNameTrendsRepository
             }
         }
 
-        ksort($byDecade);
-        $decades = array_keys($byDecade);
+        // Decade range spans the entire population's birth history, not
+        // just the decades the top-N happens to cover. This keeps the
+        // tail decades visible even when classic names die out: bands
+        // taper to zero, telling the user "modern births are dominated
+        // by names outside the top-N".
+        $decades = $this->collectDecadeRange($rows);
 
         // Materialise dense rows so the renderer always sees every name
         // for every decade (missing entries default to zero).
@@ -121,6 +130,32 @@ final readonly class GivenNameTrendsRepository
             'names'   => $topNames,
             'series'  => $series,
         ];
+    }
+
+    /**
+     * Build the dense list of decade buckets that span the entire
+     * population's birth history (no gaps).
+     *
+     * @param list<array{givn: string, year: int}> $rows
+     *
+     * @return list<int>
+     */
+    private function collectDecadeRange(array $rows): array
+    {
+        if ($rows === []) {
+            return [];
+        }
+
+        $years = [];
+
+        foreach ($rows as $entry) {
+            $years[] = $entry['year'];
+        }
+
+        $minDecade = intdiv(min($years), 10) * 10;
+        $maxDecade = intdiv(max($years), 10) * 10;
+
+        return range($minDecade, $maxDecade, 10);
     }
 
     /**
@@ -173,21 +208,26 @@ final readonly class GivenNameTrendsRepository
     }
 
     /**
-     * Split a given-name string on whitespace into countable tokens,
-     * dropping initials and short particles using the same regex
-     * webtrees core's `StatisticsData::commonGivenNames()` applies.
+     * Split a given-name string on Unicode whitespace into countable
+     * tokens, dropping initials and short particles using the same
+     * regex webtrees core's `StatisticsData::commonGivenNames()`
+     * applies. `preg_split('/\s+/u', …)` recognises tabs and NBSP as
+     * separators too, so a hand-edited name with stray whitespace
+     * still tokenises cleanly.
      *
      * @return list<string>
      */
     private function splitTokens(string $givn): array
     {
+        $rawTokens = preg_split('/\s+/u', $givn, -1, PREG_SPLIT_NO_EMPTY);
+
+        if ($rawTokens === false) {
+            return [];
+        }
+
         $tokens = [];
 
-        foreach (explode(' ', $givn) as $token) {
-            if ($token === '') {
-                continue;
-            }
-
+        foreach ($rawTokens as $token) {
             if (preg_match(self::PARTICLE_REGEX, $token) === 1) {
                 continue;
             }
