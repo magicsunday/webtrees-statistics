@@ -22,11 +22,18 @@ $birthsByCentury    = $statistic->getBirthsByCentury();
 $deathsByMonth      = $statistic->getDeathsByMonth();
 $deathsByCentury    = $statistic->getDeathsByCentury();
 
+$ageAtDeath        = $statistic->getAgeAtDeathDistribution();
+$topOldestDeceased = $statistic->getTopOldestDeceased(10);
+$topOldestLiving   = $statistic->getTopOldestLiving(10);
+$livingByAgeBand   = $statistic->getLivingByAgeBand();
+
 $totalBirthsByMonth   = array_sum($birthsByMonth);
 $totalBirthsByZodiac  = array_sum($birthsByZodiacSign);
 $totalBirthsByCentury = array_sum($birthsByCentury);
 $totalDeathsByMonth   = array_sum($deathsByMonth);
 $totalDeathsByCentury = array_sum($deathsByCentury);
+$totalAgeAtDeath      = array_sum($ageAtDeath);
+$totalLivingBanded    = array_sum(array_column($livingByAgeBand, 'value'));
 ?>
 <div class="container">
     <div class="row row-cols-1 row-cols-md-3 g-3">
@@ -122,6 +129,88 @@ $totalDeathsByCentury = array_sum($deathsByCentury);
         [
             'class' => 'progress-deaths-century',
             'data'  => $deathsByCentury,
+        ],
+    );
+?>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 g-3 mt-1 mb-3">
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('Age at death (10-year bands)'); ?></h5>
+                    <small><?php echo I18N::plural('%s individual with both birth and death dates', '%s individuals with both birth and death dates', $totalAgeAtDeath, I18N::number($totalAgeAtDeath)); ?></small>
+                </div>
+                <div class="card-body">
+                    <?php
+    echo view(
+        $module . '::modules/statistics-chart/Partials/ProgressList',
+        [
+            'class' => 'progress-age-at-death',
+            'data'  => $ageAtDeath,
+        ],
+    );
+?>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('Living individuals by life-stage'); ?></h5>
+                    <small><?php echo I18N::plural('%s living individual with a birth date', '%s living individuals with a birth date', $totalLivingBanded, I18N::number($totalLivingBanded)); ?></small>
+                </div>
+                <div class="card-body">
+                    <?php
+    echo view(
+        $module . '::modules/statistics-chart/Partials/DonutChart',
+        [
+            'identifier' => 'living-age-band-donut',
+            'data'       => $livingByAgeBand,
+        ],
+    );
+?>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 g-3 mt-1 mb-3">
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('Top 10 oldest (deceased)'); ?></h5>
+                    <small><?php echo I18N::translate('Age in years at death, longest-lived first'); ?></small>
+                </div>
+                <div class="card-body">
+                    <?php
+    echo view(
+        $module . '::modules/statistics-chart/Partials/ProgressList',
+        [
+            'class' => 'progress-oldest-deceased',
+            'data'  => $topOldestDeceased,
+        ],
+    );
+?>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('Top 10 oldest (living)'); ?></h5>
+                    <small><?php echo I18N::translate('Current age, oldest first'); ?></small>
+                </div>
+                <div class="card-body">
+                    <?php
+    echo view(
+        $module . '::modules/statistics-chart/Partials/ProgressList',
+        [
+            'class' => 'progress-oldest-living',
+            'data'  => $topOldestLiving,
         ],
     );
 ?>

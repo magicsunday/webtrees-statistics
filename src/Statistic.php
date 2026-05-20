@@ -17,6 +17,7 @@ use MagicSunday\Webtrees\Statistic\Repository\CountryRepository;
 use MagicSunday\Webtrees\Statistic\Repository\EventRepository;
 use MagicSunday\Webtrees\Statistic\Repository\FamilyRepository;
 use MagicSunday\Webtrees\Statistic\Repository\GivenNameTrendsRepository;
+use MagicSunday\Webtrees\Statistic\Repository\LifeSpanRepository;
 use MagicSunday\Webtrees\Statistic\Repository\MigrationRepository;
 use MagicSunday\Webtrees\Statistic\Repository\NameRepository;
 use MagicSunday\Webtrees\Statistic\Repository\TreeHealthRepository;
@@ -52,6 +53,7 @@ final readonly class Statistic
      * @param GivenNameTrendsRepository $givenNameTrendsRepository Per-decade frequency of the top-N given names for the stream graph
      * @param MigrationRepository       $migrationRepository       Birth → death country flows for the Places-tab Sankey diagram
      * @param CountryRepository         $countryRepository         BIRT / DEAT counts aggregated to ISO-3166-1 alpha-2 country codes
+     * @param LifeSpanRepository        $lifeSpanRepository        Age-at-death distribution + top-N oldest individuals + living-age-band buckets
      */
     public function __construct(
         private StatisticsData $data,
@@ -62,6 +64,7 @@ final readonly class Statistic
         private GivenNameTrendsRepository $givenNameTrendsRepository,
         private MigrationRepository $migrationRepository,
         private CountryRepository $countryRepository,
+        private LifeSpanRepository $lifeSpanRepository,
     ) {
     }
 
@@ -243,6 +246,52 @@ final readonly class Statistic
     public function getDeathsByCountry(): array
     {
         return $this->countryRepository->countByCountry('DEAT');
+    }
+
+    /**
+     * Age-at-death distribution bucketed into 10-year bands, ready
+     * for the histogram-style ProgressList partial.
+     *
+     * @return array<string, int>
+     */
+    public function getAgeAtDeathDistribution(): array
+    {
+        return $this->lifeSpanRepository->ageAtDeathDistribution();
+    }
+
+    /**
+     * Top-N oldest deceased individuals (label includes the age).
+     *
+     * @param int $limit Maximum number of rows to return.
+     *
+     * @return array<string, int>
+     */
+    public function getTopOldestDeceased(int $limit): array
+    {
+        return $this->lifeSpanRepository->topOldestDeceased($limit);
+    }
+
+    /**
+     * Top-N oldest living individuals (label includes the age).
+     *
+     * @param int $limit Maximum number of rows to return.
+     *
+     * @return array<string, int>
+     */
+    public function getTopOldestLiving(int $limit): array
+    {
+        return $this->lifeSpanRepository->topOldestLiving($limit);
+    }
+
+    /**
+     * Living-individual count grouped by life-stage age-band, ready
+     * for the donut partial.
+     *
+     * @return list<array{label: string, value: int, class: string}>
+     */
+    public function getLivingByAgeBand(): array
+    {
+        return $this->lifeSpanRepository->livingByAgeBand();
     }
 
     /**
