@@ -16,9 +16,123 @@ use MagicSunday\Webtrees\Statistic\Statistic;
  * @var string    $module    The name of the module
  * @var Statistic $statistic
  */
+$ageAtMarriageM = $statistic->getAgeAtMarriageDistribution('M');
+$ageAtMarriageF = $statistic->getAgeAtMarriageDistribution('F');
+$duration       = $statistic->getMarriageDurationDistribution();
+$ageGap         = $statistic->getCoupleAgeGapDistribution();
+$byCentury      = $statistic->getWeddingsByCentury();
+$byMonth        = $statistic->getWeddingsByMonth();
+
+$totalAgeM    = array_sum($ageAtMarriageM);
+$totalAgeF    = array_sum($ageAtMarriageF);
+$totalDur     = array_sum($duration);
+$totalAgeGap  = array_sum($ageGap);
+$totalCentury = array_sum($byCentury);
+$totalMonth   = array_sum($byMonth);
 ?>
 <div class="container">
-    <div class="alert alert-light mb-0" role="status">
-        <?php echo I18N::translate('Marriage, divorce, children and kinship widgets will populate this tab in a follow-up release.'); ?>
+    <div class="row row-cols-1 row-cols-md-2 g-3">
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('Age at marriage — husbands'); ?></h5>
+                    <small><?php echo I18N::plural('%s husband with a known marriage age', '%s husbands with a known marriage age', $totalAgeM, I18N::number($totalAgeM)); ?></small>
+                </div>
+                <div class="card-body">
+                    <?php
+                        echo view(
+                            $module . '::modules/statistics-chart/Partials/ProgressList',
+                            ['class' => 'progress-age-at-marriage-m', 'data' => $ageAtMarriageM],
+                        );
+?>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('Age at marriage — wives'); ?></h5>
+                    <small><?php echo I18N::plural('%s wife with a known marriage age', '%s wives with a known marriage age', $totalAgeF, I18N::number($totalAgeF)); ?></small>
+                </div>
+                <div class="card-body">
+                    <?php
+    echo view(
+        $module . '::modules/statistics-chart/Partials/ProgressList',
+        ['class' => 'progress-age-at-marriage-f', 'data' => $ageAtMarriageF],
+    );
+?>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 g-3 mt-1 mb-3">
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('Marriage duration'); ?></h5>
+                    <small><?php echo I18N::plural('%s couple with a measurable duration', '%s couples with a measurable duration', $totalDur, I18N::number($totalDur)); ?></small>
+                </div>
+                <div class="card-body">
+                    <?php
+    echo view(
+        $module . '::modules/statistics-chart/Partials/ProgressList',
+        ['class' => 'progress-marriage-duration', 'data' => $duration],
+    );
+?>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('Couple age gap (husband − wife)'); ?></h5>
+                    <small><?php echo I18N::plural('%s couple with both birth dates', '%s couples with both birth dates', $totalAgeGap, I18N::number($totalAgeGap)); ?></small>
+                </div>
+                <div class="card-body">
+                    <?php
+    echo view(
+        $module . '::modules/statistics-chart/Partials/ProgressList',
+        ['class' => 'progress-age-gap', 'data' => $ageGap],
+    );
+?>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 g-3 mt-1 mb-3">
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('Weddings by century'); ?></h5>
+                    <small><?php echo I18N::plural('%s recorded marriage', '%s recorded marriages', $totalCentury, I18N::number($totalCentury)); ?></small>
+                </div>
+                <div class="card-body">
+                    <?php
+    echo view(
+        $module . '::modules/statistics-chart/Partials/ProgressList',
+        ['class' => 'progress-weddings-century', 'data' => $byCentury],
+    );
+?>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('Weddings by month'); ?></h5>
+                    <small><?php echo I18N::plural('%s marriage with a recorded month', '%s marriages with a recorded month', $totalMonth, I18N::number($totalMonth)); ?></small>
+                </div>
+                <div class="card-body">
+                    <?php
+    echo view(
+        $module . '::modules/statistics-chart/Partials/ProgressList',
+        ['class' => 'progress-weddings-month', 'data' => $byMonth],
+    );
+?>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

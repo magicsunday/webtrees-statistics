@@ -18,6 +18,7 @@ use MagicSunday\Webtrees\Statistic\Repository\EventRepository;
 use MagicSunday\Webtrees\Statistic\Repository\FamilyRepository;
 use MagicSunday\Webtrees\Statistic\Repository\GivenNameTrendsRepository;
 use MagicSunday\Webtrees\Statistic\Repository\LifeSpanRepository;
+use MagicSunday\Webtrees\Statistic\Repository\MarriageRepository;
 use MagicSunday\Webtrees\Statistic\Repository\MigrationRepository;
 use MagicSunday\Webtrees\Statistic\Repository\NameRepository;
 use MagicSunday\Webtrees\Statistic\Repository\TreeHealthRepository;
@@ -54,6 +55,7 @@ final readonly class Statistic
      * @param MigrationRepository       $migrationRepository       Birth → death country flows for the Places-tab Sankey diagram
      * @param CountryRepository         $countryRepository         BIRT / DEAT counts aggregated to ISO-3166-1 alpha-2 country codes
      * @param LifeSpanRepository        $lifeSpanRepository        Age-at-death distribution + top-N oldest individuals + living-age-band buckets
+     * @param MarriageRepository        $marriageRepository        Age-at-marriage / duration / couple-age-gap aggregations for the Family tab
      */
     public function __construct(
         private StatisticsData $data,
@@ -65,6 +67,7 @@ final readonly class Statistic
         private MigrationRepository $migrationRepository,
         private CountryRepository $countryRepository,
         private LifeSpanRepository $lifeSpanRepository,
+        private MarriageRepository $marriageRepository,
     ) {
     }
 
@@ -292,6 +295,62 @@ final readonly class Statistic
     public function getLivingByAgeBand(): array
     {
         return $this->lifeSpanRepository->livingByAgeBand();
+    }
+
+    /**
+     * Age-at-marriage histogram for one sex (5-year bands + 60+
+     * overflow).
+     *
+     * @param string $sex 'M' or 'F'
+     *
+     * @return array<string, int>
+     */
+    public function getAgeAtMarriageDistribution(string $sex): array
+    {
+        return $this->marriageRepository->ageAtMarriageDistribution($sex);
+    }
+
+    /**
+     * Marriage-duration histogram (10-year bands up to 60+).
+     *
+     * @return array<string, int>
+     */
+    public function getMarriageDurationDistribution(): array
+    {
+        return $this->marriageRepository->durationDistribution();
+    }
+
+    /**
+     * Couple age-gap histogram (symmetric 5-year bands centred on
+     * zero). Negative buckets mean wife older than husband.
+     *
+     * @return array<string, int>
+     */
+    public function getCoupleAgeGapDistribution(): array
+    {
+        return $this->marriageRepository->ageGapDistribution();
+    }
+
+    /**
+     * Weddings grouped by century.
+     *
+     * @return array<string, int>
+     */
+    public function getWeddingsByCentury(): array
+    {
+        return $this->marriageRepository->weddingsByCentury();
+    }
+
+    /**
+     * Weddings grouped by month (first MARR per family). Keys are
+     * the localised month names so the rendering matches the
+     * existing births-by-month card.
+     *
+     * @return array<string, int>
+     */
+    public function getWeddingsByMonth(): array
+    {
+        return $this->translateMonthKeys($this->marriageRepository->weddingsByMonth());
     }
 
     /**
