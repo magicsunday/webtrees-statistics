@@ -254,24 +254,28 @@
     border-radius: var(--bs-progress-border-radius);
 }
 
-.wt-statistics-chart .progress-births-month {
-    background-color: var(--wmstats-progress-bg-births-month) !important;
+/* All progress bars use the gradient pattern: the partial mixes
+   start → end based on the bar's width fraction via color-mix().
+   The previous solid background-color overrides with !important
+   collapsed every bar to the same flat colour regardless of
+   value; gradient pairs let the colour itself encode magnitude.
+   -------------------------------------------------------------- */
+
+.wt-statistics-chart .progress-births-month,
+.wt-statistics-chart .progress-deaths-month {
+    --bs-progress-label-gradient-start: rgb(255, 224, 196);
+    --bs-progress-label-gradient-end:   rgb(220, 120, 40);
 }
 
 .wt-statistics-chart .progress-births-zodiac {
-    background-color: var(--wmstats-progress-bg-births-zodiac) !important;
+    --bs-progress-label-gradient-start: rgb(220, 215, 250);
+    --bs-progress-label-gradient-end:   rgb(110, 95, 220);
 }
 
-.wt-statistics-chart .progress-births-century {
-    background-color: var(--wmstats-progress-bg-births-century) !important;
-}
-
-.wt-statistics-chart .progress-deaths-month {
-    background-color: var(--wmstats-progress-bg-deaths-month) !important;
-}
-
+.wt-statistics-chart .progress-births-century,
 .wt-statistics-chart .progress-deaths-century {
-    background-color: var(--wmstats-progress-bg-deaths-century) !important;
+    --bs-progress-label-gradient-start: var(--wmstats-gradient-births-start);
+    --bs-progress-label-gradient-end:   var(--wmstats-gradient-births-end);
 }
 
 /* ----------------------------------------------------------------------
