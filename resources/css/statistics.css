@@ -49,6 +49,16 @@
     --wmstats-single:                      rgb(172, 181, 196);
     --wmstats-widowed:                     rgb(141, 186, 159);
     --wmstats-divorced:                    rgb(255, 201, 156);
+
+    /* LifeSpan age-band donut */
+    --wmstats-age-band-0:                  rgb(255, 200, 130);
+    --wmstats-age-band-1:                  rgb(141, 186, 159);
+    --wmstats-age-band-2:                  rgb(122, 156, 219);
+    --wmstats-age-band-3:                  rgb(181, 177, 255);
+
+    /* Children-vs-childless donut */
+    --wmstats-with-children:               rgb(141, 186, 159);
+    --wmstats-without-children:            rgb(204, 204, 204);
 }
 
 [data-bs-theme="dark"] .wt-statistics-chart {
@@ -126,11 +136,11 @@
    Donut chart slices
    -------------------------------------------------------------------- */
 
-.wt-statistics-chart svg.donutChart path.slice {
+.wt-statistics-chart svg.donut-chart path.slice {
     cursor: pointer;
 }
 
-.wt-statistics-chart svg.donutChart path.slice:hover {
+.wt-statistics-chart svg.donut-chart path.slice:hover {
     opacity: 0.8;
 }
 
@@ -164,6 +174,36 @@
 .wt-statistics-chart .deceased {
     fill:             var(--wmstats-deceased);
     background-color: var(--wmstats-deceased);
+}
+
+.wt-statistics-chart .age-band-0 {
+    fill:             var(--wmstats-age-band-0);
+    background-color: var(--wmstats-age-band-0);
+}
+
+.wt-statistics-chart .age-band-1 {
+    fill:             var(--wmstats-age-band-1);
+    background-color: var(--wmstats-age-band-1);
+}
+
+.wt-statistics-chart .age-band-2 {
+    fill:             var(--wmstats-age-band-2);
+    background-color: var(--wmstats-age-band-2);
+}
+
+.wt-statistics-chart .age-band-3 {
+    fill:             var(--wmstats-age-band-3);
+    background-color: var(--wmstats-age-band-3);
+}
+
+.wt-statistics-chart .with-children {
+    fill:             var(--wmstats-with-children);
+    background-color: var(--wmstats-with-children);
+}
+
+.wt-statistics-chart .without-children {
+    fill:             var(--wmstats-without-children);
+    background-color: var(--wmstats-without-children);
 }
 
 .wt-statistics-chart .married {

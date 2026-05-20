@@ -22,11 +22,16 @@ use function array_keys;
 use function array_map;
 use function array_values;
 use function count;
+use function html_entity_decode;
 use function intdiv;
 use function is_numeric;
 use function is_string;
 use function sort;
+use function strip_tags;
 use function substr;
+
+use const ENT_HTML5;
+use const ENT_QUOTES;
 
 /**
  * Children-related aggregations for the Family tab. Combines core's
@@ -216,7 +221,8 @@ final readonly class ChildrenRepository
                 continue;
             }
 
-            $label       = $family->fullName() . ' (' . $children . ')';
+            $plainName   = html_entity_decode(strip_tags($family->fullName()), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            $label       = $plainName . ' (' . $children . ')';
             $out[$label] = $children;
         }
 

@@ -18,10 +18,13 @@ use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
+use MagicSunday\Webtrees\ModuleBase\Processor\NameProcessor;
 
 use function array_fill_keys;
 use function array_key_last;
 use function array_map;
+use function getdate;
+use function GregorianToJD;
 use function intdiv;
 use function is_numeric;
 use function max;
@@ -134,9 +137,33 @@ final readonly class LifeSpanRepository
      */
     public function topOldestLiving(int $limit): array
     {
-        return $this->shapeOldest(
-            $this->data->topTenOldestAliveQuery('ALL', $limit),
-        );
+        // `topTenOldestAliveQuery` returns Individual objects directly
+        // (not the `{individual, days}` shape `topTenOldestQuery` uses)
+        // — the query has no DEAT date to compute age from, so we
+        // derive age from today minus BIRT julianday ourselves.
+        $today          = getdate();
+        $todayJulianDay = GregorianToJD($today['mon'], $today['mday'], $today['year']);
+        $out            = [];
+
+        foreach ($this->data->topTenOldestAliveQuery('ALL', $limit) as $individual) {
+            $birthDate = $individual->getBirthDate();
+
+            if (!$birthDate->isOK()) {
+                continue;
+            }
+
+            $birthJd = $birthDate->minimumJulianDay();
+
+            if ($birthJd <= 0) {
+                continue;
+            }
+
+            $years       = intdiv($todayJulianDay - $birthJd, 365);
+            $label       = $this->plainName($individual) . ' (' . $years . ')';
+            $out[$label] = $years;
+        }
+
+        return $out;
     }
 
     /**
@@ -220,11 +247,24 @@ final readonly class LifeSpanRepository
             }
 
             $years       = intdiv($days, 365);
-            $label       = $individual->fullName() . ' (' . $years . ')';
+            $label       = $this->plainName($individual) . ' (' . $years . ')';
             $out[$label] = $years;
         }
 
         return $out;
+    }
+
+    /**
+     * Plain-text full name suitable for dropping into a
+     * progress-bar aria-label. Delegates to module-base's
+     * {@see NameProcessor::getFullName()}, which strips the HTML
+     * `<span class="NAME">…</span>` wrappers that webtrees'
+     * `Individual::fullName()` emits and would otherwise tear
+     * apart a double-quoted attribute value.
+     */
+    private function plainName(Individual $individual): string
+    {
+        return (new NameProcessor($individual))->getFullName();
     }
 
     /**
