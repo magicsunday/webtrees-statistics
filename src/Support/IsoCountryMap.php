@@ -16,7 +16,9 @@ use Locale;
 use Throwable;
 
 use function array_unique;
+use function mb_strtolower;
 use function preg_replace;
+use function str_replace;
 use function strtolower;
 use function trim;
 
@@ -290,7 +292,21 @@ final class IsoCountryMap
             return '';
         }
 
-        $lower = strtolower($trimmed);
+        // ICU's display-region output uses U+2019 (right single
+        // quotation mark) inside names like "Côte d'Ivoire", but
+        // GEDCOM authors typically type the ASCII apostrophe
+        // U+0027. Fold the curly variants down to ASCII before
+        // case-mapping so the lookup matches either source.
+        $quotesNormalised = str_replace(
+            ["\u{2019}", "\u{2018}", "\u{02BB}", "\u{02BC}", "\u{201B}"],
+            "'",
+            $trimmed,
+        );
+
+        // strtolower() only handles ASCII; ICU's display-region
+        // names contain UTF-8 characters (Ö, Ç, …). Use mb_strtolower
+        // so curly-cased non-ASCII letters fold into the lookup map.
+        $lower = mb_strtolower($quotesNormalised, 'UTF-8');
 
         return (string) preg_replace('/\s+/u', ' ', $lower);
     }
