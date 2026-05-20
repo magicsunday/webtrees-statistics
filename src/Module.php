@@ -199,7 +199,7 @@ class Module extends StatisticsChartModule implements ModuleAssetUrlInterface, M
                 'tabs'       => $tabs,
                 'title'      => $this->title(),
                 'tree'       => $tree,
-                'javascript' => $this->assetUrl('js/webtrees-statistics.js'),
+                'javascript' => $this->assetUrl('js/webtrees-statistics.min.js'),
             ]
         );
     }
