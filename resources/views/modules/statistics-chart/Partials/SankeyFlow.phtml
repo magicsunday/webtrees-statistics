@@ -13,7 +13,7 @@ use Fisharebest\Webtrees\I18N;
 
 /**
  * @var string                                                                                            $identifier Host element id
- * @var array{nodes: list<array{name: string}>, links: list<array{source: int, target: int, value: int}>} $data Sankey payload built by Statistic::getMigrationFlows()
+ * @var array{nodes: list<array{name: string}>, links: list<array{source: int, target: int, value: int}>} $data       Sankey payload built by Statistic::getMigrationFlows()
  * @var int|null                                                                                          $height     Optional viewport height (defaults to 360)
  */
 $height ??= 360;
@@ -21,17 +21,9 @@ $height ??= 360;
 <div class="wt-sankey-container">
     <div id="<?php echo e($identifier); ?>"
          class="wt-sankey-host"
+         data-widget="sankey-flow"
+         data-payload="<?php echo e(json_encode($data, JSON_THROW_ON_ERROR)); ?>"
+         data-options="<?php echo e(json_encode(['height' => $height], JSON_THROW_ON_ERROR)); ?>"
          data-empty-message="<?php echo e(I18N::translate('No country-to-country movements recorded yet.')); ?>"
     ></div>
 </div>
-
-<script>
-webtreesStatistics.draw(
-    <?php echo json_encode($identifier, JSON_THROW_ON_ERROR); ?>,
-    <?php echo json_encode($data, JSON_THROW_ON_ERROR); ?>,
-    {
-        type: "sankey-flow",
-        height: <?php echo (int) $height; ?>
-    }
-);
-</script>

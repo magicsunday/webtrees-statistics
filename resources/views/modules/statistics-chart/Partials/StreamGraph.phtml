@@ -21,17 +21,9 @@ $height ??= 320;
 <div class="wt-stream-graph-container">
     <div id="<?php echo e($identifier); ?>"
          class="wt-stream-graph-host"
+         data-widget="stream-graph"
+         data-payload="<?php echo e(json_encode($data, JSON_THROW_ON_ERROR)); ?>"
+         data-options="<?php echo e(json_encode(['height' => $height], JSON_THROW_ON_ERROR)); ?>"
          data-empty-message="<?php echo e(I18N::translate('No data')); ?>"
     ></div>
 </div>
-
-<script>
-webtreesStatistics.draw(
-    <?php echo json_encode($identifier, JSON_THROW_ON_ERROR); ?>,
-    <?php echo json_encode($data, JSON_THROW_ON_ERROR); ?>,
-    {
-        type: "stream-graph",
-        height: <?php echo (int) $height; ?>
-    }
-);
-</script>

@@ -331,42 +331,53 @@
     display:  block;
     width:    100%;
     position: relative;
-    overflow: hidden;
 }
 
-.wt-statistics-chart .wt-stream-graph-tooltip {
-    position:           absolute;
-    pointer-events:     none;
-    z-index:            10;
-    opacity:            0;
-    transform:          translate(0, -100%);
-    background:         var(--bs-body-bg, #fff);
-    color:              var(--bs-body-color, #212529);
-    border:             1px solid var(--bs-border-color, rgb(221, 221, 221));
-    border-radius:      var(--bs-border-radius, 0.375rem);
-    padding:            0.5rem 0.75rem;
-    font-size:          0.85rem;
-    line-height:        1.35;
-    box-shadow:         0 2px 8px rgba(0, 0, 0, 0.15);
-    transition:         opacity 120ms ease-out;
-    white-space:        nowrap;
-    max-width:          18rem;
+/* ----------------------------------------------------------------------
+   Chart hover tooltips (donut, stream graph, sankey flow)
+   ----------------------------------------------------------------------
+   Tooltips live on document.body (created by createHostTooltip) so they
+   can extend past their chart's bounding box without growing the host
+   or triggering a page-level scrollbar. Hence the rules are NOT scoped
+   to .wt-statistics-chart — that scope wouldn't apply on the body.
+
+   Every chart shares ONE `.wt-chart-tooltip` base class. Per-chart hook
+   classes (.wt-donut-tooltip etc.) stay on the element only so JS can
+   tell them apart for cleanup — they carry no own styling.
+   -------------------------------------------------------------------- */
+
+.wt-chart-tooltip {
+    position:       fixed;
+    pointer-events: none;
+    z-index:        1080;
+    opacity:        0;
+    background:     var(--bs-body-bg, #fff);
+    color:          var(--bs-body-color, #212529);
+    border:         1px solid var(--bs-border-color, rgb(221, 221, 221));
+    border-radius:  var(--bs-border-radius, 0.375rem);
+    padding:        0.5rem 0.75rem;
+    font-size:      0.85rem;
+    line-height:    1.35;
+    box-shadow:     0 4px 12px rgba(0, 0, 0, 0.18);
+    transition:     opacity 120ms ease-out;
+    white-space:    nowrap;
+    max-width:      20rem;
 }
 
-.wt-statistics-chart .wt-stream-graph-tooltip.is-visible {
+.wt-chart-tooltip.is-visible {
     opacity: 1;
 }
 
-.wt-statistics-chart .wt-stream-graph-tooltip strong {
+.wt-chart-tooltip strong {
     font-weight: 600;
 }
 
-.wt-statistics-chart .wt-stream-graph-tooltip-stat {
+.wt-chart-tooltip__stat {
     color: var(--bs-emphasis-color, #212529);
 }
 
-.wt-statistics-chart .wt-stream-graph-tooltip-meta {
-    color:     var(--wmstats-card-muted);
+.wt-chart-tooltip__meta {
+    color:     var(--bs-secondary-color, rgb(108, 117, 125));
     font-size: 0.78rem;
 }
 
@@ -453,37 +464,6 @@
     display:  block;
     width:    100%;
     position: relative;
-    overflow: hidden;
-}
-
-.wt-statistics-chart .wt-sankey-tooltip {
-    position:           absolute;
-    pointer-events:     none;
-    z-index:            10;
-    opacity:            0;
-    background:         var(--bs-body-bg, #fff);
-    color:              var(--bs-body-color, #212529);
-    border:             1px solid var(--bs-border-color, rgb(221, 221, 221));
-    border-radius:      var(--bs-border-radius, 0.375rem);
-    padding:            0.5rem 0.75rem;
-    font-size:          0.85rem;
-    line-height:        1.35;
-    box-shadow:         0 2px 8px rgba(0, 0, 0, 0.15);
-    transition:         opacity 120ms ease-out;
-    white-space:        nowrap;
-    max-width:          20rem;
-}
-
-.wt-statistics-chart .wt-sankey-tooltip.is-visible {
-    opacity: 1;
-}
-
-.wt-statistics-chart .wt-sankey-tooltip strong {
-    font-weight: 600;
-}
-
-.wt-statistics-chart .wt-sankey-tooltip-stat {
-    color: var(--bs-emphasis-color, #212529);
 }
 
 .wt-statistics-chart svg.wt-sankey {

@@ -5,46 +5,96 @@
  * LICENSE file distributed with this source code.
  */
 
-import { Chart } from "./lib/chart.js";
+import drawDonut from "./widgets/donut.js";
+import drawWorldMap from "./widgets/world-map.js";
+import drawStreamGraph from "./widgets/stream-graph.js";
+import drawSankeyFlow from "./widgets/sankey-flow.js";
 
 /**
- * The application class.
+ * Dispatch table mapping a `data-widget` attribute value to its
+ * draw function. Each draw is `(node, data, options) => Node|null`.
  *
- * @author  Rico Sonntag <mail@ricosonntag.de>
- * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
- * @link    https://github.com/magicsunday/webtrees-statistics/
+ * @type {Object<String, function(HTMLElement, *, Object): Node|null>}
  */
-export class Statistic {
-    /**
-     * @param {String} identifier
-     * @param {Array}  data
-     * @param {Object} options  A list of options passed from outside to the application
-     *
-     * @param {String} options.type
-     * @param {Margin} options.margin
-     *
-     * @returns {HTMLElement}
-     */
-    draw(identifier, data, options) {
-        this.chart = new Chart();
+const WIDGETS = {
+    donut: drawDonut,
+    "world-map": drawWorldMap,
+    "stream-graph": drawStreamGraph,
+    "sankey-flow": drawSankeyFlow,
+};
 
-        const node = this.chart.draw(identifier, data, options);
+/**
+ * Render every `[data-widget]` element inside `root` by dispatching
+ * to the registered draw function. Each node carries its widget
+ * type in `data-widget`, its serialised payload in `data-payload`,
+ * and its renderer options in `data-options` (both JSON).
+ *
+ * Bootstrap popovers attached to chart-header info buttons are
+ * initialised in the same pass so the consumer doesn't need a
+ * second hook.
+ *
+ * @param {ParentNode} root Document fragment to scan.
+ *
+ * @returns {void}
+ */
+export function renderWidgets(root) {
+    const nodes = root.querySelectorAll("[data-widget]");
 
-        // Initialise any Bootstrap popovers that are still pending
-        // (e.g. the card-header info button). This is the only point
-        // in the page lifecycle where the consumer is guaranteed to
-        // have rendered all of its partials AND the global webtrees
-        // vendor bundle has run — earlier hook points (the inline
-        // bootstrap script in page.phtml, DOMContentLoaded) ran
-        // before this module's bundle was available.
-        if (typeof window.bootstrap !== "undefined" && window.bootstrap.Popover) {
-            document
-                .querySelectorAll('.wt-statistics-chart [data-bs-toggle="popover"]')
-                .forEach((el) => {
-                    window.bootstrap.Popover.getOrCreateInstance(el, { container: "body" });
-                });
+    nodes.forEach((node) => {
+        const widget = WIDGETS[node.dataset.widget];
+
+        if (widget === undefined) {
+            return;
         }
 
-        return node;
+        const data = parseJsonAttribute(node.dataset.payload, null);
+        const options = parseJsonAttribute(node.dataset.options, {});
+
+        widget(node, data, options);
+    });
+
+    initPopovers(root);
+}
+
+/**
+ * Parse a JSON-encoded dataset attribute, returning the fallback on
+ * missing or unparsable input. Logs the parse error to the console
+ * so a corrupt payload is debuggable but never breaks the render
+ * loop for sibling widgets.
+ *
+ * @param {String|undefined} raw      The serialised JSON string.
+ * @param {*}                fallback Value returned when parse fails / input is empty.
+ *
+ * @returns {*}
+ */
+function parseJsonAttribute(raw, fallback) {
+    if (raw === undefined || raw === "") {
+        return fallback;
     }
+
+    try {
+        return JSON.parse(raw);
+    } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error("renderWidgets: unable to parse widget payload", error);
+        return fallback;
+    }
+}
+
+/**
+ * Initialise Bootstrap popovers used by the "About this chart" info
+ * buttons. Bootstrap ships with the webtrees vendor bundle and
+ * exposes itself on `window.bootstrap`. getOrCreateInstance keeps
+ * the call idempotent across re-renders.
+ *
+ * @param {ParentNode} root Document fragment to scan.
+ */
+function initPopovers(root) {
+    if (typeof window.bootstrap === "undefined" || !window.bootstrap.Popover) {
+        return;
+    }
+
+    root.querySelectorAll('.wt-statistics-chart [data-bs-toggle="popover"]').forEach((element) => {
+        window.bootstrap.Popover.getOrCreateInstance(element, { container: "body" });
+    });
 }

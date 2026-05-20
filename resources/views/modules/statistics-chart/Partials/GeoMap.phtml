@@ -12,31 +12,15 @@ declare(strict_types=1);
 use Fisharebest\Webtrees\Tree;
 
 /**
- * @var string $identifier
- * @var Tree   $tree
- * @var array  $data
+ * @var string                                                            $identifier Host element id
+ * @var Tree                                                              $tree
+ * @var array<int, array{countryCode: string, label: string, count: int}> $data
  */
 ?>
-<div class="world-map-container">
-    <div id="<?php echo $identifier; ?>" class="world-map"></div>
+<div class="world-map-container"
+     data-widget="world-map"
+     data-payload="<?php echo e(json_encode($data, JSON_THROW_ON_ERROR)); ?>"
+     data-options="<?php echo e(json_encode(['width' => 900, 'height' => 510], JSON_THROW_ON_ERROR)); ?>"
+>
+    <div id="<?php echo e($identifier); ?>" class="world-map"></div>
 </div>
-
-<script>
-
-webtreesStatistics.draw(
-    <?php echo json_encode($identifier, JSON_THROW_ON_ERROR); ?>,
-    <?php echo json_encode($data, JSON_THROW_ON_ERROR); ?>,
-    {
-        type: "world-map",
-        color: {
-            range: {
-                start: window.getComputedStyle(document.getElementById(<?php echo json_encode($identifier, JSON_THROW_ON_ERROR); ?>)).getPropertyValue('--bs-progress-label-gradient-start'),
-                end:   window.getComputedStyle(document.getElementById(<?php echo json_encode($identifier, JSON_THROW_ON_ERROR); ?>)).getPropertyValue('--bs-progress-label-gradient-end')
-            }
-        },
-        width: 900,
-        height: 510
-    }
-);
-
-</script>

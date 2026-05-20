@@ -66,9 +66,15 @@ use Fisharebest\Webtrees\View;
 
 'use strict';
 
-// Bootstrap tabs - load content dynamically using AJAX
+// Bootstrap tabs — load content dynamically using AJAX, then run
+// the widget dispatcher on the freshly-injected pane so every
+// `[data-widget]` element inside it gets rendered.
 $('#statistics-tabs a[data-bs-toggle="tab"][data-wt-href]').on("show.bs.tab", function () {
-    $(this.getAttribute("href") + ":empty").load(this.dataset.wtHref);
+    $(this.getAttribute("href") + ":empty").load(this.dataset.wtHref, function () {
+        if (window.WebtreesStatistic && typeof window.WebtreesStatistic.renderWidgets === "function") {
+            window.WebtreesStatistic.renderWidgets(this);
+        }
+    });
 });
 
 // If the URL contains a fragment, then activate the corresponding tab.
@@ -91,10 +97,4 @@ $('#statistics-tabs a[data-bs-toggle="tab"]').on("shown.bs.tab", function (e) {
 
 <?php View::push('javascript'); ?>
 <script src="<?php echo e($javascript); ?>"></script>
-<script>
-
-// Create chart instance
-const webtreesStatistics = new WebtreesStatistic.Statistic();
-
-</script>
 <?php View::endpush(); ?>
