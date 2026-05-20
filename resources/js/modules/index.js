@@ -5,7 +5,7 @@
  * LICENSE file distributed with this source code.
  */
 
-import {Chart} from "./lib/chart";
+import { Chart } from "./lib/chart.js";
 
 /**
  * The application class.
@@ -15,12 +15,6 @@ import {Chart} from "./lib/chart";
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
 export class Statistic {
-    /**
-     * Constructor.
-     */
-    constructor() {
-    }
-
     /**
      * @param {String} identifier
      * @param {Array}  data
