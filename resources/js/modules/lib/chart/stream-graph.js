@@ -9,7 +9,7 @@ import { select } from "d3-selection";
 import { scaleLinear, scaleOrdinal } from "d3-scale";
 import { schemeTableau10 } from "d3-scale-chromatic";
 import { axisBottom, axisLeft } from "d3-axis";
-import { area, stack, stackOffsetSilhouette, stackOrderInsideOut, curveCatmullRom } from "d3-shape";
+import { area, stack, stackOffsetSilhouette, stackOrderInsideOut, curveBasis } from "d3-shape";
 import { extent, max, min } from "d3-array";
 
 /**
@@ -92,10 +92,14 @@ export class StreamGraph
 
         // The silhouette layout centres the stack around zero; the envelope
         // therefore spans [min(y0), max(y1)] across every band at every x.
+        // A small headroom on both sides keeps the curves from touching
+        // the x-axis baseline (or the top of the plot area), so even the
+        // thinnest band still reads as a band.
         const yLower = min(series, (band) => min(band, (point) => point[0])) ?? 0;
         const yUpper = max(series, (band) => max(band, (point) => point[1])) ?? 0;
+        const yPad   = Math.max((yUpper - yLower) * 0.08, 1);
         const yScale = scaleLinear()
-            .domain([yLower, yUpper])
+            .domain([yLower - yPad, yUpper + yPad])
             .range([innerHeight, 0]);
 
         const colour = scaleOrdinal()
@@ -109,7 +113,7 @@ export class StreamGraph
             .x((point)  => xScale(point.data.decade))
             .y0((point) => yScale(point[0]))
             .y1((point) => yScale(point[1]))
-            .curve(curveCatmullRom.alpha(0.5));
+            .curve(curveBasis);
 
         // Detail-on-demand tooltip — a single absolutely-positioned div
         // attached to the host. mouseover swaps the contents to the band
@@ -149,11 +153,17 @@ export class StreamGraph
         };
 
         const positionTooltip = (event) => {
-            const hostRect = host.getBoundingClientRect();
-            const offsetX  = event.clientX - hostRect.left + 12;
-            const offsetY  = event.clientY - hostRect.top + 12;
-            tooltip.style.left = `${offsetX}px`;
-            tooltip.style.top  = `${offsetY}px`;
+            const hostRect    = host.getBoundingClientRect();
+            const tooltipRect = tooltip.getBoundingClientRect();
+            // Clamp to the host's box so the tooltip never spills past
+            // the right edge — that overflow was bubbling up to the page
+            // body and showing a horizontal scrollbar on hover.
+            const desiredX = event.clientX - hostRect.left + 12;
+            const desiredY = event.clientY - hostRect.top + 12;
+            const maxX     = Math.max(0, hostRect.width - tooltipRect.width - 4);
+            const maxY     = Math.max(0, hostRect.height - tooltipRect.height - 4);
+            tooltip.style.left = `${Math.min(desiredX, maxX)}px`;
+            tooltip.style.top  = `${Math.min(desiredY, maxY)}px`;
         };
 
         inner.selectAll("path.band")
