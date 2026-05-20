@@ -21,20 +21,21 @@ use Fisharebest\Webtrees\Module\StatisticsChartModule;
 use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Validator;
 use Fisharebest\Webtrees\View;
+use MagicSunday\Webtrees\ModuleBase\Contract\ModuleAssetUrlInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
- * Pedigree chart module class.
+ * Statistics chart module.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-class Module extends StatisticsChartModule implements ModuleCustomInterface
+class Module extends StatisticsChartModule implements ModuleAssetUrlInterface, ModuleCustomInterface
 {
-    use ModuleCustomTrait;
     use ModuleChartTrait;
+    use ModuleCustomTrait;
 
     /**
      * @var string
