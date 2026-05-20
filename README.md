@@ -6,7 +6,7 @@
 # Statistics
 A tab-based statistics dashboard for the [webtrees](https://www.webtrees.net) genealogy application.
 
-Renders tree-wide statistics across nine tabs (Overview, Relationships, Places, Age, Births, Deaths, Weddings, Divorces, Children) using donut charts, progress lists, world maps, and tag clouds. Built on the shared widget library [`@magicsunday/webtrees-chart-lib`](https://github.com/magicsunday/webtrees-chart-lib).
+Renders tree-wide statistics across six tabs (Overview, Names, Tree health, Life span, Family, Places) using donut charts, progress lists, world maps, and tag clouds. Built on the shared widget library [`@magicsunday/webtrees-chart-lib`](https://github.com/magicsunday/webtrees-chart-lib).
 
 
 <!-- TOC -->
@@ -54,19 +54,16 @@ git clone https://github.com/magicsunday/webtrees-statistics.git modules_v4/webt
 
 
 ## What renders today
-Phase 1 ships four fully implemented tabs and five `Coming soon` placeholders:
+Phase 1 ships four populated tabs and two placeholder tabs:
 
-| Tab            | Status      | Content                                                                                                        |
-|----------------|-------------|----------------------------------------------------------------------------------------------------------------|
-| Overview       | Implemented | Sex / Living-deceased / Marital-status donuts, Common-surname + male / female given-name tag clouds            |
-| Places         | Implemented | Country-of-birth and country-of-death world maps with companion top-10 progress lists                          |
-| Births         | Implemented | Births by month, by zodiac sign, by century                                                                    |
-| Deaths         | Implemented | Deaths by month, by century                                                                                    |
-| Relationships  | Coming soon | Tracked in [#2](https://github.com/magicsunday/webtrees-statistics/issues/2)                                   |
-| Age            | Coming soon | Tracked in [#3](https://github.com/magicsunday/webtrees-statistics/issues/3)                                   |
-| Weddings       | Coming soon | Tracked in [#4](https://github.com/magicsunday/webtrees-statistics/issues/4)                                   |
-| Divorces       | Coming soon | Tracked in [#5](https://github.com/magicsunday/webtrees-statistics/issues/5)                                   |
-| Children       | Coming soon | Tracked in [#6](https://github.com/magicsunday/webtrees-statistics/issues/6)                                   |
+| Tab          | Status      | Content                                                                                                        |
+|--------------|-------------|----------------------------------------------------------------------------------------------------------------|
+| Overview     | Populated   | Sex / Living-deceased / Marital-status donuts                                                                  |
+| Names        | Populated   | Common-surname + male / female given-name tag clouds (stream graph tracked in [#13](https://github.com/magicsunday/webtrees-statistics/issues/13)) |
+| Tree health  | Placeholder | Data-quality metrics tracked in [#11](https://github.com/magicsunday/webtrees-statistics/issues/11)            |
+| Life span    | Populated   | Births by month / zodiac sign / century, deaths by month / century (age / lifespan widgets in [#3](https://github.com/magicsunday/webtrees-statistics/issues/3)) |
+| Family       | Placeholder | Marriage / divorce / children / kinship widgets tracked in [#4](https://github.com/magicsunday/webtrees-statistics/issues/4), [#5](https://github.com/magicsunday/webtrees-statistics/issues/5), [#6](https://github.com/magicsunday/webtrees-statistics/issues/6), [#2](https://github.com/magicsunday/webtrees-statistics/issues/2) |
+| Places       | Populated   | Country-of-birth and country-of-death world maps with companion top-10 progress lists (migration sankey in [#12](https://github.com/magicsunday/webtrees-statistics/issues/12)) |
 
 The marital-status donut counts each living individual exactly once. Precedence follows the same per-family decision order webtrees core uses in `\Fisharebest\Webtrees\Census\AbstractCensusColumnCondition`: an active divorce tag classes the survivor as `divorced`, a deceased partner as `widowed`, an active marriage with a living partner as `current`. Anything else falls into `single`. The four buckets sum exactly to `StatisticsData::countIndividualsLiving()` without clamping.
 

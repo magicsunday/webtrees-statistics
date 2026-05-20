@@ -1,26 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package magicsunday/webtrees-statistics.
  *
  * For the full copyright and license information, please read the
- * LICENSE file distributed with this source code.
+ * LICENSE file that was distributed with this source code.
  */
 
-declare(strict_types=1);
-
 use Fisharebest\Webtrees\I18N;
-use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Statistic;
 
 /**
  * @var string    $module    The name of the module
- * @var Tree      $tree      The current tree
  * @var Statistic $statistic
  */
 ?>
 <div class="container">
-    <div class="row row-cols-1 row-cols-md-2 g-3">
+    <div class="row row-cols-1 row-cols-md-3 g-3">
         <div class="col">
             <div class="card h-100">
                 <div class="card-header">
@@ -34,7 +32,7 @@ use MagicSunday\Webtrees\Statistic\Statistic;
                             [
                                 'identifier' => 'gender-donut-chart',
                                 'data'       => $statistic->getTotalIndividualsData(),
-                            ]
+                            ],
                         );
 ?>
                 </div>
@@ -54,7 +52,7 @@ use MagicSunday\Webtrees\Statistic\Statistic;
         [
             'identifier' => 'living-donut-chart',
             'data'       => $statistic->getTotalLivingDeceasedData(),
-        ]
+        ],
     );
 ?>
                 </div>
@@ -74,66 +72,7 @@ use MagicSunday\Webtrees\Statistic\Statistic;
         [
             'identifier' => 'family-status-donut-chart',
             'data'       => $statistic->getFamilyStatusData(),
-        ]
-    );
-?>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row row-cols-1 row-cols-lg-3 g-3 mt-1 mb-3">
-        <div class="col">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title"><?php echo I18N::translate('Common surnames'); ?></h5>
-                    <small><?php echo I18N::translate('%s distinct surnames (top 15 shown)', I18N::number($statistic->getTotalSurnames())); ?></small>
-                </div>
-                <div class="card-body">
-                    <?php
-    echo view(
-        $module . '::modules/statistics-chart/Partials/TagCloud',
-        [
-            'data' => $statistic->getTopSurnames(15),
-        ]
-    );
-?>
-                </div>
-            </div>
-        </div>
-
-        <div class="col">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title"><?php echo I18N::translate('Common given names – male'); ?></h5>
-                    <small><?php echo I18N::translate('%s distinct male given names (top 15 shown)', I18N::number($statistic->getTotalMaleGivenNames())); ?></small>
-                </div>
-                <div class="card-body">
-                    <?php
-    echo view(
-        $module . '::modules/statistics-chart/Partials/TagCloud',
-        [
-            'data' => $statistic->getTopMaleGivenNames(15),
-        ]
-    );
-?>
-                </div>
-            </div>
-        </div>
-
-        <div class="col">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title"><?php echo I18N::translate('Common given names – female'); ?></h5>
-                    <small><?php echo I18N::translate('%s distinct female given names (top 15 shown)', I18N::number($statistic->getTotalFemaleGivenNames())); ?></small>
-                </div>
-                <div class="card-body">
-                    <?php
-    echo view(
-        $module . '::modules/statistics-chart/Partials/TagCloud',
-        [
-            'data' => $statistic->getTopFemaleGivenNames(15),
-        ]
+        ],
     );
 ?>
                 </div>

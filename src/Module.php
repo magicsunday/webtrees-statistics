@@ -26,6 +26,8 @@ use Override;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
+use function realpath;
+
 /**
  * Statistics chart module.
  *
@@ -40,25 +42,13 @@ class Module extends StatisticsChartModule implements ModuleAssetUrlInterface, M
 
     private const string GITHUB_REPO = 'magicsunday/webtrees-statistics';
 
-    /**
-     * @var string
-     */
-    public const CUSTOM_AUTHOR = 'Rico Sonntag';
+    public const string CUSTOM_AUTHOR = 'Rico Sonntag';
 
-    /**
-     * @var string
-     */
-    public const CUSTOM_VERSION = '1.0.0-dev';
+    public const string CUSTOM_VERSION = '1.0.0-dev';
 
-    /**
-     * @var string
-     */
-    public const CUSTOM_SUPPORT_URL = 'https://github.com/' . self::GITHUB_REPO . '/issues';
+    public const string CUSTOM_SUPPORT_URL = 'https://github.com/' . self::GITHUB_REPO . '/issues';
 
-    /**
-     * @var string
-     */
-    public const CUSTOM_LATEST_VERSION = 'https://api.github.com/repos/' . self::GITHUB_REPO . '/releases/latest';
+    public const string CUSTOM_LATEST_VERSION = 'https://api.github.com/repos/' . self::GITHUB_REPO . '/releases/latest';
 
     /**
      * Initialization.
@@ -105,9 +95,9 @@ class Module extends StatisticsChartModule implements ModuleAssetUrlInterface, M
     }
 
     /**
-     * A form to request the chart parameters.
+     * Renders the top-level page with the six-tab navigation skeleton.
      *
-     * @param ServerRequestInterface $request
+     * @param ServerRequestInterface $request Incoming HTTP request
      *
      * @return ResponseInterface
      */
@@ -146,156 +136,101 @@ class Module extends StatisticsChartModule implements ModuleAssetUrlInterface, M
     }
 
     /**
-     * @param ServerRequestInterface $request
+     * Render the Overview tab — sex / living-deceased / marital-status donuts.
      *
-     * @return ResponseInterface
+     * @param ServerRequestInterface $request Incoming HTTP request
      */
     public function getOverviewAction(ServerRequestInterface $request): ResponseInterface
     {
-        $this->layout = 'layouts/ajax';
-
-        return $this->viewResponse(
-            $this->name() . '::modules/statistics-chart/Templates/Overview',
-            [
-                'module'    => $this->name(),
-                'statistic' => Registry::container()->get(Statistic::class),
-            ]
-        );
+        return $this->renderTab('Overview');
     }
 
     /**
-     * @param ServerRequestInterface $request
+     * Render the Names tab — common surnames and given-name tag clouds.
      *
-     * @return ResponseInterface
+     * @param ServerRequestInterface $request Incoming HTTP request
+     */
+    public function getNamesAction(ServerRequestInterface $request): ResponseInterface
+    {
+        return $this->renderTab('Names');
+    }
+
+    /**
+     * Render the Tree Health tab — data-quality metrics.
+     *
+     * @param ServerRequestInterface $request Incoming HTTP request
+     */
+    public function getTreeHealthAction(ServerRequestInterface $request): ResponseInterface
+    {
+        return $this->renderTab('TreeHealth');
+    }
+
+    /**
+     * Render the Life Span tab — births, deaths and lifespan distributions.
+     *
+     * @param ServerRequestInterface $request Incoming HTTP request
+     */
+    public function getLifeSpanAction(ServerRequestInterface $request): ResponseInterface
+    {
+        return $this->renderTab('LifeSpan');
+    }
+
+    /**
+     * Render the Family tab — marriage, divorce, children and kinship widgets.
+     *
+     * @param ServerRequestInterface $request Incoming HTTP request
+     */
+    public function getFamilyAction(ServerRequestInterface $request): ResponseInterface
+    {
+        return $this->renderTab('Family');
+    }
+
+    /**
+     * Render the Places tab — country-of-birth / country-of-death maps.
+     *
+     * @param ServerRequestInterface $request Incoming HTTP request
      */
     public function getPlacesAction(ServerRequestInterface $request): ResponseInterface
     {
-        $this->layout = 'layouts/ajax';
-
-        return $this->viewResponse(
-            $this->name() . '::modules/statistics-chart/Templates/Places',
-            [
-                'module'    => $this->name(),
-                'statistic' => Registry::container()->get(Statistic::class),
-            ]
-        );
+        return $this->renderTab('Places');
     }
 
     /**
-     * @param ServerRequestInterface $request
-     *
-     * @return ResponseInterface
-     */
-    public function getBirthsAction(ServerRequestInterface $request): ResponseInterface
-    {
-        $this->layout = 'layouts/ajax';
-
-        return $this->viewResponse(
-            $this->name() . '::modules/statistics-chart/Templates/Births',
-            [
-                'module'    => $this->name(),
-                'statistic' => Registry::container()->get(Statistic::class),
-            ]
-        );
-    }
-
-    /**
-     * @param ServerRequestInterface $request
-     *
-     * @return ResponseInterface
-     */
-    public function getDeathsAction(ServerRequestInterface $request): ResponseInterface
-    {
-        $this->layout = 'layouts/ajax';
-
-        return $this->viewResponse(
-            $this->name() . '::modules/statistics-chart/Templates/Deaths',
-            [
-                'module'    => $this->name(),
-                'statistic' => Registry::container()->get(Statistic::class),
-            ]
-        );
-    }
-
-    /**
-     * Renders the placeholder for the not-yet-implemented Relationships tab.
-     */
-    public function getRelationshipsAction(ServerRequestInterface $request): ResponseInterface
-    {
-        return $this->stubResponse('Relationships');
-    }
-
-    /**
-     * Renders the placeholder for the not-yet-implemented Age tab.
-     */
-    public function getAgeAction(ServerRequestInterface $request): ResponseInterface
-    {
-        return $this->stubResponse('Age');
-    }
-
-    /**
-     * Renders the placeholder for the not-yet-implemented Weddings tab.
-     */
-    public function getWeddingsAction(ServerRequestInterface $request): ResponseInterface
-    {
-        return $this->stubResponse('Weddings');
-    }
-
-    /**
-     * Renders the placeholder for the not-yet-implemented Divorces tab.
-     */
-    public function getDivorcesAction(ServerRequestInterface $request): ResponseInterface
-    {
-        return $this->stubResponse('Divorces');
-    }
-
-    /**
-     * Renders the placeholder for the not-yet-implemented Children tab.
-     */
-    public function getChildrenAction(ServerRequestInterface $request): ResponseInterface
-    {
-        return $this->stubResponse('Children');
-    }
-
-    /**
-     * Returns the action → translated-label map that drives both the tab navigation
-     * in getChartAction() and the heading shown by stub placeholders. Keeping the
-     * catalog in one place removes the lockstep coupling between the two surfaces
-     * and avoids any per-tab label drift.
+     * Returns the action → translated-label map that drives the tab
+     * navigation in {@see getChartAction()}. Order here is the order the
+     * tabs appear on screen.
      *
      * @return array<string, string>
      */
     private function tabCatalog(): array
     {
         return [
-            'Overview'      => I18N::translate('Overview'),
-            'Relationships' => I18N::translate('Relationships'),
-            'Places'        => I18N::translate('Places'),
-            'Age'           => I18N::translate('Age'),
-            'Births'        => I18N::translate('Births'),
-            'Deaths'        => I18N::translate('Deaths'),
-            'Weddings'      => I18N::translate('Weddings'),
-            'Divorces'      => I18N::translate('Divorces'),
-            'Children'      => I18N::translate('Children'),
+            'Overview'   => I18N::translate('Overview'),
+            'Names'      => I18N::translate('Names'),
+            'TreeHealth' => I18N::translate('Tree health'),
+            'LifeSpan'   => I18N::translate('Life span'),
+            'Family'     => I18N::translate('Family'),
+            'Places'     => I18N::translate('Places'),
         ];
     }
 
     /**
-     * Render the shared "Coming soon" placeholder for tabs that are planned but
-     * not yet implemented. The label is looked up from the tab catalog so any
-     * rename only happens in one place.
+     * Shared renderer for every tab action. The template name matches the
+     * action key one-to-one so adding a tab is a two-line change (catalog
+     * entry + action method).
      *
-     * @param string $action Tab action key (e.g. "Relationships")
+     * @param string $template Template file name under Templates/ without extension
      */
-    private function stubResponse(string $action): ResponseInterface
+    private function renderTab(string $template): ResponseInterface
     {
         $this->layout = 'layouts/ajax';
 
         return $this->viewResponse(
-            $this->name() . '::modules/statistics-chart/Templates/ComingSoon',
+            $this->name() . '::modules/statistics-chart/Templates/' . $template,
             [
-                'tabLabel' => $this->tabCatalog()[$action],
-            ],
+                'module'    => $this->name(),
+                'statistic' => Registry::container()->get(Statistic::class),
+            ]
         );
     }
 }

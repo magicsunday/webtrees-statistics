@@ -1,5 +1,5 @@
 ## Overview
-This repository hosts the webtrees statistics module — a tab-based dashboard of tree-wide statistics (sex / living-deceased / marital-status / surnames / given-names / births / deaths / weddings / divorces / children) built on the chart-lib widgets, installed as a Composer package inside webtrees.
+This repository hosts the webtrees statistics module — a six-tab dashboard of tree-wide statistics built on the chart-lib widgets, installed as a Composer package inside webtrees. The tabs are organised by data nature: Overview (population summary), Names (surnames + given names), Tree health (data-quality), Life span (births + deaths + lifespan distributions), Family (marriage / divorce / children / kinship aggregates), Places (geographical distributions).
 
 ## Setup/env
 - PHP 8.3+ with extensions dom and json is required; composer installs dependencies into `.build/vendor` and binaries into `.build/bin`.
@@ -28,16 +28,18 @@ This repository hosts the webtrees statistics module — a tab-based dashboard o
 ### Data flow: PHP → Partial templates → chart-lib widgets
 
 ```
-Module.php (entry point, registers route + 5 stub action methods)
-  → Templates/<TabName>.phtml (tab body — Overview, Births, Deaths, Places + 5 ComingSoon stubs)
+Module.php (entry point, registers route + 6 tab action methods)
+  → Templates/<TabName>.phtml (tab body — Overview, Names, TreeHealth, LifeSpan, Family, Places)
     → Partials/<WidgetName>.phtml (DonutChart, ProgressList, GeoMap, TagCloud)
       → @magicsunday/webtrees-chart-lib widgets render the d3 visualisation
 ```
 
+Every tab action delegates to the private `renderTab(string $template)` helper, which loads `Templates/<template>.phtml` with the active `Statistic` aggregator. Adding a new tab is a three-place change: add an entry to `tabCatalog()`, add a `get<Name>Action()` method that calls `renderTab('<Name>')`, and create `Templates/<Name>.phtml`.
+
 The `Statistic` aggregator service is resolved via the webtrees DI container (`Registry::container()->get(Statistic::class)`) and aggregates data from three repositories plus core's `StatisticsData`.
 
 ### PHP (`src/`)
-- **`Module.php`** — Entry point, extends webtrees `StatisticsChartModule`, implements `ModuleAssetUrlInterface` + `ModuleCustomInterface`. Registers a route per tab; non-implemented tabs route to `stubResponse()` which renders the `ComingSoon` partial.
+- **`Module.php`** — Entry point, extends webtrees `StatisticsChartModule`, implements `ModuleAssetUrlInterface` + `ModuleCustomInterface`. Registers six tab actions (Overview, Names, TreeHealth, LifeSpan, Family, Places) that all delegate to a shared `renderTab()` helper.
 - **`Statistic.php`** — `final readonly` aggregator service. Constructor-injects `StatisticsData` (core) plus `FamilyRepository`, `EventRepository`, `NameRepository`. Public methods return either scalars or `[{label, value, class?}]` shapes for chart-lib widgets. Country-grouped queries return `[]` until core exposes a public accessor (`@todo` marker in the docblock).
 - **`MaritalBucket.php`** — Backed enum (`current` / `divorced` / `widowed` / `single`) used as the typed bucket-key for `FamilyRepository::classifyLivingIndividuals()`.
 - **`Repository/FamilyRepository.php`** — Classifies every living individual into one marital bucket using the same per-family decision order as `\Fisharebest\Webtrees\Census\AbstractCensusColumnCondition::generate()`. The four bucket counts sum exactly to `StatisticsData::countIndividualsLiving()`. Local constants (`MARRIAGE_TAGS = ['MARR']`, `DIVORCE_TAGS = ['DIV', 'ANUL']`) deliberately differ from `Gedcom::MARRIAGE_EVENTS` / `Gedcom::DIVORCE_EVENTS` because the latter include `_NMR` (not married) and `_SEPR` (separated, not divorced) which would invert the bucket semantics.
@@ -45,10 +47,12 @@ The `Statistic` aggregator service is resolved via the webtrees DI container (`R
 - **`Repository/NameRepository.php`** — Distinct primary-name counts for surnames + given names, restricted to `n_num = 0` to avoid AKA/alias inflation. Bypasses `StatisticsData::commonSurnames` / `commonGivenNames` whose `int $limit` argument feeds SQL `LIMIT` (or `Collection::slice`) and silently returns 0 when passed 0.
 
 ### Views (`resources/views/modules/statistics-chart/`)
-- **`page.phtml`** — Outer tab navigation. Each tab anchor loads the matching tab body lazily.
-- **`Templates/Overview.phtml`** — Six donut/list cards (sex, living/deceased, marital status, surnames, male given names, female given names).
-- **`Templates/Births.phtml` / `Deaths.phtml` / `Places.phtml`** — Tab bodies that compose multiple Partials.
-- **`Templates/ComingSoon.phtml`** — Placeholder for the five tabs not yet implemented in Phase 1 (Relationships, Age, Weddings, Divorces, Children).
+- **`page.phtml`** — Outer six-tab navigation. Each tab anchor loads the matching tab body lazily.
+- **`Templates/Overview.phtml`** — Three donut cards (sex, living/deceased, marital status).
+- **`Templates/Names.phtml`** — Three tag-cloud cards (common surnames, male given names, female given names).
+- **`Templates/LifeSpan.phtml`** — Five progress-list cards (births by month / zodiac / century, deaths by month / century).
+- **`Templates/Places.phtml`** — Country-of-birth and country-of-death maps with companion top-10 lists.
+- **`Templates/TreeHealth.phtml`** + **`Templates/Family.phtml`** — Placeholder tabs that will be filled by upcoming widget issues.
 - **`Partials/<Widget>.phtml`** — Thin shells that emit the `data-wmu-widget` JSON marker and the empty target element consumed by chart-lib widgets.
 
 ### JS (`resources/js/modules/`)
