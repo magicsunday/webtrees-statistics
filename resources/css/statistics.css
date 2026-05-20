@@ -288,6 +288,66 @@
     --bs-progress-label-gradient-end:   var(--wmstats-gradient-tree-health-gap-end);
 }
 
+/* ----------------------------------------------------------------------
+   Progress-bar gradient pairs for the LifeSpan / Family tab widgets.
+   Every histogram / progress-list rendered through Partials/ProgressList
+   needs both `--bs-progress-label-gradient-start` and
+   `--bs-progress-label-gradient-end` set; the partial's `color-mix()`
+   blends between them based on the bar's width fraction. Without
+   the variables the `color-mix()` collapses to transparent and the
+   bar renders invisible.
+
+   Each grouping reuses the same gradient — the bar's CSS class is
+   really a category marker, not an individual colour.
+   -------------------------------------------------------------------- */
+
+.wt-statistics-chart .progress-age-at-death,
+.wt-statistics-chart .progress-oldest-deceased,
+.wt-statistics-chart .progress-oldest-living {
+    --bs-progress-label-gradient-start: rgb(204, 230, 215);
+    --bs-progress-label-gradient-end:   rgb(46, 116, 75);
+}
+
+.wt-statistics-chart .progress-age-at-marriage-m,
+.wt-statistics-chart .progress-age-at-divorce-m {
+    --bs-progress-label-gradient-start: rgb(206, 222, 240);
+    --bs-progress-label-gradient-end:   rgb(56, 113, 184);
+}
+
+.wt-statistics-chart .progress-age-at-marriage-f,
+.wt-statistics-chart .progress-age-at-divorce-f {
+    --bs-progress-label-gradient-start: rgb(243, 215, 230);
+    --bs-progress-label-gradient-end:   rgb(190, 71, 130);
+}
+
+.wt-statistics-chart .progress-marriage-duration,
+.wt-statistics-chart .progress-age-gap,
+.wt-statistics-chart .progress-weddings-century,
+.wt-statistics-chart .progress-weddings-month {
+    --bs-progress-label-gradient-start: rgb(230, 220, 245);
+    --bs-progress-label-gradient-end:   rgb(125, 95, 200);
+}
+
+.wt-statistics-chart .progress-divorces-century,
+.wt-statistics-chart .progress-divorces-month,
+.wt-statistics-chart .progress-divorce-cohort {
+    --bs-progress-label-gradient-start: rgb(252, 224, 197);
+    --bs-progress-label-gradient-end:   rgb(210, 110, 30);
+}
+
+.wt-statistics-chart .progress-children-per-family,
+.wt-statistics-chart .progress-sibling-gap,
+.wt-statistics-chart .progress-largest-families,
+.wt-statistics-chart .progress-first-child-month {
+    --bs-progress-label-gradient-start: rgb(245, 235, 205);
+    --bs-progress-label-gradient-end:   rgb(180, 140, 30);
+}
+
+.wt-statistics-chart .progress-ancestor-count {
+    --bs-progress-label-gradient-start: rgb(225, 215, 240);
+    --bs-progress-label-gradient-end:   rgb(95, 65, 165);
+}
+
 .wt-statistics-chart .wt-stat-scalar {
     padding: 1.5rem 0;
 }
