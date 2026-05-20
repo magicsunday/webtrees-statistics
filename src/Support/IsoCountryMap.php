@@ -11,7 +11,9 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Support;
 
+use Fisharebest\Webtrees\I18N;
 use Locale;
+use Throwable;
 
 use function array_unique;
 use function preg_replace;
@@ -131,11 +133,33 @@ final class IsoCountryMap
     private static ?array $reverseLookup = null;
 
     /**
-     * @param string $userLocale Optional extra locale (typically the active webtrees locale) folded into the reverse lookup.
+     * @param string $userLocale Optional extra locale folded into the reverse lookup. Empty string defaults to the active webtrees I18N tag — pass an explicit value only when overriding for tests or for a non-user-facing label resolution.
      */
     public function __construct(
         private readonly string $userLocale = '',
     ) {
+    }
+
+    /**
+     * The effective locale for label resolution: the explicit
+     * `$userLocale` if non-empty, otherwise the active webtrees
+     * locale (so labels match the rest of the UI's language).
+     * Falls back to `en_US` when no webtrees locale is active —
+     * this happens in unit tests that don't bootstrap I18N.
+     */
+    private function effectiveLocale(): string
+    {
+        if ($this->userLocale !== '') {
+            return $this->userLocale;
+        }
+
+        try {
+            $tag = I18N::languageTag();
+        } catch (Throwable) {
+            return 'en_US';
+        }
+
+        return $tag !== '' ? $tag : 'en_US';
     }
 
     /**
@@ -166,8 +190,7 @@ final class IsoCountryMap
      */
     public function label(string $iso2): string
     {
-        $locale = $this->userLocale !== '' ? $this->userLocale : 'en_US';
-        $name   = (string) Locale::getDisplayRegion('-' . $iso2, $locale);
+        $name = (string) Locale::getDisplayRegion('-' . $iso2, $this->effectiveLocale());
 
         return ($name !== '' && $name !== $iso2) ? $name : $iso2;
     }
@@ -211,9 +234,8 @@ final class IsoCountryMap
      */
     private function buildReverseLookup(): array
     {
-        $locales = $this->userLocale !== ''
-            ? array_unique([...self::PRESEED_LOCALES, $this->userLocale])
-            : self::PRESEED_LOCALES;
+        $effective = $this->effectiveLocale();
+        $locales   = array_unique([...self::PRESEED_LOCALES, $effective]);
 
         $map = [];
 
