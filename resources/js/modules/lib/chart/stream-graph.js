@@ -34,7 +34,10 @@ export class StreamGraph
         this.options    = Object.assign({
             width:  null,
             height: 240,
-            margin: { top: 12, right: 16, bottom: 28, left: 16 },
+            // Asymmetric top/bottom margins: top only needs a couple
+            // of pixels for the y-pad, bottom carries the x-axis tick
+            // labels too.
+            margin: { top: 4, right: 16, bottom: 28, left: 16 },
         }, options || {});
     }
 
