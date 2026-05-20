@@ -130,4 +130,23 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame(1, $result['45–49'] ?? null);
         self::assertSame(3, array_sum($result));
     }
+
+    /**
+     * Every divorce histogram method must survive a tree with zero
+     * divorces (no families at all) — the same acceptance contract
+     * issue #4 requires for marriages also applies here because the
+     * sex-axis CSS tokens are shared across the two sets.
+     */
+    #[Test]
+    public function histogramsRenderEmptyOnZeroDivorces(): void
+    {
+        $tree = $this->importFixtureTree('empty-marriages.ged');
+        $repo = $this->repository($tree);
+
+        self::assertSame(0, array_sum($repo->ageAtDivorceDistribution('M')));
+        self::assertSame(0, array_sum($repo->ageAtDivorceDistribution('F')));
+        self::assertSame(0, array_sum($repo->divorcesByCentury()));
+        self::assertSame(0, array_sum($repo->divorcesByMonth()));
+        self::assertSame([], $repo->divorceRateByMarriageCohort());
+    }
 }

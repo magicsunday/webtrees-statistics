@@ -1,8 +1,8 @@
 ## Overview
-This repository hosts the webtrees statistics module — a six-tab dashboard of tree-wide statistics built on the chart-lib widgets, installed as a Composer package inside webtrees. The tabs are organised by data nature: Overview (population summary), Names (surnames + given names), Tree health (data-quality), Life span (births + deaths + lifespan distributions), Family (marriage / divorce / children / kinship aggregates), Places (geographical distributions).
+This repository hosts the webtrees statistics module — a six-tab dashboard of tree-wide statistics built on the chart-lib widgets, installed as a Composer package inside webtrees. The tabs are organised by data nature: Overview (population summary), Names (surnames + given names + decade trends), Tree health (data-quality), Life span (births + deaths + age distributions), Family (marriage / divorce / children / kinship aggregates), Places (geographical distributions).
 
 ## Setup/env
-- PHP 8.3+ with extensions dom and json is required; composer installs dependencies into `.build/vendor` and binaries into `.build/bin`.
+- PHP 8.3+ with extensions dom, json and intl is required; composer installs dependencies into `.build/vendor` and binaries into `.build/bin`.
 - Node.js tooling is used for asset builds (rollup). Install dev dependencies via `npm install` when touching frontend resources.
 - Run all PHP and Node tooling inside the webtrees buildbox container — never on the host:
   ```
@@ -25,38 +25,66 @@ This repository hosts the webtrees statistics module — a six-tab dashboard of 
 
 ## Architecture
 
-### Data flow: PHP → Partial templates → chart-lib widgets
+### Data flow: PHP → data-widget partial → dispatcher → chart-lib widget
 
 ```
 Module.php (entry point, registers route + 6 tab action methods)
   → Templates/<TabName>.phtml (tab body — Overview, Names, TreeHealth, LifeSpan, Family, Places)
-    → Partials/<WidgetName>.phtml (DonutChart, ProgressList, GeoMap, TagCloud)
-      → @magicsunday/webtrees-chart-lib widgets render the d3 visualisation
+    → Partials/<WidgetName>.phtml (DonutChart, ProgressList, GeoMap, TagCloud, StreamGraph, SankeyFlow)
+      → renders <div data-widget="..." data-payload="..." data-options="...">
+        → page.phtml AJAX-tab-callback fires
+          WebtreesStatistic.renderWidgets(tabPane)
+            → modules/index.js dispatch table:
+              donut        → @magicsunday/webtrees-chart-lib::DonutChart
+              world-map    → drawWorldMap (geojson fetch wrapper around chart-lib WorldMap)
+              stream-graph → @magicsunday/webtrees-chart-lib::StreamGraph
+              sankey-flow  → @magicsunday/webtrees-chart-lib::SankeyFlow
 ```
 
-Every tab action delegates to the private `renderTab(string $template)` helper, which loads `Templates/<template>.phtml` with the active `Statistic` aggregator. Adding a new tab is a three-place change: add an entry to `tabCatalog()`, add a `get<Name>Action()` method that calls `renderTab('<Name>')`, and create `Templates/<Name>.phtml`.
+Every tab action delegates to the private `renderTab(string $template)` helper, which loads `Templates/<template>.phtml` with the active `Statistic` aggregator. Adding a new tab is a three-place change: an entry in `tabCatalog()`, a `get<Name>Action()` method that calls `renderTab('<Name>')`, and a `Templates/<Name>.phtml` body.
 
-The `Statistic` aggregator service is resolved via the webtrees DI container (`Registry::container()->get(Statistic::class)`) and aggregates data from three repositories plus core's `StatisticsData`.
+The `Statistic` aggregator service is resolved via the webtrees DI container (`Registry::container()->get(Statistic::class)`) and aggregates data from twelve repositories plus core's `StatisticsData`.
 
 ### PHP (`src/`)
 - **`Module.php`** — Entry point, extends webtrees `StatisticsChartModule`, implements `ModuleAssetUrlInterface` + `ModuleCustomInterface`. Registers six tab actions (Overview, Names, TreeHealth, LifeSpan, Family, Places) that all delegate to a shared `renderTab()` helper.
-- **`Statistic.php`** — `final readonly` aggregator service. Constructor-injects `StatisticsData` (core) plus `FamilyRepository`, `EventRepository`, `NameRepository`. Public methods return either scalars or `[{label, value, class?}]` shapes for chart-lib widgets. Country-grouped queries return `[]` until core exposes a public accessor (`@todo` marker in the docblock).
+- **`Statistic.php`** — `final readonly` aggregator service. Constructor-injects `StatisticsData` (core) plus the twelve repositories. Public methods return either scalars or `[{label, value, class?}]` shapes for chart-lib widgets.
 - **`MaritalBucket.php`** — Backed enum (`current` / `divorced` / `widowed` / `single`) used as the typed bucket-key for `FamilyRepository::classifyLivingIndividuals()`.
-- **`Repository/FamilyRepository.php`** — Classifies every living individual into one marital bucket using the same per-family decision order as `\Fisharebest\Webtrees\Census\AbstractCensusColumnCondition::generate()`. The four bucket counts sum exactly to `StatisticsData::countIndividualsLiving()`. Local constants (`MARRIAGE_TAGS = ['MARR']`, `DIVORCE_TAGS = ['DIV', 'ANUL']`) deliberately differ from `Gedcom::MARRIAGE_EVENTS` / `Gedcom::DIVORCE_EVENTS` because the latter include `_NMR` (not married) and `_SEPR` (separated, not divorced) which would invert the bucket semantics.
-- **`Repository/EventRepository.php`** — Single method `getBirthsByZodiacSign()` since core's `StatisticsData` does not expose zodiac grouping. Month / century / country groupings delegate to `StatisticsData` via the aggregator instead.
-- **`Repository/NameRepository.php`** — Distinct primary-name counts for surnames + given names, restricted to `n_num = 0` to avoid AKA/alias inflation. Bypasses `StatisticsData::commonSurnames` / `commonGivenNames` whose `int $limit` argument feeds SQL `LIMIT` (or `Collection::slice`) and silently returns 0 when passed 0.
+
+### Repositories (`src/Repository/`)
+| Repository | Responsibility |
+|---|---|
+| `FamilyRepository` | Marital-status classification (current / divorced / widowed / single) |
+| `EventRepository` | Births-by-zodiac-sign — the one stat core doesn't expose |
+| `NameRepository` | Distinct surname / given-name counts, restricted to `n_num = 0` |
+| `TreeHealthRepository` | Source-citation coverage, missing-event gaps, average generation length |
+| `GivenNameTrendsRepository` | Per-decade frequency of the top-N given names for the stream graph |
+| `MigrationRepository` | Birth → death country flows for the Sankey diagram (bipartite split for DAG safety) |
+| `CountryRepository` | Births / deaths grouped by ISO-3166-1 alpha-2 country |
+| `LifeSpanRepository` | Age-at-death histogram, oldest deceased / living, age-band donut |
+| `MarriageRepository` | Age at marriage M+F, duration, couple age-gap, weddings century+month |
+| `DivorceRepository` | Divorces by century / month, age at divorce M+F, divorce rate per MARR cohort |
+| `ChildrenRepository` | Children-per-family histogram, sibling-age-gap, top-10 largest families, childless donut, first-children-by-month |
+| `KinshipRepository` | Known-ancestor distribution + average pedigree completeness (Lacy 1989) |
+
+### Support (`src/Support/`)
+- **`GedcomScanner`** — Reusable raw-GEDCOM helpers (`hasAnyTagAnchored`, `extractEventYear`, `extractEventPlace`) so anchored tag matching (`\n1 <tag>` followed by space / newline / EOS) lives in one place. `DIV` does not match `DIVF`; bare `2 PLAC` (no place name) is treated as no place at all.
+- **`IsoCountryMap`** — Free-text country name → ISO-3166-1 alpha-2 resolver. Built on PHP's intl extension (`Locale::getDisplayRegion`) across nine pre-seeded locales (English, German, French, Spanish, Italian, Dutch, Portuguese, Polish, Russian) plus the active webtrees locale, with a manual-aliases list for common GEDCOM abbreviations (USA, UK, Deutschland, …). Labels resolve against the active `I18N::languageTag()`.
 
 ### Views (`resources/views/modules/statistics-chart/`)
-- **`page.phtml`** — Outer six-tab navigation. Each tab anchor loads the matching tab body lazily.
+- **`page.phtml`** — Outer six-tab navigation. AJAX-loads each tab body lazily and runs `WebtreesStatistic.renderWidgets(pane)` against the freshly-injected pane on the `show.bs.tab` event.
 - **`Templates/Overview.phtml`** — Three donut cards (sex, living/deceased, marital status).
-- **`Templates/Names.phtml`** — Three tag-cloud cards (common surnames, male given names, female given names).
-- **`Templates/LifeSpan.phtml`** — Five progress-list cards (births by month / zodiac / century, deaths by month / century).
-- **`Templates/Places.phtml`** — Country-of-birth and country-of-death maps with companion top-10 lists.
-- **`Templates/TreeHealth.phtml`** + **`Templates/Family.phtml`** — Placeholder tabs that will be filled by upcoming widget issues.
-- **`Partials/<Widget>.phtml`** — Thin shells that emit the `data-wmu-widget` JSON marker and the empty target element consumed by chart-lib widgets.
+- **`Templates/Names.phtml`** — Three tag-cloud cards (common surnames, male given names, female given names) + given-name popularity stream graph (top-10 by decade).
+- **`Templates/TreeHealth.phtml`** — Source-citation coverage, missing-event gaps, average generation length.
+- **`Templates/LifeSpan.phtml`** — Births / deaths by month / zodiac / century, age-at-death histogram (10-year bands), age-band donut (life-stages), top-10 oldest deceased + living.
+- **`Templates/Family.phtml`** — Age at marriage M+F, marriage duration, couple age gap, weddings century + month, divorces century + month + age M+F, divorce-cohort rate, children-per-family, sibling gap, top-10 largest families, with / without children donut, ancestor count, average pedigree completeness, first children by month.
+- **`Templates/Places.phtml`** — Birth-country map + companion top-10, death-country map + companion top-10, birth → death migration Sankey.
+- **`Partials/<Widget>.phtml`** — Thin shells that emit the `data-widget` JSON marker and the empty target element consumed by chart-lib widgets.
 
 ### JS (`resources/js/modules/`)
-Tab dispatcher reads `data-wmu-widget` on each Partial root and instantiates the matching chart-lib widget (`DonutChart`, `WorldMap`, `ProgressList`, `TagCloud`). All d3 modules are peer-dependencies pulled in via `package.json` — `d3-shape`, `d3-geo`, `d3-scale`, `d3-scale-chromatic`, `d3-array` — declared as `external` in `rollup.config.js`.
+- **`index.js`** — exports `renderWidgets(root)`. Scans every `[data-widget]` element, parses `data-payload` / `data-options` JSON, and dispatches to the registered draw function. The world-map dispatch is async because it fetches the GeoJSON (cached per page load) before instantiating the chart-lib widget. Also initialises Bootstrap popovers attached to chart-header info buttons after each render.
+- **`dashboard-bus.js`** — Shared selection observable (see Cross-widget selection bus section below).
+
+All d3 modules are peer-dependencies pulled in via `package.json` — `d3-array`, `d3-axis`, `d3-ease`, `d3-fetch`, `d3-geo`, `d3-interpolate`, `d3-sankey`, `d3-scale`, `d3-scale-chromatic`, `d3-selection`, `d3-shape`, `d3-transition` — declared as `external` in `rollup.config.js`.
 
 ## Key patterns
 - **Bucket precedence (per individual)**: current > divorced > widowed > single. Applied in `FamilyRepository::classifyOneIndividual()` so a remarried-after-widowed living person is classed as "current", not "widowed".
@@ -64,22 +92,24 @@ Tab dispatcher reads `data-wmu-widget` on each Partial root and instantiates the
 - **Orphaned spouse XREF**: when a partner record is missing from the individuals table, the classifier neither marks the survivor as widowed nor as current — it abstains from that family entirely so the count is conservative.
 - **Empty-string XREFs**: webtrees stores `''` (not `NULL`) when an INDI's `1 HUSB`/`1 WIFE` line is absent. `partnerIdOf()` normalises both shapes to `null`.
 - **Anchored tag matching**: `hasAnyTagAnchored()` requires `\n1 <tag>` followed by space, newline, or end-of-string so that `DIV` does not match `DIVF`. Both the partner-death check and the family-event check use the same anchored helper.
+- **Core century-tuple shape**: `StatisticsData::countEventsByCentury` returns a 0-indexed list of `[centuryLabel, total]` tuples — NOT a labelled map. Repositories unpack the tuple explicitly; `$k => $v` iteration silently collapses every count to 1 because `(int) $v` on an array equals 1.
+- **Bipartite Sankey nodes**: `MigrationRepository::flowsByCountry` keeps source-side and target-side nodes on disjoint index ranges, even when the same country appears on both ends. d3-sankey is a DAG layout and would otherwise throw "circular link" on counter-flows (Germany → USA combined with USA → Germany).
+- **Plain-name labels for progress-bar aria-labels**: `Individual::fullName()` returns HTML markup (`<span class="NAME">…</span>`). Module-base's `NameProcessor::getFullName()` is the placeholder-stripped plain-text accessor and the only safe form for `aria-label` interpolation in the progress-list partial.
+- **Single chart tooltip element on `document.body`**: every chart-lib widget that supports hover-tooltips uses `createChartTooltip()` from chart-lib — one shared `position: fixed` element across the whole page, clamped to viewport edges, flipped above-cursor / left-of-cursor when the preferred placement would overflow.
 
 ## Cross-widget selection bus
 
 `resources/js/modules/dashboard-bus.js` exposes a `DashboardBus` class — a tiny d3-dispatch wrapper that lets one widget broadcast a selection (e.g. "show me only the 1900s century") and every subscribed widget rebroadcast / re-filter against the same predicate.
 
 ### Contract
-
 - `bus.emit({ source: "donut.births-century", predicate: { century: 1900 } })` — broadcast.
 - `bus.onSelectionChanged(callback)` — subscribe. Returns an `unsubscribe` function for clean teardown.
 - A `null` predicate means "clear filter".
 - Every subscriber receives every event. Callers ignore their own emissions by matching the `source` string.
 
 ### Sequence
-
 ```
-+--------+         +---------------+         +----------+   +-----------+
++--------+         +---------------+         +-----------+   +-----------+
 | Widget |--emit-->| DashboardBus  |--fanout-| Widget A  |   | Widget B  |
 | (donut)|         | (selection)   |--fanout-| (sankey)  |   | (heatmap) |
 +--------+         +---------------+         +-----------+   +-----------+
@@ -88,12 +118,15 @@ Tab dispatcher reads `data-wmu-widget` on each Partial root and instantiates the
 The bus carries no data shape — each widget interprets the predicate against its own dataset. This keeps the bus itself ~50 lines and pushes the schema decision to the widget pair that actually shares semantics (e.g. century filter only makes sense between widgets that bucket by century).
 
 ### Status
-
-* Phase 2.0 ships the bus + 5 jest tests that exercise the multi-subscriber broadcast, unsubscribe, null-predicate, and source-self-ignore contracts.
-* Widget-side wiring (donut slice click → bus.emit, sankey re-filter on incoming selection) is deferred — chart-lib widgets currently have no `onSelectionChanged` hook of their own. That hook lands in a future chart-lib release alongside the first widget pair (births donut + migration sankey).
+- The bus + 5 jest tests covering multi-subscriber broadcast, unsubscribe, null-predicate, and source-self-ignore contracts is shipped.
+- Widget-side wiring (donut slice click → bus.emit, sankey re-filter on incoming selection) is tracked in issue #14 + chart-lib#10 + stats#33 — chart-lib widgets need an `onSelectionChanged` hook before the pilot wiring lands.
 
 ## Design principles
 - Priority order on conflict: **KISS > SOLID > DRY > YAGNI > GRASP > Law of Demeter > Separation of Concerns > Convention over Configuration**.
 - `declare(strict_types=1)`, no `mixed`, no `empty()`, no `@deprecated`, typed class constants, `final readonly` where applicable, qualified `use function` imports, PHPDoc on every class and method, English-only comments.
-- One class per file. Write tests for every class. Use PHPUnit `#[Test]` attributes (not docblock annotations).
+- One class per file. Write tests for every class with **real value-equality assertions against curated fixtures**, not just shape checks — the `assertGreaterThan(0)` style hides regressions where the iterator shape changed but the count happens to land near zero. Use PHPUnit `#[Test]` attributes (not docblock annotations).
 - Prefer `array_find` / `array_any` / `array_all` over manual `foreach` for "find one" / "any match" / "all match" intents.
+
+## Audit-loop discipline
+- Every issue umsetzen: spawn ALL relevant reviewers (correctness + maintainability + testing + project-standards always; conditional ones — adversarial / kieran / reliability / security / frontend — whenever their triggers match) in parallel before committing. Iterate fix → audit until 2× zero findings AND local `composer ci:test` green.
+- Keep `AGENTS.md` and the README in lockstep with code changes. If a section here references a behaviour the code no longer has, fix the doc in the same commit.

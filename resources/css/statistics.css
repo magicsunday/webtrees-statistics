@@ -312,16 +312,22 @@
     --bs-progress-label-gradient-end:   rgb(46, 116, 75);
 }
 
+/* Sex-tinted gradients share the Overview-donut sex tokens so a
+   palette adjustment in one place propagates to every sex-axis
+   histogram. The start colour is a hand-picked lighter shade of the
+   same hue — pinning gradient-end to the donut's full saturation
+   keeps the brightest bars in lockstep with the donut. */
+
 .wt-statistics-chart .progress-age-at-marriage-m,
 .wt-statistics-chart .progress-age-at-divorce-m {
-    --bs-progress-label-gradient-start: rgb(206, 222, 240);
-    --bs-progress-label-gradient-end:   rgb(56, 113, 184);
+    --bs-progress-label-gradient-start: rgb(214, 230, 244);
+    --bs-progress-label-gradient-end:   var(--wmstats-sex-male);
 }
 
 .wt-statistics-chart .progress-age-at-marriage-f,
 .wt-statistics-chart .progress-age-at-divorce-f {
-    --bs-progress-label-gradient-start: rgb(243, 215, 230);
-    --bs-progress-label-gradient-end:   rgb(190, 71, 130);
+    --bs-progress-label-gradient-start: rgb(255, 217, 233);
+    --bs-progress-label-gradient-end:   var(--wmstats-sex-female);
 }
 
 .wt-statistics-chart .progress-marriage-duration,

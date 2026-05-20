@@ -136,14 +136,6 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
      * array silently collapsed every count to 1 — so a tree with
      * 300 weddings reported "7 recorded marriages" (the number of
      * distinct centuries, not the actual total).
-     *
-     * The assertion below — total === fixture marriage count — is
-     * the load-bearing check: a tuple-vs-map regression in core's
-     * accessor would surface immediately as a total of 3 (centuries)
-     * vs 3 (marriages), matching by accident; using 4 fixture rows
-     * across 2 centuries would break that coincidence. The fixture
-     * stays at 3 because that's enough to assert the per-century
-     * split is correct.
      */
     #[Test]
     public function weddingsByCenturyPreservesActualCounts(): void
@@ -151,12 +143,82 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('marriage.ged');
         $result = $this->repository($tree)->weddingsByCentury();
 
-        // Total marriages across the fixture must match the
-        // tuple-collapsing bug's reciprocal: 3 marriages in 2
-        // centuries → sum of values must be 3, not 2.
         self::assertSame(3, array_sum($result));
-        // At least one century must carry > 1 marriage for the
-        // assertion to actually defend against the collapse bug.
         self::assertContains(2, array_values($result), 'one century should carry the two 20th-century marriages');
+    }
+
+    /**
+     * Every histogram method must survive a tree with zero
+     * marriages (no families at all) and return its empty / all-
+     * zero shape — neither throwing on `max()` of an empty array
+     * nor leaving partial buckets behind. The acceptance criteria
+     * for issue #4 spell this out explicitly.
+     *
+     * The repo-owned histograms (ageAtMarriage, duration, ageGap)
+     * keep their bucket scaffolding so the renderer reads the same
+     * keys on an empty tree as on a populated one. The pass-through
+     * accessors (weddingsByCentury / weddingsByMonth) legitimately
+     * return `[]` because they delegate to core — those are
+     * asserted only on `array_sum === 0`.
+     */
+    #[Test]
+    public function histogramsRenderEmptyOnZeroMarriages(): void
+    {
+        $tree = $this->importFixtureTree('empty-marriages.ged');
+        $repo = $this->repository($tree);
+
+        self::assertSame(0, array_sum($repo->ageAtMarriageDistribution('M')));
+        self::assertSame(0, array_sum($repo->ageAtMarriageDistribution('F')));
+        self::assertSame(0, array_sum($repo->durationDistribution()));
+        self::assertSame(0, array_sum($repo->ageGapDistribution()));
+        self::assertSame(0, array_sum($repo->weddingsByCentury()));
+        self::assertSame(0, array_sum($repo->weddingsByMonth()));
+    }
+
+    /**
+     * The "sparse" companion to the zero-marriages test. The fixture
+     * has two FAMs:
+     *
+     *  F1 — HUSB + WIFE present, NO MARR tag, NO BIRT dates → must
+     *       not contribute to durationDistribution (no marriage to
+     *       measure) nor ageAtMarriageDistribution (no MARR to age
+     *       against) nor ageGapDistribution (no spouse BIRT dates).
+     *
+     *  F2 — has MARR but only the husband has BIRT → ageGapDistribution
+     *       must drop the row (wife BIRT missing), ageAtMarriageDistribution
+     *       must drop the wife (no BIRT), but the husband is still
+     *       counted.
+     *
+     * The skip branches in each repo method are otherwise dead-code
+     * paths the existing fixtures never exercise.
+     */
+    #[Test]
+    public function histogramsSkipFamsWithoutMarrOrBirth(): void
+    {
+        $tree = $this->importFixtureTree('sparse-marriages.ged');
+        $repo = $this->repository($tree);
+
+        // F1 has no MARR → F1 contributes nothing.
+        // F2 has MARR + husband BIRT 1880 + wife no BIRT.
+        // Husband Bert was born 1880, married 1905 → 25 years old.
+        $husbands = $repo->ageAtMarriageDistribution('M');
+        self::assertSame(1, $husbands['25–29'] ?? null);
+        self::assertSame(1, array_sum($husbands), 'only Bert qualifies — Anna+Berta lack BIRT');
+
+        // No wife has a BIRT → wives histogram is empty.
+        self::assertSame(0, array_sum($repo->ageAtMarriageDistribution('F')));
+
+        // F1 has no MARR; F2 has MARR but no DIV / DEAT → no
+        // terminating event → duration histogram empty.
+        self::assertSame(0, array_sum($repo->durationDistribution()));
+
+        // F1 has no spouse BIRT; F2 only has the husband's BIRT
+        // → no fully-dated couple → age-gap histogram empty.
+        self::assertSame(0, array_sum($repo->ageGapDistribution()));
+
+        // F2's MARR 1905 lands in the 20th century.
+        self::assertSame(1, array_sum($repo->weddingsByCentury()));
+        // F2's MARR is in JUN.
+        self::assertSame(1, $repo->weddingsByMonth()['JUN'] ?? null);
     }
 }
