@@ -63,68 +63,68 @@ use MagicSunday\Webtrees\Statistic\Statistic;
             <div class="card h-100">
                 <?php
                     $birthsByMonth = $statistic->getBirthsByMonth();
-                    $totalBirths   = array_sum($birthsByMonth);
-                ?>
+$totalBirths                       = array_sum($birthsByMonth);
+?>
                 <div class="card-header">
                     <h5 class="card-title">Geburtsmonate</h5>
-                    <small><?= I18N::number($totalBirths) ?> Personen mit Geburtsmonat</small>
+                    <small><?php echo I18N::number($totalBirths); ?> Personen mit Geburtsmonat</small>
                 </div>
                 <div class="card-body">
                     <?php
-                        echo view(
-                            $module . '::modules/statistics-chart/Partials/ProgressList',
-                            [
-                                'class' => 'progress-births-month',
-                                'data'  => $birthsByMonth,
-                            ]
-                        );
-                    ?>
+        echo view(
+            $module . '::modules/statistics-chart/Partials/ProgressList',
+            [
+                'class' => 'progress-births-month',
+                'data'  => $birthsByMonth,
+            ]
+        );
+?>
                 </div>
             </div>
         </div>
         <div class="col">
             <div class="card h-100">
                 <?php
-                    $birthsByZodiacSign = $statistic->getBirthsByZodiacSign();
-                    $totalBirths        = array_sum($birthsByZodiacSign);
-                ?>
+$birthsByZodiacSign = $statistic->getBirthsByZodiacSign();
+$totalBirths        = array_sum($birthsByZodiacSign);
+?>
                 <div class="card-header">
                     <h5 class="card-title">Sternzeichen</h5>
-                    <small><?= I18N::number($totalBirths) ?> Personen mit Sternzeichen</small>
+                    <small><?php echo I18N::number($totalBirths); ?> Personen mit Sternzeichen</small>
                 </div>
                 <div class="card-body">
                     <?php
-                        echo view(
-                            $module . '::modules/statistics-chart/Partials/ProgressList',
-                            [
-                                'class' => 'progress-births-zodiac',
-                                'data'  => $birthsByZodiacSign,
-                            ]
-                        );
-                    ?>
+        echo view(
+            $module . '::modules/statistics-chart/Partials/ProgressList',
+            [
+                'class' => 'progress-births-zodiac',
+                'data'  => $birthsByZodiacSign,
+            ]
+        );
+?>
                 </div>
             </div>
         </div>
         <div class="col">
             <div class="card h-100">
                 <?php
-                    $birthsByCentury = $statistic->getBirthsByCentury();
-                    $totalBirths     = array_sum($birthsByCentury);
-                ?>
+$birthsByCentury = $statistic->getBirthsByCentury();
+$totalBirths     = array_sum($birthsByCentury);
+?>
                 <div class="card-header">
                     <h5 class="card-title">Geburtsstatistik nach Jahrhundert</h5>
-                    <small><?= I18N::number($totalBirths) ?> Personen mit Geburtsjahr</small>
+                    <small><?php echo I18N::number($totalBirths); ?> Personen mit Geburtsjahr</small>
                 </div>
                 <div class="card-body">
                     <?php
-                        echo view(
-                            $module . '::modules/statistics-chart/Partials/ProgressList',
-                            [
-                                'class' => 'progress-births-century',
-                                'data'  => $birthsByCentury,
-                            ]
-                        );
-                    ?>
+        echo view(
+            $module . '::modules/statistics-chart/Partials/ProgressList',
+            [
+                'class' => 'progress-births-century',
+                'data'  => $birthsByCentury,
+            ]
+        );
+?>
                 </div>
             </div>
         </div>

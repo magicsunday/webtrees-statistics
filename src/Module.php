@@ -22,6 +22,7 @@ use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Validator;
 use Fisharebest\Webtrees\View;
 use MagicSunday\Webtrees\ModuleBase\Contract\ModuleAssetUrlInterface;
+use Override;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -37,10 +38,7 @@ class Module extends StatisticsChartModule implements ModuleAssetUrlInterface, M
     use ModuleChartTrait;
     use ModuleCustomTrait;
 
-    /**
-     * @var string
-     */
-    private const GITHUB_REPO = 'magicsunday/webtrees-statistics';
+    private const string GITHUB_REPO = 'magicsunday/webtrees-statistics';
 
     /**
      * @var string
@@ -78,6 +76,7 @@ class Module extends StatisticsChartModule implements ModuleAssetUrlInterface, M
      *
      * @return string
      */
+    #[Override]
     public function title(): string
     {
         return I18N::translate('Statistics');
@@ -88,6 +87,7 @@ class Module extends StatisticsChartModule implements ModuleAssetUrlInterface, M
      *
      * @return string
      */
+    #[Override]
     public function description(): string
     {
         return I18N::translate('Various statistics charts.');
@@ -98,6 +98,7 @@ class Module extends StatisticsChartModule implements ModuleAssetUrlInterface, M
      *
      * @return string
      */
+    #[Override]
     public function resourcesFolder(): string
     {
         return __DIR__ . '/../resources/';
@@ -110,6 +111,7 @@ class Module extends StatisticsChartModule implements ModuleAssetUrlInterface, M
      *
      * @return ResponseInterface
      */
+    #[Override]
     public function getChartAction(ServerRequestInterface $request): ResponseInterface
     {
         $tree = Validator::attributes($request)->tree();
@@ -118,6 +120,7 @@ class Module extends StatisticsChartModule implements ModuleAssetUrlInterface, M
         Auth::checkComponentAccess($this, ModuleChartInterface::class, $tree, $user);
 
         $tabs = [];
+
         foreach ($this->tabCatalog() as $action => $label) {
             $tabs[$label] = route(
                 'module',
@@ -153,8 +156,7 @@ class Module extends StatisticsChartModule implements ModuleAssetUrlInterface, M
         return $this->viewResponse(
             $this->name() . '::modules/statistics-chart/Templates/Overview',
             [
-                'module' => $this->name(),
-                //                'tree'      => Validator::attributes($request)->tree(),
+                'module'    => $this->name(),
                 'statistic' => Registry::container()->get(Statistic::class),
             ]
         );
@@ -172,8 +174,7 @@ class Module extends StatisticsChartModule implements ModuleAssetUrlInterface, M
         return $this->viewResponse(
             $this->name() . '::modules/statistics-chart/Templates/Places',
             [
-                'module' => $this->name(),
-                //                'tree'      => Validator::attributes($request)->tree(),
+                'module'    => $this->name(),
                 'statistic' => Registry::container()->get(Statistic::class),
             ]
         );

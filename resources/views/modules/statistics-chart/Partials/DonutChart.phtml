@@ -34,28 +34,28 @@ use Fisharebest\Webtrees\I18N;
 </style>
 
 <div class="donut-chart-container">
-    <div id="<?= $identifier ?>" class="donut-chart"></div>
+    <div id="<?php echo $identifier; ?>" class="donut-chart"></div>
 
     <table class="legend">
-        <?php foreach ($data as $entry): ?>
+        <?php foreach ($data as $entry) { ?>
             <tr>
                 <td>
-                    <span class="dot<?= isset($entry['class']) ? (' ' . $entry['class']) : '' ?>"
-                        <?= isset($entry['fill']) ? (' style="background-color: ' . $entry['fill'] . ';"') : '' ?>
+                    <span class="dot<?php echo isset($entry['class']) ? (' ' . $entry['class']) : ''; ?>"
+                        <?php echo isset($entry['fill']) ? (' style="background-color: ' . $entry['fill'] . ';"') : ''; ?>
                     ></span>
                 </td>
-                <td><?= $entry['label'] ?></td>
-                <td><?= I18N::number($entry['value']) ?></td>
+                <td><?php echo $entry['label']; ?></td>
+                <td><?php echo I18N::number($entry['value']); ?></td>
             </tr>
-        <?php endforeach; ?>
+        <?php } ?>
     </table>
 </div>
 
 <script>
 
 webtreesStatistics.draw(
-    <?= json_encode($identifier, JSON_THROW_ON_ERROR) ?>,
-    <?= json_encode($data, JSON_THROW_ON_ERROR) ?>,
+    <?php echo json_encode($identifier, JSON_THROW_ON_ERROR); ?>,
+    <?php echo json_encode($data, JSON_THROW_ON_ERROR); ?>,
     {
         type: "donut",
 

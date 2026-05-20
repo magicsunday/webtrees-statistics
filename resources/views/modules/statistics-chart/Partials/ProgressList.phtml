@@ -47,28 +47,28 @@ use Fisharebest\Webtrees\Tree;
 <div class="wt-births-list">
     <table class="progress-bar-table">
         <tbody>
-            <?php $maximum = max($data); ?>
-            <?php foreach ($data as $key => $value) : ?>
-                <?php $width = $value * 100.0 / $maximum; ?>
+            <?php $maximum = ($data === []) ? 0 : max($data); ?>
+            <?php foreach ($data as $key => $value) { ?>
+                <?php $width = ($maximum > 0) ? ($value * 100.0 / $maximum) : 0.0; ?>
 
                 <tr>
-                    <td class="label"><small><?= $key ?></small></td>
-                    <td class="value"><small><?= $value ?></small></td>
+                    <td class="label"><small><?php echo $key; ?></small></td>
+                    <td class="value"><small><?php echo $value; ?></small></td>
                 </tr>
                 <tr>
                     <td colspan="2" class="pb-2">
                         <div class="progress" role="progressbar"
-                             aria-label="<?= $key ?>"
-                             aria-valuenow="<?= $width ?>"
+                             aria-label="<?php echo $key; ?>"
+                             aria-valuenow="<?php echo $width; ?>"
                              aria-valuemin="0"
                              aria-valuemax="100"
                              style="height: 16px;"
                         >
-                            <div class="progress-bar <?= $class ?>" style="width: calc(16px + <?= $width ?>%); background-color: color-mix(in srgb, var(--bs-progress-label-gradient-start), var(--bs-progress-label-gradient-end) <?= $width ?>%)"></div>
+                            <div class="progress-bar <?php echo $class; ?>" style="width: calc(16px + <?php echo $width; ?>%); background-color: color-mix(in srgb, var(--bs-progress-label-gradient-start), var(--bs-progress-label-gradient-end) <?php echo $width; ?>%)"></div>
                         </div>
                     </td>
                 </tr>
-            <?php endforeach ?>
+            <?php } ?>
         </tbody>
     </table>
 </div>

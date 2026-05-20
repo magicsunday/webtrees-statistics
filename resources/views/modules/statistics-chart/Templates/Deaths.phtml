@@ -58,45 +58,45 @@ use MagicSunday\Webtrees\Statistic\Statistic;
             <div class="card h-100">
                 <?php
                     $deathsByMonth = $statistic->getDeathsByMonth();
-                    $totalDeaths   = array_sum($deathsByMonth);
-                ?>
+$totalDeaths                       = array_sum($deathsByMonth);
+?>
                 <div class="card-header">
                     <h5 class="card-title">Sterbemonate</h5>
-                    <small><?= I18N::number($totalDeaths) ?> Personen mit Sterbemonat</small>
+                    <small><?php echo I18N::number($totalDeaths); ?> Personen mit Sterbemonat</small>
                 </div>
                 <div class="card-body">
                     <?php
-                        echo view(
-                            $module . '::modules/statistics-chart/Partials/ProgressList',
-                            [
-                                'class' => 'progress-deaths-month',
-                                'data'  => $deathsByMonth,
-                            ]
-                        );
-                    ?>
+        echo view(
+            $module . '::modules/statistics-chart/Partials/ProgressList',
+            [
+                'class' => 'progress-deaths-month',
+                'data'  => $deathsByMonth,
+            ]
+        );
+?>
                 </div>
             </div>
         </div>
         <div class="col">
             <div class="card h-100">
                 <?php
-                    $deathsByCentury = $statistic->getDeathsByCentury();
-                    $totalDeaths     = array_sum($deathsByCentury);
-                ?>
+$deathsByCentury = $statistic->getDeathsByCentury();
+$totalDeaths     = array_sum($deathsByCentury);
+?>
                 <div class="card-header">
                     <h5 class="card-title">Sterbestatistik nach Jahrhundert</h5>
-                    <small><?= I18N::number($totalDeaths) ?> Personen mit Sterbejahr</small>
+                    <small><?php echo I18N::number($totalDeaths); ?> Personen mit Sterbejahr</small>
                 </div>
                 <div class="card-body">
                     <?php
-                        echo view(
-                            $module . '::modules/statistics-chart/Partials/ProgressList',
-                            [
-                                'class' => 'progress-deaths-century',
-                                'data'  => $deathsByCentury,
-                            ]
-                        );
-                    ?>
+        echo view(
+            $module . '::modules/statistics-chart/Partials/ProgressList',
+            [
+                'class' => 'progress-deaths-century',
+                'data'  => $deathsByCentury,
+            ]
+        );
+?>
                 </div>
             </div>
         </div>

@@ -22,41 +22,41 @@ use Fisharebest\Webtrees\View;
 ?>
 
 <h2 class="wt-page-title">
-    <?= $title ?>
+    <?php echo $title; ?>
 </h2>
 
 <div class="wt-page-content wt-chart wt-statistics-chart" id="statistics-tabs">
     <ul class="nav nav-tabs mb-3" role="tablist">
-        <?php foreach ($tabs as $label => $url) : ?>
+        <?php foreach ($tabs as $label => $url) { ?>
             <?php $hash = e(md5($url)); ?>
             <li class="nav-item" role="presentation">
                 <a class="nav-link"
-                        id="<?= $hash ?>-tab"
-                        href="#tab-<?= $hash ?>"
+                        id="<?php echo $hash; ?>-tab"
+                        href="#tab-<?php echo $hash; ?>"
                         data-bs-toggle="tab"
-                        data-wt-href="<?= e($url) ?>"
+                        data-wt-href="<?php echo e($url); ?>"
                         role="tab"
-                        aria-controls="tab-<?= $hash ?>"
+                        aria-controls="tab-<?php echo $hash; ?>"
                         aria-selected="false"
                 >
-                    <?= $label ?>
+                    <?php echo $label; ?>
                 </a>
             </li>
-        <?php endforeach ?>
+        <?php } ?>
     </ul>
 
     <div class="tab-content">
-        <?php foreach ($tabs as $url) : ?>
+        <?php foreach ($tabs as $url) { ?>
             <?php $hash = e(md5($url)); ?>
             <div class="tab-pane fade wt-ajax-load"
                  role="tabpanel"
-                 id="tab-<?= $hash ?>"
-                 aria-labelledby="<?= $hash ?>-tab"></div>
-        <?php endforeach ?>
+                 id="tab-<?php echo $hash; ?>"
+                 aria-labelledby="<?php echo $hash; ?>-tab"></div>
+        <?php } ?>
     </div>
 </div>
 
-<?php View::push('javascript') ?>
+<?php View::push('javascript'); ?>
 <script>
 
 'use strict';
@@ -81,11 +81,11 @@ $('#statistics-tabs a[data-bs-toggle="tab"]').on("shown.bs.tab", function (e) {
 });
 
 </script>
-<?php View::endpush() ?>
+<?php View::endpush(); ?>
 
 
 <?php View::push('javascript'); ?>
-<script src="<?= e($javascript) ?>"></script>
+<script src="<?php echo e($javascript); ?>"></script>
 <script>
 
 // Create chart instance

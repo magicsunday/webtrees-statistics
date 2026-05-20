@@ -78,41 +78,42 @@ use MagicSunday\Webtrees\Statistic\Statistic;
             <div class="card h-100">
                 <?php
                     $birthsByCountry = $statistic->getBirthsByCountry();
-                    $totalBirths     = array_sum(array_column($birthsByCountry, 'count'));
-                ?>
+$totalBirths                         = array_sum(array_column($birthsByCountry, 'count'));
+?>
                 <div class="card-header">
                     <h5 class="card-title">Geburtsort</h5>
-                    <small><?= I18N::number($totalBirths) ?> bekannte Geburtsländer</small>
+                    <small><?php echo I18N::number($totalBirths); ?> bekannte Geburtsländer</small>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-3">
                             <?php
-                                $progressList = [];
-                                foreach ($birthsByCountry as $values):
-                                    $progressList[$values['label']] = $values['count'];
-                                endforeach;
+                $progressList = [];
 
-                                echo view(
-                                    $module . '::modules/statistics-chart/Partials/ProgressList',
-                                    [
-                                        'class' => 'progress-births-country',
-                                        'data'  => array_slice($progressList, 0, 10),
-                                    ]
-                                );
-                            ?>
+foreach ($birthsByCountry as $values) {
+    $progressList[$values['label']] = $values['count'];
+}
+
+echo view(
+    $module . '::modules/statistics-chart/Partials/ProgressList',
+    [
+        'class' => 'progress-births-country',
+        'data'  => array_slice($progressList, 0, 10),
+    ]
+);
+?>
                         </div>
                         <div class="col-md-9 mt-3 mt-md-0">
                             <?php
-                                echo view(
-                                    $module . '::modules/statistics-chart/Partials/GeoMap',
-                                    [
-                                        'identifier' => 'living-geo-map',
-                                        'class'      => '',
-                                        'data'       => $birthsByCountry,
-                                    ]
-                                );
-                            ?>
+    echo view(
+        $module . '::modules/statistics-chart/Partials/GeoMap',
+        [
+            'identifier' => 'living-geo-map',
+            'class'      => '',
+            'data'       => $birthsByCountry,
+        ]
+    );
+?>
                         </div>
                     </div>
                 </div>
@@ -122,41 +123,42 @@ use MagicSunday\Webtrees\Statistic\Statistic;
             <div class="card h-100">
                 <?php
                     $deathsByCountry = $statistic->getDeathsByCountry();
-                    $totalDeaths     = array_sum(array_column($deathsByCountry, 'count'));
-                ?>
+$totalDeaths                         = array_sum(array_column($deathsByCountry, 'count'));
+?>
                 <div class="card-header">
                     <h5 class="card-title">Sterbeort</h5>
-                    <small><?= I18N::number($totalDeaths) ?> bekannte Sterbeländer</small>
+                    <small><?php echo I18N::number($totalDeaths); ?> bekannte Sterbeländer</small>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-3">
                             <?php
-                                $progressList = [];
-                                foreach ($deathsByCountry as $values):
-                                    $progressList[$values['label']] = $values['count'];
-                                endforeach;
+                $progressList = [];
 
-                                echo view(
-                                    $module . '::modules/statistics-chart/Partials/ProgressList',
-                                    [
-                                        'class' => 'progress-deaths-country',
-                                        'data'  => array_slice($progressList, 0, 10),
-                                    ]
-                                );
-                            ?>
+foreach ($deathsByCountry as $values) {
+    $progressList[$values['label']] = $values['count'];
+}
+
+echo view(
+    $module . '::modules/statistics-chart/Partials/ProgressList',
+    [
+        'class' => 'progress-deaths-country',
+        'data'  => array_slice($progressList, 0, 10),
+    ]
+);
+?>
                         </div>
                         <div class="col-md-9 mt-3 mt-md-0">
                             <?php
-                                echo view(
-                                    $module . '::modules/statistics-chart/Partials/GeoMap',
-                                    [
-                                        'identifier' => 'deaths-geo-map',
-                                        'class'      => '',
-                                        'data'       => $deathsByCountry,
-                                    ]
-                                );
-                            ?>
+    echo view(
+        $module . '::modules/statistics-chart/Partials/GeoMap',
+        [
+            'identifier' => 'deaths-geo-map',
+            'class'      => '',
+            'data'       => $deathsByCountry,
+        ]
+    );
+?>
                         </div>
                     </div>
                 </div>

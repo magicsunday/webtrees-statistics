@@ -35,20 +35,20 @@ use Fisharebest\Webtrees\Tree;
 </style>
 
 <div class="world-map-container">
-    <div id="<?= $identifier ?>" class="world-map"></div>
+    <div id="<?php echo $identifier; ?>" class="world-map"></div>
 </div>
 
 <script>
 
 webtreesStatistics.draw(
-    <?= json_encode($identifier, JSON_THROW_ON_ERROR) ?>,
-    <?= json_encode($data, JSON_THROW_ON_ERROR) ?>,
+    <?php echo json_encode($identifier, JSON_THROW_ON_ERROR); ?>,
+    <?php echo json_encode($data, JSON_THROW_ON_ERROR); ?>,
     {
         type: "world-map",
         color: {
             range: {
-                start: window.getComputedStyle(document.getElementById(<?= json_encode($identifier, JSON_THROW_ON_ERROR) ?>)).getPropertyValue('--bs-progress-label-gradient-start'),
-                end:   window.getComputedStyle(document.getElementById(<?= json_encode($identifier, JSON_THROW_ON_ERROR) ?>)).getPropertyValue('--bs-progress-label-gradient-end')
+                start: window.getComputedStyle(document.getElementById(<?php echo json_encode($identifier, JSON_THROW_ON_ERROR); ?>)).getPropertyValue('--bs-progress-label-gradient-start'),
+                end:   window.getComputedStyle(document.getElementById(<?php echo json_encode($identifier, JSON_THROW_ON_ERROR); ?>)).getPropertyValue('--bs-progress-label-gradient-end')
             }
         },
         width: 900,
