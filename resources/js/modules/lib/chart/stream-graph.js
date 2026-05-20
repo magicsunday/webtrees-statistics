@@ -9,7 +9,7 @@ import { select } from "d3-selection";
 import { scaleLinear, scaleOrdinal } from "d3-scale";
 import { schemeTableau10 } from "d3-scale-chromatic";
 import { axisBottom, axisLeft } from "d3-axis";
-import { area, stack, stackOffsetSilhouette, stackOrderInsideOut, curveBasis } from "d3-shape";
+import { area, stack, stackOffsetSilhouette, stackOrderInsideOut, curveCatmullRom } from "d3-shape";
 import { extent, max, min } from "d3-array";
 
 /**
@@ -102,11 +102,14 @@ export class StreamGraph
             .domain(data.names)
             .range(schemeTableau10);
 
+        // curveCatmullRom (vs curveBasis): the spline now passes
+        // through every decade point, so the rightmost band edge lands
+        // exactly on the 2000s tick instead of sweeping past it.
         const areaPath = area()
             .x((point)  => xScale(point.data.decade))
             .y0((point) => yScale(point[0]))
             .y1((point) => yScale(point[1]))
-            .curve(curveBasis);
+            .curve(curveCatmullRom.alpha(0.5));
 
         // Detail-on-demand tooltip — a single absolutely-positioned div
         // attached to the host. mouseover swaps the contents to the band
