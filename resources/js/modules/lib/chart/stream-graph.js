@@ -11,6 +11,8 @@ import { schemeTableau10 } from "d3-scale-chromatic";
 import { axisBottom, axisLeft } from "d3-axis";
 import { area, stack, stackOffsetSilhouette, stackOrderInsideOut, curveBasis } from "d3-shape";
 import { extent, max, min } from "d3-array";
+import "d3-transition";
+import { easeCubicOut } from "d3-ease";
 
 /**
  * Stream-graph renderer used by the Names tab to show the per-decade
@@ -106,13 +108,20 @@ export class StreamGraph
             .domain(data.names)
             .range(schemeTableau10);
 
-        // curveCatmullRom (vs curveBasis): the spline now passes
-        // through every decade point, so the rightmost band edge lands
-        // exactly on the 2000s tick instead of sweeping past it.
         const areaPath = area()
             .x((point)  => xScale(point.data.decade))
             .y0((point) => yScale(point[0]))
             .y1((point) => yScale(point[1]))
+            .curve(curveBasis);
+
+        // Flat baseline path used as the entry state of the on-load
+        // animation: every band collapses to the silhouette midline
+        // and then expands into its real shape over one ease-out beat.
+        const yMid = yScale((yLower + yUpper) / 2);
+        const flatPath = area()
+            .x((point) => xScale(point.data.decade))
+            .y0(yMid)
+            .y1(yMid)
             .curve(curveBasis);
 
         // Detail-on-demand tooltip — a single absolutely-positioned div
@@ -166,20 +175,33 @@ export class StreamGraph
             tooltip.style.top  = `${Math.min(desiredY, maxY)}px`;
         };
 
-        inner.selectAll("path.band")
+        const bands = inner.selectAll("path.band")
             .data(series)
             .enter()
             .append("path")
             .attr("class", "band")
             .attr("data-name", (band) => band.key)
             .attr("fill", (band) => colour(band.key))
-            .attr("opacity", 0.85)
-            .attr("d", areaPath)
+            .attr("opacity", 0)
+            .attr("d", flatPath)
             .attr("tabindex", "0")
             .attr("aria-label", (band) => {
                 const total = Math.round(bandTotals.get(band.key) ?? 0);
                 return `${band.key}: ${total} individuals, peak in the ${peakDecade(band)}s`;
-            })
+            });
+
+        // Stagger the expansion slightly per band: inner bands grow
+        // first, outer ones fan out after — the stackOrderInsideOut
+        // layout already orders the array from centre outward, so a
+        // small index-based delay reads as a natural fan-out.
+        bands.transition("stream-graph-enter")
+            .duration(900)
+            .delay((_, index) => index * 40)
+            .ease(easeCubicOut)
+            .attr("opacity", 0.85)
+            .attr("d", areaPath);
+
+        bands
             .on("mouseover", (event, band) => {
                 const total = Math.round(bandTotals.get(band.key) ?? 0);
                 const peak  = peakDecade(band);

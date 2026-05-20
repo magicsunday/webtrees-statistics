@@ -275,6 +275,50 @@
 }
 
 /* ----------------------------------------------------------------------
+   Card-header info button — opens a Bootstrap popover that explains
+   what a non-trivial widget shows. Reusable across cards; first
+   consumer is the Names tab's stream graph.
+   -------------------------------------------------------------------- */
+
+/*
+ * Anchor only the card-headers that actually carry an info button —
+ * keeps unrelated card-headers in their default flow.
+ */
+.wt-statistics-chart .card-header:has(.wt-card-info-button) {
+    position:      relative;
+    padding-right: 2.4rem;
+}
+
+.wt-statistics-chart .wt-card-info-button {
+    position:        absolute;
+    top:             0.65rem;
+    right:           0.75rem;
+    display:         inline-flex;
+    align-items:     center;
+    justify-content: center;
+    width:           1.25rem;
+    height:          1.25rem;
+    padding:         0;
+    border:          1px solid var(--bs-border-color, rgb(221, 221, 221));
+    border-radius:   50%;
+    background:      transparent;
+    color:           var(--wmstats-card-muted);
+    font-size:       0.72rem;
+    font-weight:     600;
+    line-height:     1;
+    cursor:          pointer;
+    transition:      color 120ms ease-out, border-color 120ms ease-out, background 120ms ease-out;
+}
+
+.wt-statistics-chart .wt-card-info-button:hover,
+.wt-statistics-chart .wt-card-info-button:focus-visible {
+    color:        var(--bs-body-color);
+    border-color: var(--bs-body-color);
+    background:   var(--bs-tertiary-bg, rgba(0, 0, 0, 0.04));
+    outline:      none;
+}
+
+/* ----------------------------------------------------------------------
    Stream graph (Names tab — given-name popularity)
    -------------------------------------------------------------------- */
 
@@ -338,12 +382,16 @@
     cursor:     default;
 }
 
-.wt-statistics-chart svg.wt-stream-graph:hover path.band {
+/*
+ * Dim only the bands that are NOT being hovered when one band is
+ * actually under the cursor. The parent :has() guard prevents the
+ * dim from triggering on empty space inside the SVG box, and the
+ * :not(:hover) keeps the focused band fully opaque without needing
+ * a second override rule (which would have a lower specificity than
+ * the :has() selector and lose the cascade fight).
+ */
+.wt-statistics-chart svg.wt-stream-graph:has(path.band:hover) path.band:not(:hover) {
     opacity: 0.35;
-}
-
-.wt-statistics-chart svg.wt-stream-graph path.band:hover {
-    opacity: 1;
 }
 
 .wt-statistics-chart svg.wt-stream-graph .x-axis line,

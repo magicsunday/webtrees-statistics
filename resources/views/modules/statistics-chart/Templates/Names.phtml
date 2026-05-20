@@ -17,6 +17,10 @@ use MagicSunday\Webtrees\Statistic\Statistic;
  * @var Statistic $statistic
  */
 $givenNameTrends = $statistic->getGivenNameTrends(10);
+
+$streamGraphExplanation = I18N::translate(
+    'Each band stands for one of the most common given names in the tree. The band\'s vertical thickness in a given decade shows how many individuals born in that decade carried that name. The silhouette layout centres each band around zero, so the chart reads as relative magnitudes — hover any band to see absolute counts and its peak decade.'
+);
 ?>
 <div class="container">
     <div class="row row-cols-1 row-cols-lg-3 g-3">
@@ -82,7 +86,20 @@ $givenNameTrends = $statistic->getGivenNameTrends(10);
         <div class="col">
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="card-title"><?php echo I18N::translate('Given-name popularity across decades'); ?></h5>
+                    <h5 class="card-title">
+                        <?php echo I18N::translate('Given-name popularity across decades'); ?>
+                        <button
+                            type="button"
+                            class="wt-card-info-button"
+                            data-bs-toggle="popover"
+                            data-bs-trigger="focus"
+                            data-bs-placement="top"
+                            data-bs-html="false"
+                            data-bs-title="<?php echo e(I18N::translate('About this chart')); ?>"
+                            data-bs-content="<?php echo e($streamGraphExplanation); ?>"
+                            aria-label="<?php echo e(I18N::translate('About this chart')); ?>"
+                        >?</button>
+                    </h5>
                     <small><?php echo I18N::translate('Top-%s given names, stacked into a stream that reads as relative magnitudes.', I18N::number(count($givenNameTrends['names']))); ?></small>
                 </div>
                 <div class="card-body">

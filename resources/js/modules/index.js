@@ -28,6 +28,23 @@ export class Statistic {
     draw(identifier, data, options) {
         this.chart = new Chart();
 
-        return this.chart.draw(identifier, data, options);
+        const node = this.chart.draw(identifier, data, options);
+
+        // Initialise any Bootstrap popovers that are still pending
+        // (e.g. the card-header info button). This is the only point
+        // in the page lifecycle where the consumer is guaranteed to
+        // have rendered all of its partials AND the global webtrees
+        // vendor bundle has run — earlier hook points (the inline
+        // bootstrap script in page.phtml, DOMContentLoaded) ran
+        // before this module's bundle was available.
+        if (typeof window.bootstrap !== "undefined" && window.bootstrap.Popover) {
+            document
+                .querySelectorAll('.wt-statistics-chart [data-bs-toggle="popover"]')
+                .forEach((el) => {
+                    window.bootstrap.Popover.getOrCreateInstance(el, { container: "body" });
+                });
+        }
+
+        return node;
     }
 }
