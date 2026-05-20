@@ -16,10 +16,6 @@ use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\JoinClause;
 
-use function array_combine;
-use function array_keys;
-use function array_map;
-use function array_values;
 use function intdiv;
 use function is_numeric;
 use function ksort;
@@ -59,11 +55,17 @@ final readonly class DivorceRepository
      */
     public function divorcesByCentury(): array
     {
-        $rows   = $this->data->countEventsByCentury('DIV');
-        $labels = array_map(strval(...), array_keys($rows));
-        $values = array_map(intval(...), array_values($rows));
+        // See MarriageRepository::weddingsByCentury — core returns a
+        // 0-indexed list of `[centuryLabel, total]` tuples, not a
+        // labelled map. Iterating with `$k => $v` would collapse
+        // every count to 1 via the array → int cast.
+        $out = [];
 
-        return array_combine($labels, $values);
+        foreach ($this->data->countEventsByCentury('DIV') as $row) {
+            $out[$row[0]] = $row[1];
+        }
+
+        return $out;
     }
 
     /**

@@ -87,11 +87,14 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('divorce.ged');
         $result = $this->repository($tree)->divorcesByCentury();
 
-        // Core's countEventsByCentury rounds the DIV year: roundings
-        // for 1990 / 2005 / 2015 may both land in the "21st" bucket
-        // depending on the rounding rule, so we just assert that
-        // at least one century bucket is non-empty and the total
-        // matches the divorces in the fixture.
-        self::assertGreaterThan(0, array_sum($result));
+        // The fixture has three DIV events (1990, 2005, 2015).
+        // Earlier the repository iterated core's return value with
+        // `$k => $v` where `$v` was a `[label, count]` tuple — and
+        // the `(int) $v` cast on an array collapsed every count to
+        // 1, producing one row per century with value 1. The
+        // sum-must-equal-three assertion catches that regression:
+        // if the bug came back, the total would equal the number of
+        // distinct centuries, not the number of divorces.
+        self::assertSame(3, array_sum($result));
     }
 }

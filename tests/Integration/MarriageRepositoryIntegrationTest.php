@@ -18,6 +18,7 @@ use MagicSunday\Webtrees\Statistic\Repository\MarriageRepository;
 use PHPUnit\Framework\Attributes\Test;
 
 use function array_sum;
+use function array_values;
 use function strpos;
 
 /**
@@ -124,5 +125,38 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
 
         self::assertSame(2, $result['JUN'] ?? null);
         self::assertSame(1, $result['SEP'] ?? null);
+    }
+
+    /**
+     * `weddingsByCentury` returns the per-century count from core's
+     * `countEventsByCentury`. The fixture has three marriages: F1
+     * 1875 (19th), F2 1925 (20th), F3 1955 (20th). The previous
+     * implementation iterated the result with `$k => $v` where $v
+     * was a `[label, count]` tuple, and the `(int) $v` cast on an
+     * array silently collapsed every count to 1 — so a tree with
+     * 300 weddings reported "7 recorded marriages" (the number of
+     * distinct centuries, not the actual total).
+     *
+     * The assertion below — total === fixture marriage count — is
+     * the load-bearing check: a tuple-vs-map regression in core's
+     * accessor would surface immediately as a total of 3 (centuries)
+     * vs 3 (marriages), matching by accident; using 4 fixture rows
+     * across 2 centuries would break that coincidence. The fixture
+     * stays at 3 because that's enough to assert the per-century
+     * split is correct.
+     */
+    #[Test]
+    public function weddingsByCenturyPreservesActualCounts(): void
+    {
+        $tree   = $this->importFixtureTree('marriage.ged');
+        $result = $this->repository($tree)->weddingsByCentury();
+
+        // Total marriages across the fixture must match the
+        // tuple-collapsing bug's reciprocal: 3 marriages in 2
+        // centuries → sum of values must be 3, not 2.
+        self::assertSame(3, array_sum($result));
+        // At least one century must carry > 1 marriage for the
+        // assertion to actually defend against the collapse bug.
+        self::assertContains(2, array_values($result), 'one century should carry the two 20th-century marriages');
     }
 }

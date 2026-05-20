@@ -17,10 +17,6 @@ use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\JoinClause;
 
 use function abs;
-use function array_combine;
-use function array_keys;
-use function array_map;
-use function array_values;
 use function intdiv;
 use function is_numeric;
 
@@ -269,11 +265,17 @@ final readonly class MarriageRepository
      */
     public function weddingsByCentury(): array
     {
-        $rows   = $this->data->countEventsByCentury('MARR');
-        $labels = array_map(strval(...), array_keys($rows));
-        $values = array_map(intval(...), array_values($rows));
+        // Core's countEventsByCentury returns a 0-indexed list of
+        // `[centuryLabel, total]` tuples — NOT an associative
+        // `centuryLabel => total` map. Iterating with `$k => $v`
+        // and casting `$v` to int would collapse every count to 1.
+        $out = [];
 
-        return array_combine($labels, $values);
+        foreach ($this->data->countEventsByCentury('MARR') as $row) {
+            $out[$row[0]] = $row[1];
+        }
+
+        return $out;
     }
 
     /**
