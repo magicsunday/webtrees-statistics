@@ -65,6 +65,33 @@ Tab dispatcher reads `data-wmu-widget` on each Partial root and instantiates the
 - **Empty-string XREFs**: webtrees stores `''` (not `NULL`) when an INDI's `1 HUSB`/`1 WIFE` line is absent. `partnerIdOf()` normalises both shapes to `null`.
 - **Anchored tag matching**: `hasAnyTagAnchored()` requires `\n1 <tag>` followed by space, newline, or end-of-string so that `DIV` does not match `DIVF`. Both the partner-death check and the family-event check use the same anchored helper.
 
+## Cross-widget selection bus
+
+`resources/js/modules/dashboard-bus.js` exposes a `DashboardBus` class — a tiny d3-dispatch wrapper that lets one widget broadcast a selection (e.g. "show me only the 1900s century") and every subscribed widget rebroadcast / re-filter against the same predicate.
+
+### Contract
+
+- `bus.emit({ source: "donut.births-century", predicate: { century: 1900 } })` — broadcast.
+- `bus.onSelectionChanged(callback)` — subscribe. Returns an `unsubscribe` function for clean teardown.
+- A `null` predicate means "clear filter".
+- Every subscriber receives every event. Callers ignore their own emissions by matching the `source` string.
+
+### Sequence
+
+```
++--------+         +---------------+         +----------+   +-----------+
+| Widget |--emit-->| DashboardBus  |--fanout-| Widget A  |   | Widget B  |
+| (donut)|         | (selection)   |--fanout-| (sankey)  |   | (heatmap) |
++--------+         +---------------+         +-----------+   +-----------+
+```
+
+The bus carries no data shape — each widget interprets the predicate against its own dataset. This keeps the bus itself ~50 lines and pushes the schema decision to the widget pair that actually shares semantics (e.g. century filter only makes sense between widgets that bucket by century).
+
+### Status
+
+* Phase 2.0 ships the bus + 5 jest tests that exercise the multi-subscriber broadcast, unsubscribe, null-predicate, and source-self-ignore contracts.
+* Widget-side wiring (donut slice click → bus.emit, sankey re-filter on incoming selection) is deferred — chart-lib widgets currently have no `onSelectionChanged` hook of their own. That hook lands in a future chart-lib release alongside the first widget pair (births donut + migration sankey).
+
 ## Design principles
 - Priority order on conflict: **KISS > SOLID > DRY > YAGNI > GRASP > Law of Demeter > Separation of Concerns > Convention over Configuration**.
 - `declare(strict_types=1)`, no `mixed`, no `empty()`, no `@deprecated`, typed class constants, `final readonly` where applicable, qualified `use function` imports, PHPDoc on every class and method, English-only comments.
