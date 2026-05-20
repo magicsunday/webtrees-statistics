@@ -6,6 +6,7 @@
  */
 
 import { DonutChart } from "./chart/donut-chart.js";
+import { SankeyFlow } from "./chart/sankey-flow.js";
 import { StreamGraph } from "./chart/stream-graph.js";
 import { WorldMap } from "./chart/world-map.js";
 
@@ -40,6 +41,7 @@ export class Chart
             "donut":        (id, opts, data) => new DonutChart(id, opts).draw(data),
             "world-map":    (id, opts, data) => new WorldMap(id, opts).draw(data),
             "stream-graph": (id, opts, data) => new StreamGraph(id, opts).draw(data),
+            "sankey-flow":  (id, opts, data) => new SankeyFlow(id, opts).draw(data),
         };
     }
 

@@ -20,6 +20,7 @@ use function str_starts_with;
 use function strlen;
 use function strpos;
 use function substr;
+use function trim;
 
 /**
  * Reusable raw-GEDCOM helpers. Repositories that scan individual or
@@ -122,6 +123,32 @@ final readonly class GedcomScanner
         }
 
         return (int) $yearMatch[1];
+    }
+
+    /**
+     * Pull the first non-empty `2 PLAC` sub-line out of the given event
+     * block. Returns the raw place string (everything after `2 PLAC `
+     * on the same physical line, trimmed). Bare or whitespace-only
+     * `2 PLAC` lines yield null — same rule as {@see hasEventPlace()}.
+     *
+     * @param string $gedcom Raw GEDCOM record body
+     * @param string $tag    Level-1 event tag whose first sub-place to read
+     */
+    public static function extractEventPlace(string $gedcom, string $tag): ?string
+    {
+        $block = self::eventBlock($gedcom, $tag);
+
+        if ($block === null) {
+            return null;
+        }
+
+        if (preg_match('/\n2 PLAC +([^\n]+)/', $block, $placeMatch) !== 1) {
+            return null;
+        }
+
+        $place = trim($placeMatch[1]);
+
+        return ($place === '') ? null : $place;
     }
 
     /**

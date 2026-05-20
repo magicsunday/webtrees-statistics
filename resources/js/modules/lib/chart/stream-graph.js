@@ -13,6 +13,7 @@ import { area, stack, stackOffsetSilhouette, stackOrderInsideOut, curveBasis } f
 import { extent, max, min } from "d3-array";
 import "d3-transition";
 import { easeCubicOut } from "d3-ease";
+import { createHostTooltip } from "./tooltip.js";
 
 /**
  * Stream-graph renderer used by the Names tab to show the per-decade
@@ -129,15 +130,7 @@ export class StreamGraph
             .y1(yMid)
             .curve(curveBasis);
 
-        // Detail-on-demand tooltip — a single absolutely-positioned div
-        // attached to the host. mouseover swaps the contents to the band
-        // under the cursor and mousemove keeps it tracking the pointer.
-        let tooltip = host.querySelector(".wt-stream-graph-tooltip");
-        if (tooltip === null) {
-            tooltip = document.createElement("div");
-            tooltip.className = "wt-stream-graph-tooltip";
-            host.appendChild(tooltip);
-        }
+        const tooltip = createHostTooltip(host, "wt-stream-graph-tooltip");
 
         const svg = select(host)
             .append("svg")
@@ -175,20 +168,6 @@ export class StreamGraph
             return bestDecade;
         };
 
-        const positionTooltip = (event) => {
-            const hostRect    = host.getBoundingClientRect();
-            const tooltipRect = tooltip.getBoundingClientRect();
-            // Clamp to the host's box so the tooltip never spills past
-            // the right edge — that overflow was bubbling up to the page
-            // body and showing a horizontal scrollbar on hover.
-            const desiredX = event.clientX - hostRect.left + 12;
-            const desiredY = event.clientY - hostRect.top + 12;
-            const maxX     = Math.max(0, hostRect.width - tooltipRect.width - 4);
-            const maxY     = Math.max(0, hostRect.height - tooltipRect.height - 4);
-            tooltip.style.left = `${Math.min(desiredX, maxX)}px`;
-            tooltip.style.top  = `${Math.min(desiredY, maxY)}px`;
-        };
-
         const bands = inner.selectAll("path.band")
             .data(series)
             .enter()
@@ -215,31 +194,24 @@ export class StreamGraph
             .attr("opacity", 0.85)
             .attr("d", areaPath);
 
+        const bandTooltipHtml = (band) => {
+            const total = Math.round(bandTotals.get(band.key) ?? 0);
+            const peak  = peakDecade(band);
+            return `<strong>${band.key}</strong><br>` +
+                `<span class="wt-stream-graph-tooltip-stat">${total} individual${total === 1 ? "" : "s"}</span><br>` +
+                `<span class="wt-stream-graph-tooltip-meta">peak in the ${peak}s</span>`;
+        };
+
         bands
-            .on("mouseover", (event, band) => {
-                const total = Math.round(bandTotals.get(band.key) ?? 0);
-                const peak  = peakDecade(band);
-                tooltip.innerHTML = `<strong>${band.key}</strong><br>` +
-                    `<span class="wt-stream-graph-tooltip-stat">${total} individual${total === 1 ? "" : "s"}</span><br>` +
-                    `<span class="wt-stream-graph-tooltip-meta">peak in the ${peak}s</span>`;
-                tooltip.classList.add("is-visible");
-                positionTooltip(event);
-            })
-            .on("mousemove", (event) => positionTooltip(event))
-            .on("mouseleave", () => tooltip.classList.remove("is-visible"))
+            .on("mouseover", (event, band) => tooltip.show(event, bandTooltipHtml(band)))
+            .on("mousemove", (event) => tooltip.move(event))
+            .on("mouseleave", () => tooltip.hide())
             .on("focus", (event, band) => {
-                const total = Math.round(bandTotals.get(band.key) ?? 0);
-                const peak  = peakDecade(band);
-                tooltip.innerHTML = `<strong>${band.key}</strong><br>` +
-                    `<span class="wt-stream-graph-tooltip-stat">${total} individual${total === 1 ? "" : "s"}</span><br>` +
-                    `<span class="wt-stream-graph-tooltip-meta">peak in the ${peak}s</span>`;
-                tooltip.classList.add("is-visible");
-                const bbox     = event.target.getBoundingClientRect();
-                const hostRect = host.getBoundingClientRect();
-                tooltip.style.left = `${bbox.left - hostRect.left + bbox.width / 2}px`;
-                tooltip.style.top  = `${bbox.top - hostRect.top + 12}px`;
+                // Keyboard focus has no cursor; pin to the band's left edge.
+                const bbox = event.target.getBoundingClientRect();
+                tooltip.show({ clientX: bbox.left + bbox.width / 2, clientY: bbox.top + 12 }, bandTooltipHtml(band));
             })
-            .on("blur", () => tooltip.classList.remove("is-visible"));
+            .on("blur", () => tooltip.hide());
 
         inner.append("g")
             .attr("class", "x-axis")

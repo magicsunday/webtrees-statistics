@@ -16,6 +16,7 @@ use Fisharebest\Webtrees\StatisticsData;
 use MagicSunday\Webtrees\Statistic\Repository\EventRepository;
 use MagicSunday\Webtrees\Statistic\Repository\FamilyRepository;
 use MagicSunday\Webtrees\Statistic\Repository\GivenNameTrendsRepository;
+use MagicSunday\Webtrees\Statistic\Repository\MigrationRepository;
 use MagicSunday\Webtrees\Statistic\Repository\NameRepository;
 use MagicSunday\Webtrees\Statistic\Repository\TreeHealthRepository;
 
@@ -48,6 +49,7 @@ final readonly class Statistic
      * @param NameRepository            $nameRepository            Distinct primary-name counts (bypass commonSurnames/GivenNames limit-zero quirk)
      * @param TreeHealthRepository      $treeHealthRepository      Data-quality metrics: source coverage, missing-event gaps, generation length
      * @param GivenNameTrendsRepository $givenNameTrendsRepository Per-decade frequency of the top-N given names for the stream graph
+     * @param MigrationRepository       $migrationRepository       Birth → death country flows for the Places-tab Sankey diagram
      */
     public function __construct(
         private StatisticsData $data,
@@ -56,6 +58,7 @@ final readonly class Statistic
         private NameRepository $nameRepository,
         private TreeHealthRepository $treeHealthRepository,
         private GivenNameTrendsRepository $givenNameTrendsRepository,
+        private MigrationRepository $migrationRepository,
     ) {
     }
 
@@ -286,6 +289,23 @@ final readonly class Statistic
     public function getGivenNameTrends(int $topN): array
     {
         return $this->givenNameTrendsRepository->countByDecade($topN);
+    }
+
+    /**
+     * Birth → death country migration flows ready for the Places-tab
+     * Sankey diagram. Same-country trajectories are dropped (no
+     * movement); only the top-N weighted links are returned.
+     *
+     * @param int $topLinks Maximum number of distinct flows to retain
+     *
+     * @return array{
+     *     nodes: list<array{name: string}>,
+     *     links: list<array{source: int, target: int, value: int}>
+     * }
+     */
+    public function getMigrationFlows(int $topLinks): array
+    {
+        return $this->migrationRepository->flowsByCountry($topLinks);
     }
 
     /**
