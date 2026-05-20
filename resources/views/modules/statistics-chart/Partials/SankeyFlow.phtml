@@ -1,0 +1,37 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
+
+use Fisharebest\Webtrees\I18N;
+
+/**
+ * @var string                                                                                            $identifier Host element id
+ * @var array{nodes: list<array{name: string}>, links: list<array{source: int, target: int, value: int}>} $data Sankey payload built by Statistic::getMigrationFlows()
+ * @var int|null                                                                                          $height     Optional viewport height (defaults to 360)
+ */
+$height ??= 360;
+?>
+<div class="wt-sankey-container">
+    <div id="<?php echo e($identifier); ?>"
+         class="wt-sankey-host"
+         data-empty-message="<?php echo e(I18N::translate('No country-to-country movements recorded yet.')); ?>"
+    ></div>
+</div>
+
+<script>
+webtreesStatistics.draw(
+    <?php echo json_encode($identifier, JSON_THROW_ON_ERROR); ?>,
+    <?php echo json_encode($data, JSON_THROW_ON_ERROR); ?>,
+    {
+        type: "sankey-flow",
+        height: <?php echo (int) $height; ?>
+    }
+);
+</script>

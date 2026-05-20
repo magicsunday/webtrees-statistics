@@ -16,6 +16,11 @@ use MagicSunday\Webtrees\Statistic\Statistic;
  * @var string    $module    The name of the module
  * @var Statistic $statistic
  */
+$migrationFlows = $statistic->getMigrationFlows(20);
+
+$sankeyExplanation = I18N::translate(
+    'Each flow shows individuals who were born in one country and died in another. The flow\'s thickness encodes the count: thicker bands mean more migrations along that path. Same-country trajectories are excluded — they\'re not migration. Hover any band to see the exact source → destination and individual count.'
+);
 ?>
 <div class="container">
     <div class="row row-cols-1 row-cols-md-1 g-3">
@@ -61,6 +66,38 @@ echo view(
 ?>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        <?php echo I18N::translate('Migrations between birth and death country'); ?>
+                        <button
+                            type="button"
+                            class="wt-card-info-button"
+                            data-bs-toggle="popover"
+                            data-bs-trigger="focus"
+                            data-bs-placement="top"
+                            data-bs-html="false"
+                            data-bs-title="<?php echo e(I18N::translate('About this chart')); ?>"
+                            data-bs-content="<?php echo e($sankeyExplanation); ?>"
+                            aria-label="<?php echo e(I18N::translate('About this chart')); ?>"
+                        >?</button>
+                    </h5>
+                    <small><?php echo I18N::plural('%s distinct migration path', '%s distinct migration paths', count($migrationFlows['links']), I18N::number(count($migrationFlows['links']))); ?></small>
+                </div>
+                <div class="card-body">
+                    <?php
+        echo view(
+            $module . '::modules/statistics-chart/Partials/SankeyFlow',
+            [
+                'identifier' => 'migration-sankey',
+                'data'       => $migrationFlows,
+            ]
+        );
+?>
                 </div>
             </div>
         </div>

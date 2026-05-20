@@ -50,6 +50,14 @@ final readonly class MigrationRepository
      * top-N links by weight are returned so the diagram stays legible
      * on busy trees; their incident nodes are added in encounter order.
      *
+     * Source and target sides are kept as DISJOINT node sets — a node
+     * that appears as both an origin and a destination (e.g. Germany
+     * → USA combined with USA → Germany) shows up as two separate
+     * Sankey nodes, one in each column. This is required because
+     * d3-sankey only lays out directed acyclic graphs; folding such
+     * counter-flows onto a single node would create a 2-cycle and
+     * throw a "circular link" error at render time.
+     *
      * @param int $topLinks Maximum number of distinct flows to retain
      *
      * @return array{
@@ -109,30 +117,50 @@ final readonly class MigrationRepository
 
         $topFlows = array_slice($linkWeight, 0, $topLinks, true);
 
-        // Build node table in first-seen order — d3-sankey needs nodes
-        // referenced by index, and a stable order keeps the colour map
-        // deterministic across re-renders.
-        $nodeIndex = [];
-        $nodes     = [];
-        $links     = [];
+        // Build SEPARATE node tables for the source and the target
+        // sides so a country appearing on both ends generates two
+        // distinct nodes (one per Sankey column). Source nodes occupy
+        // the lower index range, target nodes the upper one — the
+        // d3-sankey layout reads "source index < target index" as
+        // "left of, right of".
+        $sourceIndex = [];
+        $sourceNodes = [];
+        $targetIndex = [];
+        $targetNodes = [];
+        $rawLinks    = [];
 
         foreach ($topFlows as $key => $value) {
             [$origin, $destination] = explode("\0", $key, 2);
 
-            if (!isset($nodeIndex[$origin])) {
-                $nodeIndex[$origin] = count($nodes);
-                $nodes[]            = ['name' => $origin];
+            if (!isset($sourceIndex[$origin])) {
+                $sourceIndex[$origin] = count($sourceNodes);
+                $sourceNodes[]        = ['name' => $origin];
             }
 
-            if (!isset($nodeIndex[$destination])) {
-                $nodeIndex[$destination] = count($nodes);
-                $nodes[]                 = ['name' => $destination];
+            if (!isset($targetIndex[$destination])) {
+                $targetIndex[$destination] = count($targetNodes);
+                $targetNodes[]             = ['name' => $destination];
             }
 
-            $links[] = [
-                'source' => $nodeIndex[$origin],
-                'target' => $nodeIndex[$destination],
+            $rawLinks[] = [
+                'source' => $sourceIndex[$origin],
+                'target' => $targetIndex[$destination],
                 'value'  => $value,
+            ];
+        }
+
+        // Concatenate the two columns into a single nodes array and
+        // shift every target index by the source-column length so the
+        // bipartite layout reads cleanly without overlap.
+        $sourceColumnSize = count($sourceNodes);
+        $nodes            = [...$sourceNodes, ...$targetNodes];
+        $links            = [];
+
+        foreach ($rawLinks as $link) {
+            $links[] = [
+                'source' => $link['source'],
+                'target' => $sourceColumnSize + $link['target'],
+                'value'  => $link['value'],
             ];
         }
 

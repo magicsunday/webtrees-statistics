@@ -441,6 +441,89 @@
 }
 
 /* ----------------------------------------------------------------------
+   Sankey flow (Places tab — birth→death country migrations)
+   -------------------------------------------------------------------- */
+
+.wt-statistics-chart .wt-sankey-container {
+    width:  100%;
+    height: auto;
+}
+
+.wt-statistics-chart .wt-sankey-host {
+    display:  block;
+    width:    100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.wt-statistics-chart .wt-sankey-tooltip {
+    position:           absolute;
+    pointer-events:     none;
+    z-index:            10;
+    opacity:            0;
+    background:         var(--bs-body-bg, #fff);
+    color:              var(--bs-body-color, #212529);
+    border:             1px solid var(--bs-border-color, rgb(221, 221, 221));
+    border-radius:      var(--bs-border-radius, 0.375rem);
+    padding:            0.5rem 0.75rem;
+    font-size:          0.85rem;
+    line-height:        1.35;
+    box-shadow:         0 2px 8px rgba(0, 0, 0, 0.15);
+    transition:         opacity 120ms ease-out;
+    white-space:        nowrap;
+    max-width:          20rem;
+}
+
+.wt-statistics-chart .wt-sankey-tooltip.is-visible {
+    opacity: 1;
+}
+
+.wt-statistics-chart .wt-sankey-tooltip strong {
+    font-weight: 600;
+}
+
+.wt-statistics-chart .wt-sankey-tooltip-stat {
+    color: var(--bs-emphasis-color, #212529);
+}
+
+.wt-statistics-chart svg.wt-sankey {
+    width:    100%;
+    height:   auto;
+    display:  block;
+    overflow: hidden;
+}
+
+.wt-statistics-chart svg.wt-sankey path.link {
+    transition: stroke-opacity 200ms ease-out;
+    cursor:     default;
+}
+
+/*
+ * Same hover-dim treatment as the stream graph: only dim the other
+ * links when the cursor is actually on a link, and keep the focused
+ * link at full opacity by excluding it from the dim selector.
+ */
+.wt-statistics-chart svg.wt-sankey:has(path.link:hover) path.link:not(:hover) {
+    stroke-opacity: 0.15;
+}
+
+.wt-statistics-chart svg.wt-sankey path.link:hover {
+    stroke-opacity: 0.8;
+}
+
+.wt-statistics-chart svg.wt-sankey .nodes rect {
+    stroke:       var(--bs-border-color, rgb(221, 221, 221));
+    stroke-width: 0.5px;
+}
+
+.wt-statistics-chart svg.wt-sankey .node-label {
+    fill:                 var(--bs-body-color);
+    font-size:            0.78rem;
+    font-variant-numeric: tabular-nums;
+    pointer-events:       none;
+}
+
+/* ----------------------------------------------------------------------
    Surname tag-cloud
    -------------------------------------------------------------------- */
 
