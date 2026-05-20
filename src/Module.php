@@ -117,80 +117,17 @@ class Module extends StatisticsChartModule implements ModuleAssetUrlInterface, M
 
         Auth::checkComponentAccess($this, ModuleChartInterface::class, $tree, $user);
 
-        $tabs = [
-            I18N::translate('Overview') => route(
+        $tabs = [];
+        foreach ($this->tabCatalog() as $action => $label) {
+            $tabs[$label] = route(
                 'module',
                 [
                     'module' => $this->name(),
-                    'action' => 'Overview',
+                    'action' => $action,
                     'tree'   => $tree->name(),
-                ]
-            ),
-            I18N::translate('Relationships') => route(
-                'module',
-                [
-                    'module' => $this->name(),
-                    'action' => 'Relationships',
-                    'tree'   => $tree->name(),
-                ]
-            ),
-            I18N::translate('Places') => route(
-                'module',
-                [
-                    'module' => $this->name(),
-                    'action' => 'Places',
-                    'tree'   => $tree->name(),
-                ]
-            ),
-            I18N::translate('Age') => route(
-                'module',
-                [
-                    'module' => $this->name(),
-                    'action' => 'Age',
-                    'tree'   => $tree->name(),
-                ]
-            ),
-            I18N::translate('Births') => route(
-                'module',
-                [
-                    'module' => $this->name(),
-                    'action' => 'Births',
-                    'tree'   => $tree->name(),
-                ]
-            ),
-            I18N::translate('Deaths') => route(
-                'module',
-                [
-                    'module' => $this->name(),
-                    'action' => 'Deaths',
-                    'tree'   => $tree->name(),
-                ]
-            ),
-            I18N::translate('Weddings') => route(
-                'module',
-                [
-                    'module' => $this->name(),
-                    'action' => 'Weddings',
-                    'tree'   => $tree->name(),
-                ]
-            ),
-            I18N::translate('Divorces') => route(
-                'module',
-                [
-                    'module' => $this->name(),
-                    'action' => 'Divorces',
-                    'tree'   => $tree->name(),
-                ]
-            ),
-            I18N::translate('Children') => route(
-                'module',
-                [
-                    'module' => $this->name(),
-                    'action' => 'Children',
-                    'tree'   => $tree->name(),
-                ]
-            ),
-        ];
+                ],
+            );
+        }
 
         return $this->viewResponse(
             $this->name() . '::modules/statistics-chart/page',
@@ -275,6 +212,88 @@ class Module extends StatisticsChartModule implements ModuleAssetUrlInterface, M
                 'module'    => $this->name(),
                 'statistic' => Registry::container()->get(Statistic::class),
             ]
+        );
+    }
+
+    /**
+     * Renders the placeholder for the not-yet-implemented Relationships tab.
+     */
+    public function getRelationshipsAction(ServerRequestInterface $request): ResponseInterface
+    {
+        return $this->stubResponse('Relationships');
+    }
+
+    /**
+     * Renders the placeholder for the not-yet-implemented Age tab.
+     */
+    public function getAgeAction(ServerRequestInterface $request): ResponseInterface
+    {
+        return $this->stubResponse('Age');
+    }
+
+    /**
+     * Renders the placeholder for the not-yet-implemented Weddings tab.
+     */
+    public function getWeddingsAction(ServerRequestInterface $request): ResponseInterface
+    {
+        return $this->stubResponse('Weddings');
+    }
+
+    /**
+     * Renders the placeholder for the not-yet-implemented Divorces tab.
+     */
+    public function getDivorcesAction(ServerRequestInterface $request): ResponseInterface
+    {
+        return $this->stubResponse('Divorces');
+    }
+
+    /**
+     * Renders the placeholder for the not-yet-implemented Children tab.
+     */
+    public function getChildrenAction(ServerRequestInterface $request): ResponseInterface
+    {
+        return $this->stubResponse('Children');
+    }
+
+    /**
+     * Returns the action → translated-label map that drives both the tab navigation
+     * in getChartAction() and the heading shown by stub placeholders. Keeping the
+     * catalog in one place removes the lockstep coupling between the two surfaces
+     * and avoids any per-tab label drift.
+     *
+     * @return array<string, string>
+     */
+    private function tabCatalog(): array
+    {
+        return [
+            'Overview'      => I18N::translate('Overview'),
+            'Relationships' => I18N::translate('Relationships'),
+            'Places'        => I18N::translate('Places'),
+            'Age'           => I18N::translate('Age'),
+            'Births'        => I18N::translate('Births'),
+            'Deaths'        => I18N::translate('Deaths'),
+            'Weddings'      => I18N::translate('Weddings'),
+            'Divorces'      => I18N::translate('Divorces'),
+            'Children'      => I18N::translate('Children'),
+        ];
+    }
+
+    /**
+     * Render the shared "Coming soon" placeholder for tabs that are planned but
+     * not yet implemented. The label is looked up from the tab catalog so any
+     * rename only happens in one place.
+     *
+     * @param string $action Tab action key (e.g. "Relationships")
+     */
+    private function stubResponse(string $action): ResponseInterface
+    {
+        $this->layout = 'layouts/ajax';
+
+        return $this->viewResponse(
+            $this->name() . '::modules/statistics-chart/Templates/ComingSoon',
+            [
+                'tabLabel' => $this->tabCatalog()[$action],
+            ],
         );
     }
 }
