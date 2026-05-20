@@ -1,19 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package magicsunday/webtrees-statistics.
  *
  * For the full copyright and license information, please read the
- * LICENSE file distributed with this source code.
+ * LICENSE file that was distributed with this source code.
  */
-
-declare(strict_types=1);
 
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Individual;
 
 /**
- * @var array $data
+ * @var array<array{label: string, value: int}> $data
  */
 $maximum = max(array_map(static fn (array $x): int => $x['value'], $data));
 $minimum = min(array_map(static fn (array $x): int => $x['value'], $data));
