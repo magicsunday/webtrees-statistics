@@ -1,0 +1,44 @@
+0 HEAD
+1 SOUR webtrees-statistics-fixture
+2 NAME kinship
+1 DEST ANSTFILE
+1 CHAR UTF-8
+1 SUBM @SUBM1@
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+0 @SUBM1@ SUBM
+1 NAME Fixture
+0 @G1@ INDI
+1 NAME Grossvater /A/
+1 SEX M
+1 FAMS @FG@
+0 @G2@ INDI
+1 NAME Grossmutter /A/
+1 SEX F
+1 FAMS @FG@
+0 @V@ INDI
+1 NAME Vater /A/
+1 SEX M
+1 FAMC @FG@
+1 FAMS @FE@
+0 @M@ INDI
+1 NAME Mutter /B/
+1 SEX F
+1 FAMS @FE@
+0 @C@ INDI
+1 NAME Kind /A/
+1 SEX M
+1 FAMC @FE@
+0 @S@ INDI
+1 NAME Solo /Z/
+1 SEX M
+0 @FG@ FAM
+1 HUSB @G1@
+1 WIFE @G2@
+1 CHIL @V@
+0 @FE@ FAM
+1 HUSB @V@
+1 WIFE @M@
+1 CHIL @C@
+0 TRLR

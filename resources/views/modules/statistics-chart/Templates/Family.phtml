@@ -40,6 +40,10 @@ $totalChildrenFamilies = array_sum($childrenHistogram);
 $totalSiblingPairs     = array_sum($siblingGaps);
 $totalFirstChildMonth  = array_sum($firstChildMonth);
 
+$ancestorDistribution = $statistic->getAncestorCountDistribution();
+$avgPedigree          = $statistic->getAveragePedigreeCompleteness();
+$totalAncestorsRows   = array_sum($ancestorDistribution);
+
 // Cohort-rate is a fraction — multiply by 100 to read as a percentage
 // and drop empty cohorts so the bar list isn't all zeros on trees
 // with very few divorces.
@@ -301,6 +305,37 @@ $totalDivAgeF    = array_sum($divorceAgeF);
         ['identifier' => 'childless-families-donut', 'data' => $childlessBreakdown],
     );
 ?>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 g-3 mt-1 mb-3">
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('Known ancestors per individual'); ?></h5>
+                    <small><?php echo I18N::translate('Distinct ancestors recorded up to four generations (great-great-grandparents).'); ?></small>
+                </div>
+                <div class="card-body">
+                    <?php
+    echo view(
+        $module . '::modules/statistics-chart/Partials/ProgressList',
+        ['class' => 'progress-ancestor-count', 'data' => $ancestorDistribution],
+    );
+?>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('Average pedigree completeness'); ?></h5>
+                    <small><?php echo I18N::translate('Lacy 1989 — mean fraction of direct ancestors known up to four generations across all individuals.'); ?></small>
+                </div>
+                <div class="card-body">
+                    <p class="display-5 text-center mb-1"><?php echo I18N::number($avgPedigree * 100, 1); ?>%</p>
+                    <p class="text-center text-muted small mb-0"><?php echo I18N::plural('%s individual sampled', '%s individuals sampled', $totalAncestorsRows, I18N::number($totalAncestorsRows)); ?></p>
                 </div>
             </div>
         </div>

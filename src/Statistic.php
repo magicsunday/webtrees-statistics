@@ -19,6 +19,7 @@ use MagicSunday\Webtrees\Statistic\Repository\DivorceRepository;
 use MagicSunday\Webtrees\Statistic\Repository\EventRepository;
 use MagicSunday\Webtrees\Statistic\Repository\FamilyRepository;
 use MagicSunday\Webtrees\Statistic\Repository\GivenNameTrendsRepository;
+use MagicSunday\Webtrees\Statistic\Repository\KinshipRepository;
 use MagicSunday\Webtrees\Statistic\Repository\LifeSpanRepository;
 use MagicSunday\Webtrees\Statistic\Repository\MarriageRepository;
 use MagicSunday\Webtrees\Statistic\Repository\MigrationRepository;
@@ -60,6 +61,7 @@ final readonly class Statistic
      * @param MarriageRepository        $marriageRepository        Age-at-marriage / duration / couple-age-gap aggregations for the Family tab
      * @param DivorceRepository         $divorceRepository         Divorce century / month / age / cohort-rate aggregations for the Family tab
      * @param ChildrenRepository        $childrenRepository        Children-per-family + sibling-age-gap + top-N largest families aggregations
+     * @param KinshipRepository         $kinshipRepository         Ancestor-count distribution + average pedigree-completeness (Lacy 1989)
      */
     public function __construct(
         private StatisticsData $data,
@@ -74,6 +76,7 @@ final readonly class Statistic
         private MarriageRepository $marriageRepository,
         private DivorceRepository $divorceRepository,
         private ChildrenRepository $childrenRepository,
+        private KinshipRepository $kinshipRepository,
     ) {
     }
 
@@ -461,6 +464,26 @@ final readonly class Statistic
     public function getFirstChildrenByMonth(): array
     {
         return $this->translateMonthKeys($this->childrenRepository->firstChildrenByMonth());
+    }
+
+    /**
+     * Histogram of known-ancestor counts per individual (4-generation
+     * walk, 3-wide buckets).
+     *
+     * @return array<string, int>
+     */
+    public function getAncestorCountDistribution(): array
+    {
+        return $this->kinshipRepository->ancestorCountDistribution();
+    }
+
+    /**
+     * Mean pedigree-completeness index across every individual
+     * (Lacy 1989, 4-generation depth). Fraction 0.0-1.0.
+     */
+    public function getAveragePedigreeCompleteness(): float
+    {
+        return $this->kinshipRepository->averagePedigreeCompleteness();
     }
 
     /**
