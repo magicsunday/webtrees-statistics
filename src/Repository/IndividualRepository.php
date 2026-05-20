@@ -11,14 +11,10 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
-use Fisharebest\Webtrees\Family;
 use Fisharebest\Webtrees\Gedcom;
-use Fisharebest\Webtrees\Individual;
-use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Collection;
 
 /**
  * A repository providing methods for individual related statistics.
@@ -160,33 +156,5 @@ class IndividualRepository
                 }
             })
             ->count();
-    }
-
-    /**
-     * Returns how many individuals exist in the tree.
-     *
-     * @return Collection
-     */
-    public function getAllIndividuals()
-    {
-        //        $individuals = DB::table('individuals')
-        //            ->where('i_file', '=', $this->tree->id())
-        //            ->get()
-        //            ->map(Registry::individualFactory()->mapper($this->tree))
-        //            ->all();
-        //
-        //        $count = 0;
-        //
-        //        /** @var Individual $individual */
-        //        foreach ($individuals as $individual) {
-        //            /** @var Family $family */
-        //            foreach ($individual->childFamilies() as $family) {
-        //                if ($family->getMarriage() === null) {
-        //                    ++$count;
-        //                }
-        //            }
-        //        }
-        //
-        // var_dump($count);
     }
 }

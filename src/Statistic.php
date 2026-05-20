@@ -13,7 +13,6 @@ namespace MagicSunday\Webtrees\Statistic;
 
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Statistics\Google\ChartDistribution;
-use Fisharebest\Webtrees\Statistics\Repository\Interfaces\IndividualRepositoryInterface;
 use Fisharebest\Webtrees\Statistics\Service\CenturyService;
 use Fisharebest\Webtrees\Statistics\Service\ColorService;
 use Fisharebest\Webtrees\Statistics\Service\CountryService;
@@ -30,14 +29,10 @@ use MagicSunday\Webtrees\Statistic\Repository\NameRepository;
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
- * @link    https://github.com/magicsunday/webtrees-statistics/ */
+ * @link    https://github.com/magicsunday/webtrees-statistics/
+ */
 class Statistic
 {
-    /**
-     * @var ColorService
-     */
-    private ColorService $colorService;
-
     /**
      * @var IndividualRepository
      */
@@ -61,21 +56,19 @@ class Statistic
     /**
      * Constructor.
      *
-     * @param Tree                          $tree           The tree used to generate the statistics for
-     * @param ColorService                  $colorService   The color service
-     * @param CenturyService                $centuryService The century service
-     * @param CountryService                $countryService
+     * @param Tree           $tree           The tree used to generate the statistics for
+     * @param ColorService   $colorService   The color service
+     * @param CenturyService $centuryService The century service
+     * @param CountryService $countryService The country service
      */
     public function __construct(
         Tree $tree,
         ColorService $colorService,
         CenturyService $centuryService,
-        CountryService $countryService
+        CountryService $countryService,
     ) {
-        $individual_repository   = new \Fisharebest\Webtrees\Statistics\Repository\IndividualRepository($centuryService, $colorService, $tree);
-        $chartDistribution = new ChartDistribution($tree, $countryService, $individual_repository);
-
-        $this->colorService         = $colorService;
+        $individualRepository       = new \Fisharebest\Webtrees\Statistics\Repository\IndividualRepository($centuryService, $colorService, $tree);
+        $chartDistribution          = new ChartDistribution($tree, $countryService, $individualRepository);
         $this->individualRepository = new IndividualRepository($tree);
         $this->familyRepository     = new FamilyRepository($tree);
         $this->eventRepository      = new EventRepository($tree, $centuryService, $chartDistribution);

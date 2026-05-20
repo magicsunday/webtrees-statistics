@@ -1,0 +1,187 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Call to method centuryName\(\) on an unknown class Fisharebest\\Webtrees\\Statistics\\Service\\CenturyService\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Repository/EventRepository.php
+
+		-
+			message: '#^Call to method countIndividualEventsByCountry\(\) on an unknown class Fisharebest\\Webtrees\\Statistics\\Google\\ChartDistribution\.$#'
+			identifier: class.notFound
+			count: 2
+			path: src/Repository/EventRepository.php
+
+		-
+			message: '#^Call to method createChartData\(\) on an unknown class Fisharebest\\Webtrees\\Statistics\\Google\\ChartDistribution\.$#'
+			identifier: class.notFound
+			count: 2
+			path: src/Repository/EventRepository.php
+
+		-
+			message: '#^Method MagicSunday\\Webtrees\\Statistic\\Repository\\EventRepository\:\:getBirthsByCountry\(\) should return array\<string, int\> but returns list\<array\<string, mixed\>\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Repository/EventRepository.php
+
+		-
+			message: '#^Method MagicSunday\\Webtrees\\Statistic\\Repository\\EventRepository\:\:getDeathsByCountry\(\) should return array\<string, int\> but returns list\<array\<string, mixed\>\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Repository/EventRepository.php
+
+		-
+			message: '#^Method MagicSunday\\Webtrees\\Statistic\\Repository\\EventRepository\:\:getEventsGroupedByCentury\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/EventRepository.php
+
+		-
+			message: '#^Method MagicSunday\\Webtrees\\Statistic\\Repository\\EventRepository\:\:getEventsGroupedByMonth\(\) should return array\<string, int\> but returns array\<mixed\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Repository/EventRepository.php
+
+		-
+			message: '#^Method MagicSunday\\Webtrees\\Statistic\\Repository\\EventRepository\:\:getEventsGroupedByZodiacSign\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/EventRepository.php
+
+		-
+			message: '#^Parameter \$centuryService of method MagicSunday\\Webtrees\\Statistic\\Repository\\EventRepository\:\:__construct\(\) has invalid type Fisharebest\\Webtrees\\Statistics\\Service\\CenturyService\.$#'
+			identifier: class.notFound
+			count: 2
+			path: src/Repository/EventRepository.php
+
+		-
+			message: '#^Parameter \$chartDistribution of method MagicSunday\\Webtrees\\Statistic\\Repository\\EventRepository\:\:__construct\(\) has invalid type Fisharebest\\Webtrees\\Statistics\\Google\\ChartDistribution\.$#'
+			identifier: class.notFound
+			count: 2
+			path: src/Repository/EventRepository.php
+
+		-
+			message: '#^Property MagicSunday\\Webtrees\\Statistic\\Repository\\EventRepository\:\:\$centuryService has unknown class Fisharebest\\Webtrees\\Statistics\\Service\\CenturyService as its type\.$#'
+			identifier: class.notFound
+			count: 2
+			path: src/Repository/EventRepository.php
+
+		-
+			message: '#^Property MagicSunday\\Webtrees\\Statistic\\Repository\\EventRepository\:\:\$chartDistribution has unknown class Fisharebest\\Webtrees\\Statistics\\Google\\ChartDistribution as its type\.$#'
+			identifier: class.notFound
+			count: 2
+			path: src/Repository/EventRepository.php
+
+		-
+			message: '#^Cannot access property \$n_surn on mixed\.$#'
+			identifier: property.nonObject
+			count: 7
+			path: src/Repository/NameRepository.php
+
+		-
+			message: '#^Cannot access property \$n_surname on mixed\.$#'
+			identifier: property.nonObject
+			count: 3
+			path: src/Repository/NameRepository.php
+
+		-
+			message: '#^Cannot access property \$total on mixed\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: src/Repository/NameRepository.php
+
+		-
+			message: '#^Cannot cast mixed to int\.$#'
+			identifier: cast.int
+			count: 2
+			path: src/Repository/NameRepository.php
+
+		-
+			message: '#^Method MagicSunday\\Webtrees\\Statistic\\Repository\\NameRepository\:\:findAllGivenNamesBySex\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/NameRepository.php
+
+		-
+			message: '#^Method MagicSunday\\Webtrees\\Statistic\\Repository\\NameRepository\:\:flattenGivenNameList\(\) has parameter \$givenNames with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/NameRepository.php
+
+		-
+			message: '#^Method MagicSunday\\Webtrees\\Statistic\\Repository\\NameRepository\:\:flattenGivenNameList\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/NameRepository.php
+
+		-
+			message: '#^Method MagicSunday\\Webtrees\\Statistic\\Repository\\NameRepository\:\:flattenSurnameVariantsList\(\) has parameter \$surnames with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/NameRepository.php
+
+		-
+			message: '#^Method MagicSunday\\Webtrees\\Statistic\\Repository\\NameRepository\:\:flattenSurnameVariantsList\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/NameRepository.php
+
+		-
+			message: '#^Instantiated class Fisharebest\\Webtrees\\Statistics\\Google\\ChartDistribution not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Statistic.php
+
+		-
+			message: '#^Instantiated class Fisharebest\\Webtrees\\Statistics\\Repository\\IndividualRepository not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Statistic.php
+
+		-
+			message: '#^Method MagicSunday\\Webtrees\\Statistic\\Statistic\:\:getTopFemaleGivenNames\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Statistic.php
+
+		-
+			message: '#^Method MagicSunday\\Webtrees\\Statistic\\Statistic\:\:getTopMaleGivenNames\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Statistic.php
+
+		-
+			message: '#^Method MagicSunday\\Webtrees\\Statistic\\Statistic\:\:getTopSurnames\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Statistic.php
+
+		-
+			message: '#^Offset ''count'' does not exist on array\<int, int\|string\>\.$#'
+			identifier: offsetAccess.notFound
+			count: 3
+			path: src/Statistic.php
+
+		-
+			message: '#^Offset ''name'' does not exist on array\<int, int\|string\>\.$#'
+			identifier: offsetAccess.notFound
+			count: 9
+			path: src/Statistic.php
+
+		-
+			message: '#^Parameter \$centuryService of method MagicSunday\\Webtrees\\Statistic\\Statistic\:\:__construct\(\) has invalid type Fisharebest\\Webtrees\\Statistics\\Service\\CenturyService\.$#'
+			identifier: class.notFound
+			count: 2
+			path: src/Statistic.php
+
+		-
+			message: '#^Parameter \$colorService of method MagicSunday\\Webtrees\\Statistic\\Statistic\:\:__construct\(\) has invalid type Fisharebest\\Webtrees\\Statistics\\Service\\ColorService\.$#'
+			identifier: class.notFound
+			count: 2
+			path: src/Statistic.php
+
+		-
+			message: '#^Parameter \$countryService of method MagicSunday\\Webtrees\\Statistic\\Statistic\:\:__construct\(\) has typehint with deprecated class Fisharebest\\Webtrees\\Statistics\\Service\\CountryService\.$#'
+			identifier: parameter.deprecatedClass
+			count: 2
+			path: src/Statistic.php

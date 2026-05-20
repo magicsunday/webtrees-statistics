@@ -16,7 +16,6 @@ use Fisharebest\Webtrees\Statistics\Google\ChartDistribution;
 use Fisharebest\Webtrees\Statistics\Service\CenturyService;
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
-use function array_slice;
 
 /**
  * A repository providing methods for event-related statistics.
@@ -31,6 +30,7 @@ class EventRepository
      * Event facts.
      */
     private const EVENT_BIRTH = 'BIRT';
+
     private const EVENT_DEATH = 'DEAT';
 
     /**
@@ -69,14 +69,14 @@ class EventRepository
     /**
      * Constructor.
      *
-     * @param Tree              $tree
-     * @param CenturyService    $centuryService
-     * @param ChartDistribution $chartDistribution
+     * @param Tree              $tree              The tree the statistics are computed for
+     * @param CenturyService    $centuryService    The century service
+     * @param ChartDistribution $chartDistribution The chart-distribution helper for country lookups
      */
     public function __construct(
         Tree $tree,
         CenturyService $centuryService,
-        ChartDistribution $chartDistribution
+        ChartDistribution $chartDistribution,
     ) {
         $this->tree              = $tree;
         $this->centuryService    = $centuryService;
@@ -105,14 +105,6 @@ class EventRepository
             'DEC' => I18N::translateContext('NOMINATIVE', 'December'),
         ];
     }
-
-    //    /**
-    //     * @return int
-    //     */
-    //    public function getTotalBirths(): int
-    //    {
-    //        return $this->getEventCount(self::EVENT_BIRTH);
-    //    }
 
     /**
      * Returns a list of all birth events grouped by month of birth.
@@ -167,23 +159,15 @@ class EventRepository
         foreach ($chartData as $values) {
             $mappedChartData[] = [
                 'countryCode' => $values[0]['v'],
-                'label' => $values[0]['f'],
-                'count' => $values[1],
+                'label'       => $values[0]['f'],
+                'count'       => $values[1],
             ];
         }
 
-        usort($mappedChartData, static fn($a, $b) => $b['count'] <=> $a['count']);
+        usort($mappedChartData, static fn (array $a, array $b): int => $b['count'] <=> $a['count']);
 
         return $mappedChartData;
     }
-
-    //    /**
-    //     * @return int
-    //     */
-    //    public function getTotalDeaths(): int
-    //    {
-    //        return $this->getEventCount(self::EVENT_DEATH);
-    //    }
 
     /**
      * Returns a list of all death events grouped by month of death.
@@ -230,12 +214,12 @@ class EventRepository
         foreach ($chartData as $values) {
             $mappedChartData[] = [
                 'countryCode' => $values[0]['v'],
-                'label' => $values[0]['f'],
-                'count' => $values[1],
+                'label'       => $values[0]['f'],
+                'count'       => $values[1],
             ];
         }
 
-        usort($mappedChartData, static fn($a, $b) => $b['count'] <=> $a['count']);
+        usort($mappedChartData, static fn (array $a, array $b): int => $b['count'] <=> $a['count']);
 
         return $mappedChartData;
     }
@@ -560,90 +544,4 @@ SQL;
             ->get()
             ->first();
     }
-
-//    /**
-//     * Returns a key => value pair list of events grouped by country with their respective count.
-//     *
-//     * @param string ...$events The list of events (e.g., BIRT, DEAT, ...)
-//     *
-//     * @return array
-//     */
-//    protected function getEventsGroupedByCountry(string ...$events): array
-//    {
-//        $query = DB::table('places')
-//            ->where(
-//                'p_file',
-//                '=',
-//                $this->tree->id()
-//            )
-//            ->where(
-//                'p_parent_id',
-//                '=',
-//                0
-//            )
-//            ->join(
-//                'placelinks',
-//                static function (JoinClause $join): void {
-//                    $join
-//                        ->on(
-//                            'pl_file',
-//                            '=',
-//                            'p_file'
-//                        )
-//                        ->on(
-//                            'pl_p_id',
-//                            '=',
-//                            'p_id'
-//                        );
-//                }
-//            )
-//            ->join(
-//                'individuals',
-//                static function (JoinClause $join): void {
-//                    $join
-//                        ->on(
-//                            'pl_file',
-//                            '=',
-//                            'i_file'
-//                        )
-//                        ->on(
-//                            'pl_gid',
-//                            '=',
-//                            'i_id'
-//                        );
-//                }
-//            )
-//            ->select(
-//                [
-//                    'p_place AS place',
-//                    'i_gedcom AS gedcom',
-//                ]
-//            );
-//
-//        if ($events !== []) {
-//            $types = [];
-//
-//            foreach ($events as $type) {
-//                if (strncmp($type, '!', 1) === 0) {
-//                    $ignoredTypes[] = substr($type, 1);
-//                } else {
-//                    $types[] = $type;
-//                }
-//            }
-//
-//            if ($types !== []) {
-//                $query->whereIn('d_fact', $types);
-//            }
-//        }
-//
-//        return $query
-//            ->whereNotIn('d_fact', $ignoredTypes)
-//            ->groupBy('century')
-//            ->orderBy('century')
-//            ->get()
-//            ->mapWithKeys(fn (object $row): array => [
-//                $this->countryService->mapTwoLetterToName($row->century) => (int) $row->total,
-//            ])
-//            ->toArray();
-//    }
 }

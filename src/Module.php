@@ -36,9 +36,6 @@ class Module extends StatisticsChartModule implements ModuleCustomInterface
     use ModuleCustomTrait;
     use ModuleChartTrait;
 
-    private const ROUTE_DEFAULT     = 'webtrees-statistics';
-    private const ROUTE_DEFAULT_URL = '/tree/{tree}/webtrees-statistics/{xref}';
-
     /**
      * @var string
      */
@@ -202,7 +199,6 @@ class Module extends StatisticsChartModule implements ModuleCustomInterface
                 'title'      => $this->title(),
                 'tree'       => $tree,
                 'javascript' => $this->assetUrl('js/webtrees-statistics.js'),
-//                'javascript' => $this->assetUrl('js/webtrees-statistics.min.js'),
             ]
         );
     }

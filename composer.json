@@ -1,6 +1,6 @@
 {
-    "name": "magicsunday/webtrees-statistic",
-    "description": "This modules provides SVG based statistics for the [webtrees](https://www.webtrees.net) genealogy application.",
+    "name": "magicsunday/webtrees-statistics",
+    "description": "This module provides SVG-based statistics for the [webtrees](https://www.webtrees.net) genealogy application.",
     "license": "GPL-3.0-or-later",
     "type": "webtrees-module",
     "keywords": [
@@ -23,82 +23,83 @@
         "discard-changes": true,
         "sort-packages": true,
         "optimize-autoloader": true,
+        "audit": {
+            "abandoned": "ignore"
+        },
         "allow-plugins": {
             "magicsunday/webtrees-module-installer-plugin": true
         }
     },
     "require": {
-        "ext-json": "*",
+        "php": "8.3 - 8.5",
         "ext-dom": "*",
-        "fisharebest/webtrees": "~2.1.0",
+        "ext-json": "*",
+        "fisharebest/webtrees": "~2.2.0 || dev-main",
+        "magicsunday/webtrees-module-base": "^2.2",
         "magicsunday/webtrees-module-installer-plugin": "^1.3"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.50",
-        "overtrue/phplint": "^3.4 || ^9.0",
-        "phpstan/phpstan": "^1.10",
-        "phpstan/phpstan-strict-rules": "^1.5",
-        "phpstan/phpstan-deprecation-rules": "^1.1",
-        "rector/rector": "^1.0"
+        "overtrue/phplint": "^9.0",
+        "phpstan/phpstan": "^2.0",
+        "phpstan/phpstan-deprecation-rules": "^2.0",
+        "phpstan/phpstan-phpunit": "^2.0",
+        "phpstan/phpstan-strict-rules": "^2.0",
+        "phpunit/phpunit": "^12.0 || ^13.0",
+        "rector/rector": "^2.0"
     },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "autoload": {
         "psr-4": {
             "MagicSunday\\Webtrees\\Statistic\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "MagicSunday\\Webtrees\\Statistic\\Test\\": "tests/"
+        }
+    },
     "scripts": {
-        "module:build": [
-            "### Remove any left over files",
-            "rm -Rf webtrees-statistics/",
-            "### Checkout latest version of repository",
-            "git archive --prefix=webtrees-statistics/ HEAD --format=tar | tar -x",
-            "### Remove all not required files from archive",
-            "rm -rf webtrees-statistics/.github",
-            "rm -rf webtrees-statistics/resources/js/modules",
-            "rm -rf webtrees-statistics/test",
-            "rm -f webtrees-statistics/.gitattributes",
-            "rm -f webtrees-statistics/.gitignore",
-            "rm -f webtrees-statistics/composer.json",
-            "rm -f webtrees-statistics/package.json",
-            "rm -f webtrees-statistics/rollup.config.js",
-            "rm -f webtrees-statistics/phpstan.neon",
-            "rm -f webtrees-statistics/phpstan-baseline.neon",
-            "rm -f webtrees-statistics/.php-cs-fixer.dist.php",
-            "rm -f webtrees-statistics/.phplint.yml",
-            "rm -f webtrees-statistics/rector.php",
-            "### Create archive",
-            "zip --quiet --recurse-paths --move -9 webtrees-statistics.zip webtrees-statistics"
+        "ci:cgl": [
+            "php-cs-fixer fix --config .php-cs-fixer.dist.php --diff --verbose"
+        ],
+        "ci:rector": [
+            "rector process --config rector.php"
+        ],
+        "ci:test:php:cgl": [
+            "@ci:cgl --dry-run"
         ],
         "ci:test:php:lint": [
-            "phplint"
+            "phplint --configuration .phplint.yml"
         ],
         "ci:test:php:phpstan": [
-            "phpstan analyze"
+            "phpstan analyze --configuration phpstan.neon --memory-limit=-1"
         ],
         "ci:test:php:phpstan:baseline": [
-            "phpstan analyze --generate-baseline phpstan-baseline.neon --allow-empty-baseline"
+            "phpstan analyze --configuration phpstan.neon --memory-limit=-1 --generate-baseline phpstan-baseline.neon --allow-empty-baseline"
         ],
         "ci:test:php:rector": [
-            "rector process --config rector.php --dry-run"
+            "@ci:rector --dry-run"
         ],
         "ci:test:php:unit": [
-            "phpunit"
+            "phpunit --configuration phpunit.xml --display-all-issues"
         ],
-        "ci:cgl": [
-            "php-cs-fixer fix --diff --verbose"
+        "ci:test:js:lint": [
+            "npm run lint"
+        ],
+        "ci:test:js:format": [
+            "npm run format:check"
+        ],
+        "ci:test:js:unit": [
+            "node --no-warnings --experimental-vm-modules node_modules/jest/bin/jest.js --passWithNoTests"
         ],
         "ci:test": [
             "@ci:test:php:lint",
+            "@ci:test:php:cgl",
             "@ci:test:php:phpstan",
             "@ci:test:php:rector",
             "@ci:test:php:unit"
-        ],
-        "module:check": [
-            "@ci:test"
         ]
-    },
-    "scripts-descriptions": {
-        "module:build": "Create a distribution file (webtrees-statistics.zip)",
-        "module:check": "Run various static analysis tools"
     }
 }
