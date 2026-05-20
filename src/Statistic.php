@@ -13,6 +13,7 @@ namespace MagicSunday\Webtrees\Statistic;
 
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\StatisticsData;
+use MagicSunday\Webtrees\Statistic\Repository\ChildrenRepository;
 use MagicSunday\Webtrees\Statistic\Repository\CountryRepository;
 use MagicSunday\Webtrees\Statistic\Repository\DivorceRepository;
 use MagicSunday\Webtrees\Statistic\Repository\EventRepository;
@@ -58,6 +59,7 @@ final readonly class Statistic
      * @param LifeSpanRepository        $lifeSpanRepository        Age-at-death distribution + top-N oldest individuals + living-age-band buckets
      * @param MarriageRepository        $marriageRepository        Age-at-marriage / duration / couple-age-gap aggregations for the Family tab
      * @param DivorceRepository         $divorceRepository         Divorce century / month / age / cohort-rate aggregations for the Family tab
+     * @param ChildrenRepository        $childrenRepository        Children-per-family + sibling-age-gap + top-N largest families aggregations
      */
     public function __construct(
         private StatisticsData $data,
@@ -71,6 +73,7 @@ final readonly class Statistic
         private LifeSpanRepository $lifeSpanRepository,
         private MarriageRepository $marriageRepository,
         private DivorceRepository $divorceRepository,
+        private ChildrenRepository $childrenRepository,
     ) {
     }
 
@@ -398,6 +401,66 @@ final readonly class Statistic
     public function getDivorceRateByMarriageCohort(): array
     {
         return $this->divorceRepository->divorceRateByMarriageCohort();
+    }
+
+    /**
+     * Average number of children per family across the whole tree.
+     */
+    public function getAverageChildrenPerFamily(): float
+    {
+        return $this->childrenRepository->averageChildrenPerFamily();
+    }
+
+    /**
+     * Histogram of children-per-family (0–9 buckets + "10+" overflow).
+     *
+     * @return array<string, int>
+     */
+    public function getChildrenPerFamilyHistogram(): array
+    {
+        return $this->childrenRepository->childrenPerFamilyHistogram();
+    }
+
+    /**
+     * Distribution of gaps (years) between consecutive siblings.
+     *
+     * @return array<string, int>
+     */
+    public function getSiblingAgeGapDistribution(): array
+    {
+        return $this->childrenRepository->siblingAgeGapDistribution();
+    }
+
+    /**
+     * Top-N largest families by child count.
+     *
+     * @param int $limit Maximum number of rows.
+     *
+     * @return array<string, int>
+     */
+    public function getTopLargestFamilies(int $limit): array
+    {
+        return $this->childrenRepository->topLargestFamilies($limit);
+    }
+
+    /**
+     * Childless-families breakdown for a donut chart.
+     *
+     * @return list<array{label: string, value: int, class: string}>
+     */
+    public function getChildlessFamiliesBreakdown(): array
+    {
+        return $this->childrenRepository->childlessFamiliesBreakdown();
+    }
+
+    /**
+     * First-children by localised month name.
+     *
+     * @return array<string, int>
+     */
+    public function getFirstChildrenByMonth(): array
+    {
+        return $this->translateMonthKeys($this->childrenRepository->firstChildrenByMonth());
     }
 
     /**

@@ -29,6 +29,17 @@ $divorceAgeM       = $statistic->getAgeAtDivorceDistribution('M');
 $divorceAgeF       = $statistic->getAgeAtDivorceDistribution('F');
 $cohortRates       = $statistic->getDivorceRateByMarriageCohort();
 
+$avgChildren        = $statistic->getAverageChildrenPerFamily();
+$childrenHistogram  = $statistic->getChildrenPerFamilyHistogram();
+$siblingGaps        = $statistic->getSiblingAgeGapDistribution();
+$largestFamilies    = $statistic->getTopLargestFamilies(10);
+$childlessBreakdown = $statistic->getChildlessFamiliesBreakdown();
+$firstChildMonth    = $statistic->getFirstChildrenByMonth();
+
+$totalChildrenFamilies = array_sum($childrenHistogram);
+$totalSiblingPairs     = array_sum($siblingGaps);
+$totalFirstChildMonth  = array_sum($firstChildMonth);
+
 // Cohort-rate is a fraction — multiply by 100 to read as a percentage
 // and drop empty cohorts so the bar list isn't all zeros on trees
 // with very few divorces.
@@ -226,7 +237,92 @@ $totalDivAgeF    = array_sum($divorceAgeF);
         </div>
     </div>
 
-    <div class="row row-cols-1 g-3 mt-1 mb-3">
+    <div class="row row-cols-1 row-cols-md-2 g-3 mt-1 mb-3">
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('Children per family'); ?></h5>
+                    <small><?php echo I18N::translate('Average: %s', I18N::number($avgChildren, 1)); ?> · <?php echo I18N::plural('%s family', '%s families', $totalChildrenFamilies, I18N::number($totalChildrenFamilies)); ?></small>
+                </div>
+                <div class="card-body">
+                    <?php
+    echo view(
+        $module . '::modules/statistics-chart/Partials/ProgressList',
+        ['class' => 'progress-children-per-family', 'data' => $childrenHistogram],
+    );
+?>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('Sibling age gap'); ?></h5>
+                    <small><?php echo I18N::plural('%s consecutive-sibling pair', '%s consecutive-sibling pairs', $totalSiblingPairs, I18N::number($totalSiblingPairs)); ?></small>
+                </div>
+                <div class="card-body">
+                    <?php
+    echo view(
+        $module . '::modules/statistics-chart/Partials/ProgressList',
+        ['class' => 'progress-sibling-gap', 'data' => $siblingGaps],
+    );
+?>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 g-3 mt-1 mb-3">
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('Top 10 largest families'); ?></h5>
+                    <small><?php echo I18N::translate('By recorded child count'); ?></small>
+                </div>
+                <div class="card-body">
+                    <?php
+    echo view(
+        $module . '::modules/statistics-chart/Partials/ProgressList',
+        ['class' => 'progress-largest-families', 'data' => $largestFamilies],
+    );
+?>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('Families with vs without children'); ?></h5>
+                </div>
+                <div class="card-body">
+                    <?php
+    echo view(
+        $module . '::modules/statistics-chart/Partials/DonutChart',
+        ['identifier' => 'childless-families-donut', 'data' => $childlessBreakdown],
+    );
+?>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 g-3 mt-1 mb-3">
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('First children by month'); ?></h5>
+                    <small><?php echo I18N::plural('%s first-born child with a recorded month', '%s first-born children with a recorded month', $totalFirstChildMonth, I18N::number($totalFirstChildMonth)); ?></small>
+                </div>
+                <div class="card-body">
+                    <?php
+    echo view(
+        $module . '::modules/statistics-chart/Partials/ProgressList',
+        ['class' => 'progress-first-child-month', 'data' => $firstChildMonth],
+    );
+?>
+                </div>
+            </div>
+        </div>
         <div class="col">
             <div class="card h-100">
                 <div class="card-header">
