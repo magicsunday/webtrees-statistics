@@ -36,7 +36,9 @@ export class StreamGraph
             height: 240,
             // Asymmetric top/bottom margins: top only needs a couple
             // of pixels for the y-pad, bottom carries the x-axis tick
-            // labels too.
+            // labels too. The vertical-centring shim below offsets
+            // the inner-G translate so the asymmetry doesn't bias
+            // the content downward in the SVG box.
             margin: { top: 4, right: 16, bottom: 28, left: 16 },
         }, options || {});
     }
@@ -144,7 +146,16 @@ export class StreamGraph
             .attr("role", "img")
             .attr("aria-label", "Given-name popularity across decades");
 
-        const inner = svg.append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
+        // Centre the inner content vertically inside the SVG. The bottom
+        // margin holds the x-axis tick labels (no top counterpart), so
+        // the rendered <g> bounding box otherwise lands biased downward
+        // by half the asymmetry. Subtracting half of (bottom − top)
+        // from the translate produces a slightly negative shift on
+        // common settings (e.g. -8 with the default 4/28 margins),
+        // which lifts the bbox back to the SVG centre.
+        const verticalCentringShim = Math.round((margin.bottom - margin.top) / 2);
+        const inner = svg.append("g")
+            .attr("transform", `translate(${margin.left}, ${margin.top - verticalCentringShim})`);
 
         const bandTotals = new Map(series.map((band) => [
             band.key,
