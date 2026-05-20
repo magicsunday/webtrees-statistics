@@ -18,6 +18,7 @@ use MagicSunday\Webtrees\Statistic\Repository\ChildrenRepository;
 use PHPUnit\Framework\Attributes\Test;
 
 use function array_sum;
+use function array_values;
 
 /**
  * Integration test for {@see ChildrenRepository}. The fixture has
@@ -87,5 +88,52 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
 
         self::assertSame(1, $byLabel['With children'] ?? null);
         self::assertSame(1, $byLabel['Without children'] ?? null);
+    }
+
+    /**
+     * Fixture has 2 families and 3 children → average 1.5 per
+     * family. Pass-through over core's accessor.
+     */
+    #[Test]
+    public function averageChildrenPerFamilyMatchesCoreAccessor(): void
+    {
+        $tree   = $this->importFixtureTree('children.ged');
+        $result = $this->repository($tree)->averageChildrenPerFamily();
+
+        self::assertSame(1.5, $result);
+    }
+
+    /**
+     * Top-N largest families list F1 first (3 children); F2 with
+     * 0 children should still appear (the accessor sorts
+     * descending by child count, not "only those > 0").
+     */
+    #[Test]
+    public function topLargestFamiliesRanksByChildCount(): void
+    {
+        $tree   = $this->importFixtureTree('children.ged');
+        $result = $this->repository($tree)->topLargestFamilies(10);
+
+        // Two families in the fixture.
+        self::assertCount(2, $result);
+        // F1 wins with 3 children → first value is 3.
+        self::assertSame(3, array_values($result)[0]);
+    }
+
+    /**
+     * `firstChildrenByMonth` returns the GEDCOM month-keyed
+     * counts. F1's three children all born in JAN → JAN ×3.
+     * F2 has no children, contributes nothing.
+     */
+    #[Test]
+    public function firstChildrenByMonthCountsTheFirstChildPerFamily(): void
+    {
+        $tree   = $this->importFixtureTree('children.ged');
+        $result = $this->repository($tree)->firstChildrenByMonth();
+
+        // The first child of F1 was born JAN 1900.
+        self::assertSame(1, $result['JAN'] ?? null);
+        // No other months touched.
+        self::assertSame(1, array_sum($result));
     }
 }

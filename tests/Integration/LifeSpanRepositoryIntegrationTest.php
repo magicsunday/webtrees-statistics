@@ -91,4 +91,46 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
         self::assertGreaterThanOrEqual(120, $values[0]);
         self::assertGreaterThanOrEqual($values[1], $values[0]);
     }
+
+    /**
+     * topOldestLiving returns living individuals (no DEAT date)
+     * with their current age. The fixture has one such — Franz
+     * (1950, still living). Other rows have DEAT and must not
+     * appear.
+     */
+    #[Test]
+    public function topOldestLivingReturnsOnlyLivingIndividuals(): void
+    {
+        $tree   = $this->importFixtureTree('life-span.ged');
+        $result = $this->repository($tree)->topOldestLiving(10);
+
+        // Exactly one living individual in the fixture (Franz).
+        self::assertCount(1, $result);
+        // Franz born 1950 → his current age in test-run year is
+        // > 60 in any plausible environment. Use a generous floor
+        // so the test stays stable as years pass.
+        $age = array_values($result)[0];
+        self::assertGreaterThan(60, $age);
+    }
+
+    /**
+     * livingByAgeBand groups Franz (1950, living) into the 65+
+     * bucket. Every other fixture individual is deceased and
+     * contributes nothing.
+     */
+    #[Test]
+    public function livingByAgeBandGroupsByLifeStage(): void
+    {
+        $tree   = $this->importFixtureTree('life-span.ged');
+        $result = $this->repository($tree)->livingByAgeBand();
+
+        $totals = [];
+        foreach ($result as $entry) {
+            $totals[$entry['label']] = $entry['value'];
+        }
+
+        // Four bands always returned, even when most are empty.
+        self::assertCount(4, $result);
+        self::assertSame(1, $totals['65+'] ?? null, 'Franz is the only living individual');
+    }
 }

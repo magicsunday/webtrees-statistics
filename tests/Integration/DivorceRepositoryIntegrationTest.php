@@ -97,4 +97,37 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
         // distinct centuries, not the number of divorces.
         self::assertSame(3, array_sum($result));
     }
+
+    /**
+     * `divorcesByMonth` returns the GEDCOM month-keyed counts.
+     * Fixture: F1 DIV JUN 1990, F2 DIV SEP 2005, F4 DIV JUN 2015
+     * → JUN ×2, SEP ×1.
+     */
+    #[Test]
+    public function divorcesByMonthCountsByGedcomMonthCode(): void
+    {
+        $tree   = $this->importFixtureTree('divorce.ged');
+        $result = $this->repository($tree)->divorcesByMonth();
+
+        self::assertSame(2, $result['JUN'] ?? null);
+        self::assertSame(1, $result['SEP'] ?? null);
+        self::assertSame(3, array_sum($result));
+    }
+
+    /**
+     * Age-at-divorce for wives separately: Anna 1952 → 1990 = 38
+     * → 35-39 bucket; Beate 1958 → 2005 = 47 → 45-49; Doris 1972
+     * → 2015 = 43 → 40-44.
+     */
+    #[Test]
+    public function ageAtDivorceDistributionForWives(): void
+    {
+        $tree   = $this->importFixtureTree('divorce.ged');
+        $result = $this->repository($tree)->ageAtDivorceDistribution('F');
+
+        self::assertSame(1, $result['35–39'] ?? null);
+        self::assertSame(1, $result['40–44'] ?? null);
+        self::assertSame(1, $result['45–49'] ?? null);
+        self::assertSame(3, array_sum($result));
+    }
 }
