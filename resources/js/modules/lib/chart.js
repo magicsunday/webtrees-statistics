@@ -5,8 +5,9 @@
  * LICENSE file distributed with this source code.
  */
 
-import {DonutChart} from "./chart/donut-chart.js";
-import {WorldMap} from "./chart/world-map.js";
+import { DonutChart } from "./chart/donut-chart.js";
+import { StreamGraph } from "./chart/stream-graph.js";
+import { WorldMap } from "./chart/world-map.js";
 
 /**
  * The margin object.
@@ -28,64 +29,40 @@ import {WorldMap} from "./chart/world-map.js";
 export class Chart
 {
     /**
-     * Constructor.
+     * Dispatch table mapping `options.type` to the renderer factory that
+     * produces the actual chart. Adding a new chart variant is a
+     * two-line change here plus the renderer class itself.
+     *
+     * @returns {Object<String, function(String, Object, *): Node|null>}
      */
-    constructor() {
+    renderers() {
+        return {
+            "donut":        (id, opts, data) => new DonutChart(id, opts).draw(data),
+            "world-map":    (id, opts, data) => new WorldMap(id, opts).draw(data),
+            "stream-graph": (id, opts, data) => new StreamGraph(id, opts).draw(data),
+        };
     }
 
     /**
+     * Render the chart whose key matches `options.type`. Returns null
+     * when no renderer is registered for the requested type.
+     *
      * @param {String} identifier
      * @param {Array}  data
-     * @param {Object} options  A list of options passed from outside to the application
+     * @param {Object} options    A list of options passed from outside to the application
      *
      * @param {String} options.type
-     * @param {Margin} options.margin
+     * @param {Margin} [options.margin]
      *
-     * @returns {HTMLElement}
+     * @returns {Node|null}
      */
     draw(identifier, data, options) {
-        // let figure = document.createElement("figure");
-        let chart = null;
+        const renderer = this.renderers()[options.type] || null;
 
-        if (options.type === "donut") {
-            chart = this.drawDonutChart(identifier, options, data);
+        if (renderer === null) {
+            return null;
         }
 
-        if (options.type === "world-map") {
-            chart = this.drawGeoMap(identifier, options, data);
-        }
-
-        return chart;
-        // figure.append(chart);
-
-        // return figure;
-    }
-
-    /**
-     * Draws a donut chart and returns the created SVG node element.
-     *
-     * @param {String} identifier
-     * @param {Object} options    A list of options passed from outside to the application
-     * @param {Array}  data
-     *
-     * @return {Node}
-     */
-    drawDonutChart(identifier, options, data) {
-        const donutChart = new DonutChart(identifier, options);
-        return donutChart.draw(data);
-    }
-
-    /**
-     * Draws a geo map and returns the created SVG node element.
-     *
-     * @param {String} identifier
-     * @param {Object} options  A list of options passed from outside to the application
-     * @param {Array}  data
-     *
-     * @return {Node}
-     */
-    drawGeoMap(identifier, options, data) {
-        const worldMap = new WorldMap(identifier, options);
-        return worldMap.draw(data);
+        return renderer(identifier, options, data);
     }
 }

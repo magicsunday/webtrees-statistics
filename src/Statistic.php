@@ -15,6 +15,7 @@ use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\StatisticsData;
 use MagicSunday\Webtrees\Statistic\Repository\EventRepository;
 use MagicSunday\Webtrees\Statistic\Repository\FamilyRepository;
+use MagicSunday\Webtrees\Statistic\Repository\GivenNameTrendsRepository;
 use MagicSunday\Webtrees\Statistic\Repository\NameRepository;
 use MagicSunday\Webtrees\Statistic\Repository\TreeHealthRepository;
 
@@ -41,11 +42,12 @@ final readonly class Statistic
     private const int NAME_FREQUENCY_THRESHOLD = 1;
 
     /**
-     * @param StatisticsData       $data                 Core data accessor for individual, family and event counts
-     * @param FamilyRepository     $familyRepository     Census-style marital classification not exposed by core
-     * @param EventRepository      $eventRepository      Zodiac-sign grouping not exposed by core
-     * @param NameRepository       $nameRepository       Distinct primary-name counts (bypass commonSurnames/GivenNames limit-zero quirk)
-     * @param TreeHealthRepository $treeHealthRepository Data-quality metrics: source coverage, missing-event gaps, generation length
+     * @param StatisticsData            $data                      Core data accessor for individual, family and event counts
+     * @param FamilyRepository          $familyRepository          Census-style marital classification not exposed by core
+     * @param EventRepository           $eventRepository           Zodiac-sign grouping not exposed by core
+     * @param NameRepository            $nameRepository            Distinct primary-name counts (bypass commonSurnames/GivenNames limit-zero quirk)
+     * @param TreeHealthRepository      $treeHealthRepository      Data-quality metrics: source coverage, missing-event gaps, generation length
+     * @param GivenNameTrendsRepository $givenNameTrendsRepository Per-decade frequency of the top-N given names for the stream graph
      */
     public function __construct(
         private StatisticsData $data,
@@ -53,6 +55,7 @@ final readonly class Statistic
         private EventRepository $eventRepository,
         private NameRepository $nameRepository,
         private TreeHealthRepository $treeHealthRepository,
+        private GivenNameTrendsRepository $givenNameTrendsRepository,
     ) {
     }
 
@@ -269,6 +272,20 @@ final readonly class Statistic
     public function getAverageGenerationLength(): ?float
     {
         return $this->treeHealthRepository->averageGenerationLength();
+    }
+
+    /**
+     * Per-decade frequencies of the top-N given names, ready for the
+     * stream-graph renderer. Each band sums to the individual's count
+     * across the entire decade.
+     *
+     * @param int $topN Maximum number of distinct given names to keep
+     *
+     * @return array{decades: list<int>, names: list<string>, series: array<string, array<int, int>>}
+     */
+    public function getGivenNameTrends(int $topN): array
+    {
+        return $this->givenNameTrendsRepository->countByDecade($topN);
     }
 
     /**

@@ -1,0 +1,37 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
+
+use Fisharebest\Webtrees\I18N;
+
+/**
+ * @var string                                                                                 $identifier Host element id
+ * @var array{decades: list<int>, names: list<string>, series: array<string, array<int, int>>} $data       Series payload built by Statistic::getGivenNameTrends()
+ * @var int|null                                                                               $height     Optional viewport height (defaults to 320)
+ */
+$height ??= 320;
+?>
+<div class="wt-stream-graph-container">
+    <div id="<?php echo e($identifier); ?>"
+         class="wt-stream-graph-host"
+         data-empty-message="<?php echo e(I18N::translate('No data')); ?>"
+    ></div>
+</div>
+
+<script>
+webtreesStatistics.draw(
+    <?php echo json_encode($identifier, JSON_THROW_ON_ERROR); ?>,
+    <?php echo json_encode($data, JSON_THROW_ON_ERROR); ?>,
+    {
+        type: "stream-graph",
+        height: <?php echo (int) $height; ?>
+    }
+);
+</script>

@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
+use Fisharebest\Webtrees\Auth;
+use Fisharebest\Webtrees\Contracts\UserInterface;
 use Fisharebest\Webtrees\DB;
 use Fisharebest\Webtrees\Gedcom;
 use Fisharebest\Webtrees\I18N;
@@ -18,6 +20,8 @@ use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Services\GedcomImportService;
 use Fisharebest\Webtrees\Services\MigrationService;
 use Fisharebest\Webtrees\Services\TreeService;
+use Fisharebest\Webtrees\Services\UserService;
+use Fisharebest\Webtrees\Session;
 use Fisharebest\Webtrees\Site;
 use Fisharebest\Webtrees\Tree;
 use Fisharebest\Webtrees\Webtrees;
@@ -85,10 +89,22 @@ abstract class IntegrationTestCase extends TestCase
 
         // Element factory normally bound by webtrees' RoutingMiddleware.
         (new Gedcom())->registerTags(Registry::elementFactory(), true);
+
+        // Webtrees treats the visitor (guest) user as no-access by default,
+        // so name records imported via GedcomImportService are stored with
+        // n_givn = "Private". Log in as an admin so the import path sees
+        // the real names — production trees run the same code path for
+        // their own admin during import.
+        $userService = new UserService();
+        $admin       = $userService->create('admin', 'Admin', 'admin@example.test', 'secret');
+        $admin->setPreference(UserInterface::PREF_IS_ADMINISTRATOR, '1');
+        Auth::login($admin);
     }
 
     protected function tearDown(): void
     {
+        Auth::logout();
+        Session::clear();
         DB::connection()->disconnect();
 
         // Wipe the static site-preferences cache so the next test's

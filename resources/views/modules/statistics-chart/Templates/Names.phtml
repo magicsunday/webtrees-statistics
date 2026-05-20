@@ -16,6 +16,7 @@ use MagicSunday\Webtrees\Statistic\Statistic;
  * @var string    $module    The name of the module
  * @var Statistic $statistic
  */
+$givenNameTrends = $statistic->getGivenNameTrends(10);
 ?>
 <div class="container">
     <div class="row row-cols-1 row-cols-lg-3 g-3">
@@ -71,6 +72,28 @@ use MagicSunday\Webtrees\Statistic\Statistic;
             'data' => $statistic->getTopFemaleGivenNames(15),
         ],
     );
+?>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 g-3 mt-1 mb-3">
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('Given-name popularity across decades'); ?></h5>
+                    <small><?php echo I18N::translate('Top-%s given names, stacked into a stream that reads as relative magnitudes.', I18N::number(count($givenNameTrends['names']))); ?></small>
+                </div>
+                <div class="card-body">
+                    <?php
+                        echo view(
+                            $module . '::modules/statistics-chart/Partials/StreamGraph',
+                            [
+                                'identifier' => 'given-name-trends-stream',
+                                'data'       => $givenNameTrends,
+                            ],
+                        );
 ?>
                 </div>
             </div>
