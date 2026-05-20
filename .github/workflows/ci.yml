@@ -11,19 +11,26 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                php: [ '7.4', '8.0', '8.1', '8.2' ]
+                php: [ '8.3', '8.4', '8.5' ]
 
         steps:
             -   id: checkout
                 name: Checkout
                 uses: actions/checkout@v4
 
+            -   id: setup_node
+                name: Set up Node.js
+                uses: actions/setup-node@v4
+                with:
+                    node-version: 22
+                    cache: npm
+
             -   id: setup_php
                 name: Set up PHP version ${{ matrix.php }}
                 uses: shivammathur/setup-php@v2
                 with:
                     php-version: ${{ matrix.php }}
-                    tools: composer:v2, php-cs-fixer
+                    tools: composer:v2
 
             -   name: Validate composer.json and composer.lock
                 run: composer validate
@@ -47,20 +54,32 @@ jobs:
             -   id: install
                 name: Install dependencies
                 run: |
-                    composer validate
-                    composer install --no-progress
+                    composer install --no-progress --no-interaction
+                    npm ci
 
-            -   id: lint
-                name: Lint
+            -   id: php-lint
+                name: PHP Lint
                 if: ${{ always() && steps.install.conclusion == 'success' }}
                 run: |
                     composer ci:test:php:lint
 
-            -   id: cgl
-                name: CGL
+            -   id: js-lint
+                name: JS Lint
                 if: ${{ always() && steps.install.conclusion == 'success' }}
                 run: |
-                    php-cs-fixer fix --dry-run --verbose
+                    composer ci:test:js:lint
+
+            -   id: js-format
+                name: JS Format
+                if: ${{ always() && steps.install.conclusion == 'success' }}
+                run: |
+                    composer ci:test:js:format
+
+            -   id: js-typecheck
+                name: JS Typecheck
+                if: ${{ always() && steps.install.conclusion == 'success' }}
+                run: |
+                    composer ci:test:js:typecheck
 
             -   id: phpstan
                 name: PHPStan
@@ -73,3 +92,27 @@ jobs:
                 if: ${{ always() && steps.install.conclusion == 'success' }}
                 run: |
                     composer ci:test:php:rector
+
+            -   id: cpd
+                name: Copy/Paste Detection
+                if: ${{ always() && steps.install.conclusion == 'success' }}
+                run: |
+                    composer ci:test:cpd
+
+            -   id: php-unit
+                name: PHP Unit Tests
+                if: ${{ always() && steps.install.conclusion == 'success' }}
+                run: |
+                    composer ci:test:php:unit
+
+            -   id: js-unit
+                name: JS Unit Tests
+                if: ${{ always() && steps.install.conclusion == 'success' }}
+                run: |
+                    composer ci:test:js:unit
+
+            -   id: cgl
+                name: CGL
+                if: ${{ always() && steps.install.conclusion == 'success' }}
+                run: |
+                    composer ci:cgl -- --dry-run

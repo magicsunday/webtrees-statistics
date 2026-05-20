@@ -1,0 +1,149 @@
+name: Bug report
+description: Report a bug to help us improve the module
+title: "[BUG] "
+labels: ["bug"]
+assignees:
+  - magicsunday
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting a bug! Please fill in the following details so we can investigate the issue.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description of the problem
+      description: Describe what happened and how the error manifests itself.
+      placeholder: "After opening the Births tab the page shows a blank area instead of the charts."
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: Explain what you expected to happen.
+      placeholder: "The tab should render donuts and progress lists for births by month, zodiac sign and century."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: List all steps necessary to reproduce the error.
+      placeholder: |
+        1. Open the Statistics chart for any tree
+        2. Click on the "Births" tab
+        3. Observe the blank area
+    validations:
+      required: true
+
+  - type: textarea
+    id: errors
+    attributes:
+      label: Error messages or screenshots
+      description: |
+        If an error message appears, copy the full text. Screenshots also help.
+
+        **Important:** Please check your browser's developer console (press F12, then click the "Console" tab) for JavaScript errors and paste them here. Many chart issues only show errors in the console, not on the page itself.
+      placeholder: |
+        Browser console output (F12 > Console):
+        Uncaught TypeError: ...
+
+        Screenshot:
+        [Drag and drop or paste an image here]
+    validations:
+      required: false
+
+  - type: input
+    id: webtrees-version
+    attributes:
+      label: Webtrees version
+      description: Which version of webtrees are you using?
+      placeholder: "2.2.5"
+    validations:
+      required: true
+
+  - type: input
+    id: module-version
+    attributes:
+      label: Module version
+      description: Which version of the module are you using? (Check the control panel or composer.json)
+      placeholder: "1.0.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: installation-method
+    attributes:
+      label: Installation method
+      description: How did you install the module?
+      options:
+        - Manual (ZIP download into modules_v4)
+        - Composer
+        - Git clone
+        - Docker (webtrees-docker)
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: install-state
+    attributes:
+      label: Was this a fresh install or an update?
+      description: |
+        If you updated, did you fully remove the old module folder before extracting the new ZIP? Partial updates can leave behind older PHP files that mismatch the new vendor classes (a common cause of "Interface … not found" errors).
+      options:
+        - Fresh install (module folder did not exist before)
+        - Update — old folder fully removed before extracting new version
+        - Update — extracted on top of existing folder
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: other-modules
+    attributes:
+      label: Other magicsunday/* modules installed
+      description: |
+        Are any other magicsunday charts (fan-chart, pedigree-chart, descendants-chart) active in this webtrees instance? Each ships its own scoped copy of `webtrees-module-base`, so version drift between modules is sometimes visible only when more than one is installed.
+      placeholder: |
+        - webtrees-fan-chart 3.6.0
+        - webtrees-pedigree-chart 2.7.0
+    validations:
+      required: false
+
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and operating system
+      placeholder: "Chrome 125 on Windows 11"
+    validations:
+      required: true
+
+  - type: input
+    id: php-version
+    attributes:
+      label: PHP version
+      placeholder: "8.3"
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional information
+      description: Any special circumstances? Was the module working before a change or update?
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log files
+      description: Check the webtrees logs or server logs for related entries.
+      render: shell
+    validations:
+      required: false
