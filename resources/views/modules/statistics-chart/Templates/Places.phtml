@@ -69,38 +69,6 @@ echo view(
                 </div>
             </div>
         </div>
-        <div class="col">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title">
-                        <?php echo I18N::translate('Migrations between birth and death country'); ?>
-                        <button
-                            type="button"
-                            class="wt-card-info-button"
-                            data-bs-toggle="popover"
-                            data-bs-trigger="focus"
-                            data-bs-placement="top"
-                            data-bs-html="false"
-                            data-bs-title="<?php echo e(I18N::translate('About this chart')); ?>"
-                            data-bs-content="<?php echo e($sankeyExplanation); ?>"
-                            aria-label="<?php echo e(I18N::translate('About this chart')); ?>"
-                        >?</button>
-                    </h5>
-                    <small><?php echo I18N::plural('%s distinct migration path', '%s distinct migration paths', count($migrationFlows['links']), I18N::number(count($migrationFlows['links']))); ?></small>
-                </div>
-                <div class="card-body">
-                    <?php
-        echo view(
-            $module . '::modules/statistics-chart/Partials/SankeyFlow',
-            [
-                'identifier' => 'migration-sankey',
-                'data'       => $migrationFlows,
-            ]
-        );
-?>
-                </div>
-            </div>
-        </div>
         <div class="col" data-map-type="death">
             <div class="card h-100">
                 <?php
@@ -143,6 +111,38 @@ echo view(
 ?>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        <?php echo I18N::translate('Migrations between birth and death country'); ?>
+                        <button
+                            type="button"
+                            class="wt-card-info-button"
+                            data-bs-toggle="popover"
+                            data-bs-trigger="focus"
+                            data-bs-placement="top"
+                            data-bs-html="false"
+                            data-bs-title="<?php echo e(I18N::translate('About this chart')); ?>"
+                            data-bs-content="<?php echo e($sankeyExplanation); ?>"
+                            aria-label="<?php echo e(I18N::translate('About this chart')); ?>"
+                        >?</button>
+                    </h5>
+                    <small><?php echo I18N::plural('%s distinct migration path', '%s distinct migration paths', count($migrationFlows['links']), I18N::number(count($migrationFlows['links']))); ?></small>
+                </div>
+                <div class="card-body">
+                    <?php
+        echo view(
+            $module . '::modules/statistics-chart/Partials/SankeyFlow',
+            [
+                'identifier' => 'migration-sankey',
+                'data'       => $migrationFlows,
+            ]
+        );
+?>
                 </div>
             </div>
         </div>

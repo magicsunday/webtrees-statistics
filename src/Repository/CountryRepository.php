@@ -17,9 +17,12 @@ use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Support\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\IsoCountryMap;
 
+use function arsort;
 use function is_string;
 use function str_ends_with;
 use function trim;
+
+use const SORT_NUMERIC;
 
 /**
  * Aggregates individual events (BIRT / DEAT) by ISO-3166-1 alpha-2
@@ -101,6 +104,12 @@ final readonly class CountryRepository
 
             $counts[$iso2] = ($counts[$iso2] ?? 0) + 1;
         }
+
+        // Sort by descending count so the companion ProgressList
+        // shows the biggest country first — insertion order from
+        // the placelinks join is otherwise alphabetical-by-place,
+        // which makes the "top 10" look randomly ranked.
+        arsort($counts, SORT_NUMERIC);
 
         $entries = [];
 

@@ -24,7 +24,21 @@ let cachedGeoJson = null;
  */
 async function loadWorldGeoJson() {
     if (cachedGeoJson === null) {
-        cachedGeoJson = await json(WORLD_GEOJSON_URL);
+        const raw = await json(WORLD_GEOJSON_URL);
+        // Drop Antarctica — no genealogy data is going to land in
+        // AQ and the continent eats roughly a third of a Mercator
+        // projection's vertical space, squishing every populated
+        // landmass.
+        cachedGeoJson = {
+            ...raw,
+            features: raw.features.filter((feature) => {
+                const iso =
+                    feature?.properties?.ISO_A2_EH ??
+                    feature?.properties?.ISO_A2 ??
+                    feature?.properties?.iso_a2;
+                return iso !== "AQ";
+            }),
+        };
     }
     return cachedGeoJson;
 }
