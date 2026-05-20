@@ -23,12 +23,32 @@ $ageGap         = $statistic->getCoupleAgeGapDistribution();
 $byCentury      = $statistic->getWeddingsByCentury();
 $byMonth        = $statistic->getWeddingsByMonth();
 
+$divorcesByCentury = $statistic->getDivorcesByCentury();
+$divorcesByMonth   = $statistic->getDivorcesByMonth();
+$divorceAgeM       = $statistic->getAgeAtDivorceDistribution('M');
+$divorceAgeF       = $statistic->getAgeAtDivorceDistribution('F');
+$cohortRates       = $statistic->getDivorceRateByMarriageCohort();
+
+// Cohort-rate is a fraction — multiply by 100 to read as a percentage
+// and drop empty cohorts so the bar list isn't all zeros on trees
+// with very few divorces.
+$cohortRatePercent = [];
+
+foreach ($cohortRates as $cohort => $rate) {
+    $cohortRatePercent[$cohort] = (int) round($rate * 100);
+}
+
 $totalAgeM    = array_sum($ageAtMarriageM);
 $totalAgeF    = array_sum($ageAtMarriageF);
 $totalDur     = array_sum($duration);
 $totalAgeGap  = array_sum($ageGap);
 $totalCentury = array_sum($byCentury);
 $totalMonth   = array_sum($byMonth);
+
+$totalDivCentury = array_sum($divorcesByCentury);
+$totalDivMonth   = array_sum($divorcesByMonth);
+$totalDivAgeM    = array_sum($divorceAgeM);
+$totalDivAgeF    = array_sum($divorceAgeF);
 ?>
 <div class="container">
     <div class="row row-cols-1 row-cols-md-2 g-3">
@@ -129,6 +149,95 @@ $totalMonth   = array_sum($byMonth);
     echo view(
         $module . '::modules/statistics-chart/Partials/ProgressList',
         ['class' => 'progress-weddings-month', 'data' => $byMonth],
+    );
+?>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 g-3 mt-1 mb-3">
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('Divorces by century'); ?></h5>
+                    <small><?php echo I18N::plural('%s recorded divorce', '%s recorded divorces', $totalDivCentury, I18N::number($totalDivCentury)); ?></small>
+                </div>
+                <div class="card-body">
+                    <?php
+    echo view(
+        $module . '::modules/statistics-chart/Partials/ProgressList',
+        ['class' => 'progress-divorces-century', 'data' => $divorcesByCentury],
+    );
+?>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('Divorces by month'); ?></h5>
+                    <small><?php echo I18N::plural('%s divorce with a recorded month', '%s divorces with a recorded month', $totalDivMonth, I18N::number($totalDivMonth)); ?></small>
+                </div>
+                <div class="card-body">
+                    <?php
+    echo view(
+        $module . '::modules/statistics-chart/Partials/ProgressList',
+        ['class' => 'progress-divorces-month', 'data' => $divorcesByMonth],
+    );
+?>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 g-3 mt-1 mb-3">
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('Age at divorce — husbands'); ?></h5>
+                    <small><?php echo I18N::plural('%s divorced husband with a known birth date', '%s divorced husbands with a known birth date', $totalDivAgeM, I18N::number($totalDivAgeM)); ?></small>
+                </div>
+                <div class="card-body">
+                    <?php
+    echo view(
+        $module . '::modules/statistics-chart/Partials/ProgressList',
+        ['class' => 'progress-age-at-divorce-m', 'data' => $divorceAgeM],
+    );
+?>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('Age at divorce — wives'); ?></h5>
+                    <small><?php echo I18N::plural('%s divorced wife with a known birth date', '%s divorced wives with a known birth date', $totalDivAgeF, I18N::number($totalDivAgeF)); ?></small>
+                </div>
+                <div class="card-body">
+                    <?php
+    echo view(
+        $module . '::modules/statistics-chart/Partials/ProgressList',
+        ['class' => 'progress-age-at-divorce-f', 'data' => $divorceAgeF],
+    );
+?>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 g-3 mt-1 mb-3">
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('Divorce rate per marriage cohort (%)'); ?></h5>
+                    <small><?php echo I18N::translate('Percentage of marriages from each decade that ended in divorce. Cohorts with fewer than three marriages are hidden.'); ?></small>
+                </div>
+                <div class="card-body">
+                    <?php
+    echo view(
+        $module . '::modules/statistics-chart/Partials/ProgressList',
+        ['class' => 'progress-divorce-cohort', 'data' => $cohortRatePercent],
     );
 ?>
                 </div>

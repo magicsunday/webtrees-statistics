@@ -14,6 +14,7 @@ namespace MagicSunday\Webtrees\Statistic;
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\StatisticsData;
 use MagicSunday\Webtrees\Statistic\Repository\CountryRepository;
+use MagicSunday\Webtrees\Statistic\Repository\DivorceRepository;
 use MagicSunday\Webtrees\Statistic\Repository\EventRepository;
 use MagicSunday\Webtrees\Statistic\Repository\FamilyRepository;
 use MagicSunday\Webtrees\Statistic\Repository\GivenNameTrendsRepository;
@@ -56,6 +57,7 @@ final readonly class Statistic
      * @param CountryRepository         $countryRepository         BIRT / DEAT counts aggregated to ISO-3166-1 alpha-2 country codes
      * @param LifeSpanRepository        $lifeSpanRepository        Age-at-death distribution + top-N oldest individuals + living-age-band buckets
      * @param MarriageRepository        $marriageRepository        Age-at-marriage / duration / couple-age-gap aggregations for the Family tab
+     * @param DivorceRepository         $divorceRepository         Divorce century / month / age / cohort-rate aggregations for the Family tab
      */
     public function __construct(
         private StatisticsData $data,
@@ -68,6 +70,7 @@ final readonly class Statistic
         private CountryRepository $countryRepository,
         private LifeSpanRepository $lifeSpanRepository,
         private MarriageRepository $marriageRepository,
+        private DivorceRepository $divorceRepository,
     ) {
     }
 
@@ -351,6 +354,50 @@ final readonly class Statistic
     public function getWeddingsByMonth(): array
     {
         return $this->translateMonthKeys($this->marriageRepository->weddingsByMonth());
+    }
+
+    /**
+     * Divorces grouped by century.
+     *
+     * @return array<string, int>
+     */
+    public function getDivorcesByCentury(): array
+    {
+        return $this->divorceRepository->divorcesByCentury();
+    }
+
+    /**
+     * Divorces grouped by localised month name.
+     *
+     * @return array<string, int>
+     */
+    public function getDivorcesByMonth(): array
+    {
+        return $this->translateMonthKeys($this->divorceRepository->divorcesByMonth());
+    }
+
+    /**
+     * Age-at-divorce histogram for one sex (5-year bands, 80+
+     * overflow).
+     *
+     * @param string $sex 'M' or 'F'
+     *
+     * @return array<string, int>
+     */
+    public function getAgeAtDivorceDistribution(string $sex): array
+    {
+        return $this->divorceRepository->ageAtDivorceDistribution($sex);
+    }
+
+    /**
+     * Divorce rate per MARR-cohort (decade label → fraction 0.0-1.0).
+     * Cohorts with fewer than 3 marriages are filtered out.
+     *
+     * @return array<string, float>
+     */
+    public function getDivorceRateByMarriageCohort(): array
+    {
+        return $this->divorceRepository->divorceRateByMarriageCohort();
     }
 
     /**
