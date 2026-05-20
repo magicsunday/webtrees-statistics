@@ -102,6 +102,9 @@
         "ci:test:js:unit": [
             "node --no-warnings --experimental-vm-modules node_modules/jest/bin/jest.js --passWithNoTests"
         ],
+        "ci:test:cpd": [
+            "npx jscpd --config .jscpd.json"
+        ],
         "ci:test": [
             "@ci:test:php:lint",
             "@ci:test:js:lint",
@@ -109,6 +112,7 @@
             "@ci:test:php:cgl",
             "@ci:test:php:phpstan",
             "@ci:test:php:rector",
+            "@ci:test:cpd",
             "@ci:test:php:unit",
             "@ci:test:js:unit"
         ]

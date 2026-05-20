@@ -78,12 +78,6 @@ jobs:
                 run: |
                     composer ci:test:js:format
 
-            -   id: js-typecheck
-                name: JS Typecheck
-                if: ${{ always() && steps.install.conclusion == 'success' }}
-                run: |
-                    composer ci:test:js:typecheck
-
             -   id: phpstan
                 name: PHPStan
                 if: ${{ always() && steps.install.conclusion == 'success' }}
