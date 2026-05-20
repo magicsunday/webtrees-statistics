@@ -10,7 +10,6 @@ composer.lock
 
 # Build stuff
 .build/
-package-lock.json
 node_modules/
 
 # Cache
@@ -21,4 +20,9 @@ node_modules/
 
 # Custom
 resources/js/webtrees-statistics.js
+# Allow minified file
+!resources/js/webtrees-statistics.min.js
 webtrees-statistic.zip
+
+# Playwright
+.playwright-mcp/
