@@ -1,0 +1,262 @@
+/*!
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
+
+/* ----------------------------------------------------------------------
+   Theme-aware design tokens
+   ----------------------------------------------------------------------
+   Everything that needs to swap between light and dark is expressed as a
+   custom property on the module's root, then overridden under
+   [data-bs-theme="dark"]. The hex/rgb values stay grouped together so
+   palette adjustments touch one block.
+   -------------------------------------------------------------------- */
+
+.wt-statistics-chart {
+    --wmstats-card-text:                   var(--bs-body-color);
+    --wmstats-card-muted:                  var(--bs-secondary-color, rgb(108, 117, 125));
+    --wmstats-dot-empty:                   var(--bs-tertiary-bg, rgb(200, 200, 200));
+    --wmstats-map-stroke:                  var(--bs-border-color, rgb(221, 221, 221));
+
+    --wmstats-progress-label-color:        var(--bs-secondary-color, rgb(89, 89, 89));
+    --wmstats-progress-bg-births-month:    rgb(255, 187, 131);
+    --wmstats-progress-bg-births-zodiac:   rgb(156, 151, 255);
+    --wmstats-progress-bg-births-century:  rgb(31, 102, 74);
+    --wmstats-progress-bg-deaths-month:    rgb(255, 187, 131);
+    --wmstats-progress-bg-deaths-century:  rgb(31, 102, 74);
+
+    --wmstats-gradient-births-start:       rgb(179, 209, 191);
+    --wmstats-gradient-births-end:         rgb(31, 102, 74);
+    --wmstats-gradient-deaths-start:       rgb(188, 186, 184);
+    --wmstats-gradient-deaths-end:         rgb(92, 81, 70);
+
+    --wmstats-sex-male:                    var(--sex-m-fg, rgb(129, 169, 203));
+    --wmstats-sex-female:                  var(--sex-f-fg, rgb(255, 32, 128));
+    --wmstats-sex-unknown:                 var(--sex-u-fg, rgb(129, 169, 203));
+
+    --wmstats-living:                      rgb(141, 186, 159);
+    --wmstats-deceased:                    rgb(204, 204, 204);
+    --wmstats-married:                     rgb(181, 177, 255);
+    --wmstats-single:                      rgb(172, 181, 196);
+    --wmstats-widowed:                     rgb(141, 186, 159);
+    --wmstats-divorced:                    rgb(255, 201, 156);
+}
+
+[data-bs-theme="dark"] .wt-statistics-chart {
+    /* Brighten the donut palette so contrast against the dark card body
+       stays usable. Hue stays the same, lightness lifts ~12%. */
+    --wmstats-progress-bg-births-month:    rgb(255, 196, 145);
+    --wmstats-progress-bg-births-zodiac:   rgb(180, 175, 255);
+    --wmstats-progress-bg-births-century:  rgb(82, 174, 137);
+    --wmstats-progress-bg-deaths-month:    rgb(255, 196, 145);
+    --wmstats-progress-bg-deaths-century:  rgb(82, 174, 137);
+
+    --wmstats-gradient-births-start:       rgb(120, 175, 145);
+    --wmstats-gradient-births-end:         rgb(82, 174, 137);
+    --wmstats-gradient-deaths-start:       rgb(160, 156, 152);
+    --wmstats-gradient-deaths-end:         rgb(178, 162, 144);
+
+    --wmstats-sex-male:                    var(--sex-m-fg, rgb(120, 160, 210));
+    --wmstats-sex-female:                  var(--sex-f-fg, rgb(245, 130, 175));
+    --wmstats-sex-unknown:                 var(--sex-u-fg, rgb(140, 168, 195));
+
+    --wmstats-living:                      rgb(115, 170, 145);
+    --wmstats-deceased:                    rgb(150, 150, 150);
+    --wmstats-married:                     rgb(160, 152, 235);
+    --wmstats-single:                      rgb(150, 160, 180);
+    --wmstats-widowed:                     rgb(115, 170, 145);
+    --wmstats-divorced:                    rgb(225, 175, 130);
+}
+
+/* ----------------------------------------------------------------------
+   Card layout primitives
+   -------------------------------------------------------------------- */
+
+.wt-statistics-chart [dir] figure {
+    margin: 0;
+}
+
+.wt-statistics-chart .card-title {
+    font-weight: 600;
+    color:       var(--wmstats-card-text);
+}
+
+.wt-statistics-chart .card-body {
+    text-align: center;
+}
+
+.wt-statistics-chart .dot {
+    height:           10px;
+    width:            10px;
+    background-color: var(--wmstats-dot-empty);
+    border-radius:    50%;
+    display:          inline-block;
+}
+
+.wt-statistics-chart table.legend {
+    margin-top:    20px;
+    margin-left:   auto;
+    margin-right:  auto;
+}
+
+.wt-statistics-chart table.legend td {
+    padding:     0 5px;
+    text-align:  left;
+}
+
+.wt-statistics-chart table.legend td:nth-child(3) {
+    text-align: right;
+}
+
+/* ----------------------------------------------------------------------
+   Donut chart slices
+   -------------------------------------------------------------------- */
+
+.wt-statistics-chart svg.donutChart path.slice {
+    cursor: pointer;
+}
+
+.wt-statistics-chart svg.donutChart path.slice:hover {
+    opacity: 0.8;
+}
+
+.wt-statistics-chart .donut-chart-container .donut-chart {
+    display:         flex;
+    justify-content: center;
+    align-items:     center;
+    height:          250px;
+}
+
+.wt-statistics-chart .male {
+    fill:             var(--wmstats-sex-male);
+    background-color: var(--wmstats-sex-male);
+}
+
+.wt-statistics-chart .female {
+    fill:             var(--wmstats-sex-female);
+    background-color: var(--wmstats-sex-female);
+}
+
+.wt-statistics-chart .unknown {
+    fill:             var(--wmstats-sex-unknown);
+    background-color: var(--wmstats-sex-unknown);
+}
+
+.wt-statistics-chart .living {
+    fill:             var(--wmstats-living);
+    background-color: var(--wmstats-living);
+}
+
+.wt-statistics-chart .deceased {
+    fill:             var(--wmstats-deceased);
+    background-color: var(--wmstats-deceased);
+}
+
+.wt-statistics-chart .married {
+    fill:             var(--wmstats-married);
+    background-color: var(--wmstats-married);
+}
+
+.wt-statistics-chart .single {
+    fill:             var(--wmstats-single);
+    background-color: var(--wmstats-single);
+}
+
+.wt-statistics-chart .widowed {
+    fill:             var(--wmstats-widowed);
+    background-color: var(--wmstats-widowed);
+}
+
+.wt-statistics-chart .divorced {
+    fill:             var(--wmstats-divorced);
+    background-color: var(--wmstats-divorced);
+}
+
+/* ----------------------------------------------------------------------
+   Progress-list (Births / Deaths / Country lists)
+   -------------------------------------------------------------------- */
+
+.wt-statistics-chart .progress-bar-table {
+    border-collapse: collapse;
+    border-spacing:  0;
+    width:           100%;
+}
+
+.wt-statistics-chart .progress-bar-table .label,
+.wt-statistics-chart .progress-bar-table .value {
+    color:       var(--wmstats-progress-label-color);
+    font-weight: 400;
+}
+
+.wt-statistics-chart .progress-bar-table .label {
+    text-align: left;
+}
+
+.wt-statistics-chart .progress-bar-table .value {
+    text-align: right;
+}
+
+.wt-statistics-chart .progress-bar-table .progress-bar {
+    border-radius: var(--bs-progress-border-radius);
+}
+
+.wt-statistics-chart .progress-births-month {
+    background-color: var(--wmstats-progress-bg-births-month) !important;
+}
+
+.wt-statistics-chart .progress-births-zodiac {
+    background-color: var(--wmstats-progress-bg-births-zodiac) !important;
+}
+
+.wt-statistics-chart .progress-births-century {
+    background-color: var(--wmstats-progress-bg-births-century) !important;
+}
+
+.wt-statistics-chart .progress-deaths-month {
+    background-color: var(--wmstats-progress-bg-deaths-month) !important;
+}
+
+.wt-statistics-chart .progress-deaths-century {
+    background-color: var(--wmstats-progress-bg-deaths-century) !important;
+}
+
+/* ----------------------------------------------------------------------
+   GeoMap / Places — gradient bridge used by the d3 world-map widget.
+   The widget reads --bs-progress-label-gradient-* via getComputedStyle,
+   so we map our theme tokens onto those names per-card.
+   -------------------------------------------------------------------- */
+
+.wt-statistics-chart #living-geo-map,
+.wt-statistics-chart .progress-births-country {
+    --bs-progress-label-gradient-start: var(--wmstats-gradient-births-start);
+    --bs-progress-label-gradient-end:   var(--wmstats-gradient-births-end);
+}
+
+.wt-statistics-chart #deaths-geo-map,
+.wt-statistics-chart .progress-deaths-country {
+    --bs-progress-label-gradient-start: var(--wmstats-gradient-deaths-start);
+    --bs-progress-label-gradient-end:   var(--wmstats-gradient-deaths-end);
+}
+
+.wt-statistics-chart .world-map-container .world-map {
+    display:         flex;
+    justify-content: center;
+    align-items:     center;
+    height:          100%;
+}
+
+.wt-statistics-chart .world-map-container .world-map svg path {
+    stroke:       var(--wmstats-map-stroke);
+    stroke-width: 0.5px;
+}
+
+/* ----------------------------------------------------------------------
+   Surname tag-cloud
+   -------------------------------------------------------------------- */
+
+.wt-statistics-chart .wt-surnames-tag-cloud span.tag:hover {
+    text-decoration: underline;
+    cursor:          pointer;
+}

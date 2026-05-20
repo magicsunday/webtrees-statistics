@@ -19,39 +19,6 @@ use MagicSunday\Webtrees\Statistic\Statistic;
  * @var Statistic $statistic
  */
 ?>
-
-<style>
-
-    body {
-        --bs-progress-label-color: rgb(89, 89, 89);
-
-        --bs-progress-label-gradient-start: white;
-        --bs-progress-label-gradient-end: purple;
-    }
-
-    .card-title {
-        font-weight: 600;
-    }
-
-    .card-body {
-        text-align: center;
-    }
-
-    body {
-        --bs-progress-bar-bg-deaths-month: rgb(255, 187, 131);
-        --bs-progress-bar-bg-deaths-century: rgb(31, 102, 74);
-    }
-
-    .progress-deaths-month {
-        background-color: var(--bs-progress-bar-bg-deaths-month) !important;
-    }
-
-    .progress-deaths-century {
-        background-color: var(--bs-progress-bar-bg-deaths-century) !important;
-    }
-
-</style>
-
 <div class="container">
     <div class="row row-cols-1 row-cols-md-2 g-3">
         <div class="col">
@@ -61,8 +28,8 @@ use MagicSunday\Webtrees\Statistic\Statistic;
 $totalDeaths                       = array_sum($deathsByMonth);
 ?>
                 <div class="card-header">
-                    <h5 class="card-title">Sterbemonate</h5>
-                    <small><?php echo I18N::number($totalDeaths); ?> Personen mit Sterbemonat</small>
+                    <h5 class="card-title"><?php echo I18N::translate('Deaths by month'); ?></h5>
+                    <small><?php echo I18N::plural('%s individual with a recorded death month', '%s individuals with a recorded death month', $totalDeaths, I18N::number($totalDeaths)); ?></small>
                 </div>
                 <div class="card-body">
                     <?php
@@ -84,8 +51,8 @@ $deathsByCentury = $statistic->getDeathsByCentury();
 $totalDeaths     = array_sum($deathsByCentury);
 ?>
                 <div class="card-header">
-                    <h5 class="card-title">Sterbestatistik nach Jahrhundert</h5>
-                    <small><?php echo I18N::number($totalDeaths); ?> Personen mit Sterbejahr</small>
+                    <h5 class="card-title"><?php echo I18N::translate('Deaths by century'); ?></h5>
+                    <small><?php echo I18N::plural('%s individual with a recorded death year', '%s individuals with a recorded death year', $totalDeaths, I18N::number($totalDeaths)); ?></small>
                 </div>
                 <div class="card-body">
                     <?php

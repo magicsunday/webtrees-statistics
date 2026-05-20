@@ -19,59 +19,6 @@ use MagicSunday\Webtrees\Statistic\Statistic;
  * @var Statistic $statistic
  */
 ?>
-
-<style>
-
-    :root {
-        --bs-progress-bar-bg-births-month: rgb(255, 187, 131);
-        --bs-progress-bar-bg-births-zodiac: rgb(156, 151, 255);
-        --bs-progress-bar-bg-births-century: rgb(31, 102, 74);
-
-        --bs-progress-label-gradient-start: rgb(179, 209, 191);
-        --bs-progress-label-gradient-end: rgb(31, 102, 74);
-    }
-
-    body {
-    }
-
-    [dir] figure {
-        margin: 0;
-    }
-
-    .card-title {
-        font-weight: 600;
-    }
-
-    .card-body {
-        text-align: center;
-    }
-
-    #living-geo-map,
-    .progress-births-country {
-        --bs-progress-label-gradient-start: rgb(179, 209, 191);
-        --bs-progress-label-gradient-end: rgb(31, 102, 74);
-    }
-
-    #deaths-geo-map,
-    .progress-deaths-country {
-        --bs-progress-label-gradient-start: rgb(188, 186, 184);
-        --bs-progress-label-gradient-end: rgb(92, 81, 70);
-    }
-
-    .progress-births-month {
-        background-color: var(--bs-progress-bar-bg-births-month) !important;
-    }
-
-    .progress-births-zodiac {
-        background-color: var(--bs-progress-bar-bg-births-zodiac) !important;
-    }
-
-    .progress-births-century {
-        background-color: var(--bs-progress-bar-bg-births-century) !important;
-    }
-
-</style>
-
 <div class="container">
     <div class="row row-cols-1 row-cols-md-1 g-3">
         <div class="col" data-map-type="birth">
@@ -81,8 +28,8 @@ use MagicSunday\Webtrees\Statistic\Statistic;
 $totalBirths                         = array_sum(array_column($birthsByCountry, 'count'));
 ?>
                 <div class="card-header">
-                    <h5 class="card-title">Geburtsort</h5>
-                    <small><?php echo I18N::number($totalBirths); ?> bekannte Geburtsländer</small>
+                    <h5 class="card-title"><?php echo I18N::translate('Place of birth'); ?></h5>
+                    <small><?php echo I18N::plural('%s recorded country of birth', '%s recorded countries of birth', $totalBirths, I18N::number($totalBirths)); ?></small>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -126,8 +73,8 @@ echo view(
 $totalDeaths                         = array_sum(array_column($deathsByCountry, 'count'));
 ?>
                 <div class="card-header">
-                    <h5 class="card-title">Sterbeort</h5>
-                    <small><?php echo I18N::number($totalDeaths); ?> bekannte Sterbeländer</small>
+                    <h5 class="card-title"><?php echo I18N::translate('Place of death'); ?></h5>
+                    <small><?php echo I18N::plural('%s recorded country of death', '%s recorded countries of death', $totalDeaths, I18N::number($totalDeaths)); ?></small>
                 </div>
                 <div class="card-body">
                     <div class="row">

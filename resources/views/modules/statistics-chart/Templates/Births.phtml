@@ -19,44 +19,6 @@ use MagicSunday\Webtrees\Statistic\Statistic;
  * @var Statistic $statistic
  */
 ?>
-
-<style>
-
-    body {
-        --bs-progress-label-color: rgb(89, 89, 89);
-
-        --bs-progress-label-gradient-start: white;
-        --bs-progress-label-gradient-end: purple;
-    }
-
-    .card-title {
-        font-weight: 600;
-    }
-
-    .card-body {
-        text-align: center;
-    }
-
-    body {
-        --bs-progress-bar-bg-births-month: rgb(255, 187, 131);
-        --bs-progress-bar-bg-births-zodiac: rgb(156, 151, 255);
-        --bs-progress-bar-bg-births-century: rgb(31, 102, 74);
-    }
-
-    .progress-births-month {
-        background-color: var(--bs-progress-bar-bg-births-month) !important;
-    }
-
-    .progress-births-zodiac {
-        background-color: var(--bs-progress-bar-bg-births-zodiac) !important;
-    }
-
-    .progress-births-century {
-        background-color: var(--bs-progress-bar-bg-births-century) !important;
-    }
-
-</style>
-
 <div class="container">
     <div class="row row-cols-1 row-cols-md-3 g-3">
         <div class="col">
@@ -66,8 +28,8 @@ use MagicSunday\Webtrees\Statistic\Statistic;
 $totalBirths                       = array_sum($birthsByMonth);
 ?>
                 <div class="card-header">
-                    <h5 class="card-title">Geburtsmonate</h5>
-                    <small><?php echo I18N::number($totalBirths); ?> Personen mit Geburtsmonat</small>
+                    <h5 class="card-title"><?php echo I18N::translate('Births by month'); ?></h5>
+                    <small><?php echo I18N::plural('%s individual with a recorded birth month', '%s individuals with a recorded birth month', $totalBirths, I18N::number($totalBirths)); ?></small>
                 </div>
                 <div class="card-body">
                     <?php
@@ -89,8 +51,8 @@ $birthsByZodiacSign = $statistic->getBirthsByZodiacSign();
 $totalBirths        = array_sum($birthsByZodiacSign);
 ?>
                 <div class="card-header">
-                    <h5 class="card-title">Sternzeichen</h5>
-                    <small><?php echo I18N::number($totalBirths); ?> Personen mit Sternzeichen</small>
+                    <h5 class="card-title"><?php echo I18N::translate('Births by zodiac sign'); ?></h5>
+                    <small><?php echo I18N::plural('%s individual with a known zodiac sign', '%s individuals with a known zodiac sign', $totalBirths, I18N::number($totalBirths)); ?></small>
                 </div>
                 <div class="card-body">
                     <?php
@@ -112,8 +74,8 @@ $birthsByCentury = $statistic->getBirthsByCentury();
 $totalBirths     = array_sum($birthsByCentury);
 ?>
                 <div class="card-header">
-                    <h5 class="card-title">Geburtsstatistik nach Jahrhundert</h5>
-                    <small><?php echo I18N::number($totalBirths); ?> Personen mit Geburtsjahr</small>
+                    <h5 class="card-title"><?php echo I18N::translate('Births by century'); ?></h5>
+                    <small><?php echo I18N::plural('%s individual with a recorded birth year', '%s individuals with a recorded birth year', $totalBirths, I18N::number($totalBirths)); ?></small>
                 </div>
                 <div class="card-body">
                     <?php

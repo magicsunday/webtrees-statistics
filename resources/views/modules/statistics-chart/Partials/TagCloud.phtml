@@ -18,16 +18,6 @@ use Fisharebest\Webtrees\Individual;
 $maximum = max(array_map(static fn (array $x): int => $x['value'], $data));
 $minimum = min(array_map(static fn (array $x): int => $x['value'], $data));
 ?>
-
-<style>
-
-    .wt-surnames-tag-cloud span.tag:hover {
-        text-decoration: underline;
-        cursor: pointer;
-    }
-
-</style>
-
 <div class="wt-surnames-tag-cloud">
     <?php foreach ($data as $entry) { ?>
         <?php
@@ -39,6 +29,6 @@ $minimum = min(array_map(static fn (array $x): int => $x['value'], $data));
             $label = e($entry['label']);
         }
         ?>
-        <span class="tag text-nowrap ut p-1" style="font-size:<?php echo $size; ?>rem" dir="auto" title="<?php echo $entry['value']; ?> Personen mit diesem Nachnamen"><?php echo $label; ?></span>
+        <span class="tag text-nowrap ut p-1" style="font-size:<?php echo $size; ?>rem" dir="auto" title="<?php echo e(I18N::plural('%s individual carries this name', '%s individuals carry this name', $entry['value'], I18N::number($entry['value']))); ?>"><?php echo $label; ?></span>
     <?php } ?>
 </div>

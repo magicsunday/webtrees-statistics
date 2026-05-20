@@ -18,8 +18,13 @@ use Fisharebest\Webtrees\View;
  * @var string               $module     The name of the module
  * @var string               $title
  * @var string               $javascript The javascript library to use
+ * @var string               $stylesheet URL of the module-wide stylesheet
  */
 ?>
+
+<?php View::push('styles'); ?>
+<link rel="stylesheet" href="<?php echo e($stylesheet); ?>">
+<?php View::endpush(); ?>
 
 <h2 class="wt-page-title">
     <?php echo $title; ?>

@@ -19,110 +19,13 @@ use MagicSunday\Webtrees\Statistic\Statistic;
  * @var Statistic $statistic
  */
 ?>
-
-<style>
-
-    [dir] figure {
-        margin: 0;
-    }
-
-    .card-title {
-        font-weight: 600;
-    }
-
-    .card-body {
-        text-align: center;
-    }
-
-    .dot {
-        height: 10px;
-        width: 10px;
-        background-color: rgb(200, 200, 200);
-        border-radius: 50%;
-        display: inline-block;
-    }
-
-    table.legend {
-        margin-top: 20px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    table.legend td {
-        padding: 0 5px;
-    }
-
-    table.legend td {
-        text-align: left;
-    }
-
-    table.legend td:nth-child(3) {
-        text-align: right;
-    }
-
-
-    svg.donutChart path.slice {
-        cursor: pointer;
-    }
-
-    .male {
-        fill: var(--sex-m-fg, rgb(129, 169, 203));
-        background-color: var(--sex-m-fg, rgb(129, 169, 203));
-    }
-
-    .female {
-        fill: var(--sex-f-fg, rgb(255, 32, 128));
-        background-color: var(--sex-f-fg, rgb(255, 32, 128));
-    }
-
-    .unknown {
-        fill: var(--sex-u-fg, rgb(129, 169, 203));
-        background-color: var(--sex-u-fg, rgb(129, 169, 203));
-    }
-
-    .living {
-        fill: #8dba9f;
-        background-color: #8dba9f;
-    }
-
-    .deceased {
-        fill: #cccccc;
-        background-color: #cccccc;
-    }
-
-    .married {
-        fill: #B5B1FF;
-        background-color: #B5B1FF;
-    }
-
-    .alone {
-        fill: #ACB5C4;
-        background-color: #ACB5C4;
-    }
-
-    .widowed {
-        fill: #8DBA9F;
-        background-color: #8DBA9F;
-    }
-
-    .divorced {
-        fill: #FFC99C;
-        background-color: #FFC99C;
-    }
-
-    svg.donutChart path.slice:hover {
-        opacity: .8;
-    }
-
-</style>
-
 <div class="container">
     <div class="row row-cols-1 row-cols-md-2 g-3">
         <div class="col">
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="card-title">Geschlecht</h5>
-                    <small><?php echo I18N::number($statistic->getTotalIndividuals()); ?> Personen</small>
+                    <h5 class="card-title"><?php echo I18N::translate('Sex'); ?></h5>
+                    <small><?php echo I18N::plural('%s individual', '%s individuals', $statistic->getTotalIndividuals(), I18N::number($statistic->getTotalIndividuals())); ?></small>
                 </div>
                 <div class="card-body">
                     <?php
@@ -141,8 +44,8 @@ use MagicSunday\Webtrees\Statistic\Statistic;
         <div class="col">
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="card-title">Lebend bzw. Verstorben</h5>
-                    <small><?php echo I18N::number($statistic->getTotalIndividuals()); ?> Personen</small>
+                    <h5 class="card-title"><?php echo I18N::translate('Living or deceased'); ?></h5>
+                    <small><?php echo I18N::plural('%s individual', '%s individuals', $statistic->getTotalIndividuals(), I18N::number($statistic->getTotalIndividuals())); ?></small>
                 </div>
                 <div class="card-body">
                     <?php
@@ -162,7 +65,7 @@ use MagicSunday\Webtrees\Statistic\Statistic;
             <div class="card h-100">
                 <div class="card-header">
                     <h5 class="card-title"><?php echo I18N::translate('Marital status'); ?></h5>
-                    <small><?php echo I18N::number($statistic->getTotalIndividuals()); ?> <?php echo I18N::translate('individuals'); ?></small>
+                    <small><?php echo I18N::plural('%s living individual', '%s living individuals', $statistic->getTotalIndividuals(), I18N::number($statistic->getTotalIndividuals())); ?></small>
                 </div>
                 <div class="card-body">
                     <?php
@@ -183,8 +86,8 @@ use MagicSunday\Webtrees\Statistic\Statistic;
         <div class="col">
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="card-title">Gängige Nachnamen</h5>
-                    <small><?php echo I18N::number($statistic->getTotalSurnames()); ?> Nachnamen (zeigt Top 15)</small>
+                    <h5 class="card-title"><?php echo I18N::translate('Common surnames'); ?></h5>
+                    <small><?php echo I18N::translate('%s distinct surnames (top 15 shown)', I18N::number($statistic->getTotalSurnames())); ?></small>
                 </div>
                 <div class="card-body">
                     <?php
@@ -202,8 +105,8 @@ use MagicSunday\Webtrees\Statistic\Statistic;
         <div class="col">
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="card-title">Beliebte Vornamen - Männlich</h5>
-                    <small><?php echo I18N::number($statistic->getTotalMaleGivenNames()); ?> männliche Vornamen (zeigt Top 15)</small>
+                    <h5 class="card-title"><?php echo I18N::translate('Common given names – male'); ?></h5>
+                    <small><?php echo I18N::translate('%s distinct male given names (top 15 shown)', I18N::number($statistic->getTotalMaleGivenNames())); ?></small>
                 </div>
                 <div class="card-body">
                     <?php
@@ -221,8 +124,8 @@ use MagicSunday\Webtrees\Statistic\Statistic;
         <div class="col">
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="card-title">Beliebte Vornamen - Weiblich</h5>
-                    <small><?php echo I18N::number($statistic->getTotalFemaleGivenNames()); ?> weibliche Vornamen (zeigt Top 15)</small>
+                    <h5 class="card-title"><?php echo I18N::translate('Common given names – female'); ?></h5>
+                    <small><?php echo I18N::translate('%s distinct female given names (top 15 shown)', I18N::number($statistic->getTotalFemaleGivenNames())); ?></small>
                 </div>
                 <div class="card-body">
                     <?php
