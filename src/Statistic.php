@@ -13,6 +13,7 @@ namespace MagicSunday\Webtrees\Statistic;
 
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\StatisticsData;
+use MagicSunday\Webtrees\Statistic\Repository\CountryRepository;
 use MagicSunday\Webtrees\Statistic\Repository\EventRepository;
 use MagicSunday\Webtrees\Statistic\Repository\FamilyRepository;
 use MagicSunday\Webtrees\Statistic\Repository\GivenNameTrendsRepository;
@@ -50,6 +51,7 @@ final readonly class Statistic
      * @param TreeHealthRepository      $treeHealthRepository      Data-quality metrics: source coverage, missing-event gaps, generation length
      * @param GivenNameTrendsRepository $givenNameTrendsRepository Per-decade frequency of the top-N given names for the stream graph
      * @param MigrationRepository       $migrationRepository       Birth → death country flows for the Places-tab Sankey diagram
+     * @param CountryRepository         $countryRepository         BIRT / DEAT counts aggregated to ISO-3166-1 alpha-2 country codes
      */
     public function __construct(
         private StatisticsData $data,
@@ -59,6 +61,7 @@ final readonly class Statistic
         private TreeHealthRepository $treeHealthRepository,
         private GivenNameTrendsRepository $givenNameTrendsRepository,
         private MigrationRepository $migrationRepository,
+        private CountryRepository $countryRepository,
     ) {
     }
 
@@ -202,17 +205,16 @@ final readonly class Statistic
     }
 
     /**
-     * Country grouping for births. Returns an empty list until core
-     * exposes a public accessor; the WorldMap widget falls back to its
-     * empty-state rendering.
+     * Country grouping for births. Aggregated from the same
+     * `places` + `placelinks` join chain core uses internally,
+     * then re-confirmed against the raw GEDCOM so a person's
+     * BIRT only counts where it actually happened.
      *
-     * @todo Restore once webtrees exposes a public country-grouping accessor.
-     *
-     * @return array<int, array{countryCode: string, label: string, count: int}>
+     * @return list<array{countryCode: string, label: string, count: int}>
      */
     public function getBirthsByCountry(): array
     {
-        return [];
+        return $this->countryRepository->countByCountry('BIRT');
     }
 
     /**
@@ -232,15 +234,15 @@ final readonly class Statistic
     }
 
     /**
-     * Country grouping for deaths. Same deferral as {@see getBirthsByCountry()}.
+     * Country grouping for deaths. Same aggregation pipeline as
+     * {@see getBirthsByCountry()}; the event tag is the only
+     * difference.
      *
-     * @todo Restore once webtrees exposes a public country-grouping accessor.
-     *
-     * @return array<int, array{countryCode: string, label: string, count: int}>
+     * @return list<array{countryCode: string, label: string, count: int}>
      */
     public function getDeathsByCountry(): array
     {
-        return [];
+        return $this->countryRepository->countByCountry('DEAT');
     }
 
     /**
