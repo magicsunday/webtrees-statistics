@@ -106,12 +106,13 @@ final readonly class GivenNameTrendsRepository
             }
         }
 
-        // Decade range spans the entire population's birth history, not
-        // just the decades the top-N happens to cover. This keeps the
-        // tail decades visible even when classic names die out: bands
-        // taper to zero, telling the user "modern births are dominated
-        // by names outside the top-N".
-        $decades = $this->collectDecadeRange($rows);
+        // Decade range starts at the first decade where any top-N name
+        // appears (no leading zero pad from outlier dates centuries
+        // before the bulk of the data) and extends to the most recent
+        // birth in the whole population (so modern decades with births
+        // outside the top-N show up as the natural fade-out of classic
+        // names).
+        $decades = $this->buildDecadeRange($rows, $byDecade);
 
         // Materialise dense rows so the renderer always sees every name
         // for every decade (missing entries default to zero).
@@ -133,18 +134,25 @@ final readonly class GivenNameTrendsRepository
     }
 
     /**
-     * Build the dense list of decade buckets that span the entire
-     * population's birth history (no gaps).
+     * Build the dense decade range for the chart's x-axis. Starts at
+     * the first decade where any top-N name actually has a birth (no
+     * pre-history pad from outlier early dates) and ends at the most
+     * recent dated birth in the whole population so the right side
+     * shows the natural fade-out of classic names.
      *
-     * @param list<array{givn: string, year: int}> $rows
+     * @param list<array{givn: string, year: int}> $rows     Loaded individuals with names + years
+     * @param array<int, array<string, int>>       $byDecade Top-N counts already bucketed per decade
      *
      * @return list<int>
      */
-    private function collectDecadeRange(array $rows): array
+    private function buildDecadeRange(array $rows, array $byDecade): array
     {
-        if ($rows === []) {
+        if ($byDecade === [] || $rows === []) {
             return [];
         }
+
+        $topDecades  = array_keys($byDecade);
+        $startDecade = min($topDecades);
 
         $years = [];
 
@@ -152,10 +160,13 @@ final readonly class GivenNameTrendsRepository
             $years[] = $entry['year'];
         }
 
-        $minDecade = intdiv(min($years), 10) * 10;
-        $maxDecade = intdiv(max($years), 10) * 10;
+        $endDecade = intdiv(max($years), 10) * 10;
 
-        return range($minDecade, $maxDecade, 10);
+        if ($endDecade < $startDecade) {
+            $endDecade = max($topDecades);
+        }
+
+        return range($startDecade, $endDecade, 10);
     }
 
     /**
