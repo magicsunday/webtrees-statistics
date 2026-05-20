@@ -11,22 +11,18 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
-use Fisharebest\Webtrees\Individual;
-use Fisharebest\Webtrees\Tree;
-use Illuminate\Database\Capsule\Manager as DB;
-use Illuminate\Database\Query\Expression;
-use Illuminate\Database\Query\JoinClause;
+use Fisharebest\Webtrees\StatisticsData;
+
+use const PHP_INT_MAX;
 
 /**
- * Direct distinct-count queries for surnames and given names. These bypass
- * StatisticsData::commonSurnames/commonGivenNames because both take an
- * `int $limit` argument that is fed straight into SQL `LIMIT` (or
- * `Collection::slice`), so the natural call "count everything" via limit 0
- * silently returns 0.
- *
- * All queries restrict to the primary name row (`n_num = 0`) so that AKA
- * and other alternate-name entries do not inflate distinct totals beyond
- * what the paired top-N lists report.
+ * Total counts for surnames and given names that stay in lockstep with
+ * webtrees core's Top-N aggregation. Both methods pass `PHP_INT_MAX` as
+ * the limit to {@see StatisticsData::commonSurnames()} /
+ * {@see StatisticsData::commonGivenNames()} so the headline number is
+ * computed from the exact same aggregation the Top-N tag cloud renders.
+ * Any divergence between "total" and "sum of top N" therefore comes from
+ * the threshold filter alone, not from a separate tokenisation.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -35,47 +31,37 @@ use Illuminate\Database\Query\JoinClause;
 final readonly class NameRepository
 {
     /**
-     * @param Tree $tree The tree the statistics are computed for
+     * @param StatisticsData $data Core data accessor used for the underlying name aggregation
      */
     public function __construct(
-        private Tree $tree,
+        private StatisticsData $data,
     ) {
     }
 
     /**
-     * @return int Count of distinct primary surnames, excluding the unknown sentinel and married names
+     * Number of distinct surnames in the tree, computed from the same
+     * aggregation that feeds the Top-N surname list.
+     *
+     * @param int $threshold Lower bound on the occurrences a surname must have
+     *
+     * @return int
      */
-    public function countDistinctSurnames(): int
+    public function countDistinctSurnames(int $threshold = 1): int
     {
-        return DB::table('name')
-            ->where('n_file', '=', $this->tree->id())
-            ->where('n_num', '=', 0)
-            ->where('n_type', '<>', '_MARNM')
-            ->whereNotIn('n_surn', ['', Individual::NOMEN_NESCIO])
-            ->distinct()
-            ->count('n_surn');
+        return count($this->data->commonSurnames(PHP_INT_MAX, $threshold, 'count'));
     }
 
     /**
-     * @param string $sex GEDCOM sex token, e.g. 'M' or 'F'
+     * Number of distinct given names for a sex, computed from the same
+     * aggregation that feeds the Top-N given-name list.
      *
-     * @return int Count of distinct primary given names for the given sex
+     * @param string $sex       GEDCOM sex token: 'M', 'F', 'X' or 'ALL'
+     * @param int    $threshold Lower bound on the occurrences a given name must have
+     *
+     * @return int
      */
-    public function countDistinctGivenNames(string $sex): int
+    public function countDistinctGivenNames(string $sex, int $threshold = 1): int
     {
-        return DB::table('name')
-            ->join('individuals', static function (JoinClause $join): void {
-                $join
-                    ->on('i_file', '=', 'n_file')
-                    ->on('i_id', '=', 'n_id');
-            })
-            ->where('n_file', '=', $this->tree->id())
-            ->where('n_num', '=', 0)
-            ->where('n_type', '<>', '_MARNM')
-            ->where('n_givn', '<>', Individual::PRAENOMEN_NESCIO)
-            ->where(new Expression('LENGTH(n_givn)'), '>', 1)
-            ->where('i_sex', '=', $sex)
-            ->distinct()
-            ->count('n_givn');
+        return $this->data->commonGivenNames($sex, $threshold, PHP_INT_MAX)->count();
     }
 }

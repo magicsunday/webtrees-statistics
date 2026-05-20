@@ -21,7 +21,7 @@ This repository hosts the webtrees statistics module — a tab-based dashboard o
 - JS bundles: `make build` (rollup), `make watch` (dev rebuild loop).
 - Translations: `make lang` (compile .po → .mo). All locale files must have non-empty `msgstr` entries.
 - Add PHPUnit attribute-based coverage (positive AND negative cases) for every class/method introduced or modified — the project follows the "test every class" standard.
-- The PHPStan baseline (`phpstan-baseline.neon`) is intentionally retained but its `includes:` line is currently commented out in `phpstan.neon`. During the 2.1 → 2.2 transition only, baseline-listed errors are tolerated; real defects must still be fixed in-session (no "preexisting" excuse).
+- PHPStan runs at `level: max` against `src/` with no baseline. Every change fixes the underlying defect; the baseline file is intentionally absent so future drift cannot be ignored.
 
 ## Architecture
 

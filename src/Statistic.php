@@ -102,7 +102,7 @@ final readonly class Statistic
 
     public function getTotalSurnames(): int
     {
-        return $this->nameRepository->countDistinctSurnames();
+        return $this->nameRepository->countDistinctSurnames(self::NAME_FREQUENCY_THRESHOLD);
     }
 
     /**
@@ -119,7 +119,7 @@ final readonly class Statistic
 
     public function getTotalMaleGivenNames(): int
     {
-        return $this->nameRepository->countDistinctGivenNames('M');
+        return $this->nameRepository->countDistinctGivenNames('M', self::NAME_FREQUENCY_THRESHOLD);
     }
 
     /**
@@ -136,7 +136,7 @@ final readonly class Statistic
 
     public function getTotalFemaleGivenNames(): int
     {
-        return $this->nameRepository->countDistinctGivenNames('F');
+        return $this->nameRepository->countDistinctGivenNames('F', self::NAME_FREQUENCY_THRESHOLD);
     }
 
     /**
