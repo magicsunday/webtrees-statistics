@@ -126,4 +126,61 @@ final class GedcomScannerTest extends TestCase
     {
         self::assertSame($expected, GedcomScanner::extractEventYear($gedcom, $tag));
     }
+
+    /**
+     * Fixtures for extractEventPlace covering the rules the migration
+     * aggregator depends on: trimmed value, empty / whitespace-only
+     * lines reject, no event returns null.
+     *
+     * @return iterable<string, array{0: string, 1: string, 2: ?string}>
+     */
+    public static function extractEventPlaceSamples(): iterable
+    {
+        yield 'simple place is returned trimmed' => [
+            "\n0 @I1@ INDI\n1 BIRT\n2 PLAC Hamburg, Germany",
+            'BIRT',
+            'Hamburg, Germany',
+        ];
+        yield 'trailing whitespace is stripped' => [
+            "\n0 @I1@ INDI\n1 BIRT\n2 PLAC   Hamburg, Germany   ",
+            'BIRT',
+            'Hamburg, Germany',
+        ];
+        yield 'empty PLAC line is null' => [
+            "\n0 @I1@ INDI\n1 BIRT\n2 PLAC\n3 NOTE pending",
+            'BIRT',
+            null,
+        ];
+        yield 'whitespace-only PLAC line is null' => [
+            "\n0 @I1@ INDI\n1 BIRT\n2 PLAC    ",
+            'BIRT',
+            null,
+        ];
+        yield 'place from a different event is not matched' => [
+            "\n0 @I1@ INDI\n1 BIRT\n2 DATE 1 JAN 1900\n1 DEAT\n2 PLAC Berlin",
+            'BIRT',
+            null,
+        ];
+        yield 'no event returns null' => [
+            "\n0 @I1@ INDI\n1 NAME John /Doe/",
+            'BIRT',
+            null,
+        ];
+    }
+
+    /**
+     * extractEventPlace returns the first non-empty 2 PLAC sub-line of
+     * the requested event, trimmed; empty / whitespace-only PLAC lines
+     * are treated as no place.
+     *
+     * @param string  $gedcom   Raw GEDCOM record body
+     * @param string  $tag      Level-1 event tag to inspect
+     * @param ?string $expected Expected place string (null when no place)
+     */
+    #[Test]
+    #[DataProvider('extractEventPlaceSamples')]
+    public function extractEventPlaceReturnsTheFirstNonEmptyPlaceLine(string $gedcom, string $tag, ?string $expected): void
+    {
+        self::assertSame($expected, GedcomScanner::extractEventPlace($gedcom, $tag));
+    }
 }

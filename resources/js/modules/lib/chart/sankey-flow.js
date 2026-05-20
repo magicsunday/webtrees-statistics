@@ -11,7 +11,7 @@ import { schemeTableau10 } from "d3-scale-chromatic";
 import { sankey, sankeyLinkHorizontal, sankeyJustify } from "d3-sankey";
 import "d3-transition";
 import { easeCubicOut } from "d3-ease";
-import { createHostTooltip } from "./tooltip.js";
+import { createHostTooltip, escapeHtml } from "./tooltip.js";
 
 /**
  * Sankey renderer used by the Places tab to show birth → death
@@ -97,10 +97,23 @@ export class SankeyFlow {
                 [margin.left + innerWidth, margin.top + innerHeight],
             ]);
 
-        const graph = sankeyLayout({
-            nodes: data.nodes.map((node) => ({ ...node })),
-            links: data.links.map((link) => ({ ...link })),
-        });
+        // d3-sankey throws "circular link" the moment the input
+        // resolves to a directed cycle (e.g. a self-loop slipped past
+        // the bipartite invariant from a future caller). Treat that as
+        // "no usable data" rather than letting the whole tab break.
+        let graph;
+        try {
+            graph = sankeyLayout({
+                nodes: data.nodes.map((node) => ({ ...node })),
+                links: data.links.map((link) => ({ ...link })),
+            });
+        } catch (_error) {
+            const empty       = document.createElement("p");
+            empty.className   = "text-center text-muted my-4";
+            empty.textContent = host.dataset.emptyMessage || "No data";
+            host.append(empty);
+            return null;
+        }
 
         const svg = select(host)
             .append("svg")
@@ -138,9 +151,12 @@ export class SankeyFlow {
 
         links
             .on("mouseover", (event, link) => {
+                // Place names come from raw GEDCOM and must be escaped
+                // before reaching innerHTML — a hand-edited tree can
+                // contain literal `<script>` or stray quotes.
                 tooltip.show(
                     event,
-                    `<strong>${link.source.name} → ${link.target.name}</strong><br>` +
+                    `<strong>${escapeHtml(link.source.name)} → ${escapeHtml(link.target.name)}</strong><br>` +
                         `<span class="wt-sankey-tooltip-stat">${link.value} individual${link.value === 1 ? "" : "s"}</span>`,
                 );
             })

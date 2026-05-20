@@ -90,4 +90,49 @@ final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame('Germany', $result['nodes'][0]['name']);
         self::assertSame('USA', $result['nodes'][1]['name']);
     }
+
+    /**
+     * A tree where every individual was born and died in the same
+     * country produces no flows — the same-country guard drops every
+     * contribution and the aggregator returns its empty shape.
+     */
+    #[Test]
+    public function flowsByCountryReturnsEmptyWhenEveryTrajectoryIsSameCountry(): void
+    {
+        $tree   = $this->importFixtureTree('migration-same-country.ged');
+        $result = (new MigrationRepository($tree))->flowsByCountry(10);
+
+        self::assertSame([], $result['nodes']);
+        self::assertSame([], $result['links']);
+    }
+
+    /**
+     * A country that appears both as an origin AND as a destination
+     * shows up as two distinct nodes — one in the source column, one
+     * in the target column. Without this split d3-sankey would throw
+     * a "circular link" error on the bidirectional flow.
+     */
+    #[Test]
+    public function flowsByCountryKeepsBidirectionalCountriesOnDisjointSides(): void
+    {
+        $tree   = $this->importFixtureTree('migration-bidirectional.ged');
+        $result = (new MigrationRepository($tree))->flowsByCountry(10);
+
+        // Two flows: Germany → USA (×2) and USA → Germany (×1). Both
+        // countries appear on both sides.
+        self::assertCount(2, $result['links']);
+
+        $names = array_map(static fn (array $node): string => $node['name'], $result['nodes']);
+
+        // Germany and USA each appear twice: once on the source side,
+        // once on the target side.
+        self::assertSame(2, array_count_values($names)['Germany']);
+        self::assertSame(2, array_count_values($names)['USA']);
+
+        // No link can reference a source-index that equals its
+        // target-index — would indicate a fold-back.
+        foreach ($result['links'] as $link) {
+            self::assertNotSame($link['source'], $link['target']);
+        }
+    }
 }

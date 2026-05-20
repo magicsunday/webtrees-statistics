@@ -13,7 +13,7 @@ import { area, stack, stackOffsetSilhouette, stackOrderInsideOut, curveBasis } f
 import { extent, max, min } from "d3-array";
 import "d3-transition";
 import { easeCubicOut } from "d3-ease";
-import { createHostTooltip } from "./tooltip.js";
+import { createHostTooltip, escapeHtml } from "./tooltip.js";
 
 /**
  * Stream-graph renderer used by the Names tab to show the per-decade
@@ -195,9 +195,10 @@ export class StreamGraph
             .attr("d", areaPath);
 
         const bandTooltipHtml = (band) => {
+            // Given names come from raw GEDCOM — escape before innerHTML.
             const total = Math.round(bandTotals.get(band.key) ?? 0);
             const peak  = peakDecade(band);
-            return `<strong>${band.key}</strong><br>` +
+            return `<strong>${escapeHtml(band.key)}</strong><br>` +
                 `<span class="wt-stream-graph-tooltip-stat">${total} individual${total === 1 ? "" : "s"}</span><br>` +
                 `<span class="wt-stream-graph-tooltip-meta">peak in the ${peak}s</span>`;
         };

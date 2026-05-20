@@ -6,6 +6,25 @@
  */
 
 /**
+ * Escape a string for safe interpolation into the tooltip's innerHTML.
+ * Tooltip bodies built from GEDCOM-derived strings (place names,
+ * given names) must never trust the input — a hand-edited tree can
+ * contain `<script>` or stray quotes.
+ *
+ * @param {String} value Raw text from a data source (place name, person name, etc.).
+ *
+ * @returns {String} HTML-safe representation, ready to drop into innerHTML.
+ */
+export function escapeHtml(value) {
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
+/**
  * Build a host-anchored, follow-cursor tooltip with hover-bounds
  * clamping. Shared by chart renderers (stream graph, sankey flow).
  * The tooltip is absolutely positioned inside the host and clamped
