@@ -40,6 +40,15 @@ foreach ($birthsByDecade as $decade => $count) {
 // tree-spanning-centuries datasets.
 $birthsXLabelEvery = max(1, (int) ceil(count($birthsLineSeries) / 12));
 
+$plausibility = $statistic->getPlausibilitySummary();
+$ruleLabels   = [
+    'lifespan-over-limit'      => I18N::translate('Lifespan over plausibility ceiling'),
+    'parent-age-out-of-range'  => I18N::translate('Parent age outside the plausible range'),
+    'death-before-child-birth' => I18N::translate("Parent's death recorded before child's birth"),
+    'marriage-before-birth'    => I18N::translate("Marriage recorded before a spouse's birth"),
+    'sibling-interval'         => I18N::translate('Siblings born too close together or too far apart'),
+];
+
 $gapLabels = [
     'BIRT.event' => I18N::translate('Missing birth event'),
     'BIRT.place' => I18N::translate('Missing birth place'),
@@ -157,4 +166,39 @@ foreach ($gaps as $gap) {
             </div>
         </div>
     </div>
+
+    <?php if ($plausibility['totalCount'] > 0) { ?>
+    <div class="row row-cols-1 g-3 mt-1 mb-3">
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('Plausibility checks'); ?></h5>
+                    <small><?php echo I18N::plural('%s finding across all rules', '%s findings across all rules', $plausibility['totalCount'], I18N::number($plausibility['totalCount'])); ?></small>
+                </div>
+                <div class="card-body">
+                    <?php foreach ($plausibility['perRule'] as $ruleSection) { ?>
+                    <div class="wt-plausibility-rule mb-3">
+                        <h6 class="mb-1">
+                            <?php echo e($ruleLabels[$ruleSection['ruleId']] ?? $ruleSection['ruleId']); ?>
+                            <small class="text-muted ms-2">(<?php echo I18N::number($ruleSection['count']); ?>)</small>
+                        </h6>
+                        <ul class="list-unstyled small mb-0">
+                            <?php foreach ($ruleSection['examples'] as $example) { ?>
+                            <li>
+                                <?php if ($example->url !== null) { ?>
+                                <a href="<?php echo e($example->url); ?>"><?php echo e($example->xref); ?></a>
+                                <?php } else { ?>
+                                <span><?php echo e($example->xref); ?></span>
+                                <?php } ?>
+                                <span class="text-muted ms-1"><?php echo e($example->reason); ?></span>
+                            </li>
+                            <?php } ?>
+                        </ul>
+                    </div>
+                    <?php } ?>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php } ?>
 </div>

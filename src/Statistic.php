@@ -33,6 +33,7 @@ use MagicSunday\Webtrees\Statistic\Repository\NameRepository;
 use MagicSunday\Webtrees\Statistic\Repository\OccupationRepository;
 use MagicSunday\Webtrees\Statistic\Repository\ParenthoodRepository;
 use MagicSunday\Webtrees\Statistic\Repository\PlaceDispersionRepository;
+use MagicSunday\Webtrees\Statistic\Repository\PlausibilityRepository;
 use MagicSunday\Webtrees\Statistic\Repository\ReligionRepository;
 use MagicSunday\Webtrees\Statistic\Repository\TreeHealthRepository;
 
@@ -80,6 +81,7 @@ final readonly class Statistic
      * @param GenerationDepthRepository $generationDepthRepository Max generation depth + descendants-distance distribution (Family tab brick-wall surfacing)
      * @param ParenthoodRepository      $parenthoodRepository      Age-at-first-child distribution per parent sex (Family tab)
      * @param EndogamyRepository        $endogamyRepository        Cousin-marriage / shared-ancestor rate within four generations (Family tab)
+     * @param PlausibilityRepository    $plausibilityRepository    Data-quality / plausibility-check aggregator (TreeHealth tab)
      */
     public function __construct(
         private StatisticsData $data,
@@ -103,6 +105,7 @@ final readonly class Statistic
         private GenerationDepthRepository $generationDepthRepository,
         private ParenthoodRepository $parenthoodRepository,
         private EndogamyRepository $endogamyRepository,
+        private PlausibilityRepository $plausibilityRepository,
     ) {
     }
 
@@ -414,25 +417,30 @@ final readonly class Statistic
     }
 
     /**
+     * Plausibility-check summary for the TreeHealth tab. Returns
+     * the grand finding count plus a per-rule breakdown (rule id,
+     * count, top-N example findings). Each example carries the
+     * offending xref + kind + reason so the view can render a
+     * linkable drilldown without re-querying.
+     *
+     * @return array{
+     *     totalCount: int,
+     *     perRule: list<array{ruleId: string, count: int, examples: list<Plausibility\Finding>}>
+     * }
+     */
+    public function getPlausibilitySummary(): array
+    {
+        return $this->plausibilityRepository->summary();
+    }
+
+    /**
      * Hall-of-fame style record holders bundled into a single
      * structure the view can render as a table. Each entry is
      * either null (record could not be established for this tree)
      * or carries the resolved Individual / Family object plus the
      * extreme value the record-holder reached.
      *
-     * @return array{
-     *     oldestDeceased:   array{individual: Individual, ageYears: int}|null,
-     *     oldestLiving:     array{individual: Individual, ageYears: int}|null,
-     *     longestMarriage:  array{family: Family, durationYears: int}|null,
-     *     shortestMarriage: array{family: Family, durationDays: int}|null,
-     *     youngestHusband:  array{individual: Individual, ageYears: int}|null,
-     *     youngestWife:     array{individual: Individual, ageYears: int}|null,
-     *     oldestHusband:    array{individual: Individual, ageYears: int}|null,
-     *     oldestWife:       array{individual: Individual, ageYears: int}|null,
-     *     mostSpouses:      array{individual: Individual, count: int}|null,
-     *     mostResidences:   array{individual: Individual, count: int}|null,
-     *     largestFamily:    array{family: Family, count: int}|null
-     * }
+     * @return array{oldestDeceased: array{individual: Individual, ageYears: int}|null, oldestLiving: array{individual: Individual, ageYears: int}|null, longestMarriage: array{family: Family, durationYears: int}|null, shortestMarriage: array{family: Family, durationDays: int}|null, youngestHusband: array{individual: Individual, ageYears: int}|null, youngestWife: array{individual: Individual, ageYears: int}|null, oldestHusband: array{individual: Individual, ageYears: int}|null, oldestWife: array{individual: Individual, ageYears: int}|null, mostSpouses: array{individual: Individual, count: int}|null, mostResidences: array{individual: Individual, count: int}|null, largestFamily: array{family: Family, count: int}|null}
      */
     public function getTreeRecords(): array
     {
