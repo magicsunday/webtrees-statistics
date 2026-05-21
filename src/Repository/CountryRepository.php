@@ -11,17 +11,13 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
-use Fisharebest\Webtrees\Individual;
-use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Support\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\IsoCountryMap;
 
-use function array_unique;
 use function arsort;
-use function count;
 use function is_string;
 use function str_ends_with;
 use function strrpos;
@@ -181,63 +177,6 @@ final readonly class CountryRepository
         }
 
         return $entries;
-    }
-
-    /**
-     * Most-residences record holder: the individual with the most
-     * DISTINCT PLAC values across their `1 RESI` events. Counts
-     * unique addresses, not raw event count — a person who has
-     * three `1 RESI / 2 PLAC Hamburg` entries scores 1, while
-     * someone with `Hamburg / München / Berlin` scores 3. This
-     * matches the user intuition of "moved around the most".
-     *
-     * Place strings are trimmed and compared case-sensitively, so
-     * "Hamburg, Germany" and "Hamburg, germany" count as two
-     * distinct addresses; ISO-folding is out of scope here.
-     *
-     * @return array{individual: Individual, count: int}|null
-     */
-    public function mostResidencesRecord(): ?array
-    {
-        // Pre-filter at the DB layer so we don't iterate every
-        // individual's full i_gedcom — most rows have no RESI at
-        // all and would otherwise be pulled into PHP for nothing.
-        $rows = DB::table('individuals')
-            ->where('i_file', '=', $this->tree->id())
-            ->where('i_gedcom', 'LIKE', '%1 RESI%')
-            ->select(['i_id AS xref', 'i_gedcom AS gedcom'])
-            ->get();
-
-        $bestCount = 0;
-        $bestXref  = null;
-
-        foreach ($rows as $row) {
-            $gedcom = is_string($row->gedcom ?? null) ? $row->gedcom : '';
-            $xref   = is_string($row->xref ?? null) ? $row->xref : '';
-
-            if ($xref === '') {
-                continue;
-            }
-
-            $distinct = count(array_unique(GedcomScanner::extractAllEventPlaces($gedcom, 'RESI')));
-
-            if ($distinct > $bestCount) {
-                $bestCount = $distinct;
-                $bestXref  = $xref;
-            }
-        }
-
-        if (($bestXref === null) || ($bestCount < 2)) {
-            return null;
-        }
-
-        $individual = Registry::individualFactory()->make($bestXref, $this->tree);
-
-        if (!$individual instanceof Individual) {
-            return null;
-        }
-
-        return ['individual' => $individual, 'count' => $bestCount];
     }
 
     /**

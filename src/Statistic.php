@@ -430,7 +430,6 @@ final readonly class Statistic
      *     oldestHusband:    array{individual: Individual, ageYears: int}|null,
      *     oldestWife:       array{individual: Individual, ageYears: int}|null,
      *     mostSpouses:      array{individual: Individual, count: int}|null,
-     *     mostResidences:   array{individual: Individual, count: int}|null,
      *     largestFamily:    array{family: Family, count: int}|null
      * }
      */
@@ -446,7 +445,6 @@ final readonly class Statistic
             'oldestHusband'    => $this->marriageRepository->oldestSpouseAtMarriageRecord('M'),
             'oldestWife'       => $this->marriageRepository->oldestSpouseAtMarriageRecord('F'),
             'mostSpouses'      => $this->marriageRepository->mostSpousesRecord(),
-            'mostResidences'   => $this->countryRepository->mostResidencesRecord(),
             'largestFamily'    => $this->childrenRepository->largestFamilyRecord(),
         ];
     }

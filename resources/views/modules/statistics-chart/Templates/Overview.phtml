@@ -198,13 +198,6 @@ $treeRecords    = $statistic->getTreeRecords();
                                 <td><a href="<?php echo e($treeRecords['mostSpouses']['individual']->url()); ?>"><?php echo $treeRecords['mostSpouses']['individual']->fullName(); ?></a></td>
                             </tr>
                             <?php } ?>
-                            <?php if ($treeRecords['mostResidences'] !== null) { ?>
-                            <tr>
-                                <th scope="row"><?php echo I18N::translate('Most recorded residences'); ?></th>
-                                <td><?php echo I18N::plural('%s residence', '%s residences', $treeRecords['mostResidences']['count'], I18N::number($treeRecords['mostResidences']['count'])); ?></td>
-                                <td><a href="<?php echo e($treeRecords['mostResidences']['individual']->url()); ?>"><?php echo $treeRecords['mostResidences']['individual']->fullName(); ?></a></td>
-                            </tr>
-                            <?php } ?>
                             <?php if ($treeRecords['largestFamily'] !== null) { ?>
                             <tr>
                                 <th scope="row"><?php echo I18N::translate('Largest family'); ?></th>
