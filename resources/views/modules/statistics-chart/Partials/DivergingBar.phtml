@@ -1,0 +1,33 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
+
+use Fisharebest\Webtrees\I18N;
+
+/**
+ * @var string                                                                                            $identifier Host element id
+ * @var array<int, array{label: string, value: int, sign: -1|1, tooltip?: string, tooltipLabel?: string}> $data    Rows in display order
+ * @var int|null                                                                                          $height     Optional viewport height (defaults to 240)
+ * @var string|null                                                                                       $ariaLabel  Accessible label on the host svg
+ */
+$height ??= 240;
+?>
+<div class="wt-diverging-bar-container">
+    <div id="<?php echo e($identifier); ?>"
+         class="wt-diverging-bar-host"
+         data-widget="diverging-bar"
+         data-payload="<?php echo e(json_encode($data, JSON_THROW_ON_ERROR)); ?>"
+         data-options="<?php echo e(json_encode([
+             'height'    => $height,
+             'ariaLabel' => $ariaLabel ?? null,
+         ], JSON_THROW_ON_ERROR)); ?>"
+         data-empty-message="<?php echo e(I18N::translate('No data available yet.')); ?>"
+    ></div>
+</div>

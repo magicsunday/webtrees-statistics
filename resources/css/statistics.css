@@ -841,3 +841,46 @@
 .wt-statistics-chart .container > .row.g-3 {
     margin-top: 0;
 }
+
+/* ----------------------------------------------------------------------
+   Diverging bar chart (chart-lib DivergingBar)
+   -------------------------------------------------------------------- */
+
+.wt-statistics-chart {
+    --wmstats-chart-diverging-positive: var(--bs-info, rgb(120, 175, 145));
+    --wmstats-chart-diverging-negative: var(--bs-warning, rgb(245, 130, 175));
+}
+
+.wt-statistics-chart svg.wt-diverging-bar rect.bar.positive {
+    fill: var(--wmstats-chart-diverging-positive);
+}
+
+.wt-statistics-chart svg.wt-diverging-bar rect.bar.negative {
+    fill: var(--wmstats-chart-diverging-negative);
+}
+
+.wt-statistics-chart svg.wt-diverging-bar line.zero-axis {
+    stroke:       var(--bs-border-color, rgb(221, 221, 221));
+    stroke-width: 1.5;
+}
+
+.wt-statistics-chart svg.wt-diverging-bar .x-axis text,
+.wt-statistics-chart svg.wt-diverging-bar .y-axis text {
+    fill:      var(--bs-body-color);
+    font-size: 0.7rem;
+}
+
+.wt-statistics-chart svg.wt-diverging-bar .x-axis path,
+.wt-statistics-chart svg.wt-diverging-bar .y-axis path,
+.wt-statistics-chart svg.wt-diverging-bar .x-axis line,
+.wt-statistics-chart svg.wt-diverging-bar .y-axis line {
+    stroke: var(--bs-border-color, rgb(221, 221, 221));
+}
+
+/*
+ * Hover dim mirrors the BarChart pattern.
+ */
+.wt-statistics-chart svg.wt-diverging-bar:has(rect.bar:hover) rect.bar:not(:hover),
+.wt-statistics-chart svg.wt-diverging-bar:has(rect.bar.is-selected) rect.bar:not(.is-selected) {
+    opacity: 0.35;
+}

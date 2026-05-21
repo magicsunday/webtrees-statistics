@@ -192,10 +192,34 @@ echo view(
                 </div>
                 <div class="card-body">
                     <?php
-    echo view(
-        $module . '::modules/statistics-chart/Partials/ProgressList',
-        ['class' => 'progress-age-gap', 'data' => $ageGap],
-    );
+    // Convert the signed `{label => count}` map the repository
+    // returns into the DivergingBar row shape — sign comes from
+    // the label's leading character (`-` / `<` mark the negative
+    // side, anything else is positive).
+    $ageGapRows = [];
+
+foreach ($ageGap as $label => $count) {
+    $first        = $label !== '' ? $label[0] : '+';
+    $isNegative   = $first === '-' || $first === '<';
+    $ageGapRows[] = [
+        'label'        => $label,
+        'value'        => (int) $count,
+        'sign'         => $isNegative ? -1 : 1,
+        'tooltipLabel' => $isNegative
+            ? I18N::translate('Wife older by %s years', $label)
+            : I18N::translate('Husband older by %s years', $label),
+        'tooltip' => I18N::plural('%s couple', '%s couples', $count, I18N::number($count)),
+    ];
+}
+
+echo view(
+    $module . '::modules/statistics-chart/Partials/DivergingBar',
+    [
+        'identifier' => 'couple-age-gap-diverging',
+        'data'       => $ageGapRows,
+        'ariaLabel'  => I18N::translate('Couple age gap (husband − wife)'),
+    ],
+);
 ?>
                 </div>
             </div>
