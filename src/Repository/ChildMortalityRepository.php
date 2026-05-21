@@ -12,8 +12,6 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
-use Illuminate\Database\Capsule\Manager as DB;
-use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Support\ChildMortalityRate;
 
 use function intdiv;
@@ -132,24 +130,7 @@ final readonly class ChildMortalityRepository
      */
     private function fetchBirthDeathPairs(): array
     {
-        $rows = DB::table('individuals')
-            ->where('i_file', '=', $this->tree->id())
-            ->join('dates AS birth', static function (JoinClause $join): void {
-                $join
-                    ->on('birth.d_file', '=', 'i_file')
-                    ->on('birth.d_gid', '=', 'i_id')
-                    ->where('birth.d_fact', '=', 'BIRT')
-                    ->whereIn('birth.d_type', ['@#DGREGORIAN@', '@#DJULIAN@'])
-                    ->where('birth.d_julianday1', '>', 0);
-            })
-            ->join('dates AS death', static function (JoinClause $join): void {
-                $join
-                    ->on('death.d_file', '=', 'i_file')
-                    ->on('death.d_gid', '=', 'i_id')
-                    ->where('death.d_fact', '=', 'DEAT')
-                    ->whereIn('death.d_type', ['@#DGREGORIAN@', '@#DJULIAN@'])
-                    ->where('death.d_julianday1', '>', 0);
-            })
+        $rows = BirthDeathPairsQuery::for($this->tree)
             ->select([
                 'birth.d_julianday1 AS birth_jd',
                 'birth.d_year AS birth_year',

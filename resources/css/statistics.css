@@ -825,3 +825,19 @@
 .wt-statistics-chart svg.wt-bar-chart:has(rect.bar.is-selected) rect.bar:not(.is-selected) {
     opacity: 0.35;
 }
+
+/* ----------------------------------------------------------------------
+   Uniform row spacing across breakpoints
+   ----------------------------------------------------------------------
+   Bootstrap's `.row.g-3` sets `margin-top: -1rem` on the row (the
+   negative offset that lets `.col` padding-top fake an intra-row
+   gutter without pushing the first line down). That makes inter-row
+   gaps inconsistent with intra-row gaps when cards stack on small
+   viewports — intra-row 1rem, inter-row 0 or 2rem depending on
+   adjacent `mt-*` utilities. Reset the negative margin and add an
+   explicit `.row + .row` margin so both gaps render as 1rem.
+   -------------------------------------------------------------------- */
+
+.wt-statistics-chart .container > .row.g-3 {
+    margin-top: 0;
+}

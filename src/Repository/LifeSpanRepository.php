@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
+use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\StatisticsData;
 use Fisharebest\Webtrees\Tree;
@@ -19,6 +20,7 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\ModuleBase\Processor\NameProcessor;
+use MagicSunday\Webtrees\Statistic\Support\CenturyName;
 use MagicSunday\Webtrees\Statistic\Support\HistogramTrim;
 use MagicSunday\Webtrees\Statistic\Support\SeasonalityScore;
 
@@ -31,6 +33,7 @@ use function intdiv;
 use function is_numeric;
 use function ksort;
 use function max;
+use function round;
 
 /**
  * Life-span aggregations for the LifeSpan tab. Wraps the public
@@ -52,6 +55,15 @@ final readonly class LifeSpanRepository
     private const int BUCKET_WIDTH = 10;
 
     private const int MAX_BUCKET = 100;
+
+    /**
+     * Minimum per-cohort sample size for the
+     * lifespan-by-sex × century LineChart. A century × sex group
+     * with fewer than this many dated deaths gets suppressed
+     * (rendered as zero / "no data" tooltip) so a 1-sample
+     * outlier doesn't drag the cohort mean.
+     */
+    private const int MIN_COHORT_SIZE = 5;
 
     /**
      * Living-individual age-band cut-offs. The buckets are designed
@@ -324,6 +336,159 @@ final readonly class LifeSpanRepository
         }
 
         return null;
+    }
+
+    /**
+     * Mean lifespan grouped by birth-century × sex. Returns the
+     * standard `{categories, series}` shape so it can feed straight
+     * into the chart-lib LineChart multi-series render path —
+     * categories are the localised century labels in chronological
+     * order, two series (Male / Female). Per-cohort sample counts
+     * below {@see MIN_COHORT_SIZE} are suppressed (replaced with
+     * zero) so a single outlier doesn't dominate the visual.
+     *
+     * @return array{
+     *     categories: list<string>,
+     *     series: list<array{name: string, values: list<float>, tooltips: list<string>, tooltipLabels: list<string>, class: string}>
+     * }
+     */
+    public function averageLifespanBySexAndCentury(): array
+    {
+        $maxAge = $this->maxPlausibleAge();
+
+        // Per-birth-century × sex aggregation. Day-totals divided
+        // by sample counts produce the cohort mean; both numerator
+        // and denominator live in PHP because MySQL's per-row
+        // century classification (floor((d_year - 1) / 100) + 1)
+        // would clutter the SQL more than the PHP fold does.
+        $rows = BirthDeathPairsQuery::for($this->tree)
+            ->whereIn('i_sex', ['M', 'F'])
+            ->select([
+                'i_sex AS sex',
+                'birth.d_year AS birth_year',
+                'birth.d_julianday1 AS birth_jd',
+                'death.d_julianday1 AS death_jd',
+            ])
+            ->get();
+
+        /** @var array<int, array{M: array{sum: int, n: int}, F: array{sum: int, n: int}}> $cohorts */
+        $cohorts = [];
+
+        foreach ($rows as $row) {
+            $year = is_numeric($row->birth_year ?? null) ? (int) $row->birth_year : 0;
+
+            if ($year <= 0) {
+                continue;
+            }
+
+            $sex     = $row->sex === 'F' ? 'F' : 'M';
+            $birthJd = is_numeric($row->birth_jd ?? null) ? (int) $row->birth_jd : 0;
+            $deathJd = is_numeric($row->death_jd ?? null) ? (int) $row->death_jd : 0;
+
+            if ($birthJd <= 0) {
+                continue;
+            }
+
+            if ($deathJd <= $birthJd) {
+                continue;
+            }
+
+            $years = intdiv($deathJd - $birthJd, 365);
+
+            if ($years <= 0) {
+                continue;
+            }
+
+            if ($years > $maxAge) {
+                continue;
+            }
+
+            // $year is already > 0 (guarded earlier), so the
+            // century derivation cannot be non-positive — no
+            // second guard needed.
+            $century = intdiv($year - 1, 100) + 1;
+
+            $cohorts[$century] ??= ['M' => ['sum' => 0, 'n' => 0], 'F' => ['sum' => 0, 'n' => 0]];
+            $cohorts[$century][$sex]['sum'] += $years;
+            ++$cohorts[$century][$sex]['n'];
+        }
+
+        if ($cohorts === []) {
+            return ['categories' => [], 'series' => []];
+        }
+
+        ksort($cohorts);
+
+        $categories          = [];
+        $maleValues          = [];
+        $femaleValues        = [];
+        $maleTooltips        = [];
+        $femaleTooltips      = [];
+        $maleTooltipLabels   = [];
+        $femaleTooltipLabels = [];
+
+        foreach ($cohorts as $century => $perSex) {
+            // Drop centuries where neither sex meets the cohort-
+            // size floor — otherwise the x-axis would lead with
+            // empty "15th: 0 / 16th: 0" entries that carry no
+            // information.
+            if (
+                $perSex['M']['n'] < self::MIN_COHORT_SIZE
+                && $perSex['F']['n'] < self::MIN_COHORT_SIZE
+            ) {
+                continue;
+            }
+
+            $label        = CenturyName::for($century);
+            $categories[] = $label;
+
+            $maleAverage = $perSex['M']['n'] >= self::MIN_COHORT_SIZE
+                ? round($perSex['M']['sum'] / $perSex['M']['n'], 1)
+                : 0;
+            $femaleAverage = $perSex['F']['n'] >= self::MIN_COHORT_SIZE
+                ? round($perSex['F']['sum'] / $perSex['F']['n'], 1)
+                : 0;
+            $maleValues[]   = $maleAverage;
+            $femaleValues[] = $femaleAverage;
+
+            $maleTooltips[] = $perSex['M']['n'] >= self::MIN_COHORT_SIZE
+                ? I18N::translate(
+                    '%1$s years (n = %2$s)',
+                    I18N::number($maleAverage, 1),
+                    I18N::number($perSex['M']['n']),
+                )
+                : I18N::translate('no data (n < %s)', I18N::number(self::MIN_COHORT_SIZE));
+            $femaleTooltips[] = $perSex['F']['n'] >= self::MIN_COHORT_SIZE
+                ? I18N::translate(
+                    '%1$s years (n = %2$s)',
+                    I18N::number($femaleAverage, 1),
+                    I18N::number($perSex['F']['n']),
+                )
+                : I18N::translate('no data (n < %s)', I18N::number(self::MIN_COHORT_SIZE));
+
+            $maleTooltipLabels[]   = $label . ' ' . I18N::translate('Century');
+            $femaleTooltipLabels[] = $label . ' ' . I18N::translate('Century');
+        }
+
+        return [
+            'categories' => $categories,
+            'series'     => [
+                [
+                    'name'          => I18N::translate('Male'),
+                    'values'        => $maleValues,
+                    'tooltips'      => $maleTooltips,
+                    'tooltipLabels' => $maleTooltipLabels,
+                    'class'         => 'male',
+                ],
+                [
+                    'name'          => I18N::translate('Female'),
+                    'values'        => $femaleValues,
+                    'tooltips'      => $femaleTooltips,
+                    'tooltipLabels' => $femaleTooltipLabels,
+                    'class'         => 'female',
+                ],
+            ],
+        ];
     }
 
     /**

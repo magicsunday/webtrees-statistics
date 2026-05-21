@@ -311,6 +311,20 @@ final readonly class Statistic
     }
 
     /**
+     * Average lifespan grouped by birth-century × sex — feeds the
+     * multi-series LineChart in the LifeSpan tab.
+     *
+     * @return array{
+     *     categories: list<string>,
+     *     series: list<array{name: string, values: list<float>, tooltips: list<string>, tooltipLabels: list<string>, class: string}>
+     * }
+     */
+    public function getAverageLifespanBySexAndCentury(): array
+    {
+        return $this->lifeSpanRepository->averageLifespanBySexAndCentury();
+    }
+
+    /**
      * Births grouped by decade — the tree-growth indicator on the
      * TreeHealth tab. Leading / trailing zero-decades are trimmed;
      * inner zero-decades stay so historical gaps remain visible.

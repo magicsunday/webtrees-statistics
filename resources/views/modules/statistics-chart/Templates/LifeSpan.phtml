@@ -164,7 +164,7 @@ $childMortalityPayload = [
         </div>
     </div>
 
-    <div class="row g-3 mt-1 mb-3">
+    <div class="row g-3">
         <div class="col">
             <div class="card">
                 <div class="card-header">
@@ -186,7 +186,7 @@ $childMortalityPayload = [
         </div>
     </div>
 
-    <div class="row row-cols-1 row-cols-md-2 g-3 mt-1 mb-3">
+    <div class="row row-cols-1 row-cols-md-2 g-3">
         <div class="col">
             <div class="card h-100">
                 <div class="card-header">
@@ -240,7 +240,7 @@ $childMortalityPayload = [
         </div>
     </div>
 
-    <div class="row g-3 mt-1 mb-3">
+    <div class="row g-3">
         <div class="col">
             <div class="card">
                 <div class="card-header">
@@ -268,7 +268,7 @@ $childMortalityPayload = [
         'For every individual with both BIRT and DEAT julian-days the widget computes the number of days lived; a death within five years (1826 days) of birth counts as under-5 mortality. The tree-wide percentage is the share of such children across the whole tree, and the LineChart on the right groups them by their birth century so the historical decline becomes visible (typical 1700s value 30-40 percent, modern below 2 percent). Individuals with only BIRT or only DEAT are silently excluded — we cannot determine survival without both anchors, and including them would skew the rate. Per-century cohorts below 5 children are suppressed because a single dead child would spike the line by more than 10 percentage points.'
     );
         ?>
-    <div class="row row-cols-1 row-cols-md-2 g-3 mt-1 mb-3">
+    <div class="row row-cols-1 row-cols-md-2 g-3">
         <div class="col">
             <div class="card h-100">
                 <div class="card-header">
@@ -333,7 +333,39 @@ $childMortalityPayload = [
     </div>
     <?php } ?>
 
-    <div class="row row-cols-1 row-cols-md-2 g-3 mt-1 mb-3">
+    <?php
+    // Lifespan by sex × century is a multi-series LineChart fed
+    // directly by the repository in the `{categories, series}`
+    // shape — no PHP-side re-shaping required.
+    $lifespanBySexCentury = $statistic->getAverageLifespanBySexAndCentury();
+?>
+    <?php if ($lifespanBySexCentury['categories'] !== []) { ?>
+    <div class="row row-cols-1 g-3">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('Average lifespan by sex × century'); ?></h5>
+                    <small><?php echo I18N::translate('Mean age at death per birth-century cohort, split by recorded sex.'); ?></small>
+                </div>
+                <div class="card-body">
+                    <?php
+        echo view(
+            $module . '::modules/statistics-chart/Partials/LineChart',
+            [
+                'identifier' => 'lifespan-by-sex-century',
+                'data'       => $lifespanBySexCentury,
+                'height'     => 280,
+                'ariaLabel'  => I18N::translate('Average lifespan by sex and century'),
+            ],
+        );
+        ?>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php } ?>
+
+    <div class="row row-cols-1 row-cols-md-2 g-3">
         <div class="col">
             <div class="card h-100">
                 <div class="card-header">
@@ -342,13 +374,13 @@ $childMortalityPayload = [
                 </div>
                 <div class="card-body">
                     <?php
-            echo view(
-                $module . '::modules/statistics-chart/Partials/ProgressList',
-                [
-                    'class' => 'progress-age-at-death',
-                    'data'  => $ageAtDeath,
-                ],
-            );
+                    echo view(
+                        $module . '::modules/statistics-chart/Partials/ProgressList',
+                        [
+                            'class' => 'progress-age-at-death',
+                            'data'  => $ageAtDeath,
+                        ],
+                    );
 ?>
                 </div>
             </div>
@@ -374,7 +406,7 @@ $childMortalityPayload = [
         </div>
     </div>
 
-    <div class="row row-cols-1 row-cols-md-2 g-3 mt-1 mb-3">
+    <div class="row row-cols-1 row-cols-md-2 g-3">
         <div class="col">
             <div class="card h-100">
                 <div class="card-header">
@@ -415,7 +447,7 @@ $childMortalityPayload = [
         </div>
     </div>
 
-    <div class="row row-cols-1 row-cols-md-2 g-3 mt-1">
+    <div class="row row-cols-1 row-cols-md-2 g-3">
         <div class="col">
             <div class="card h-100">
                 <div class="card-header">

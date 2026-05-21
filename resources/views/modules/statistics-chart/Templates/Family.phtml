@@ -135,7 +135,7 @@ $totalDivAgeF    = array_sum($divorceAgeF);
         </div>
     </div>
 
-    <div class="row row-cols-1 row-cols-md-2 g-3 mt-1 mb-3">
+    <div class="row row-cols-1 row-cols-md-2 g-3">
         <div class="col">
             <div class="card h-100">
                 <div class="card-header">
@@ -156,8 +156,8 @@ $totalDivAgeF    = array_sum($divorceAgeF);
 
 foreach ($duration as $label => $count) {
     $durationRows[] = [
-        'label'        => $label,
-        'value'        => (int) $count,
+        'label' => $label,
+        'value' => (int) $count,
         // `$label` is a range string like "0–9" or "60+", so the
         // unit suffix stays a sprintf placeholder rather than a
         // numeric plural form.
@@ -202,7 +202,7 @@ echo view(
         </div>
     </div>
 
-    <div class="row row-cols-1 row-cols-md-2 g-3 mt-1 mb-3">
+    <div class="row row-cols-1 row-cols-md-2 g-3">
         <div class="col">
             <div class="card h-100">
                 <div class="card-header">
@@ -292,7 +292,7 @@ $divorcesByCenturyPayload = [
 ];
 ?>
 
-    <div class="row g-3 mt-1 mb-3">
+    <div class="row g-3">
         <div class="col">
             <div class="card">
                 <div class="card-header">
@@ -314,7 +314,7 @@ $divorcesByCenturyPayload = [
         </div>
     </div>
 
-    <div class="row row-cols-1 g-3 mt-1 mb-3">
+    <div class="row row-cols-1 g-3">
         <div class="col">
             <div class="card h-100">
                 <div class="card-header">
@@ -333,7 +333,7 @@ $divorcesByCenturyPayload = [
         </div>
     </div>
 
-    <div class="row g-3 mt-1 mb-3">
+    <div class="row g-3">
         <div class="col">
             <div class="card">
                 <div class="card-header">
@@ -355,7 +355,7 @@ $divorcesByCenturyPayload = [
         </div>
     </div>
 
-    <div class="row row-cols-1 g-3 mt-1 mb-3">
+    <div class="row row-cols-1 g-3">
         <div class="col">
             <div class="card h-100">
                 <div class="card-header">
@@ -374,7 +374,7 @@ $divorcesByCenturyPayload = [
         </div>
     </div>
 
-    <div class="row row-cols-1 row-cols-md-2 g-3 mt-1 mb-3">
+    <div class="row row-cols-1 row-cols-md-2 g-3">
         <div class="col">
             <div class="card h-100">
                 <div class="card-header">
@@ -409,7 +409,7 @@ $divorcesByCenturyPayload = [
         </div>
     </div>
 
-    <div class="row row-cols-1 row-cols-md-2 g-3 mt-1 mb-3">
+    <div class="row row-cols-1 row-cols-md-2 g-3">
         <div class="col">
             <div class="card h-100">
                 <div class="card-header">
@@ -444,7 +444,7 @@ $divorcesByCenturyPayload = [
         </div>
     </div>
 
-    <div class="row row-cols-1 row-cols-md-2 g-3 mt-1 mb-3">
+    <div class="row row-cols-1 row-cols-md-2 g-3">
         <div class="col">
             <div class="card h-100">
                 <div class="card-header">
@@ -478,7 +478,7 @@ $divorcesByCenturyPayload = [
         </div>
     </div>
 
-    <div class="row row-cols-1 row-cols-md-2 g-3 mt-1 mb-3">
+    <div class="row row-cols-1 row-cols-md-2 g-3">
         <div class="col">
             <div class="card h-100">
                 <div class="card-header">
@@ -523,7 +523,7 @@ $divorcesByCenturyPayload = [
         </div>
     </div>
 
-    <div class="row row-cols-1 row-cols-md-2 g-3 mt-1 mb-3">
+    <div class="row row-cols-1 row-cols-md-2 g-3">
         <div class="col">
             <div class="card h-100">
                 <div class="card-header">
@@ -568,7 +568,7 @@ $divorcesByCenturyPayload = [
             'For every individual, this bucket counts how many generations of descendants are recorded below them in the tree. Bucket 0 = leaf (no descendants), bucket N = an individual whose deepest verified descendant is N generations younger. The shape tells you whether the tree is broadly wide (many leaves, low depth) or has a few unusually deep verified lines (small tail at the upper end).'
         );
         ?>
-    <div class="row row-cols-1 row-cols-md-2 g-3 mt-1 mb-3">
+    <div class="row row-cols-1 row-cols-md-2 g-3">
         <div class="col">
             <div class="card h-100">
                 <div class="card-header">
@@ -682,7 +682,7 @@ $divorcesByCenturyPayload = [
         'For every couple where both spouses have at least one parent recorded, the widget walks each spouse\'s ancestor tree up to four generations (parents, grandparents, great-grandparents, great-great-grandparents) and intersects the two sets. A non-empty intersection means the couple share at least one common ancestor — the classic signature of cousin marriage and pedigree collapse, typical in rural pre-industrial populations and rare in well-mixed urban ones. Couples where at least one spouse has no recorded parents cannot be tested and are excluded from both numerator and denominator, so the rate stays honest.'
     );
         ?>
-    <div class="row row-cols-1 g-3 mt-1 mb-3">
+    <div class="row row-cols-1 g-3">
         <div class="col">
             <div class="card h-100">
                 <div class="card-header">
