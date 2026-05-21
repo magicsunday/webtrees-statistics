@@ -466,8 +466,9 @@ final readonly class LifeSpanRepository
                 )
                 : I18N::translate('no data (n < %s)', I18N::number(self::MIN_COHORT_SIZE));
 
-            $maleTooltipLabels[]   = $label . ' ' . I18N::translate('Century');
-            $femaleTooltipLabels[] = $label . ' ' . I18N::translate('Century');
+            $longLabel             = CenturyName::longLabel($label);
+            $maleTooltipLabels[]   = $longLabel;
+            $femaleTooltipLabels[] = $longLabel;
         }
 
         return [

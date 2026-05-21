@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 use Fisharebest\Webtrees\I18N;
 use MagicSunday\Webtrees\Statistic\Statistic;
+use MagicSunday\Webtrees\Statistic\Support\CenturyName;
 use MagicSunday\Webtrees\Statistic\Support\HistogramTrim;
 
 /**
@@ -195,19 +196,52 @@ echo view(
     // Convert the signed `{label => count}` map the repository
     // returns into the DivergingBar row shape — sign comes from
     // the label's leading character (`-` / `<` mark the negative
-    // side, anything else is positive).
+    // side, anything else is positive). Strip the minus-prefix
+    // from negative bucket labels so the visual (sign) and the
+    // numeric range stay separate concerns: a "-15 to -11" bucket
+    // reads as "11 to 15 years (wife older)", not as a confusing
+    // negative range.
     $ageGapRows = [];
 
 foreach ($ageGap as $label => $count) {
-    $first        = $label !== '' ? $label[0] : '+';
-    $isNegative   = $first === '-' || $first === '<';
+    $first      = $label !== '' ? $label[0] : '+';
+    $isNegative = ($first === '-') || ($first === '<');
+
+    if ($isNegative) {
+        // "-15 to -11" → "11–15", "-30 to -26" → "26–30",
+        // "<-30" → ">30". The bucket-magnitude is preserved,
+        // just the sign-marker characters disappear.
+        if (str_starts_with($label, '<')) {
+            $cleaned = '>' . substr($label, 2); // "<-30" → ">30"
+        } else {
+            // "-A to -B" → "B–A" (swap so the lower number is first)
+            $parts = explode(' to ', $label);
+
+            if (count($parts) === 2) {
+                $lo      = abs((int) $parts[0]);
+                $hi      = abs((int) $parts[1]);
+                $cleaned = min($lo, $hi) . '–' . max($lo, $hi);
+            } else {
+                $cleaned = ltrim($label, '-');
+            }
+        }
+    } else {
+        $cleaned = $label;
+    }
+
+    // The repository computes `gapYears = hb_jd - wb_jd`. A
+    // negative gap means the husband was born first (smaller
+    // julian day) = husband older. A positive gap means the
+    // wife was born first or same year (husband younger or
+    // equal) = wife older. The pre-existing repository docstring
+    // was inverted; the tooltip labels below follow the math.
     $ageGapRows[] = [
-        'label'        => $label,
+        'label'        => $cleaned,
         'value'        => (int) $count,
         'sign'         => $isNegative ? -1 : 1,
         'tooltipLabel' => $isNegative
-            ? I18N::translate('Wife older by %s years', $label)
-            : I18N::translate('Husband older by %s years', $label),
+            ? I18N::translate('Husband older by %s years', $cleaned)
+            : I18N::translate('Wife older by %s years', $cleaned),
         'tooltip' => I18N::plural('%s couple', '%s couples', $count, I18N::number($count)),
     ];
 }
@@ -276,7 +310,7 @@ foreach ($byCentury as $century => $count) {
     $weddingsByCenturyCategories[] = (string) $century;
     $weddingsByCenturyValues[]     = (int) $count;
     $weddingsByCenturyTooltips[]   = I18N::plural('%s marriage', '%s marriages', $count, I18N::number($count));
-    $weddingsByCenturyHeaders[]    = $century . ' ' . I18N::translate('Century');
+    $weddingsByCenturyHeaders[]    = CenturyName::longLabel((string) $century);
 }
 
 $weddingsByCenturyPayload = [
@@ -300,7 +334,7 @@ foreach ($divorcesByCentury as $century => $count) {
     $divorcesByCenturyCategories[] = (string) $century;
     $divorcesByCenturyValues[]     = (int) $count;
     $divorcesByCenturyTooltips[]   = I18N::plural('%s divorce', '%s divorces', $count, I18N::number($count));
-    $divorcesByCenturyHeaders[]    = $century . ' ' . I18N::translate('Century');
+    $divorcesByCenturyHeaders[]    = CenturyName::longLabel((string) $century);
 }
 
 $divorcesByCenturyPayload = [
@@ -379,6 +413,49 @@ $divorcesByCenturyPayload = [
         </div>
     </div>
 
+    <?php
+    $divorcesAgeBand    = $statistic->getDivorcesByCenturyAndAgeBand();
+$divorcesAgeBandExplain = I18N::translate(
+    'Each bar is one century of recorded divorces. The segments split the bar into five life-stage age bands measured at the time of divorce (0–24, 25–34, 35–44, 45–54, 55+) plus an Unknown band for divorces with no usable birth date on either spouse. One tick per divorce, classified by the husband\'s age when present and the wife\'s age otherwise, so the per-century totals line up exactly with the divorces-by-century chart above. Hover any segment for the per-band count and the century total.'
+);
+?>
+    <div class="row g-3">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        <?php echo I18N::translate('Divorces by century × age band'); ?>
+                        <button
+                            type="button"
+                            class="wt-card-info-button"
+                            data-bs-toggle="popover"
+                            data-bs-trigger="hover focus"
+                            data-bs-placement="top"
+                            data-bs-html="false"
+                            data-bs-custom-class="wt-popover-wide"
+                            data-bs-title="<?php echo e(I18N::translate('About this chart')); ?>"
+                            data-bs-content="<?php echo e($divorcesAgeBandExplain); ?>"
+                            aria-label="<?php echo e(I18N::translate('About this chart')); ?>"
+                        >?</button>
+                    </h5>
+                    <small><?php echo I18N::translate('Per-century stack of spouse ages at divorce.'); ?></small>
+                </div>
+                <div class="card-body">
+                    <?php
+    echo view(
+        $module . '::modules/statistics-chart/Partials/StackedBar',
+        [
+            'identifier' => 'divorces-age-band-stacked',
+            'data'       => $divorcesAgeBand,
+            'ariaLabel'  => I18N::translate('Divorces by century and age band'),
+        ],
+    );
+?>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row row-cols-1 g-3">
         <div class="col">
             <div class="card h-100">
@@ -388,10 +465,10 @@ $divorcesByCenturyPayload = [
                 </div>
                 <div class="card-body">
                     <?php
-    echo view(
-        $module . '::modules/statistics-chart/Partials/ProgressList',
-        ['class' => 'progress-divorces-month', 'data' => $divorcesByMonth],
-    );
+            echo view(
+                $module . '::modules/statistics-chart/Partials/ProgressList',
+                ['class' => 'progress-divorces-month', 'data' => $divorcesByMonth],
+            );
 ?>
                 </div>
             </div>

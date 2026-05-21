@@ -609,6 +609,21 @@ final readonly class Statistic
     }
 
     /**
+     * Divorces cross-tabulated by divorce century and age-band —
+     * feeds the StackedBar widget on the Family tab.
+     *
+     * @return array{
+     *     categories: list<string>,
+     *     tooltipLabels: list<string>,
+     *     series: list<array{name: string, data: list<int>, class: string}>
+     * }
+     */
+    public function getDivorcesByCenturyAndAgeBand(): array
+    {
+        return $this->divorceRepository->divorcesByCenturyAndAgeBand();
+    }
+
+    /**
      * Average number of children per family across the whole tree.
      */
     public function getAverageChildrenPerFamily(): float

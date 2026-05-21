@@ -74,4 +74,17 @@ final readonly class CenturyName
             default => I18N::translate('%s century', (string) $century),
         });
     }
+
+    /**
+     * Append the localised "Century" noun to a short ordinal label,
+     * producing the long form widget tooltips use ("20th Century" /
+     * "20. Jahrhundert"). Accepts either an already-formatted short
+     * label (the output of `self::for()` or core's
+     * `countEventsByCentury` map keys) so PHTML loops and repository
+     * code share the same suffix logic.
+     */
+    public static function longLabel(string $short): string
+    {
+        return $short . ' ' . I18N::translate('Century');
+    }
 }

@@ -53,7 +53,7 @@ foreach ($birthsByCentury as $century => $count) {
     $birthsByCenturyCategories[] = (string) $century;
     $birthsByCenturyValues[]     = (int) $count;
     $birthsByCenturyTooltips[]   = I18N::plural('%s birth', '%s births', $count, I18N::number($count));
-    $birthsByCenturyHeaders[]    = $century . ' ' . I18N::translate('Century');
+    $birthsByCenturyHeaders[]    = CenturyName::longLabel((string) $century);
 }
 
 $birthsByCenturyPayload = [
@@ -77,7 +77,7 @@ foreach ($deathsByCentury as $century => $count) {
     $deathsByCenturyCategories[] = (string) $century;
     $deathsByCenturyValues[]     = (int) $count;
     $deathsByCenturyTooltips[]   = I18N::plural('%s death', '%s deaths', $count, I18N::number($count));
-    $deathsByCenturyHeaders[]    = $century . ' ' . I18N::translate('Century');
+    $deathsByCenturyHeaders[]    = CenturyName::longLabel((string) $century);
 }
 
 $deathsByCenturyPayload = [
@@ -107,7 +107,7 @@ foreach ($childMortalityByCentury as $entry) {
         I18N::number($entry['died']),
         I18N::number($entry['total']),
     );
-    $childMortalityHeaders[] = $label . ' ' . I18N::translate('Century');
+    $childMortalityHeaders[] = CenturyName::longLabel($label);
 }
 
 $childMortalityPayload = [

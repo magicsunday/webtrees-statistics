@@ -1,0 +1,39 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
+
+use Fisharebest\Webtrees\I18N;
+
+/**
+ * @var string $identifier Host element id
+ * @var array{
+ *     categories: array<int, string>,
+ *     tooltipLabels?: array<int, string>,
+ *     series: array<int, array{name: string, data: array<int, int>, class?: string}>
+ * }                                            $data       Stacked-bar payload: categories + per-series counts
+ * @var int|null    $height     Optional viewport height (defaults to 280)
+ * @var bool|null   $legend     Toggle the legend row (default true)
+ * @var string|null $ariaLabel  Accessible label on the host svg
+ */
+$height ??= 280;
+?>
+<div class="wt-stacked-bar-container">
+    <div id="<?php echo e($identifier); ?>"
+         class="wt-stacked-bar-host"
+         data-widget="stacked-bar"
+         data-payload="<?php echo e(json_encode($data, JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE)); ?>"
+         data-options="<?php echo e(json_encode([
+             'height'    => $height,
+             'legend'    => $legend ?? null,
+             'ariaLabel' => $ariaLabel ?? null,
+         ], JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE)); ?>"
+         data-empty-message="<?php echo e(I18N::translate('No data available yet.')); ?>"
+    ></div>
+</div>

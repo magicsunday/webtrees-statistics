@@ -52,11 +52,13 @@
     --wmstats-widowed:                     rgb(141, 186, 159);
     --wmstats-divorced:                    rgb(255, 201, 156);
 
-    /* LifeSpan age-band donut */
+    /* LifeSpan age-band donut + Divorce-by-century × age-band stack */
     --wmstats-age-band-0:                  rgb(255, 200, 130);
     --wmstats-age-band-1:                  rgb(141, 186, 159);
     --wmstats-age-band-2:                  rgb(122, 156, 219);
     --wmstats-age-band-3:                  rgb(181, 177, 255);
+    --wmstats-age-band-4:                  rgb(238, 145, 178);
+    --wmstats-age-band-unknown:            rgb(204, 204, 204);
 
     /* Children-vs-childless donut */
     --wmstats-with-children:               rgb(141, 186, 159);
@@ -207,6 +209,16 @@
 .wt-statistics-chart .age-band-3 {
     fill:             var(--wmstats-age-band-3);
     background-color: var(--wmstats-age-band-3);
+}
+
+.wt-statistics-chart .age-band-4 {
+    fill:             var(--wmstats-age-band-4);
+    background-color: var(--wmstats-age-band-4);
+}
+
+.wt-statistics-chart .age-band-unknown {
+    fill:             var(--wmstats-age-band-unknown);
+    background-color: var(--wmstats-age-band-unknown);
 }
 
 .wt-statistics-chart .with-children {
@@ -882,5 +894,67 @@
  */
 .wt-statistics-chart svg.wt-diverging-bar:has(rect.bar:hover) rect.bar:not(:hover),
 .wt-statistics-chart svg.wt-diverging-bar:has(rect.bar.is-selected) rect.bar:not(.is-selected) {
+    opacity: 0.35;
+}
+
+/* ----------------------------------------------------------------------
+   Stacked bar chart (chart-lib StackedBar)
+   -------------------------------------------------------------------- */
+
+.wt-statistics-chart .wt-stacked-bar-container {
+    width:  100%;
+    height: auto;
+}
+
+.wt-statistics-chart .wt-stacked-bar-host {
+    display:  block;
+    width:    100%;
+    position: relative;
+}
+
+.wt-statistics-chart svg.wt-stacked-bar {
+    width:  100%;
+    height: auto;
+    display: block;
+}
+
+.wt-statistics-chart svg.wt-stacked-bar rect.bar {
+    transition: opacity 200ms ease-out;
+}
+
+.wt-statistics-chart svg.wt-stacked-bar .x-axis text,
+.wt-statistics-chart svg.wt-stacked-bar .y-axis text {
+    fill:      var(--bs-body-color);
+    font-size: 0.7rem;
+}
+
+.wt-statistics-chart svg.wt-stacked-bar .x-axis path,
+.wt-statistics-chart svg.wt-stacked-bar .y-axis path,
+.wt-statistics-chart svg.wt-stacked-bar .x-axis line,
+.wt-statistics-chart svg.wt-stacked-bar .y-axis line {
+    stroke: var(--bs-border-color, rgb(221, 221, 221));
+}
+
+/*
+ * Legend row below the x-axis. The swatch picks up its fill from
+ * the matching `.age-band-N` rule so band-colour and legend stay
+ * in lockstep.
+ */
+.wt-statistics-chart svg.wt-stacked-bar .stack-legend .legend-swatch {
+    stroke:       var(--bs-border-color, rgb(221, 221, 221));
+    stroke-width: 0.5;
+}
+
+.wt-statistics-chart svg.wt-stacked-bar .stack-legend .legend-label {
+    fill:      var(--bs-body-color);
+    font-size: 0.7rem;
+}
+
+/*
+ * Hover dim mirrors the BarChart / DivergingBar pattern so a
+ * focused segment reads against a softened backdrop.
+ */
+.wt-statistics-chart svg.wt-stacked-bar:has(rect.bar:hover) rect.bar:not(:hover),
+.wt-statistics-chart svg.wt-stacked-bar:has(rect.bar.is-selected) rect.bar:not(.is-selected) {
     opacity: 0.35;
 }

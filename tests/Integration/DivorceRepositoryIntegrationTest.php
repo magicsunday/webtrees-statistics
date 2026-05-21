@@ -17,6 +17,9 @@ use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Repository\DivorceRepository;
 use PHPUnit\Framework\Attributes\Test;
 
+use function array_column;
+use function array_combine;
+use function array_map;
 use function array_sum;
 
 /**
@@ -129,6 +132,139 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame(1, $result['40–44'] ?? null);
         self::assertSame(1, $result['45–49'] ?? null);
         self::assertSame(3, array_sum($result));
+    }
+
+    /**
+     * `divorcesByCenturyAndAgeBand` classifies F1 (Alf 40) into the
+     * 35–44 band of the 20th century and F2 (Bert 50) + F4 (Dirk 45)
+     * into the 45–54 band of the 21st century. The legend always
+     * carries all six bands (five age cohorts + Unknown), even when
+     * a band has zero counts everywhere, so the reader sees the
+     * complete age scale.
+     */
+    #[Test]
+    public function divorcesByCenturyAndAgeBandBucketsByHusbandAge(): void
+    {
+        $tree   = $this->importFixtureTree('divorce.ged');
+        $result = $this->repository($tree)->divorcesByCenturyAndAgeBand();
+
+        self::assertSame(['20th', '21st'], $result['categories']);
+        self::assertSame(['20th Century', '21st Century'], $result['tooltipLabels']);
+
+        // Every band must appear in the legend regardless of zeros.
+        $bandNames = array_column($result['series'], 'name');
+        self::assertSame(
+            ['0–24', '25–34', '35–44', '45–54', '55+', 'Unknown'],
+            $bandNames,
+        );
+
+        $perBand = array_combine($bandNames, array_column($result['series'], 'data'));
+
+        self::assertSame([1, 0], $perBand['35–44']);
+        self::assertSame([0, 2], $perBand['45–54']);
+        self::assertSame([0, 0], $perBand['0–24']);
+        self::assertSame([0, 0], $perBand['25–34']);
+        self::assertSame([0, 0], $perBand['55+']);
+        self::assertSame([0, 0], $perBand['Unknown']);
+    }
+
+    /**
+     * Totals invariant: summing every band across every century must
+     * equal the grand total of `divorcesByCentury`. The widget is
+     * built around the side-by-side comparison, so this catches the
+     * double-counting regression where iterating both spouse-birth
+     * columns rendered twice the sample size. Per-century equality
+     * is asserted separately by the classification tests — checking
+     * it through `divorcesByCentury` here would couple the test to
+     * core's SQL `ROUND` century formula, which diverges from the
+     * PHP `intdiv` formula under SQLite's integer division and is
+     * irrelevant to the cross-card invariant.
+     */
+    #[Test]
+    public function divorcesByCenturyAndAgeBandPreservesGrandTotal(): void
+    {
+        $tree    = $this->importFixtureTree('divorce.ged');
+        $repo    = $this->repository($tree);
+        $stacked = $repo->divorcesByCenturyAndAgeBand();
+
+        $stackedGrandTotal = array_sum(array_map(
+            static fn (array $series): int => array_sum($series['data']),
+            $stacked['series'],
+        ));
+
+        self::assertSame(array_sum($repo->divorcesByCentury()), $stackedGrandTotal);
+    }
+
+    /**
+     * Husband-missing, wife-only and no-BIRT-at-all rows must still
+     * count toward the per-century totals — via the wife-fallback
+     * branch and the Unknown catch-all, respectively. The 150-year
+     * age in F4 is a data-entry typo and lands in Unknown rather
+     * than being silently dropped.
+     *
+     * Fixture (divorce-age-bands.ged):
+     *   F1 Hugo 1900 + Hilde 1903, DIV 1990 → husband 90 → 55+
+     *   F2 Walter (no BIRT) + Wilma 1955, DIV 1995 → wife 40 → 35–44
+     *   F3 Mark + Mira (no BIRT), DIV 2010 → Unknown
+     *   F4 Otto 1700 + Olga 1705, DIV 1850 → age 150 typo → Unknown
+     */
+    #[Test]
+    public function divorcesByCenturyAndAgeBandRoutesMissingAgesToUnknown(): void
+    {
+        $tree   = $this->importFixtureTree('divorce-age-bands.ged');
+        $result = $this->repository($tree)->divorcesByCenturyAndAgeBand();
+
+        self::assertSame(['19th', '20th', '21st'], $result['categories']);
+
+        $perBand = array_combine(
+            array_column($result['series'], 'name'),
+            array_column($result['series'], 'data'),
+        );
+
+        // Hugo 90 (55+, 20th) + Wilma 40 wife-fallback (35–44, 20th).
+        self::assertSame([0, 1, 0], $perBand['55+']);
+        self::assertSame([0, 1, 0], $perBand['35–44']);
+
+        // F3 (no BIRT) → 21st Unknown; F4 (age 150 typo) → 19th Unknown.
+        self::assertSame([1, 0, 1], $perBand['Unknown']);
+    }
+
+    /**
+     * Grand-total invariant on the sparsely-dated fixture: every
+     * row that `divorcesByCentury` counts must end up in some band
+     * (no-BIRT rows in Unknown, age typos in Unknown, valid ages in
+     * the matching life-stage band). 4 divorces → 4 ticks total.
+     */
+    #[Test]
+    public function divorcesByCenturyAndAgeBandReconcilesGrandTotalOnSparseTree(): void
+    {
+        $tree    = $this->importFixtureTree('divorce-age-bands.ged');
+        $repo    = $this->repository($tree);
+        $stacked = $repo->divorcesByCenturyAndAgeBand();
+
+        $stackedGrandTotal = array_sum(array_map(
+            static fn (array $series): int => array_sum($series['data']),
+            $stacked['series'],
+        ));
+
+        self::assertSame(4, array_sum($repo->divorcesByCentury()));
+        self::assertSame(4, $stackedGrandTotal);
+    }
+
+    /**
+     * Empty tree returns the empty `{categories, tooltipLabels,
+     * series}` shape — chart-lib's empty-state placeholder picks up
+     * the absence and renders the "no data" message.
+     */
+    #[Test]
+    public function divorcesByCenturyAndAgeBandRendersEmptyOnZeroDivorces(): void
+    {
+        $tree   = $this->importFixtureTree('empty-marriages.ged');
+        $result = $this->repository($tree)->divorcesByCenturyAndAgeBand();
+
+        self::assertSame([], $result['categories']);
+        self::assertSame([], $result['tooltipLabels']);
+        self::assertSame([], $result['series']);
     }
 
     /**
