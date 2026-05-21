@@ -11,15 +11,20 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
+use Fisharebest\Webtrees\Family;
+use Fisharebest\Webtrees\Individual;
+use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\StatisticsData;
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
+use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Support\AgeBuckets;
 
 use function abs;
 use function intdiv;
 use function is_numeric;
+use function is_string;
 
 /**
  * Marriage-related aggregations for the Family tab. Combines core's
@@ -105,6 +110,285 @@ final readonly class MarriageRepository
      */
     public function durationDistribution(): array
     {
+        $buckets = AgeBuckets::init(0, self::DURATION_MAX, self::DURATION_BUCKET);
+
+        foreach ($this->marriageDurationPairs() as $pair) {
+            $years           = intdiv($pair['endJd'] - $pair['marrJd'], 365);
+            $label           = AgeBuckets::label($years, self::DURATION_MAX, self::DURATION_BUCKET);
+            $buckets[$label] = ($buckets[$label] ?? 0) + 1;
+        }
+
+        return $buckets;
+    }
+
+    /**
+     * Single longest-marriage record holder: the family with the
+     * biggest (end julian-day − MARR julian-day) delta, where the
+     * end is whichever happened first — DIV, husband's DEAT or
+     * wife's DEAT. Returns null when no family has both a MARR
+     * date AND a determinable end date. Capped at 90 years.
+     *
+     * @return array{family: Family, durationYears: int}|null
+     */
+    public function longestMarriageRecord(): ?array
+    {
+        $bestYears = 0;
+        $bestXref  = null;
+
+        foreach ($this->marriageDurationPairs() as $pair) {
+            $years = intdiv($pair['endJd'] - $pair['marrJd'], 365);
+
+            if ($years > $bestYears) {
+                $bestYears = $years;
+                $bestXref  = $pair['xref'];
+            }
+        }
+
+        if (($bestXref === null) || ($bestYears <= 0) || ($bestYears > 90)) {
+            return null;
+        }
+
+        $family = Registry::familyFactory()->make($bestXref, $this->tree);
+
+        if (!$family instanceof Family) {
+            return null;
+        }
+
+        return ['family' => $family, 'durationYears' => $bestYears];
+    }
+
+    /**
+     * Shortest recorded marriage: smallest positive
+     * `(end julian-day − MARR julian-day)` delta. A divorce one
+     * day after the wedding wins; same-day end is excluded by the
+     * `endJd > marrJd` guard on the underlying iterator. Returns
+     * the duration in days rather than years so a one-week or
+     * one-month "fastest split" stays meaningful.
+     *
+     * @return array{family: Family, durationDays: int}|null
+     */
+    public function shortestMarriageRecord(): ?array
+    {
+        $bestDays = null;
+        $bestXref = null;
+
+        foreach ($this->marriageDurationPairs() as $pair) {
+            $days = $pair['endJd'] - $pair['marrJd'];
+
+            if (($bestDays === null) || ($days < $bestDays)) {
+                $bestDays = $days;
+                $bestXref = $pair['xref'];
+            }
+        }
+
+        if (($bestXref === null) || ($bestDays <= 0)) {
+            return null;
+        }
+
+        $family = Registry::familyFactory()->make($bestXref, $this->tree);
+
+        if (!$family instanceof Family) {
+            return null;
+        }
+
+        return ['family' => $family, 'durationDays' => $bestDays];
+    }
+
+    /**
+     * Youngest spouse at marriage: smallest positive (MARR julian-
+     * day − spouse-BIRT julian-day) across the tree. Restricted to
+     * one sex per call ('M' = husband, 'F' = wife). Implausible
+     * young ages (< 10) are dropped to filter out data-entry
+     * errors where BIRT and MARR were swapped.
+     *
+     * @param string $sex 'M' for husbands, 'F' for wives
+     *
+     * @return array{individual: Individual, ageYears: int}|null
+     */
+    public function youngestSpouseAtMarriageRecord(string $sex): ?array
+    {
+        $best = null;
+
+        foreach ($this->spouseAgeAtMarriage($sex) as $entry) {
+            if ($entry['years'] < 10) {
+                continue;
+            }
+
+            if ($entry['years'] > 90) {
+                continue;
+            }
+
+            if (($best === null) || ($entry['years'] < $best['years'])) {
+                $best = $entry;
+            }
+        }
+
+        if ($best === null) {
+            return null;
+        }
+
+        $individual = Registry::individualFactory()->make($best['xref'], $this->tree);
+
+        if (!$individual instanceof Individual) {
+            return null;
+        }
+
+        return ['individual' => $individual, 'ageYears' => $best['years']];
+    }
+
+    /**
+     * Oldest spouse at marriage: mirror of {@see youngestSpouseAtMarriageRecord()}.
+     *
+     * @param string $sex 'M' for husbands, 'F' for wives
+     *
+     * @return array{individual: Individual, ageYears: int}|null
+     */
+    public function oldestSpouseAtMarriageRecord(string $sex): ?array
+    {
+        $best = null;
+
+        foreach ($this->spouseAgeAtMarriage($sex) as $entry) {
+            if ($entry['years'] < 10) {
+                continue;
+            }
+
+            if ($entry['years'] > 90) {
+                continue;
+            }
+
+            if (($best === null) || ($entry['years'] > $best['years'])) {
+                $best = $entry;
+            }
+        }
+
+        if ($best === null) {
+            return null;
+        }
+
+        $individual = Registry::individualFactory()->make($best['xref'], $this->tree);
+
+        if (!$individual instanceof Individual) {
+            return null;
+        }
+
+        return ['individual' => $individual, 'ageYears' => $best['years']];
+    }
+
+    /**
+     * Most marriages per individual: the person who participated
+     * in the largest number of FAM records (as husband or wife).
+     * Recorded via the `link` table — one FAMS link per marriage.
+     *
+     * @return array{individual: Individual, count: int}|null
+     */
+    public function mostSpousesRecord(): ?array
+    {
+        $row = DB::table('link')
+            ->where('l_file', '=', $this->tree->id())
+            ->where('l_type', '=', 'FAMS')
+            ->groupBy('l_from')
+            ->orderByRaw('COUNT(*) DESC')
+            ->select(['l_from AS xref', new Expression('COUNT(*) AS marriage_count')])
+            ->first();
+
+        if ($row === null) {
+            return null;
+        }
+
+        $xref  = is_string($row->xref ?? null) ? $row->xref : '';
+        $count = is_numeric($row->marriage_count ?? null) ? (int) $row->marriage_count : 0;
+
+        if (($xref === '') || ($count < 2)) {
+            return null;
+        }
+
+        $individual = Registry::individualFactory()->make($xref, $this->tree);
+
+        if (!$individual instanceof Individual) {
+            return null;
+        }
+
+        return ['individual' => $individual, 'count' => $count];
+    }
+
+    /**
+     * Per-spouse age at marriage. Loops the existing core query
+     * once per row and looks up the parent FAM's husband or wife
+     * xref so the same row contributes to both age-at-marriage
+     * histograms AND the youngest/oldest-spouse records.
+     *
+     * @param string $sex 'M' or 'F'
+     *
+     * @return iterable<int, array{years: int, xref: string}>
+     */
+    private function spouseAgeAtMarriage(string $sex): iterable
+    {
+        $spouseColumn = ($sex === 'F') ? 'f_wife' : 'f_husb';
+
+        $rows = DB::table('families AS fam')
+            ->where('fam.f_file', '=', $this->tree->id())
+            ->join('dates AS marr', static function (JoinClause $join): void {
+                $join
+                    ->on('marr.d_file', '=', 'fam.f_file')
+                    ->on('marr.d_gid', '=', 'fam.f_id')
+                    ->where('marr.d_fact', '=', 'MARR')
+                    ->whereIn('marr.d_type', ['@#DGREGORIAN@', '@#DJULIAN@'])
+                    ->where('marr.d_julianday1', '>', 0);
+            })
+            ->join('dates AS birth', static function (JoinClause $join) use ($spouseColumn): void {
+                $join
+                    ->on('birth.d_file', '=', 'fam.f_file')
+                    ->on('birth.d_gid', '=', 'fam.' . $spouseColumn)
+                    ->where('birth.d_fact', '=', 'BIRT')
+                    ->whereIn('birth.d_type', ['@#DGREGORIAN@', '@#DJULIAN@'])
+                    ->where('birth.d_julianday1', '>', 0);
+            })
+            ->select([
+                'fam.' . $spouseColumn . ' AS xref',
+                'marr.d_julianday1 AS marr_jd',
+                'birth.d_julianday1 AS birth_jd',
+            ])
+            ->get();
+
+        foreach ($rows as $row) {
+            $marrJd  = is_numeric($row->marr_jd ?? null) ? (int) $row->marr_jd : 0;
+            $birthJd = is_numeric($row->birth_jd ?? null) ? (int) $row->birth_jd : 0;
+            $xref    = is_string($row->xref ?? null) ? $row->xref : '';
+
+            if ($xref === '') {
+                continue;
+            }
+
+            if ($marrJd <= 0) {
+                continue;
+            }
+
+            if ($birthJd <= 0) {
+                continue;
+            }
+
+            if ($marrJd <= $birthJd) {
+                continue;
+            }
+
+            yield ['years' => intdiv($marrJd - $birthJd, 365), 'xref' => $xref];
+        }
+    }
+
+    /**
+     * Iterate every family that has both a parseable MARR date AND
+     * a determinable marriage-end julian-day, yielding the raw
+     * `{marrJd, endJd, xref}` triple. Callers turn it into years
+     * (durationDistribution, longestMarriageRecord) or days
+     * (shortestMarriageRecord) themselves. The end julian-day is
+     * the earliest of DIV / husband-DEAT / wife-DEAT, so the row
+     * that survives is the one webtrees considers the marriage's
+     * true terminus.
+     *
+     * @return iterable<int, array{marrJd: int, endJd: int, xref: string}>
+     */
+    private function marriageDurationPairs(): iterable
+    {
         $rows = DB::table('families')
             ->where('f_file', '=', $this->tree->id())
             ->join('dates AS marr', static function (JoinClause $join): void {
@@ -136,6 +420,7 @@ final readonly class MarriageRepository
                     ->whereIn('wife_d.d_type', ['@#DGREGORIAN@', '@#DJULIAN@']);
             })
             ->select([
+                'f_id AS xref',
                 'marr.d_julianday1 AS marr_jd',
                 'divr.d_julianday1 AS div_jd',
                 'husb_d.d_julianday1 AS husb_jd',
@@ -143,12 +428,15 @@ final readonly class MarriageRepository
             ])
             ->get();
 
-        $buckets = AgeBuckets::init(0, self::DURATION_MAX, self::DURATION_BUCKET);
-
         foreach ($rows as $row) {
             $marrJd = is_numeric($row->marr_jd ?? null) ? (int) $row->marr_jd : 0;
+            $xref   = is_string($row->xref ?? null) ? $row->xref : '';
 
             if ($marrJd <= 0) {
+                continue;
+            }
+
+            if ($xref === '') {
                 continue;
             }
 
@@ -166,13 +454,8 @@ final readonly class MarriageRepository
                 continue;
             }
 
-            $years = intdiv($endJd - $marrJd, 365);
-            $label = AgeBuckets::label($years, self::DURATION_MAX, self::DURATION_BUCKET);
-
-            $buckets[$label] = ($buckets[$label] ?? 0) + 1;
+            yield ['marrJd' => $marrJd, 'endJd' => $endJd, 'xref' => $xref];
         }
-
-        return $buckets;
     }
 
     /**

@@ -243,6 +243,111 @@ final readonly class LifeSpanRepository
     }
 
     /**
+     * Single oldest-deceased record holder: the individual with the
+     * largest DEAT − BIRT julian-day delta, capped at 120 years so
+     * a single typo cannot win the slot. Used by the Hall-of-Fame
+     * widget on the Overview tab.
+     *
+     * @return array{individual: Individual, ageYears: int}|null
+     */
+    public function oldestDeceasedRecord(): ?array
+    {
+        $maxAge = $this->maxPlausibleAge();
+
+        // Walk top-N until a plausible age (≤ MAX_ALIVE_AGE) wins;
+        // data-entry typos like "DEAT 9999" otherwise steal the
+        // slot. Scan depth 10 is enough — real outliers always
+        // have a real record-holder just below them.
+        foreach ($this->data->topTenOldestQuery('ALL', 10) as $entry) {
+            $individual = $entry->individual ?? null;
+            $days       = $entry->days ?? 0;
+
+            if (!$individual instanceof Individual) {
+                continue;
+            }
+
+            $years = intdiv($days, 365);
+
+            if ($years <= 0) {
+                continue;
+            }
+
+            if ($years > $maxAge) {
+                continue;
+            }
+
+            return ['individual' => $individual, 'ageYears' => $years];
+        }
+
+        return null;
+    }
+
+    /**
+     * Single oldest-living record holder: the individual without a
+     * recorded DEAT whose BIRT julian-day is earliest in the tree,
+     * capped at 120 years to discard implausible BIRT typos.
+     *
+     * @return array{individual: Individual, ageYears: int}|null
+     */
+    public function oldestLivingRecord(): ?array
+    {
+        $today          = getdate();
+        $todayJulianDay = GregorianToJD($today['mon'], $today['mday'], $today['year']);
+        $maxAge         = $this->maxPlausibleAge();
+
+        // Same walk-until-plausible loop as oldestDeceasedRecord —
+        // an obviously-wrong BIRT year cannot drag the slot empty.
+        foreach ($this->data->topTenOldestAliveQuery('ALL', 10) as $individual) {
+            $birthDate = $individual->getBirthDate();
+
+            if (!$birthDate->isOK()) {
+                continue;
+            }
+
+            $birthJd = $birthDate->minimumJulianDay();
+
+            if ($birthJd <= 0) {
+                continue;
+            }
+
+            $years = intdiv($todayJulianDay - $birthJd, 365);
+
+            if ($years <= 0) {
+                continue;
+            }
+
+            if ($years > $maxAge) {
+                continue;
+            }
+
+            return ['individual' => $individual, 'ageYears' => $years];
+        }
+
+        return null;
+    }
+
+    /**
+     * Per-tree plausibility ceiling for "max lifespan" / "max age
+     * still considered alive" — webtrees keeps this as the
+     * `MAX_ALIVE_AGE` preference on every tree (default 120).
+     * Falls back to 120 when the preference is missing or
+     * non-numeric so a fresh-import tree without preferences
+     * still produces sensible records.
+     */
+    private function maxPlausibleAge(): int
+    {
+        $pref = $this->tree->getPreference('MAX_ALIVE_AGE');
+
+        if (!is_numeric($pref)) {
+            return 120;
+        }
+
+        $value = (int) $pref;
+
+        return $value > 0 ? $value : 120;
+    }
+
+    /**
      * Living-individual count grouped by life-stage age-band. The
      * `data-widget=donut` partial reads this as
      * `[{label, value, class}]`; the `class` slot is wired through

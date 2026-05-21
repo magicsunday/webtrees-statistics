@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic;
 
+use Fisharebest\Webtrees\Family;
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\StatisticsData;
@@ -410,6 +411,44 @@ final readonly class Statistic
     public function getEndogamySummary(): ?array
     {
         return $this->endogamyRepository->summary();
+    }
+
+    /**
+     * Hall-of-fame style record holders bundled into a single
+     * structure the view can render as a table. Each entry is
+     * either null (record could not be established for this tree)
+     * or carries the resolved Individual / Family object plus the
+     * extreme value the record-holder reached.
+     *
+     * @return array{
+     *     oldestDeceased:   array{individual: Individual, ageYears: int}|null,
+     *     oldestLiving:     array{individual: Individual, ageYears: int}|null,
+     *     longestMarriage:  array{family: Family, durationYears: int}|null,
+     *     shortestMarriage: array{family: Family, durationDays: int}|null,
+     *     youngestHusband:  array{individual: Individual, ageYears: int}|null,
+     *     youngestWife:     array{individual: Individual, ageYears: int}|null,
+     *     oldestHusband:    array{individual: Individual, ageYears: int}|null,
+     *     oldestWife:       array{individual: Individual, ageYears: int}|null,
+     *     mostSpouses:      array{individual: Individual, count: int}|null,
+     *     mostResidences:   array{individual: Individual, count: int}|null,
+     *     largestFamily:    array{family: Family, count: int}|null
+     * }
+     */
+    public function getTreeRecords(): array
+    {
+        return [
+            'oldestDeceased'   => $this->lifeSpanRepository->oldestDeceasedRecord(),
+            'oldestLiving'     => $this->lifeSpanRepository->oldestLivingRecord(),
+            'longestMarriage'  => $this->marriageRepository->longestMarriageRecord(),
+            'shortestMarriage' => $this->marriageRepository->shortestMarriageRecord(),
+            'youngestHusband'  => $this->marriageRepository->youngestSpouseAtMarriageRecord('M'),
+            'youngestWife'     => $this->marriageRepository->youngestSpouseAtMarriageRecord('F'),
+            'oldestHusband'    => $this->marriageRepository->oldestSpouseAtMarriageRecord('M'),
+            'oldestWife'       => $this->marriageRepository->oldestSpouseAtMarriageRecord('F'),
+            'mostSpouses'      => $this->marriageRepository->mostSpousesRecord(),
+            'mostResidences'   => $this->countryRepository->mostResidencesRecord(),
+            'largestFamily'    => $this->childrenRepository->largestFamilyRecord(),
+        ];
     }
 
     /**

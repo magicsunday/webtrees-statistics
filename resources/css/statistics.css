@@ -297,6 +297,19 @@
     --bs-progress-label-gradient-end:   rgb(110, 75, 170);
 }
 
+.wt-statistics-chart .wt-records-table th {
+    width:        14rem;
+    font-weight:  600;
+    color:        var(--bs-secondary-color);
+}
+
+.wt-statistics-chart .wt-records-table td:nth-child(2) {
+    width:        8rem;
+    white-space:  nowrap;
+    text-align:   right;
+    font-variant: tabular-nums;
+}
+
 .wt-statistics-chart .wt-generation-chain-list {
     display:          flex;
     flex-wrap:        wrap;

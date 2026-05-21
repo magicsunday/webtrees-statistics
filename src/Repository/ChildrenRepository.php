@@ -229,6 +229,33 @@ final readonly class ChildrenRepository
     }
 
     /**
+     * Single largest-family record holder: the family with the
+     * highest `f_numchil` count. Returns null when the tree has
+     * no family with at least one child.
+     *
+     * @return array{family: Family, count: int}|null
+     */
+    public function largestFamilyRecord(): ?array
+    {
+        foreach ($this->data->familiesWithTheMostChildren(1) as $entry) {
+            $family   = $entry->family ?? null;
+            $children = $entry->children ?? 0;
+
+            if (!$family instanceof Family) {
+                continue;
+            }
+
+            if ($children <= 0) {
+                continue;
+            }
+
+            return ['family' => $family, 'count' => $children];
+        }
+
+        return null;
+    }
+
+    /**
      * Childless-families donut data: {with, without} counts.
      *
      * @return list<array{label: string, value: int, class: string}>
