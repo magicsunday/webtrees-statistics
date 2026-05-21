@@ -380,7 +380,7 @@ $totalDivAgeF    = array_sum($divorceAgeF);
                     <?php
     echo view(
         $module . '::modules/statistics-chart/Partials/ProgressList',
-        ['class' => 'progress-divorce-cohort', 'data' => $cohortRatePercent],
+        ['class' => 'progress-divorce-cohort', 'data' => $cohortRatePercent, 'suffix' => '%'],
     );
 ?>
                 </div>

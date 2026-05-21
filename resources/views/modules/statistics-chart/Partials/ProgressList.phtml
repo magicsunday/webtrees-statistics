@@ -15,7 +15,9 @@ use Fisharebest\Webtrees\Tree;
  * @var Tree               $tree
  * @var array<string, int> $data
  * @var string             $class
+ * @var string             $suffix Optional unit appended to every value cell (e.g. "%")
  */
+$suffix ??= '';
 ?>
 <div class="wt-births-list">
     <table class="progress-bar-table">
@@ -26,7 +28,7 @@ use Fisharebest\Webtrees\Tree;
 
                 <tr>
                     <td class="label"><small><?php echo e($key); ?></small></td>
-                    <td class="value"><small><?php echo e((string) $value); ?></small></td>
+                    <td class="value"><small><?php echo e($value . $suffix); ?></small></td>
                 </tr>
                 <tr>
                     <td colspan="2" class="pb-2">

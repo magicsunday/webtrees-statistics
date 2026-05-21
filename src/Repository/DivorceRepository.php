@@ -16,9 +16,12 @@ use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\JoinClause;
 
+use function array_keys;
+use function array_slice;
 use function intdiv;
 use function is_numeric;
 use function ksort;
+use function max;
 use function round;
 
 /**
@@ -146,8 +149,17 @@ final readonly class DivorceRepository
      * is keyed by decade label ("1900s", "1910s", …); the value is
      * a fraction 0.0–1.0 rounded to 4 decimals.
      *
-     * Cohorts with fewer than 3 marriages are filtered out — at
-     * that size the rate is dominated by noise.
+     * Three filters keep the result tight on real trees that span
+     * many centuries:
+     *
+     *  1. Adaptive sample threshold: cohorts with fewer than
+     *     `max(3, total_marriages / 100)` marriages drop out — at
+     *     that size the rate is dominated by noise.
+     *  2. Leading / trailing cohorts where divorced == 0 drop out
+     *     so the visible range starts at the first cohort with a
+     *     divorce and ends at the last.
+     *  3. Inner cohorts with divorced == 0 stay so a quiet decade
+     *     between two active ones is visible as a gap.
      *
      * @return array<string, float>
      */
@@ -196,13 +208,55 @@ final readonly class DivorceRepository
 
         ksort($perCohort);
 
-        $rates = [];
+        // Adaptive sample threshold: 1% of total marriages, floored at 3.
+        $totalMarriages = 0;
 
-        foreach ($perCohort as $cohort => $tally) {
-            if ($tally['total'] < 3) {
+        foreach ($perCohort as $tally) {
+            $totalMarriages += $tally['total'];
+        }
+
+        $threshold = max(3, intdiv($totalMarriages, 100));
+
+        // Identify the cohort window — first / last cohort that BOTH
+        // passes the sample threshold AND saw at least one divorce.
+        // Everything between those two anchors stays in the window,
+        // INCLUDING cohorts that didn't pass the threshold and
+        // cohorts with rate == 0. That preserves the gap-visibility
+        // user intent (a quiet decade between two active ones is
+        // informative, dropping it would lie about the timeline).
+        $keys        = array_keys($perCohort);
+        $firstAnchor = null;
+        $lastAnchor  = null;
+
+        foreach ($keys as $index => $key) {
+            $tally = $perCohort[$key];
+
+            if ($tally['total'] < $threshold) {
                 continue;
             }
 
+            if ($tally['divorced'] === 0) {
+                continue;
+            }
+
+            $firstAnchor ??= $index;
+            $lastAnchor = $index;
+        }
+
+        if (($firstAnchor === null) || ($lastAnchor === null)) {
+            return [];
+        }
+
+        $window = array_slice(
+            $perCohort,
+            $firstAnchor,
+            ($lastAnchor - $firstAnchor) + 1,
+            true,
+        );
+
+        $rates = [];
+
+        foreach ($window as $cohort => $tally) {
             $rates[$cohort] = round($tally['divorced'] / $tally['total'], 4);
         }
 
