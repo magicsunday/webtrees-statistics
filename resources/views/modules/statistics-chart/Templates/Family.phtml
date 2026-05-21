@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 use Fisharebest\Webtrees\I18N;
 use MagicSunday\Webtrees\Statistic\Statistic;
+use MagicSunday\Webtrees\Statistic\Support\HistogramTrim;
 
 /**
  * @var string    $module    The name of the module
@@ -18,16 +19,27 @@ use MagicSunday\Webtrees\Statistic\Statistic;
  */
 $ageAtMarriageM = $statistic->getAgeAtMarriageDistribution('M');
 $ageAtMarriageF = $statistic->getAgeAtMarriageDistribution('F');
-$duration       = $statistic->getMarriageDurationDistribution();
-$ageGap         = $statistic->getCoupleAgeGapDistribution();
-$byCentury      = $statistic->getWeddingsByCentury();
-$byMonth        = $statistic->getWeddingsByMonth();
+
+// Trim leading / trailing buckets that are 0 in BOTH sex variants so
+// the side-by-side histograms don't render rows like `0–4: 0` /
+// `5–9: 0` that carry no information. Keeping a non-zero in either
+// series preserves the bucket on both sides so the visual axis
+// stays aligned.
+[$ageAtMarriageM, $ageAtMarriageF] = HistogramTrim::dropCoZeroEnds($ageAtMarriageM, $ageAtMarriageF);
+
+$duration  = $statistic->getMarriageDurationDistribution();
+$ageGap    = $statistic->getCoupleAgeGapDistribution();
+$byCentury = $statistic->getWeddingsByCentury();
+$byMonth   = $statistic->getWeddingsByMonth();
 
 $divorcesByCentury = $statistic->getDivorcesByCentury();
 $divorcesByMonth   = $statistic->getDivorcesByMonth();
 $divorceAgeM       = $statistic->getAgeAtDivorceDistribution('M');
 $divorceAgeF       = $statistic->getAgeAtDivorceDistribution('F');
-$cohortRates       = $statistic->getDivorceRateByMarriageCohort();
+
+// Same co-zero trim for the divorce-age histograms.
+[$divorceAgeM, $divorceAgeF] = HistogramTrim::dropCoZeroEnds($divorceAgeM, $divorceAgeF);
+$cohortRates                 = $statistic->getDivorceRateByMarriageCohort();
 
 $avgChildren        = $statistic->getAverageChildrenPerFamily();
 $childrenHistogram  = $statistic->getChildrenPerFamilyHistogram();
