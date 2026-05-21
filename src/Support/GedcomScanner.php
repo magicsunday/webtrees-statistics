@@ -50,6 +50,13 @@ final readonly class GedcomScanner
     public const string NO_NAME_PLACEHOLDER = '(no name)';
 
     /**
+     * Prevent instantiation — static-only utility.
+     */
+    private function __construct()
+    {
+    }
+
+    /**
      * True when the GEDCOM blob contains `\n1 <tag>` for any tag in the
      * list, anchored so substring tags (e.g. `DIV` vs `DIVF`) cannot
      * collide.

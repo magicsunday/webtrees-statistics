@@ -17,6 +17,7 @@ use PHPUnit\Framework\Attributes\Test;
 
 use function array_column;
 use function array_combine;
+use function sort;
 
 /**
  * End-to-end test of {@see CountryRepository::countByCountry()}
@@ -254,6 +255,9 @@ final class CountryRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame(1, $byCode['DE'] ?? null, 'MultiMove contributes Hamburg → Germany');
         self::assertSame(1, $byCode['US'] ?? null, 'MultiMove contributes New York → USA');
         self::assertSame(1, $byCode['GB'] ?? null, 'SingleMove contributes London → United Kingdom');
-        self::assertCount(3, $result, 'NoResidence individual contributes nothing');
+
+        $codes = array_column($result, 'countryCode');
+        sort($codes);
+        self::assertSame(['DE', 'GB', 'US'], $codes, 'exactly the three resolvable RESI countries appear; NoResidence contributes nothing');
     }
 }

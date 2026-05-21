@@ -31,6 +31,8 @@
     --wmstats-gradient-births-end:         rgb(31, 102, 74);
     --wmstats-gradient-deaths-start:       rgb(188, 186, 184);
     --wmstats-gradient-deaths-end:         rgb(92, 81, 70);
+    --wmstats-gradient-residences-start:   rgb(220, 220, 240);
+    --wmstats-gradient-residences-end:     rgb(95, 80, 165);
 
     --wmstats-gradient-tree-health-start:  rgb(204, 224, 215);
     --wmstats-gradient-tree-health-end:    rgb(64, 144, 116);
@@ -74,6 +76,8 @@
     --wmstats-gradient-births-end:         rgb(82, 174, 137);
     --wmstats-gradient-deaths-start:       rgb(160, 156, 152);
     --wmstats-gradient-deaths-end:         rgb(178, 162, 144);
+    --wmstats-gradient-residences-start:   rgb(170, 145, 220);
+    --wmstats-gradient-residences-end:     rgb(180, 160, 230);
 
     --wmstats-gradient-tree-health-start:  rgb(110, 160, 140);
     --wmstats-gradient-tree-health-end:    rgb(72, 184, 138);
@@ -608,8 +612,8 @@
 
 .wt-statistics-chart #residences-geo-map,
 .wt-statistics-chart .progress-residences-country {
-    --bs-progress-label-gradient-start: rgb(220, 220, 240);
-    --bs-progress-label-gradient-end:   rgb(95, 80, 165);
+    --bs-progress-label-gradient-start: var(--wmstats-gradient-residences-start);
+    --bs-progress-label-gradient-end:   var(--wmstats-gradient-residences-end);
 }
 
 .wt-statistics-chart #deaths-geo-map,

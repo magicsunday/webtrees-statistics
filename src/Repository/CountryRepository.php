@@ -180,12 +180,6 @@ final readonly class CountryRepository
     }
 
     /**
-     * True when the event's PLAC string ends with (or equals) the
-     * given top-level country place name. Comma-trimmed comparison
-     * — "Hamburg, Germany" matches "Germany" but an unrelated
-     * "Germany Town" elsewhere in the place string would not.
-     */
-    /**
      * Peel the last comma-separated segment off a GEDCOM PLAC string
      * — the country-name segment by GEDCOM convention. "Hamburg,
      * Germany" → "Germany". Trims surrounding whitespace and returns
@@ -199,6 +193,12 @@ final readonly class CountryRepository
         return $comma === false ? $trimmed : trim(substr($trimmed, $comma + 1));
     }
 
+    /**
+     * True when the event's PLAC string ends with (or equals) the
+     * given top-level country place name. Comma-trimmed comparison
+     * — "Hamburg, Germany" matches "Germany" but an unrelated
+     * "Germany Town" elsewhere in the place string would not.
+     */
     private function placeEndsInCountry(string $placeString, string $country): bool
     {
         $trimmed = trim($placeString);
