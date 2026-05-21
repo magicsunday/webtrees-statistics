@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
+use Fisharebest\Webtrees\Individual;
+use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\Expression;
@@ -19,6 +21,7 @@ use MagicSunday\Webtrees\Statistic\Support\AgeBuckets;
 
 use function intdiv;
 use function is_numeric;
+use function is_string;
 
 /**
  * Age-at-first-child distributions for the Family tab. For every
@@ -90,7 +93,80 @@ final readonly class ParenthoodRepository
      */
     public function ageAtFirstChildDistribution(string $sex): array
     {
+        $buckets = AgeBuckets::init(self::BUCKET_MIN, self::BUCKET_MAX, self::BUCKET_WIDTH);
+
+        foreach ($this->ageAtFirstChildPairs($sex) as $pair) {
+            $label           = AgeBuckets::label($pair['years'], self::BUCKET_MAX, self::BUCKET_WIDTH);
+            $buckets[$label] = ($buckets[$label] ?? 0) + 1;
+        }
+
+        return $buckets;
+    }
+
+    /**
+     * Single youngest parent at first child: minimum positive age
+     * at first dated child across the tree, restricted to one
+     * parent sex. Plausibility band {@see MIN_PLAUSIBLE_AGE} ..
+     * {@see MAX_PLAUSIBLE_AGE} is applied via the underlying pair
+     * iterator so a 5-year-old "father" cannot win the slot.
+     *
+     * @param string $sex 'M' for fathers, 'F' for mothers
+     *
+     * @return array{individual: Individual, ageYears: int}|null
+     */
+    public function youngestParentAtFirstChildRecord(string $sex): ?array
+    {
+        $bestYears = null;
+        $bestXref  = null;
+
+        foreach ($this->ageAtFirstChildPairs($sex) as $pair) {
+            if (($bestYears === null) || ($pair['years'] < $bestYears)) {
+                $bestYears = $pair['years'];
+                $bestXref  = $pair['xref'];
+            }
+        }
+
+        return $this->resolveParentRecord($bestXref, $bestYears);
+    }
+
+    /**
+     * Single oldest parent at first child — mirror of
+     * {@see youngestParentAtFirstChildRecord()}.
+     *
+     * @param string $sex 'M' for fathers, 'F' for mothers
+     *
+     * @return array{individual: Individual, ageYears: int}|null
+     */
+    public function oldestParentAtFirstChildRecord(string $sex): ?array
+    {
+        $bestYears = null;
+        $bestXref  = null;
+
+        foreach ($this->ageAtFirstChildPairs($sex) as $pair) {
+            if (($bestYears === null) || ($pair['years'] > $bestYears)) {
+                $bestYears = $pair['years'];
+                $bestXref  = $pair['xref'];
+            }
+        }
+
+        return $this->resolveParentRecord($bestXref, $bestYears);
+    }
+
+    /**
+     * Iterate every parent (one sex) and yield their age at their
+     * earliest dated child across all FAMS they appear in. Groups
+     * by the parent xref so a man married three times yields one
+     * row referencing whichever family produced his first child.
+     * Ages outside the plausibility band are dropped at source.
+     *
+     * @param string $sex 'M' for fathers, 'F' for mothers
+     *
+     * @return iterable<int, array{xref: string, years: int}>
+     */
+    private function ageAtFirstChildPairs(string $sex): iterable
+    {
         $parentColumn = ($sex === 'F') ? 'f_wife' : 'f_husb';
+        $tablePrefix  = DB::connection()->getTablePrefix();
 
         $rows = DB::table('families AS fam')
             ->where('fam.f_file', '=', $this->tree->id())
@@ -116,24 +192,24 @@ final readonly class ParenthoodRepository
                     ->whereIn('child_birth.d_type', ['@#DGREGORIAN@', '@#DJULIAN@'])
                     ->where('child_birth.d_julianday1', '>', 0);
             })
-            ->groupBy('fam.f_id', 'parent_birth.d_julianday1')
+            ->groupBy('fam.' . $parentColumn, 'parent_birth.d_julianday1')
             ->select([
+                'fam.' . $parentColumn . ' AS parent_xref',
                 'parent_birth.d_julianday1 AS parent_birth_jd',
-                new Expression('MIN(' . DB::connection()->getTablePrefix() . 'child_birth.d_julianday1) AS first_child_jd'),
+                new Expression('MIN(' . $tablePrefix . 'child_birth.d_julianday1) AS first_child_jd'),
             ])
             ->get();
 
-        $buckets = AgeBuckets::init(self::BUCKET_MIN, self::BUCKET_MAX, self::BUCKET_WIDTH);
-
         foreach ($rows as $row) {
+            $xref     = is_string($row->parent_xref ?? null) ? $row->parent_xref : '';
             $parentJd = is_numeric($row->parent_birth_jd ?? null) ? (int) $row->parent_birth_jd : 0;
             $childJd  = is_numeric($row->first_child_jd ?? null) ? (int) $row->first_child_jd : 0;
 
-            if ($parentJd <= 0) {
+            if ($xref === '') {
                 continue;
             }
 
-            if ($childJd <= 0) {
+            if ($parentJd <= 0) {
                 continue;
             }
 
@@ -151,10 +227,30 @@ final readonly class ParenthoodRepository
                 continue;
             }
 
-            $label           = AgeBuckets::label($years, self::BUCKET_MAX, self::BUCKET_WIDTH);
-            $buckets[$label] = ($buckets[$label] ?? 0) + 1;
+            yield ['xref' => $xref, 'years' => $years];
+        }
+    }
+
+    /**
+     * Resolve the {xref, years} pair the two record methods both
+     * picked into the public Individual+ageYears shape, with a
+     * null fall-back when the xref can no longer be made into a
+     * live Individual.
+     *
+     * @return array{individual: Individual, ageYears: int}|null
+     */
+    private function resolveParentRecord(?string $xref, ?int $years): ?array
+    {
+        if (($xref === null) || ($years === null)) {
+            return null;
         }
 
-        return $buckets;
+        $individual = Registry::individualFactory()->make($xref, $this->tree);
+
+        if (!$individual instanceof Individual) {
+            return null;
+        }
+
+        return ['individual' => $individual, 'ageYears' => $years];
     }
 }

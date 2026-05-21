@@ -12,9 +12,12 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Family;
+use Fisharebest\Webtrees\Individual;
+use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\StatisticsData;
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
+use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 
 use function array_combine;
@@ -226,6 +229,63 @@ final readonly class ChildrenRepository
         }
 
         return $out;
+    }
+
+    /**
+     * Single individual with the highest aggregated child count
+     * across every family they participated in. Different from
+     * {@see largestFamilyRecord()} because a man married three
+     * times with 5+4+3 children wins here (12 children total) but
+     * not there (largest single family was 5). Counts each FAM's
+     * `f_numchil` exactly once per spouse, so the same child does
+     * not contribute to both parents' totals across remarriages.
+     *
+     * @return array{individual: Individual, count: int}|null
+     */
+    public function mostChildrenPerPersonRecord(): ?array
+    {
+        // Use the raw prefixed table name (wt_families) inside
+        // `Expression` and `orderByRaw` — Eloquent only auto-prefixes
+        // table aliases in `from` / `join`, not strings inside raw
+        // SQL fragments, so the SUM here must reference the actual
+        // physical table.
+        $familiesTable = DB::connection()->getTablePrefix() . 'families';
+
+        $row = DB::table('link')
+            ->where('l_file', '=', $this->tree->id())
+            ->where('l_type', '=', 'FAMS')
+            ->join('families', static function (JoinClause $join): void {
+                $join
+                    ->on('families.f_file', '=', 'link.l_file')
+                    ->on('families.f_id', '=', 'link.l_to');
+            })
+            ->where('families.f_numchil', '>', 0)
+            ->groupBy('link.l_from')
+            ->orderByRaw('SUM(' . $familiesTable . '.f_numchil) DESC')
+            ->select([
+                'link.l_from AS xref',
+                new Expression('SUM(' . $familiesTable . '.f_numchil) AS total_children'),
+            ])
+            ->first();
+
+        if ($row === null) {
+            return null;
+        }
+
+        $xref  = is_string($row->xref ?? null) ? $row->xref : '';
+        $total = is_numeric($row->total_children ?? null) ? (int) $row->total_children : 0;
+
+        if (($xref === '') || ($total <= 0)) {
+            return null;
+        }
+
+        $individual = Registry::individualFactory()->make($xref, $this->tree);
+
+        if (!$individual instanceof Individual) {
+            return null;
+        }
+
+        return ['individual' => $individual, 'count' => $total];
     }
 
     /**

@@ -429,23 +429,33 @@ final readonly class Statistic
      *     youngestWife:     array{individual: Individual, ageYears: int}|null,
      *     oldestHusband:    array{individual: Individual, ageYears: int}|null,
      *     oldestWife:       array{individual: Individual, ageYears: int}|null,
-     *     mostSpouses:      array{individual: Individual, count: int}|null,
-     *     largestFamily:    array{family: Family, count: int}|null
+     *     mostSpouses:           array{individual: Individual, count: int}|null,
+     *     largestFamily:         array{family: Family, count: int}|null,
+     *     mostChildrenPerPerson: array{individual: Individual, count: int}|null,
+     *     youngestFatherAtFirstChild: array{individual: Individual, ageYears: int}|null,
+     *     youngestMotherAtFirstChild: array{individual: Individual, ageYears: int}|null,
+     *     oldestFatherAtFirstChild:   array{individual: Individual, ageYears: int}|null,
+     *     oldestMotherAtFirstChild:   array{individual: Individual, ageYears: int}|null
      * }
      */
     public function getTreeRecords(): array
     {
         return [
-            'oldestDeceased'   => $this->lifeSpanRepository->oldestDeceasedRecord(),
-            'oldestLiving'     => $this->lifeSpanRepository->oldestLivingRecord(),
-            'longestMarriage'  => $this->marriageRepository->longestMarriageRecord(),
-            'shortestMarriage' => $this->marriageRepository->shortestMarriageRecord(),
-            'youngestHusband'  => $this->marriageRepository->youngestSpouseAtMarriageRecord('M'),
-            'youngestWife'     => $this->marriageRepository->youngestSpouseAtMarriageRecord('F'),
-            'oldestHusband'    => $this->marriageRepository->oldestSpouseAtMarriageRecord('M'),
-            'oldestWife'       => $this->marriageRepository->oldestSpouseAtMarriageRecord('F'),
-            'mostSpouses'      => $this->marriageRepository->mostSpousesRecord(),
-            'largestFamily'    => $this->childrenRepository->largestFamilyRecord(),
+            'oldestDeceased'             => $this->lifeSpanRepository->oldestDeceasedRecord(),
+            'oldestLiving'               => $this->lifeSpanRepository->oldestLivingRecord(),
+            'longestMarriage'            => $this->marriageRepository->longestMarriageRecord(),
+            'shortestMarriage'           => $this->marriageRepository->shortestMarriageRecord(),
+            'youngestHusband'            => $this->marriageRepository->youngestSpouseAtMarriageRecord('M'),
+            'youngestWife'               => $this->marriageRepository->youngestSpouseAtMarriageRecord('F'),
+            'oldestHusband'              => $this->marriageRepository->oldestSpouseAtMarriageRecord('M'),
+            'oldestWife'                 => $this->marriageRepository->oldestSpouseAtMarriageRecord('F'),
+            'mostSpouses'                => $this->marriageRepository->mostSpousesRecord(),
+            'largestFamily'              => $this->childrenRepository->largestFamilyRecord(),
+            'mostChildrenPerPerson'      => $this->childrenRepository->mostChildrenPerPersonRecord(),
+            'youngestFatherAtFirstChild' => $this->parenthoodRepository->youngestParentAtFirstChildRecord('M'),
+            'youngestMotherAtFirstChild' => $this->parenthoodRepository->youngestParentAtFirstChildRecord('F'),
+            'oldestFatherAtFirstChild'   => $this->parenthoodRepository->oldestParentAtFirstChildRecord('M'),
+            'oldestMotherAtFirstChild'   => $this->parenthoodRepository->oldestParentAtFirstChildRecord('F'),
         ];
     }
 

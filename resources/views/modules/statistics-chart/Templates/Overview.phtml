@@ -205,6 +205,41 @@ $treeRecords    = $statistic->getTreeRecords();
                                 <td><a href="<?php echo e($treeRecords['largestFamily']['family']->url()); ?>"><?php echo $treeRecords['largestFamily']['family']->fullName(); ?></a></td>
                             </tr>
                             <?php } ?>
+                            <?php if ($treeRecords['mostChildrenPerPerson'] !== null) { ?>
+                            <tr>
+                                <th scope="row"><?php echo I18N::translate('Most children per person'); ?></th>
+                                <td><?php echo I18N::plural('%s child', '%s children', $treeRecords['mostChildrenPerPerson']['count'], I18N::number($treeRecords['mostChildrenPerPerson']['count'])); ?></td>
+                                <td><a href="<?php echo e($treeRecords['mostChildrenPerPerson']['individual']->url()); ?>"><?php echo $treeRecords['mostChildrenPerPerson']['individual']->fullName(); ?></a></td>
+                            </tr>
+                            <?php } ?>
+                            <?php if ($treeRecords['youngestFatherAtFirstChild'] !== null) { ?>
+                            <tr>
+                                <th scope="row"><?php echo I18N::translate('Youngest father at first child'); ?></th>
+                                <td><?php echo I18N::plural('%s year', '%s years', $treeRecords['youngestFatherAtFirstChild']['ageYears'], I18N::number($treeRecords['youngestFatherAtFirstChild']['ageYears'])); ?></td>
+                                <td><a href="<?php echo e($treeRecords['youngestFatherAtFirstChild']['individual']->url()); ?>"><?php echo $treeRecords['youngestFatherAtFirstChild']['individual']->fullName(); ?></a></td>
+                            </tr>
+                            <?php } ?>
+                            <?php if ($treeRecords['youngestMotherAtFirstChild'] !== null) { ?>
+                            <tr>
+                                <th scope="row"><?php echo I18N::translate('Youngest mother at first child'); ?></th>
+                                <td><?php echo I18N::plural('%s year', '%s years', $treeRecords['youngestMotherAtFirstChild']['ageYears'], I18N::number($treeRecords['youngestMotherAtFirstChild']['ageYears'])); ?></td>
+                                <td><a href="<?php echo e($treeRecords['youngestMotherAtFirstChild']['individual']->url()); ?>"><?php echo $treeRecords['youngestMotherAtFirstChild']['individual']->fullName(); ?></a></td>
+                            </tr>
+                            <?php } ?>
+                            <?php if ($treeRecords['oldestFatherAtFirstChild'] !== null) { ?>
+                            <tr>
+                                <th scope="row"><?php echo I18N::translate('Oldest father at first child'); ?></th>
+                                <td><?php echo I18N::plural('%s year', '%s years', $treeRecords['oldestFatherAtFirstChild']['ageYears'], I18N::number($treeRecords['oldestFatherAtFirstChild']['ageYears'])); ?></td>
+                                <td><a href="<?php echo e($treeRecords['oldestFatherAtFirstChild']['individual']->url()); ?>"><?php echo $treeRecords['oldestFatherAtFirstChild']['individual']->fullName(); ?></a></td>
+                            </tr>
+                            <?php } ?>
+                            <?php if ($treeRecords['oldestMotherAtFirstChild'] !== null) { ?>
+                            <tr>
+                                <th scope="row"><?php echo I18N::translate('Oldest mother at first child'); ?></th>
+                                <td><?php echo I18N::plural('%s year', '%s years', $treeRecords['oldestMotherAtFirstChild']['ageYears'], I18N::number($treeRecords['oldestMotherAtFirstChild']['ageYears'])); ?></td>
+                                <td><a href="<?php echo e($treeRecords['oldestMotherAtFirstChild']['individual']->url()); ?>"><?php echo $treeRecords['oldestMotherAtFirstChild']['individual']->fullName(); ?></a></td>
+                            </tr>
+                            <?php } ?>
                         </tbody>
                     </table>
                 </div>
