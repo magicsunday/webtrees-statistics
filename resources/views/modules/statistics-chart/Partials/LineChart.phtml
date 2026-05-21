@@ -1,0 +1,33 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
+
+use Fisharebest\Webtrees\I18N;
+use Fisharebest\Webtrees\Tree;
+
+/**
+ * @var Tree                                       $tree
+ * @var string                                     $identifier  Host element id
+ * @var array<int, array{label: string, value: int}> $data       Series rows in display order
+ * @var int|null                                   $height      Optional viewport height (defaults to 240)
+ * @var int|null                                   $xLabelEvery Show every Nth x-axis label (default 1)
+ */
+$height      ??= 240;
+$xLabelEvery ??= 1;
+?>
+<div class="wt-line-chart-container">
+    <div id="<?php echo e($identifier); ?>"
+         class="wt-line-chart-host"
+         data-widget="line-chart"
+         data-payload="<?php echo e(json_encode($data, JSON_THROW_ON_ERROR)); ?>"
+         data-options="<?php echo e(json_encode(['height' => $height, 'xLabelEvery' => $xLabelEvery], JSON_THROW_ON_ERROR)); ?>"
+         data-empty-message="<?php echo e(I18N::translate('No data available yet.')); ?>"
+    ></div>
+</div>

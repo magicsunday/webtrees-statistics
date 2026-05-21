@@ -22,6 +22,18 @@ $generation     = $statistic->getAverageGenerationLength();
 $birthsByDecade = $statistic->getBirthsByDecade();
 $totalBirths    = array_sum($birthsByDecade);
 
+// LineChart expects a list of {label, value} rows; convert from
+// the map shape the repository returns.
+$birthsLineSeries = [];
+
+foreach ($birthsByDecade as $decade => $count) {
+    $birthsLineSeries[] = ['label' => $decade, 'value' => $count];
+}
+
+// Show every 3rd decade label so axis stays legible on
+// tree-spanning-centuries datasets.
+$birthsXLabelEvery = max(1, (int) ceil(count($birthsLineSeries) / 12));
+
 $gapLabels = [
     'BIRT.event' => I18N::translate('Missing birth event'),
     'BIRT.place' => I18N::translate('Missing birth place'),
@@ -127,13 +139,15 @@ foreach ($gaps as $gap) {
                 <div class="card-body">
                     <?php
         echo view(
-            $module . '::modules/statistics-chart/Partials/ProgressList',
+            $module . '::modules/statistics-chart/Partials/LineChart',
             [
-                'class' => 'progress-births-decade',
-                'data'  => $birthsByDecade,
+                'identifier'  => 'tree-growth-line-chart',
+                'data'        => $birthsLineSeries,
+                'height'      => 260,
+                'xLabelEvery' => $birthsXLabelEvery,
             ],
         );
-        ?>
+?>
                 </div>
             </div>
         </div>

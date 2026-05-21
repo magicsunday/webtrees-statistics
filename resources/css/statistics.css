@@ -644,6 +644,61 @@
 }
 
 /* ----------------------------------------------------------------------
+   Line chart (TreeHealth tab — births per decade growth curve)
+   -------------------------------------------------------------------- */
+
+.wt-statistics-chart .wt-line-chart-container {
+    width:  100%;
+    height: auto;
+}
+
+.wt-statistics-chart .wt-line-chart-host {
+    display:  block;
+    width:    100%;
+    position: relative;
+}
+
+.wt-statistics-chart svg.wt-line-chart {
+    width:  100%;
+    height: auto;
+    display: block;
+}
+
+.wt-statistics-chart svg.wt-line-chart .line {
+    stroke:       var(--wmstats-gradient-births-end, rgb(220, 120, 40));
+    stroke-width: 1.75px;
+    fill:         none;
+}
+
+.wt-statistics-chart svg.wt-line-chart .area {
+    fill: var(--wmstats-gradient-births-start, rgb(255, 224, 196));
+}
+
+.wt-statistics-chart svg.wt-line-chart .point {
+    fill:   var(--wmstats-gradient-births-end, rgb(220, 120, 40));
+    stroke: var(--bs-body-bg, white);
+    stroke-width: 1.5px;
+    cursor: default;
+}
+
+.wt-statistics-chart svg.wt-line-chart .point:hover {
+    fill: var(--bs-body-color);
+}
+
+.wt-statistics-chart svg.wt-line-chart .x-axis text,
+.wt-statistics-chart svg.wt-line-chart .y-axis text {
+    fill:      var(--bs-body-color);
+    font-size: 0.7rem;
+}
+
+.wt-statistics-chart svg.wt-line-chart .x-axis path,
+.wt-statistics-chart svg.wt-line-chart .y-axis path,
+.wt-statistics-chart svg.wt-line-chart .x-axis line,
+.wt-statistics-chart svg.wt-line-chart .y-axis line {
+    stroke: var(--bs-border-color, rgb(221, 221, 221));
+}
+
+/* ----------------------------------------------------------------------
    Surname tag-cloud
    -------------------------------------------------------------------- */
 
