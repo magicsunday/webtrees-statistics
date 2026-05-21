@@ -19,6 +19,7 @@ const donutDrawSpy = jest.fn();
 const streamGraphDrawSpy = jest.fn();
 const sankeyFlowDrawSpy = jest.fn();
 const worldMapDrawSpy = jest.fn();
+const lineChartDrawSpy = jest.fn();
 
 class DonutChart {
     constructor(node, options) {
@@ -56,12 +57,22 @@ class WorldMap {
         worldMapDrawSpy(this.node, data, this.options);
     }
 }
+class LineChart {
+    constructor(node, options) {
+        this.node = node;
+        this.options = options;
+    }
+    draw(data) {
+        lineChartDrawSpy(this.node, data, this.options);
+    }
+}
 
 jest.unstable_mockModule("@magicsunday/webtrees-chart-lib", () => ({
     DonutChart,
     StreamGraph,
     SankeyFlow,
     WorldMap,
+    LineChart,
 }));
 
 // world-map dispatch is async (geojson fetch); mock d3-fetch + d3-geo
@@ -81,6 +92,7 @@ describe("renderWidgets", () => {
         worldMapDrawSpy.mockClear();
         streamGraphDrawSpy.mockClear();
         sankeyFlowDrawSpy.mockClear();
+        lineChartDrawSpy.mockClear();
         document.body.innerHTML = "";
     });
 

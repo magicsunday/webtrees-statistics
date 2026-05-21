@@ -152,23 +152,55 @@ $totalDivAgeF    = array_sum($divorceAgeF);
         </div>
     </div>
 
-    <div class="row row-cols-1 row-cols-md-2 g-3 mt-1 mb-3">
+    <?php
+    $weddingsByCenturySeries = [];
+
+foreach ($byCentury as $century => $count) {
+    $weddingsByCenturySeries[] = [
+        'label'        => $century,
+        'tooltipLabel' => $century . ' ' . I18N::translate('Century'),
+        'value'        => $count,
+        'tooltip'      => I18N::plural('%s marriage', '%s marriages', $count, I18N::number($count)),
+    ];
+}
+
+$divorcesByCenturySeries = [];
+
+foreach ($divorcesByCentury as $century => $count) {
+    $divorcesByCenturySeries[] = [
+        'label'        => $century,
+        'tooltipLabel' => $century . ' ' . I18N::translate('Century'),
+        'value'        => $count,
+        'tooltip'      => I18N::plural('%s divorce', '%s divorces', $count, I18N::number($count)),
+    ];
+}
+?>
+
+    <?php if ($weddingsByCenturySeries !== []) { ?>
+    <div class="row g-3 mt-1 mb-3">
         <div class="col">
-            <div class="card h-100">
+            <div class="card">
                 <div class="card-header">
                     <h5 class="card-title"><?php echo I18N::translate('Weddings by century'); ?></h5>
                     <small><?php echo I18N::plural('%s recorded marriage', '%s recorded marriages', $totalCentury, I18N::number($totalCentury)); ?></small>
                 </div>
                 <div class="card-body">
                     <?php
-    echo view(
-        $module . '::modules/statistics-chart/Partials/ProgressList',
-        ['class' => 'progress-weddings-century', 'data' => $byCentury],
-    );
-?>
+        echo view(
+            $module . '::modules/statistics-chart/Partials/LineChart',
+            [
+                'identifier' => 'weddings-century-line',
+                'data'       => $weddingsByCenturySeries,
+            ],
+        );
+        ?>
                 </div>
             </div>
         </div>
+    </div>
+    <?php } ?>
+
+    <div class="row row-cols-1 g-3 mt-1 mb-3">
         <div class="col">
             <div class="card h-100">
                 <div class="card-header">
@@ -177,33 +209,41 @@ $totalDivAgeF    = array_sum($divorceAgeF);
                 </div>
                 <div class="card-body">
                     <?php
-    echo view(
-        $module . '::modules/statistics-chart/Partials/ProgressList',
-        ['class' => 'progress-weddings-month', 'data' => $byMonth],
-    );
+            echo view(
+                $module . '::modules/statistics-chart/Partials/ProgressList',
+                ['class' => 'progress-weddings-month', 'data' => $byMonth],
+            );
 ?>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row row-cols-1 row-cols-md-2 g-3 mt-1 mb-3">
+    <?php if ($divorcesByCenturySeries !== []) { ?>
+    <div class="row g-3 mt-1 mb-3">
         <div class="col">
-            <div class="card h-100">
+            <div class="card">
                 <div class="card-header">
                     <h5 class="card-title"><?php echo I18N::translate('Divorces by century'); ?></h5>
                     <small><?php echo I18N::plural('%s recorded divorce', '%s recorded divorces', $totalDivCentury, I18N::number($totalDivCentury)); ?></small>
                 </div>
                 <div class="card-body">
                     <?php
-    echo view(
-        $module . '::modules/statistics-chart/Partials/ProgressList',
-        ['class' => 'progress-divorces-century', 'data' => $divorcesByCentury],
-    );
-?>
+        echo view(
+            $module . '::modules/statistics-chart/Partials/LineChart',
+            [
+                'identifier' => 'divorces-century-line',
+                'data'       => $divorcesByCenturySeries,
+            ],
+        );
+        ?>
                 </div>
             </div>
         </div>
+    </div>
+    <?php } ?>
+
+    <div class="row row-cols-1 g-3 mt-1 mb-3">
         <div class="col">
             <div class="card h-100">
                 <div class="card-header">
@@ -212,10 +252,10 @@ $totalDivAgeF    = array_sum($divorceAgeF);
                 </div>
                 <div class="card-body">
                     <?php
-    echo view(
-        $module . '::modules/statistics-chart/Partials/ProgressList',
-        ['class' => 'progress-divorces-month', 'data' => $divorcesByMonth],
-    );
+            echo view(
+                $module . '::modules/statistics-chart/Partials/ProgressList',
+                ['class' => 'progress-divorces-month', 'data' => $divorcesByMonth],
+            );
 ?>
                 </div>
             </div>

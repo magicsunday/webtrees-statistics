@@ -10,14 +10,12 @@ declare(strict_types=1);
  */
 
 use Fisharebest\Webtrees\I18N;
-use Fisharebest\Webtrees\Tree;
 
 /**
- * @var Tree                                       $tree
- * @var string                                     $identifier  Host element id
+ * @var string                                       $identifier  Host element id
  * @var array<int, array{label: string, value: int}> $data       Series rows in display order
- * @var int|null                                   $height      Optional viewport height (defaults to 240)
- * @var int|null                                   $xLabelEvery Show every Nth x-axis label (default 1)
+ * @var int|null                                     $height      Optional viewport height (defaults to 240)
+ * @var int|null                                     $xLabelEvery Show every Nth x-axis label (default 1)
  */
 $height      ??= 240;
 $xLabelEvery ??= 1;

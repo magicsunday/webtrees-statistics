@@ -8,7 +8,13 @@
 import { json } from "d3-fetch";
 import { geoMercator } from "d3-geo";
 
-import { DonutChart, LineChart, SankeyFlow, StreamGraph, WorldMap } from "@magicsunday/webtrees-chart-lib";
+import {
+    DonutChart,
+    LineChart,
+    SankeyFlow,
+    StreamGraph,
+    WorldMap,
+} from "@magicsunday/webtrees-chart-lib";
 
 const WORLD_GEOJSON_URL =
     "/index.php?route=%2Fmodule%2F_webtrees-statistics_%2FAsset&asset=js/world-map.geojson";

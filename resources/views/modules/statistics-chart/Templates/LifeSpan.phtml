@@ -36,8 +36,31 @@ $totalDeathsByCentury = array_sum($deathsByCentury);
 $totalAgeAtDeath      = array_sum($ageAtDeath);
 $totalLivingBanded    = array_sum(array_column($livingByAgeBand, 'value'));
 ?>
+<?php
+$birthsByCenturySeries = [];
+
+foreach ($birthsByCentury as $century => $count) {
+    $birthsByCenturySeries[] = [
+        'label'        => $century,
+        'tooltipLabel' => $century . ' ' . I18N::translate('Century'),
+        'value'        => $count,
+        'tooltip'      => I18N::plural('%s birth', '%s births', $count, I18N::number($count)),
+    ];
+}
+
+$deathsByCenturySeries = [];
+
+foreach ($deathsByCentury as $century => $count) {
+    $deathsByCenturySeries[] = [
+        'label'        => $century,
+        'tooltipLabel' => $century . ' ' . I18N::translate('Century'),
+        'value'        => $count,
+        'tooltip'      => I18N::plural('%s death', '%s deaths', $count, I18N::number($count)),
+    ];
+}
+?>
 <div class="container">
-    <div class="row row-cols-1 row-cols-md-3 g-3">
+    <div class="row row-cols-1 row-cols-md-2 g-3">
         <div class="col">
             <div class="card h-100">
                 <div class="card-header">
@@ -76,67 +99,77 @@ $totalLivingBanded    = array_sum(array_column($livingByAgeBand, 'value'));
                 </div>
             </div>
         </div>
+    </div>
+
+    <?php if ($birthsByCenturySeries !== []) { ?>
+    <div class="row g-3 mt-1 mb-3">
         <div class="col">
-            <div class="card h-100">
+            <div class="card">
                 <div class="card-header">
                     <h5 class="card-title"><?php echo I18N::translate('Births by century'); ?></h5>
                     <small><?php echo I18N::plural('%s individual with a recorded birth year', '%s individuals with a recorded birth year', $totalBirthsByCentury, I18N::number($totalBirthsByCentury)); ?></small>
                 </div>
                 <div class="card-body">
                     <?php
-    echo view(
-        $module . '::modules/statistics-chart/Partials/ProgressList',
-        [
-            'class' => 'progress-births-century',
-            'data'  => $birthsByCentury,
-        ],
-    );
-?>
+        echo view(
+            $module . '::modules/statistics-chart/Partials/LineChart',
+            [
+                'identifier' => 'births-century-line',
+                'data'       => $birthsByCenturySeries,
+            ],
+        );
+        ?>
                 </div>
             </div>
         </div>
     </div>
+    <?php } ?>
 
-    <div class="row row-cols-1 row-cols-md-2 g-3 mt-1 mb-3">
+    <div class="row row-cols-1 g-3 mt-1 mb-3">
         <div class="col">
-            <div class="card h-100">
+            <div class="card">
                 <div class="card-header">
                     <h5 class="card-title"><?php echo I18N::translate('Deaths by month'); ?></h5>
                     <small><?php echo I18N::plural('%s individual with a recorded death month', '%s individuals with a recorded death month', $totalDeathsByMonth, I18N::number($totalDeathsByMonth)); ?></small>
                 </div>
                 <div class="card-body">
                     <?php
-    echo view(
-        $module . '::modules/statistics-chart/Partials/ProgressList',
-        [
-            'class' => 'progress-deaths-month',
-            'data'  => $deathsByMonth,
-        ],
-    );
+            echo view(
+                $module . '::modules/statistics-chart/Partials/ProgressList',
+                [
+                    'class' => 'progress-deaths-month',
+                    'data'  => $deathsByMonth,
+                ],
+            );
 ?>
                 </div>
             </div>
         </div>
+    </div>
+
+    <?php if ($deathsByCenturySeries !== []) { ?>
+    <div class="row g-3 mt-1 mb-3">
         <div class="col">
-            <div class="card h-100">
+            <div class="card">
                 <div class="card-header">
                     <h5 class="card-title"><?php echo I18N::translate('Deaths by century'); ?></h5>
                     <small><?php echo I18N::plural('%s individual with a recorded death year', '%s individuals with a recorded death year', $totalDeathsByCentury, I18N::number($totalDeathsByCentury)); ?></small>
                 </div>
                 <div class="card-body">
                     <?php
-    echo view(
-        $module . '::modules/statistics-chart/Partials/ProgressList',
-        [
-            'class' => 'progress-deaths-century',
-            'data'  => $deathsByCentury,
-        ],
-    );
-?>
+        echo view(
+            $module . '::modules/statistics-chart/Partials/LineChart',
+            [
+                'identifier' => 'deaths-century-line',
+                'data'       => $deathsByCenturySeries,
+            ],
+        );
+        ?>
                 </div>
             </div>
         </div>
     </div>
+    <?php } ?>
 
     <div class="row row-cols-1 row-cols-md-2 g-3 mt-1 mb-3">
         <div class="col">
@@ -147,13 +180,13 @@ $totalLivingBanded    = array_sum(array_column($livingByAgeBand, 'value'));
                 </div>
                 <div class="card-body">
                     <?php
-    echo view(
-        $module . '::modules/statistics-chart/Partials/ProgressList',
-        [
-            'class' => 'progress-age-at-death',
-            'data'  => $ageAtDeath,
-        ],
-    );
+            echo view(
+                $module . '::modules/statistics-chart/Partials/ProgressList',
+                [
+                    'class' => 'progress-age-at-death',
+                    'data'  => $ageAtDeath,
+                ],
+            );
 ?>
                 </div>
             </div>
