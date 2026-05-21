@@ -228,4 +228,32 @@ final class CountryRepositoryIntegrationTest extends IntegrationTestCase
         self::assertArrayNotHasKey('XX', $byCode);
         self::assertArrayNotHasKey('ZZ', $byCode);
     }
+
+    /**
+     * Residence aggregation counts every `1 RESI` occurrence per
+     * individual: MultiMove (I1) has two RESI entries (Hamburg and
+     * New York) and contributes once to Germany and once to USA;
+     * SingleMove (I2) has one RESI in England; NoResidence (I3)
+     * has no RESI at all and contributes nothing. Total resolved
+     * residences must equal three across three distinct countries.
+     */
+    #[Test]
+    public function residencesByCountryCountsEachResiOccurrence(): void
+    {
+        IsoCountryMap::clearCache();
+
+        $tree   = $this->importFixtureTree('residences.ged');
+        $result = (new CountryRepository($tree, new IsoCountryMap()))->residencesByCountry();
+
+        $byCode = [];
+
+        foreach ($result as $entry) {
+            $byCode[$entry['countryCode']] = $entry['count'];
+        }
+
+        self::assertSame(1, $byCode['DE'] ?? null, 'MultiMove contributes Hamburg → Germany');
+        self::assertSame(1, $byCode['US'] ?? null, 'MultiMove contributes New York → USA');
+        self::assertSame(1, $byCode['GB'] ?? null, 'SingleMove contributes London → United Kingdom');
+        self::assertCount(3, $result, 'NoResidence individual contributes nothing');
+    }
 }

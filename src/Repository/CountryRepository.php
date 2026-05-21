@@ -20,6 +20,8 @@ use MagicSunday\Webtrees\Statistic\Support\IsoCountryMap;
 use function arsort;
 use function is_string;
 use function str_ends_with;
+use function strrpos;
+use function substr;
 use function trim;
 
 use const SORT_NUMERIC;
@@ -125,11 +127,78 @@ final readonly class CountryRepository
     }
 
     /**
+     * Count residences across the tree, grouped by country. Differs
+     * from {@see countByCountry()} in two respects: it scans every
+     * `1 RESI` occurrence on every individual (a person with three
+     * recorded residences contributes three times), and it bypasses
+     * the placelinks join because we need *all* RESI places per
+     * person, not the ones that happen to share a top-level place
+     * row with another event.
+     *
+     * @return list<array{countryCode: string, label: string, count: int}>
+     */
+    public function residencesByCountry(): array
+    {
+        $rows = DB::table('individuals')
+            ->where('i_file', '=', $this->tree->id())
+            ->select(['i_gedcom AS gedcom'])
+            ->get();
+
+        $counts = [];
+
+        foreach ($rows as $row) {
+            $gedcom = is_string($row->gedcom) ? $row->gedcom : '';
+
+            foreach (GedcomScanner::extractAllEventPlaces($gedcom, 'RESI') as $place) {
+                // RESI PLAC strings come straight from the GEDCOM as
+                // "Hamburg, Germany" / "New York, USA"; isoMap->resolve
+                // wants the bare country segment so we peel off the
+                // last comma-separated part before the lookup.
+                $iso2 = $this->isoMap->resolve($this->countrySegment($place));
+
+                if ($iso2 === null) {
+                    continue;
+                }
+
+                $counts[$iso2] = ($counts[$iso2] ?? 0) + 1;
+            }
+        }
+
+        arsort($counts, SORT_NUMERIC);
+
+        $entries = [];
+
+        foreach ($counts as $iso2 => $count) {
+            $entries[] = [
+                'countryCode' => $iso2,
+                'label'       => $this->isoMap->label($iso2),
+                'count'       => $count,
+            ];
+        }
+
+        return $entries;
+    }
+
+    /**
      * True when the event's PLAC string ends with (or equals) the
      * given top-level country place name. Comma-trimmed comparison
      * — "Hamburg, Germany" matches "Germany" but an unrelated
      * "Germany Town" elsewhere in the place string would not.
      */
+    /**
+     * Peel the last comma-separated segment off a GEDCOM PLAC string
+     * — the country-name segment by GEDCOM convention. "Hamburg,
+     * Germany" → "Germany". Trims surrounding whitespace and returns
+     * the full input verbatim when no comma is present.
+     */
+    private function countrySegment(string $placeString): string
+    {
+        $trimmed = trim($placeString);
+        $comma   = strrpos($trimmed, ',');
+
+        return $comma === false ? $trimmed : trim(substr($trimmed, $comma + 1));
+    }
+
     private function placeEndsInCountry(string $placeString, string $country): bool
     {
         $trimmed = trim($placeString);

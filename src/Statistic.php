@@ -286,6 +286,19 @@ final readonly class Statistic
     }
 
     /**
+     * Country grouping for residences. Each `1 RESI` occurrence on
+     * an individual contributes once — a person with three recorded
+     * residences (e.g. Germany, USA, France) registers in all three
+     * countries.
+     *
+     * @return list<array{countryCode: string, label: string, count: int}>
+     */
+    public function getResidencesByCountry(): array
+    {
+        return $this->countryRepository->residencesByCountry();
+    }
+
+    /**
      * Age-at-death distribution bucketed into 10-year bands, ready
      * for the histogram-style ProgressList partial.
      *

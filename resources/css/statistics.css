@@ -606,6 +606,12 @@
     --bs-progress-label-gradient-end:   var(--wmstats-gradient-births-end);
 }
 
+.wt-statistics-chart #residences-geo-map,
+.wt-statistics-chart .progress-residences-country {
+    --bs-progress-label-gradient-start: rgb(220, 220, 240);
+    --bs-progress-label-gradient-end:   rgb(95, 80, 165);
+}
+
 .wt-statistics-chart #deaths-geo-map,
 .wt-statistics-chart .progress-deaths-country {
     --bs-progress-label-gradient-start: var(--wmstats-gradient-deaths-start);

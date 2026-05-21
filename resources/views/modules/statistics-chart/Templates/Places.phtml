@@ -71,6 +71,52 @@ echo view(
                 </div>
             </div>
         </div>
+        <div class="col" data-map-type="residence">
+            <div class="card h-100">
+                <?php
+                    $residencesByCountry = $statistic->getResidencesByCountry();
+$totalResidences                         = array_sum(array_column($residencesByCountry, 'count'));
+?>
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('Recorded residences'); ?></h5>
+                    <small><?php echo I18N::plural('%s recorded residence', '%s recorded residences', $totalResidences, I18N::number($totalResidences)); ?></small>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <?php
+                $progressList = [];
+
+foreach ($residencesByCountry as $values) {
+    $progressList[$values['label']] = $values['count'];
+}
+
+echo view(
+    $module . '::modules/statistics-chart/Partials/ProgressList',
+    [
+        'class' => 'progress-residences-country',
+        'data'  => array_slice($progressList, 0, 10),
+    ]
+);
+?>
+                        </div>
+                        <div class="col-md-9 mt-3 mt-md-0">
+                            <?php
+    echo view(
+        $module . '::modules/statistics-chart/Partials/GeoMap',
+        [
+            'identifier' => 'residences-geo-map',
+            'class'      => '',
+            'data'       => $residencesByCountry,
+        ]
+    );
+?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="col" data-map-type="death">
             <div class="card h-100">
                 <?php

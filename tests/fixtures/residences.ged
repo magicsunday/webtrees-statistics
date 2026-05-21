@@ -1,0 +1,33 @@
+0 HEAD
+1 SOUR webtrees-statistics-fixture
+2 NAME residences
+1 DEST ANSTFILE
+1 CHAR UTF-8
+1 SUBM @SUBM1@
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+0 @SUBM1@ SUBM
+1 NAME Fixture
+0 @I1@ INDI
+1 NAME MultiMove /Test/
+1 SEX M
+1 RESI
+2 DATE 1850
+2 PLAC Hamburg, Germany
+1 RESI
+2 DATE 1870
+2 PLAC New York, USA
+0 @I2@ INDI
+1 NAME SingleMove /Test/
+1 SEX F
+1 RESI
+2 DATE 1900
+2 PLAC London, England
+0 @I3@ INDI
+1 NAME NoResidence /Test/
+1 SEX M
+1 BIRT
+2 DATE 1920
+2 PLAC Berlin, Germany
+0 TRLR

@@ -17,6 +17,7 @@ use function mb_convert_encoding;
 use function mb_substitute_character;
 use function preg_match;
 use function preg_match_all;
+use function preg_quote;
 use function preg_replace;
 use function str_contains;
 use function str_ends_with;
@@ -162,6 +163,44 @@ final readonly class GedcomScanner
         $place = trim($placeMatch[1]);
 
         return ($place === '') ? null : $place;
+    }
+
+    /**
+     * Extract every `2 PLAC` value for the given level-1 event tag
+     * within `$gedcom`. Used by metrics where each occurrence of an
+     * event contributes (residences, baptisms, occupations with a
+     * recorded place), unlike {@see extractEventPlace()} which only
+     * returns the first occurrence's place.
+     *
+     * Returns an empty list when the tag is absent or when every
+     * occurrence has only an empty `2 PLAC` line.
+     *
+     * @param string $gedcom Raw GEDCOM record body
+     * @param string $tag    Level-1 event tag whose places to collect
+     *
+     * @return list<string>
+     */
+    public static function extractAllEventPlaces(string $gedcom, string $tag): array
+    {
+        if (preg_match_all('/\n1 ' . preg_quote($tag, '/') . '(?:\n[2-9].*)*/', $gedcom, $blocks) === 0) {
+            return [];
+        }
+
+        $places = [];
+
+        foreach ($blocks[0] as $block) {
+            if (preg_match('/\n2 PLAC +([^\n]+)/', $block, $placeMatch) !== 1) {
+                continue;
+            }
+
+            $place = trim($placeMatch[1]);
+
+            if ($place !== '') {
+                $places[] = $place;
+            }
+        }
+
+        return $places;
     }
 
     /**
