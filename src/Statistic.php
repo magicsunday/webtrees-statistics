@@ -13,6 +13,7 @@ namespace MagicSunday\Webtrees\Statistic;
 
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\StatisticsData;
+use MagicSunday\Webtrees\Statistic\Repository\ChildMortalityRepository;
 use MagicSunday\Webtrees\Statistic\Repository\ChildrenRepository;
 use MagicSunday\Webtrees\Statistic\Repository\CountryRepository;
 use MagicSunday\Webtrees\Statistic\Repository\DeathCauseRepository;
@@ -65,6 +66,7 @@ final readonly class Statistic
      * @param MarriageRepository        $marriageRepository        Age-at-marriage / duration / couple-age-gap aggregations for the Family tab
      * @param DivorceRepository         $divorceRepository         Divorce century / month / age / cohort-rate aggregations for the Family tab
      * @param ChildrenRepository        $childrenRepository        Children-per-family + sibling-age-gap + top-N largest families aggregations
+     * @param ChildMortalityRepository  $childMortalityRepository  Under-5 child mortality summary + per-birth-century breakdown
      * @param KinshipRepository         $kinshipRepository         Ancestor-count distribution + average pedigree-completeness (Lacy 1989)
      * @param OccupationRepository      $occupationRepository      Top-N occupations (`1 OCCU` facts) across the tree
      * @param ReligionRepository        $religionRepository        Top-N religions / confessions (`1 RELI` facts) across the tree
@@ -84,6 +86,7 @@ final readonly class Statistic
         private MarriageRepository $marriageRepository,
         private DivorceRepository $divorceRepository,
         private ChildrenRepository $childrenRepository,
+        private ChildMortalityRepository $childMortalityRepository,
         private KinshipRepository $kinshipRepository,
         private OccupationRepository $occupationRepository,
         private ReligionRepository $religionRepository,
@@ -316,6 +319,31 @@ final readonly class Statistic
     public function getPlaceDispersionSummary(): array
     {
         return $this->placeDispersionRepository->dispersionSummary();
+    }
+
+    /**
+     * Tree-wide under-5 child mortality summary: count of individuals
+     * with both BIRT + DEAT julian-days, count that died before age
+     * five, and the percentage. Null when no BIRT+DEAT pair exists.
+     *
+     * @return array{total: int, died: int, rate: float}|null
+     */
+    public function getChildMortalitySummary(): ?array
+    {
+        return $this->childMortalityRepository->summary();
+    }
+
+    /**
+     * Under-5 child mortality per birth century — list of
+     * `{century, total, died, rate}` entries, ordered ascending, with
+     * tiny cohorts (< 5 children) suppressed. View formats the
+     * century label and tooltip prose via I18N.
+     *
+     * @return list<array{century: int, total: int, died: int, rate: float}>
+     */
+    public function getChildMortalityByBirthCentury(): array
+    {
+        return $this->childMortalityRepository->byBirthCentury();
     }
 
     /**
