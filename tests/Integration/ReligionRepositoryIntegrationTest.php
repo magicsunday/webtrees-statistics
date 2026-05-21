@@ -50,7 +50,7 @@ final class ReligionRepositoryIntegrationTest extends IntegrationTestCase
     #[Test]
     public function countDistinctReligionsReturnsTheFullKeyCount(): void
     {
-        $tree   = $this->importFixtureTree('individual-facts.ged');
+        $tree = $this->importFixtureTree('individual-facts.ged');
 
         self::assertSame(3, (new ReligionRepository($tree))->countDistinctReligions());
     }

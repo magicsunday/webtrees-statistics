@@ -1,6 +1,9 @@
 includes:
     - %currentWorkingDirectory%/.build/vendor/phpstan/phpstan-strict-rules/rules.neon
     - %currentWorkingDirectory%/.build/vendor/phpstan/phpstan-deprecation-rules/rules.neon
+    - %currentWorkingDirectory%/.build/vendor/phpstan/phpstan-phpunit/extension.neon
+    - %currentWorkingDirectory%/.build/vendor/phpstan/phpstan-phpunit/rules.neon
+    - %currentWorkingDirectory%/.build/vendor/phpat/phpat/extension.neon
 
 parameters:
     # You can currently choose from 11 levels (0 is the loosest and 10 is the strictest).
@@ -13,9 +16,19 @@ parameters:
 
     paths:
         - %currentWorkingDirectory%/src/
+        - %currentWorkingDirectory%/tests/
 
     fileExtensions:
         - php
 
     excludePaths:
         - %currentWorkingDirectory%/.build/
+
+    phpat:
+        show_rule_names: true
+
+services:
+    -
+        class: MagicSunday\Webtrees\Statistic\Test\Architecture\ArchitectureTest
+        tags:
+            - phpat.test

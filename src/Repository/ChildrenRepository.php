@@ -83,7 +83,7 @@ final readonly class ChildrenRepository
      * Histogram of children-per-family. Keyed by stringified child
      * count, "10+" for the overflow.
      *
-     * @return array<string, int>
+     * @return array<array-key, int>
      */
     public function childrenPerFamilyHistogram(): array
     {

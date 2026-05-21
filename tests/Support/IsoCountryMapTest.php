@@ -1,13 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of the package magicsunday/webtrees-statistics.
  *
  * For the full copyright and license information, please read the
  * LICENSE file that was distributed with this source code.
  */
+
+declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Support;
 
@@ -50,12 +50,12 @@ final class IsoCountryMapTest extends TestCase
      */
     public static function apostropheVariants(): iterable
     {
-        yield 'ASCII U+0027'   => ["Côte d\u{0027}Ivoire"];
-        yield 'curly U+2019'   => ["Côte d\u{2019}Ivoire"];
-        yield 'left U+2018'    => ["Côte d\u{2018}Ivoire"];
-        yield 'okina U+02BB'   => ["Côte d\u{02BB}Ivoire"];
+        yield 'ASCII U+0027' => ["Côte d\u{0027}Ivoire"];
+        yield 'curly U+2019' => ["Côte d\u{2019}Ivoire"];
+        yield 'left U+2018' => ["Côte d\u{2018}Ivoire"];
+        yield 'okina U+02BB' => ["Côte d\u{02BB}Ivoire"];
         yield 'modifier U+02BC' => ["Côte d\u{02BC}Ivoire"];
-        yield 'high-9 U+201B'  => ["Côte d\u{201B}Ivoire"];
+        yield 'high-9 U+201B' => ["Côte d\u{201B}Ivoire"];
     }
 
     #[Test]

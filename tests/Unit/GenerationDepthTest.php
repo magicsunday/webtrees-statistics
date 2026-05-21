@@ -157,10 +157,8 @@ final class GenerationDepthTest extends TestCase
         // The contract is: it terminates and returns a sane shape.
         $result = GenerationDepth::compute($parentOf);
 
-        self::assertIsInt($result['maxDepth']);
         self::assertGreaterThanOrEqual(0, $result['maxDepth']);
         self::assertLessThanOrEqual(GenerationDepth::MAX_DEPTH, $result['maxDepth']);
-        self::assertIsArray($result['distribution']);
-        self::assertIsBool($result['capped']);
+        self::assertNotSame([], $result['distribution']);
     }
 }

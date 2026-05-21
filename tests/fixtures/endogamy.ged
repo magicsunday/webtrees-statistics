@@ -1,0 +1,101 @@
+0 HEAD
+1 SOUR webtrees-statistics-fixture
+2 NAME endogamy
+1 DEST ANSTFILE
+1 CHAR UTF-8
+1 SUBM @SUBM1@
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+0 @SUBM1@ SUBM
+1 NAME Fixture
+0 @I1@ INDI
+1 NAME Grandfather /Shared/
+1 SEX M
+1 FAMS @F0@
+0 @I2@ INDI
+1 NAME Grandmother /Shared/
+1 SEX F
+1 FAMS @F0@
+0 @I3@ INDI
+1 NAME ParentA /Of-Husband/
+1 SEX M
+1 FAMC @F0@
+1 FAMS @F1@
+0 @I4@ INDI
+1 NAME MotherA /Wife/
+1 SEX F
+1 FAMS @F1@
+0 @I5@ INDI
+1 NAME ParentB /Of-Wife/
+1 SEX F
+1 FAMC @F0@
+1 FAMS @F2@
+0 @I6@ INDI
+1 NAME FatherB /Husband/
+1 SEX M
+1 FAMS @F2@
+0 @I7@ INDI
+1 NAME CousinHusb /CousinPair/
+1 SEX M
+1 FAMC @F1@
+1 FAMS @F_COUSIN@
+0 @I8@ INDI
+1 NAME CousinWife /CousinPair/
+1 SEX F
+1 FAMC @F2@
+1 FAMS @F_COUSIN@
+0 @I9@ INDI
+1 NAME UnrelHusb /Unrelated/
+1 SEX M
+1 FAMC @F_UH@
+1 FAMS @F_UNREL@
+0 @I10@ INDI
+1 NAME UnrelWife /Unrelated/
+1 SEX F
+1 FAMC @F_UW@
+1 FAMS @F_UNREL@
+0 @I11@ INDI
+1 NAME UnrelHFather /Disjoint/
+1 SEX M
+1 FAMS @F_UH@
+0 @I12@ INDI
+1 NAME UnrelHMother /Disjoint/
+1 SEX F
+1 FAMS @F_UH@
+0 @I13@ INDI
+1 NAME UnrelWFather /Disjoint/
+1 SEX M
+1 FAMS @F_UW@
+0 @I14@ INDI
+1 NAME UnrelWMother /Disjoint/
+1 SEX F
+1 FAMS @F_UW@
+0 @F0@ FAM
+1 HUSB @I1@
+1 WIFE @I2@
+1 CHIL @I3@
+1 CHIL @I5@
+0 @F1@ FAM
+1 HUSB @I3@
+1 WIFE @I4@
+1 CHIL @I7@
+0 @F2@ FAM
+1 HUSB @I6@
+1 WIFE @I5@
+1 CHIL @I8@
+0 @F_COUSIN@ FAM
+1 HUSB @I7@
+1 WIFE @I8@
+0 @F_UH@ FAM
+1 HUSB @I11@
+1 WIFE @I12@
+1 CHIL @I9@
+0 @F_UW@ FAM
+1 HUSB @I13@
+1 WIFE @I14@
+1 CHIL @I10@
+0 @F_UNREL@ FAM
+1 HUSB @I9@
+1 WIFE @I10@
+0 TRLR

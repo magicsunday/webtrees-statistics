@@ -16,7 +16,6 @@ use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
 use MagicSunday\Webtrees\Statistic\Support\GenerationDepth;
-use MagicSunday\Webtrees\Statistic\Support\ParentMap;
 
 use function array_keys;
 use function array_slice;
@@ -45,10 +44,12 @@ use function uksort;
 final readonly class GenerationDepthRepository
 {
     /**
-     * @param Tree $tree The tree the statistics are computed for
+     * @param Tree                $tree                The tree the statistics are computed for
+     * @param ParentMapRepository $parentMapRepository Shared parent-of map provider (FAMC + FAM scan)
      */
     public function __construct(
         private Tree $tree,
+        private ParentMapRepository $parentMapRepository,
     ) {
     }
 
@@ -77,7 +78,7 @@ final readonly class GenerationDepthRepository
      */
     public function summary(): array
     {
-        $parentOf   = ParentMap::for($this->tree);
+        $parentOf   = $this->parentMapRepository->build();
         $result     = GenerationDepth::compute($parentOf);
         $upDistance = GenerationDepth::upDistanceCache($parentOf);
 

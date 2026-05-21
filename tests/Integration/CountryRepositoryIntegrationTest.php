@@ -1,13 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of the package magicsunday/webtrees-statistics.
  *
  * For the full copyright and license information, please read the
  * LICENSE file that was distributed with this source code.
  */
+
+declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
@@ -141,13 +141,14 @@ final class CountryRepositoryIntegrationTest extends IntegrationTestCase
         // with USA at the tail must score; if it didn't, US would
         // be 1 (Carl only) instead of 2.
         $hugoBirt    = 'Newport, Rhode Island, New England, USA';
-        $resolverHit = (new IsoCountryMap())->resolve(self::lastSegment($hugoBirt));
+        $resolverHit = (new IsoCountryMap())->resolve($this->lastSegment($hugoBirt));
         self::assertSame('US', $resolverHit, 'the trailing segment "USA" must resolve to US directly');
     }
 
-    private static function lastSegment(string $place): string
+    private function lastSegment(string $place): string
     {
-        $parts = array_map('trim', explode(',', $place));
+        $parts = array_map(trim(...), explode(',', $place));
+
         return end($parts);
     }
 
@@ -211,8 +212,9 @@ final class CountryRepositoryIntegrationTest extends IntegrationTestCase
 
         $total  = 0;
         $byCode = [];
+
         foreach ($result as $entry) {
-            $total            += $entry['count'];
+            $total += $entry['count'];
             $byCode[$entry['countryCode']] = $entry['count'];
         }
 

@@ -21,6 +21,9 @@ use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ReflectionMethod;
 
+use function assert;
+use function is_string;
+
 /**
  * Exercises the pure-PHP classification rules of {@see FamilyRepository}
  * (partnerIdOf, hasAnyTagAnchored, classifyOneIndividual) without touching
@@ -130,7 +133,7 @@ final class FamilyRepositoryClassifierTest extends TestCase
     public function remarriedAfterWidowedClassifiesAsCurrent(): void
     {
         $rows = [
-            new FamilyRow('I1', 'I1', 'I_DEAD',  "\n0 @F1@ FAM\n1 MARR\n"),
+            new FamilyRow('I1', 'I1', 'I_DEAD', "\n0 @F1@ FAM\n1 MARR\n"),
             new FamilyRow('I1', 'I1', 'I_ALIVE', "\n0 @F2@ FAM\n1 MARR\n"),
         ];
 
@@ -241,16 +244,22 @@ final class FamilyRepositoryClassifierTest extends TestCase
     {
         $method = new ReflectionMethod(FamilyRepository::class, 'classifyOneIndividual');
         $repo   = $this->newRepoWithoutTree();
+        $result = $method->invoke($repo, $rows, $partnerStates);
 
-        return $method->invoke($repo, $rows, $partnerStates);
+        assert($result instanceof MaritalBucket);
+
+        return $result;
     }
 
     private function invokePartnerIdOf(FamilyRow $row): ?string
     {
         $method = new ReflectionMethod(FamilyRepository::class, 'partnerIdOf');
         $repo   = $this->newRepoWithoutTree();
+        $result = $method->invoke($repo, $row);
 
-        return $method->invoke($repo, $row);
+        assert(($result === null) || is_string($result));
+
+        return $result;
     }
 
     /**

@@ -1,13 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of the package magicsunday/webtrees-statistics.
  *
  * For the full copyright and license information, please read the
  * LICENSE file that was distributed with this source code.
  */
+
+declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
@@ -64,7 +64,7 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
         $result = $this->repository($tree)->ageAtDeathDistribution();
 
         // Every 10-year band exists in the output, even when empty.
-        self::assertSame(11, count($result));
+        self::assertCount(11, $result);
         self::assertArrayHasKey('0–9', $result);
         self::assertArrayHasKey('100+', $result);
 
@@ -126,6 +126,7 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
         $result = $this->repository($tree)->livingByAgeBand();
 
         $totals = [];
+
         foreach ($result as $entry) {
             $totals[$entry['label']] = $entry['value'];
         }

@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of the package magicsunday/webtrees-statistics.
  *
@@ -9,14 +7,14 @@ declare(strict_types=1);
  * LICENSE file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
-use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Repository\EventRepository;
 use PHPUnit\Framework\Attributes\Test;
 
 use function array_sum;
-use function count;
 
 /**
  * Integration test for {@see EventRepository::getBirthsByZodiacSign}.
@@ -48,7 +46,7 @@ final class EventRepositoryIntegrationTest extends IntegrationTestCase
         $result = (new EventRepository($tree))->getBirthsByZodiacSign();
 
         // Every sign always present so the chart stays stable.
-        self::assertSame(12, count($result));
+        self::assertCount(12, $result);
 
         self::assertSame(2, $result['Aries'] ?? null, '1 APR + 25 MAR');
         self::assertSame(1, $result['Taurus'] ?? null, '1 MAY');

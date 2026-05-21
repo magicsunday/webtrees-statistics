@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use MagicSunday\Webtrees\Statistic\Repository\GenerationDepthRepository;
+use MagicSunday\Webtrees\Statistic\Repository\ParentMapRepository;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
@@ -43,7 +44,7 @@ final class GenerationDepthRepositoryIntegrationTest extends IntegrationTestCase
     public function summaryMatchesAcceptanceFixture(): void
     {
         $tree   = $this->importFixtureTree('generation-depth.ged');
-        $result = (new GenerationDepthRepository($tree))->summary();
+        $result = (new GenerationDepthRepository($tree, new ParentMapRepository($tree)))->summary();
 
         self::assertSame(2, $result['maxDepth']);
         self::assertFalse($result['capped']);

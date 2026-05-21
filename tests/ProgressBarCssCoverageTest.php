@@ -15,10 +15,12 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use SplFileInfo;
 
 use function array_diff;
 use function array_unique;
 use function array_values;
+use function assert;
 use function dirname;
 use function explode;
 use function file_get_contents;
@@ -62,8 +64,8 @@ final class ProgressBarCssCoverageTest extends TestCase
 
         self::assertNotFalse($css, 'statistics.css must be readable');
 
-        $usedClasses    = self::collectProgressClassesFromViews($repoRoot . '/resources/views');
-        $definedClasses = self::collectProgressClassesFromCss($css);
+        $usedClasses    = $this->collectProgressClassesFromViews($repoRoot . '/resources/views');
+        $definedClasses = $this->collectProgressClassesFromCss($css);
 
         $missingCss = array_values(array_diff($usedClasses, $definedClasses));
         sort($missingCss);
@@ -86,12 +88,14 @@ final class ProgressBarCssCoverageTest extends TestCase
      *
      * @return list<string>
      */
-    private static function collectProgressClassesFromViews(string $viewsRoot): array
+    private function collectProgressClassesFromViews(string $viewsRoot): array
     {
         $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($viewsRoot));
         $classes  = [];
 
         foreach ($iterator as $entry) {
+            assert($entry instanceof SplFileInfo);
+
             if ($entry->isFile() === false) {
                 continue;
             }
@@ -131,7 +135,7 @@ final class ProgressBarCssCoverageTest extends TestCase
      *
      * @return list<string>
      */
-    private static function collectProgressClassesFromCss(string $css): array
+    private function collectProgressClassesFromCss(string $css): array
     {
         // Selectors may stack (`.progress-births-month, .progress-deaths-month {`),
         // so first split on `}` to isolate rule bodies, then inspect each.
@@ -151,7 +155,11 @@ final class ProgressBarCssCoverageTest extends TestCase
             $hasStart = str_contains($body, '--bs-progress-label-gradient-start');
             $hasEnd   = str_contains($body, '--bs-progress-label-gradient-end');
 
-            if (($hasStart === false) || ($hasEnd === false)) {
+            if ($hasStart === false) {
+                continue;
+            }
+
+            if ($hasEnd === false) {
                 continue;
             }
 

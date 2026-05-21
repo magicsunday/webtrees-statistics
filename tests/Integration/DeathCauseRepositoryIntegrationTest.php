@@ -52,7 +52,7 @@ final class DeathCauseRepositoryIntegrationTest extends IntegrationTestCase
     #[Test]
     public function countDistinctDeathCausesIgnoresMissingSubTags(): void
     {
-        $tree   = $this->importFixtureTree('individual-facts.ged');
+        $tree = $this->importFixtureTree('individual-facts.ged');
 
         self::assertSame(2, (new DeathCauseRepository($tree))->countDistinctDeathCauses());
     }

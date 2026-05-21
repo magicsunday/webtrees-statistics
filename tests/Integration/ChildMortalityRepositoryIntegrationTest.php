@@ -86,6 +86,7 @@ final class ChildMortalityRepositoryIntegrationTest extends IntegrationTestCase
         $result = (new ChildMortalityRepository($tree))->byBirthCentury();
 
         $byCentury = [];
+
         foreach ($result as $entry) {
             $byCentury[$entry['century']] = $entry;
         }

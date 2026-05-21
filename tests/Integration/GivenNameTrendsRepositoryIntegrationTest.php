@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of the package magicsunday/webtrees-statistics.
  *
@@ -9,12 +7,12 @@ declare(strict_types=1);
  * LICENSE file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use MagicSunday\Webtrees\Statistic\Repository\GivenNameTrendsRepository;
 use PHPUnit\Framework\Attributes\Test;
-
-use function count;
 
 /**
  * End-to-end test of the per-decade given-name aggregator against a
@@ -102,7 +100,7 @@ final class GivenNameTrendsRepositoryIntegrationTest extends IntegrationTestCase
         // Decade range still spans the entire population's birth history
         // (1850–1960). The smaller top-N only narrows the bands, never
         // the x-axis.
-        self::assertSame(12, count($result['decades']));
+        self::assertCount(12, $result['decades']);
         self::assertSame(1850, $result['decades'][0]);
         self::assertSame(1960, $result['decades'][11]);
 

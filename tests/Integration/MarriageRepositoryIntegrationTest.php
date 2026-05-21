@@ -1,13 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of the package magicsunday/webtrees-statistics.
  *
  * For the full copyright and license information, please read the
  * LICENSE file that was distributed with this source code.
  */
+
+declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
@@ -19,7 +19,6 @@ use PHPUnit\Framework\Attributes\Test;
 
 use function array_sum;
 use function array_values;
-use function strpos;
 
 /**
  * End-to-end test of {@see MarriageRepository} against a curated
@@ -84,7 +83,7 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
      * Couple age-gap histogram uses signed buckets centred on zero.
      * F1: husband 1850 − wife 1853 = −3y → -5 to -1 bucket
      * F2: 1880 − 1895 = -15y → -15 to -11
-     * F3: 1920 − 1915 = +5y → 5-9
+     * F3: 1920 − 1915 = +5y → 5-9.
      */
     #[Test]
     public function ageGapDistributionAcceptsSignedBuckets(): void
@@ -97,10 +96,11 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
         // by exact key match.
         $negTotal = 0;
         $posTotal = 0;
+
         foreach ($result as $label => $count) {
-            if (strpos($label, '-') === 0) {
+            if (str_starts_with($label, '-')) {
                 $negTotal += $count;
-            } elseif (strpos($label, '<') === 0) {
+            } elseif (str_starts_with($label, '<')) {
                 $negTotal += $count;
             } else {
                 $posTotal += $count;

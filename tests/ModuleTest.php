@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of the package magicsunday/webtrees-statistics.
  *
@@ -9,15 +7,22 @@ declare(strict_types=1);
  * LICENSE file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace MagicSunday\Webtrees\Statistic\Test;
 
 use MagicSunday\Webtrees\Statistic\Module;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use ReflectionMethod;
+use ReflectionNamedType;
 
 use function array_keys;
+use function assert;
+use function is_array;
 use function method_exists;
 use function sprintf;
 
@@ -87,14 +92,19 @@ final class ModuleTest extends TestCase
             $parameters,
             'Tab action must accept exactly the ServerRequestInterface parameter required by the webtrees router.',
         );
+        $paramType = $parameters[0]->getType();
+        assert($paramType instanceof ReflectionNamedType);
         self::assertSame(
-            'Psr\\Http\\Message\\ServerRequestInterface',
-            $parameters[0]->getType()->getName(),
+            ServerRequestInterface::class,
+            $paramType->getName(),
             'Webtrees binds tab actions by parameter type; this contract must not drift.',
         );
+
+        $returnType = $reflection->getReturnType();
+        assert($returnType instanceof ReflectionNamedType);
         self::assertSame(
-            'Psr\\Http\\Message\\ResponseInterface',
-            $reflection->getReturnType()->getName(),
+            ResponseInterface::class,
+            $returnType->getName(),
             'Tab actions must return a PSR-7 response so the router can emit it.',
         );
     }
@@ -111,6 +121,7 @@ final class ModuleTest extends TestCase
         $catalog = (new ReflectionMethod(Module::class, 'tabCatalog'))
             ->invoke(new Module());
 
+        assert(is_array($catalog));
         self::assertSame(
             self::TAB_ACTIONS,
             array_keys($catalog),

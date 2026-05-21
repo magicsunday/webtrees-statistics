@@ -1,13 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of the package magicsunday/webtrees-statistics.
  *
  * For the full copyright and license information, please read the
  * LICENSE file that was distributed with this source code.
  */
+
+declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
@@ -51,9 +51,9 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('children.ged');
         $result = $this->repository($tree)->childrenPerFamilyHistogram();
 
-        self::assertSame(1, $result['0'] ?? null, 'F2 has zero children');
-        self::assertSame(1, $result['3'] ?? null, 'F1 has three children');
-        self::assertSame(0, $result['10+'] ?? null, 'no heroic families');
+        self::assertSame(1, $result['0'], 'F2 has zero children');
+        self::assertSame(1, $result['3'], 'F1 has three children');
+        self::assertSame(0, $result['10+'], 'no heroic families');
     }
 
     /**
@@ -82,6 +82,7 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
         $result = $this->repository($tree)->childlessFamiliesBreakdown();
 
         $byLabel = [];
+
         foreach ($result as $entry) {
             $byLabel[$entry['label']] = $entry['value'];
         }

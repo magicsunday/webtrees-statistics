@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of the package magicsunday/webtrees-statistics.
  *
@@ -9,10 +7,13 @@ declare(strict_types=1);
  * LICENSE file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Repository\KinshipRepository;
+use MagicSunday\Webtrees\Statistic\Repository\ParentMapRepository;
 use PHPUnit\Framework\Attributes\Test;
 
 use function array_sum;
@@ -35,7 +36,7 @@ final class KinshipRepositoryIntegrationTest extends IntegrationTestCase
 {
     private function repository(Tree $tree): KinshipRepository
     {
-        return new KinshipRepository($tree);
+        return new KinshipRepository($tree, new ParentMapRepository($tree));
     }
 
     /**
@@ -63,7 +64,7 @@ final class KinshipRepositoryIntegrationTest extends IntegrationTestCase
      * individuals. Vater contributes 2/2 at gen 1 + 0 elsewhere
      * = 1/4 = 0.25. Kind contributes 2/2 at gen 1 + 2/4 at gen 2
      * + 0 elsewhere = 0.25 + 0.125 = 0.375. The other four have
-     * 0.0. Average = (0.25 + 0.375 + 0 + 0 + 0 + 0) / 6 ≈ 0.1042
+     * 0.0. Average = (0.25 + 0.375 + 0 + 0 + 0 + 0) / 6 ≈ 0.1042.
      */
     #[Test]
     public function averagePedigreeCompletenessAggregatesAcrossPopulation(): void

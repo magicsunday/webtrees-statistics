@@ -1,13 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of the package magicsunday/webtrees-statistics.
  *
  * For the full copyright and license information, please read the
  * LICENSE file that was distributed with this source code.
  */
+
+declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
@@ -65,7 +65,7 @@ final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame(0, $heaviest['source']);
         self::assertSame(2, $heaviest['target']);
         self::assertSame(4, $heaviest['value']);
-        self::assertIsArray($heaviest['samples']);
+        self::assertNotEmpty($heaviest['samples']);
 
         // The remaining three flows are weighted 1.
         $remainingValues = array_map(static fn (array $link): int => $link['value'], array_slice($result['links'], 1));
@@ -150,16 +150,17 @@ final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
         // Every surfaced sample must be one of the four known Germany→USA
         // contributors — proves the cap picks from the right population.
         $candidates = ['Anna Test', 'Berta Test', 'Carl Test', 'Dieter Test'];
+
         foreach ($names as $name) {
             self::assertContains($name, $candidates, 'sample names must come from the fixture pool');
         }
+
         // No duplicates: every cap slot held by a distinct individual.
         self::assertCount(3, array_unique($names), 'cap picks 3 distinct individuals');
 
         // Every sample also carries its source xref so the tooltip
         // could link to the individual page if the consumer wants.
         foreach ($heaviest['samples'] as $sample) {
-            self::assertArrayHasKey('xref', $sample);
             self::assertStringStartsWith('I', $sample['xref']);
         }
 
@@ -173,6 +174,7 @@ final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
                 && ($result['nodes'][$link['target']]['name'] === 'Canada')
             ) {
                 $canada = $link;
+
                 break;
             }
         }

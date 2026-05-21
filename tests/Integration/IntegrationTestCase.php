@@ -1,13 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of the package magicsunday/webtrees-statistics.
  *
  * For the full copyright and license information, please read the
  * LICENSE file that was distributed with this source code.
  */
+
+declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
@@ -27,6 +27,7 @@ use Fisharebest\Webtrees\Tree;
 use Fisharebest\Webtrees\Webtrees;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 use function basename;
 use function file_get_contents;
@@ -129,6 +130,7 @@ abstract class IntegrationTestCase extends TestCase
         // TreeService::create seeds a placeholder header + INDI — wipe
         // before importing the fixture so the assertions are deterministic.
         $treeId = $tree->id();
+
         foreach (
             [
                 'individuals' => 'i_file',
@@ -150,8 +152,17 @@ abstract class IntegrationTestCase extends TestCase
                 ->delete();
         }
 
-        $gedcom  = (string) file_get_contents(__DIR__ . '/../fixtures/' . $fixture);
-        $records = preg_split('/\n(?=0)/', $gedcom) ?: [];
+        $gedcom = file_get_contents(__DIR__ . '/../fixtures/' . $fixture);
+
+        if ($gedcom === false) {
+            throw new RuntimeException('Fixture not readable: ' . $fixture);
+        }
+
+        $records = preg_split('/\n(?=0)/', $gedcom);
+
+        if ($records === false) {
+            $records = [];
+        }
 
         foreach ($records as $record) {
             $gedcomImportService->importRecord($record, $tree, false);

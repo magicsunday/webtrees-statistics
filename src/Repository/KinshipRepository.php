@@ -13,7 +13,6 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
-use MagicSunday\Webtrees\Statistic\Support\ParentMap;
 
 use function array_fill_keys;
 use function array_keys;
@@ -65,10 +64,12 @@ final readonly class KinshipRepository
     private const int ANCESTOR_BUCKET = 3;
 
     /**
-     * @param Tree $tree The tree the statistics are computed for
+     * @param Tree                $tree                The tree the statistics are computed for
+     * @param ParentMapRepository $parentMapRepository Shared parent-of map provider (FAMC + FAM scan)
      */
     public function __construct(
         private Tree $tree,
+        private ParentMapRepository $parentMapRepository,
     ) {
     }
 
@@ -82,7 +83,7 @@ final readonly class KinshipRepository
      */
     public function ancestorCountDistribution(): array
     {
-        $parentOf  = ParentMap::for($this->tree);
+        $parentOf  = $this->parentMapRepository->build();
         $maxCount  = (2 ** (self::ANCESTOR_DEPTH + 1)) - 2;
         $bucketMin = 0;
 
@@ -124,7 +125,7 @@ final readonly class KinshipRepository
      */
     public function averagePedigreeCompleteness(): float
     {
-        $parentOf    = ParentMap::for($this->tree);
+        $parentOf    = $this->parentMapRepository->build();
         $individuals = DB::table('individuals')
             ->where('i_file', '=', $this->tree->id())
             ->select(['i_id'])

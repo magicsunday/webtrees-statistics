@@ -19,6 +19,7 @@ use MagicSunday\Webtrees\Statistic\Repository\ChildrenRepository;
 use MagicSunday\Webtrees\Statistic\Repository\CountryRepository;
 use MagicSunday\Webtrees\Statistic\Repository\DeathCauseRepository;
 use MagicSunday\Webtrees\Statistic\Repository\DivorceRepository;
+use MagicSunday\Webtrees\Statistic\Repository\EndogamyRepository;
 use MagicSunday\Webtrees\Statistic\Repository\EventRepository;
 use MagicSunday\Webtrees\Statistic\Repository\FamilyRepository;
 use MagicSunday\Webtrees\Statistic\Repository\GenerationDepthRepository;
@@ -77,6 +78,7 @@ final readonly class Statistic
      * @param PlaceDispersionRepository $placeDispersionRepository Distinct-PLAC-per-individual dispersion (Places tab)
      * @param GenerationDepthRepository $generationDepthRepository Max generation depth + descendants-distance distribution (Family tab brick-wall surfacing)
      * @param ParenthoodRepository      $parenthoodRepository      Age-at-first-child distribution per parent sex (Family tab)
+     * @param EndogamyRepository        $endogamyRepository        Cousin-marriage / shared-ancestor rate within four generations (Family tab)
      */
     public function __construct(
         private StatisticsData $data,
@@ -99,6 +101,7 @@ final readonly class Statistic
         private PlaceDispersionRepository $placeDispersionRepository,
         private GenerationDepthRepository $generationDepthRepository,
         private ParenthoodRepository $parenthoodRepository,
+        private EndogamyRepository $endogamyRepository,
     ) {
     }
 
@@ -384,6 +387,19 @@ final readonly class Statistic
     }
 
     /**
+     * Endogamy summary: testable-couple count, count sharing ≥1
+     * common ancestor within the default depth, the resulting
+     * percentage, and the depth used. Null when no testable couple
+     * exists (a tree with no recorded parentage links anywhere).
+     *
+     * @return array{total: int, endogamous: int, rate: float, depth: int}|null
+     */
+    public function getEndogamySummary(): ?array
+    {
+        return $this->endogamyRepository->summary();
+    }
+
+    /**
      * Top-N oldest deceased individuals (label includes the age).
      *
      * @param int $limit Maximum number of rows to return.
@@ -529,7 +545,7 @@ final readonly class Statistic
     /**
      * Histogram of children-per-family (0–9 buckets + "10+" overflow).
      *
-     * @return array<string, int>
+     * @return array<array-key, int>
      */
     public function getChildrenPerFamilyHistogram(): array
     {

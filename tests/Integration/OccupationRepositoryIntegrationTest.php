@@ -69,7 +69,7 @@ final class OccupationRepositoryIntegrationTest extends IntegrationTestCase
     #[Test]
     public function countDistinctOccupationsReturnsTheFullKeyCount(): void
     {
-        $tree   = $this->importFixtureTree('individual-facts.ged');
+        $tree = $this->importFixtureTree('individual-facts.ged');
 
         self::assertSame(4, (new OccupationRepository($tree))->countDistinctOccupations());
     }

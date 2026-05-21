@@ -65,6 +65,7 @@ foreach ($generationDepth['distribution'] as $gen => $count) {
 
 $ageAtFirstChildM = $statistic->getAgeAtFirstChildDistribution('M');
 $ageAtFirstChildF = $statistic->getAgeAtFirstChildDistribution('F');
+$endogamy         = $statistic->getEndogamySummary();
 
 // Trim co-zero ends so the side-by-side fathers/mothers histograms
 // don't begin and end with rows of 0/0 that carry no information.
@@ -605,6 +606,56 @@ foreach ($divorcesByCentury as $century => $count) {
                             $module . '::modules/statistics-chart/Partials/ProgressList',
                             ['class' => 'progress-generation-depth', 'data' => $generationDepthDistribution],
                         );
+        ?>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php } ?>
+
+    <?php if ($endogamy !== null) { ?>
+    <?php
+    $endogamyExplanation = I18N::translate(
+        'For every couple where both spouses have at least one parent recorded, the widget walks each spouse\'s ancestor tree up to four generations (parents, grandparents, great-grandparents, great-great-grandparents) and intersects the two sets. A non-empty intersection means the couple share at least one common ancestor — the classic signature of cousin marriage and pedigree collapse, typical in rural pre-industrial populations and rare in well-mixed urban ones. Couples where at least one spouse has no recorded parents cannot be tested and are excluded from both numerator and denominator, so the rate stays honest.'
+    );
+        ?>
+    <div class="row row-cols-1 g-3 mt-1 mb-3">
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        <?php echo I18N::translate('Endogamy rate (within 4 generations)'); ?>
+                        <button
+                            type="button"
+                            class="wt-card-info-button"
+                            data-bs-toggle="popover"
+                            data-bs-trigger="hover focus"
+                            data-bs-placement="top"
+                            data-bs-html="false"
+                            data-bs-custom-class="wt-popover-wide"
+                            data-bs-title="<?php echo e(I18N::translate('About this metric')); ?>"
+                            data-bs-content="<?php echo e($endogamyExplanation); ?>"
+                            aria-label="<?php echo e(I18N::translate('About this metric')); ?>"
+                        >?</button>
+                    </h5>
+                    <small><?php echo I18N::translate('Couples whose spouses share at least one common ancestor within four generations — a marker of cousin marriages and pedigree collapse.'); ?></small>
+                </div>
+                <div class="card-body d-flex align-items-center justify-content-center">
+                    <?php
+            echo view(
+                $module . '::modules/statistics-chart/Partials/Scalar',
+                [
+                    'value'   => I18N::number($endogamy['rate'], 1),
+                    'unit'    => '%',
+                    'caption' => I18N::plural(
+                        '%1$s of %2$s couple where both spouses had at least one recorded parent share a common ancestor.',
+                        '%1$s of %2$s couples where both spouses had at least one recorded parent share a common ancestor.',
+                        $endogamy['total'],
+                        I18N::number($endogamy['endogamous']),
+                        I18N::number($endogamy['total']),
+                    ),
+                ],
+            );
         ?>
                 </div>
             </div>

@@ -9,7 +9,7 @@
 
 declare(strict_types=1);
 
-namespace MagicSunday\Webtrees\Statistic\Support;
+namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
@@ -17,44 +17,44 @@ use Illuminate\Database\Capsule\Manager as DB;
 use function is_string;
 
 /**
- * Shared helper for building the tree-wide
- * `child-id → [father-id|null, mother-id|null]` map. Both
- * KinshipRepository (Lacy pedigree completeness) and
- * GenerationDepthRepository (max-generation walk) need the same
- * data shape; keeping the construction in one place avoids
- * duplicate FAMC + FAM queries and keeps the parent-resolution
- * semantics aligned across widgets.
+ * Shared repository that builds the tree-wide
+ * `child-id → [father-id|null, mother-id|null]` map. Three other
+ * repositories consume it:
  *
- * Builds two SQL queries (families + child-of-family links) and
- * fuses them in PHP because the link table is by far the cheapest
- * way to enumerate FAMC relationships without iterating every
- * individual record.
+ *   - {@see KinshipRepository} (Lacy pedigree completeness)
+ *   - {@see GenerationDepthRepository} (max-generation walk)
+ *   - {@see EndogamyRepository} (cousin-marriage detection)
+ *
+ * Centralising the FAMC + FAM scan here keeps every consumer
+ * aligned on the same parent-resolution semantics and avoids three
+ * separate full-table scans per dashboard render.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-final class ParentMap
+final readonly class ParentMapRepository
 {
     /**
-     * Prevent instantiation — static-only utility.
+     * @param Tree $tree The tree the parent map is computed for
      */
-    private function __construct()
-    {
+    public function __construct(
+        private Tree $tree,
+    ) {
     }
 
     /**
      * Build a child-id → [father-id|null, mother-id|null] map for
-     * the given tree. Children with no resolvable FAM-spouse pair
-     * are absent from the map (callers treat that as "root of the
-     * walk: no further ancestors known").
+     * the configured tree. Children with no resolvable FAM-spouse
+     * pair are absent from the map; callers treat absence as "root
+     * of the walk — no further ancestors known".
      *
      * @return array<string, array{0: string|null, 1: string|null}>
      */
-    public static function for(Tree $tree): array
+    public function build(): array
     {
         $familyRows = DB::table('families')
-            ->where('f_file', '=', $tree->id())
+            ->where('f_file', '=', $this->tree->id())
             ->select(['f_id', 'f_husb AS husb', 'f_wife AS wife'])
             ->get();
 
@@ -74,7 +74,7 @@ final class ParentMap
         }
 
         $childRows = DB::table('link')
-            ->where('l_file', '=', $tree->id())
+            ->where('l_file', '=', $this->tree->id())
             ->where('l_type', '=', 'FAMC')
             ->select(['l_from AS child', 'l_to AS family'])
             ->get();
