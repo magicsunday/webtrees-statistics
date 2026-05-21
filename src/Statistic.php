@@ -26,6 +26,7 @@ use MagicSunday\Webtrees\Statistic\Repository\MarriageRepository;
 use MagicSunday\Webtrees\Statistic\Repository\MigrationRepository;
 use MagicSunday\Webtrees\Statistic\Repository\NameRepository;
 use MagicSunday\Webtrees\Statistic\Repository\OccupationRepository;
+use MagicSunday\Webtrees\Statistic\Repository\PlaceDispersionRepository;
 use MagicSunday\Webtrees\Statistic\Repository\ReligionRepository;
 use MagicSunday\Webtrees\Statistic\Repository\TreeHealthRepository;
 
@@ -68,6 +69,7 @@ final readonly class Statistic
      * @param OccupationRepository      $occupationRepository      Top-N occupations (`1 OCCU` facts) across the tree
      * @param ReligionRepository        $religionRepository        Top-N religions / confessions (`1 RELI` facts) across the tree
      * @param DeathCauseRepository      $deathCauseRepository      Top-N death causes (`2 CAUS` under `1 DEAT`) across the tree
+     * @param PlaceDispersionRepository $placeDispersionRepository Distinct-PLAC-per-individual dispersion (Places tab)
      */
     public function __construct(
         private StatisticsData $data,
@@ -86,6 +88,7 @@ final readonly class Statistic
         private OccupationRepository $occupationRepository,
         private ReligionRepository $religionRepository,
         private DeathCauseRepository $deathCauseRepository,
+        private PlaceDispersionRepository $placeDispersionRepository,
     ) {
     }
 
@@ -301,6 +304,18 @@ final readonly class Statistic
     public function getDeathWinterPeakScore(): ?array
     {
         return $this->lifeSpanRepository->deathWinterPeakScore();
+    }
+
+    /**
+     * Distinct-PLAC dispersion across the tree. Average + sampled
+     * count + distribution shaped for a side-by-side
+     * Scalar + ProgressList visual on the Places tab.
+     *
+     * @return array{average: float, sampled: int, distribution: array<array-key, int>}
+     */
+    public function getPlaceDispersionSummary(): array
+    {
+        return $this->placeDispersionRepository->dispersionSummary();
     }
 
     /**

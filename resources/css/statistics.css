@@ -283,6 +283,11 @@
     --bs-progress-label-gradient-end:   var(--wmstats-gradient-births-end);
 }
 
+.wt-statistics-chart .progress-place-dispersion {
+    --bs-progress-label-gradient-start: rgb(215, 230, 220);
+    --bs-progress-label-gradient-end:   rgb(60, 130, 90);
+}
+
 /* ----------------------------------------------------------------------
    Tree-health rate bars + scalar readout
    -------------------------------------------------------------------- */

@@ -21,6 +21,8 @@ $migrationFlows = $statistic->getMigrationFlows(20);
 $sankeyExplanation = I18N::translate(
     'Each flow shows individuals who were born in one country and died in another. The flow\'s thickness encodes the count: thicker bands mean more migrations along that path. Same-country trajectories are excluded — they\'re not migration. Hover any band to see the exact source → destination and individual count.'
 );
+
+$placeDispersion = $statistic->getPlaceDispersionSummary();
 ?>
 <div class="container">
     <div class="row row-cols-1 row-cols-md-1 g-3">
@@ -147,4 +149,53 @@ echo view(
             </div>
         </div>
     </div>
+
+    <?php if ($placeDispersion['sampled'] > 0) { ?>
+    <div class="row row-cols-1 row-cols-md-2 g-3 mt-1 mb-3">
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('Geographic dispersion'); ?></h5>
+                    <small><?php echo I18N::translate('Average count of distinct PLAC values per individual across BIRT, DEAT, BAPM, BURI, RESI and similar level-1 events.'); ?></small>
+                </div>
+                <div class="card-body d-flex align-items-center justify-content-center">
+                    <?php
+        echo view(
+            $module . '::modules/statistics-chart/Partials/Scalar',
+            [
+                'value'   => I18N::number($placeDispersion['average'], 2),
+                'unit'    => I18N::translate('places'),
+                'caption' => I18N::plural(
+                    'Across %s individual with at least one recorded place.',
+                    'Across %s individuals with at least one recorded place.',
+                    $placeDispersion['sampled'],
+                    I18N::number($placeDispersion['sampled']),
+                ),
+            ],
+        );
+        ?>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('Distinct places per individual'); ?></h5>
+                    <small><?php echo I18N::translate('How many distinct places each individual carries, bucketed.'); ?></small>
+                </div>
+                <div class="card-body">
+                    <?php
+                echo view(
+                    $module . '::modules/statistics-chart/Partials/ProgressList',
+                    [
+                        'class' => 'progress-place-dispersion',
+                        'data'  => $placeDispersion['distribution'],
+                    ],
+                );
+        ?>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php } ?>
 </div>
