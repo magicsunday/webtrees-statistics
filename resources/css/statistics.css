@@ -443,6 +443,16 @@
     outline:      none;
 }
 
+/*
+ * Wider variant of the Bootstrap popover for longer explanation
+ * texts. Activated per-button via data-bs-custom-class="wt-popover-wide".
+ * Bootstrap defaults to max-width: 276px; this bumps it to 480px so
+ * dense explanations don't break into 30 narrow lines.
+ */
+.popover.wt-popover-wide {
+    max-width: 480px;
+}
+
 /* ----------------------------------------------------------------------
    Stream graph (Names tab — given-name popularity)
    -------------------------------------------------------------------- */

@@ -56,6 +56,10 @@ $ancestorDistribution = $statistic->getAncestorCountDistribution();
 $avgPedigree          = $statistic->getAveragePedigreeCompleteness();
 $totalAncestorsRows   = array_sum($ancestorDistribution);
 
+$pedigreeExplanation = I18N::translate(
+    'Each person in the tree has up to 30 possible direct ancestors within four generations (2 parents + 4 grandparents + 8 great-grandparents + 16 great-great-grandparents). The pedigree-completeness index (Lacy 1989) is the fraction of those 30 slots that are actually documented for that individual. The number shown here is the average across every individual in the tree, so 12 percent means "on average each person has 12 percent of their 4-generation ancestry recorded". Higher = more thorough research; lower = many gaps. Caveats: pedigree-collapse duplicates (cousin marriages) are not deduplicated, recent leaf-imports without ancestors drag the average down, and only direct ancestors are counted — siblings / cousins are out of scope.'
+);
+
 // Cohort-rate is a fraction — multiply by 100 to read as a percentage
 // and drop empty cohorts so the bar list isn't all zeros on trees
 // with very few divorces.
@@ -342,7 +346,21 @@ $totalDivAgeF    = array_sum($divorceAgeF);
         <div class="col">
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="card-title"><?php echo I18N::translate('Average pedigree completeness'); ?></h5>
+                    <h5 class="card-title">
+                        <?php echo I18N::translate('Average pedigree completeness'); ?>
+                        <button
+                            type="button"
+                            class="wt-card-info-button"
+                            data-bs-toggle="popover"
+                            data-bs-trigger="hover focus"
+                            data-bs-placement="top"
+                            data-bs-html="false"
+                            data-bs-custom-class="wt-popover-wide"
+                            data-bs-title="<?php echo e(I18N::translate('About this chart')); ?>"
+                            data-bs-content="<?php echo e($pedigreeExplanation); ?>"
+                            aria-label="<?php echo e(I18N::translate('About this chart')); ?>"
+                        >?</button>
+                    </h5>
                     <small><?php echo I18N::translate('Lacy 1989 — mean fraction of direct ancestors known up to four generations across all individuals.'); ?></small>
                 </div>
                 <div class="card-body">
