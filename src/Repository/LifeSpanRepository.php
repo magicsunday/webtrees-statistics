@@ -158,9 +158,8 @@ final readonly class LifeSpanRepository
                 continue;
             }
 
-            $years       = intdiv($todayJulianDay - $birthJd, 365);
-            $label       = $this->plainName($individual) . ' (' . $years . ')';
-            $out[$label] = $years;
+            $years                              = intdiv($todayJulianDay - $birthJd, 365);
+            $out[$this->plainName($individual)] = $years;
         }
 
         return $out;
@@ -246,9 +245,8 @@ final readonly class LifeSpanRepository
                 continue;
             }
 
-            $years       = intdiv($days, 365);
-            $label       = $this->plainName($individual) . ' (' . $years . ')';
-            $out[$label] = $years;
+            $years                              = intdiv($days, 365);
+            $out[$this->plainName($individual)] = $years;
         }
 
         return $out;

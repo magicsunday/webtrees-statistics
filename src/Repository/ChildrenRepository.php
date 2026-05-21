@@ -221,9 +221,8 @@ final readonly class ChildrenRepository
                 continue;
             }
 
-            $plainName   = html_entity_decode(strip_tags($family->fullName()), ENT_QUOTES | ENT_HTML5, 'UTF-8');
-            $label       = $plainName . ' (' . $children . ')';
-            $out[$label] = $children;
+            $plainName       = html_entity_decode(strip_tags($family->fullName()), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            $out[$plainName] = $children;
         }
 
         return $out;
