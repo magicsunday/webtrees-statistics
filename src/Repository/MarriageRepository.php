@@ -15,6 +15,7 @@ use Fisharebest\Webtrees\StatisticsData;
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\JoinClause;
+use MagicSunday\Webtrees\Statistic\Support\AgeBuckets;
 
 use function abs;
 use function intdiv;
@@ -77,7 +78,7 @@ final readonly class MarriageRepository
     public function ageAtMarriageDistribution(string $sex): array
     {
         $rows    = $this->data->statsMarrAgeQuery($sex, 0, 0);
-        $buckets = $this->initBuckets(0, self::AGE_AT_MARRIAGE_MAX, self::AGE_AT_MARRIAGE_BUCKET);
+        $buckets = AgeBuckets::init(0, self::AGE_AT_MARRIAGE_MAX, self::AGE_AT_MARRIAGE_BUCKET);
 
         foreach ($rows as $row) {
             $days = $row->age ?? 0;
@@ -87,7 +88,7 @@ final readonly class MarriageRepository
             }
 
             $years = intdiv($days, 365);
-            $label = $this->bucketLabel($years, self::AGE_AT_MARRIAGE_MAX, self::AGE_AT_MARRIAGE_BUCKET);
+            $label = AgeBuckets::label($years, self::AGE_AT_MARRIAGE_MAX, self::AGE_AT_MARRIAGE_BUCKET);
 
             $buckets[$label] = ($buckets[$label] ?? 0) + 1;
         }
@@ -142,7 +143,7 @@ final readonly class MarriageRepository
             ])
             ->get();
 
-        $buckets = $this->initBuckets(0, self::DURATION_MAX, self::DURATION_BUCKET);
+        $buckets = AgeBuckets::init(0, self::DURATION_MAX, self::DURATION_BUCKET);
 
         foreach ($rows as $row) {
             $marrJd = is_numeric($row->marr_jd ?? null) ? (int) $row->marr_jd : 0;
@@ -166,7 +167,7 @@ final readonly class MarriageRepository
             }
 
             $years = intdiv($endJd - $marrJd, 365);
-            $label = $this->bucketLabel($years, self::DURATION_MAX, self::DURATION_BUCKET);
+            $label = AgeBuckets::label($years, self::DURATION_MAX, self::DURATION_BUCKET);
 
             $buckets[$label] = ($buckets[$label] ?? 0) + 1;
         }
@@ -276,40 +277,6 @@ final readonly class MarriageRepository
         }
 
         return $out;
-    }
-
-    /**
-     * Initialise an integer-keyed bucket map [0, max) plus a "max+"
-     * overflow.
-     *
-     * @return array<string, int>
-     */
-    private function initBuckets(int $minInclusive, int $maxExclusive, int $width): array
-    {
-        $buckets = [];
-
-        for ($lower = $minInclusive; $lower < $maxExclusive; $lower += $width) {
-            $buckets[$lower . '–' . ($lower + $width - 1)] = 0;
-        }
-
-        $buckets[$maxExclusive . '+'] = 0;
-
-        return $buckets;
-    }
-
-    /**
-     * Resolve a value to the matching bucket label in
-     * {@see initBuckets()} layout.
-     */
-    private function bucketLabel(int $value, int $maxExclusive, int $width): string
-    {
-        if ($value >= $maxExclusive) {
-            return $maxExclusive . '+';
-        }
-
-        $lower = intdiv($value, $width) * $width;
-
-        return $lower . '–' . ($lower + $width - 1);
     }
 
     /**

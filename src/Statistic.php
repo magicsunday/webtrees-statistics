@@ -29,6 +29,7 @@ use MagicSunday\Webtrees\Statistic\Repository\MarriageRepository;
 use MagicSunday\Webtrees\Statistic\Repository\MigrationRepository;
 use MagicSunday\Webtrees\Statistic\Repository\NameRepository;
 use MagicSunday\Webtrees\Statistic\Repository\OccupationRepository;
+use MagicSunday\Webtrees\Statistic\Repository\ParenthoodRepository;
 use MagicSunday\Webtrees\Statistic\Repository\PlaceDispersionRepository;
 use MagicSunday\Webtrees\Statistic\Repository\ReligionRepository;
 use MagicSunday\Webtrees\Statistic\Repository\TreeHealthRepository;
@@ -75,6 +76,7 @@ final readonly class Statistic
      * @param DeathCauseRepository      $deathCauseRepository      Top-N death causes (`2 CAUS` under `1 DEAT`) across the tree
      * @param PlaceDispersionRepository $placeDispersionRepository Distinct-PLAC-per-individual dispersion (Places tab)
      * @param GenerationDepthRepository $generationDepthRepository Max generation depth + descendants-distance distribution (Family tab brick-wall surfacing)
+     * @param ParenthoodRepository      $parenthoodRepository      Age-at-first-child distribution per parent sex (Family tab)
      */
     public function __construct(
         private StatisticsData $data,
@@ -96,6 +98,7 @@ final readonly class Statistic
         private DeathCauseRepository $deathCauseRepository,
         private PlaceDispersionRepository $placeDispersionRepository,
         private GenerationDepthRepository $generationDepthRepository,
+        private ParenthoodRepository $parenthoodRepository,
     ) {
     }
 
@@ -365,6 +368,19 @@ final readonly class Statistic
     public function getGenerationDepthSummary(): array
     {
         return $this->generationDepthRepository->summary();
+    }
+
+    /**
+     * Age-at-first-child distribution for parents of the given sex,
+     * bucketed into 5-year bands.
+     *
+     * @param string $sex 'M' for fathers, 'F' for mothers
+     *
+     * @return array<string, int>
+     */
+    public function getAgeAtFirstChildDistribution(string $sex): array
+    {
+        return $this->parenthoodRepository->ageAtFirstChildDistribution($sex);
     }
 
     /**

@@ -355,13 +355,15 @@
    keeps the brightest bars in lockstep with the donut. */
 
 .wt-statistics-chart .progress-age-at-marriage-m,
-.wt-statistics-chart .progress-age-at-divorce-m {
+.wt-statistics-chart .progress-age-at-divorce-m,
+.wt-statistics-chart .progress-age-first-child-m {
     --bs-progress-label-gradient-start: rgb(214, 230, 244);
     --bs-progress-label-gradient-end:   var(--wmstats-sex-male);
 }
 
 .wt-statistics-chart .progress-age-at-marriage-f,
-.wt-statistics-chart .progress-age-at-divorce-f {
+.wt-statistics-chart .progress-age-at-divorce-f,
+.wt-statistics-chart .progress-age-first-child-f {
     --bs-progress-label-gradient-start: rgb(255, 217, 233);
     --bs-progress-label-gradient-end:   var(--wmstats-sex-female);
 }

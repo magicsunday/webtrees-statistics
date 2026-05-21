@@ -63,6 +63,16 @@ foreach ($generationDepth['distribution'] as $gen => $count) {
     $generationDepthDistribution[(string) $gen] = $count;
 }
 
+$ageAtFirstChildM = $statistic->getAgeAtFirstChildDistribution('M');
+$ageAtFirstChildF = $statistic->getAgeAtFirstChildDistribution('F');
+
+// Trim co-zero ends so the side-by-side fathers/mothers histograms
+// don't begin and end with rows of 0/0 that carry no information.
+[$ageAtFirstChildM, $ageAtFirstChildF] = HistogramTrim::dropCoZeroEnds($ageAtFirstChildM, $ageAtFirstChildF);
+
+$totalFirstChildM = array_sum($ageAtFirstChildM);
+$totalFirstChildF = array_sum($ageAtFirstChildF);
+
 $pedigreeExplanation = I18N::translate(
     'Each person in the tree has up to 30 possible direct ancestors within four generations (2 parents + 4 grandparents + 8 great-grandparents + 16 great-great-grandparents). The pedigree-completeness index (Lacy 1989) is the fraction of those 30 slots that are actually documented for that individual. The number shown here is the average across every individual in the tree, so 12 percent means "on average each person has 12 percent of their 4-generation ancestry recorded". Higher = more thorough research; lower = many gaps. Caveats: pedigree-collapse duplicates (cousin marriages) are not deduplicated, recent leaf-imports without ancestors drag the average down, and only direct ancestors are counted — siblings / cousins are out of scope.'
 );
@@ -152,6 +162,41 @@ $totalDivAgeF    = array_sum($divorceAgeF);
     echo view(
         $module . '::modules/statistics-chart/Partials/ProgressList',
         ['class' => 'progress-age-gap', 'data' => $ageGap],
+    );
+?>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 g-3 mt-1 mb-3">
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('Age at first child — fathers'); ?></h5>
+                    <small><?php echo I18N::plural('%s father with a dated first child', '%s fathers with a dated first child', $totalFirstChildM, I18N::number($totalFirstChildM)); ?></small>
+                </div>
+                <div class="card-body">
+                    <?php
+    echo view(
+        $module . '::modules/statistics-chart/Partials/ProgressList',
+        ['class' => 'progress-age-first-child-m', 'data' => $ageAtFirstChildM],
+    );
+?>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('Age at first child — mothers'); ?></h5>
+                    <small><?php echo I18N::plural('%s mother with a dated first child', '%s mothers with a dated first child', $totalFirstChildF, I18N::number($totalFirstChildF)); ?></small>
+                </div>
+                <div class="card-body">
+                    <?php
+    echo view(
+        $module . '::modules/statistics-chart/Partials/ProgressList',
+        ['class' => 'progress-age-first-child-f', 'data' => $ageAtFirstChildF],
     );
 ?>
                 </div>
