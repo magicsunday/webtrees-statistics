@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic;
 
 use Fisharebest\Webtrees\I18N;
+use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\StatisticsData;
 use MagicSunday\Webtrees\Statistic\Repository\ChildMortalityRepository;
 use MagicSunday\Webtrees\Statistic\Repository\ChildrenRepository;
@@ -20,6 +21,7 @@ use MagicSunday\Webtrees\Statistic\Repository\DeathCauseRepository;
 use MagicSunday\Webtrees\Statistic\Repository\DivorceRepository;
 use MagicSunday\Webtrees\Statistic\Repository\EventRepository;
 use MagicSunday\Webtrees\Statistic\Repository\FamilyRepository;
+use MagicSunday\Webtrees\Statistic\Repository\GenerationDepthRepository;
 use MagicSunday\Webtrees\Statistic\Repository\GivenNameTrendsRepository;
 use MagicSunday\Webtrees\Statistic\Repository\KinshipRepository;
 use MagicSunday\Webtrees\Statistic\Repository\LifeSpanRepository;
@@ -72,6 +74,7 @@ final readonly class Statistic
      * @param ReligionRepository        $religionRepository        Top-N religions / confessions (`1 RELI` facts) across the tree
      * @param DeathCauseRepository      $deathCauseRepository      Top-N death causes (`2 CAUS` under `1 DEAT`) across the tree
      * @param PlaceDispersionRepository $placeDispersionRepository Distinct-PLAC-per-individual dispersion (Places tab)
+     * @param GenerationDepthRepository $generationDepthRepository Max generation depth + descendants-distance distribution (Family tab brick-wall surfacing)
      */
     public function __construct(
         private StatisticsData $data,
@@ -92,6 +95,7 @@ final readonly class Statistic
         private ReligionRepository $religionRepository,
         private DeathCauseRepository $deathCauseRepository,
         private PlaceDispersionRepository $placeDispersionRepository,
+        private GenerationDepthRepository $generationDepthRepository,
     ) {
     }
 
@@ -344,6 +348,23 @@ final readonly class Statistic
     public function getChildMortalityByBirthCentury(): array
     {
         return $this->childMortalityRepository->byBirthCentury();
+    }
+
+    /**
+     * Generation-depth summary for the Family tab: tree-wide longest
+     * vertical descent, per-individual `[depth → count]` histogram
+     * across the entire parentage graph, a `capped` flag that
+     * trips when the depth-cap guard fired, up to three concrete
+     * chains (each a list of {@see Individual} objects, ordered
+     * eldest-ancestor → leaf-descendant) that reach the tree-wide
+     * maximum depth, and the total number of distinct chains so
+     * the view can surface "+N more" when more than three exist.
+     *
+     * @return array{maxDepth: int, distribution: array<int, int>, capped: bool, chains: list<list<Individual>>, totalChainCount: int}
+     */
+    public function getGenerationDepthSummary(): array
+    {
+        return $this->generationDepthRepository->summary();
     }
 
     /**

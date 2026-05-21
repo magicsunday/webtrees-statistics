@@ -288,6 +288,32 @@
     --bs-progress-label-gradient-end:   rgb(60, 130, 90);
 }
 
+.wt-statistics-chart .progress-generation-depth {
+    --bs-progress-label-gradient-start: rgb(230, 220, 240);
+    --bs-progress-label-gradient-end:   rgb(110, 75, 170);
+}
+
+.wt-statistics-chart .wt-generation-chain-list {
+    display:          flex;
+    flex-wrap:        wrap;
+    gap:              0.25rem 0;
+    justify-content:  center;
+    font-size:        0.95em;
+    line-height:      1.4;
+}
+
+.wt-statistics-chart .wt-generation-chain-list li {
+    display: inline-flex;
+    align-items: center;
+}
+
+.wt-statistics-chart .wt-generation-chain-sep {
+    color:        var(--bs-secondary-color);
+    font-weight:  bold;
+    margin-inline: 0.4rem;
+    user-select:  none;
+}
+
 /* ----------------------------------------------------------------------
    Tree-health rate bars + scalar readout
    -------------------------------------------------------------------- */

@@ -13,6 +13,7 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
+use MagicSunday\Webtrees\Statistic\Support\ParentMap;
 
 use function array_fill_keys;
 use function array_keys;
@@ -81,7 +82,7 @@ final readonly class KinshipRepository
      */
     public function ancestorCountDistribution(): array
     {
-        $parentOf  = $this->buildParentOfMap();
+        $parentOf  = ParentMap::for($this->tree);
         $maxCount  = (2 ** (self::ANCESTOR_DEPTH + 1)) - 2;
         $bucketMin = 0;
 
@@ -123,7 +124,7 @@ final readonly class KinshipRepository
      */
     public function averagePedigreeCompleteness(): float
     {
-        $parentOf    = $this->buildParentOfMap();
+        $parentOf    = ParentMap::for($this->tree);
         $individuals = DB::table('individuals')
             ->where('i_file', '=', $this->tree->id())
             ->select(['i_id'])
@@ -162,64 +163,6 @@ final readonly class KinshipRepository
         }
 
         return round($total / $count, 4);
-    }
-
-    /**
-     * Build a `[individual_id => [father_id|null, mother_id|null]]`
-     * lookup from the link / family tables in one pass.
-     *
-     * @return array<string, array{0: string|null, 1: string|null}>
-     */
-    private function buildParentOfMap(): array
-    {
-        $rows = DB::table('families')
-            ->where('f_file', '=', $this->tree->id())
-            ->select(['f_id', 'f_husb AS husb', 'f_wife AS wife'])
-            ->get();
-
-        $familyParents = [];
-
-        foreach ($rows as $row) {
-            $famId = is_string($row->f_id) ? $row->f_id : '';
-
-            if ($famId === '') {
-                continue;
-            }
-
-            $husb = is_string($row->husb ?? null) && $row->husb !== '' ? $row->husb : null;
-            $wife = is_string($row->wife ?? null) && $row->wife !== '' ? $row->wife : null;
-
-            $familyParents[$famId] = [$husb, $wife];
-        }
-
-        $childRows = DB::table('link')
-            ->where('l_file', '=', $this->tree->id())
-            ->where('l_type', '=', 'FAMC')
-            ->select(['l_from AS child', 'l_to AS family'])
-            ->get();
-
-        $parentOf = [];
-
-        foreach ($childRows as $row) {
-            $child  = is_string($row->child ?? null) ? $row->child : '';
-            $family = is_string($row->family ?? null) ? $row->family : '';
-
-            if ($child === '') {
-                continue;
-            }
-
-            if ($family === '') {
-                continue;
-            }
-
-            if (!isset($familyParents[$family])) {
-                continue;
-            }
-
-            $parentOf[$child] = $familyParents[$family];
-        }
-
-        return $parentOf;
     }
 
     /**

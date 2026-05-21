@@ -226,27 +226,46 @@ foreach ($childMortalityByCentury as $entry) {
     <?php } ?>
 
     <?php if ($childMortality !== null) { ?>
+    <?php
+    $childMortalityExplanation = I18N::translate(
+        'For every individual with both BIRT and DEAT julian-days the widget computes the number of days lived; a death within five years (1826 days) of birth counts as under-5 mortality. The tree-wide percentage is the share of such children across the whole tree, and the LineChart on the right groups them by their birth century so the historical decline becomes visible (typical 1700s value 30-40 percent, modern below 2 percent). Individuals with only BIRT or only DEAT are silently excluded — we cannot determine survival without both anchors, and including them would skew the rate. Per-century cohorts below 5 children are suppressed because a single dead child would spike the line by more than 10 percentage points.'
+    );
+        ?>
     <div class="row row-cols-1 row-cols-md-2 g-3 mt-1 mb-3">
         <div class="col">
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="card-title"><?php echo I18N::translate('Child mortality (under 5)'); ?></h5>
+                    <h5 class="card-title">
+                        <?php echo I18N::translate('Child mortality (under 5)'); ?>
+                        <button
+                            type="button"
+                            class="wt-card-info-button"
+                            data-bs-toggle="popover"
+                            data-bs-trigger="hover focus"
+                            data-bs-placement="top"
+                            data-bs-html="false"
+                            data-bs-custom-class="wt-popover-wide"
+                            data-bs-title="<?php echo e(I18N::translate('About this metric')); ?>"
+                            data-bs-content="<?php echo e($childMortalityExplanation); ?>"
+                            aria-label="<?php echo e(I18N::translate('About this metric')); ?>"
+                        >?</button>
+                    </h5>
                     <small><?php echo I18N::translate('Share of individuals with both birth and death dates whose death occurred before their 5th birthday.'); ?></small>
                 </div>
                 <div class="card-body d-flex align-items-center justify-content-center">
                     <?php
-        echo view(
-            $module . '::modules/statistics-chart/Partials/Scalar',
-            [
-                'value'   => I18N::number($childMortality['rate'], 1),
-                'unit'    => '%',
-                'caption' => I18N::translate(
-                    '%1$s of %2$s children with known birth and death dates died before age 5.',
-                    I18N::number($childMortality['died']),
-                    I18N::number($childMortality['total']),
-                ),
-            ],
-        );
+            echo view(
+                $module . '::modules/statistics-chart/Partials/Scalar',
+                [
+                    'value'   => I18N::number($childMortality['rate'], 1),
+                    'unit'    => '%',
+                    'caption' => I18N::translate(
+                        '%1$s of %2$s children with known birth and death dates died before age 5.',
+                        I18N::number($childMortality['died']),
+                        I18N::number($childMortality['total']),
+                    ),
+                ],
+            );
         ?>
                 </div>
             </div>
