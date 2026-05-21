@@ -22,12 +22,18 @@ $generation     = $statistic->getAverageGenerationLength();
 $birthsByDecade = $statistic->getBirthsByDecade();
 $totalBirths    = array_sum($birthsByDecade);
 
-// LineChart expects a list of {label, value} rows; convert from
-// the map shape the repository returns.
+// LineChart expects a list of {label, value, tooltip?} rows;
+// convert from the map shape the repository returns and pre-format
+// a pluralised tooltip per row so the hover surfaces "4 births"
+// instead of a bare "4".
 $birthsLineSeries = [];
 
 foreach ($birthsByDecade as $decade => $count) {
-    $birthsLineSeries[] = ['label' => $decade, 'value' => $count];
+    $birthsLineSeries[] = [
+        'label'   => $decade,
+        'value'   => $count,
+        'tooltip' => I18N::plural('%s birth', '%s births', $count, I18N::number($count)),
+    ];
 }
 
 // Show every 3rd decade label so axis stays legible on
