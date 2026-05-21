@@ -1089,3 +1089,48 @@
 .wt-statistics-chart svg.wt-treemap:has(g.tile.is-selected) g.tile:not(.is-selected) rect.tile-rect {
     opacity: 0.35;
 }
+
+/* ----------------------------------------------------------------------
+   Area-density chart (chart-lib AreaDensity)
+   -------------------------------------------------------------------- */
+
+.wt-statistics-chart .wt-area-density-container {
+    width:  100%;
+    height: auto;
+}
+
+.wt-statistics-chart .wt-area-density-host {
+    display:  block;
+    width:    100%;
+    position: relative;
+}
+
+.wt-statistics-chart svg.wt-area-density {
+    width:   100%;
+    height:  auto;
+    display: block;
+}
+
+.wt-statistics-chart svg.wt-area-density path.area {
+    fill:    var(--wmstats-gradient-births-start, rgb(255, 224, 196));
+    opacity: 0.85;
+}
+
+.wt-statistics-chart svg.wt-area-density path.line {
+    stroke:       var(--wmstats-gradient-births-end, rgb(220, 120, 40));
+    stroke-width: 1.75px;
+    fill:         none;
+}
+
+.wt-statistics-chart svg.wt-area-density .x-axis text,
+.wt-statistics-chart svg.wt-area-density .y-axis text {
+    fill:      var(--bs-body-color);
+    font-size: 0.7rem;
+}
+
+.wt-statistics-chart svg.wt-area-density .x-axis path,
+.wt-statistics-chart svg.wt-area-density .y-axis path,
+.wt-statistics-chart svg.wt-area-density .x-axis line,
+.wt-statistics-chart svg.wt-area-density .y-axis line {
+    stroke: var(--bs-border-color, rgb(221, 221, 221));
+}

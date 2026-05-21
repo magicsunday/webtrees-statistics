@@ -13,6 +13,7 @@ use Fisharebest\Webtrees\I18N;
 use MagicSunday\Webtrees\Statistic\Statistic;
 use MagicSunday\Webtrees\Statistic\Support\CenturyName;
 use MagicSunday\Webtrees\Statistic\Support\HistogramTrim;
+use MagicSunday\Webtrees\Statistic\Support\SiblingGapRowMapper;
 
 /**
  * @var string    $module    The name of the module
@@ -537,8 +538,12 @@ $divorcesAgeBandExplain = I18N::translate(
                 <div class="card-body">
                     <?php
     echo view(
-        $module . '::modules/statistics-chart/Partials/ProgressList',
-        ['class' => 'progress-sibling-gap', 'data' => $siblingGaps],
+        $module . '::modules/statistics-chart/Partials/AreaDensity',
+        [
+            'identifier' => 'sibling-age-gap-density',
+            'data'       => SiblingGapRowMapper::toRows($siblingGaps),
+            'ariaLabel'  => I18N::translate('Sibling age gap'),
+        ],
     );
 ?>
                 </div>

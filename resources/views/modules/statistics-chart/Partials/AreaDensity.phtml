@@ -1,0 +1,35 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
+
+use Fisharebest\Webtrees\I18N;
+
+/**
+ * @var string                                                                                 $identifier Host element id
+ * @var array<int, array{x: int|float, y: int|float, tooltip?: string, tooltipLabel?: string}> $data       Density rows
+ * @var int|null                                                                               $height     Optional viewport height (defaults to 200)
+ * @var bool|null                                                                              $showLine   Toggle the line stroke on top of the area (default true)
+ * @var string|null                                                                            $ariaLabel  Accessible label on the host svg
+ */
+$height ??= 200;
+?>
+<div class="wt-area-density-container">
+    <div id="<?php echo e($identifier); ?>"
+         class="wt-area-density-host"
+         data-widget="area-density"
+         data-payload="<?php echo e(json_encode($data, JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE)); ?>"
+         data-options="<?php echo e(json_encode([
+             'height'    => $height,
+             'showLine'  => $showLine ?? null,
+             'ariaLabel' => $ariaLabel ?? null,
+         ], JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE)); ?>"
+         data-empty-message="<?php echo e(I18N::translate('No data available yet.')); ?>"
+    ></div>
+</div>
