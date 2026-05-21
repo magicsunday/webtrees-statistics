@@ -375,4 +375,64 @@ final class GedcomScannerTest extends TestCase
     {
         self::assertSame($expected, GedcomScanner::extractEventSubValue($gedcom, $eventTag, $subTag));
     }
+
+    /**
+     * @return iterable<string, array{0: string, 1: string, 2: list<string>}>
+     */
+    public static function extractAllSubTagValuesSamples(): iterable
+    {
+        yield 'single 2 RELI under BAPM is captured' => [
+            "0 @I1@ INDI\n1 BAPM\n2 DATE 10 APR 1810\n2 RELI evangelisch-lutherisch",
+            'RELI',
+            ['evangelisch-lutherisch'],
+        ];
+
+        yield 'multiple 2 RELI lines under different events are all captured' => [
+            "0 @I1@ INDI\n1 BAPM\n2 RELI Katholisch\n1 CONF\n2 RELI Katholisch",
+            'RELI',
+            ['Katholisch', 'Katholisch'],
+        ];
+
+        yield 'no 2 RELI line returns empty list' => [
+            "0 @I1@ INDI\n1 BAPM\n2 DATE 10 APR 1810\n2 PLAC Hamburg",
+            'RELI',
+            [],
+        ];
+
+        yield 'whitespace-only 2 RELI value is dropped' => [
+            "0 @I1@ INDI\n1 BAPM\n2 RELI    \n2 PLAC Hamburg",
+            'RELI',
+            [],
+        ];
+
+        yield 'trimmed value is returned' => [
+            "0 @I1@ INDI\n1 BAPM\n2 RELI    lutherisch   \n2 PLAC Hamburg",
+            'RELI',
+            ['lutherisch'],
+        ];
+
+        yield 'level-1 same-tag is NOT captured by sub-tag scan' => [
+            "0 @I1@ INDI\n1 RELI evangelisch-lutherisch\n1 BAPM\n2 PLAC Hamburg",
+            'RELI',
+            [],
+        ];
+    }
+
+    /**
+     * extractAllSubTagValues captures every level-2 `<subTag>` value
+     * anywhere in the record. The cross-cutting form complements
+     * {@see extractEventSubValue()} (which is scoped to one event
+     * block) and feeds aggregators that don't care which event the
+     * sub-tag attached to.
+     *
+     * @param string       $gedcom   Raw GEDCOM record body
+     * @param string       $subTag   Level-2 tag to capture
+     * @param list<string> $expected Expected captured values in encounter order
+     */
+    #[Test]
+    #[DataProvider('extractAllSubTagValuesSamples')]
+    public function extractAllSubTagValuesCapturesEverySubTagOccurrence(string $gedcom, string $subTag, array $expected): void
+    {
+        self::assertSame($expected, GedcomScanner::extractAllSubTagValues($gedcom, $subTag));
+    }
 }

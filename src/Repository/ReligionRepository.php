@@ -20,13 +20,25 @@ use function array_slice;
 use function count;
 
 /**
- * Top-N aggregation over the `1 RELI` (religion / confession) facts
- * attached to individuals. Multiple RELI lines per INDI all
- * contribute. Case-folded counting collapses spelling variants
- * (`Katholisch` / `katholisch` / `KATH.`) into one bucket; the
- * first-seen original casing wins as the display label. The full
- * aggregation is computed once per instance — `topReligions()` and
- * `countDistinctReligions()` both read from the same cached
+ * Top-N aggregation over the religion / confession affiliations
+ * recorded on individuals. The GEDCOM 5.5.1 + FamilySearch 7.0 spec
+ * stores religious affiliation in TWO places:
+ *
+ *   1. `1 RELI <value>` — top-level individual attribute (the
+ *      person's declared religion).
+ *   2. `2 RELI <value>` — sub-tag under any religious event
+ *      (BAPM / CHR / CHRA / CONF / FCOM / BARM / BASM / BLES /
+ *      ORDN), naming the affiliation under which the event took
+ *      place. In many real-world trees this is where the bulk of
+ *      the data lives (e.g. trees with church-book imports rarely
+ *      carry a separate `1 RELI` line, only the event-bound one).
+ *
+ * Both sources contribute to the same aggregation. Multi-occurrence
+ * per INDI is preserved. Case-folded counting collapses spelling
+ * variants (`Katholisch` / `katholisch` / `KATH.`) into one bucket;
+ * the first-seen original casing wins as the display label. The
+ * full aggregation is computed once per instance — `topReligions()`
+ * and `countDistinctReligions()` both read from the same cached
  * intermediate so a single Overview render does not pay for two
  * independent INDI scans.
  *
@@ -82,7 +94,10 @@ final class ReligionRepository
                 ->where('i_file', '=', $this->tree->id())
                 ->select(['i_gedcom AS gedcom'])
                 ->get(),
-            static fn (string $gedcom): array => GedcomScanner::extractAllTagValues($gedcom, 'RELI'),
+            static fn (string $gedcom): array => [
+                ...GedcomScanner::extractAllTagValues($gedcom, 'RELI'),
+                ...GedcomScanner::extractAllSubTagValues($gedcom, 'RELI'),
+            ],
             0,
         );
     }

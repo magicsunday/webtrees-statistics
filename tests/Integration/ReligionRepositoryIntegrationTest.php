@@ -54,4 +54,30 @@ final class ReligionRepositoryIntegrationTest extends IntegrationTestCase
 
         self::assertSame(3, (new ReligionRepository($tree))->countDistinctReligions());
     }
+
+    /**
+     * Event-bound `2 RELI` sub-tags under BAPM / CONF / etc. are
+     * picked up alongside top-level `1 RELI` so a tree imported from
+     * church books (where the affiliation lives only on the
+     * baptism / confirmation event, not as a free-standing religion
+     * fact) still surfaces a meaningful Top-N.
+     *
+     * Fixture composition:
+     *   I1: 1 BAPM / 2 RELI evangelisch-lutherisch                     → +1 lutherisch sub
+     *   I2: 1 BAPM / 2 RELI evangelisch-lutherisch + 1 CONF / 2 RELI … → +2 sub
+     *   I3: 1 RELI Katholisch + 1 BAPM / 2 RELI Katholisch             → +1 top + +1 sub
+     *   I4: 1 BAPM / 2 RELI lutherisch                                  → +1 sub
+     *   I5: 1 BAPM (no RELI)                                            → 0
+     */
+    #[Test]
+    public function topReligionsCombinesTopLevelAndEventBoundReli(): void
+    {
+        $tree   = $this->importFixtureTree('religion-event-bound.ged');
+        $result = (new ReligionRepository($tree))->topReligions(10);
+
+        self::assertSame(
+            ['evangelisch-lutherisch' => 3, 'Katholisch' => 2, 'lutherisch' => 1],
+            $result,
+        );
+    }
 }

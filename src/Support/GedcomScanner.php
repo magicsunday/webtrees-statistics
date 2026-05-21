@@ -302,6 +302,43 @@ final readonly class GedcomScanner
     }
 
     /**
+     * Return every value found on a `2 <subTag>` line anywhere in the
+     * GEDCOM body, regardless of which level-1 event block contains it.
+     * Multi-occurrence is preserved as a list. Trimmed; empty values
+     * are dropped.
+     *
+     * Used by aggregators that pick up cross-cutting facts the spec
+     * allows under any event detail — e.g. `2 RELI` (religious
+     * affiliation declared inside a baptism / confirmation / first
+     * communion event), `2 AGNC` (responsible agency), `2 CAUS` when
+     * collected event-agnostic. For scoping to a single event block
+     * see {@see extractEventSubValue()}.
+     *
+     * @param string $gedcom Raw GEDCOM record body
+     * @param string $subTag Level-2 tag whose values to capture
+     *
+     * @return list<string>
+     */
+    public static function extractAllSubTagValues(string $gedcom, string $subTag): array
+    {
+        if (preg_match_all('/^2 ' . $subTag . ' (.*)$/m', $gedcom, $matches) === 0) {
+            return [];
+        }
+
+        $values = [];
+
+        foreach ($matches[1] as $raw) {
+            $value = trim($raw);
+
+            if ($value !== '') {
+                $values[] = $value;
+            }
+        }
+
+        return $values;
+    }
+
+    /**
      * Pull the first `2 <subTag>` value found inside the level-1 block
      * of the given event tag. Returns null when the event or sub-tag
      * is absent. Used for sub-level facts like `1 DEAT / 2 CAUS` or
