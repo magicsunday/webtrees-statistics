@@ -56,7 +56,10 @@ final readonly class MarriageRepository
 
     /**
      * Couple-age-gap histogram is centred on zero and 5-year wide.
-     * Negative buckets mean wife older than husband.
+     * gap = `husbandBirthJd − wifeBirthJd`. Negative buckets mean
+     * the husband was born first (smaller julian day) → husband
+     * is older than wife. Positive buckets mean wife older than
+     * husband (or same year).
      */
     private const int AGE_GAP_BUCKET = 5;
 
