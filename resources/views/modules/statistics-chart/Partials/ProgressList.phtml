@@ -9,20 +9,29 @@
 
 declare(strict_types=1);
 
-use Fisharebest\Webtrees\Tree;
+use Fisharebest\Webtrees\I18N;
 
 /**
- * @var Tree               $tree
  * @var array<string, int> $data
  * @var string             $class
- * @var string             $suffix Optional unit appended to every value cell (e.g. "%")
+ * @var string             $suffix       Optional unit appended to every value cell (e.g. "%")
+ * @var string             $emptyMessage Optional override for the "no data" placeholder
  */
-$suffix ??= '';
+$suffix       ??= '';
+$emptyMessage ??= I18N::translate('No data recorded for this metric.');
+
+$maximum = ($data === []) ? 0 : max($data);
+
+if ($maximum === 0) {
+    echo '<p class="text-muted text-center mb-0">' . e($emptyMessage) . '</p>';
+
+    return;
+}
 ?>
 <div class="wt-births-list">
     <table class="progress-bar-table">
         <tbody>
-            <?php $maximum = ($data === []) ? 0 : max($data); ?>
+            <?php /* $maximum already computed above */ ?>
             <?php foreach ($data as $key => $value) { ?>
                 <?php $width = ($maximum > 0) ? ($value * 100.0 / $maximum) : 0.0; ?>
 

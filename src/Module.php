@@ -95,6 +95,19 @@ class Module extends StatisticsChartModule implements ModuleAssetUrlInterface, M
     }
 
     /**
+     * CSS class for the chart-menu entry. The {@see ModuleChartTrait}
+     * we `use` resets this to the empty string and would otherwise
+     * leave our menu item without the icon every other Statistics
+     * chart in the Charts dropdown carries; re-apply core's value
+     * so the icon renders consistently.
+     */
+    #[Override]
+    public function chartMenuClass(): string
+    {
+        return 'menu-chart-statistics';
+    }
+
+    /**
      * Renders the top-level page with the six-tab navigation skeleton.
      *
      * @param ServerRequestInterface $request Incoming HTTP request

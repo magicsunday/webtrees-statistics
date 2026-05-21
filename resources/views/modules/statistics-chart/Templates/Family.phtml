@@ -183,7 +183,6 @@ foreach ($divorcesByCentury as $century => $count) {
 }
 ?>
 
-    <?php if ($weddingsByCenturySeries !== []) { ?>
     <div class="row g-3 mt-1 mb-3">
         <div class="col">
             <div class="card">
@@ -200,12 +199,11 @@ foreach ($divorcesByCentury as $century => $count) {
                 'data'       => $weddingsByCenturySeries,
             ],
         );
-        ?>
+?>
                 </div>
             </div>
         </div>
     </div>
-    <?php } ?>
 
     <div class="row row-cols-1 g-3 mt-1 mb-3">
         <div class="col">
@@ -216,17 +214,16 @@ foreach ($divorcesByCentury as $century => $count) {
                 </div>
                 <div class="card-body">
                     <?php
-            echo view(
-                $module . '::modules/statistics-chart/Partials/ProgressList',
-                ['class' => 'progress-weddings-month', 'data' => $byMonth],
-            );
+    echo view(
+        $module . '::modules/statistics-chart/Partials/ProgressList',
+        ['class' => 'progress-weddings-month', 'data' => $byMonth],
+    );
 ?>
                 </div>
             </div>
         </div>
     </div>
 
-    <?php if ($divorcesByCenturySeries !== []) { ?>
     <div class="row g-3 mt-1 mb-3">
         <div class="col">
             <div class="card">
@@ -243,12 +240,11 @@ foreach ($divorcesByCentury as $century => $count) {
                 'data'       => $divorcesByCenturySeries,
             ],
         );
-        ?>
+?>
                 </div>
             </div>
         </div>
     </div>
-    <?php } ?>
 
     <div class="row row-cols-1 g-3 mt-1 mb-3">
         <div class="col">
@@ -259,10 +255,10 @@ foreach ($divorcesByCentury as $century => $count) {
                 </div>
                 <div class="card-body">
                     <?php
-            echo view(
-                $module . '::modules/statistics-chart/Partials/ProgressList',
-                ['class' => 'progress-divorces-month', 'data' => $divorcesByMonth],
-            );
+    echo view(
+        $module . '::modules/statistics-chart/Partials/ProgressList',
+        ['class' => 'progress-divorces-month', 'data' => $divorcesByMonth],
+    );
 ?>
                 </div>
             </div>

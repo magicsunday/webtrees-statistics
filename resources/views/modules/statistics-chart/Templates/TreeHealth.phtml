@@ -134,7 +134,6 @@ foreach ($gaps as $gap) {
         </div>
     </div>
 
-    <?php if ($birthsByDecade !== []) { ?>
     <div class="row row-cols-1 g-3 mt-1 mb-3">
         <div class="col">
             <div class="card h-100">
@@ -153,10 +152,9 @@ foreach ($gaps as $gap) {
                 'xLabelEvery' => $birthsXLabelEvery,
             ],
         );
-        ?>
+?>
                 </div>
             </div>
         </div>
     </div>
-    <?php } ?>
 </div>

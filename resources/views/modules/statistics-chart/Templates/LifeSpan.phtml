@@ -123,7 +123,6 @@ foreach ($childMortalityByCentury as $entry) {
         </div>
     </div>
 
-    <?php if ($birthsByCenturySeries !== []) { ?>
     <div class="row g-3 mt-1 mb-3">
         <div class="col">
             <div class="card">
@@ -140,12 +139,11 @@ foreach ($childMortalityByCentury as $entry) {
                 'data'       => $birthsByCenturySeries,
             ],
         );
-        ?>
+?>
                 </div>
             </div>
         </div>
     </div>
-    <?php } ?>
 
     <div class="row row-cols-1 row-cols-md-2 g-3 mt-1 mb-3">
         <div class="col">
@@ -156,13 +154,13 @@ foreach ($childMortalityByCentury as $entry) {
                 </div>
                 <div class="card-body">
                     <?php
-            echo view(
-                $module . '::modules/statistics-chart/Partials/ProgressList',
-                [
-                    'class' => 'progress-deaths-month',
-                    'data'  => $deathsByMonth,
-                ],
-            );
+    echo view(
+        $module . '::modules/statistics-chart/Partials/ProgressList',
+        [
+            'class' => 'progress-deaths-month',
+            'data'  => $deathsByMonth,
+        ],
+    );
 ?>
                 </div>
             </div>
@@ -201,7 +199,6 @@ foreach ($childMortalityByCentury as $entry) {
         </div>
     </div>
 
-    <?php if ($deathsByCenturySeries !== []) { ?>
     <div class="row g-3 mt-1 mb-3">
         <div class="col">
             <div class="card">
@@ -218,12 +215,11 @@ foreach ($childMortalityByCentury as $entry) {
                 'data'       => $deathsByCenturySeries,
             ],
         );
-        ?>
+?>
                 </div>
             </div>
         </div>
     </div>
-    <?php } ?>
 
     <?php if ($childMortality !== null) { ?>
     <?php
@@ -378,7 +374,6 @@ foreach ($childMortalityByCentury as $entry) {
         </div>
     </div>
 
-    <?php if ($topDeathCauses !== []) { ?>
     <div class="row row-cols-1 row-cols-md-2 g-3 mt-1">
         <div class="col">
             <div class="card h-100">
@@ -395,10 +390,9 @@ foreach ($childMortalityByCentury as $entry) {
                 'data'  => $topDeathCauses,
             ],
         );
-        ?>
+?>
                 </div>
             </div>
         </div>
     </div>
-    <?php } ?>
 </div>

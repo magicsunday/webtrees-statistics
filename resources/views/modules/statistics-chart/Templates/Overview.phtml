@@ -82,9 +82,7 @@ $topReligions   = $statistic->getTopReligions(15);
         </div>
     </div>
 
-    <?php if ($topOccupations !== [] || $topReligions !== []) { ?>
     <div class="row row-cols-1 row-cols-md-2 g-3 mt-1">
-        <?php if ($topOccupations !== []) { ?>
         <div class="col">
             <div class="card h-100">
                 <div class="card-header">
@@ -100,13 +98,11 @@ $topReligions   = $statistic->getTopReligions(15);
                 'data'  => $topOccupations,
             ],
         );
-            ?>
+?>
                 </div>
             </div>
         </div>
-        <?php } ?>
 
-        <?php if ($topReligions !== []) { ?>
         <div class="col">
             <div class="card h-100">
                 <div class="card-header">
@@ -115,18 +111,16 @@ $topReligions   = $statistic->getTopReligions(15);
                 </div>
                 <div class="card-body">
                     <?php
-                    echo view(
-                        $module . '::modules/statistics-chart/Partials/ProgressList',
-                        [
-                            'class' => 'progress-religions',
-                            'data'  => $topReligions,
-                        ],
-                    );
-            ?>
+        echo view(
+            $module . '::modules/statistics-chart/Partials/ProgressList',
+            [
+                'class' => 'progress-religions',
+                'data'  => $topReligions,
+            ],
+        );
+?>
                 </div>
             </div>
         </div>
-        <?php } ?>
     </div>
-    <?php } ?>
 </div>

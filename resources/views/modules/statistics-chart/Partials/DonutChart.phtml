@@ -12,9 +12,17 @@ declare(strict_types=1);
 use Fisharebest\Webtrees\I18N;
 
 /**
- * @var string                                                                      $identifier Host element id
- * @var array<int, array{label: string, value: int, class?: string, fill?: string}> $data Slice payload
+ * @var string                                                                      $identifier   Host element id
+ * @var array<int, array{label: string, value: int, class?: string, fill?: string}> $data         Slice payload
+ * @var string                                                                      $emptyMessage Optional override for the "no data" placeholder
  */
+$emptyMessage ??= I18N::translate('No data recorded for this metric.');
+
+if (array_sum(array_column($data, 'value')) === 0) {
+    echo '<p class="text-muted text-center mb-0">' . e($emptyMessage) . '</p>';
+
+    return;
+}
 ?>
 <div class="donut-chart-container">
     <div id="<?php echo e($identifier); ?>"
