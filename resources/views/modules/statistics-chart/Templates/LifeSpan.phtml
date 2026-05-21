@@ -26,6 +26,7 @@ $ageAtDeath        = $statistic->getAgeAtDeathDistribution();
 $topOldestDeceased = $statistic->getTopOldestDeceased(10);
 $topOldestLiving   = $statistic->getTopOldestLiving(10);
 $livingByAgeBand   = $statistic->getLivingByAgeBand();
+$topDeathCauses    = $statistic->getTopDeathCauses(15);
 
 $totalBirthsByMonth   = array_sum($birthsByMonth);
 $totalBirthsByZodiac  = array_sum($birthsByZodiacSign);
@@ -218,4 +219,28 @@ $totalLivingBanded    = array_sum(array_column($livingByAgeBand, 'value'));
             </div>
         </div>
     </div>
+
+    <?php if ($topDeathCauses !== []) { ?>
+    <div class="row row-cols-1 row-cols-md-2 g-3 mt-1">
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('Common causes of death'); ?></h5>
+                    <small><?php echo I18N::translate('%s distinct causes (top 15 shown)', I18N::number($statistic->getTotalDeathCauses())); ?></small>
+                </div>
+                <div class="card-body">
+                    <?php
+        echo view(
+            $module . '::modules/statistics-chart/Partials/ProgressList',
+            [
+                'class' => 'progress-death-causes',
+                'data'  => $topDeathCauses,
+            ],
+        );
+        ?>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php } ?>
 </div>

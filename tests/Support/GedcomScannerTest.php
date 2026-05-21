@@ -251,4 +251,128 @@ final class GedcomScannerTest extends TestCase
     {
         self::assertSame($expected, GedcomScanner::extractPrimaryName($gedcom));
     }
+
+    /**
+     * @return iterable<string, array{0: string, 1: string, 2: list<string>}>
+     */
+    public static function extractAllTagValuesSamples(): iterable
+    {
+        yield 'single OCCU returns one value' => [
+            "0 @I1@ INDI\n1 NAME Anna /Test/\n1 OCCU Schmied\n1 SEX F",
+            'OCCU',
+            ['Schmied'],
+        ];
+
+        yield 'multiple OCCU lines return both values in encounter order' => [
+            "0 @I1@ INDI\n1 OCCU Schmied\n1 OCCU Hufschmied\n1 SEX M",
+            'OCCU',
+            ['Schmied', 'Hufschmied'],
+        ];
+
+        yield 'missing tag returns empty list' => [
+            "0 @I1@ INDI\n1 NAME Anna /Test/\n1 SEX F",
+            'OCCU',
+            [],
+        ];
+
+        yield 'tag value with trailing whitespace is trimmed' => [
+            "0 @I1@ INDI\n1 OCCU    Bauer   \n1 SEX M",
+            'OCCU',
+            ['Bauer'],
+        ];
+
+        yield 'tag with only whitespace value is dropped' => [
+            "0 @I1@ INDI\n1 OCCU    \n1 SEX M",
+            'OCCU',
+            [],
+        ];
+
+        yield 'RELI captured the same way as OCCU' => [
+            "0 @I1@ INDI\n1 RELI Katholisch\n1 SEX F",
+            'RELI',
+            ['Katholisch'],
+        ];
+    }
+
+    /**
+     * extractAllTagValues captures every value of a `1 <tag>` line in
+     * the body, preserving encounter order and trimming each. Used by
+     * Top-N aggregators over individual facts (OCCU, RELI, NATI, …).
+     *
+     * @param string       $gedcom   Raw GEDCOM record body
+     * @param string       $tag      Level-1 tag to capture
+     * @param list<string> $expected Expected captured values in encounter order
+     */
+    #[Test]
+    #[DataProvider('extractAllTagValuesSamples')]
+    public function extractAllTagValuesCapturesEveryTagOccurrence(string $gedcom, string $tag, array $expected): void
+    {
+        self::assertSame($expected, GedcomScanner::extractAllTagValues($gedcom, $tag));
+    }
+
+    /**
+     * @return iterable<string, array{0: string, 1: string, 2: string, 3: ?string}>
+     */
+    public static function extractEventSubValueSamples(): iterable
+    {
+        yield 'DEAT/CAUS within the same block returns the value' => [
+            "0 @I1@ INDI\n1 NAME Anna /Test/\n1 DEAT\n2 DATE 1850\n2 PLAC Berlin\n2 CAUS Cholera",
+            'DEAT',
+            'CAUS',
+            'Cholera',
+        ];
+
+        yield 'missing event block returns null' => [
+            "0 @I1@ INDI\n1 NAME Anna /Test/\n1 SEX F",
+            'DEAT',
+            'CAUS',
+            null,
+        ];
+
+        yield 'event block without the sub-tag returns null' => [
+            "0 @I1@ INDI\n1 DEAT\n2 DATE 1850\n2 PLAC Berlin",
+            'DEAT',
+            'CAUS',
+            null,
+        ];
+
+        yield 'sub-tag in a different event block is not picked up' => [
+            "0 @I1@ INDI\n1 BIRT\n2 CAUS premature\n1 DEAT\n2 DATE 1850",
+            'DEAT',
+            'CAUS',
+            null,
+        ];
+
+        yield 'whitespace-only sub-value returns null' => [
+            "0 @I1@ INDI\n1 DEAT\n2 CAUS     \n2 PLAC Berlin",
+            'DEAT',
+            'CAUS',
+            null,
+        ];
+
+        yield 'sub-value is trimmed' => [
+            "0 @I1@ INDI\n1 DEAT\n2 CAUS    Tuberkulose  \n2 PLAC Berlin",
+            'DEAT',
+            'CAUS',
+            'Tuberkulose',
+        ];
+    }
+
+    /**
+     * extractEventSubValue scopes to the level-1 event block and pulls
+     * the first matching `2 <subTag>` value. Block-confinement ensures a
+     * later event's sub-tag cannot satisfy an earlier event's missing
+     * sub-tag.
+     *
+     * @param string  $gedcom   Raw GEDCOM record body
+     * @param string  $eventTag Level-1 event tag whose block to scan
+     * @param string  $subTag   Level-2 sub-tag whose value to extract
+     * @param ?string $expected Expected sub-value (null when absent)
+     */
+    #[Test]
+    #[DataProvider('extractEventSubValueSamples')]
+    public function extractEventSubValueScopesToTheEventBlock(string $gedcom, string $eventTag, string $subTag, ?string $expected): void
+    {
+        self::assertSame($expected, GedcomScanner::extractEventSubValue($gedcom, $eventTag, $subTag));
+    }
 }

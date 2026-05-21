@@ -15,6 +15,7 @@ use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\StatisticsData;
 use MagicSunday\Webtrees\Statistic\Repository\ChildrenRepository;
 use MagicSunday\Webtrees\Statistic\Repository\CountryRepository;
+use MagicSunday\Webtrees\Statistic\Repository\DeathCauseRepository;
 use MagicSunday\Webtrees\Statistic\Repository\DivorceRepository;
 use MagicSunday\Webtrees\Statistic\Repository\EventRepository;
 use MagicSunday\Webtrees\Statistic\Repository\FamilyRepository;
@@ -24,6 +25,8 @@ use MagicSunday\Webtrees\Statistic\Repository\LifeSpanRepository;
 use MagicSunday\Webtrees\Statistic\Repository\MarriageRepository;
 use MagicSunday\Webtrees\Statistic\Repository\MigrationRepository;
 use MagicSunday\Webtrees\Statistic\Repository\NameRepository;
+use MagicSunday\Webtrees\Statistic\Repository\OccupationRepository;
+use MagicSunday\Webtrees\Statistic\Repository\ReligionRepository;
 use MagicSunday\Webtrees\Statistic\Repository\TreeHealthRepository;
 
 use function array_sum;
@@ -62,6 +65,9 @@ final readonly class Statistic
      * @param DivorceRepository         $divorceRepository         Divorce century / month / age / cohort-rate aggregations for the Family tab
      * @param ChildrenRepository        $childrenRepository        Children-per-family + sibling-age-gap + top-N largest families aggregations
      * @param KinshipRepository         $kinshipRepository         Ancestor-count distribution + average pedigree-completeness (Lacy 1989)
+     * @param OccupationRepository      $occupationRepository      Top-N occupations (`1 OCCU` facts) across the tree
+     * @param ReligionRepository        $religionRepository        Top-N religions / confessions (`1 RELI` facts) across the tree
+     * @param DeathCauseRepository      $deathCauseRepository      Top-N death causes (`2 CAUS` under `1 DEAT`) across the tree
      */
     public function __construct(
         private StatisticsData $data,
@@ -77,6 +83,9 @@ final readonly class Statistic
         private DivorceRepository $divorceRepository,
         private ChildrenRepository $childrenRepository,
         private KinshipRepository $kinshipRepository,
+        private OccupationRepository $occupationRepository,
+        private ReligionRepository $religionRepository,
+        private DeathCauseRepository $deathCauseRepository,
     ) {
     }
 
@@ -532,6 +541,72 @@ final readonly class Statistic
     public function getGivenNameTrends(int $topN): array
     {
         return $this->givenNameTrendsRepository->countByDecade($topN);
+    }
+
+    /**
+     * Top-N occupations across the tree (`1 OCCU` facts on individuals),
+     * case-folded so spelling variants merge into one bucket. Display
+     * labels carry the first-seen original casing.
+     *
+     * @param int $limit Maximum number of occupations to surface
+     *
+     * @return array<string, int>
+     */
+    public function getTopOccupations(int $limit): array
+    {
+        return $this->occupationRepository->topOccupations($limit);
+    }
+
+    /**
+     * Number of distinct occupations (case-folded) recorded across the tree.
+     */
+    public function getTotalOccupations(): int
+    {
+        return $this->occupationRepository->countDistinctOccupations();
+    }
+
+    /**
+     * Top-N religions / confessions across the tree (`1 RELI` facts on
+     * individuals), case-folded so spelling variants merge into one
+     * bucket.
+     *
+     * @param int $limit Maximum number of religions to surface
+     *
+     * @return array<string, int>
+     */
+    public function getTopReligions(int $limit): array
+    {
+        return $this->religionRepository->topReligions($limit);
+    }
+
+    /**
+     * Number of distinct religions (case-folded) recorded across the tree.
+     */
+    public function getTotalReligions(): int
+    {
+        return $this->religionRepository->countDistinctReligions();
+    }
+
+    /**
+     * Top-N death causes across the tree (`2 CAUS` sub-facts under the
+     * `1 DEAT` block), case-folded so spelling variants merge into one
+     * bucket.
+     *
+     * @param int $limit Maximum number of causes to surface
+     *
+     * @return array<string, int>
+     */
+    public function getTopDeathCauses(int $limit): array
+    {
+        return $this->deathCauseRepository->topDeathCauses($limit);
+    }
+
+    /**
+     * Number of distinct death causes (case-folded) recorded across the tree.
+     */
+    public function getTotalDeathCauses(): int
+    {
+        return $this->deathCauseRepository->countDistinctDeathCauses();
     }
 
     /**

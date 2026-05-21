@@ -267,6 +267,68 @@ final readonly class GedcomScanner
     }
 
     /**
+     * Return every value found on a `1 <tag>` line in the GEDCOM body,
+     * trimmed of surrounding whitespace. Multi-occurrence is preserved
+     * as a list so the caller can count each contribution. Lines whose
+     * value is empty after trim are dropped.
+     *
+     * Used by Top-N aggregators over individual-level facts (OCCU,
+     * RELI, NATI, …) — anything where the spec admits multiple
+     * occurrences per individual. Tag must be regex-safe; today's
+     * callers pass literals only.
+     *
+     * @param string $gedcom Raw GEDCOM record body
+     * @param string $tag    Level-1 tag whose values to capture (e.g. 'OCCU', 'RELI')
+     *
+     * @return list<string>
+     */
+    public static function extractAllTagValues(string $gedcom, string $tag): array
+    {
+        if (preg_match_all('/^1 ' . $tag . ' (.*)$/m', $gedcom, $matches) === 0) {
+            return [];
+        }
+
+        $values = [];
+
+        foreach ($matches[1] as $raw) {
+            $value = trim($raw);
+
+            if ($value !== '') {
+                $values[] = $value;
+            }
+        }
+
+        return $values;
+    }
+
+    /**
+     * Pull the first `2 <subTag>` value found inside the level-1 block
+     * of the given event tag. Returns null when the event or sub-tag
+     * is absent. Used for sub-level facts like `1 DEAT / 2 CAUS` or
+     * `1 BIRT / 2 ADDR`.
+     *
+     * @param string $gedcom   Raw GEDCOM record body
+     * @param string $eventTag Level-1 event tag whose block to scan (e.g. 'DEAT')
+     * @param string $subTag   Level-2 sub-tag whose value to extract (e.g. 'CAUS')
+     */
+    public static function extractEventSubValue(string $gedcom, string $eventTag, string $subTag): ?string
+    {
+        $block = self::eventBlock($gedcom, $eventTag);
+
+        if ($block === null) {
+            return null;
+        }
+
+        if (preg_match('/\n2 ' . $subTag . ' +([^\n]+)/', $block, $match) !== 1) {
+            return null;
+        }
+
+        $value = trim($match[1]);
+
+        return ($value === '') ? null : $value;
+    }
+
+    /**
      * Build an OR-joined LIKE SQL fragment with the same anchoring as
      * {@see hasTagAnchored()} for use in SQL counts ("how many
      * individuals carry / lack this tag"). Each tag yields three

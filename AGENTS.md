@@ -43,11 +43,11 @@ Module.php (entry point, registers route + 6 tab action methods)
 
 Every tab action delegates to the private `renderTab(string $template)` helper, which loads `Templates/<template>.phtml` with the active `Statistic` aggregator. Adding a new tab is a three-place change: an entry in `tabCatalog()`, a `get<Name>Action()` method that calls `renderTab('<Name>')`, and a `Templates/<Name>.phtml` body.
 
-The `Statistic` aggregator service is resolved via the webtrees DI container (`Registry::container()->get(Statistic::class)`) and aggregates data from twelve repositories plus core's `StatisticsData`.
+The `Statistic` aggregator service is resolved via the webtrees DI container (`Registry::container()->get(Statistic::class)`) and aggregates data from fifteen repositories plus core's `StatisticsData`.
 
 ### PHP (`src/`)
 - **`Module.php`** — Entry point, extends webtrees `StatisticsChartModule`, implements `ModuleAssetUrlInterface` + `ModuleCustomInterface`. Registers six tab actions (Overview, Names, TreeHealth, LifeSpan, Family, Places) that all delegate to a shared `renderTab()` helper.
-- **`Statistic.php`** — `final readonly` aggregator service. Constructor-injects `StatisticsData` (core) plus the twelve repositories. Public methods return either scalars or `[{label, value, class?}]` shapes for chart-lib widgets.
+- **`Statistic.php`** — `final readonly` aggregator service. Constructor-injects `StatisticsData` (core) plus the fifteen repositories. Public methods return either scalars, `[{label, value, class?}]` shapes for chart-lib widgets, or `label => count` maps for the ProgressList partial.
 - **`MaritalBucket.php`** — Backed enum (`current` / `divorced` / `widowed` / `single`) used as the typed bucket-key for `FamilyRepository::classifyLivingIndividuals()`.
 
 ### Repositories (`src/Repository/`)
@@ -65,17 +65,21 @@ The `Statistic` aggregator service is resolved via the webtrees DI container (`R
 | `DivorceRepository` | Divorces by century / month, age at divorce M+F, divorce rate per MARR cohort |
 | `ChildrenRepository` | Children-per-family histogram, sibling-age-gap, top-10 largest families, childless donut, first-children-by-month |
 | `KinshipRepository` | Known-ancestor distribution + average pedigree completeness (Lacy 1989) |
+| `OccupationRepository` | Top-N occupations (`1 OCCU` facts), case-folded merge of spelling variants. Cached per instance — both top-N and distinct count read from one aggregation. |
+| `ReligionRepository` | Top-N religions / confessions (`1 RELI` facts), case-folded. Cached as above. |
+| `DeathCauseRepository` | Top-N causes of death (`2 CAUS` sub-tag inside `1 DEAT`), case-folded. Cached as above. |
 
 ### Support (`src/Support/`)
-- **`GedcomScanner`** — Reusable raw-GEDCOM helpers (`hasAnyTagAnchored`, `extractEventYear`, `extractEventPlace`, `extractPrimaryName`) so anchored tag matching (`\n1 <tag>` followed by space / newline / EOS) lives in one place. `DIV` does not match `DIVF`; bare `2 PLAC` (no place name) is treated as no place at all. `extractPrimaryName` strips the surname-delimiter slashes from the first `1 NAME` line, collapses internal whitespace, scrubs to valid UTF-8, and falls back to `(no name)` for blank entries.
+- **`GedcomScanner`** — Reusable raw-GEDCOM helpers (`hasAnyTagAnchored`, `extractEventYear`, `extractEventPlace`, `extractPrimaryName`, `extractAllTagValues`, `extractEventSubValue`) so anchored tag matching (`\n1 <tag>` followed by space / newline / EOS) lives in one place. `DIV` does not match `DIVF`; bare `2 PLAC` (no place name) is treated as no place at all. `extractPrimaryName` strips the surname-delimiter slashes from the first `1 NAME` line, collapses internal whitespace, scrubs to valid UTF-8, and falls back to `(no name)` for blank entries. `extractAllTagValues` captures every value of a `1 <tag>` line for multi-occurrence facts (OCCU, RELI, …); `extractEventSubValue` pulls the first `2 <subTag>` value from inside a `1 <eventTag>` block, scoped so a sibling event's sub-tag cannot satisfy the lookup.
+- **`TopNAggregator`** — Generic Top-N counter for `(row set, extract closure, limit)` triples. Case-folded keys merge spelling variants; the first-seen original casing wins as the display label; `arsort` (stable in PHP 8.0+) breaks ties by encounter order. Consumed by `OccupationRepository`, `ReligionRepository`, `DeathCauseRepository`.
 - **`IsoCountryMap`** — Free-text country name → ISO-3166-1 alpha-2 resolver. Built on PHP's intl extension (`Locale::getDisplayRegion`) across nine pre-seeded locales (English, German, French, Spanish, Italian, Dutch, Portuguese, Polish, Russian) plus the active webtrees locale, with a manual-aliases list for common GEDCOM abbreviations (USA, UK, Deutschland, …). Labels resolve against the active `I18N::languageTag()`.
 
 ### Views (`resources/views/modules/statistics-chart/`)
 - **`page.phtml`** — Outer six-tab navigation. AJAX-loads each tab body lazily and runs `WebtreesStatistic.renderWidgets(pane)` against the freshly-injected pane on the `show.bs.tab` event.
-- **`Templates/Overview.phtml`** — Three donut cards (sex, living/deceased, marital status).
+- **`Templates/Overview.phtml`** — Three donut cards (sex, living/deceased, marital status) plus a conditional second row of progress-list cards (top-15 occupations, top-15 religions) rendered only when the underlying facts are present.
 - **`Templates/Names.phtml`** — Three tag-cloud cards (common surnames, male given names, female given names) + given-name popularity stream graph (top-10 by decade).
 - **`Templates/TreeHealth.phtml`** — Source-citation coverage, missing-event gaps, average generation length.
-- **`Templates/LifeSpan.phtml`** — Births / deaths by month / zodiac / century, age-at-death histogram (10-year bands), age-band donut (life-stages), top-10 oldest deceased + living.
+- **`Templates/LifeSpan.phtml`** — Births / deaths by month / zodiac / century, age-at-death histogram (10-year bands), age-band donut (life-stages), top-10 oldest deceased + living, plus a conditional top-15 causes of death progress-list rendered when the underlying `2 CAUS` facts are present.
 - **`Templates/Family.phtml`** — Age at marriage M+F, marriage duration, couple age gap, weddings century + month, divorces century + month + age M+F, divorce-cohort rate, children-per-family, sibling gap, top-10 largest families, with / without children donut, ancestor count, average pedigree completeness, first children by month.
 - **`Templates/Places.phtml`** — Birth-country map + companion top-10, death-country map + companion top-10, birth → death migration Sankey.
 - **`Partials/<Widget>.phtml`** — Thin shells that emit the `data-widget` JSON marker and the empty target element consumed by chart-lib widgets.

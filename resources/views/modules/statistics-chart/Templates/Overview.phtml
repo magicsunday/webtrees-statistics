@@ -16,6 +16,8 @@ use MagicSunday\Webtrees\Statistic\Statistic;
  * @var string    $module    The name of the module
  * @var Statistic $statistic
  */
+$topOccupations = $statistic->getTopOccupations(15);
+$topReligions   = $statistic->getTopReligions(15);
 ?>
 <div class="container">
     <div class="row row-cols-1 row-cols-md-3 g-3">
@@ -79,4 +81,52 @@ use MagicSunday\Webtrees\Statistic\Statistic;
             </div>
         </div>
     </div>
+
+    <?php if ($topOccupations !== [] || $topReligions !== []) { ?>
+    <div class="row row-cols-1 row-cols-md-2 g-3 mt-1">
+        <?php if ($topOccupations !== []) { ?>
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('Common occupations'); ?></h5>
+                    <small><?php echo I18N::translate('%s distinct occupations (top 15 shown)', I18N::number($statistic->getTotalOccupations())); ?></small>
+                </div>
+                <div class="card-body">
+                    <?php
+        echo view(
+            $module . '::modules/statistics-chart/Partials/ProgressList',
+            [
+                'class' => 'progress-occupations',
+                'data'  => $topOccupations,
+            ],
+        );
+            ?>
+                </div>
+            </div>
+        </div>
+        <?php } ?>
+
+        <?php if ($topReligions !== []) { ?>
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('Common religions'); ?></h5>
+                    <small><?php echo I18N::translate('%s distinct religions (top 15 shown)', I18N::number($statistic->getTotalReligions())); ?></small>
+                </div>
+                <div class="card-body">
+                    <?php
+                    echo view(
+                        $module . '::modules/statistics-chart/Partials/ProgressList',
+                        [
+                            'class' => 'progress-religions',
+                            'data'  => $topReligions,
+                        ],
+                    );
+            ?>
+                </div>
+            </div>
+        </div>
+        <?php } ?>
+    </div>
+    <?php } ?>
 </div>
