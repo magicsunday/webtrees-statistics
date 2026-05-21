@@ -19,6 +19,7 @@ use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
+use MagicSunday\Webtrees\Statistic\Support\CenturyName;
 
 use function array_combine;
 use function array_keys;
@@ -29,6 +30,8 @@ use function html_entity_decode;
 use function intdiv;
 use function is_numeric;
 use function is_string;
+use function ksort;
+use function max;
 use function sort;
 use function strip_tags;
 use function substr;
@@ -132,6 +135,139 @@ final readonly class ChildrenRepository
         }
 
         return $stripped;
+    }
+
+    /**
+     * Family-size composition by century — returns a two-level
+     * hierarchy ready for the chart-lib Treemap widget. The outer
+     * tier is one parent rectangle per century the marriage occurred
+     * in; the inner tier splits each parent into child-count buckets
+     * ("0", "1", …, "9", "10+") sized by the count of families in
+     * that bucket. Families without a usable MARR year are dropped
+     * because they can't be placed on the century axis — the chart
+     * answers "how did family size evolve over time?" and so needs
+     * a temporal anchor for every counted family.
+     *
+     * Zero-count buckets are pruned from the leaves so the treemap
+     * doesn't paint empty tiles; the bucket axis still ranges over
+     * 0..10+ via the styling rules, which lets the colour cue
+     * communicate family-size magnitude per leaf.
+     *
+     * @return array{
+     *     name: string,
+     *     children: list<array{
+     *         name: string,
+     *         children: list<array{name: string, value: int, class: string}>
+     *     }>
+     * }
+     */
+    public function familySizeByCentury(): array
+    {
+        $rows = DB::table('families')
+            ->where('f_file', '=', $this->tree->id())
+            ->leftJoin('dates AS marr', static function (JoinClause $join): void {
+                $join
+                    ->on('marr.d_file', '=', 'f_file')
+                    ->on('marr.d_gid', '=', 'f_id')
+                    ->where('marr.d_fact', '=', 'MARR')
+                    ->whereIn('marr.d_type', ['@#DGREGORIAN@', '@#DJULIAN@']);
+            })
+            ->select(['f_id', 'f_numchil AS n', 'marr.d_year AS year'])
+            ->get();
+
+        // Aggregate to one row per family with the EARLIEST MARR
+        // year — families with multiple MARR date facts (estimated
+        // + exact, multiple calendars) must not be double-counted,
+        // and the earliest year is the historically meaningful
+        // anchor for placing the family in a century. PHP-side
+        // grouping keeps the SQL trivial across MySQL/MariaDB/SQLite
+        // (whose strict-GROUP_BY semantics make the equivalent
+        // aggregation query awkward).
+        /** @var array<string, array{n: int, year: int}> $perFamily */
+        $perFamily = [];
+
+        foreach ($rows as $row) {
+            $familyId = is_string($row->f_id ?? null) ? $row->f_id : '';
+
+            if ($familyId === '') {
+                continue;
+            }
+
+            $year = is_numeric($row->year ?? null) ? (int) $row->year : 0;
+
+            if (!isset($perFamily[$familyId])) {
+                $childCount = is_numeric($row->n ?? null) ? (int) $row->n : 0;
+
+                if ($childCount < 0) {
+                    $childCount = 0;
+                }
+
+                $perFamily[$familyId] = [
+                    'n'    => $childCount,
+                    'year' => max($year, 0),
+                ];
+
+                continue;
+            }
+
+            if (($year > 0) && (($perFamily[$familyId]['year'] === 0) || ($year < $perFamily[$familyId]['year']))) {
+                $perFamily[$familyId]['year'] = $year;
+            }
+        }
+
+        /** @var array<int, array<int, int>> $cohorts century => bucket => count */
+        $cohorts = [];
+
+        foreach ($perFamily as $family) {
+            if ($family['year'] <= 0) {
+                continue;
+            }
+
+            $bucket = ($family['n'] >= self::CHILDREN_HISTOGRAM_MAX)
+                ? self::CHILDREN_HISTOGRAM_MAX
+                : $family['n'];
+            $century = intdiv($family['year'] - 1, 100) + 1;
+
+            $cohorts[$century][$bucket] = ($cohorts[$century][$bucket] ?? 0) + 1;
+        }
+
+        if ($cohorts === []) {
+            return ['name' => 'root', 'children' => []];
+        }
+
+        ksort($cohorts);
+
+        $children = [];
+
+        foreach ($cohorts as $century => $buckets) {
+            $leaves = [];
+
+            for ($size = 0; $size <= self::CHILDREN_HISTOGRAM_MAX; ++$size) {
+                $count = $buckets[$size] ?? 0;
+
+                if ($count === 0) {
+                    continue;
+                }
+
+                $label = ($size === self::CHILDREN_HISTOGRAM_MAX)
+                    ? self::CHILDREN_HISTOGRAM_MAX . '+'
+                    : (string) $size;
+                $cssIndex = ($size === self::CHILDREN_HISTOGRAM_MAX) ? 'max' : (string) $size;
+
+                $leaves[] = [
+                    'name'  => $label,
+                    'value' => $count,
+                    'class' => 'family-size-' . $cssIndex,
+                ];
+            }
+
+            $children[] = [
+                'name'     => CenturyName::for($century),
+                'children' => $leaves,
+            ];
+        }
+
+        return ['name' => 'root', 'children' => $children];
     }
 
     /**

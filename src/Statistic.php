@@ -652,6 +652,24 @@ final readonly class Statistic
     }
 
     /**
+     * Family-size composition by century — hierarchical payload
+     * (century → child-count bucket → families) for the Treemap
+     * widget on the Family tab.
+     *
+     * @return array{
+     *     name: string,
+     *     children: list<array{
+     *         name: string,
+     *         children: list<array{name: string, value: int, class: string}>
+     *     }>
+     * }
+     */
+    public function getFamilySizeByCentury(): array
+    {
+        return $this->childrenRepository->familySizeByCentury();
+    }
+
+    /**
      * Top-N largest families by child count.
      *
      * @param int $limit Maximum number of rows.
