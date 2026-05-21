@@ -36,6 +36,13 @@ use function uasort;
 final readonly class MigrationRepository
 {
     /**
+     * Maximum number of sample individuals surfaced per flow on
+     * hover. Three is the acceptance-criteria minimum from issue
+     * #12 and visually fits on one tooltip line per name.
+     */
+    private const int SAMPLES_PER_FLOW = 3;
+
+    /**
      * @param Tree $tree The tree the statistics are computed for
      */
     public function __construct(
@@ -58,25 +65,38 @@ final readonly class MigrationRepository
      * counter-flows onto a single node would create a 2-cycle and
      * throw a "circular link" error at render time.
      *
+     * Each link carries up to {@see SAMPLES_PER_FLOW} sample
+     * individuals (`name`, `xref`) so the consumer's hover tooltip
+     * can surface representative people behind every migration
+     * path — the acceptance criterion from issue #12.
+     *
      * @param int $topLinks Maximum number of distinct flows to retain
      *
      * @return array{
      *     nodes: list<array{name: string}>,
-     *     links: list<array{source: int, target: int, value: int}>
+     *     links: list<array{source: int, target: int, value: int, samples: list<array{name: string, xref: string}>}>
      * }
      */
     public function flowsByCountry(int $topLinks): array
     {
+        // ORDER BY i_id pins iteration to the (lexicographic) xref
+        // order so the SAMPLES_PER_FLOW cap always picks the same
+        // representatives across page loads, even after table-level
+        // events (OPTIMIZE TABLE, replication, index changes).
         $rows = DB::table('individuals')
             ->where('i_file', '=', $this->tree->id())
-            ->select(['i_gedcom AS gedcom'])
+            ->orderBy('i_id')
+            ->select(['i_id AS xref', 'i_gedcom AS gedcom'])
             ->get();
 
-        // Count every (origin → destination) pair once per individual.
-        $linkWeight = [];
+        // Count every (origin → destination) pair once per individual,
+        // and remember up to SAMPLES_PER_FLOW representatives per flow.
+        $linkWeight  = [];
+        $linkSamples = [];
 
         foreach ($rows as $row) {
             $gedcom = is_string($row->gedcom) ? $row->gedcom : '';
+            $xref   = is_string($row->xref) ? $row->xref : '';
 
             $birthPlace = GedcomScanner::extractEventPlace($gedcom, 'BIRT');
             $deathPlace = GedcomScanner::extractEventPlace($gedcom, 'DEAT');
@@ -106,6 +126,14 @@ final readonly class MigrationRepository
 
             $key              = $origin . "\0" . $destination;
             $linkWeight[$key] = ($linkWeight[$key] ?? 0) + 1;
+            $linkSamples[$key] ??= [];
+
+            if (count($linkSamples[$key]) < self::SAMPLES_PER_FLOW) {
+                $linkSamples[$key][] = [
+                    'name' => GedcomScanner::extractPrimaryName($gedcom),
+                    'xref' => $xref,
+                ];
+            }
         }
 
         if ($linkWeight === []) {
@@ -143,9 +171,10 @@ final readonly class MigrationRepository
             }
 
             $rawLinks[] = [
-                'source' => $sourceIndex[$origin],
-                'target' => $targetIndex[$destination],
-                'value'  => $value,
+                'source'  => $sourceIndex[$origin],
+                'target'  => $targetIndex[$destination],
+                'value'   => $value,
+                'samples' => $linkSamples[$key],
             ];
         }
 
@@ -158,9 +187,10 @@ final readonly class MigrationRepository
 
         foreach ($rawLinks as $link) {
             $links[] = [
-                'source' => $link['source'],
-                'target' => $sourceColumnSize + $link['target'],
-                'value'  => $link['value'],
+                'source'  => $link['source'],
+                'target'  => $sourceColumnSize + $link['target'],
+                'value'   => $link['value'],
+                'samples' => $link['samples'],
             ];
         }
 

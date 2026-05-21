@@ -13,9 +13,14 @@ namespace MagicSunday\Webtrees\Statistic\Support;
 
 use function explode;
 use function implode;
+use function mb_convert_encoding;
+use function mb_substitute_character;
 use function preg_match;
+use function preg_match_all;
+use function preg_replace;
 use function str_contains;
 use function str_ends_with;
+use function str_replace;
 use function str_starts_with;
 use function strlen;
 use function strpos;
@@ -35,6 +40,14 @@ use function trim;
  */
 final readonly class GedcomScanner
 {
+    /**
+     * Renderable fallback when {@see extractPrimaryName()} cannot find
+     * a usable `1 NAME` value. Lives as a single constant so the
+     * eventual I18N pass (#41 DTO + translatable strings) touches one
+     * line.
+     */
+    public const string NO_NAME_PLACEHOLDER = '(no name)';
+
     /**
      * True when the GEDCOM blob contains `\n1 <tag>` for any tag in the
      * list, anchored so substring tags (e.g. `DIV` vs `DIVF`) cannot
@@ -204,6 +217,53 @@ final readonly class GedcomScanner
         }
 
         return null;
+    }
+
+    /**
+     * Pull the display name out of an individual's raw GEDCOM. Picks
+     * the first `1 NAME` line whose captured value is non-empty after
+     * the slash strip — legacy exports sometimes prepend a placeholder
+     * `1 NAME / /` ahead of the real name record, so the first match
+     * cannot win unconditionally. Collapses internal whitespace so a
+     * suffix following the closing slash does not leave a double space,
+     * and scrubs the result back to valid UTF-8 (lone lead bytes from
+     * legacy ANSEL/Latin-1 imports survive into `i_gedcom` and would
+     * otherwise blow up `json_encode(..., JSON_THROW_ON_ERROR)` on the
+     * consuming view). Falls back to {@see NO_NAME_PLACEHOLDER} when
+     * every candidate is empty or the GEDCOM has no NAME line at all —
+     * the consumer always has a renderable placeholder.
+     *
+     * @param string $gedcom Raw GEDCOM record body
+     */
+    public static function extractPrimaryName(string $gedcom): string
+    {
+        if (preg_match_all('/^1 NAME (.*)$/m', $gedcom, $matches) === 0) {
+            return self::NO_NAME_PLACEHOLDER;
+        }
+
+        foreach ($matches[1] as $candidate) {
+            $stripped  = trim(str_replace('/', '', $candidate));
+            $collapsed = preg_replace('/\s+/', ' ', $stripped) ?? $stripped;
+
+            // mb_convert_encoding consults the process-wide
+            // mb_substitute_character setting; pin it to U+003F ('?')
+            // for the duration of the call so the scrubbed output is
+            // stable regardless of ambient configuration.
+            $previous = mb_substitute_character();
+            mb_substitute_character(0x3F);
+
+            try {
+                $name = mb_convert_encoding($collapsed, 'UTF-8', 'UTF-8');
+            } finally {
+                mb_substitute_character($previous);
+            }
+
+            if ($name !== '') {
+                return $name;
+            }
+        }
+
+        return self::NO_NAME_PLACEHOLDER;
     }
 
     /**

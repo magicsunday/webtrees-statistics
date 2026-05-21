@@ -67,7 +67,7 @@ The `Statistic` aggregator service is resolved via the webtrees DI container (`R
 | `KinshipRepository` | Known-ancestor distribution + average pedigree completeness (Lacy 1989) |
 
 ### Support (`src/Support/`)
-- **`GedcomScanner`** — Reusable raw-GEDCOM helpers (`hasAnyTagAnchored`, `extractEventYear`, `extractEventPlace`) so anchored tag matching (`\n1 <tag>` followed by space / newline / EOS) lives in one place. `DIV` does not match `DIVF`; bare `2 PLAC` (no place name) is treated as no place at all.
+- **`GedcomScanner`** — Reusable raw-GEDCOM helpers (`hasAnyTagAnchored`, `extractEventYear`, `extractEventPlace`, `extractPrimaryName`) so anchored tag matching (`\n1 <tag>` followed by space / newline / EOS) lives in one place. `DIV` does not match `DIVF`; bare `2 PLAC` (no place name) is treated as no place at all. `extractPrimaryName` strips the surname-delimiter slashes from the first `1 NAME` line, collapses internal whitespace, scrubs to valid UTF-8, and falls back to `(no name)` for blank entries.
 - **`IsoCountryMap`** — Free-text country name → ISO-3166-1 alpha-2 resolver. Built on PHP's intl extension (`Locale::getDisplayRegion`) across nine pre-seeded locales (English, German, French, Spanish, Italian, Dutch, Portuguese, Polish, Russian) plus the active webtrees locale, with a manual-aliases list for common GEDCOM abbreviations (USA, UK, Deutschland, …). Labels resolve against the active `I18N::languageTag()`.
 
 ### Views (`resources/views/modules/statistics-chart/`)
@@ -125,7 +125,7 @@ The bus carries no data shape — each widget interprets the predicate against i
 - Priority order on conflict: **KISS > SOLID > DRY > YAGNI > GRASP > Law of Demeter > Separation of Concerns > Convention over Configuration**.
 - `declare(strict_types=1)`, no `mixed`, no `empty()`, no `@deprecated`, typed class constants, `final readonly` where applicable, qualified `use function` imports, PHPDoc on every class and method, English-only comments.
 - One class per file. Write tests for every class with **real value-equality assertions against curated fixtures**, not just shape checks — the `assertGreaterThan(0)` style hides regressions where the iterator shape changed but the count happens to land near zero. Use PHPUnit `#[Test]` attributes (not docblock annotations).
-- Prefer `array_find` / `array_any` / `array_all` over manual `foreach` for "find one" / "any match" / "all match" intents.
+- Prefer `array_find` / `array_any` / `array_all` over manual `foreach` for "find one" / "any match" / "all match" intents — but only on PHP 8.4+. While `composer.json` still allows PHP 8.3, manual `foreach` stays the portable form; do not introduce these calls until the floor moves to 8.4.
 
 ## Audit-loop discipline
 - Every issue umsetzen: spawn ALL relevant reviewers (correctness + maintainability + testing + project-standards always; conditional ones — adversarial / kieran / reliability / security / frontend — whenever their triggers match) in parallel before committing. Iterate fix → audit until 2× zero findings AND local `composer ci:test` green.

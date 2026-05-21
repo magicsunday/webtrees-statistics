@@ -543,7 +543,7 @@ final readonly class Statistic
      *
      * @return array{
      *     nodes: list<array{name: string}>,
-     *     links: list<array{source: int, target: int, value: int}>
+     *     links: list<array{source: int, target: int, value: int, samples: list<array{name: string, xref: string}>}>
      * }
      */
     public function getMigrationFlows(int $topLinks): array

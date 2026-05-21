@@ -183,4 +183,72 @@ final class GedcomScannerTest extends TestCase
     {
         self::assertSame($expected, GedcomScanner::extractEventPlace($gedcom, $tag));
     }
+
+    /**
+     * @return iterable<string, array{0: string, 1: string}>
+     */
+    public static function extractPrimaryNameSamples(): iterable
+    {
+        yield 'plain Given /Surname/ strips the slashes' => [
+            "0 @I1@ INDI\n1 NAME Anna /Test/\n1 SEX F",
+            'Anna Test',
+        ];
+
+        yield 'closing slash followed by suffix does not leave a double space' => [
+            "0 @I1@ INDI\n1 NAME John /Smith/ Jr\n1 SEX M",
+            'John Smith Jr',
+        ];
+
+        yield 'given name only (no surname slashes) is returned verbatim' => [
+            "0 @I1@ INDI\n1 NAME Cher\n1 SEX F",
+            'Cher',
+        ];
+
+        yield 'first non-empty `1 NAME` line wins when several are recorded' => [
+            "0 @I1@ INDI\n1 NAME Primary /Test/\n1 NAME Secondary /Test/",
+            'Primary Test',
+        ];
+
+        yield 'empty `1 NAME / /` placeholder is skipped in favour of a later real NAME' => [
+            "0 @I1@ INDI\n1 NAME / /\n1 NAME Real /Name/\n1 SEX F",
+            'Real Name',
+        ];
+
+        yield 'lone `1 NAME / /` falls back to placeholder' => [
+            "0 @I1@ INDI\n1 NAME / /\n1 SEX F",
+            '(no name)',
+        ];
+
+        yield 'whitespace-only `1 NAME    ` falls back to placeholder' => [
+            "0 @I1@ INDI\n1 NAME    \n1 SEX F",
+            '(no name)',
+        ];
+
+        yield 'GEDCOM without any `1 NAME` line falls back to placeholder' => [
+            "0 @I1@ INDI\n1 SEX F\n1 BIRT\n2 PLAC Berlin",
+            '(no name)',
+        ];
+
+        yield 'unpaired UTF-8 lead byte from legacy import is scrubbed to substitute char' => [
+            "0 @I1@ INDI\n1 NAME J\xC3os\xC3\xA9 /Smith/\n1 SEX F",
+            "J?os\xC3\xA9 Smith",
+        ];
+    }
+
+    /**
+     * extractPrimaryName surfaces the first `1 NAME` line, strips the
+     * surname-delimiter slashes, collapses internal whitespace so a
+     * suffix after the closing slash does not double-space, and falls
+     * back to `(no name)` whenever the resulting string would be empty
+     * or the gedcom carries no NAME line at all.
+     *
+     * @param string $gedcom   Raw GEDCOM record body
+     * @param string $expected Expected display name
+     */
+    #[Test]
+    #[DataProvider('extractPrimaryNameSamples')]
+    public function extractPrimaryNameReturnsTheCleanedFirstNameLine(string $gedcom, string $expected): void
+    {
+        self::assertSame($expected, GedcomScanner::extractPrimaryName($gedcom));
+    }
 }
