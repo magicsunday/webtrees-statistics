@@ -9,10 +9,17 @@ import { json } from "d3-fetch";
 import { geoMercator } from "d3-geo";
 
 import {
+    AreaDensity,
+    BarChart,
+    BoxPlot,
+    ChordDiagram,
+    DivergingBar,
     DonutChart,
     LineChart,
     SankeyFlow,
+    StackedBar,
     StreamGraph,
+    Treemap,
     WorldMap,
 } from "@magicsunday/webtrees-chart-lib";
 
@@ -99,6 +106,13 @@ const WIDGETS = {
     "stream-graph": fromChartLib(StreamGraph),
     "sankey-flow": fromChartLib(SankeyFlow),
     "line-chart": fromChartLib(LineChart),
+    "bar-chart": fromChartLib(BarChart),
+    "stacked-bar": fromChartLib(StackedBar),
+    "diverging-bar": fromChartLib(DivergingBar),
+    "area-density": fromChartLib(AreaDensity),
+    "box-plot": fromChartLib(BoxPlot),
+    treemap: fromChartLib(Treemap),
+    "chord-diagram": fromChartLib(ChordDiagram),
 };
 
 /**

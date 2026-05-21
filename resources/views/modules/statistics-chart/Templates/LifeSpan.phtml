@@ -41,45 +41,86 @@ $totalAgeAtDeath      = array_sum($ageAtDeath);
 $totalLivingBanded    = array_sum(array_column($livingByAgeBand, 'value'));
 ?>
 <?php
-$birthsByCenturySeries = [];
+// LineChart uses the unified `{categories, series}` payload —
+// build parallel arrays per century then assemble the single-
+// series payload at the end.
+$birthsByCenturyCategories = [];
+$birthsByCenturyValues     = [];
+$birthsByCenturyTooltips   = [];
+$birthsByCenturyHeaders    = [];
 
 foreach ($birthsByCentury as $century => $count) {
-    $birthsByCenturySeries[] = [
-        'label'        => $century,
-        'tooltipLabel' => $century . ' ' . I18N::translate('Century'),
-        'value'        => $count,
-        'tooltip'      => I18N::plural('%s birth', '%s births', $count, I18N::number($count)),
-    ];
+    $birthsByCenturyCategories[] = (string) $century;
+    $birthsByCenturyValues[]     = (int) $count;
+    $birthsByCenturyTooltips[]   = I18N::plural('%s birth', '%s births', $count, I18N::number($count));
+    $birthsByCenturyHeaders[]    = $century . ' ' . I18N::translate('Century');
 }
 
-$deathsByCenturySeries = [];
+$birthsByCenturyPayload = [
+    'categories' => $birthsByCenturyCategories,
+    'series'     => [
+        [
+            'name'          => I18N::translate('Births'),
+            'values'        => $birthsByCenturyValues,
+            'tooltips'      => $birthsByCenturyTooltips,
+            'tooltipLabels' => $birthsByCenturyHeaders,
+        ],
+    ],
+];
+
+$deathsByCenturyCategories = [];
+$deathsByCenturyValues     = [];
+$deathsByCenturyTooltips   = [];
+$deathsByCenturyHeaders    = [];
 
 foreach ($deathsByCentury as $century => $count) {
-    $deathsByCenturySeries[] = [
-        'label'        => $century,
-        'tooltipLabel' => $century . ' ' . I18N::translate('Century'),
-        'value'        => $count,
-        'tooltip'      => I18N::plural('%s death', '%s deaths', $count, I18N::number($count)),
-    ];
+    $deathsByCenturyCategories[] = (string) $century;
+    $deathsByCenturyValues[]     = (int) $count;
+    $deathsByCenturyTooltips[]   = I18N::plural('%s death', '%s deaths', $count, I18N::number($count));
+    $deathsByCenturyHeaders[]    = $century . ' ' . I18N::translate('Century');
 }
 
-$childMortalitySeries = [];
+$deathsByCenturyPayload = [
+    'categories' => $deathsByCenturyCategories,
+    'series'     => [
+        [
+            'name'          => I18N::translate('Deaths'),
+            'values'        => $deathsByCenturyValues,
+            'tooltips'      => $deathsByCenturyTooltips,
+            'tooltipLabels' => $deathsByCenturyHeaders,
+        ],
+    ],
+];
+
+$childMortalityCategories = [];
+$childMortalityValues     = [];
+$childMortalityTooltips   = [];
+$childMortalityHeaders    = [];
 
 foreach ($childMortalityByCentury as $entry) {
-    $label = CenturyName::for($entry['century']);
-
-    $childMortalitySeries[] = [
-        'label'        => $label,
-        'tooltipLabel' => $label . ' ' . I18N::translate('Century'),
-        'value'        => $entry['rate'],
-        'tooltip'      => I18N::translate(
-            '%1$s%% — %2$s of %3$s children died before age 5',
-            I18N::number($entry['rate'], 1),
-            I18N::number($entry['died']),
-            I18N::number($entry['total']),
-        ),
-    ];
+    $label                      = CenturyName::for($entry['century']);
+    $childMortalityCategories[] = $label;
+    $childMortalityValues[]     = (float) $entry['rate'];
+    $childMortalityTooltips[]   = I18N::translate(
+        '%1$s%% — %2$s of %3$s children died before age 5',
+        I18N::number($entry['rate'], 1),
+        I18N::number($entry['died']),
+        I18N::number($entry['total']),
+    );
+    $childMortalityHeaders[] = $label . ' ' . I18N::translate('Century');
 }
+
+$childMortalityPayload = [
+    'categories' => $childMortalityCategories,
+    'series'     => [
+        [
+            'name'          => I18N::translate('Mortality rate'),
+            'values'        => $childMortalityValues,
+            'tooltips'      => $childMortalityTooltips,
+            'tooltipLabels' => $childMortalityHeaders,
+        ],
+    ],
+];
 ?>
 <div class="container">
     <div class="row row-cols-1 row-cols-md-2 g-3">
@@ -136,7 +177,7 @@ foreach ($childMortalityByCentury as $entry) {
             $module . '::modules/statistics-chart/Partials/LineChart',
             [
                 'identifier' => 'births-century-line',
-                'data'       => $birthsByCenturySeries,
+                'data'       => $birthsByCenturyPayload,
             ],
         );
 ?>
@@ -212,7 +253,7 @@ foreach ($childMortalityByCentury as $entry) {
             $module . '::modules/statistics-chart/Partials/LineChart',
             [
                 'identifier' => 'deaths-century-line',
-                'data'       => $deathsByCenturySeries,
+                'data'       => $deathsByCenturyPayload,
             ],
         );
 ?>
@@ -274,12 +315,12 @@ foreach ($childMortalityByCentury as $entry) {
                 </div>
                 <div class="card-body">
                     <?php
-        if ($childMortalitySeries !== []) {
+        if ($childMortalityCategories !== []) {
             echo view(
                 $module . '::modules/statistics-chart/Partials/LineChart',
                 [
                     'identifier' => 'child-mortality-century-line',
-                    'data'       => $childMortalitySeries,
+                    'data'       => $childMortalityPayload,
                 ],
             );
         } else {

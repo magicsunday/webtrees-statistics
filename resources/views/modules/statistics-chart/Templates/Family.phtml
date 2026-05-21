@@ -144,10 +144,42 @@ $totalDivAgeF    = array_sum($divorceAgeF);
                 </div>
                 <div class="card-body">
                     <?php
-    echo view(
-        $module . '::modules/statistics-chart/Partials/ProgressList',
-        ['class' => 'progress-marriage-duration', 'data' => $duration],
-    );
+    // Marriage-duration histogram reads better as a bar chart
+    // with brush zoom — most marriages cluster in the 0-30 year
+    // range and the long tail (60+) is interesting only when
+    // the reader zooms in.
+    // Tooltips on the BarChart need explicit unit labels — the
+    // raw `{label: "0-9", value: 35}` reads as "what are 0-9?"
+    // without context. `tooltipLabel` becomes the bold header
+    // (years span), `tooltip` becomes the pluralised body.
+    $durationRows = [];
+
+foreach ($duration as $label => $count) {
+    $durationRows[] = [
+        'label'        => $label,
+        'value'        => (int) $count,
+        // `$label` is a range string like "0–9" or "60+", so the
+        // unit suffix stays a sprintf placeholder rather than a
+        // numeric plural form.
+        'tooltipLabel' => I18N::translate('%s years', $label),
+        'tooltip'      => I18N::plural('%s marriage', '%s marriages', $count, I18N::number($count)),
+    ];
+}
+
+// Brush zoom intentionally off — the active d3-brush overlay
+// captures every mouse event in the chart area (including
+// hover), so the per-bar tooltip never fires when brush is on.
+// Histograms with a small bucket count (e.g. marriage duration
+// has 7 buckets) gain little from zoom and need working
+// tooltips more.
+echo view(
+    $module . '::modules/statistics-chart/Partials/BarChart',
+    [
+        'identifier' => 'marriage-duration-bar',
+        'data'       => $durationRows,
+        'ariaLabel'  => I18N::translate('Marriage duration'),
+    ],
+);
 ?>
                 </div>
             </div>
@@ -206,27 +238,58 @@ $totalDivAgeF    = array_sum($divorceAgeF);
     </div>
 
     <?php
-    $weddingsByCenturySeries = [];
+    // Wedding-by-century LineChart payload uses the unified
+    // {categories, series} shape — categories (= centuries) drive
+    // the x-axis, the single series carries one count per century
+    // with localised tooltip + tooltip-header overrides aligned
+    // by index.
+    $weddingsByCenturyCategories = [];
+$weddingsByCenturyValues         = [];
+$weddingsByCenturyTooltips       = [];
+$weddingsByCenturyHeaders        = [];
 
 foreach ($byCentury as $century => $count) {
-    $weddingsByCenturySeries[] = [
-        'label'        => $century,
-        'tooltipLabel' => $century . ' ' . I18N::translate('Century'),
-        'value'        => $count,
-        'tooltip'      => I18N::plural('%s marriage', '%s marriages', $count, I18N::number($count)),
-    ];
+    $weddingsByCenturyCategories[] = (string) $century;
+    $weddingsByCenturyValues[]     = (int) $count;
+    $weddingsByCenturyTooltips[]   = I18N::plural('%s marriage', '%s marriages', $count, I18N::number($count));
+    $weddingsByCenturyHeaders[]    = $century . ' ' . I18N::translate('Century');
 }
 
-$divorcesByCenturySeries = [];
+$weddingsByCenturyPayload = [
+    'categories' => $weddingsByCenturyCategories,
+    'series'     => [
+        [
+            'name'          => I18N::translate('Marriages'),
+            'values'        => $weddingsByCenturyValues,
+            'tooltips'      => $weddingsByCenturyTooltips,
+            'tooltipLabels' => $weddingsByCenturyHeaders,
+        ],
+    ],
+];
+
+$divorcesByCenturyCategories = [];
+$divorcesByCenturyValues     = [];
+$divorcesByCenturyTooltips   = [];
+$divorcesByCenturyHeaders    = [];
 
 foreach ($divorcesByCentury as $century => $count) {
-    $divorcesByCenturySeries[] = [
-        'label'        => $century,
-        'tooltipLabel' => $century . ' ' . I18N::translate('Century'),
-        'value'        => $count,
-        'tooltip'      => I18N::plural('%s divorce', '%s divorces', $count, I18N::number($count)),
-    ];
+    $divorcesByCenturyCategories[] = (string) $century;
+    $divorcesByCenturyValues[]     = (int) $count;
+    $divorcesByCenturyTooltips[]   = I18N::plural('%s divorce', '%s divorces', $count, I18N::number($count));
+    $divorcesByCenturyHeaders[]    = $century . ' ' . I18N::translate('Century');
 }
+
+$divorcesByCenturyPayload = [
+    'categories' => $divorcesByCenturyCategories,
+    'series'     => [
+        [
+            'name'          => I18N::translate('Divorces'),
+            'values'        => $divorcesByCenturyValues,
+            'tooltips'      => $divorcesByCenturyTooltips,
+            'tooltipLabels' => $divorcesByCenturyHeaders,
+        ],
+    ],
+];
 ?>
 
     <div class="row g-3 mt-1 mb-3">
@@ -242,7 +305,7 @@ foreach ($divorcesByCentury as $century => $count) {
             $module . '::modules/statistics-chart/Partials/LineChart',
             [
                 'identifier' => 'weddings-century-line',
-                'data'       => $weddingsByCenturySeries,
+                'data'       => $weddingsByCenturyPayload,
             ],
         );
 ?>
@@ -283,7 +346,7 @@ foreach ($divorcesByCentury as $century => $count) {
             $module . '::modules/statistics-chart/Partials/LineChart',
             [
                 'identifier' => 'divorces-century-line',
-                'data'       => $divorcesByCenturySeries,
+                'data'       => $divorcesByCenturyPayload,
             ],
         );
 ?>

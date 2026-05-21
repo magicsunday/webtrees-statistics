@@ -1,0 +1,39 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
+
+use Fisharebest\Webtrees\I18N;
+
+/**
+ * @var string                                                       $identifier  Host element id
+ * @var array<int, array{label: string, value: int, class?: string, tooltip?: string, tooltipLabel?: string}> $data Bar rows in display order
+ * @var int|null                                                     $height       Optional viewport height (defaults to 240)
+ * @var string|null                                                  $orientation  "vertical" (default) or "horizontal"
+ * @var bool|null                                                    $brush        Enable d3-brush selection (default false)
+ * @var string|null                                                  $ariaLabel    Accessible label on the host svg
+ */
+$height      ??= 240;
+$orientation ??= 'vertical';
+$brush       ??= false;
+?>
+<div class="wt-bar-chart-container">
+    <div id="<?php echo e($identifier); ?>"
+         class="wt-bar-chart-host"
+         data-widget="bar-chart"
+         data-payload="<?php echo e(json_encode($data, JSON_THROW_ON_ERROR)); ?>"
+         data-options="<?php echo e(json_encode([
+             'height'      => $height,
+             'orientation' => $orientation,
+             'brush'       => $brush,
+             'ariaLabel'   => $ariaLabel ?? null,
+         ], JSON_THROW_ON_ERROR)); ?>"
+         data-empty-message="<?php echo e(I18N::translate('No data available yet.')); ?>"
+    ></div>
+</div>

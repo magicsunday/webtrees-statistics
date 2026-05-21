@@ -67,12 +67,44 @@ class LineChart {
     }
 }
 
+// The new chart-lib widgets share the same shape; stub each one
+// with a no-op draw so the dispatcher table can be exercised
+// without dragging d3 into the test bundle.
+class BarChart {
+    draw() {}
+}
+class StackedBar {
+    draw() {}
+}
+class DivergingBar {
+    draw() {}
+}
+class AreaDensity {
+    draw() {}
+}
+class BoxPlot {
+    draw() {}
+}
+class Treemap {
+    draw() {}
+}
+class ChordDiagram {
+    draw() {}
+}
+
 jest.unstable_mockModule("@magicsunday/webtrees-chart-lib", () => ({
     DonutChart,
     StreamGraph,
     SankeyFlow,
     WorldMap,
     LineChart,
+    BarChart,
+    StackedBar,
+    DivergingBar,
+    AreaDensity,
+    BoxPlot,
+    Treemap,
+    ChordDiagram,
 }));
 
 // world-map dispatch is async (geojson fetch); mock d3-fetch + d3-geo

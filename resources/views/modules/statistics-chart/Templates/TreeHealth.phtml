@@ -22,23 +22,34 @@ $generation     = $statistic->getAverageGenerationLength();
 $birthsByDecade = $statistic->getBirthsByDecade();
 $totalBirths    = array_sum($birthsByDecade);
 
-// LineChart expects a list of {label, value, tooltip?} rows;
-// convert from the map shape the repository returns and pre-format
-// a pluralised tooltip per row so the hover surfaces "4 births"
-// instead of a bare "4".
-$birthsLineSeries = [];
+// LineChart uses the unified `{categories, series}` payload —
+// convert the map shape the repository returns into parallel
+// arrays of categories, values and pre-pluralised tooltips so
+// the hover surfaces "4 births" rather than a bare "4".
+$birthsCategories = [];
+$birthsValues     = [];
+$birthsTooltips   = [];
 
 foreach ($birthsByDecade as $decade => $count) {
-    $birthsLineSeries[] = [
-        'label'   => $decade,
-        'value'   => $count,
-        'tooltip' => I18N::plural('%s birth', '%s births', $count, I18N::number($count)),
-    ];
+    $birthsCategories[] = (string) $decade;
+    $birthsValues[]     = (int) $count;
+    $birthsTooltips[]   = I18N::plural('%s birth', '%s births', $count, I18N::number($count));
 }
 
-// Show every 3rd decade label so axis stays legible on
+$birthsLineSeries = [
+    'categories' => $birthsCategories,
+    'series'     => [
+        [
+            'name'     => I18N::translate('Births'),
+            'values'   => $birthsValues,
+            'tooltips' => $birthsTooltips,
+        ],
+    ],
+];
+
+// Show every Nth decade label so axis stays legible on
 // tree-spanning-centuries datasets.
-$birthsXLabelEvery = max(1, (int) ceil(count($birthsLineSeries) / 12));
+$birthsXLabelEvery = max(1, (int) ceil(count($birthsCategories) / 12));
 
 $gapLabels = [
     'BIRT.event' => I18N::translate('Missing birth event'),

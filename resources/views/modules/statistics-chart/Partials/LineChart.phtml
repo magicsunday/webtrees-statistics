@@ -12,10 +12,15 @@ declare(strict_types=1);
 use Fisharebest\Webtrees\I18N;
 
 /**
- * @var string                                       $identifier  Host element id
- * @var array<int, array{label: string, value: int}> $data       Series rows in display order
- * @var int|null                                     $height      Optional viewport height (defaults to 240)
- * @var int|null                                     $xLabelEvery Show every Nth x-axis label (default 1)
+ * @var string $identifier Host element id
+ * @var array{
+ *     categories: array<int, string>,
+ *     series: array<int, array{name: string, values: array<int, int|float>, class?: string, tooltips?: array<int, string>, tooltipLabels?: array<int, string>}>
+ * }                                       $data        Chart payload: x-axis labels + N series
+ * @var int|null    $height      Optional viewport height (defaults to 240)
+ * @var int|null    $xLabelEvery Show every Nth x-axis label (default 1)
+ * @var bool|null   $showArea    Default true for single-series, ignored otherwise
+ * @var string|null $ariaLabel   Accessible label on the host svg
  */
 $height      ??= 240;
 $xLabelEvery ??= 1;
@@ -25,7 +30,12 @@ $xLabelEvery ??= 1;
          class="wt-line-chart-host"
          data-widget="line-chart"
          data-payload="<?php echo e(json_encode($data, JSON_THROW_ON_ERROR)); ?>"
-         data-options="<?php echo e(json_encode(['height' => $height, 'xLabelEvery' => $xLabelEvery], JSON_THROW_ON_ERROR)); ?>"
+         data-options="<?php echo e(json_encode([
+             'height'      => $height,
+             'xLabelEvery' => $xLabelEvery,
+             'showArea'    => $showArea ?? null,
+             'ariaLabel'   => $ariaLabel ?? null,
+         ], JSON_THROW_ON_ERROR)); ?>"
          data-empty-message="<?php echo e(I18N::translate('No data available yet.')); ?>"
     ></div>
 </div>

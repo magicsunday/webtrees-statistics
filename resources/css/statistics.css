@@ -144,8 +144,17 @@
     cursor: default;
 }
 
-.wt-statistics-chart svg.donut-chart path.slice:hover {
-    opacity: 0.8;
+/*
+ * Hover and selection share one visual: dim every OTHER slice
+ * to 0.35 while the focused slice stays opaque. Mirror the
+ * stream-graph / sankey rules so a click and a hover read the
+ * same — `:has() / :not()` lets the cascade fight stay won by
+ * the more specific selector without needing a second rule
+ * for the focused element.
+ */
+.wt-statistics-chart svg.donut-chart:has(path.slice:hover) path.slice:not(:hover),
+.wt-statistics-chart svg.donut-chart:has(path.slice.is-selected) path.slice:not(.is-selected) {
+    opacity: 0.35;
 }
 
 .wt-statistics-chart .donut-chart-container .donut-chart {
@@ -595,6 +604,14 @@
     opacity: 0.35;
 }
 
+/*
+ * Selection-driven dim mirrors the hover-dim rule so a click +
+ * subsequent hover produce the same visual.
+ */
+.wt-statistics-chart svg.wt-stream-graph:has(path.band.is-selected) path.band:not(.is-selected) {
+    opacity: 0.35;
+}
+
 .wt-statistics-chart svg.wt-stream-graph .x-axis line,
 .wt-statistics-chart svg.wt-stream-graph .x-axis path {
     stroke: var(--bs-border-color, rgb(221, 221, 221));
@@ -687,6 +704,19 @@
     stroke-opacity: 0.8;
 }
 
+/*
+ * Selection mirrors the hover-dim pattern: dim non-selected links
+ * to 0.15 and bring the selected link to 0.8, matching the
+ * `:has(.link:hover)` rule above so click + hover look the same.
+ */
+.wt-statistics-chart svg.wt-sankey:has(path.link.is-selected) path.link:not(.is-selected) {
+    stroke-opacity: 0.15;
+}
+
+.wt-statistics-chart svg.wt-sankey path.link.is-selected {
+    stroke-opacity: 0.8;
+}
+
 .wt-statistics-chart svg.wt-sankey .nodes rect {
     stroke:       var(--bs-border-color, rgb(221, 221, 221));
     stroke-width: 0.5px;
@@ -761,4 +791,37 @@
 .wt-statistics-chart .wt-surnames-tag-cloud span.tag:hover {
     text-decoration: underline;
     cursor:          pointer;
+}
+
+/* ----------------------------------------------------------------------
+   Bar chart (chart-lib BarChart)
+   -------------------------------------------------------------------- */
+
+.wt-statistics-chart svg.wt-bar-chart rect.bar {
+    fill:       var(--bs-primary, #0d6efd);
+    transition: opacity 200ms ease-out;
+}
+
+.wt-statistics-chart svg.wt-bar-chart .x-axis text,
+.wt-statistics-chart svg.wt-bar-chart .y-axis text {
+    fill:      var(--bs-body-color);
+    font-size: 0.7rem;
+}
+
+.wt-statistics-chart svg.wt-bar-chart .x-axis path,
+.wt-statistics-chart svg.wt-bar-chart .y-axis path,
+.wt-statistics-chart svg.wt-bar-chart .x-axis line,
+.wt-statistics-chart svg.wt-bar-chart .y-axis line {
+    stroke: var(--bs-border-color, rgb(221, 221, 221));
+}
+
+/*
+ * Hover and selection share one visual: dim every OTHER bar to
+ * 0.35 while the focused bar stays opaque. Mirrors the
+ * donut / stream-graph / sankey rules so click + hover read the
+ * same across the dashboard.
+ */
+.wt-statistics-chart svg.wt-bar-chart:has(rect.bar:hover) rect.bar:not(:hover),
+.wt-statistics-chart svg.wt-bar-chart:has(rect.bar.is-selected) rect.bar:not(.is-selected) {
+    opacity: 0.35;
 }
