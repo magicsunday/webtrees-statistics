@@ -293,6 +293,17 @@ final readonly class Statistic
     }
 
     /**
+     * Winter-peak indicator for deaths (Dec+Jan+Feb vs. baseline).
+     * Returns null when fewer than 12 dated deaths are recorded.
+     *
+     * @return array{score: float, seasonCount: int, total: int}|null
+     */
+    public function getDeathWinterPeakScore(): ?array
+    {
+        return $this->lifeSpanRepository->deathWinterPeakScore();
+    }
+
+    /**
      * Top-N oldest deceased individuals (label includes the age).
      *
      * @param int $limit Maximum number of rows to return.

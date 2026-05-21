@@ -27,6 +27,7 @@ $topOldestDeceased = $statistic->getTopOldestDeceased(10);
 $topOldestLiving   = $statistic->getTopOldestLiving(10);
 $livingByAgeBand   = $statistic->getLivingByAgeBand();
 $topDeathCauses    = $statistic->getTopDeathCauses(15);
+$winterPeakScore   = $statistic->getDeathWinterPeakScore();
 
 $totalBirthsByMonth   = array_sum($birthsByMonth);
 $totalBirthsByZodiac  = array_sum($birthsByZodiacSign);
@@ -125,9 +126,9 @@ foreach ($deathsByCentury as $century => $count) {
     </div>
     <?php } ?>
 
-    <div class="row row-cols-1 g-3 mt-1 mb-3">
+    <div class="row row-cols-1 row-cols-md-2 g-3 mt-1 mb-3">
         <div class="col">
-            <div class="card">
+            <div class="card h-100">
                 <div class="card-header">
                     <h5 class="card-title"><?php echo I18N::translate('Deaths by month'); ?></h5>
                     <small><?php echo I18N::plural('%s individual with a recorded death month', '%s individuals with a recorded death month', $totalDeathsByMonth, I18N::number($totalDeathsByMonth)); ?></small>
@@ -141,6 +142,38 @@ foreach ($deathsByCentury as $century => $count) {
                     'data'  => $deathsByMonth,
                 ],
             );
+?>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('Winter-peak score'); ?></h5>
+                    <small><?php echo I18N::translate('Relative density of deaths in December – February compared with an even 12-month baseline.'); ?></small>
+                </div>
+                <div class="card-body d-flex align-items-center justify-content-center">
+                    <?php
+            if ($winterPeakScore !== null) {
+                $scoreCaption = I18N::translate('%1$s of %2$s deaths fell in December – February. 1.0 = no seasonality, > 1.0 = winter-peaked, < 1.0 = winter-trough.', I18N::number($winterPeakScore['seasonCount']), I18N::number($winterPeakScore['total']));
+                echo view(
+                    $module . '::modules/statistics-chart/Partials/Scalar',
+                    [
+                        'value'   => I18N::number($winterPeakScore['score'], 2),
+                        'unit'    => '×',
+                        'caption' => $scoreCaption,
+                    ],
+                );
+            } else {
+                echo view(
+                    $module . '::modules/statistics-chart/Partials/Scalar',
+                    [
+                        'value'   => I18N::translate('no data'),
+                        'unit'    => null,
+                        'caption' => I18N::translate('At least 12 dated deaths are required for a meaningful score.'),
+                    ],
+                );
+            }
 ?>
                 </div>
             </div>

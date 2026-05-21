@@ -20,6 +20,7 @@ use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\ModuleBase\Processor\NameProcessor;
 use MagicSunday\Webtrees\Statistic\Support\HistogramTrim;
+use MagicSunday\Webtrees\Statistic\Support\SeasonalityScore;
 
 use function array_fill_keys;
 use function array_key_last;
@@ -167,6 +168,24 @@ final readonly class LifeSpanRepository
         }
 
         return HistogramTrim::dropZeroEnds($dense);
+    }
+
+    /**
+     * Winter-peak indicator for deaths — relative density of
+     * December + January + February death events compared to a
+     * perfectly-even 12-month baseline. Returns null when fewer
+     * than 12 dated deaths are recorded (below that threshold the
+     * score is too noisy to be meaningful).
+     *
+     * @return array{score: float, seasonCount: int, total: int}|null
+     */
+    public function deathWinterPeakScore(): ?array
+    {
+        return SeasonalityScore::score(
+            $this->data->countEventsByMonth('DEAT', 0, 0),
+            SeasonalityScore::NORTHERN_WINTER,
+            12,
+        );
     }
 
     /**
