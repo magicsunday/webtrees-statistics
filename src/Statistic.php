@@ -281,6 +281,18 @@ final readonly class Statistic
     }
 
     /**
+     * Births grouped by decade — the tree-growth indicator on the
+     * TreeHealth tab. Leading / trailing zero-decades are trimmed;
+     * inner zero-decades stay so historical gaps remain visible.
+     *
+     * @return array<string, int>
+     */
+    public function getBirthsByDecade(): array
+    {
+        return $this->lifeSpanRepository->birthsByDecade();
+    }
+
+    /**
      * Top-N oldest deceased individuals (label includes the age).
      *
      * @param int $limit Maximum number of rows to return.

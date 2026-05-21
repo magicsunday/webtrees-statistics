@@ -19,6 +19,8 @@ use MagicSunday\Webtrees\Statistic\Statistic;
 $sourceCoverage = $statistic->getSourceCitationCoverage();
 $gaps           = $statistic->getMissingEventGaps();
 $generation     = $statistic->getAverageGenerationLength();
+$birthsByDecade = $statistic->getBirthsByDecade();
+$totalBirths    = array_sum($birthsByDecade);
 
 $gapLabels = [
     'BIRT.event' => I18N::translate('Missing birth event'),
@@ -113,4 +115,28 @@ foreach ($gaps as $gap) {
             </div>
         </div>
     </div>
+
+    <?php if ($birthsByDecade !== []) { ?>
+    <div class="row row-cols-1 g-3 mt-1 mb-3">
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('Tree growth — births per decade'); ?></h5>
+                    <small><?php echo I18N::plural('%s recorded birth date across the visible decades', '%s recorded birth dates across the visible decades', $totalBirths, I18N::number($totalBirths)); ?></small>
+                </div>
+                <div class="card-body">
+                    <?php
+        echo view(
+            $module . '::modules/statistics-chart/Partials/ProgressList',
+            [
+                'class' => 'progress-births-decade',
+                'data'  => $birthsByDecade,
+            ],
+        );
+        ?>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php } ?>
 </div>

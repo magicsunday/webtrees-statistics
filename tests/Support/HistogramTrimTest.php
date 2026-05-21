@@ -113,4 +113,53 @@ final class HistogramTrimTest extends TestCase
         self::assertSame($a, $trimA);
         self::assertSame($b, $trimB);
     }
+
+    /**
+     * Single-series trim drops leading and trailing zero buckets
+     * but keeps inner zeros so gaps between active periods stay
+     * visible.
+     */
+    #[Test]
+    public function dropZeroEndsTrimsBothBoundsAndKeepsInnerZero(): void
+    {
+        $series = [
+            '1700s' => 0,
+            '1710s' => 0,
+            '1800s' => 12,
+            '1810s' => 0,
+            '1820s' => 18,
+            '1830s' => 0,
+            '1840s' => 0,
+        ];
+
+        self::assertSame(
+            ['1800s' => 12, '1810s' => 0, '1820s' => 18],
+            HistogramTrim::dropZeroEnds($series),
+        );
+    }
+
+    /**
+     * A series with values only at the boundaries returns
+     * unchanged (no leading / trailing zero to trim).
+     */
+    #[Test]
+    public function dropZeroEndsReturnsUnchangedWhenBothEndsAreNonZero(): void
+    {
+        $series = ['a' => 1, 'b' => 0, 'c' => 0, 'd' => 5];
+
+        self::assertSame($series, HistogramTrim::dropZeroEnds($series));
+    }
+
+    /**
+     * An entirely-zero series is returned unchanged so the view
+     * can decide whether to hide the card or render the all-zero
+     * placeholder.
+     */
+    #[Test]
+    public function dropZeroEndsReturnsUnchangedWhenEverythingZero(): void
+    {
+        $series = ['a' => 0, 'b' => 0, 'c' => 0];
+
+        self::assertSame($series, HistogramTrim::dropZeroEnds($series));
+    }
 }

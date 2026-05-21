@@ -38,6 +38,42 @@ final readonly class HistogramTrim
     }
 
     /**
+     * Single-series variant of {@see dropCoZeroEnds()}: drop leading
+     * and trailing buckets where the value is 0. Internal zero
+     * buckets are preserved so a gap between two non-zero ends
+     * stays visible (informative — e.g. a decade with no recorded
+     * births between two decades that did have births).
+     *
+     * If every bucket is 0, the original is returned unchanged so
+     * the view layer can decide how to handle "completely empty".
+     *
+     * @param array<string, int> $series Bucketed series in display order
+     *
+     * @return array<string, int>
+     */
+    public static function dropZeroEnds(array $series): array
+    {
+        $keys  = array_keys($series);
+        $first = null;
+        $last  = null;
+
+        foreach ($keys as $index => $key) {
+            if (($series[$key] ?? 0) === 0) {
+                continue;
+            }
+
+            $first ??= $index;
+            $last = $index;
+        }
+
+        if (($first === null) || ($last === null)) {
+            return $series;
+        }
+
+        return array_slice($series, $first, ($last - $first) + 1, true);
+    }
+
+    /**
      * Drop leading and trailing buckets that are 0 (or missing) in
      * both `$a` and `$b`. The two arrays MUST share the same key
      * order (typically because they come from the same repository

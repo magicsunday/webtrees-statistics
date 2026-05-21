@@ -17,6 +17,7 @@ use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Repository\LifeSpanRepository;
 use PHPUnit\Framework\Attributes\Test;
 
+use function array_keys;
 use function array_sum;
 use function array_values;
 use function count;
@@ -132,5 +133,42 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
         // Four bands always returned, even when most are empty.
         self::assertCount(4, $result);
         self::assertSame(1, $totals['65+'] ?? null, 'Franz is the only living individual');
+    }
+
+    /**
+     * birthsByDecade aggregates every BIRT date across the tree
+     * into a decade bucket, fills inner zero-decades so gaps stay
+     * visible, and trims leading / trailing zeroes via
+     * HistogramTrim. The fixture's six dated births are spread
+     * across 1700s, 1850s, 1880s, 1900s, 1920s, 1950s, so the
+     * visible window is 1700s..1950s with one tick per active
+     * decade and zero for all empty in-between decades.
+     */
+    #[Test]
+    public function birthsByDecadeFillsInnerGapsAndTrimsBoundaries(): void
+    {
+        $tree   = $this->importFixtureTree('life-span.ged');
+        $result = $this->repository($tree)->birthsByDecade();
+
+        // First and last keys frame the visible range.
+        $keys = array_keys($result);
+        self::assertSame('1700s', $keys[0]);
+        self::assertSame('1950s', $keys[count($keys) - 1]);
+
+        // Every active decade carries exactly one birth.
+        self::assertSame(1, $result['1700s']);
+        self::assertSame(1, $result['1850s']);
+        self::assertSame(1, $result['1880s']);
+        self::assertSame(1, $result['1900s']);
+        self::assertSame(1, $result['1920s']);
+        self::assertSame(1, $result['1950s']);
+
+        // Inner empty decade is rendered as a 0 bucket, not dropped.
+        self::assertSame(0, $result['1710s']);
+        self::assertSame(0, $result['1870s']);
+        self::assertSame(0, $result['1930s']);
+
+        // Total entries = 26 (1700s through 1950s in 10-year steps).
+        self::assertCount(26, $result);
     }
 }

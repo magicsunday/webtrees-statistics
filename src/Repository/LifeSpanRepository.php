@@ -19,6 +19,7 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\ModuleBase\Processor\NameProcessor;
+use MagicSunday\Webtrees\Statistic\Support\HistogramTrim;
 
 use function array_fill_keys;
 use function array_key_last;
@@ -27,6 +28,7 @@ use function getdate;
 use function GregorianToJD;
 use function intdiv;
 use function is_numeric;
+use function ksort;
 use function max;
 
 /**
@@ -109,6 +111,62 @@ final readonly class LifeSpanRepository
         }
 
         return $buckets;
+    }
+
+    /**
+     * Births grouped by decade across the entire tree — the
+     * "Stammbaum-Wachstum" indicator for the TreeHealth tab. Each
+     * BIRT date contributes one tick to its decade bucket. Leading
+     * and trailing zero-decades are trimmed via
+     * {@see HistogramTrim::dropZeroEnds()} so the visible range
+     * starts at the first decade with a recorded birth and ends at
+     * the last; inner zero-decades stay so a gap in the recorded
+     * history remains visible.
+     *
+     * @return array<string, int>
+     */
+    public function birthsByDecade(): array
+    {
+        $rows = DB::table('dates')
+            ->where('d_file', '=', $this->tree->id())
+            ->where('d_fact', '=', 'BIRT')
+            ->whereIn('d_type', ['@#DGREGORIAN@', '@#DJULIAN@'])
+            ->where('d_year', '<>', 0)
+            ->select(['d_year'])
+            ->get();
+
+        $byDecade = [];
+
+        foreach ($rows as $row) {
+            $year = is_numeric($row->d_year ?? null) ? (int) $row->d_year : 0;
+
+            if ($year === 0) {
+                continue;
+            }
+
+            $decade            = (intdiv($year, 10) * 10) . 's';
+            $byDecade[$decade] = ($byDecade[$decade] ?? 0) + 1;
+        }
+
+        if ($byDecade === []) {
+            return [];
+        }
+
+        // Fill internal zero-decades so the histogram renders the
+        // gaps as zero bars rather than collapsing them. Iterate
+        // from the first to the last seen decade in 10-year steps.
+        ksort($byDecade);
+        $decadeKeys = array_keys($byDecade);
+        $firstDec   = (int) $decadeKeys[0];
+        $lastDec    = (int) $decadeKeys[array_key_last($decadeKeys)];
+        $dense      = [];
+
+        for ($d = $firstDec; $d <= $lastDec; $d += 10) {
+            $label         = $d . 's';
+            $dense[$label] = $byDecade[$label] ?? 0;
+        }
+
+        return HistogramTrim::dropZeroEnds($dense);
     }
 
     /**

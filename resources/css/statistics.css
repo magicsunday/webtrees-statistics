@@ -278,6 +278,11 @@
     --bs-progress-label-gradient-end:   var(--wmstats-gradient-births-end);
 }
 
+.wt-statistics-chart .progress-births-decade {
+    --bs-progress-label-gradient-start: var(--wmstats-gradient-births-start);
+    --bs-progress-label-gradient-end:   var(--wmstats-gradient-births-end);
+}
+
 /* ----------------------------------------------------------------------
    Tree-health rate bars + scalar readout
    -------------------------------------------------------------------- */
