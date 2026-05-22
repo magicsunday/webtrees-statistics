@@ -21,6 +21,12 @@ $givenNameTrends = $statistic->getGivenNameTrends(10);
 $streamGraphExplanation = I18N::translate(
     'Each band stands for one of the most common given names in the tree. The band\'s vertical thickness in a given decade shows how many individuals born in that decade carried that name. The silhouette layout centres each band around zero, so the chart reads as relative magnitudes — hover any band to see absolute counts and its peak decade.'
 );
+
+$surnameMarriageMatrix = $statistic->getSurnameMarriageMatrix(8);
+
+$surnameMarriageMatrixExplanation = I18N::translate(
+    'Each arc on the circumference is one of the top surnames in the tree, ranked by how many marriages that surname appears in (as husband OR wife). Ribbons between two arcs encode the number of marriages between those surnames; thickness is proportional to that count. The diagram is symmetric — a Schmidt × Müller marriage contributes equally to both arcs. Self-loops on an arc represent endogamous marriages where husband and wife share a surname.'
+);
 ?>
 <div class="container">
     <div class="row row-cols-1 row-cols-lg-3 g-3">
@@ -116,4 +122,43 @@ $streamGraphExplanation = I18N::translate(
             </div>
         </div>
     </div>
+
+    <?php if ($surnameMarriageMatrix['labels'] !== []) { ?>
+    <div class="row row-cols-1 g-3">
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        <?php echo I18N::translate('Surname × surname marriage matrix'); ?>
+                        <button
+                            type="button"
+                            class="wt-card-info-button"
+                            data-bs-toggle="popover"
+                            data-bs-trigger="hover focus"
+                            data-bs-placement="top"
+                            data-bs-html="false"
+                            data-bs-custom-class="wt-popover-wide"
+                            data-bs-title="<?php echo e(I18N::translate('About this chart')); ?>"
+                            data-bs-content="<?php echo e($surnameMarriageMatrixExplanation); ?>"
+                            aria-label="<?php echo e(I18N::translate('About this chart')); ?>"
+                        >?</button>
+                    </h5>
+                    <small><?php echo I18N::translate('Marriages between the top-%s surnames in the tree.', I18N::number(count($surnameMarriageMatrix['labels']))); ?></small>
+                </div>
+                <div class="card-body">
+                    <?php
+                        echo view(
+                            $module . '::modules/statistics-chart/Partials/ChordDiagram',
+                            [
+                                'identifier' => 'surname-marriage-chord',
+                                'data'       => $surnameMarriageMatrix,
+                                'ariaLabel'  => I18N::translate('Surname × surname marriage matrix'),
+                            ],
+                        );
+        ?>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php } ?>
 </div>

@@ -27,6 +27,7 @@ use MagicSunday\Webtrees\Statistic\Repository\GenerationDepthRepository;
 use MagicSunday\Webtrees\Statistic\Repository\GivenNameTrendsRepository;
 use MagicSunday\Webtrees\Statistic\Repository\KinshipRepository;
 use MagicSunday\Webtrees\Statistic\Repository\LifeSpanRepository;
+use MagicSunday\Webtrees\Statistic\Repository\MarriageMatrixRepository;
 use MagicSunday\Webtrees\Statistic\Repository\MarriageRepository;
 use MagicSunday\Webtrees\Statistic\Repository\MigrationRepository;
 use MagicSunday\Webtrees\Statistic\Repository\NameRepository;
@@ -80,6 +81,7 @@ final readonly class Statistic
      * @param GenerationDepthRepository $generationDepthRepository Max generation depth + descendants-distance distribution (Family tab brick-wall surfacing)
      * @param ParenthoodRepository      $parenthoodRepository      Age-at-first-child distribution per parent sex (Family tab)
      * @param EndogamyRepository        $endogamyRepository        Cousin-marriage / shared-ancestor rate within four generations (Family tab)
+     * @param MarriageMatrixRepository  $marriageMatrixRepository  Surname × surname marriage matrix for the chord diagram (Names tab)
      */
     public function __construct(
         private StatisticsData $data,
@@ -103,7 +105,22 @@ final readonly class Statistic
         private GenerationDepthRepository $generationDepthRepository,
         private ParenthoodRepository $parenthoodRepository,
         private EndogamyRepository $endogamyRepository,
+        private MarriageMatrixRepository $marriageMatrixRepository,
     ) {
+    }
+
+    /**
+     * Surname × surname marriage matrix for the chord-diagram widget
+     * on the Names tab. Top-N surnames by marriage count; matrix is
+     * symmetric so `[i][j] === [j][i]` for every off-diagonal cell.
+     *
+     * @param int $topN Cap on the number of arcs.
+     *
+     * @return array{labels: list<string>, matrix: list<list<int>>}
+     */
+    public function getSurnameMarriageMatrix(int $topN = 8): array
+    {
+        return $this->marriageMatrixRepository->surnameMarriageMatrix($topN);
     }
 
     /**

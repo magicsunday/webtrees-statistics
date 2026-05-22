@@ -1,0 +1,77 @@
+0 HEAD
+1 SOUR webtrees-statistics-fixture
+2 NAME surname-marriage-matrix
+1 DEST ANSTFILE
+1 CHAR UTF-8
+1 SUBM @SUBM1@
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+0 @SUBM1@ SUBM
+1 NAME Fixture
+0 @I1@ INDI
+1 NAME Anton /Müller/
+1 SEX M
+1 FAMS @F1@
+0 @I2@ INDI
+1 NAME Berta /Schmidt/
+1 SEX F
+1 FAMS @F1@
+0 @I3@ INDI
+1 NAME Carl /Müller/
+1 SEX M
+1 FAMS @F2@
+0 @I4@ INDI
+1 NAME Doris /Weber/
+1 SEX F
+1 FAMS @F2@
+0 @I5@ INDI
+1 NAME Emil /Schmidt/
+1 SEX M
+1 FAMS @F3@
+0 @I6@ INDI
+1 NAME Frieda /Müller/
+1 SEX F
+1 FAMS @F3@
+0 @I7@ INDI
+1 NAME Gustav /Klein/
+1 SEX M
+1 FAMS @F4@
+0 @I8@ INDI
+1 NAME Hilde /Weber/
+1 SEX F
+1 FAMS @F4@
+0 @I9@ INDI
+1 NAME Ingo /Schmidt/
+1 SEX M
+1 FAMS @F5@
+0 @I10@ INDI
+1 NAME Jutta /Klein/
+1 SEX F
+1 FAMS @F5@
+0 @F1@ FAM
+1 HUSB @I1@
+1 WIFE @I2@
+1 MARR
+2 DATE 1 JUN 1875
+0 @F2@ FAM
+1 HUSB @I3@
+1 WIFE @I4@
+1 MARR
+2 DATE 1 JUN 1880
+0 @F3@ FAM
+1 HUSB @I5@
+1 WIFE @I6@
+1 MARR
+2 DATE 1 JUN 1885
+0 @F4@ FAM
+1 HUSB @I7@
+1 WIFE @I8@
+1 MARR
+2 DATE 1 JUN 1890
+0 @F5@ FAM
+1 HUSB @I9@
+1 WIFE @I10@
+1 MARR
+2 DATE 1 JUN 1895
+0 TRLR

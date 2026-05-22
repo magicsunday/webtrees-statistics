@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Statistics\n"
 "Report-Msgid-Bugs-To: https://github.com/magicsunday/webtrees-statistics/"
 "issues\n"
-"POT-Creation-Date: 2026-05-22 10:58+0000\n"
+"POT-Creation-Date: 2026-05-22 12:45+0000\n"
 "PO-Revision-Date: 2026-05-22 07:04+0000\n"
 "Last-Translator: Rico Sonntag <mail@ricosonntag.de>\n"
 "Language-Team: \n"
@@ -168,12 +168,12 @@ msgstr[2] ""
 msgid "%s distinct causes (top 15 shown)"
 msgstr "%s различных причин (показаны топ 15)"
 
-#: resources/views/modules/statistics-chart/Templates/Names.phtml:69
+#: resources/views/modules/statistics-chart/Templates/Names.phtml:75
 #, php-format
 msgid "%s distinct female given names (top 15 shown)"
 msgstr "%s различных женских имён (показаны топ 15)"
 
-#: resources/views/modules/statistics-chart/Templates/Names.phtml:50
+#: resources/views/modules/statistics-chart/Templates/Names.phtml:56
 #, php-format
 msgid "%s distinct male given names (top 15 shown)"
 msgstr "%s различных мужских имён (показаны топ 15)"
@@ -196,7 +196,7 @@ msgstr "%s различных профессий (показаны топ 15)"
 msgid "%s distinct religions (top 15 shown)"
 msgstr "%s различных религий (показаны топ 15)"
 
-#: resources/views/modules/statistics-chart/Templates/Names.phtml:31
+#: resources/views/modules/statistics-chart/Templates/Names.phtml:37
 #, php-format
 msgid "%s distinct surnames (top 15 shown)"
 msgstr "%s различных фамилий (показаны топ 15)"
@@ -623,8 +623,10 @@ msgstr "9."
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:441
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:666
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:668
-#: resources/views/modules/statistics-chart/Templates/Names.phtml:98
-#: resources/views/modules/statistics-chart/Templates/Names.phtml:100
+#: resources/views/modules/statistics-chart/Templates/Names.phtml:104
+#: resources/views/modules/statistics-chart/Templates/Names.phtml:106
+#: resources/views/modules/statistics-chart/Templates/Names.phtml:141
+#: resources/views/modules/statistics-chart/Templates/Names.phtml:143
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:177
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:179
 msgid "About this chart"
@@ -686,7 +688,7 @@ msgstr "Возраст при браке — жёны"
 msgid "Age in years at death, longest-lived first"
 msgstr "Возраст в годах при смерти, самые долгожившие первыми"
 
-#: src/Statistic.php:932
+#: src/Statistic.php:949
 msgctxt "NOMINATIVE"
 msgid "April"
 msgstr "Апрель"
@@ -708,7 +710,7 @@ msgid "At least one parent-child pair with parseable birth dates is required."
 msgstr ""
 "Требуется хотя бы одна пара родитель-ребёнок с читаемыми датами рождения."
 
-#: src/Statistic.php:936
+#: src/Statistic.php:953
 msgctxt "NOMINATIVE"
 msgid "August"
 msgstr "Август"
@@ -801,11 +803,11 @@ msgstr "Когорты с менее чем 5 детей подавлены — 
 msgid "Common causes of death"
 msgstr "Распространённые причины смерти"
 
-#: resources/views/modules/statistics-chart/Templates/Names.phtml:68
+#: resources/views/modules/statistics-chart/Templates/Names.phtml:74
 msgid "Common given names – female"
 msgstr "Распространённые женские имена"
 
-#: resources/views/modules/statistics-chart/Templates/Names.phtml:49
+#: resources/views/modules/statistics-chart/Templates/Names.phtml:55
 msgid "Common given names – male"
 msgstr "Распространённые мужские имена"
 
@@ -817,7 +819,7 @@ msgstr "Распространённые профессии"
 msgid "Common religions"
 msgstr "Распространённые религии"
 
-#: resources/views/modules/statistics-chart/Templates/Names.phtml:30
+#: resources/views/modules/statistics-chart/Templates/Names.phtml:36
 msgid "Common surnames"
 msgstr "Распространённые фамилии"
 
@@ -855,11 +857,11 @@ msgstr "Смерти по столетиям"
 msgid "Deaths by month"
 msgstr "Смерти по месяцам"
 
-#: src/Statistic.php:137
+#: src/Statistic.php:154
 msgid "Deceased"
 msgstr "Умершие"
 
-#: src/Statistic.php:940
+#: src/Statistic.php:957
 msgctxt "NOMINATIVE"
 msgid "December"
 msgstr "Декабрь"
@@ -885,7 +887,7 @@ msgstr "Уровень разводов"
 msgid "Divorce rate per marriage cohort"
 msgstr "Уровень разводов по когортам брака"
 
-#: src/Statistic.php:157
+#: src/Statistic.php:174
 msgid "Divorced"
 msgstr "В разводе"
 
@@ -912,6 +914,16 @@ msgstr "Разводы по месяцам"
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:90
 msgid "Documented individuals"
 msgstr "Задокументированные люди"
+
+#: resources/views/modules/statistics-chart/Templates/Names.phtml:28
+msgid ""
+"Each arc on the circumference is one of the top surnames in the tree, ranked "
+"by how many marriages that surname appears in (as husband OR wife). Ribbons "
+"between two arcs encode the number of marriages between those surnames; "
+"thickness is proportional to that count. The diagram is symmetric — a "
+"Schmidt × Müller marriage contributes equally to both arcs. Self-loops on an "
+"arc represent endogamous marriages where husband and wife share a surname."
+msgstr ""
 
 #: resources/views/modules/statistics-chart/Templates/Names.phtml:22
 msgid ""
@@ -1002,12 +1014,12 @@ msgstr "Семья"
 msgid "Family size composition share by decade"
 msgstr "Доля размеров семей по десятилетиям"
 
-#: src/Statistic.php:930
+#: src/Statistic.php:947
 msgctxt "NOMINATIVE"
 msgid "February"
 msgstr "Февраль"
 
-#: src/Repository/LifeSpanRepository.php:488 src/Statistic.php:125
+#: src/Repository/LifeSpanRepository.php:488 src/Statistic.php:142
 msgid "Female"
 msgstr "Жен"
 
@@ -1078,7 +1090,7 @@ msgstr "Распределение глубины поколений"
 msgid "Geographic dispersion"
 msgstr "Географическое распространение"
 
-#: resources/views/modules/statistics-chart/Templates/Names.phtml:90
+#: resources/views/modules/statistics-chart/Templates/Names.phtml:96
 msgid "Given-name popularity across decades"
 msgstr "Популярность имён по десятилетиям"
 
@@ -1107,17 +1119,17 @@ msgstr "Муж старше на %s лет"
 msgid "Individuals with at least one source linked to their record."
 msgstr "Люди, у которых хотя бы один источник связан с записью."
 
-#: src/Statistic.php:929
+#: src/Statistic.php:946
 msgctxt "NOMINATIVE"
 msgid "January"
 msgstr "Январь"
 
-#: src/Statistic.php:935
+#: src/Statistic.php:952
 msgctxt "NOMINATIVE"
 msgid "July"
 msgstr "Июль"
 
-#: src/Statistic.php:934
+#: src/Statistic.php:951
 msgctxt "NOMINATIVE"
 msgid "June"
 msgstr "Июнь"
@@ -1150,7 +1162,7 @@ msgstr "Весы"
 msgid "Life span"
 msgstr "Продолжительность жизни"
 
-#: src/Statistic.php:136
+#: src/Statistic.php:153
 msgid "Living"
 msgstr "Живые"
 
@@ -1174,11 +1186,11 @@ msgstr ""
 "Самая длинная проверенная вертикальная цепочка от листового потомка до "
 "самого дальнего предка."
 
-#: src/Repository/LifeSpanRepository.php:481 src/Statistic.php:124
+#: src/Repository/LifeSpanRepository.php:481 src/Statistic.php:141
 msgid "Male"
 msgstr "Муж."
 
-#: src/Statistic.php:931
+#: src/Statistic.php:948
 msgctxt "NOMINATIVE"
 msgid "March"
 msgstr "Март"
@@ -1196,7 +1208,12 @@ msgstr "Продолжительность брака"
 msgid "Marriages"
 msgstr "Бракосочетания"
 
-#: src/Statistic.php:154
+#: resources/views/modules/statistics-chart/Templates/Names.phtml:146
+#, php-format
+msgid "Marriages between the top-%s surnames in the tree."
+msgstr ""
+
+#: src/Statistic.php:171
 msgid "Married"
 msgstr "В браке"
 
@@ -1204,7 +1221,7 @@ msgstr "В браке"
 msgid "Maximum generation depth"
 msgstr "Максимальная глубина поколений"
 
-#: src/Statistic.php:933
+#: src/Statistic.php:950
 msgctxt "NOMINATIVE"
 msgid "May"
 msgstr "Май"
@@ -1283,6 +1300,7 @@ msgstr ""
 msgid "No country-to-country movements recorded yet."
 msgstr "Пока не зарегистрировано перемещений из страны в страну."
 
+#: resources/views/modules/statistics-chart/Partials/ChordDiagram.phtml:31
 #: resources/views/modules/statistics-chart/Partials/StreamGraph.phtml:47
 msgid "No data"
 msgstr "Нет данных"
@@ -1304,12 +1322,12 @@ msgstr "Для этой метрики нет записанных данных.
 msgid "No marriage cohort meets the minimum size threshold."
 msgstr "Ни одна когорта брака не достигает минимального порога."
 
-#: src/Statistic.php:939
+#: src/Statistic.php:956
 msgctxt "NOMINATIVE"
 msgid "November"
 msgstr "Ноябрь"
 
-#: src/Statistic.php:938
+#: src/Statistic.php:955
 msgctxt "NOMINATIVE"
 msgid "October"
 msgstr "Октябрь"
@@ -1402,7 +1420,7 @@ msgstr "Стрелец"
 msgid "Scorpio"
 msgstr "Скорпион"
 
-#: src/Statistic.php:937
+#: src/Statistic.php:954
 msgctxt "NOMINATIVE"
 msgid "September"
 msgstr "Сентябрь"
@@ -1437,7 +1455,7 @@ msgstr "Самый короткий брак"
 msgid "Sibling age gap"
 msgstr "Возрастная разница между братьями и сёстрами"
 
-#: src/Statistic.php:155
+#: src/Statistic.php:172
 msgid "Single"
 msgstr "Не в браке"
 
@@ -1448,6 +1466,11 @@ msgstr "Покрытие цитированиями источников"
 #: src/Module.php:74
 msgid "Statistics"
 msgstr "Статистика"
+
+#: resources/views/modules/statistics-chart/Templates/Names.phtml:132
+#: resources/views/modules/statistics-chart/Templates/Names.phtml:155
+msgid "Surname × surname marriage matrix"
+msgstr ""
 
 #: src/Support/ZodiacLabels.php:47
 msgid "Taurus"
@@ -1477,7 +1500,7 @@ msgstr "Топ 10 самых старых (умершие)"
 msgid "Top 10 oldest (living)"
 msgstr "Топ 10 самых старых (живые)"
 
-#: resources/views/modules/statistics-chart/Templates/Names.phtml:103
+#: resources/views/modules/statistics-chart/Templates/Names.phtml:109
 #, php-format
 msgid ""
 "Top-%s given names, stacked into a stream that reads as relative magnitudes."
@@ -1495,7 +1518,7 @@ msgstr "Состояние дерева"
 msgid "Tree records"
 msgstr "Записи дерева"
 
-#: src/Statistic.php:126
+#: src/Statistic.php:143
 msgid "Unknown"
 msgstr "Неизвестно"
 
@@ -1523,7 +1546,7 @@ msgstr "Свадьбы по векам"
 msgid "Weddings by month"
 msgstr "Свадьбы по месяцам"
 
-#: src/Statistic.php:156
+#: src/Statistic.php:173
 msgid "Widowed"
 msgstr "Вдовец/Вдова"
 
