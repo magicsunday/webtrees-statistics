@@ -22,6 +22,7 @@ use MagicSunday\Webtrees\Statistic\Model\Dto\Record\FamilyDurationDaysRecord;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Record\FamilyDurationYearsRecord;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Record\IndividualAgeRecord;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Record\IndividualCountRecord;
+use MagicSunday\Webtrees\Statistic\Sex;
 use MagicSunday\Webtrees\Statistic\Support\AgeBuckets;
 use MagicSunday\Webtrees\Statistic\Support\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\IndividualAgeRecordResolver;
@@ -321,7 +322,7 @@ final readonly class MarriageRepository
      */
     private function spouseAgeAtMarriage(string $sex): iterable
     {
-        $spouseColumn = ($sex === 'F') ? 'f_wife' : 'f_husb';
+        $spouseColumn = Sex::from($sex)->spouseColumn();
 
         $rows = TreeScope::table($this->tree, 'families', 'fam')
             ->join('dates AS marr', static function (JoinClause $join): void {

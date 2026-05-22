@@ -17,6 +17,7 @@ use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Model\Dto\StackedBar\StackedBarPayload;
 use MagicSunday\Webtrees\Statistic\Model\Dto\StackedBar\StackedBarSeries;
+use MagicSunday\Webtrees\Statistic\Sex;
 use MagicSunday\Webtrees\Statistic\Support\AgeBuckets;
 use MagicSunday\Webtrees\Statistic\Support\CenturyName;
 use MagicSunday\Webtrees\Statistic\Support\DateJoin;
@@ -124,7 +125,7 @@ final readonly class DivorceRepository
      */
     public function ageAtDivorceDistribution(string $sex): array
     {
-        $spouseColumn = $sex === 'M' ? 'f_husb' : 'f_wife';
+        $spouseColumn = Sex::from($sex)->spouseColumn();
 
         $rows = TreeScope::table($this->tree, 'families')
             ->join('dates AS divr', static function (JoinClause $join): void {

@@ -32,9 +32,7 @@ use MagicSunday\Webtrees\Statistic\Support\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\TreeScope;
 
 use function array_combine;
-use function array_keys;
-use function array_map;
-use function array_values;
+use function array_fill_keys;
 use function count;
 use function html_entity_decode;
 use function intdiv;
@@ -567,25 +565,26 @@ final readonly class ChildrenRepository
 
     /**
      * First-children by GEDCOM month abbreviation — pass-through
-     * over core's already-public accessor.
+     * over core's already-public accessor, prefilled with all
+     * twelve months at zero so the view layer can render a
+     * continuous month axis even on sparse trees. Matches the
+     * empty-contract sibling repositories use for `*byMonth`
+     * aggregations.
      *
      * @return array<string, int>
      */
     public function firstChildrenByMonth(): array
     {
-        $rows = $this->data->countFirstChildrenByMonth(0, 0);
+        $buckets = array_fill_keys(
+            ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'],
+            0,
+        );
 
-        if ($rows === []) {
-            return [];
+        foreach ($this->data->countFirstChildrenByMonth(0, 0) as $month => $count) {
+            $buckets[$month] = $count;
         }
 
-        $labels = array_map(strval(...), array_keys($rows));
-        $values = array_map(intval(...), array_values($rows));
-
-        /** @var array<string, int> $combined */
-        $combined = array_combine($labels, $values);
-
-        return $combined;
+        return $buckets;
     }
 
     /**

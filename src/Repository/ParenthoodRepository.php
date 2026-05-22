@@ -16,6 +16,7 @@ use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Record\IndividualAgeRecord;
+use MagicSunday\Webtrees\Statistic\Sex;
 use MagicSunday\Webtrees\Statistic\Support\AgeBuckets;
 use MagicSunday\Webtrees\Statistic\Support\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\IndividualAgeRecordResolver;
@@ -162,7 +163,7 @@ final readonly class ParenthoodRepository
      */
     private function ageAtFirstChildPairs(string $sex): iterable
     {
-        $parentColumn = ($sex === 'F') ? 'f_wife' : 'f_husb';
+        $parentColumn = Sex::from($sex)->spouseColumn();
         $tablePrefix  = DB::connection()->getTablePrefix();
 
         $rows = TreeScope::table($this->tree, 'families', 'fam')
