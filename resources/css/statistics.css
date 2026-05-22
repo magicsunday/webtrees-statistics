@@ -60,7 +60,11 @@
     --wmstats-age-band-4:                  rgb(238, 145, 178);
     --wmstats-age-band-unknown:            rgb(204, 204, 204);
 
-    /* Family-size treemap — gradient from light (0 children) to dark (10+) */
+    /* Family-size palette — gradient from light (0 children) to
+       dark (10+). Consumed by the stacked-bar composition card on
+       the Family tab; the lower stops (-0 … -7) read as a
+       perceptual ramp, the upper stops (-8 … -max) are reserved
+       for future consumers that need a deeper top end. */
     --wmstats-family-size-0:               rgb(232, 240, 248);
     --wmstats-family-size-1:               rgb(206, 222, 240);
     --wmstats-family-size-2:               rgb(178, 204, 230);
@@ -110,12 +114,13 @@
     --wmstats-widowed:                     rgb(115, 170, 145);
     --wmstats-divorced:                    rgb(225, 175, 130);
 
-    /* Family-size treemap — mid-band gradient on dark cards keeps
-       contrast against the dark background and prevents the
-       0-child tile from reading as the loudest pixel. The ramp
-       inverts: family-size-0 sits darkest, family-size-max
-       lightest, so the magnitude cue matches "darker = quieter,
-       lighter = more attention" on a dark canvas. */
+    /* Family-size palette (dark mode) — mid-band gradient on dark
+       cards keeps contrast against the dark background and
+       prevents the lightest stop from reading as the loudest
+       pixel. The ramp inverts: family-size-0 sits darkest,
+       family-size-max lightest, so the magnitude cue matches
+       "darker = quieter, lighter = more attention" on a dark
+       canvas. */
     --wmstats-family-size-0:               rgb(60, 88, 124);
     --wmstats-family-size-1:               rgb(76, 104, 142);
     --wmstats-family-size-2:               rgb(96, 122, 158);
@@ -990,105 +995,40 @@
     opacity: 0.35;
 }
 
-/* ----------------------------------------------------------------------
-   Treemap (chart-lib Treemap)
-   -------------------------------------------------------------------- */
-
-.wt-statistics-chart .wt-treemap-container {
-    width:  100%;
-    height: auto;
-}
-
-.wt-statistics-chart .wt-treemap-host {
-    display:  block;
-    width:    100%;
-    position: relative;
-}
-
-.wt-statistics-chart svg.wt-treemap {
-    width:   100%;
-    height:  auto;
-    display: block;
-}
-
-.wt-statistics-chart svg.wt-treemap g.tile rect.tile-rect {
-    transition: opacity 200ms ease-out;
-    stroke:       var(--bs-body-bg, white);
-    stroke-width: 1;
-}
-
-.wt-statistics-chart svg.wt-treemap .parent-label,
-.wt-statistics-chart svg.wt-treemap .tile-label {
-    fill:      var(--bs-body-color);
-    font-size: 0.7rem;
-    pointer-events: none;
-}
-
-.wt-statistics-chart svg.wt-treemap .parent-label {
-    font-weight: 600;
-}
-
 /*
- * Tile labels must stay readable on every band. Light-mode bands
- * 7..max use deep blue fills where the default dark text vanishes;
- * dark-mode bands 0..3 mirror that with their own dark tiles. Set
- * `fill: white` on those bands so the label survives.
+ * Family-size segment colours. Chart-lib paints the series-key
+ * CSS class on the `<g class="series family-size-N">`, the inner
+ * `<rect class="segment">` inherits the fill via SVG cascade.
+ * The composition share card (current sole consumer) only emits
+ * the -1/-2/-3/-max classes; the remaining rules stay defensive
+ * for future consumers that bucket differently.
  */
-.wt-statistics-chart svg.wt-treemap g.tile.family-size-7   text.tile-label,
-.wt-statistics-chart svg.wt-treemap g.tile.family-size-8   text.tile-label,
-.wt-statistics-chart svg.wt-treemap g.tile.family-size-9   text.tile-label,
-.wt-statistics-chart svg.wt-treemap g.tile.family-size-max text.tile-label {
-    fill: white;
-}
+.wt-statistics-chart svg.wt-stacked-bar g.series.family-size-0   { fill: var(--wmstats-family-size-0); }
+.wt-statistics-chart svg.wt-stacked-bar g.series.family-size-1   { fill: var(--wmstats-family-size-1); }
+.wt-statistics-chart svg.wt-stacked-bar g.series.family-size-2   { fill: var(--wmstats-family-size-2); }
+.wt-statistics-chart svg.wt-stacked-bar g.series.family-size-3   { fill: var(--wmstats-family-size-3); }
+.wt-statistics-chart svg.wt-stacked-bar g.series.family-size-4   { fill: var(--wmstats-family-size-4); }
+.wt-statistics-chart svg.wt-stacked-bar g.series.family-size-5   { fill: var(--wmstats-family-size-5); }
+.wt-statistics-chart svg.wt-stacked-bar g.series.family-size-6   { fill: var(--wmstats-family-size-6); }
+.wt-statistics-chart svg.wt-stacked-bar g.series.family-size-7   { fill: var(--wmstats-family-size-7); }
+/* Cap the visible palette at family-size-7 so the deep blue stops
+   stay out of the active range — softens the top tone without
+   losing the deeper palette tokens for other consumers. */
+.wt-statistics-chart svg.wt-stacked-bar g.series.family-size-8   { fill: var(--wmstats-family-size-7); }
+.wt-statistics-chart svg.wt-stacked-bar g.series.family-size-9   { fill: var(--wmstats-family-size-7); }
+.wt-statistics-chart svg.wt-stacked-bar g.series.family-size-max { fill: var(--wmstats-family-size-7); }
 
-[data-bs-theme="dark"] .wt-statistics-chart svg.wt-treemap g.tile.family-size-0 text.tile-label,
-[data-bs-theme="dark"] .wt-statistics-chart svg.wt-treemap g.tile.family-size-1 text.tile-label,
-[data-bs-theme="dark"] .wt-statistics-chart svg.wt-treemap g.tile.family-size-2 text.tile-label,
-[data-bs-theme="dark"] .wt-statistics-chart svg.wt-treemap g.tile.family-size-3 text.tile-label {
-    fill: white;
-}
-
-/*
- * Dark-mode high bands invert: bands 7..max sit on the lightest
- * tiles in the dark palette, so a dark label is the readable
- * choice. Reset the "white on band 7..max" rule above for dark
- * theme.
- */
-[data-bs-theme="dark"] .wt-statistics-chart svg.wt-treemap g.tile.family-size-7   text.tile-label,
-[data-bs-theme="dark"] .wt-statistics-chart svg.wt-treemap g.tile.family-size-8   text.tile-label,
-[data-bs-theme="dark"] .wt-statistics-chart svg.wt-treemap g.tile.family-size-9   text.tile-label,
-[data-bs-theme="dark"] .wt-statistics-chart svg.wt-treemap g.tile.family-size-max text.tile-label {
-    fill: rgb(33, 37, 41);
-}
-
-/*
- * Family-size leaf colours — light-to-dark gradient so the
- * reader can scan tile colour as a magnitude cue independent of
- * area. The 0-child tile stays pale and the 10+ outliers stand
- * out in deep blue. Chart-lib paints the class on the parent
- * `<g class="tile family-size-N">`, so the rule targets the
- * inner `<rect class="tile-rect">` via the descendant selector.
- */
-.wt-statistics-chart svg.wt-treemap g.tile.family-size-0   rect.tile-rect { fill: var(--wmstats-family-size-0); }
-.wt-statistics-chart svg.wt-treemap g.tile.family-size-1   rect.tile-rect { fill: var(--wmstats-family-size-1); }
-.wt-statistics-chart svg.wt-treemap g.tile.family-size-2   rect.tile-rect { fill: var(--wmstats-family-size-2); }
-.wt-statistics-chart svg.wt-treemap g.tile.family-size-3   rect.tile-rect { fill: var(--wmstats-family-size-3); }
-.wt-statistics-chart svg.wt-treemap g.tile.family-size-4   rect.tile-rect { fill: var(--wmstats-family-size-4); }
-.wt-statistics-chart svg.wt-treemap g.tile.family-size-5   rect.tile-rect { fill: var(--wmstats-family-size-5); }
-.wt-statistics-chart svg.wt-treemap g.tile.family-size-6   rect.tile-rect { fill: var(--wmstats-family-size-6); }
-.wt-statistics-chart svg.wt-treemap g.tile.family-size-7   rect.tile-rect { fill: var(--wmstats-family-size-7); }
-.wt-statistics-chart svg.wt-treemap g.tile.family-size-8   rect.tile-rect { fill: var(--wmstats-family-size-8); }
-.wt-statistics-chart svg.wt-treemap g.tile.family-size-9   rect.tile-rect { fill: var(--wmstats-family-size-9); }
-.wt-statistics-chart svg.wt-treemap g.tile.family-size-max rect.tile-rect { fill: var(--wmstats-family-size-max); }
-
-/*
- * Hover dim mirrors the StackedBar / BarChart pattern so the
- * focused tile reads against a softened backdrop.
- */
-.wt-statistics-chart svg.wt-treemap:has(g.tile:hover) g.tile:not(:hover) rect.tile-rect,
-.wt-statistics-chart svg.wt-treemap:has(g.tile.is-selected) g.tile:not(.is-selected) rect.tile-rect {
-    opacity: 0.35;
-}
+.wt-statistics-chart svg.wt-stacked-bar .legend-swatch.family-size-0   { fill: var(--wmstats-family-size-0); }
+.wt-statistics-chart svg.wt-stacked-bar .legend-swatch.family-size-1   { fill: var(--wmstats-family-size-1); }
+.wt-statistics-chart svg.wt-stacked-bar .legend-swatch.family-size-2   { fill: var(--wmstats-family-size-2); }
+.wt-statistics-chart svg.wt-stacked-bar .legend-swatch.family-size-3   { fill: var(--wmstats-family-size-3); }
+.wt-statistics-chart svg.wt-stacked-bar .legend-swatch.family-size-4   { fill: var(--wmstats-family-size-4); }
+.wt-statistics-chart svg.wt-stacked-bar .legend-swatch.family-size-5   { fill: var(--wmstats-family-size-5); }
+.wt-statistics-chart svg.wt-stacked-bar .legend-swatch.family-size-6   { fill: var(--wmstats-family-size-6); }
+.wt-statistics-chart svg.wt-stacked-bar .legend-swatch.family-size-7   { fill: var(--wmstats-family-size-7); }
+.wt-statistics-chart svg.wt-stacked-bar .legend-swatch.family-size-8   { fill: var(--wmstats-family-size-7); }
+.wt-statistics-chart svg.wt-stacked-bar .legend-swatch.family-size-9   { fill: var(--wmstats-family-size-7); }
+.wt-statistics-chart svg.wt-stacked-bar .legend-swatch.family-size-max { fill: var(--wmstats-family-size-7); }
 
 /* ----------------------------------------------------------------------
    Area-density chart (chart-lib AreaDensity)

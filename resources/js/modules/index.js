@@ -19,7 +19,6 @@ import {
     SankeyFlow,
     StackedBar,
     StreamGraph,
-    Treemap,
     WorldMap,
 } from "@magicsunday/webtrees-chart-lib";
 
@@ -111,7 +110,6 @@ const WIDGETS = {
     "diverging-bar": fromChartLib(DivergingBar),
     "area-density": fromChartLib(AreaDensity),
     "box-plot": fromChartLib(BoxPlot),
-    treemap: fromChartLib(Treemap),
     "chord-diagram": fromChartLib(ChordDiagram),
 };
 

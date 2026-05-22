@@ -652,21 +652,33 @@ final readonly class Statistic
     }
 
     /**
-     * Family-size composition by century — hierarchical payload
-     * (century → child-count bucket → families) for the Treemap
-     * widget on the Family tab.
+     * Family-size composition pivoted into a StackedBar payload —
+     * one bar per decade (1900s, 1910s, …), segments stack
+     * 1/2/3/4+ children.
      *
      * @return array{
-     *     name: string,
-     *     children: list<array{
-     *         name: string,
-     *         children: list<array{name: string, value: int, class: string}>
-     *     }>
+     *     categories: list<string>,
+     *     tooltipLabels: list<string>,
+     *     series: list<array{name: string, data: list<int>, class: string}>
      * }
      */
-    public function getFamilySizeByCentury(): array
+    public function getFamilySizeStackedByDecade(): array
     {
-        return $this->childrenRepository->familySizeByCentury();
+        return $this->childrenRepository->familySizeStackedByDecade();
+    }
+
+    /**
+     * Average children per family by century — single LineChart
+     * series tracking the central tendency over time.
+     *
+     * @return array{
+     *     categories: list<string>,
+     *     series: list<array{name: string, values: list<float>, tooltips: list<string>, tooltipLabels: list<string>}>
+     * }
+     */
+    public function getAverageFamilySizeByCentury(): array
+    {
+        return $this->childrenRepository->averageFamilySizeByCentury();
     }
 
     /**

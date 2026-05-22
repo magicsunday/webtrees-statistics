@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Family;
+use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\StatisticsData;
@@ -138,30 +139,34 @@ final readonly class ChildrenRepository
     }
 
     /**
-     * Family-size composition by century — returns a two-level
-     * hierarchy ready for the chart-lib Treemap widget. The outer
-     * tier is one parent rectangle per century the marriage occurred
-     * in; the inner tier splits each parent into child-count buckets
-     * ("0", "1", …, "9", "10+") sized by the count of families in
-     * that bucket. Families without a usable MARR year are dropped
-     * because they can't be placed on the century axis — the chart
-     * answers "how did family size evolve over time?" and so needs
-     * a temporal anchor for every counted family.
+     * Reads the raw `f_numchil` per family aggregated to one row per
+     * family at its earliest MARR year, then groups by century.
+     * Shared backing for the century-bucketed cards (stacked share,
+     * average line).
      *
-     * Zero-count buckets are pruned from the leaves so the treemap
-     * doesn't paint empty tiles; the bucket axis still ranges over
-     * 0..10+ via the styling rules, which lets the colour cue
-     * communicate family-size magnitude per leaf.
-     *
-     * @return array{
-     *     name: string,
-     *     children: list<array{
-     *         name: string,
-     *         children: list<array{name: string, value: int, class: string}>
-     *     }>
-     * }
+     * @return array<int, list<int>>
      */
-    public function familySizeByCentury(): array
+    private function familySizesPerCenturyRaw(): array
+    {
+        $perCentury = [];
+
+        foreach ($this->familiesByEarliestMarriageYear() as $entry) {
+            $century                = intdiv($entry['year'] - 1, 100) + 1;
+            $perCentury[$century][] = $entry['n'];
+        }
+
+        return $perCentury;
+    }
+
+    /**
+     * Load one row per dated family carrying its earliest MARR
+     * year and its `f_numchil`. Multi-MARR families collapse to a
+     * single entry at the earliest valid year so downstream
+     * bucketers see each family once.
+     *
+     * @return list<array{year: int, n: int}>
+     */
+    private function familiesByEarliestMarriageYear(): array
     {
         $rows = DB::table('families')
             ->where('f_file', '=', $this->tree->id())
@@ -175,14 +180,6 @@ final readonly class ChildrenRepository
             ->select(['f_id', 'f_numchil AS n', 'marr.d_year AS year'])
             ->get();
 
-        // Aggregate to one row per family with the EARLIEST MARR
-        // year — families with multiple MARR date facts (estimated
-        // + exact, multiple calendars) must not be double-counted,
-        // and the earliest year is the historically meaningful
-        // anchor for placing the family in a century. PHP-side
-        // grouping keeps the SQL trivial across MySQL/MariaDB/SQLite
-        // (whose strict-GROUP_BY semantics make the equivalent
-        // aggregation query awkward).
         /** @var array<string, array{n: int, year: int}> $perFamily */
         $perFamily = [];
 
@@ -196,14 +193,9 @@ final readonly class ChildrenRepository
             $year = is_numeric($row->year ?? null) ? (int) $row->year : 0;
 
             if (!isset($perFamily[$familyId])) {
-                $childCount = is_numeric($row->n ?? null) ? (int) $row->n : 0;
-
-                if ($childCount < 0) {
-                    $childCount = 0;
-                }
-
+                $childCount           = is_numeric($row->n ?? null) ? (int) $row->n : 0;
                 $perFamily[$familyId] = [
-                    'n'    => $childCount,
+                    'n'    => max($childCount, 0),
                     'year' => max($year, 0),
                 ];
 
@@ -215,59 +207,185 @@ final readonly class ChildrenRepository
             }
         }
 
-        /** @var array<int, array<int, int>> $cohorts century => bucket => count */
-        $cohorts = [];
+        $entries = [];
 
         foreach ($perFamily as $family) {
             if ($family['year'] <= 0) {
                 continue;
             }
 
-            $bucket = ($family['n'] >= self::CHILDREN_HISTOGRAM_MAX)
-                ? self::CHILDREN_HISTOGRAM_MAX
-                : $family['n'];
-            $century = intdiv($family['year'] - 1, 100) + 1;
-
-            $cohorts[$century][$bucket] = ($cohorts[$century][$bucket] ?? 0) + 1;
+            $entries[] = $family;
         }
 
-        if ($cohorts === []) {
-            return ['name' => 'root', 'children' => []];
+        return $entries;
+    }
+
+    /**
+     * Family-size composition as a StackedBar payload — one bar per
+     * decade (1900s, 1910s, …), segments stack 1/2/3/4+ children.
+     * Drops the "0 children" group so the bar height tracks the
+     * recorded children. Decade label uses the `${start}s`
+     * convention to dodge German locale's thousand-separator
+     * formatting ("2000s" rather than "2.000s").
+     *
+     * @return array{
+     *     categories: list<string>,
+     *     tooltipLabels: list<string>,
+     *     series: list<array{name: string, data: list<int>, class: string}>
+     * }
+     */
+    public function familySizeStackedByDecade(): array
+    {
+        $perDecade = [];
+
+        foreach ($this->familiesByEarliestMarriageYear() as $entry) {
+            $periodStart               = intdiv($entry['year'], 10) * 10;
+            $perDecade[$periodStart][] = $entry['n'];
         }
 
-        ksort($cohorts);
+        if ($perDecade === []) {
+            return ['categories' => [], 'tooltipLabels' => [], 'series' => []];
+        }
 
-        $children = [];
+        ksort($perDecade);
 
-        foreach ($cohorts as $century => $buckets) {
-            $leaves = [];
+        $categories       = [];
+        $tooltipLabels    = [];
+        $perDecadeBuckets = [];
 
-            for ($size = 0; $size <= self::CHILDREN_HISTOGRAM_MAX; ++$size) {
-                $count = $buckets[$size] ?? 0;
+        foreach ($perDecade as $decade => $childCounts) {
+            $label           = $decade . 's';
+            $categories[]    = $label;
+            $tooltipLabels[] = $label;
 
-                if ($count === 0) {
+            $b1 = 0;
+            $b2 = 0;
+            $b3 = 0;
+            $b4 = 0;
+
+            foreach ($childCounts as $count) {
+                if ($count <= 0) {
                     continue;
                 }
 
-                $label = ($size === self::CHILDREN_HISTOGRAM_MAX)
-                    ? self::CHILDREN_HISTOGRAM_MAX . '+'
-                    : (string) $size;
-                $cssIndex = ($size === self::CHILDREN_HISTOGRAM_MAX) ? 'max' : (string) $size;
-
-                $leaves[] = [
-                    'name'  => $label,
-                    'value' => $count,
-                    'class' => 'family-size-' . $cssIndex,
-                ];
+                if ($count === 1) {
+                    ++$b1;
+                } elseif ($count === 2) {
+                    ++$b2;
+                } elseif ($count === 3) {
+                    ++$b3;
+                } else {
+                    ++$b4;
+                }
             }
 
-            $children[] = [
-                'name'     => CenturyName::for($century),
-                'children' => $leaves,
+            $perDecadeBuckets[] = [$b1, $b2, $b3, $b4];
+        }
+
+        $bucketDefs = [
+            [
+                'name'  => I18N::plural('%s child', '%s children', 1, I18N::number(1)),
+                'class' => 'family-size-1',
+                'index' => 0,
+            ],
+            [
+                'name'  => I18N::plural('%s child', '%s children', 2, I18N::number(2)),
+                'class' => 'family-size-2',
+                'index' => 1,
+            ],
+            [
+                'name'  => I18N::plural('%s child', '%s children', 3, I18N::number(3)),
+                'class' => 'family-size-3',
+                'index' => 2,
+            ],
+            [
+                'name'  => I18N::translate('%s or more children', I18N::number(4)),
+                'class' => 'family-size-max',
+                'index' => 3,
+            ],
+        ];
+
+        $series = [];
+
+        foreach ($bucketDefs as $def) {
+            $data = [];
+
+            foreach ($perDecadeBuckets as $buckets) {
+                $data[] = $buckets[$def['index']];
+            }
+
+            $series[] = [
+                'name'  => $def['name'],
+                'data'  => $data,
+                'class' => $def['class'],
             ];
         }
 
-        return ['name' => 'root', 'children' => $children];
+        return [
+            'categories'    => $categories,
+            'tooltipLabels' => $tooltipLabels,
+            'series'        => $series,
+        ];
+    }
+
+    /**
+     * Average children per family by century — single LineChart
+     * series tracking the central tendency over time. Computed as
+     * `total_children / family_count` per century from the same
+     * MARR-anchored aggregation as the stacked share charts.
+     *
+     * @return array{
+     *     categories: list<string>,
+     *     series: list<array{name: string, values: list<float>, tooltips: list<string>, tooltipLabels: list<string>}>
+     * }
+     */
+    public function averageFamilySizeByCentury(): array
+    {
+        $perCentury = $this->familySizesPerCenturyRaw();
+
+        if ($perCentury === []) {
+            return ['categories' => [], 'series' => []];
+        }
+
+        ksort($perCentury);
+
+        $categories    = [];
+        $values        = [];
+        $tooltips      = [];
+        $tooltipLabels = [];
+
+        foreach ($perCentury as $century => $childCounts) {
+            $short       = CenturyName::for($century);
+            $longName    = CenturyName::longLabel($short);
+            $familyCount = count($childCounts);
+            $totalKids   = 0;
+
+            foreach ($childCounts as $count) {
+                $totalKids += $count;
+            }
+
+            $average      = $familyCount > 0 ? $totalKids / $familyCount : 0.0;
+            $categories[] = $short;
+            $values[]     = $average;
+            $tooltips[]   = I18N::translate(
+                '%1$s children per family (n = %2$s)',
+                I18N::number($average, 2),
+                I18N::number($familyCount),
+            );
+            $tooltipLabels[] = $longName;
+        }
+
+        return [
+            'categories' => $categories,
+            'series'     => [
+                [
+                    'name'          => I18N::translate('Children per family'),
+                    'values'        => $values,
+                    'tooltips'      => $tooltips,
+                    'tooltipLabels' => $tooltipLabels,
+                ],
+            ],
+        ];
     }
 
     /**

@@ -31,56 +31,55 @@ use PHPUnit\Framework\Attributes\Test;
 final class SiblingGapRowMapperTest extends IntegrationTestCase
 {
     /**
-     * Empty input → empty list. The widget renders its empty-state
-     * placeholder when it sees zero rows.
+     * Empty input returns the empty-payload shape — the LineChart
+     * partial's empty-state path picks up the absence and renders
+     * the "no data" placeholder via the chart-lib widget.
      */
     #[Test]
-    public function toRowsReturnsEmptyListForEmptyHistogram(): void
+    public function toLineChartPayloadReturnsEmptyShapeForEmptyHistogram(): void
     {
-        self::assertSame([], SiblingGapRowMapper::toRows([]));
+        $payload = SiblingGapRowMapper::toLineChartPayload([]);
+
+        self::assertSame([], $payload['categories']);
+        self::assertSame([], $payload['series'][0]['values']);
     }
 
     /**
-     * Regular "Ny" labels map onto integer x positions and the
+     * Regular "Ny" labels become category strings and the parallel
+     * `values` array carries the counts at the same indices. The
      * pluralised tooltip header reflects the gap size.
      */
     #[Test]
-    public function toRowsParsesRegularBuckets(): void
+    public function toLineChartPayloadCarriesParallelCategoriesAndValues(): void
     {
-        $rows = SiblingGapRowMapper::toRows([
+        $payload = SiblingGapRowMapper::toLineChartPayload([
             '0y' => 5,
             '1y' => 12,
             '2y' => 7,
         ]);
 
-        self::assertCount(3, $rows);
-        self::assertSame(0, $rows[0]['x']);
-        self::assertSame(5, $rows[0]['y']);
-        self::assertSame(1, $rows[1]['x']);
-        self::assertSame(12, $rows[1]['y']);
-        self::assertSame(2, $rows[2]['x']);
-        self::assertSame(7, $rows[2]['y']);
+        self::assertSame(['0y', '1y', '2y'], $payload['categories']);
+        self::assertSame([5, 12, 7], $payload['series'][0]['values']);
     }
 
     /**
      * The overflow label ("Ny+") is identified by the trailing "+"
      * so the mapper stays decoupled from the repository's
-     * SIBLING_GAP_MAX constant. Overflow rows land at the numeric
-     * cap on the x-axis and carry the "N or more years" tooltip
-     * header.
+     * SIBLING_GAP_MAX constant. The overflow header reads "N or
+     * more years" rather than "N-year gap".
      */
     #[Test]
-    public function toRowsMarksOverflowBucketByTrailingPlus(): void
+    public function toLineChartPayloadMarksOverflowBucketByTrailingPlus(): void
     {
-        $rows = SiblingGapRowMapper::toRows([
+        $payload = SiblingGapRowMapper::toLineChartPayload([
             '9y'   => 3,
             '10y+' => 8,
         ]);
 
-        self::assertSame(9, $rows[0]['x'], 'regular bucket lands at numeric position');
-        self::assertSame(10, $rows[1]['x'], 'overflow bucket lands at numeric cap');
-        self::assertStringContainsString('10', $rows[1]['tooltipLabel']);
-        self::assertStringContainsString('more', $rows[1]['tooltipLabel'], 'overflow uses the "N or more years" form');
+        self::assertSame(['9y', '10y+'], $payload['categories']);
+        self::assertStringContainsString('9-year', $payload['series'][0]['tooltipLabels'][0]);
+        self::assertStringContainsString('10', $payload['series'][0]['tooltipLabels'][1]);
+        self::assertStringContainsString('more', $payload['series'][0]['tooltipLabels'][1]);
     }
 
     /**
@@ -89,17 +88,16 @@ final class SiblingGapRowMapperTest extends IntegrationTestCase
      * "+" sentinel rather than the literal "10y+" key.
      */
     #[Test]
-    public function toRowsSurvivesADifferentOverflowCap(): void
+    public function toLineChartPayloadSurvivesADifferentOverflowCap(): void
     {
-        $rows = SiblingGapRowMapper::toRows([
+        $payload = SiblingGapRowMapper::toLineChartPayload([
             '14y'  => 2,
             '15y+' => 11,
         ]);
 
-        self::assertSame(14, $rows[0]['x']);
-        self::assertSame(15, $rows[1]['x']);
-        self::assertStringContainsString('15', $rows[1]['tooltipLabel']);
-        self::assertStringContainsString('more', $rows[1]['tooltipLabel']);
+        self::assertSame(['14y', '15y+'], $payload['categories']);
+        self::assertStringContainsString('15', $payload['series'][0]['tooltipLabels'][1]);
+        self::assertStringContainsString('more', $payload['series'][0]['tooltipLabels'][1]);
     }
 
     /**
@@ -107,14 +105,14 @@ final class SiblingGapRowMapperTest extends IntegrationTestCase
      * "1 pair" and multi-pair buckets read "N pairs".
      */
     #[Test]
-    public function toRowsPluralisesTooltipBody(): void
+    public function toLineChartPayloadPluralisesTooltipBody(): void
     {
-        $rows = SiblingGapRowMapper::toRows([
+        $payload = SiblingGapRowMapper::toLineChartPayload([
             '0y' => 1,
             '1y' => 4,
         ]);
 
-        self::assertStringContainsString('1 pair', $rows[0]['tooltip']);
-        self::assertStringContainsString('4 pairs', $rows[1]['tooltip']);
+        self::assertStringContainsString('1 pair', $payload['series'][0]['tooltips'][0]);
+        self::assertStringContainsString('4 pairs', $payload['series'][0]['tooltips'][1]);
     }
 }

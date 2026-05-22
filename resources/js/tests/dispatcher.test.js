@@ -85,9 +85,6 @@ class AreaDensity {
 class BoxPlot {
     draw() {}
 }
-class Treemap {
-    draw() {}
-}
 class ChordDiagram {
     draw() {}
 }
@@ -103,7 +100,6 @@ jest.unstable_mockModule("@magicsunday/webtrees-chart-lib", () => ({
     DivergingBar,
     AreaDensity,
     BoxPlot,
-    Treemap,
     ChordDiagram,
 }));
 

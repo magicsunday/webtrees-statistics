@@ -13,20 +13,22 @@ namespace MagicSunday\Webtrees\Statistic\Support;
 
 use Fisharebest\Webtrees\I18N;
 
+use function array_keys;
+use function array_values;
 use function rtrim;
 use function str_ends_with;
 
 /**
  * Converts the bucketed `siblingAgeGapDistribution()` map into the
- * `{x, y, tooltip, tooltipLabel}` row shape the chart-lib
- * AreaDensity widget consumes. The repository emits "Ny" labels
- * for 0..max-1 and an "Ny+" overflow label for max-and-above
- * (`SIBLING_GAP_MAX` currently 10). This helper stays decoupled
- * from the specific constant by parsing the trailing "+" as the
- * overflow marker and the numeric prefix as the x position.
+ * unified `{categories, series}` LineChart payload. The repository
+ * emits "Ny" labels for 0..max-1 and an "Ny+" overflow label for
+ * max-and-above (`SIBLING_GAP_MAX` currently 10). This helper
+ * stays decoupled from the specific constant by parsing the
+ * trailing "+" as the overflow marker.
  *
- * Extracted from the Family-tab view so the label-to-x logic is
- * unit-testable in isolation and the view stays markup-only.
+ * Extracted from the Family-tab view so the label-to-tooltip
+ * logic is unit-testable in isolation and the view stays
+ * markup-only.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -42,34 +44,48 @@ final readonly class SiblingGapRowMapper
     }
 
     /**
-     * Map the sibling-age-gap histogram into AreaDensity-ready rows.
-     * Each row carries the numeric x position (year), the count,
-     * a localised tooltip body ("N pairs"), and a localised
-     * tooltip header ("N-year gap" or "N or more years" on the
-     * overflow row).
+     * Map the sibling-age-gap histogram into a LineChart payload:
+     * categories carry the bucket labels in display order (matches
+     * the repository's emit order), the single series carries the
+     * counts plus per-point tooltip overrides. Headers spell out
+     * "N-year gap" / "N or more years"; bodies pluralise the
+     * "%s pairs" metric so the tooltip reads as a sentence rather
+     * than a bare integer.
      *
      * @param array<string, int> $histogram Bucketed `{label: count}` map
      *
-     * @return list<array{x: int, y: int, tooltip: string, tooltipLabel: string}>
+     * @return array{
+     *     categories: list<string>,
+     *     series: list<array{name: string, values: list<int>, tooltips: list<string>, tooltipLabels: list<string>}>
+     * }
      */
-    public static function toRows(array $histogram): array
+    public static function toLineChartPayload(array $histogram): array
     {
-        $rows = [];
+        $categories    = array_keys($histogram);
+        $values        = array_values($histogram);
+        $tooltips      = [];
+        $tooltipLabels = [];
 
-        foreach ($histogram as $label => $count) {
-            $isOverflow = str_ends_with($label, '+');
-            $x          = (int) rtrim(rtrim($label, '+'), 'y');
-
-            $rows[] = [
-                'x'            => $x,
-                'y'            => $count,
-                'tooltip'      => I18N::plural('%s pair', '%s pairs', $count, I18N::number($count)),
-                'tooltipLabel' => $isOverflow
-                    ? I18N::translate('%s or more years', I18N::number($x))
-                    : I18N::plural('%s-year gap', '%s-year gaps', $x, I18N::number($x)),
-            ];
+        foreach ($categories as $label) {
+            $count           = $histogram[$label];
+            $isOverflow      = str_ends_with($label, '+');
+            $year            = (int) rtrim(rtrim($label, '+'), 'y');
+            $tooltips[]      = I18N::plural('%s pair', '%s pairs', $count, I18N::number($count));
+            $tooltipLabels[] = $isOverflow
+                ? I18N::translate('%s or more years', I18N::number($year))
+                : I18N::plural('%s-year gap', '%s-year gaps', $year, I18N::number($year));
         }
 
-        return $rows;
+        return [
+            'categories' => $categories,
+            'series'     => [
+                [
+                    'name'          => I18N::translate('Consecutive-sibling pairs'),
+                    'values'        => $values,
+                    'tooltips'      => $tooltips,
+                    'tooltipLabels' => $tooltipLabels,
+                ],
+            ],
+        ];
     }
 }

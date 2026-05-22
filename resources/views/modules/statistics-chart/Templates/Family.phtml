@@ -43,13 +43,14 @@ $divorceAgeF       = $statistic->getAgeAtDivorceDistribution('F');
 [$divorceAgeM, $divorceAgeF] = HistogramTrim::dropCoZeroEnds($divorceAgeM, $divorceAgeF);
 $cohortRates                 = $statistic->getDivorceRateByMarriageCohort();
 
-$avgChildren         = $statistic->getAverageChildrenPerFamily();
-$childrenHistogram   = $statistic->getChildrenPerFamilyHistogram();
-$familySizeByCentury = $statistic->getFamilySizeByCentury();
-$siblingGaps         = $statistic->getSiblingAgeGapDistribution();
-$largestFamilies     = $statistic->getTopLargestFamilies(10);
-$childlessBreakdown  = $statistic->getChildlessFamiliesBreakdown();
-$firstChildMonth     = $statistic->getFirstChildrenByMonth();
+$avgChildren             = $statistic->getAverageChildrenPerFamily();
+$childrenHistogram       = $statistic->getChildrenPerFamilyHistogram();
+$familySizeStackedDecade = $statistic->getFamilySizeStackedByDecade();
+$averageFamilySizeLine   = $statistic->getAverageFamilySizeByCentury();
+$siblingGaps             = $statistic->getSiblingAgeGapDistribution();
+$largestFamilies         = $statistic->getTopLargestFamilies(10);
+$childlessBreakdown      = $statistic->getChildlessFamiliesBreakdown();
+$firstChildMonth         = $statistic->getFirstChildrenByMonth();
 
 $totalChildrenFamilies = array_sum($childrenHistogram);
 $totalSiblingPairs     = array_sum($siblingGaps);
@@ -538,10 +539,10 @@ $divorcesAgeBandExplain = I18N::translate(
                 <div class="card-body">
                     <?php
     echo view(
-        $module . '::modules/statistics-chart/Partials/AreaDensity',
+        $module . '::modules/statistics-chart/Partials/LineChart',
         [
-            'identifier' => 'sibling-age-gap-density',
-            'data'       => SiblingGapRowMapper::toRows($siblingGaps),
+            'identifier' => 'sibling-age-gap-line',
+            'data'       => SiblingGapRowMapper::toLineChartPayload($siblingGaps),
             'ariaLabel'  => I18N::translate('Sibling age gap'),
         ],
     );
@@ -551,40 +552,45 @@ $divorcesAgeBandExplain = I18N::translate(
         </div>
     </div>
 
-    <?php
-    $familySizeExplain = I18N::translate(
-        'Each century is a parent rectangle; the inner tiles split it into child-count buckets (0, 1, …, 9, "10+"). Tile area is proportional to the number of families that landed in that bucket. Families are placed in the century of their marriage date — families without a usable MARR year do not appear because the chart answers "how did family size evolve over time?" and needs a temporal anchor. Hover any tile for the bucket count and the parent century label.'
-    );
-?>
     <div class="row g-3">
         <div class="col">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title">
-                        <?php echo I18N::translate('Family size by century'); ?>
-                        <button
-                            type="button"
-                            class="wt-card-info-button"
-                            data-bs-toggle="popover"
-                            data-bs-trigger="hover focus"
-                            data-bs-placement="top"
-                            data-bs-html="false"
-                            data-bs-custom-class="wt-popover-wide"
-                            data-bs-title="<?php echo e(I18N::translate('About this chart')); ?>"
-                            data-bs-content="<?php echo e($familySizeExplain); ?>"
-                            aria-label="<?php echo e(I18N::translate('About this chart')); ?>"
-                        >?</button>
-                    </h5>
-                    <small><?php echo I18N::translate('Family-size composition per century of marriage.'); ?></small>
+                    <h5 class="card-title"><?php echo I18N::translate('Family size composition share by decade'); ?></h5>
+                    <small><?php echo I18N::translate('Each bar is one decade, normalised to 100 %% — the four segments stack 1, 2, 3, and 4 or more children per family. Surfaces the shift from large to small families over time.'); ?></small>
                 </div>
                 <div class="card-body">
                     <?php
     echo view(
-        $module . '::modules/statistics-chart/Partials/Treemap',
+        $module . '::modules/statistics-chart/Partials/StackedBar',
         [
-            'identifier' => 'family-size-by-century-treemap',
-            'data'       => $familySizeByCentury,
-            'ariaLabel'  => I18N::translate('Family size by century'),
+            'identifier' => 'family-size-stacked-percent-by-decade',
+            'data'       => $familySizeStackedDecade,
+            'percentage' => true,
+            'ariaLabel'  => I18N::translate('Family size composition share by decade'),
+        ],
+    );
+?>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title"><?php echo I18N::translate('Average family size by century'); ?></h5>
+                    <small><?php echo I18N::translate('Mean number of children per dated family per century — the long-arc trend in family size.'); ?></small>
+                </div>
+                <div class="card-body">
+                    <?php
+    echo view(
+        $module . '::modules/statistics-chart/Partials/LineChart',
+        [
+            'identifier' => 'average-family-size-line',
+            'data'       => $averageFamilySizeLine,
+            'ariaLabel'  => I18N::translate('Average family size by century'),
         ],
     );
 ?>
