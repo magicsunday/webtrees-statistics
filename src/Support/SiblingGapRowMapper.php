@@ -61,15 +61,18 @@ final readonly class SiblingGapRowMapper
      */
     public static function toLineChartPayload(array $histogram): array
     {
-        $categories    = array_keys($histogram);
-        $values        = array_values($histogram);
-        $tooltips      = [];
-        $tooltipLabels = [];
+        $values            = array_values($histogram);
+        $displayCategories = [];
+        $tooltips          = [];
+        $tooltipLabels     = [];
 
-        foreach ($categories as $label) {
-            $count           = $histogram[$label];
-            $isOverflow      = str_ends_with($label, '+');
-            $year            = (int) rtrim(rtrim($label, '+'), 'y');
+        foreach (array_keys($histogram) as $label) {
+            $count               = $histogram[$label];
+            $isOverflow          = str_ends_with($label, '+');
+            $year                = (int) rtrim(rtrim($label, '+'), 'y');
+            $displayCategories[] = $isOverflow
+                ? I18N::translate('%sy+', I18N::number($year))
+                : I18N::translate('%sy', I18N::number($year));
             $tooltips[]      = I18N::plural('%s pair', '%s pairs', $count, I18N::number($count));
             $tooltipLabels[] = $isOverflow
                 ? I18N::translate('%s or more years', I18N::number($year))
@@ -77,7 +80,7 @@ final readonly class SiblingGapRowMapper
         }
 
         return [
-            'categories' => $categories,
+            'categories' => $displayCategories,
             'series'     => [
                 [
                     'name'          => I18N::translate('Consecutive-sibling pairs'),

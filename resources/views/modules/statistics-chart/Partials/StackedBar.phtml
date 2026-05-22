@@ -24,6 +24,14 @@ use Fisharebest\Webtrees\I18N;
  * @var string|null $ariaLabel  Accessible label on the host svg
  */
 $height ??= 280;
+
+// chart-lib stacked-bar reads `options.i18n.totalInCategoryPattern`
+// to localise the tooltip's per-category footer. Curly-brace {count}
+// placeholder instead of sprintf %s — see the StreamGraph partial
+// for the rationale.
+$stackedBarI18n = [
+    'totalInCategoryPattern' => I18N::translate('{count} total in this category'),
+];
 ?>
 <div class="wt-stacked-bar-container">
     <div id="<?php echo e($identifier); ?>"
@@ -35,6 +43,7 @@ $height ??= 280;
              'legend'     => $legend ?? null,
              'percentage' => $percentage ?? null,
              'ariaLabel'  => $ariaLabel ?? null,
+             'i18n'       => $stackedBarI18n,
          ], JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE)); ?>"
          data-empty-message="<?php echo e(I18N::translate('No data available yet.')); ?>"
     ></div>

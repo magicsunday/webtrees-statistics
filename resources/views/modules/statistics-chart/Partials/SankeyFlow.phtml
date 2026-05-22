@@ -17,13 +17,22 @@ use Fisharebest\Webtrees\I18N;
  * @var int|null                                                                                                                                            $height     Optional viewport height (defaults to 360)
  */
 $height ??= 360;
+
+// chart-lib sankey-flow reads `options.i18n.totalSingular / totalPlural`
+// to localise the per-link tooltip count ("3 individuals" → "3 Personen").
+// Curly-brace {count} placeholder instead of sprintf %s — see the
+// StreamGraph partial for the rationale.
+$sankeyI18n = [
+    'totalSingular' => I18N::translate('{count} individual'),
+    'totalPlural'   => I18N::translate('{count} individuals'),
+];
 ?>
 <div class="wt-sankey-container">
     <div id="<?php echo e($identifier); ?>"
          class="wt-sankey-host"
          data-widget="sankey-flow"
          data-payload="<?php echo e(json_encode($data, JSON_THROW_ON_ERROR)); ?>"
-         data-options="<?php echo e(json_encode(['height' => $height], JSON_THROW_ON_ERROR)); ?>"
+         data-options="<?php echo e(json_encode(['height' => $height, 'i18n' => $sankeyI18n], JSON_THROW_ON_ERROR)); ?>"
          data-empty-message="<?php echo e(I18N::translate('No country-to-country movements recorded yet.')); ?>"
     ></div>
 </div>

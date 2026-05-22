@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Statistics\n"
 "Report-Msgid-Bugs-To: https://github.com/magicsunday/webtrees-statistics/"
 "issues\n"
-"POT-Creation-Date: 2026-05-22 10:13+0000\n"
+"POT-Creation-Date: 2026-05-22 10:58+0000\n"
 "PO-Revision-Date: 2026-05-22 07:04+0000\n"
 "Last-Translator: Rico Sonntag <mail@ricosonntag.de>\n"
 "Language-Team: \n"
@@ -32,11 +32,13 @@ msgstr "%1$s dětí na rodinu (n = %2$s)"
 msgid "%1$s of %2$s (%3$s%%)"
 msgstr "%1$s z %2$s (%3$s%%)"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:300
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:301
 #, php-format
 msgid ""
 "%1$s of %2$s children with known birth and death dates died before age 5."
-msgstr "%1$s z %2$s dětí se známými daty narození a úmrtí zemřelo před 5. rokem života."
+msgstr ""
+"%1$s z %2$s dětí se známými daty narození a úmrtí zemřelo před 5. rokem "
+"života."
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:900
 #, php-format
@@ -46,16 +48,22 @@ msgid ""
 msgid_plural ""
 "%1$s of %2$s couples where both spouses had at least one recorded parent "
 "share a common ancestor."
-msgstr[0] "%1$s z %2$s páru, kde oba manželé mají alespoň jednoho zaznamenaného rodiče, sdílí společného předka."
-msgstr[1] "%1$s z %2$s párů, kde oba manželé mají alespoň jednoho zaznamenaného rodiče, sdílí společného předka."
+msgstr[0] ""
+"%1$s z %2$s páru, kde oba manželé mají alespoň jednoho zaznamenaného rodiče, "
+"sdílí společného předka."
+msgstr[1] ""
+"%1$s z %2$s párů, kde oba manželé mají alespoň jednoho zaznamenaného rodiče, "
+"sdílí společného předka."
 msgstr[2] ""
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:218
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:219
 #, php-format
 msgid ""
 "%1$s of %2$s deaths fell in December – February. 1.0 = no seasonality, > 1.0 "
 "= winter-peaked, < 1.0 = winter-trough."
-msgstr "%1$s z %2$s úmrtí připadlo na prosinec – únor. 1,0 = bez sezónnosti, > 1,0 = zimní vrchol, < 1,0 = zimní propad."
+msgstr ""
+"%1$s z %2$s úmrtí připadlo na prosinec – únor. 1,0 = bez sezónnosti, > 1,0 = "
+"zimní vrchol, < 1,0 = zimní propad."
 
 #: src/Repository/LifeSpanRepository.php:459
 #: src/Repository/LifeSpanRepository.php:466
@@ -63,7 +71,7 @@ msgstr "%1$s z %2$s úmrtí připadlo na prosinec – únor. 1,0 = bez sezónnos
 msgid "%1$s years (n = %2$s)"
 msgstr "%1$s let (n = %2$s)"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:105
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:106
 #, php-format
 msgid "%1$s%% — %2$s of %3$s children died before age 5"
 msgstr "%1$s%% — %2$s z %3$s dětí zemřelo před 5. rokem"
@@ -81,7 +89,7 @@ msgstr[0] "%s další řetězec ve stejné hloubce není zobrazen."
 msgstr[1] "%s dalších řetězců ve stejné hloubce není zobrazeno."
 msgstr[2] ""
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:55
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:56
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:36
 #, php-format
 msgid "%s birth"
@@ -147,7 +155,7 @@ msgstr[0] "%s den"
 msgstr[1] "%s dny"
 msgstr[2] ""
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:79
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:80
 #, php-format
 msgid "%s death"
 msgid_plural "%s deaths"
@@ -155,7 +163,7 @@ msgstr[0] "%s úmrtí"
 msgstr[1] "%s úmrtí"
 msgstr[2] ""
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:455
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:456
 #, php-format
 msgid "%s distinct causes (top 15 shown)"
 msgstr "%s různých příčin (zobrazeno top 15)"
@@ -282,7 +290,7 @@ msgstr[0] "%s osoba zachycena"
 msgstr[1] "%s osob zachyceno"
 msgstr[2] ""
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:150
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:151
 #, php-format
 msgid "%s individual with a known zodiac sign"
 msgid_plural "%s individuals with a known zodiac sign"
@@ -290,7 +298,7 @@ msgstr[0] "%s osoba se známým znamením zvěrokruhu"
 msgstr[1] "%s osob se známým znamením zvěrokruhu"
 msgstr[2] ""
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:131
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:132
 #, php-format
 msgid "%s individual with a recorded birth month"
 msgid_plural "%s individuals with a recorded birth month"
@@ -298,7 +306,7 @@ msgstr[0] "%s osoba s uvedeným měsícem narození"
 msgstr[1] "%s osob s uvedeným měsícem narození"
 msgstr[2] ""
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:172
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:173
 #, php-format
 msgid "%s individual with a recorded birth year"
 msgid_plural "%s individuals with a recorded birth year"
@@ -306,7 +314,7 @@ msgstr[0] "%s osoba s uvedeným rokem narození"
 msgstr[1] "%s osob s uvedeným rokem narození"
 msgstr[2] ""
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:194
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:195
 #, php-format
 msgid "%s individual with a recorded death month"
 msgid_plural "%s individuals with a recorded death month"
@@ -314,7 +322,7 @@ msgstr[0] "%s osoba s uvedeným měsícem úmrtí"
 msgstr[1] "%s osob s uvedeným měsícem úmrtí"
 msgstr[2] ""
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:248
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:249
 #, php-format
 msgid "%s individual with a recorded death year"
 msgid_plural "%s individuals with a recorded death year"
@@ -322,7 +330,7 @@ msgstr[0] "%s osoba s uvedeným rokem úmrtí"
 msgstr[1] "%s osob s uvedeným rokem úmrtí"
 msgstr[2] ""
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:373
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:374
 #, php-format
 msgid "%s individual with both birth and death dates"
 msgid_plural "%s individuals with both birth and death dates"
@@ -338,7 +346,7 @@ msgstr[0] "%s žijící osoba"
 msgstr[1] "%s žijících osob"
 msgstr[2] ""
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:392
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:393
 #, php-format
 msgid "%s living individual with a birth date"
 msgid_plural "%s living individuals with a birth date"
@@ -376,12 +384,12 @@ msgstr[2] ""
 msgid "%s or more children"
 msgstr "%s nebo více dětí"
 
-#: src/Support/SiblingGapRowMapper.php:75
+#: src/Support/SiblingGapRowMapper.php:78
 #, php-format
 msgid "%s or more years"
 msgstr "%s nebo více let"
 
-#: src/Support/SiblingGapRowMapper.php:73
+#: src/Support/SiblingGapRowMapper.php:76
 #, php-format
 msgid "%s pair"
 msgid_plural "%s pairs"
@@ -481,7 +489,7 @@ msgstr "%s let"
 msgid "%s%% divorced"
 msgstr "%s%% rozvedeno"
 
-#: src/Support/SiblingGapRowMapper.php:76
+#: src/Support/SiblingGapRowMapper.php:79
 #, php-format
 msgid "%s-year gap"
 msgid_plural "%s-year gaps"
@@ -495,6 +503,16 @@ msgstr[2] ""
 #, php-format
 msgid "%ss"
 msgstr "%s. léta"
+
+#: src/Support/SiblingGapRowMapper.php:75
+#, fuzzy, php-format
+msgid "%sy"
+msgstr "%s. léta"
+
+#: src/Support/SiblingGapRowMapper.php:74
+#, php-format
+msgid "%sy+"
+msgstr ""
 
 #: src/Support/CenturyName.php:64
 msgctxt "CENTURY"
@@ -621,8 +639,8 @@ msgstr "O tomto histogramu"
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:773
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:885
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:887
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:285
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:287
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:286
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:288
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:219
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:221
 msgid "About this metric"
@@ -636,7 +654,7 @@ msgstr[0] "Mezi %s osobou s alespoň jedním zaznamenaným místem."
 msgstr[1] "Mezi %s osobami s alespoň jedním zaznamenaným místem."
 msgstr[2] ""
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:372
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:373
 msgid "Age at death (10-year bands)"
 msgstr "Věk při úmrtí (10leté pásma)"
 
@@ -664,7 +682,7 @@ msgstr "Věk při sňatku — manželé"
 msgid "Age at marriage — wives"
 msgstr "Věk při sňatku — manželky"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:414
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:415
 msgid "Age in years at death, longest-lived first"
 msgstr "Věk v letech při úmrtí, nejdéle žijící první"
 
@@ -673,13 +691,22 @@ msgctxt "NOMINATIVE"
 msgid "April"
 msgstr "Duben"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:233
+#: src/Support/ZodiacLabels.php:56
+msgid "Aquarius"
+msgstr "Vodnář"
+
+#: src/Support/ZodiacLabels.php:46
+msgid "Aries"
+msgstr "Beran"
+
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:234
 msgid "At least 12 dated deaths are required for a meaningful score."
 msgstr "Pro smysluplné skóre je vyžadováno alespoň 12 datovaných úmrtí."
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:119
 msgid "At least one parent-child pair with parseable birth dates is required."
-msgstr "Je vyžadován alespoň jeden pár rodič-dítě s rozeznatelnými daty narození."
+msgstr ""
+"Je vyžadován alespoň jeden pár rodič-dítě s rozeznatelnými daty narození."
 
 #: src/Statistic.php:936
 msgctxt "NOMINATIVE"
@@ -690,7 +717,9 @@ msgstr "Srpen"
 msgid ""
 "Average count of distinct PLAC values per individual across BIRT, DEAT, "
 "BAPM, BURI, RESI and similar level-1 events."
-msgstr "Průměrný počet různých hodnot PLAC na osobu napříč BIRT, DEAT, BAPM, BURI, RESI a podobnými událostmi úrovně 1."
+msgstr ""
+"Průměrný počet různých hodnot PLAC na osobu napříč BIRT, DEAT, BAPM, BURI, "
+"RESI a podobnými událostmi úrovně 1."
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:583
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:593
@@ -701,11 +730,11 @@ msgstr "Průměrná velikost rodiny podle století"
 msgid "Average generation length"
 msgstr "Průměrná délka generace"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:358
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:359
 msgid "Average lifespan by sex and century"
 msgstr "Průměrná délka života podle pohlaví a století"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:347
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:348
 msgid "Average lifespan by sex × century"
 msgstr "Průměrná délka života podle pohlaví × století"
 
@@ -718,20 +747,20 @@ msgstr "Průměrná úplnost rodokmenu"
 msgid "Average: %s"
 msgstr "Průměr: %s"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:63
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:64
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:43
 msgid "Births"
 msgstr "Narození"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:171
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:172
 msgid "Births by century"
 msgstr "Narození podle století"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:130
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:131
 msgid "Births by month"
 msgstr "Narození podle měsíce"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:149
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:150
 msgid "Births by zodiac sign"
 msgstr "Narození podle znamení zvěrokruhu"
 
@@ -739,15 +768,23 @@ msgstr "Narození podle znamení zvěrokruhu"
 msgid "By recorded child count"
 msgstr "Podle zaznamenaného počtu dětí"
 
+#: src/Support/ZodiacLabels.php:49
+msgid "Cancer"
+msgstr "Rak"
+
+#: src/Support/ZodiacLabels.php:55
+msgid "Capricornus"
+msgstr "Kozoroh"
+
 #: src/Support/CenturyName.php:88
 msgid "Century"
 msgstr "Století"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:276
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:277
 msgid "Child mortality (under 5)"
 msgstr "Dětská úmrtnost (do 5 let)"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:313
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:314
 msgid "Child mortality by birth century"
 msgstr "Dětská úmrtnost podle století narození"
 
@@ -756,11 +793,11 @@ msgstr "Dětská úmrtnost podle století narození"
 msgid "Children per family"
 msgstr "Dětí na rodinu"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:314
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:315
 msgid "Cohorts below 5 children are suppressed — too noisy to plot."
 msgstr "Kohorty pod 5 dětí jsou potlačeny — příliš zašuměné pro vykreslení."
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:454
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:455
 msgid "Common causes of death"
 msgstr "Běžné příčiny úmrtí"
 
@@ -784,7 +821,7 @@ msgstr "Běžná náboženství"
 msgid "Common surnames"
 msgstr "Běžná příjmení"
 
-#: src/Support/SiblingGapRowMapper.php:83
+#: src/Support/SiblingGapRowMapper.php:86
 msgid "Consecutive-sibling pairs"
 msgstr "Aufeinanderfolgende Geschwister-Paare"
 
@@ -797,21 +834,23 @@ msgstr "Věkový rozdíl páru (manžel − manželka)"
 msgid ""
 "Couples whose spouses share at least one common ancestor within four "
 "generations — a marker of cousin marriages and pedigree collapse."
-msgstr "Páry, jejichž manželé sdílejí alespoň jednoho společného předka v rámci čtyř generací — ukazatel sňatků bratranců a kolapsu rodokmenu."
+msgstr ""
+"Páry, jejichž manželé sdílejí alespoň jednoho společného předka v rámci čtyř "
+"generací — ukazatel sňatků bratranců a kolapsu rodokmenu."
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:433
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:434
 msgid "Current age, oldest first"
 msgstr "Aktuální věk, nejstarší první"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:87
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:88
 msgid "Deaths"
 msgstr "Úmrtí"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:247
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:248
 msgid "Deaths by century"
 msgstr "Úmrtí podle století"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:193
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:194
 msgid "Deaths by month"
 msgstr "Úmrtí podle měsíce"
 
@@ -878,7 +917,12 @@ msgid ""
 "in that decade carried that name. The silhouette layout centres each band "
 "around zero, so the chart reads as relative magnitudes — hover any band to "
 "see absolute counts and its peak decade."
-msgstr "Každý pás představuje jedno z nejběžnějších křestních jmen ve stromě. Vertikální tloušťka pásu v daném desetiletí ukazuje, kolik osob narozených v tomto desetiletí toto jméno neslo. Silueta centruje každý pás kolem nuly, takže graf se čte jako relativní velikosti — najetím myší zobrazíte absolutní počty a vrcholné desetiletí."
+msgstr ""
+"Každý pás představuje jedno z nejběžnějších křestních jmen ve stromě. "
+"Vertikální tloušťka pásu v daném desetiletí ukazuje, kolik osob narozených v "
+"tomto desetiletí toto jméno neslo. Silueta centruje každý pás kolem nuly, "
+"takže graf se čte jako relativní velikosti — najetím myší zobrazíte "
+"absolutní počty a vrcholné desetiletí."
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:422
 msgid ""
@@ -897,7 +941,10 @@ msgid ""
 "Each bar is one decade, normalised to 100 %% — the four segments stack 1, 2, "
 "3, and 4 or more children per family. Surfaces the shift from large to small "
 "families over time."
-msgstr "Každý sloupec je jedna dekáda, normalizovaná na 100 %% — čtyři segmenty zobrazují 1, 2, 3 a 4 nebo více dětí na rodinu. Ukazuje posun od velkých k malým rodinám v čase."
+msgstr ""
+"Každý sloupec je jedna dekáda, normalizovaná na 100 %% — čtyři segmenty "
+"zobrazují 1, 2, 3 a 4 nebo více dětí na rodinu. Ukazuje posun od velkých k "
+"malým rodinám v čase."
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:22
 msgid ""
@@ -920,13 +967,18 @@ msgid ""
 "many gaps. Caveats: pedigree-collapse duplicates (cousin marriages) are not "
 "deduplicated, recent leaf-imports without ancestors drag the average down, "
 "and only direct ancestors are counted — siblings / cousins are out of scope."
-msgstr "Každá osoba ve stromě má až 30 možných přímých předků ve čtyřech generacích. Index úplnosti rodokmenu (Lacy 1989) je podíl těchto míst, která jsou skutečně zdokumentována. Vyšší = důkladnější výzkum; nižší = mnoho mezer."
+msgstr ""
+"Každá osoba ve stromě má až 30 možných přímých předků ve čtyřech generacích. "
+"Index úplnosti rodokmenu (Lacy 1989) je podíl těchto míst, která jsou "
+"skutečně zdokumentována. Vyšší = důkladnější výzkum; nižší = mnoho mezer."
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:787
 msgid ""
 "Each step is one parent–child link upward; siblings, half-lines and dead-"
 "ends are merged into the longest path."
-msgstr "Každý krok je jeden vztah rodič–dítě směrem nahoru; sourozenci, polorodé linie a slepé uličky jsou sloučeny do nejdelší cesty."
+msgstr ""
+"Každý krok je jeden vztah rodič–dítě směrem nahoru; sourozenci, polorodé "
+"linie a slepé uličky jsou sloučeny do nejdelší cesty."
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:876
 msgid "Endogamy rate (within 4 generations)"
@@ -985,7 +1037,7 @@ msgid ""
 "sedentary or sparsely-documented population."
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:268
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:269
 msgid ""
 "For every individual with both BIRT and DEAT julian-days the widget computes "
 "the number of days lived; a death within five years (1826 days) of birth "
@@ -1009,6 +1061,10 @@ msgid ""
 "upper end)."
 msgstr ""
 
+#: src/Support/ZodiacLabels.php:48
+msgid "Gemini"
+msgstr "Blíženci"
+
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:836
 msgid "Generation depth distribution"
 msgstr "Distribuce hloubky generací"
@@ -1023,7 +1079,8 @@ msgstr "Oblíbenost křestních jmen v desetiletích"
 
 #: resources/views/modules/statistics-chart/Templates/Overview.phtml:133
 msgid "Hall of fame across the whole tree: extremes that anchor the dataset."
-msgstr "Síň slávy napříč celým stromem: extrémy, které charakterizují datovou sadu."
+msgstr ""
+"Síň slávy napříč celým stromem: extrémy, které charakterizují datovou sadu."
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:249
 msgid "How many distinct places each individual carries, bucketed."
@@ -1033,7 +1090,9 @@ msgstr "Kolik různých míst má každá osoba, v intervalech."
 msgid ""
 "How many individuals sit at exactly N generations above their deepest "
 "recorded descendant."
-msgstr "Kolik osob sedí přesně N generací nad jejich nejhlubším zaznamenaným potomkem."
+msgstr ""
+"Kolik osob sedí přesně N generací nad jejich nejhlubším zaznamenaným "
+"potomkem."
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:246
 #, php-format
@@ -1067,11 +1126,21 @@ msgstr "Známí předkové na osobu"
 msgid ""
 "Lacy 1989 — mean fraction of direct ancestors known up to four generations "
 "across all individuals."
-msgstr "Lacy 1989 — průměrný podíl známých přímých předků do čtyř generací napříč všemi osobami."
+msgstr ""
+"Lacy 1989 — průměrný podíl známých přímých předků do čtyř generací napříč "
+"všemi osobami."
 
 #: resources/views/modules/statistics-chart/Templates/Overview.phtml:203
 msgid "Largest family"
 msgstr "Největší rodina"
+
+#: src/Support/ZodiacLabels.php:50
+msgid "Leo"
+msgstr "Lev"
+
+#: src/Support/ZodiacLabels.php:52
+msgid "Libra"
+msgstr "Váhy"
 
 #: src/Module.php:250
 msgid "Life span"
@@ -1081,7 +1150,7 @@ msgstr "Délka života"
 msgid "Living"
 msgstr "Žijící"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:391
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:392
 msgid "Living individuals by life-stage"
 msgstr "Žijící osoby podle životní fáze"
 
@@ -1097,7 +1166,9 @@ msgstr "Nejdelší manželství"
 msgid ""
 "Longest verified vertical chain from a leaf descendant up to its furthest "
 "ancestor."
-msgstr "Nejdelší ověřený vertikální řetězec od listového potomka po jeho nejvzdálenějšího předka."
+msgstr ""
+"Nejdelší ověřený vertikální řetězec od listového potomka po jeho "
+"nejvzdálenějšího předka."
 
 #: src/Repository/LifeSpanRepository.php:481 src/Statistic.php:124
 msgid "Male"
@@ -1134,15 +1205,19 @@ msgctxt "NOMINATIVE"
 msgid "May"
 msgstr "Květen"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:348
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:349
 msgid "Mean age at death per birth-century cohort, split by recorded sex."
-msgstr "Průměrný věk při úmrtí podle kohorty století narození, rozděleno podle zaznamenaného pohlaví."
+msgstr ""
+"Průměrný věk při úmrtí podle kohorty století narození, rozděleno podle "
+"zaznamenaného pohlaví."
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:584
 msgid ""
 "Mean number of children per dated family per century — the long-arc trend in "
 "family size."
-msgstr "Průměrný počet dětí na datovanou rodinu za století — dlouhodobý trend velikosti rodiny."
+msgstr ""
+"Průměrný počet dětí na datovanou rodinu za století — dlouhodobý trend "
+"velikosti rodiny."
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:106
 msgid "Mean parent-to-child birth-year delta across the whole tree."
@@ -1180,7 +1255,7 @@ msgstr "Chybějící místo sňatku"
 msgid "Missing-event gaps"
 msgstr "Mezery v chybějících událostech"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:117
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:118
 msgid "Mortality rate"
 msgstr "Míra úmrtnosti"
 
@@ -1196,15 +1271,16 @@ msgstr "Nejvíce manželství"
 msgid "Names"
 msgstr "Jména"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:327
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:328
 msgid "No birth century has enough recorded children to plot a reliable rate."
-msgstr "Žádné století narození nemá dostatek zaznamenaných dětí pro spolehlivou míru."
+msgstr ""
+"Žádné století narození nemá dostatek zaznamenaných dětí pro spolehlivou míru."
 
-#: resources/views/modules/statistics-chart/Partials/SankeyFlow.phtml:27
+#: resources/views/modules/statistics-chart/Partials/SankeyFlow.phtml:36
 msgid "No country-to-country movements recorded yet."
 msgstr "Zatím nejsou zaznamenány žádné pohyby mezi zeměmi."
 
-#: resources/views/modules/statistics-chart/Partials/StreamGraph.phtml:27
+#: resources/views/modules/statistics-chart/Partials/StreamGraph.phtml:47
 msgid "No data"
 msgstr "Žádná data"
 
@@ -1212,7 +1288,7 @@ msgstr "Žádná data"
 #: resources/views/modules/statistics-chart/Partials/BarChart.phtml:37
 #: resources/views/modules/statistics-chart/Partials/DivergingBar.phtml:31
 #: resources/views/modules/statistics-chart/Partials/LineChart.phtml:39
-#: resources/views/modules/statistics-chart/Partials/StackedBar.phtml:39
+#: resources/views/modules/statistics-chart/Partials/StackedBar.phtml:48
 msgid "No data available yet."
 msgstr "Zatím nejsou k dispozici žádná data."
 
@@ -1273,7 +1349,8 @@ msgstr "Přehled"
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:118
 msgid "Parent-to-child birth-year delta, averaged across every usable pair."
-msgstr "Rozdíl roku narození rodič-dítě, zprůměrovaný přes všechny použitelné páry."
+msgstr ""
+"Rozdíl roku narození rodič-dítě, zprůměrovaný přes všechny použitelné páry."
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:444
 msgid "Per-century stack of spouse ages at divorce."
@@ -1283,7 +1360,13 @@ msgstr "Stoh věků manželů při rozvodu podle století."
 msgid ""
 "Percentage of marriages from each decade that ended in divorce. Cohorts with "
 "fewer than three marriages are hidden."
-msgstr "Procento sňatků z každé dekády, které skončily rozvodem. Kohorty s méně než třemi sňatky jsou skryty."
+msgstr ""
+"Procento sňatků z každé dekády, které skončily rozvodem. Kohorty s méně než "
+"třemi sňatky jsou skryty."
+
+#: src/Support/ZodiacLabels.php:57
+msgid "Pisces"
+msgstr "Ryby"
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:36
 msgid "Place of birth"
@@ -1301,11 +1384,21 @@ msgstr "Místa"
 msgid "Recorded residences"
 msgstr "Zaznamenané rezidence"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:213
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:214
 msgid ""
 "Relative density of deaths in December – February compared with an even 12-"
 "month baseline."
-msgstr "Relativní hustota úmrtí v prosinci – únoru ve srovnání s rovnoměrnou 12měsíční základní hodnotou."
+msgstr ""
+"Relativní hustota úmrtí v prosinci – únoru ve srovnání s rovnoměrnou "
+"12měsíční základní hodnotou."
+
+#: src/Support/ZodiacLabels.php:54
+msgid "Sagittarius"
+msgstr "Střelec"
+
+#: src/Support/ZodiacLabels.php:53
+msgid "Scorpio"
+msgstr "Štír"
 
 #: src/Statistic.php:937
 msgctxt "NOMINATIVE"
@@ -1316,18 +1409,23 @@ msgstr "Září"
 msgid "Sex"
 msgstr "Pohlaví"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:290
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:291
 msgid ""
 "Share of individuals with both birth and death dates whose death occurred "
 "before their 5th birthday."
-msgstr "Podíl osob s daty narození i úmrtí, jejichž úmrtí nastalo před 5. narozeninami."
+msgstr ""
+"Podíl osob s daty narození i úmrtí, jejichž úmrtí nastalo před 5. "
+"narozeninami."
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:133
 msgid ""
 "Share of individuals without a recorded birth, death, or marriage event, "
 "with or without a place. Marriage rows use spouses as the denominator (never-"
 "married individuals are excluded)."
-msgstr "Podíl osob bez zaznamenané události narození, úmrtí nebo sňatku, s místem nebo bez něj. Řádky se sňatkem používají jako jmenovatele jen manžele (svobodné osoby jsou vyloučeny)."
+msgstr ""
+"Podíl osob bez zaznamenané události narození, úmrtí nebo sňatku, s místem "
+"nebo bez něj. Řádky se sňatkem používají jako jmenovatele jen manžele "
+"(svobodné osoby jsou vyloučeny)."
 
 #: resources/views/modules/statistics-chart/Templates/Overview.phtml:161
 msgid "Shortest marriage"
@@ -1350,6 +1448,10 @@ msgstr "Pokrytí citacemi zdrojů"
 msgid "Statistics"
 msgstr "Statistika"
 
+#: src/Support/ZodiacLabels.php:47
+msgid "Taurus"
+msgstr "Býk"
+
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:750
 msgid ""
 "The maximum generation depth is the longest unbroken parent-child chain "
@@ -1366,11 +1468,11 @@ msgstr ""
 msgid "Top 10 largest families"
 msgstr "Top 10 největších rodin"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:413
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:414
 msgid "Top 10 oldest (deceased)"
 msgstr "Top 10 nejstarších (zemřelí)"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:432
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:433
 msgid "Top 10 oldest (living)"
 msgstr "Top 10 nejstarších (žijící)"
 
@@ -1378,7 +1480,9 @@ msgstr "Top 10 nejstarších (žijící)"
 #, php-format
 msgid ""
 "Top-%s given names, stacked into a stream that reads as relative magnitudes."
-msgstr "Top %s křestních jmen, naskládaných do proudu, který se čte jako relativní velikosti."
+msgstr ""
+"Top %s křestních jmen, naskládaných do proudu, který se čte jako relativní "
+"velikosti."
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:154
 msgid "Tree growth — births per decade"
@@ -1400,11 +1504,17 @@ msgstr "Neznámé"
 msgid "Various statistics charts."
 msgstr "Různé statistické diagramy."
 
+#: src/Support/ZodiacLabels.php:51
+msgid "Virgo"
+msgstr "Panna"
+
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:786
 msgid ""
 "Walk reached the safety cap (20 generations) — check the tree for cyclic "
 "FAMC/FAMS edits."
-msgstr "Procházení dosáhlo bezpečnostního stropu (20 generací) — zkontrolujte strom na cyklické úpravy FAMC/FAMS."
+msgstr ""
+"Procházení dosáhlo bezpečnostního stropu (20 generací) — zkontrolujte strom "
+"na cyklické úpravy FAMC/FAMS."
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:360
 msgid "Weddings by century"
@@ -1423,7 +1533,7 @@ msgstr "Ovdovělý"
 msgid "Wife older by %s years"
 msgstr "Manželka starší o %s let"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:212
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:213
 msgid "Winter-peak score"
 msgstr "Skóre zimního vrcholu"
 
@@ -1456,7 +1566,7 @@ msgid "generations"
 msgstr "generace"
 
 #: resources/views/modules/statistics-chart/Partials/RateList.phtml:33
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:231
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:232
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:115
 msgid "no data"
 msgstr "žádná data"
@@ -1467,15 +1577,48 @@ msgstr "žádná data"
 msgid "no data (n < %s)"
 msgstr "žádná data (n < %s)"
 
+#: resources/views/modules/statistics-chart/Partials/StreamGraph.phtml:37
+msgid "peak in the {decade}"
+msgstr ""
+
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:232
 msgid "places"
 msgstr "místa"
+
+#: resources/views/modules/statistics-chart/Partials/StreamGraph.phtml:34
+msgctxt "decade-suffix"
+msgid "s"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:116
 msgid "years"
 msgstr "roky"
 
+#: resources/views/modules/statistics-chart/Partials/SankeyFlow.phtml:26
+#: resources/views/modules/statistics-chart/Partials/StreamGraph.phtml:35
+#, fuzzy
+msgid "{count} individual"
+msgstr "Dokumentované osoby"
+
+#: resources/views/modules/statistics-chart/Partials/SankeyFlow.phtml:27
+#: resources/views/modules/statistics-chart/Partials/StreamGraph.phtml:36
+#, fuzzy
+msgid "{count} individuals"
+msgstr "Dokumentované osoby"
+
+#: resources/views/modules/statistics-chart/Partials/StackedBar.phtml:33
+msgid "{count} total in this category"
+msgstr ""
+
+#: resources/views/modules/statistics-chart/Partials/StreamGraph.phtml:38
+msgid "{name}: {total}, {peak}"
+msgstr ""
+
 #: resources/views/modules/statistics-chart/Partials/TagCloud.phtml:27
 msgctxt "Unknown surname"
 msgid "…"
 msgstr "…"
+
+#, fuzzy, php-format
+#~ msgid "%s individuals"
+#~ msgstr "%s osoba"

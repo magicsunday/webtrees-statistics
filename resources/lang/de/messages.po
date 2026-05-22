@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Statistics\n"
 "Report-Msgid-Bugs-To: https://github.com/magicsunday/webtrees-statistics/"
 "issues\n"
-"POT-Creation-Date: 2026-05-22 10:13+0000\n"
+"POT-Creation-Date: 2026-05-22 10:58+0000\n"
 "PO-Revision-Date: 2026-05-22 07:04+0000\n"
 "Last-Translator: Rico Sonntag <mail@ricosonntag.de>\n"
 "Language-Team: \n"
@@ -32,11 +32,13 @@ msgstr "%1$s Kinder pro Familie (n = %2$s)"
 msgid "%1$s of %2$s (%3$s%%)"
 msgstr "%1$s von %2$s (%3$s%%)"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:300
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:301
 #, php-format
 msgid ""
 "%1$s of %2$s children with known birth and death dates died before age 5."
-msgstr "%1$s von %2$s Kindern mit bekanntem Geburts- und Sterbedatum starben vor dem 5. Lebensjahr."
+msgstr ""
+"%1$s von %2$s Kindern mit bekanntem Geburts- und Sterbedatum starben vor dem "
+"5. Lebensjahr."
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:900
 #, php-format
@@ -46,15 +48,21 @@ msgid ""
 msgid_plural ""
 "%1$s of %2$s couples where both spouses had at least one recorded parent "
 "share a common ancestor."
-msgstr[0] "%1$s von %2$s Paar, bei dem beide Ehepartner mindestens einen erfassten Elternteil haben, teilt einen gemeinsamen Vorfahren."
-msgstr[1] "%1$s von %2$s Paaren, bei denen beide Ehepartner mindestens einen erfassten Elternteil haben, teilen einen gemeinsamen Vorfahren."
+msgstr[0] ""
+"%1$s von %2$s Paar, bei dem beide Ehepartner mindestens einen erfassten "
+"Elternteil haben, teilt einen gemeinsamen Vorfahren."
+msgstr[1] ""
+"%1$s von %2$s Paaren, bei denen beide Ehepartner mindestens einen erfassten "
+"Elternteil haben, teilen einen gemeinsamen Vorfahren."
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:218
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:219
 #, php-format
 msgid ""
 "%1$s of %2$s deaths fell in December – February. 1.0 = no seasonality, > 1.0 "
 "= winter-peaked, < 1.0 = winter-trough."
-msgstr "%1$s von %2$s Sterbefällen lagen im Dezember – Februar. 1,0 = keine Saisonalität, > 1,0 = Winter-Spitze, < 1,0 = Winter-Tief."
+msgstr ""
+"%1$s von %2$s Sterbefällen lagen im Dezember – Februar. 1,0 = keine "
+"Saisonalität, > 1,0 = Winter-Spitze, < 1,0 = Winter-Tief."
 
 #: src/Repository/LifeSpanRepository.php:459
 #: src/Repository/LifeSpanRepository.php:466
@@ -62,7 +70,7 @@ msgstr "%1$s von %2$s Sterbefällen lagen im Dezember – Februar. 1,0 = keine S
 msgid "%1$s years (n = %2$s)"
 msgstr "%1$s Jahre (n = %2$s)"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:105
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:106
 #, php-format
 msgid "%1$s%% — %2$s of %3$s children died before age 5"
 msgstr "%1$s%% — %2$s von %3$s Kindern starben vor dem 5. Lebensjahr"
@@ -79,7 +87,7 @@ msgid_plural "%s additional chains at the same depth not shown."
 msgstr[0] "%s weitere Kette auf derselben Tiefe nicht angezeigt."
 msgstr[1] "%s weitere Ketten auf derselben Tiefe nicht angezeigt."
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:55
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:56
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:36
 #, php-format
 msgid "%s birth"
@@ -138,14 +146,14 @@ msgid_plural "%s days"
 msgstr[0] "%s Tag"
 msgstr[1] "%s Tage"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:79
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:80
 #, php-format
 msgid "%s death"
 msgid_plural "%s deaths"
 msgstr[0] "%s Sterbefall"
 msgstr[1] "%s Sterbefälle"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:455
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:456
 #, php-format
 msgid "%s distinct causes (top 15 shown)"
 msgstr "%s verschiedene Ursachen (Top 15 angezeigt)"
@@ -260,42 +268,42 @@ msgid_plural "%s individuals sampled"
 msgstr[0] "%s Person erfasst"
 msgstr[1] "%s Personen erfasst"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:150
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:151
 #, php-format
 msgid "%s individual with a known zodiac sign"
 msgid_plural "%s individuals with a known zodiac sign"
 msgstr[0] "%s Person mit bekanntem Sternzeichen"
 msgstr[1] "%s Personen mit bekanntem Sternzeichen"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:131
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:132
 #, php-format
 msgid "%s individual with a recorded birth month"
 msgid_plural "%s individuals with a recorded birth month"
 msgstr[0] "%s Person mit erfasstem Geburtsmonat"
 msgstr[1] "%s Personen mit erfasstem Geburtsmonat"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:172
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:173
 #, php-format
 msgid "%s individual with a recorded birth year"
 msgid_plural "%s individuals with a recorded birth year"
 msgstr[0] "%s Person mit erfasstem Geburtsjahr"
 msgstr[1] "%s Personen mit erfasstem Geburtsjahr"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:194
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:195
 #, php-format
 msgid "%s individual with a recorded death month"
 msgid_plural "%s individuals with a recorded death month"
 msgstr[0] "%s Person mit erfasstem Sterbemonat"
 msgstr[1] "%s Personen mit erfasstem Sterbemonat"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:248
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:249
 #, php-format
 msgid "%s individual with a recorded death year"
 msgid_plural "%s individuals with a recorded death year"
 msgstr[0] "%s Person mit erfasstem Sterbejahr"
 msgstr[1] "%s Personen mit erfasstem Sterbejahr"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:373
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:374
 #, php-format
 msgid "%s individual with both birth and death dates"
 msgid_plural "%s individuals with both birth and death dates"
@@ -309,7 +317,7 @@ msgid_plural "%s living individuals"
 msgstr[0] "%s lebende Person"
 msgstr[1] "%s lebende Personen"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:392
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:393
 #, php-format
 msgid "%s living individual with a birth date"
 msgid_plural "%s living individuals with a birth date"
@@ -343,12 +351,12 @@ msgstr[1] "%s Mütter mit datiertem ersten Kind"
 msgid "%s or more children"
 msgstr "%s oder mehr Kinder"
 
-#: src/Support/SiblingGapRowMapper.php:75
+#: src/Support/SiblingGapRowMapper.php:78
 #, php-format
 msgid "%s or more years"
 msgstr "%s oder mehr Jahre"
 
-#: src/Support/SiblingGapRowMapper.php:73
+#: src/Support/SiblingGapRowMapper.php:76
 #, php-format
 msgid "%s pair"
 msgid_plural "%s pairs"
@@ -438,7 +446,7 @@ msgstr "%s Jahre"
 msgid "%s%% divorced"
 msgstr "%s%% geschieden"
 
-#: src/Support/SiblingGapRowMapper.php:76
+#: src/Support/SiblingGapRowMapper.php:79
 #, php-format
 msgid "%s-year gap"
 msgid_plural "%s-year gaps"
@@ -451,6 +459,16 @@ msgstr[1] "%s-Jahr-Abstände"
 #, php-format
 msgid "%ss"
 msgstr "%ser"
+
+#: src/Support/SiblingGapRowMapper.php:75
+#, php-format
+msgid "%sy"
+msgstr "%sJ"
+
+#: src/Support/SiblingGapRowMapper.php:74
+#, php-format
+msgid "%sy+"
+msgstr "%sJ+"
 
 #: src/Support/CenturyName.php:64
 msgctxt "CENTURY"
@@ -577,8 +595,8 @@ msgstr "Über dieses Histogramm"
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:773
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:885
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:887
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:285
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:287
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:286
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:288
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:219
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:221
 msgid "About this metric"
@@ -591,7 +609,7 @@ msgid_plural "Across %s individuals with at least one recorded place."
 msgstr[0] "Über %s Person mit mindestens einem erfassten Ort."
 msgstr[1] "Über %s Personen mit mindestens einem erfassten Ort."
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:372
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:373
 msgid "Age at death (10-year bands)"
 msgstr "Sterbealter (10-Jahre-Klassen)"
 
@@ -619,7 +637,7 @@ msgstr "Heiratsalter — Männer"
 msgid "Age at marriage — wives"
 msgstr "Heiratsalter — Frauen"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:414
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:415
 msgid "Age in years at death, longest-lived first"
 msgstr "Sterbealter in Jahren, langlebigste zuerst"
 
@@ -628,13 +646,25 @@ msgctxt "NOMINATIVE"
 msgid "April"
 msgstr "April"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:233
+#: src/Support/ZodiacLabels.php:56
+msgid "Aquarius"
+msgstr "Wassermann"
+
+#: src/Support/ZodiacLabels.php:46
+msgid "Aries"
+msgstr "Widder"
+
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:234
 msgid "At least 12 dated deaths are required for a meaningful score."
-msgstr "Mindestens 12 datierte Sterbefälle sind für eine aussagekräftige Bewertung nötig."
+msgstr ""
+"Mindestens 12 datierte Sterbefälle sind für eine aussagekräftige Bewertung "
+"nötig."
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:119
 msgid "At least one parent-child pair with parseable birth dates is required."
-msgstr "Mindestens ein Eltern-Kind-Paar mit auswertbaren Geburtsdaten ist erforderlich."
+msgstr ""
+"Mindestens ein Eltern-Kind-Paar mit auswertbaren Geburtsdaten ist "
+"erforderlich."
 
 #: src/Statistic.php:936
 msgctxt "NOMINATIVE"
@@ -645,7 +675,9 @@ msgstr "August"
 msgid ""
 "Average count of distinct PLAC values per individual across BIRT, DEAT, "
 "BAPM, BURI, RESI and similar level-1 events."
-msgstr "Durchschnittliche Anzahl unterschiedlicher PLAC-Werte pro Person über BIRT, DEAT, BAPM, BURI, RESI und ähnliche Level-1-Ereignisse."
+msgstr ""
+"Durchschnittliche Anzahl unterschiedlicher PLAC-Werte pro Person über BIRT, "
+"DEAT, BAPM, BURI, RESI und ähnliche Level-1-Ereignisse."
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:583
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:593
@@ -656,11 +688,11 @@ msgstr "Durchschnittliche Familiengröße pro Jahrhundert"
 msgid "Average generation length"
 msgstr "Durchschnittliche Generationenlänge"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:358
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:359
 msgid "Average lifespan by sex and century"
 msgstr "Durchschnittliche Lebensdauer nach Geschlecht und Jahrhundert"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:347
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:348
 msgid "Average lifespan by sex × century"
 msgstr "Durchschnittliche Lebensdauer nach Geschlecht × Jahrhundert"
 
@@ -673,20 +705,20 @@ msgstr "Durchschnittliche Stammbaum-Vollständigkeit"
 msgid "Average: %s"
 msgstr "Durchschnitt: %s"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:63
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:64
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:43
 msgid "Births"
 msgstr "Geburten"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:171
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:172
 msgid "Births by century"
 msgstr "Geburten pro Jahrhundert"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:130
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:131
 msgid "Births by month"
 msgstr "Geburten pro Monat"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:149
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:150
 msgid "Births by zodiac sign"
 msgstr "Geburten nach Sternzeichen"
 
@@ -694,15 +726,23 @@ msgstr "Geburten nach Sternzeichen"
 msgid "By recorded child count"
 msgstr "Nach erfasster Kinderzahl"
 
+#: src/Support/ZodiacLabels.php:49
+msgid "Cancer"
+msgstr "Krebs"
+
+#: src/Support/ZodiacLabels.php:55
+msgid "Capricornus"
+msgstr "Steinbock"
+
 #: src/Support/CenturyName.php:88
 msgid "Century"
 msgstr "Jahrhundert"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:276
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:277
 msgid "Child mortality (under 5)"
 msgstr "Kindersterblichkeit (unter 5)"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:313
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:314
 msgid "Child mortality by birth century"
 msgstr "Kindersterblichkeit nach Geburtsjahrhundert"
 
@@ -711,11 +751,13 @@ msgstr "Kindersterblichkeit nach Geburtsjahrhundert"
 msgid "Children per family"
 msgstr "Kinder pro Familie"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:314
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:315
 msgid "Cohorts below 5 children are suppressed — too noisy to plot."
-msgstr "Kohorten mit weniger als 5 Kindern werden unterdrückt — zu verrauscht für die Darstellung."
+msgstr ""
+"Kohorten mit weniger als 5 Kindern werden unterdrückt — zu verrauscht für "
+"die Darstellung."
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:454
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:455
 msgid "Common causes of death"
 msgstr "Häufige Todesursachen"
 
@@ -739,7 +781,7 @@ msgstr "Häufige Religionen"
 msgid "Common surnames"
 msgstr "Häufige Nachnamen"
 
-#: src/Support/SiblingGapRowMapper.php:83
+#: src/Support/SiblingGapRowMapper.php:86
 msgid "Consecutive-sibling pairs"
 msgstr "Aufeinanderfolgende Geschwister-Paare"
 
@@ -752,21 +794,23 @@ msgstr "Altersabstand Paare (Mann − Frau)"
 msgid ""
 "Couples whose spouses share at least one common ancestor within four "
 "generations — a marker of cousin marriages and pedigree collapse."
-msgstr "Paare, deren Ehepartner mindestens einen gemeinsamen Vorfahren innerhalb von vier Generationen teilen — Indikator für Cousin-Heiraten und Ahnenschwund."
+msgstr ""
+"Paare, deren Ehepartner mindestens einen gemeinsamen Vorfahren innerhalb von "
+"vier Generationen teilen — Indikator für Cousin-Heiraten und Ahnenschwund."
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:433
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:434
 msgid "Current age, oldest first"
 msgstr "Aktuelles Alter, älteste zuerst"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:87
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:88
 msgid "Deaths"
 msgstr "Sterbefälle"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:247
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:248
 msgid "Deaths by century"
 msgstr "Sterbefälle pro Jahrhundert"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:193
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:194
 msgid "Deaths by month"
 msgstr "Sterbefälle pro Monat"
 
@@ -783,7 +827,8 @@ msgstr "Dezember"
 msgid ""
 "Distinct ancestors recorded up to four generations (great-great-"
 "grandparents)."
-msgstr "Unterschiedliche Vorfahren bis zur vierten Generation (Ururgroßeltern)."
+msgstr ""
+"Unterschiedliche Vorfahren bis zur vierten Generation (Ururgroßeltern)."
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:248
 msgid "Distinct places per individual"
@@ -833,7 +878,13 @@ msgid ""
 "in that decade carried that name. The silhouette layout centres each band "
 "around zero, so the chart reads as relative magnitudes — hover any band to "
 "see absolute counts and its peak decade."
-msgstr "Jedes Band steht für einen der häufigsten Vornamen im Baum. Die vertikale Dicke des Bands in einem bestimmten Jahrzehnt zeigt, wie viele in diesem Jahrzehnt geborene Personen diesen Namen trugen. Das Silhouetten-Layout zentriert jedes Band um Null, so liest sich das Diagramm als relative Größen — fahren Sie mit der Maus über ein Band für absolute Zahlen und das Spitzen-Jahrzehnt."
+msgstr ""
+"Jedes Band steht für einen der häufigsten Vornamen im Baum. Die vertikale "
+"Dicke des Bands in einem bestimmten Jahrzehnt zeigt, wie viele in diesem "
+"Jahrzehnt geborene Personen diesen Namen trugen. Das Silhouetten-Layout "
+"zentriert jedes Band um Null, so liest sich das Diagramm als relative Größen "
+"— fahren Sie mit der Maus über ein Band für absolute Zahlen und das Spitzen-"
+"Jahrzehnt."
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:422
 msgid ""
@@ -845,6 +896,14 @@ msgid ""
 "exactly with the divorces-by-century chart above. Hover any segment for the "
 "per-band count and the century total."
 msgstr ""
+"Jeder Balken ist ein Jahrhundert erfasster Scheidungen. Die Segmente teilen "
+"den Balken in fünf Lebensphasen-Altersbänder zum Zeitpunkt der Scheidung (0–"
+"24, 25–34, 35–44, 45–54, 55+) plus ein Band „Unbekannt“ für Scheidungen ohne "
+"nutzbares Geburtsdatum eines Ehepartners. Eine Markierung pro Scheidung, "
+"klassifiziert nach dem Alter des Ehemanns, falls vorhanden, sonst nach dem "
+"Alter der Ehefrau, sodass die Jahrhundertsummen exakt mit dem Diagramm "
+"„Scheidungen pro Jahrhundert“ darüber übereinstimmen. Fahren Sie mit der "
+"Maus über ein Segment für die Zahl pro Band und die Jahrhundert-Summe."
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:560
 #, php-format
@@ -852,7 +911,10 @@ msgid ""
 "Each bar is one decade, normalised to 100 %% — the four segments stack 1, 2, "
 "3, and 4 or more children per family. Surfaces the shift from large to small "
 "families over time."
-msgstr "Jeder Balken ist eine Dekade, auf 100 %% normiert — die vier Segmente stapeln 1, 2, 3 und 4 oder mehr Kinder pro Familie. Zeigt den Wandel von Groß- zu Kleinfamilien im Zeitverlauf."
+msgstr ""
+"Jeder Balken ist eine Dekade, auf 100 %% normiert — die vier Segmente "
+"stapeln 1, 2, 3 und 4 oder mehr Kinder pro Familie. Zeigt den Wandel von "
+"Groß- zu Kleinfamilien im Zeitverlauf."
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:22
 msgid ""
@@ -862,6 +924,12 @@ msgid ""
 "not migration. Hover any band to see the exact source → destination and "
 "individual count."
 msgstr ""
+"Jeder Fluss zeigt Personen, die in einem Land geboren und in einem anderen "
+"gestorben sind. Die Dicke des Flusses kodiert die Anzahl: dickere Bänder "
+"bedeuten mehr Migrationen entlang dieses Pfads. Bewegungen innerhalb "
+"desselben Landes sind ausgeschlossen — das ist keine Migration. Fahren Sie "
+"mit der Maus über ein Band für den genauen Pfad Herkunft → Ziel und die "
+"Personenzahl."
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:82
 msgid ""
@@ -875,13 +943,26 @@ msgid ""
 "many gaps. Caveats: pedigree-collapse duplicates (cousin marriages) are not "
 "deduplicated, recent leaf-imports without ancestors drag the average down, "
 "and only direct ancestors are counted — siblings / cousins are out of scope."
-msgstr "Jede Person im Baum hat bis zu 30 mögliche direkte Vorfahren in vier Generationen (2 Eltern + 4 Großeltern + 8 Urgroßeltern + 16 Ururgroßeltern). Der Stammbaum-Vollständigkeits-Index (Lacy 1989) ist der Anteil dieser 30 Plätze, die für diese Person tatsächlich dokumentiert sind. Die hier gezeigte Zahl ist der Durchschnitt über alle Personen im Baum, also bedeutet 12 Prozent: im Schnitt hat jede Person 12 Prozent ihrer 4-Generationen-Ahnen erfasst. Höher = gründlichere Forschung; niedriger = viele Lücken. Einschränkungen: Doppelzählungen durch Ahnenschwund (Cousinenheiraten) werden nicht entfernt, kürzlich importierte Blätter ohne Vorfahren ziehen den Durchschnitt nach unten, und nur direkte Vorfahren zählen — Geschwister oder Cousins sind außen vor."
+msgstr ""
+"Jede Person im Baum hat bis zu 30 mögliche direkte Vorfahren in vier "
+"Generationen (2 Eltern + 4 Großeltern + 8 Urgroßeltern + 16 Ururgroßeltern). "
+"Der Stammbaum-Vollständigkeits-Index (Lacy 1989) ist der Anteil dieser 30 "
+"Plätze, die für diese Person tatsächlich dokumentiert sind. Die hier "
+"gezeigte Zahl ist der Durchschnitt über alle Personen im Baum, also bedeutet "
+"12 Prozent: im Schnitt hat jede Person 12 Prozent ihrer 4-Generationen-Ahnen "
+"erfasst. Höher = gründlichere Forschung; niedriger = viele Lücken. "
+"Einschränkungen: Doppelzählungen durch Ahnenschwund (Cousinenheiraten) "
+"werden nicht entfernt, kürzlich importierte Blätter ohne Vorfahren ziehen "
+"den Durchschnitt nach unten, und nur direkte Vorfahren zählen — Geschwister "
+"oder Cousins sind außen vor."
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:787
 msgid ""
 "Each step is one parent–child link upward; siblings, half-lines and dead-"
 "ends are merged into the longest path."
-msgstr "Jeder Schritt ist eine Eltern-Kind-Verbindung nach oben; Geschwister, Halblinien und Sackgassen werden in den längsten Pfad zusammengeführt."
+msgstr ""
+"Jeder Schritt ist eine Eltern-Kind-Verbindung nach oben; Geschwister, "
+"Halblinien und Sackgassen werden in den längsten Pfad zusammengeführt."
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:876
 msgid "Endogamy rate (within 4 generations)"
@@ -925,6 +1006,16 @@ msgid ""
 "be tested and are excluded from both numerator and denominator, so the rate "
 "stays honest."
 msgstr ""
+"Für jedes Paar, bei dem beide Ehepartner mindestens einen erfassten "
+"Elternteil haben, geht das Widget den Vorfahrenbaum jedes Ehepartners bis "
+"zur vierten Generation (Eltern, Großeltern, Urgroßeltern, Ururgroßeltern) ab "
+"und bildet die Schnittmenge. Eine nichtleere Schnittmenge bedeutet, dass das "
+"Paar mindestens einen gemeinsamen Vorfahren teilt — die klassische Signatur "
+"von Cousinen-Ehen und Ahnenschwund, typisch für ländliche vorindustrielle "
+"Populationen und selten in gut durchmischten städtischen. Paare, bei denen "
+"mindestens ein Ehepartner keine erfassten Eltern hat, können nicht geprüft "
+"werden und werden sowohl im Zähler als auch im Nenner ausgeschlossen, damit "
+"die Rate ehrlich bleibt."
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:202
 msgid ""
@@ -939,8 +1030,19 @@ msgid ""
 "high tail signals migrant ancestors, a heavy bar at \"1\" signals a "
 "sedentary or sparsely-documented population."
 msgstr ""
+"Für jede Person sammelt das Widget jeden unterschiedlichen PLAC-Wert, der in "
+"einem ihrer Level-1-Ereignisse vorkommt (BIRT, DEAT, BAPM, BURI, RESI, …), "
+"und zählt die einzigartigen Orte. Duplikate innerhalb derselben Person (z. "
+"B. BIRT und DEAT beide in Hamburg) werden zu einem Ort zusammengefasst, "
+"sodass die Zahl die geografische Mobilität widerspiegelt und nicht, wie "
+"viele Ereignisse erfasst sind. Der Durchschnitt geht über jede Person mit "
+"mindestens einem erfassten Ort; Personen ganz ohne Ortsdaten sind "
+"ausgeschlossen. Die Verteilung rechts zeigt, wie sich diese Zahlen auf 1 / "
+"2 / 3 / 4 / 5+ unterschiedliche Orte pro Person aufteilen — ein langer "
+"Ausläufer signalisiert wandernde Vorfahren, ein hoher Balken bei „1“ eine "
+"sesshafte oder spärlich dokumentierte Bevölkerung."
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:268
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:269
 msgid ""
 "For every individual with both BIRT and DEAT julian-days the widget computes "
 "the number of days lived; a death within five years (1826 days) of birth "
@@ -953,6 +1055,17 @@ msgid ""
 "cohorts below 5 children are suppressed because a single dead child would "
 "spike the line by more than 10 percentage points."
 msgstr ""
+"Für jede Person mit BIRT- und DEAT-Julianischem-Tag berechnet das Widget die "
+"gelebten Tage; ein Tod innerhalb von fünf Jahren (1826 Tagen) nach der "
+"Geburt zählt als Sterblichkeit unter 5 Jahren. Der baumweite Prozentsatz ist "
+"der Anteil solcher Kinder über den gesamten Baum, und das LineChart rechts "
+"gruppiert sie nach ihrem Geburtsjahrhundert, damit der historische Rückgang "
+"sichtbar wird (typischer Wert für das 18. Jahrhundert 30–40 Prozent, modern "
+"unter 2 Prozent). Personen mit nur BIRT oder nur DEAT werden stillschweigend "
+"ausgeschlossen — Überleben lässt sich ohne beide Anker nicht bestimmen, und "
+"ihre Aufnahme würde die Rate verzerren. Jahrhundert-Kohorten unter 5 Kindern "
+"werden unterdrückt, weil ein einzelnes gestorbenes Kind die Linie um mehr "
+"als 10 Prozentpunkte ausschlagen ließe."
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:754
 msgid ""
@@ -963,6 +1076,16 @@ msgid ""
 "low depth) or has a few unusually deep verified lines (small tail at the "
 "upper end)."
 msgstr ""
+"Für jede Person zählt diese Klasse, wie viele Nachkommen-Generationen unter "
+"ihr im Baum erfasst sind. Klasse 0 = Blatt (keine Nachkommen), Klasse N = "
+"Person, deren tiefster verifizierter Nachkomme N Generationen jünger ist. "
+"Die Form zeigt, ob der Baum breit verzweigt ist (viele Blätter, geringe "
+"Tiefe) oder einige ungewöhnlich tiefe verifizierte Linien hat (kleiner "
+"Ausläufer am oberen Ende)."
+
+#: src/Support/ZodiacLabels.php:48
+msgid "Gemini"
+msgstr "Zwillinge"
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:836
 msgid "Generation depth distribution"
@@ -988,7 +1111,9 @@ msgstr "Anzahl unterschiedlicher Orte pro Person, in Klassen gruppiert."
 msgid ""
 "How many individuals sit at exactly N generations above their deepest "
 "recorded descendant."
-msgstr "Wie viele Personen sich genau N Generationen über ihrem tiefsten erfassten Nachfahren befinden."
+msgstr ""
+"Wie viele Personen sich genau N Generationen über ihrem tiefsten erfassten "
+"Nachfahren befinden."
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:246
 #, php-format
@@ -1022,11 +1147,21 @@ msgstr "Bekannte Vorfahren pro Person"
 msgid ""
 "Lacy 1989 — mean fraction of direct ancestors known up to four generations "
 "across all individuals."
-msgstr "Lacy 1989 — durchschnittlicher Anteil bekannter direkter Vorfahren bis zur vierten Generation über alle Personen."
+msgstr ""
+"Lacy 1989 — durchschnittlicher Anteil bekannter direkter Vorfahren bis zur "
+"vierten Generation über alle Personen."
 
 #: resources/views/modules/statistics-chart/Templates/Overview.phtml:203
 msgid "Largest family"
 msgstr "Größte Familie"
+
+#: src/Support/ZodiacLabels.php:50
+msgid "Leo"
+msgstr "Löwe"
+
+#: src/Support/ZodiacLabels.php:52
+msgid "Libra"
+msgstr "Waage"
 
 #: src/Module.php:250
 msgid "Life span"
@@ -1036,7 +1171,7 @@ msgstr "Lebensdauer"
 msgid "Living"
 msgstr "Lebt"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:391
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:392
 msgid "Living individuals by life-stage"
 msgstr "Lebende Personen nach Lebensphase"
 
@@ -1052,7 +1187,9 @@ msgstr "Längste Ehe"
 msgid ""
 "Longest verified vertical chain from a leaf descendant up to its furthest "
 "ancestor."
-msgstr "Längste verifizierte vertikale Kette von einem Blatt-Nachfahren bis zu seinem entferntesten Vorfahren."
+msgstr ""
+"Längste verifizierte vertikale Kette von einem Blatt-Nachfahren bis zu "
+"seinem entferntesten Vorfahren."
 
 #: src/Repository/LifeSpanRepository.php:481 src/Statistic.php:124
 msgid "Male"
@@ -1089,19 +1226,25 @@ msgctxt "NOMINATIVE"
 msgid "May"
 msgstr "Mai"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:348
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:349
 msgid "Mean age at death per birth-century cohort, split by recorded sex."
-msgstr "Durchschnittliches Sterbealter pro Geburtsjahrhundert, getrennt nach Geschlecht."
+msgstr ""
+"Durchschnittliches Sterbealter pro Geburtsjahrhundert, getrennt nach "
+"Geschlecht."
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:584
 msgid ""
 "Mean number of children per dated family per century — the long-arc trend in "
 "family size."
-msgstr "Durchschnittliche Kinderzahl pro datierter Familie pro Jahrhundert — der langfristige Trend in der Familiengröße."
+msgstr ""
+"Durchschnittliche Kinderzahl pro datierter Familie pro Jahrhundert — der "
+"langfristige Trend in der Familiengröße."
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:106
 msgid "Mean parent-to-child birth-year delta across the whole tree."
-msgstr "Durchschnittlicher Abstand zwischen Eltern- und Kind-Geburtsjahr über den gesamten Baum."
+msgstr ""
+"Durchschnittlicher Abstand zwischen Eltern- und Kind-Geburtsjahr über den "
+"gesamten Baum."
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:169
 msgid "Migrations between birth and death country"
@@ -1135,7 +1278,7 @@ msgstr "Fehlender Heiratsort"
 msgid "Missing-event gaps"
 msgstr "Lücken bei fehlenden Ereignissen"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:117
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:118
 msgid "Mortality rate"
 msgstr "Sterblichkeitsrate"
 
@@ -1151,15 +1294,16 @@ msgstr "Meiste Ehepartner"
 msgid "Names"
 msgstr "Namen"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:327
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:328
 msgid "No birth century has enough recorded children to plot a reliable rate."
-msgstr "Kein Geburtsjahrhundert hat genügend Kinder für eine zuverlässige Rate."
+msgstr ""
+"Kein Geburtsjahrhundert hat genügend Kinder für eine zuverlässige Rate."
 
-#: resources/views/modules/statistics-chart/Partials/SankeyFlow.phtml:27
+#: resources/views/modules/statistics-chart/Partials/SankeyFlow.phtml:36
 msgid "No country-to-country movements recorded yet."
 msgstr "Noch keine Land-zu-Land-Bewegungen erfasst."
 
-#: resources/views/modules/statistics-chart/Partials/StreamGraph.phtml:27
+#: resources/views/modules/statistics-chart/Partials/StreamGraph.phtml:47
 msgid "No data"
 msgstr "Keine Daten"
 
@@ -1167,7 +1311,7 @@ msgstr "Keine Daten"
 #: resources/views/modules/statistics-chart/Partials/BarChart.phtml:37
 #: resources/views/modules/statistics-chart/Partials/DivergingBar.phtml:31
 #: resources/views/modules/statistics-chart/Partials/LineChart.phtml:39
-#: resources/views/modules/statistics-chart/Partials/StackedBar.phtml:39
+#: resources/views/modules/statistics-chart/Partials/StackedBar.phtml:48
 msgid "No data available yet."
 msgstr "Noch keine Daten verfügbar."
 
@@ -1237,7 +1381,13 @@ msgstr "Gestapelte Altersbänder der Ehepartner bei Scheidung pro Jahrhundert."
 msgid ""
 "Percentage of marriages from each decade that ended in divorce. Cohorts with "
 "fewer than three marriages are hidden."
-msgstr "Anteil der Eheschließungen pro Dekade, die in Scheidung endeten. Kohorten mit weniger als drei Eheschließungen sind ausgeblendet."
+msgstr ""
+"Anteil der Eheschließungen pro Dekade, die in Scheidung endeten. Kohorten "
+"mit weniger als drei Eheschließungen sind ausgeblendet."
+
+#: src/Support/ZodiacLabels.php:57
+msgid "Pisces"
+msgstr "Fische"
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:36
 msgid "Place of birth"
@@ -1255,11 +1405,21 @@ msgstr "Orte"
 msgid "Recorded residences"
 msgstr "Erfasste Wohnorte"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:213
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:214
 msgid ""
 "Relative density of deaths in December – February compared with an even 12-"
 "month baseline."
-msgstr "Relative Dichte der Sterbefälle in Dezember – Februar verglichen mit einer gleichmäßigen 12-Monats-Basislinie."
+msgstr ""
+"Relative Dichte der Sterbefälle in Dezember – Februar verglichen mit einer "
+"gleichmäßigen 12-Monats-Basislinie."
+
+#: src/Support/ZodiacLabels.php:54
+msgid "Sagittarius"
+msgstr "Schütze"
+
+#: src/Support/ZodiacLabels.php:53
+msgid "Scorpio"
+msgstr "Skorpion"
 
 #: src/Statistic.php:937
 msgctxt "NOMINATIVE"
@@ -1270,18 +1430,23 @@ msgstr "September"
 msgid "Sex"
 msgstr "Geschlecht"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:290
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:291
 msgid ""
 "Share of individuals with both birth and death dates whose death occurred "
 "before their 5th birthday."
-msgstr "Anteil der Personen mit Geburts- und Sterbedatum, deren Tod vor ihrem 5. Geburtstag eintrat."
+msgstr ""
+"Anteil der Personen mit Geburts- und Sterbedatum, deren Tod vor ihrem 5. "
+"Geburtstag eintrat."
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:133
 msgid ""
 "Share of individuals without a recorded birth, death, or marriage event, "
 "with or without a place. Marriage rows use spouses as the denominator (never-"
 "married individuals are excluded)."
-msgstr "Anteil der Personen ohne erfasstes Geburts-, Sterbe- oder Heiratsereignis, mit oder ohne Ort. Heiratszeilen verwenden Ehepartner als Nenner (nie verheiratete Personen werden ausgeschlossen)."
+msgstr ""
+"Anteil der Personen ohne erfasstes Geburts-, Sterbe- oder Heiratsereignis, "
+"mit oder ohne Ort. Heiratszeilen verwenden Ehepartner als Nenner (nie "
+"verheiratete Personen werden ausgeschlossen)."
 
 #: resources/views/modules/statistics-chart/Templates/Overview.phtml:161
 msgid "Shortest marriage"
@@ -1304,6 +1469,10 @@ msgstr "Abdeckung durch Quellenangaben"
 msgid "Statistics"
 msgstr "Statistiken"
 
+#: src/Support/ZodiacLabels.php:47
+msgid "Taurus"
+msgstr "Stier"
+
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:750
 msgid ""
 "The maximum generation depth is the longest unbroken parent-child chain "
@@ -1315,16 +1484,24 @@ msgid ""
 "shows the eldest ancestors. A safety cap at 20 generations catches "
 "accidentally-cyclic GEDCOM edits."
 msgstr ""
+"Die maximale Generationstiefe ist die längste ununterbrochene Eltern-Kind-"
+"Kette, die im Baum erfasst ist. Das Widget geht jede Person nach oben durch, "
+"folgt Vätern und Müttern parallel und meldet die tiefste verifizierte Linie. "
+"Das Verteilungs-Histogramm rechts zeigt für jede Person, wie viele "
+"Generationen Nachkommen unter ihr im Baum sitzen — ein Wert von 0 bedeutet "
+"ein Blatt (keine erfassten Nachkommen), und die Klasse bei der maximalen "
+"Tiefe zeigt die ältesten Vorfahren. Eine Sicherheitsgrenze bei 20 "
+"Generationen fängt versehentlich zyklische GEDCOM-Bearbeitungen ab."
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:606
 msgid "Top 10 largest families"
 msgstr "Top 10 größte Familien"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:413
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:414
 msgid "Top 10 oldest (deceased)"
 msgstr "Top 10 Älteste (verstorben)"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:432
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:433
 msgid "Top 10 oldest (living)"
 msgstr "Top 10 Älteste (lebend)"
 
@@ -1332,7 +1509,9 @@ msgstr "Top 10 Älteste (lebend)"
 #, php-format
 msgid ""
 "Top-%s given names, stacked into a stream that reads as relative magnitudes."
-msgstr "Top %s Vornamen, in einen Stream gestapelt, der sich als relative Größen liest."
+msgstr ""
+"Top %s Vornamen, in einen Stream gestapelt, der sich als relative Größen "
+"liest."
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:154
 msgid "Tree growth — births per decade"
@@ -1354,11 +1533,17 @@ msgstr "Unbekannt"
 msgid "Various statistics charts."
 msgstr "Verschiedene Statistikdiagramme."
 
+#: src/Support/ZodiacLabels.php:51
+msgid "Virgo"
+msgstr "Jungfrau"
+
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:786
 msgid ""
 "Walk reached the safety cap (20 generations) — check the tree for cyclic "
 "FAMC/FAMS edits."
-msgstr "Der Durchlauf hat die Sicherheitsgrenze (20 Generationen) erreicht — Baum auf zyklische FAMC/FAMS-Bearbeitungen prüfen."
+msgstr ""
+"Der Durchlauf hat die Sicherheitsgrenze (20 Generationen) erreicht — Baum "
+"auf zyklische FAMC/FAMS-Bearbeitungen prüfen."
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:360
 msgid "Weddings by century"
@@ -1377,7 +1562,7 @@ msgstr "Verwitwet"
 msgid "Wife older by %s years"
 msgstr "Ehefrau %s Jahre älter"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:212
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:213
 msgid "Winter-peak score"
 msgstr "Winter-Spitzen-Index"
 
@@ -1410,7 +1595,7 @@ msgid "generations"
 msgstr "Generationen"
 
 #: resources/views/modules/statistics-chart/Partials/RateList.phtml:33
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:231
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:232
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:115
 msgid "no data"
 msgstr "keine Daten"
@@ -1421,15 +1606,46 @@ msgstr "keine Daten"
 msgid "no data (n < %s)"
 msgstr "keine Daten (n < %s)"
 
+#: resources/views/modules/statistics-chart/Partials/StreamGraph.phtml:37
+msgid "peak in the {decade}"
+msgstr "Spitze in den {decade}"
+
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:232
 msgid "places"
 msgstr "Orte"
+
+#: resources/views/modules/statistics-chart/Partials/StreamGraph.phtml:34
+msgctxt "decade-suffix"
+msgid "s"
+msgstr "er"
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:116
 msgid "years"
 msgstr "Jahre"
 
+#: resources/views/modules/statistics-chart/Partials/SankeyFlow.phtml:26
+#: resources/views/modules/statistics-chart/Partials/StreamGraph.phtml:35
+msgid "{count} individual"
+msgstr "{count} Person"
+
+#: resources/views/modules/statistics-chart/Partials/SankeyFlow.phtml:27
+#: resources/views/modules/statistics-chart/Partials/StreamGraph.phtml:36
+msgid "{count} individuals"
+msgstr "{count} Personen"
+
+#: resources/views/modules/statistics-chart/Partials/StackedBar.phtml:33
+msgid "{count} total in this category"
+msgstr "{count} insgesamt in dieser Kategorie"
+
+#: resources/views/modules/statistics-chart/Partials/StreamGraph.phtml:38
+msgid "{name}: {total}, {peak}"
+msgstr "{name}: {total}, {peak}"
+
 #: resources/views/modules/statistics-chart/Partials/TagCloud.phtml:27
 msgctxt "Unknown surname"
 msgid "…"
 msgstr "…"
+
+#, fuzzy, php-format
+#~ msgid "%s individuals"
+#~ msgstr "%s Person"
