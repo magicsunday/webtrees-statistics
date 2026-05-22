@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
+use Closure;
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\Builder;
@@ -218,6 +219,39 @@ final readonly class TreeHealthRepository
     }
 
     /**
+     * Closure factory that pairs the `individuals` row in scope with
+     * the `link` + `families` join needed to test whether any of the
+     * individual's FAMS-linked families carries a gedcom blob
+     * matching one of the supplied anchored LIKE patterns. Plugs
+     * into both `whereExists(...)` (positive existence — at least
+     * one matching family) and `whereNotExists(...)` (no family
+     * carries the event) at the per-spouse level.
+     *
+     * @param list<string> $patterns Anchored LIKE patterns to OR-match against `families.f_gedcom`
+     */
+    private function spouseHasFamilyMatchingGedcomPattern(array $patterns): Closure
+    {
+        return static function (Builder $outer) use ($patterns): void {
+            $outer
+                ->select(new Expression('1'))
+                ->from('link')
+                ->join('families', static function (JoinClause $join): void {
+                    $join
+                        ->on('families.f_id', '=', 'link.l_to')
+                        ->on('families.f_file', '=', 'link.l_file');
+                })
+                ->whereColumn('link.l_file', 'individuals.i_file')
+                ->whereColumn('link.l_from', 'individuals.i_id')
+                ->where('link.l_type', '=', 'FAMS')
+                ->where(static function (Builder $patternQuery) use ($patterns): void {
+                    foreach ($patterns as $pattern) {
+                        $patternQuery->orWhere('families.f_gedcom', 'LIKE', $pattern);
+                    }
+                });
+        };
+    }
+
+    /**
      * Spouses whose every FAMS family lacks a level-1 MARR event.
      * Walks the per-individual FAMS chain and checks each family's
      * gedcom blob; an individual counts as "missing MARR" only when
@@ -236,24 +270,7 @@ final readonly class TreeHealthRepository
                     ->whereColumn('link.l_from', 'individuals.i_id')
                     ->where('link.l_type', '=', 'FAMS');
             })
-            ->whereNotExists(static function (Builder $outer) use ($patterns): void {
-                $outer
-                    ->select(new Expression('1'))
-                    ->from('link')
-                    ->join('families', static function (JoinClause $join): void {
-                        $join
-                            ->on('families.f_id', '=', 'link.l_to')
-                            ->on('families.f_file', '=', 'link.l_file');
-                    })
-                    ->whereColumn('link.l_file', 'individuals.i_file')
-                    ->whereColumn('link.l_from', 'individuals.i_id')
-                    ->where('link.l_type', '=', 'FAMS')
-                    ->where(static function (Builder $patternQuery) use ($patterns): void {
-                        foreach ($patterns as $pattern) {
-                            $patternQuery->orWhere('families.f_gedcom', 'LIKE', $pattern);
-                        }
-                    });
-            })
+            ->whereNotExists($this->spouseHasFamilyMatchingGedcomPattern($patterns))
             ->count('i_id');
     }
 
@@ -268,24 +285,7 @@ final readonly class TreeHealthRepository
         $eventPatterns = GedcomScanner::anchoredLikePatterns('MARR');
 
         $candidates = TreeScope::table($this->tree, 'individuals')
-            ->whereExists(static function (Builder $outer) use ($eventPatterns): void {
-                $outer
-                    ->select(new Expression('1'))
-                    ->from('link')
-                    ->join('families', static function (JoinClause $join): void {
-                        $join
-                            ->on('families.f_id', '=', 'link.l_to')
-                            ->on('families.f_file', '=', 'link.l_file');
-                    })
-                    ->whereColumn('link.l_file', 'individuals.i_file')
-                    ->whereColumn('link.l_from', 'individuals.i_id')
-                    ->where('link.l_type', '=', 'FAMS')
-                    ->where(static function (Builder $patternQuery) use ($eventPatterns): void {
-                        foreach ($eventPatterns as $pattern) {
-                            $patternQuery->orWhere('families.f_gedcom', 'LIKE', $pattern);
-                        }
-                    });
-            })
+            ->whereExists($this->spouseHasFamilyMatchingGedcomPattern($eventPatterns))
             ->pluck('i_id');
 
         $missingPlace = 0;
