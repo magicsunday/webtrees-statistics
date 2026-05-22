@@ -16,7 +16,6 @@ use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\StatisticsData;
 use Fisharebest\Webtrees\Tree;
-use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Record\FamilyDurationDaysRecord;
@@ -27,6 +26,7 @@ use MagicSunday\Webtrees\Statistic\Support\AgeBuckets;
 use MagicSunday\Webtrees\Statistic\Support\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\IndividualAgeRecordResolver;
 use MagicSunday\Webtrees\Statistic\Support\RowCast;
+use MagicSunday\Webtrees\Statistic\Support\TreeScope;
 
 use function abs;
 use function intdiv;
@@ -282,8 +282,7 @@ final readonly class MarriageRepository
      */
     public function mostSpousesRecord(): ?IndividualCountRecord
     {
-        $row = DB::table('link')
-            ->where('l_file', '=', $this->tree->id())
+        $row = TreeScope::table($this->tree, 'link')
             ->where('l_type', '=', 'FAMS')
             ->groupBy('l_from')
             ->orderByRaw('COUNT(*) DESC')
@@ -324,8 +323,7 @@ final readonly class MarriageRepository
     {
         $spouseColumn = ($sex === 'F') ? 'f_wife' : 'f_husb';
 
-        $rows = DB::table('families AS fam')
-            ->where('fam.f_file', '=', $this->tree->id())
+        $rows = TreeScope::table($this->tree, 'families', 'fam')
             ->join('dates AS marr', static function (JoinClause $join): void {
                 DateJoin::on($join, 'marr', 'fam.f_file', 'fam.f_id', 'MARR', DateJoin::JD_GREATER_THAN_ZERO);
             })
@@ -378,8 +376,7 @@ final readonly class MarriageRepository
      */
     private function marriageDurationPairs(): iterable
     {
-        $rows = DB::table('families')
-            ->where('f_file', '=', $this->tree->id())
+        $rows = TreeScope::table($this->tree, 'families')
             ->join('dates AS marr', static function (JoinClause $join): void {
                 DateJoin::on($join, 'marr', 'f_file', 'f_id', 'MARR');
             })
@@ -441,8 +438,7 @@ final readonly class MarriageRepository
      */
     public function ageGapDistribution(): array
     {
-        $rows = DB::table('families')
-            ->where('f_file', '=', $this->tree->id())
+        $rows = TreeScope::table($this->tree, 'families')
             ->join('dates AS hb', static function (JoinClause $join): void {
                 DateJoin::on($join, 'hb', 'f_file', 'f_husb', 'BIRT', DateJoin::JD_NOT_EQUAL_ZERO);
             })

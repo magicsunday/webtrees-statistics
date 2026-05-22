@@ -12,9 +12,9 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
-use Illuminate\Database\Capsule\Manager as DB;
 use MagicSunday\Webtrees\Statistic\Support\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\TopNAggregator;
+use MagicSunday\Webtrees\Statistic\Support\TreeScope;
 
 use function array_slice;
 use function count;
@@ -90,10 +90,7 @@ final class ReligionRepository
     private function aggregate(): array
     {
         return $this->cache ??= TopNAggregator::topN(
-            DB::table('individuals')
-                ->where('i_file', '=', $this->tree->id())
-                ->select(['i_gedcom AS gedcom'])
-                ->get(),
+            TreeScope::individualGedcoms($this->tree),
             static fn (string $gedcom): array => [
                 ...GedcomScanner::extractAllTagValues($gedcom, 'RELI'),
                 ...GedcomScanner::extractAllSubTagValues($gedcom, 'RELI'),

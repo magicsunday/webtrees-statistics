@@ -12,11 +12,11 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
-use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Support\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\IsoCountryMap;
 use MagicSunday\Webtrees\Statistic\Support\RowCast;
+use MagicSunday\Webtrees\Statistic\Support\TreeScope;
 
 use function arsort;
 use function str_ends_with;
@@ -60,8 +60,7 @@ final readonly class CountryRepository
      */
     public function countByCountry(string $tag): array
     {
-        $rows = DB::table('places')
-            ->where('p_file', '=', $this->tree->id())
+        $rows = TreeScope::table($this->tree, 'places')
             ->where('p_parent_id', '=', 0)
             ->join('placelinks', static function (JoinClause $join): void {
                 $join
@@ -139,8 +138,7 @@ final readonly class CountryRepository
      */
     public function residencesByCountry(): array
     {
-        $rows = DB::table('individuals')
-            ->where('i_file', '=', $this->tree->id())
+        $rows = TreeScope::table($this->tree, 'individuals')
             ->select(['i_gedcom AS gedcom'])
             ->get();
 

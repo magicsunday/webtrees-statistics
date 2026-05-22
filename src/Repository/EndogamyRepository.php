@@ -12,9 +12,9 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
-use Illuminate\Database\Capsule\Manager as DB;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\EndogamyRate;
 use MagicSunday\Webtrees\Statistic\Support\Endogamy;
+use MagicSunday\Webtrees\Statistic\Support\TreeScope;
 
 use function is_string;
 use function round;
@@ -71,8 +71,7 @@ final readonly class EndogamyRepository
         $total      = 0;
         $endogamous = 0;
 
-        $rows = DB::table('families')
-            ->where('f_file', '=', $this->tree->id())
+        $rows = TreeScope::table($this->tree, 'families')
             ->select(['f_husb', 'f_wife'])
             ->get();
 

@@ -20,6 +20,7 @@ use MagicSunday\Webtrees\Statistic\Support\AgeBuckets;
 use MagicSunday\Webtrees\Statistic\Support\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\IndividualAgeRecordResolver;
 use MagicSunday\Webtrees\Statistic\Support\RowCast;
+use MagicSunday\Webtrees\Statistic\Support\TreeScope;
 
 use function intdiv;
 
@@ -164,8 +165,7 @@ final readonly class ParenthoodRepository
         $parentColumn = ($sex === 'F') ? 'f_wife' : 'f_husb';
         $tablePrefix  = DB::connection()->getTablePrefix();
 
-        $rows = DB::table('families AS fam')
-            ->where('fam.f_file', '=', $this->tree->id())
+        $rows = TreeScope::table($this->tree, 'families', 'fam')
             ->join('dates AS parent_birth', static function (JoinClause $join) use ($parentColumn): void {
                 DateJoin::on($join, 'parent_birth', 'fam.f_file', 'fam.' . $parentColumn, 'BIRT', DateJoin::JD_GREATER_THAN_ZERO);
             })

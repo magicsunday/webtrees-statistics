@@ -14,10 +14,10 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Tree;
-use Illuminate\Database\Capsule\Manager as DB;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Tree\GenerationDepthReport;
 use MagicSunday\Webtrees\Statistic\Support\GenerationDepth;
 use MagicSunday\Webtrees\Statistic\Support\RowCast;
+use MagicSunday\Webtrees\Statistic\Support\TreeScope;
 
 use function array_keys;
 use function array_slice;
@@ -187,8 +187,7 @@ final readonly class GenerationDepthRepository
             return [];
         }
 
-        $rows = DB::table('dates')
-            ->where('d_file', '=', $this->tree->id())
+        $rows = TreeScope::table($this->tree, 'dates')
             ->where('d_fact', '=', 'BIRT')
             ->whereIn('d_gid', $leafIds)
             ->whereIn('d_type', ['@#DGREGORIAN@', '@#DJULIAN@'])

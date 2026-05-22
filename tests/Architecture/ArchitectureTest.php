@@ -116,13 +116,14 @@ final class ArchitectureTest
 
     /**
      * Database access via Eloquent's `DB::table()` facade is the
-     * exclusive responsibility of repositories. Letting the facade,
-     * a Support helper, or worst of all the composition root issue
-     * SQL would scatter query-shape decisions across every layer
-     * and make it impossible to reason about which class actually
-     * touches which table. Repositories are the one place where
-     * raw query authoring is allowed; everything else must compose
-     * with a repository instance instead.
+     * exclusive responsibility of repositories and of the dedicated
+     * `Support\TreeScope` query-builder helper that factors the
+     * recurring `DB::table(X)->where('X_file', …)` boilerplate out
+     * of every repository call site. Letting the Statistic facade
+     * or the composition root issue SQL directly would scatter
+     * query-shape decisions across every layer and make it
+     * impossible to reason about which class actually touches which
+     * table.
      */
     #[TestRule]
     public function databaseAccessIsConfinedToRepositories(): Rule
@@ -132,12 +133,13 @@ final class ArchitectureTest
                 Selector::AllOf(
                     Selector::inNamespace(self::NAMESPACE_ROOT),
                     Selector::Not(Selector::inNamespace(self::NAMESPACE_ROOT . '\\Repository')),
+                    Selector::Not(Selector::classname(self::NAMESPACE_ROOT . '\\Support\\TreeScope')),
                     Selector::Not(Selector::inNamespace(self::NAMESPACE_ROOT . '\\Test')),
                 ),
             )
             ->shouldNot()->dependOn()
             ->classes(Selector::classname(Manager::class))
-            ->because('Raw database access is only allowed inside repositories');
+            ->because('Raw database access is only allowed inside repositories or in the dedicated Support\\TreeScope query-builder helper');
     }
 
     /**

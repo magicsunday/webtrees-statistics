@@ -29,6 +29,7 @@ use MagicSunday\Webtrees\Statistic\Support\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\HistogramTrim;
 use MagicSunday\Webtrees\Statistic\Support\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\SeasonalityScore;
+use MagicSunday\Webtrees\Statistic\Support\TreeScope;
 
 use function array_fill_keys;
 use function array_key_last;
@@ -157,8 +158,7 @@ final readonly class LifeSpanRepository
      */
     public function birthsByDecade(): array
     {
-        $rows = DB::table('dates')
-            ->where('d_file', '=', $this->tree->id())
+        $rows = TreeScope::table($this->tree, 'dates')
             ->where('d_fact', '=', 'BIRT')
             ->whereIn('d_type', ['@#DGREGORIAN@', '@#DJULIAN@'])
             ->where('d_year', '<>', 0)
@@ -529,8 +529,7 @@ final readonly class LifeSpanRepository
      */
     public function livingByAgeBand(): array
     {
-        $rows = DB::table('individuals')
-            ->where('i_file', '=', $this->tree->id())
+        $rows = TreeScope::table($this->tree, 'individuals')
             ->whereNotExists(static function (Builder $query): void {
                 $query
                     ->from('dates')

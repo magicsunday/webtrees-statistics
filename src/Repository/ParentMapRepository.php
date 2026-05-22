@@ -12,8 +12,8 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
-use Illuminate\Database\Capsule\Manager as DB;
 use MagicSunday\Webtrees\Statistic\Support\RowCast;
+use MagicSunday\Webtrees\Statistic\Support\TreeScope;
 
 use function is_string;
 
@@ -54,8 +54,7 @@ final readonly class ParentMapRepository
      */
     public function build(): array
     {
-        $familyRows = DB::table('families')
-            ->where('f_file', '=', $this->tree->id())
+        $familyRows = TreeScope::table($this->tree, 'families')
             ->select(['f_id', 'f_husb AS husb', 'f_wife AS wife'])
             ->get();
 
@@ -74,8 +73,7 @@ final readonly class ParentMapRepository
             $familyParents[$famId] = [$husb, $wife];
         }
 
-        $childRows = DB::table('link')
-            ->where('l_file', '=', $this->tree->id())
+        $childRows = TreeScope::table($this->tree, 'link')
             ->where('l_type', '=', 'FAMC')
             ->select(['l_from AS child', 'l_to AS family'])
             ->get();

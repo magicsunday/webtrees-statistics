@@ -14,7 +14,6 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\StatisticsData;
 use Fisharebest\Webtrees\Tree;
-use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Model\Dto\StackedBar\StackedBarPayload;
 use MagicSunday\Webtrees\Statistic\Model\Dto\StackedBar\StackedBarSeries;
@@ -22,6 +21,7 @@ use MagicSunday\Webtrees\Statistic\Support\AgeBuckets;
 use MagicSunday\Webtrees\Statistic\Support\CenturyName;
 use MagicSunday\Webtrees\Statistic\Support\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\RowCast;
+use MagicSunday\Webtrees\Statistic\Support\TreeScope;
 
 use function array_key_last;
 use function array_keys;
@@ -126,8 +126,7 @@ final readonly class DivorceRepository
     {
         $spouseColumn = $sex === 'M' ? 'f_husb' : 'f_wife';
 
-        $rows = DB::table('families')
-            ->where('f_file', '=', $this->tree->id())
+        $rows = TreeScope::table($this->tree, 'families')
             ->join('dates AS divr', static function (JoinClause $join): void {
                 DateJoin::on($join, 'divr', 'f_file', 'f_id', 'DIV');
             })
@@ -196,8 +195,7 @@ final readonly class DivorceRepository
         // resolvable julian day (year-only DATEs). Such rows can't
         // contribute an age but they still count in the line chart,
         // so the Unknown catch-all keeps the totals aligned.
-        $rows = DB::table('families')
-            ->where('f_file', '=', $this->tree->id())
+        $rows = TreeScope::table($this->tree, 'families')
             ->join('dates AS divr', static function (JoinClause $join): void {
                 DateJoin::on($join, 'divr', 'f_file', 'f_id', 'DIV');
             })
@@ -336,8 +334,7 @@ final readonly class DivorceRepository
      */
     public function divorceRateByMarriageCohort(): array
     {
-        $rows = DB::table('families')
-            ->where('f_file', '=', $this->tree->id())
+        $rows = TreeScope::table($this->tree, 'families')
             ->join('dates AS marr', static function (JoinClause $join): void {
                 DateJoin::on($join, 'marr', 'f_file', 'f_id', 'MARR');
                 $join->where('marr.d_year', '<>', 0);

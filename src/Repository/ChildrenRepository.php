@@ -29,6 +29,7 @@ use MagicSunday\Webtrees\Statistic\Model\Dto\StackedBar\StackedBarSeries;
 use MagicSunday\Webtrees\Statistic\Support\CenturyName;
 use MagicSunday\Webtrees\Statistic\Support\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\RowCast;
+use MagicSunday\Webtrees\Statistic\Support\TreeScope;
 
 use function array_combine;
 use function array_keys;
@@ -100,8 +101,7 @@ final readonly class ChildrenRepository
      */
     public function childrenPerFamilyHistogram(): array
     {
-        $rows = DB::table('families')
-            ->where('f_file', '=', $this->tree->id())
+        $rows = TreeScope::table($this->tree, 'families')
             ->select(['f_numchil AS n'])
             ->get();
 
@@ -174,8 +174,7 @@ final readonly class ChildrenRepository
      */
     private function familiesByEarliestMarriageYear(): array
     {
-        $rows = DB::table('families')
-            ->where('f_file', '=', $this->tree->id())
+        $rows = TreeScope::table($this->tree, 'families')
             ->leftJoin('dates AS marr', static function (JoinClause $join): void {
                 DateJoin::on($join, 'marr', 'f_file', 'f_id', 'MARR');
             })
@@ -390,8 +389,7 @@ final readonly class ChildrenRepository
      */
     public function siblingAgeGapDistribution(): array
     {
-        $rows = DB::table('link')
-            ->where('l_file', '=', $this->tree->id())
+        $rows = TreeScope::table($this->tree, 'link')
             ->where('l_type', '=', 'FAMC')
             ->join('dates AS birth', static function (JoinClause $join): void {
                 DateJoin::on($join, 'birth', 'l_file', 'l_from', 'BIRT', DateJoin::JD_NOT_EQUAL_ZERO);
@@ -488,8 +486,7 @@ final readonly class ChildrenRepository
         // physical table.
         $familiesTable = DB::connection()->getTablePrefix() . 'families';
 
-        $row = DB::table('link')
-            ->where('l_file', '=', $this->tree->id())
+        $row = TreeScope::table($this->tree, 'link')
             ->where('l_type', '=', 'FAMS')
             ->join('families', static function (JoinClause $join): void {
                 $join
@@ -557,8 +554,7 @@ final readonly class ChildrenRepository
      */
     public function childlessFamiliesBreakdown(): array
     {
-        $total = DB::table('families')
-            ->where('f_file', '=', $this->tree->id())
+        $total = TreeScope::table($this->tree, 'families')
             ->count();
         $withoutKids = $this->data->countFamiliesWithNoChildren();
         $withKids    = $total - $withoutKids;

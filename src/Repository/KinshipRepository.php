@@ -12,8 +12,8 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
-use Illuminate\Database\Capsule\Manager as DB;
 use MagicSunday\Webtrees\Statistic\Support\RowCast;
+use MagicSunday\Webtrees\Statistic\Support\TreeScope;
 
 use function array_fill_keys;
 use function array_keys;
@@ -94,8 +94,7 @@ final readonly class KinshipRepository
             $bucketMin += self::ANCESTOR_BUCKET;
         }
 
-        $individuals = DB::table('individuals')
-            ->where('i_file', '=', $this->tree->id())
+        $individuals = TreeScope::table($this->tree, 'individuals')
             ->select(['i_id'])
             ->get();
 
@@ -126,8 +125,7 @@ final readonly class KinshipRepository
     public function averagePedigreeCompleteness(): float
     {
         $parentOf    = $this->parentMapRepository->build();
-        $individuals = DB::table('individuals')
-            ->where('i_file', '=', $this->tree->id())
+        $individuals = TreeScope::table($this->tree, 'individuals')
             ->select(['i_id'])
             ->get();
 

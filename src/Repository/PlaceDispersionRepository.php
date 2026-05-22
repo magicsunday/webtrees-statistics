@@ -12,9 +12,9 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
-use Illuminate\Database\Capsule\Manager as DB;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\PlaceDispersionSummary;
 use MagicSunday\Webtrees\Statistic\Support\RowCast;
+use MagicSunday\Webtrees\Statistic\Support\TreeScope;
 
 use function array_unique;
 use function count;
@@ -71,10 +71,7 @@ final readonly class PlaceDispersionRepository
      */
     public function dispersionSummary(): PlaceDispersionSummary
     {
-        $rows = DB::table('individuals')
-            ->where('i_file', '=', $this->tree->id())
-            ->select(['i_gedcom AS gedcom'])
-            ->get();
+        $rows = TreeScope::individualGedcoms($this->tree);
 
         $distribution = $this->initDistribution();
         $totalPlaces  = 0;

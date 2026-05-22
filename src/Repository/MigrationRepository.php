@@ -12,13 +12,13 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
-use Illuminate\Database\Capsule\Manager as DB;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\MigrationFlowsPayload;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\SankeyLink;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\SankeyNode;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\SankeySample;
 use MagicSunday\Webtrees\Statistic\Support\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\RowCast;
+use MagicSunday\Webtrees\Statistic\Support\TreeScope;
 
 use function array_slice;
 use function count;
@@ -82,8 +82,7 @@ final readonly class MigrationRepository
         // order so the SAMPLES_PER_FLOW cap always picks the same
         // representatives across page loads, even after table-level
         // events (OPTIMIZE TABLE, replication, index changes).
-        $rows = DB::table('individuals')
-            ->where('i_file', '=', $this->tree->id())
+        $rows = TreeScope::table($this->tree, 'individuals')
             ->orderBy('i_id')
             ->select(['i_id AS xref', 'i_gedcom AS gedcom'])
             ->get();

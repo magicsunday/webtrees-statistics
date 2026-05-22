@@ -19,6 +19,7 @@ use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\RateCount;
 use MagicSunday\Webtrees\Statistic\Support\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\RowCast;
+use MagicSunday\Webtrees\Statistic\Support\TreeScope;
 
 use function array_sum;
 use function count;
@@ -57,8 +58,7 @@ final readonly class TreeHealthRepository
             return new RateCount(value: 0, total: 0);
         }
 
-        $withSources = DB::table('individuals')
-            ->where('i_file', '=', $this->tree->id())
+        $withSources = TreeScope::table($this->tree, 'individuals')
             ->whereExists(static function (Builder $query): void {
                 $query
                     ->select(new Expression('1'))
@@ -205,8 +205,7 @@ final readonly class TreeHealthRepository
      */
     private function countSpouses(): int
     {
-        return DB::table('individuals')
-            ->where('i_file', '=', $this->tree->id())
+        return TreeScope::table($this->tree, 'individuals')
             ->whereExists(static function (Builder $query): void {
                 $query
                     ->select(new Expression('1'))
@@ -228,8 +227,7 @@ final readonly class TreeHealthRepository
     {
         $patterns = GedcomScanner::anchoredLikePatterns('MARR');
 
-        return DB::table('individuals')
-            ->where('i_file', '=', $this->tree->id())
+        return TreeScope::table($this->tree, 'individuals')
             ->whereExists(static function (Builder $outer): void {
                 $outer
                     ->select(new Expression('1'))
@@ -269,8 +267,7 @@ final readonly class TreeHealthRepository
     {
         $eventPatterns = GedcomScanner::anchoredLikePatterns('MARR');
 
-        $candidates = DB::table('individuals')
-            ->where('i_file', '=', $this->tree->id())
+        $candidates = TreeScope::table($this->tree, 'individuals')
             ->whereExists(static function (Builder $outer) use ($eventPatterns): void {
                 $outer
                     ->select(new Expression('1'))
@@ -316,8 +313,7 @@ final readonly class TreeHealthRepository
 
     private function countIndividuals(): int
     {
-        return DB::table('individuals')
-            ->where('i_file', '=', $this->tree->id())
+        return TreeScope::table($this->tree, 'individuals')
             ->count('i_id');
     }
 
@@ -331,8 +327,7 @@ final readonly class TreeHealthRepository
     {
         $patterns = GedcomScanner::anchoredLikePatterns($tag);
 
-        return DB::table('individuals')
-            ->where('i_file', '=', $this->tree->id())
+        return TreeScope::table($this->tree, 'individuals')
             ->where(static function (Builder $query) use ($patterns): void {
                 foreach ($patterns as $pattern) {
                     $query->where('i_gedcom', 'NOT LIKE', $pattern);
@@ -355,8 +350,7 @@ final readonly class TreeHealthRepository
     {
         $patterns = GedcomScanner::anchoredLikePatterns($tag);
 
-        $gedcoms = DB::table('individuals')
-            ->where('i_file', '=', $this->tree->id())
+        $gedcoms = TreeScope::table($this->tree, 'individuals')
             ->where(static function (Builder $query) use ($patterns): void {
                 foreach ($patterns as $index => $pattern) {
                     if ($index === 0) {
