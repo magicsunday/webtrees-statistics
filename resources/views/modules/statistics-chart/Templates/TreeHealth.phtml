@@ -31,7 +31,7 @@ $birthsValues     = [];
 $birthsTooltips   = [];
 
 foreach ($birthsByDecade as $decade => $count) {
-    $birthsCategories[] = (string) $decade;
+    $birthsCategories[] = I18N::translate('%ss', (string) $decade);
     $birthsValues[]     = (int) $count;
     $birthsTooltips[]   = I18N::plural('%s birth', '%s births', $count, I18N::number($count));
 }

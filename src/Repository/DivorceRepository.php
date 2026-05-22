@@ -341,8 +341,9 @@ final readonly class DivorceRepository
     /**
      * Divorce rate per marriage cohort. Cohort = decade of MARR
      * event; rate = `divorced / total` within that decade. Output
-     * is keyed by decade label ("1900s", "1910s", …); the value is
-     * a fraction 0.0–1.0 rounded to 4 decimals.
+     * is keyed by integer decade start (1900, 1910, …); the value
+     * is a fraction 0.0–1.0 rounded to 4 decimals. The display
+     * layer renders the suffix via `I18N::translate('%ss', $cohort)`.
      *
      * Three filters keep the result tight on real trees that span
      * many centuries:
@@ -356,7 +357,7 @@ final readonly class DivorceRepository
      *  3. Inner cohorts with divorced == 0 stay so a quiet decade
      *     between two active ones is visible as a gap.
      *
-     * @return array<string, float>
+     * @return array<int, float>
      */
     public function divorceRateByMarriageCohort(): array
     {
@@ -388,7 +389,7 @@ final readonly class DivorceRepository
                 continue;
             }
 
-            $cohort = (intdiv($marrYear, 10) * 10) . 's';
+            $cohort = intdiv($marrYear, 10) * 10;
 
             if (!isset($perCohort[$cohort])) {
                 $perCohort[$cohort] = ['total' => 0, 'divorced' => 0];

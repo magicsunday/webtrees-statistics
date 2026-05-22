@@ -136,7 +136,11 @@ final readonly class LifeSpanRepository
      * the last; inner zero-decades stay so a gap in the recorded
      * history remains visible.
      *
-     * @return array<string, int>
+     * Decade keys are integer starts (e.g. `1900` for the 1900s);
+     * the display layer renders them through `I18N::translate('%ss', $decade)`
+     * so the suffix follows the user's locale ("1900s", "1900er", …).
+     *
+     * @return array<int, int>
      */
     public function birthsByDecade(): array
     {
@@ -157,7 +161,7 @@ final readonly class LifeSpanRepository
                 continue;
             }
 
-            $decade            = (intdiv($year, 10) * 10) . 's';
+            $decade            = intdiv($year, 10) * 10;
             $byDecade[$decade] = ($byDecade[$decade] ?? 0) + 1;
         }
 
@@ -170,13 +174,12 @@ final readonly class LifeSpanRepository
         // from the first to the last seen decade in 10-year steps.
         ksort($byDecade);
         $decadeKeys = array_keys($byDecade);
-        $firstDec   = (int) $decadeKeys[0];
-        $lastDec    = (int) $decadeKeys[array_key_last($decadeKeys)];
+        $firstDec   = $decadeKeys[0];
+        $lastDec    = $decadeKeys[array_key_last($decadeKeys)];
         $dense      = [];
 
         for ($d = $firstDec; $d <= $lastDec; $d += 10) {
-            $label         = $d . 's';
-            $dense[$label] = $byDecade[$label] ?? 0;
+            $dense[$d] = $byDecade[$d] ?? 0;
         }
 
         return HistogramTrim::dropZeroEnds($dense);

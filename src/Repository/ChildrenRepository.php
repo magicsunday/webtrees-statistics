@@ -254,7 +254,7 @@ final readonly class ChildrenRepository
         $perDecadeBuckets = [];
 
         foreach ($perDecade as $decade => $childCounts) {
-            $label           = $decade . 's';
+            $label           = I18N::translate('%ss', (string) $decade);
             $categories[]    = $label;
             $tooltipLabels[] = $label;
 
@@ -583,8 +583,8 @@ final readonly class ChildrenRepository
         $withKids    = $total - $withoutKids;
 
         return [
-            ['label' => 'With children', 'value' => $withKids, 'class' => 'with-children'],
-            ['label' => 'Without children', 'value' => $withoutKids, 'class' => 'without-children'],
+            ['label' => I18N::translate('With children'), 'value' => $withKids, 'class' => 'with-children'],
+            ['label' => I18N::translate('Without children'), 'value' => $withoutKids, 'class' => 'without-children'],
         ];
     }
 

@@ -141,9 +141,11 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
      * into a decade bucket, fills inner zero-decades so gaps stay
      * visible, and trims leading / trailing zeroes via
      * HistogramTrim. The fixture's six dated births are spread
-     * across 1700s, 1850s, 1880s, 1900s, 1920s, 1950s, so the
-     * visible window is 1700s..1950s with one tick per active
-     * decade and zero for all empty in-between decades.
+     * across 1700, 1850, 1880, 1900, 1920, 1950 decade starts,
+     * so the visible window is 1700..1950 with one tick per
+     * active decade and zero for all empty in-between decades.
+     * Decade keys are integer starts; the view layer formats them
+     * via `I18N::translate('%ss', $decade)`.
      */
     #[Test]
     public function birthsByDecadeFillsInnerGapsAndTrimsBoundaries(): void
@@ -153,23 +155,23 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
 
         // First and last keys frame the visible range.
         $keys = array_keys($result);
-        self::assertSame('1700s', $keys[0]);
-        self::assertSame('1950s', $keys[count($keys) - 1]);
+        self::assertSame(1700, $keys[0]);
+        self::assertSame(1950, $keys[count($keys) - 1]);
 
         // Every active decade carries exactly one birth.
-        self::assertSame(1, $result['1700s']);
-        self::assertSame(1, $result['1850s']);
-        self::assertSame(1, $result['1880s']);
-        self::assertSame(1, $result['1900s']);
-        self::assertSame(1, $result['1920s']);
-        self::assertSame(1, $result['1950s']);
+        self::assertSame(1, $result[1700]);
+        self::assertSame(1, $result[1850]);
+        self::assertSame(1, $result[1880]);
+        self::assertSame(1, $result[1900]);
+        self::assertSame(1, $result[1920]);
+        self::assertSame(1, $result[1950]);
 
         // Inner empty decade is rendered as a 0 bucket, not dropped.
-        self::assertSame(0, $result['1710s']);
-        self::assertSame(0, $result['1870s']);
-        self::assertSame(0, $result['1930s']);
+        self::assertSame(0, $result[1710]);
+        self::assertSame(0, $result[1870]);
+        self::assertSame(0, $result[1930]);
 
-        // Total entries = 26 (1700s through 1950s in 10-year steps).
+        // Total entries = 26 (1700 through 1950 in 10-year steps).
         self::assertCount(26, $result);
     }
 }

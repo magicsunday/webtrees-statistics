@@ -47,9 +47,11 @@ final readonly class HistogramTrim
      * If every bucket is 0, the original is returned unchanged so
      * the view layer can decide how to handle "completely empty".
      *
-     * @param array<string, int> $series Bucketed series in display order
+     * @template TKey of array-key
      *
-     * @return array<string, int>
+     * @param array<TKey, int> $series Bucketed series in display order
+     *
+     * @return array<TKey, int>
      */
     public static function dropZeroEnds(array $series): array
     {

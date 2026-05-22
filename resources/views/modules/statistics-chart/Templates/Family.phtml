@@ -712,7 +712,7 @@ $cohortValues         = [];
 $cohortTooltips       = [];
 
 foreach ($cohortRatePercent as $cohort => $percent) {
-    $cohortCategories[] = (string) $cohort;
+    $cohortCategories[] = I18N::translate('%ss', (string) $cohort);
     $cohortValues[]     = $percent;
     $cohortTooltips[]   = I18N::translate('%s%% divorced', I18N::number($percent));
 }

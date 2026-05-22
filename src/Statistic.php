@@ -328,8 +328,10 @@ final readonly class Statistic
      * Births grouped by decade — the tree-growth indicator on the
      * TreeHealth tab. Leading / trailing zero-decades are trimmed;
      * inner zero-decades stay so historical gaps remain visible.
+     * Keys are integer decade starts (e.g. 1900 for the 1900s);
+     * the view layer formats them via `I18N::translate('%ss', $decade)`.
      *
-     * @return array<string, int>
+     * @return array<int, int>
      */
     public function getBirthsByDecade(): array
     {
@@ -598,10 +600,10 @@ final readonly class Statistic
     }
 
     /**
-     * Divorce rate per MARR-cohort (decade label → fraction 0.0-1.0).
+     * Divorce rate per MARR-cohort (integer decade start → fraction 0.0-1.0).
      * Cohorts with fewer than 3 marriages are filtered out.
      *
-     * @return array<string, float>
+     * @return array<int, float>
      */
     public function getDivorceRateByMarriageCohort(): array
     {
