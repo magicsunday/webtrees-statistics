@@ -20,15 +20,11 @@ use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\EndogamyRate;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\PlaceDispersionSummary;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\RateCount;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\WinterPeakScore;
-use MagicSunday\Webtrees\Statistic\Model\Dto\Record\FamilyCountRecord;
-use MagicSunday\Webtrees\Statistic\Model\Dto\Record\FamilyDurationDaysRecord;
-use MagicSunday\Webtrees\Statistic\Model\Dto\Record\FamilyDurationYearsRecord;
-use MagicSunday\Webtrees\Statistic\Model\Dto\Record\IndividualAgeRecord;
-use MagicSunday\Webtrees\Statistic\Model\Dto\Record\IndividualCountRecord;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\MigrationFlowsPayload;
 use MagicSunday\Webtrees\Statistic\Model\Dto\StackedBar\StackedBarPayload;
 use MagicSunday\Webtrees\Statistic\Model\Dto\StreamGraph\GivenNameTrendsPayload;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Tree\GenerationDepthReport;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Tree\TreeRecordsReport;
 use MagicSunday\Webtrees\Statistic\Model\MaritalBucket;
 use MagicSunday\Webtrees\Statistic\Repository\ChildMortalityRepository;
 use MagicSunday\Webtrees\Statistic\Repository\ChildrenRepository;
@@ -445,49 +441,31 @@ final readonly class Statistic
     }
 
     /**
-     * Hall-of-fame style record holders bundled into a single
-     * structure the view can render as a table. Each entry is
-     * either null (record could not be established for this tree)
-     * or carries the resolved Individual / Family object plus the
-     * extreme value the record-holder reached.
-     *
-     * @return array{
-     *     oldestDeceased:             IndividualAgeRecord|null,
-     *     oldestLiving:               IndividualAgeRecord|null,
-     *     longestMarriage:            FamilyDurationYearsRecord|null,
-     *     shortestMarriage:           FamilyDurationDaysRecord|null,
-     *     youngestHusband:            IndividualAgeRecord|null,
-     *     youngestWife:               IndividualAgeRecord|null,
-     *     oldestHusband:              IndividualAgeRecord|null,
-     *     oldestWife:                 IndividualAgeRecord|null,
-     *     mostSpouses:                IndividualCountRecord|null,
-     *     largestFamily:              FamilyCountRecord|null,
-     *     mostChildrenPerPerson:      IndividualCountRecord|null,
-     *     youngestFatherAtFirstChild: IndividualAgeRecord|null,
-     *     youngestMotherAtFirstChild: IndividualAgeRecord|null,
-     *     oldestFatherAtFirstChild:   IndividualAgeRecord|null,
-     *     oldestMotherAtFirstChild:   IndividualAgeRecord|null
-     * }
+     * Hall-of-fame style record holders bundled into a typed report
+     * the view can render as a table. Each property is independently
+     * nullable — a fresh tree without enough data may yield zero,
+     * some, or all slots; the view renders each row only when its
+     * slot is populated.
      */
-    public function getTreeRecords(): array
+    public function getTreeRecords(): TreeRecordsReport
     {
-        return [
-            'oldestDeceased'             => $this->lifeSpanRepository->oldestDeceasedRecord(),
-            'oldestLiving'               => $this->lifeSpanRepository->oldestLivingRecord(),
-            'longestMarriage'            => $this->marriageRepository->longestMarriageRecord(),
-            'shortestMarriage'           => $this->marriageRepository->shortestMarriageRecord(),
-            'youngestHusband'            => $this->marriageRepository->youngestSpouseAtMarriageRecord('M'),
-            'youngestWife'               => $this->marriageRepository->youngestSpouseAtMarriageRecord('F'),
-            'oldestHusband'              => $this->marriageRepository->oldestSpouseAtMarriageRecord('M'),
-            'oldestWife'                 => $this->marriageRepository->oldestSpouseAtMarriageRecord('F'),
-            'mostSpouses'                => $this->marriageRepository->mostSpousesRecord(),
-            'largestFamily'              => $this->childrenRepository->largestFamilyRecord(),
-            'mostChildrenPerPerson'      => $this->childrenRepository->mostChildrenPerPersonRecord(),
-            'youngestFatherAtFirstChild' => $this->parenthoodRepository->youngestParentAtFirstChildRecord('M'),
-            'youngestMotherAtFirstChild' => $this->parenthoodRepository->youngestParentAtFirstChildRecord('F'),
-            'oldestFatherAtFirstChild'   => $this->parenthoodRepository->oldestParentAtFirstChildRecord('M'),
-            'oldestMotherAtFirstChild'   => $this->parenthoodRepository->oldestParentAtFirstChildRecord('F'),
-        ];
+        return new TreeRecordsReport(
+            oldestDeceased: $this->lifeSpanRepository->oldestDeceasedRecord(),
+            oldestLiving: $this->lifeSpanRepository->oldestLivingRecord(),
+            longestMarriage: $this->marriageRepository->longestMarriageRecord(),
+            shortestMarriage: $this->marriageRepository->shortestMarriageRecord(),
+            youngestHusband: $this->marriageRepository->youngestSpouseAtMarriageRecord('M'),
+            youngestWife: $this->marriageRepository->youngestSpouseAtMarriageRecord('F'),
+            oldestHusband: $this->marriageRepository->oldestSpouseAtMarriageRecord('M'),
+            oldestWife: $this->marriageRepository->oldestSpouseAtMarriageRecord('F'),
+            mostSpouses: $this->marriageRepository->mostSpousesRecord(),
+            largestFamily: $this->childrenRepository->largestFamilyRecord(),
+            mostChildrenPerPerson: $this->childrenRepository->mostChildrenPerPersonRecord(),
+            youngestFatherAtFirstChild: $this->parenthoodRepository->youngestParentAtFirstChildRecord('M'),
+            youngestMotherAtFirstChild: $this->parenthoodRepository->youngestParentAtFirstChildRecord('F'),
+            oldestFatherAtFirstChild: $this->parenthoodRepository->oldestParentAtFirstChildRecord('M'),
+            oldestMotherAtFirstChild: $this->parenthoodRepository->oldestParentAtFirstChildRecord('F'),
+        );
     }
 
     /**
