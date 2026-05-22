@@ -1,22 +1,26 @@
-# Language en-US translations for webtrees-statistics package.
-# Copyright (C) 2026 Rico Sonntag
-# This file is distributed under the same license as the webtrees-statistics package.
-# Automatically generated, 2026.
+# English (US) translations for the webtrees-statistics module.
+# Copyright (C) Rico Sonntag <mail@ricosonntag.de>
+# Distributed under the GNU General Public License v3.0 (GPL-3.0).
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: webtrees-statistics\n"
+"Project-Id-Version: Statistics\n"
 "Report-Msgid-Bugs-To: https://github.com/magicsunday/webtrees-statistics/"
 "issues\n"
-"POT-Creation-Date: 2026-05-22 08:05+0000\n"
+"POT-Creation-Date: 2026-05-22 10:13+0000\n"
 "PO-Revision-Date: 2026-05-22 07:04+0000\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"Last-Translator: Rico Sonntag <mail@ricosonntag.de>\n"
+"Language-Team: \n"
 "Language: en-US\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"X-Generator: Poedit 3.5\n"
+"X-Poedit-Basepath: ../../..\n"
+"X-Poedit-KeywordsList: translate;translateContext:1c,2;plural:1,2\n"
+"X-Poedit-SearchPath-0: src\n"
+"X-Poedit-SearchPath-1: resources/views\n"
 
 #: src/Repository/ChildrenRepository.php:371
 #, php-format
@@ -52,8 +56,8 @@ msgid ""
 "= winter-peaked, < 1.0 = winter-trough."
 msgstr ""
 
-#: src/Repository/LifeSpanRepository.php:456
-#: src/Repository/LifeSpanRepository.php:463
+#: src/Repository/LifeSpanRepository.php:459
+#: src/Repository/LifeSpanRepository.php:466
 #, php-format
 msgid "%1$s years (n = %2$s)"
 msgstr ""
@@ -351,7 +355,7 @@ msgid_plural "%s pairs"
 msgstr[0] ""
 msgstr[1] ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:153
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:155
 #, php-format
 msgid "%s recorded birth date across the visible decades"
 msgid_plural "%s recorded birth dates across the visible decades"
@@ -440,6 +444,13 @@ msgid "%s-year gap"
 msgid_plural "%s-year gaps"
 msgstr[0] ""
 msgstr[1] ""
+
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:715
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:34
+#: src/Repository/ChildrenRepository.php:257
+#, php-format
+msgid "%ss"
+msgstr ""
 
 #: src/Support/CenturyName.php:64
 msgctxt "CENTURY"
@@ -612,7 +623,7 @@ msgstr ""
 msgid "Age in years at death, longest-lived first"
 msgstr ""
 
-#: src/Statistic.php:930
+#: src/Statistic.php:932
 msgctxt "NOMINATIVE"
 msgid "April"
 msgstr ""
@@ -621,11 +632,11 @@ msgstr ""
 msgid "At least 12 dated deaths are required for a meaningful score."
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:117
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:119
 msgid "At least one parent-child pair with parseable birth dates is required."
 msgstr ""
 
-#: src/Statistic.php:934
+#: src/Statistic.php:936
 msgctxt "NOMINATIVE"
 msgid "August"
 msgstr ""
@@ -641,7 +652,7 @@ msgstr ""
 msgid "Average family size by century"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:103
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:105
 msgid "Average generation length"
 msgstr ""
 
@@ -763,7 +774,7 @@ msgstr ""
 msgid "Deceased"
 msgstr ""
 
-#: src/Statistic.php:938
+#: src/Statistic.php:940
 msgctxt "NOMINATIVE"
 msgid "December"
 msgstr ""
@@ -811,7 +822,7 @@ msgstr ""
 msgid "Divorces by month"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:88
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:90
 msgid "Documented individuals"
 msgstr ""
 
@@ -889,12 +900,12 @@ msgstr ""
 msgid "Family size composition share by decade"
 msgstr ""
 
-#: src/Statistic.php:928
+#: src/Statistic.php:930
 msgctxt "NOMINATIVE"
 msgid "February"
 msgstr ""
 
-#: src/Repository/LifeSpanRepository.php:485 src/Statistic.php:125
+#: src/Repository/LifeSpanRepository.php:488 src/Statistic.php:125
 msgid "Female"
 msgstr ""
 
@@ -984,21 +995,21 @@ msgstr ""
 msgid "Husband older by %s years"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:78
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:80
 msgid "Individuals with at least one source linked to their record."
 msgstr ""
 
-#: src/Statistic.php:927
+#: src/Statistic.php:929
 msgctxt "NOMINATIVE"
 msgid "January"
 msgstr ""
 
-#: src/Statistic.php:933
+#: src/Statistic.php:935
 msgctxt "NOMINATIVE"
 msgid "July"
 msgstr ""
 
-#: src/Statistic.php:932
+#: src/Statistic.php:934
 msgctxt "NOMINATIVE"
 msgid "June"
 msgstr ""
@@ -1043,11 +1054,11 @@ msgid ""
 "ancestor."
 msgstr ""
 
-#: src/Repository/LifeSpanRepository.php:478 src/Statistic.php:124
+#: src/Repository/LifeSpanRepository.php:481 src/Statistic.php:124
 msgid "Male"
 msgstr ""
 
-#: src/Statistic.php:929
+#: src/Statistic.php:931
 msgctxt "NOMINATIVE"
 msgid "March"
 msgstr ""
@@ -1073,7 +1084,7 @@ msgstr ""
 msgid "Maximum generation depth"
 msgstr ""
 
-#: src/Statistic.php:931
+#: src/Statistic.php:933
 msgctxt "NOMINATIVE"
 msgid "May"
 msgstr ""
@@ -1088,7 +1099,7 @@ msgid ""
 "family size."
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:104
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:106
 msgid "Mean parent-to-child birth-year delta across the whole tree."
 msgstr ""
 
@@ -1112,7 +1123,15 @@ msgstr ""
 msgid "Missing death place"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:130
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:59
+msgid "Missing marriage event"
+msgstr ""
+
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:60
+msgid "Missing marriage place"
+msgstr ""
+
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:132
 msgid "Missing-event gaps"
 msgstr ""
 
@@ -1161,12 +1180,12 @@ msgstr ""
 msgid "No marriage cohort meets the minimum size threshold."
 msgstr ""
 
-#: src/Statistic.php:937
+#: src/Statistic.php:939
 msgctxt "NOMINATIVE"
 msgid "November"
 msgstr ""
 
-#: src/Statistic.php:936
+#: src/Statistic.php:938
 msgctxt "NOMINATIVE"
 msgid "October"
 msgstr ""
@@ -1206,7 +1225,7 @@ msgstr[1] ""
 msgid "Overview"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:116
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:118
 msgid "Parent-to-child birth-year delta, averaged across every usable pair."
 msgstr ""
 
@@ -1242,7 +1261,7 @@ msgid ""
 "month baseline."
 msgstr ""
 
-#: src/Statistic.php:935
+#: src/Statistic.php:937
 msgctxt "NOMINATIVE"
 msgid "September"
 msgstr ""
@@ -1257,10 +1276,11 @@ msgid ""
 "before their 5th birthday."
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:131
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:133
 msgid ""
-"Share of individuals without a recorded birth or death event, with or "
-"without a place."
+"Share of individuals without a recorded birth, death, or marriage event, "
+"with or without a place. Marriage rows use spouses as the denominator (never-"
+"married individuals are excluded)."
 msgstr ""
 
 #: resources/views/modules/statistics-chart/Templates/Overview.phtml:161
@@ -1276,7 +1296,7 @@ msgstr ""
 msgid "Single"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:77
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:79
 msgid "Source-citation coverage"
 msgstr ""
 
@@ -1314,7 +1334,7 @@ msgid ""
 "Top-%s given names, stacked into a stream that reads as relative magnitudes."
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:152
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:154
 msgid "Tree growth — births per decade"
 msgstr ""
 
@@ -1361,6 +1381,14 @@ msgstr ""
 msgid "Winter-peak score"
 msgstr ""
 
+#: src/Repository/ChildrenRepository.php:586
+msgid "With children"
+msgstr ""
+
+#: src/Repository/ChildrenRepository.php:587
+msgid "Without children"
+msgstr ""
+
 #: resources/views/modules/statistics-chart/Templates/Overview.phtml:217
 msgid "Youngest father at first child"
 msgstr ""
@@ -1383,12 +1411,12 @@ msgstr ""
 
 #: resources/views/modules/statistics-chart/Partials/RateList.phtml:33
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:231
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:113
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:115
 msgid "no data"
 msgstr ""
 
-#: src/Repository/LifeSpanRepository.php:460
-#: src/Repository/LifeSpanRepository.php:467
+#: src/Repository/LifeSpanRepository.php:463
+#: src/Repository/LifeSpanRepository.php:470
 #, php-format
 msgid "no data (n < %s)"
 msgstr ""
@@ -1397,7 +1425,7 @@ msgstr ""
 msgid "places"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:114
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:116
 msgid "years"
 msgstr ""
 

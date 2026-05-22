@@ -1,22 +1,26 @@
-# Italian translations for webtrees-statistics package.
-# Copyright (C) 2026 Rico Sonntag
-# This file is distributed under the same license as the webtrees-statistics package.
-# Automatically generated, 2026.
+# Italian translations for the webtrees-statistics module.
+# Copyright (C) Rico Sonntag <mail@ricosonntag.de>
+# Distributed under the GNU General Public License v3.0 (GPL-3.0).
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: webtrees-statistics\n"
+"Project-Id-Version: Statistics\n"
 "Report-Msgid-Bugs-To: https://github.com/magicsunday/webtrees-statistics/"
 "issues\n"
-"POT-Creation-Date: 2026-05-22 08:05+0000\n"
+"POT-Creation-Date: 2026-05-22 10:13+0000\n"
 "PO-Revision-Date: 2026-05-22 08:05+0000\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"Last-Translator: Rico Sonntag <mail@ricosonntag.de>\n"
+"Language-Team: \n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.5\n"
+"X-Poedit-Basepath: ../../..\n"
+"X-Poedit-KeywordsList: translate;translateContext:1c,2;plural:1,2\n"
+"X-Poedit-SearchPath-0: src\n"
+"X-Poedit-SearchPath-1: resources/views\n"
 
 #: src/Repository/ChildrenRepository.php:371
 #, php-format
@@ -32,7 +36,7 @@ msgstr "%1$s di %2$s (%3$s%%)"
 #, php-format
 msgid ""
 "%1$s of %2$s children with known birth and death dates died before age 5."
-msgstr ""
+msgstr "%1$s di %2$s bambini con date di nascita e morte note sono morti prima dei 5 anni."
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:900
 #, php-format
@@ -42,18 +46,18 @@ msgid ""
 msgid_plural ""
 "%1$s of %2$s couples where both spouses had at least one recorded parent "
 "share a common ancestor."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1$s su %2$s coppia in cui entrambi i coniugi hanno almeno un genitore registrato condivide un antenato comune."
+msgstr[1] "%1$s su %2$s coppie in cui entrambi i coniugi hanno almeno un genitore registrato condividono un antenato comune."
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:218
 #, php-format
 msgid ""
 "%1$s of %2$s deaths fell in December – February. 1.0 = no seasonality, > 1.0 "
 "= winter-peaked, < 1.0 = winter-trough."
-msgstr ""
+msgstr "%1$s su %2$s decessi sono avvenuti in dicembre – febbraio. 1,0 = nessuna stagionalità, > 1,0 = picco invernale, < 1,0 = minimo invernale."
 
-#: src/Repository/LifeSpanRepository.php:456
-#: src/Repository/LifeSpanRepository.php:463
+#: src/Repository/LifeSpanRepository.php:459
+#: src/Repository/LifeSpanRepository.php:466
 #, php-format
 msgid "%1$s years (n = %2$s)"
 msgstr "%1$s anni (n = %2$s)"
@@ -351,7 +355,7 @@ msgid_plural "%s pairs"
 msgstr[0] "%s coppia"
 msgstr[1] "%s coppie"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:153
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:155
 #, php-format
 msgid "%s recorded birth date across the visible decades"
 msgid_plural "%s recorded birth dates across the visible decades"
@@ -440,6 +444,13 @@ msgid "%s-year gap"
 msgid_plural "%s-year gaps"
 msgstr[0] "distanza di %s anno"
 msgstr[1] "distanze di %s anni"
+
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:715
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:34
+#: src/Repository/ChildrenRepository.php:257
+#, php-format
+msgid "%ss"
+msgstr "anni %s"
 
 #: src/Support/CenturyName.php:64
 msgctxt "CENTURY"
@@ -612,7 +623,7 @@ msgstr "Età al matrimonio — mogli"
 msgid "Age in years at death, longest-lived first"
 msgstr "Età in anni alla morte, vita più lunga per prima"
 
-#: src/Statistic.php:930
+#: src/Statistic.php:932
 msgctxt "NOMINATIVE"
 msgid "April"
 msgstr "Aprile"
@@ -621,11 +632,11 @@ msgstr "Aprile"
 msgid "At least 12 dated deaths are required for a meaningful score."
 msgstr "Sono richiesti almeno 12 decessi datati per un punteggio significativo."
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:117
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:119
 msgid "At least one parent-child pair with parseable birth dates is required."
 msgstr "È richiesta almeno una coppia genitore-figlio con date di nascita interpretabili."
 
-#: src/Statistic.php:934
+#: src/Statistic.php:936
 msgctxt "NOMINATIVE"
 msgid "August"
 msgstr "Agosto"
@@ -634,14 +645,14 @@ msgstr "Agosto"
 msgid ""
 "Average count of distinct PLAC values per individual across BIRT, DEAT, "
 "BAPM, BURI, RESI and similar level-1 events."
-msgstr ""
+msgstr "Numero medio di valori PLAC distinti per individuo attraverso BIRT, DEAT, BAPM, BURI, RESI e simili eventi di livello 1."
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:583
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:593
 msgid "Average family size by century"
 msgstr "Dimensione media della famiglia per secolo"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:103
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:105
 msgid "Average generation length"
 msgstr "Lunghezza media della generazione"
 
@@ -741,7 +752,7 @@ msgstr "Divario di età della coppia (marito − moglie)"
 msgid ""
 "Couples whose spouses share at least one common ancestor within four "
 "generations — a marker of cousin marriages and pedigree collapse."
-msgstr ""
+msgstr "Coppie i cui coniugi condividono almeno un antenato comune entro quattro generazioni — un indicatore di matrimoni tra cugini e di collasso genealogico."
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:433
 msgid "Current age, oldest first"
@@ -763,7 +774,7 @@ msgstr "Decessi per mese"
 msgid "Deceased"
 msgstr "Deceduti"
 
-#: src/Statistic.php:938
+#: src/Statistic.php:940
 msgctxt "NOMINATIVE"
 msgid "December"
 msgstr "Dicembre"
@@ -772,7 +783,7 @@ msgstr "Dicembre"
 msgid ""
 "Distinct ancestors recorded up to four generations (great-great-"
 "grandparents)."
-msgstr ""
+msgstr "Antenati distinti registrati fino a quattro generazioni (trisavoli)."
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:248
 msgid "Distinct places per individual"
@@ -811,7 +822,7 @@ msgstr "Divorzi per secolo × fascia d'età"
 msgid "Divorces by month"
 msgstr "Divorzi per mese"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:88
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:90
 msgid "Documented individuals"
 msgstr "Individui documentati"
 
@@ -822,7 +833,7 @@ msgid ""
 "in that decade carried that name. The silhouette layout centres each band "
 "around zero, so the chart reads as relative magnitudes — hover any band to "
 "see absolute counts and its peak decade."
-msgstr ""
+msgstr "Ogni banda rappresenta uno dei nomi più comuni nell'albero. Lo spessore verticale della banda in un decennio mostra quanti individui nati in quel decennio portavano quel nome. Il layout a silhouette centra ogni banda attorno allo zero, quindi il grafico si legge come grandezze relative — passa il mouse su una banda per vedere i conteggi assoluti e il decennio di picco."
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:422
 msgid ""
@@ -841,7 +852,7 @@ msgid ""
 "Each bar is one decade, normalised to 100 %% — the four segments stack 1, 2, "
 "3, and 4 or more children per family. Surfaces the shift from large to small "
 "families over time."
-msgstr ""
+msgstr "Ogni barra è un decennio, normalizzato al 100 %% — i quattro segmenti impilano 1, 2, 3 e 4 o più figli per famiglia. Mostra il passaggio da famiglie grandi a piccole nel tempo."
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:22
 msgid ""
@@ -864,13 +875,13 @@ msgid ""
 "many gaps. Caveats: pedigree-collapse duplicates (cousin marriages) are not "
 "deduplicated, recent leaf-imports without ancestors drag the average down, "
 "and only direct ancestors are counted — siblings / cousins are out of scope."
-msgstr ""
+msgstr "Ogni persona nell'albero ha fino a 30 possibili antenati diretti in quattro generazioni. L'indice di completezza dell'albero (Lacy 1989) è la frazione di quei posti effettivamente documentati. Più alto = ricerca più approfondita; più basso = molte lacune."
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:787
 msgid ""
 "Each step is one parent–child link upward; siblings, half-lines and dead-"
 "ends are merged into the longest path."
-msgstr ""
+msgstr "Ogni passo è un collegamento genitore–figlio verso l'alto; fratelli, mezze linee e vicoli ciechi sono uniti nel percorso più lungo."
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:876
 msgid "Endogamy rate (within 4 generations)"
@@ -889,12 +900,12 @@ msgstr "Famiglia"
 msgid "Family size composition share by decade"
 msgstr "Composizione della dimensione familiare per decennio"
 
-#: src/Statistic.php:928
+#: src/Statistic.php:930
 msgctxt "NOMINATIVE"
 msgid "February"
 msgstr "Febbraio"
 
-#: src/Repository/LifeSpanRepository.php:485 src/Statistic.php:125
+#: src/Repository/LifeSpanRepository.php:488 src/Statistic.php:125
 msgid "Female"
 msgstr "Femmina"
 
@@ -977,28 +988,28 @@ msgstr "Quanti luoghi distinti porta ciascun individuo, raggruppati."
 msgid ""
 "How many individuals sit at exactly N generations above their deepest "
 "recorded descendant."
-msgstr ""
+msgstr "Quanti individui si trovano esattamente N generazioni sopra il loro discendente più profondo registrato."
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:246
 #, php-format
 msgid "Husband older by %s years"
 msgstr "Marito più anziano di %s anni"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:78
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:80
 msgid "Individuals with at least one source linked to their record."
 msgstr "Individui con almeno una fonte collegata al loro registro."
 
-#: src/Statistic.php:927
+#: src/Statistic.php:929
 msgctxt "NOMINATIVE"
 msgid "January"
 msgstr "Gennaio"
 
-#: src/Statistic.php:933
+#: src/Statistic.php:935
 msgctxt "NOMINATIVE"
 msgid "July"
 msgstr "Luglio"
 
-#: src/Statistic.php:932
+#: src/Statistic.php:934
 msgctxt "NOMINATIVE"
 msgid "June"
 msgstr "Giugno"
@@ -1011,7 +1022,7 @@ msgstr "Antenati conosciuti per individuo"
 msgid ""
 "Lacy 1989 — mean fraction of direct ancestors known up to four generations "
 "across all individuals."
-msgstr ""
+msgstr "Lacy 1989 — frazione media di antenati diretti noti fino a quattro generazioni su tutti gli individui."
 
 #: resources/views/modules/statistics-chart/Templates/Overview.phtml:203
 msgid "Largest family"
@@ -1041,13 +1052,13 @@ msgstr "Matrimonio più duraturo"
 msgid ""
 "Longest verified vertical chain from a leaf descendant up to its furthest "
 "ancestor."
-msgstr ""
+msgstr "Catena verticale verificata più lunga da un discendente foglia fino al suo antenato più lontano."
 
-#: src/Repository/LifeSpanRepository.php:478 src/Statistic.php:124
+#: src/Repository/LifeSpanRepository.php:481 src/Statistic.php:124
 msgid "Male"
 msgstr "Maschio"
 
-#: src/Statistic.php:929
+#: src/Statistic.php:931
 msgctxt "NOMINATIVE"
 msgid "March"
 msgstr "Marzo"
@@ -1073,7 +1084,7 @@ msgstr "Sposato/a"
 msgid "Maximum generation depth"
 msgstr "Profondità massima della generazione"
 
-#: src/Statistic.php:931
+#: src/Statistic.php:933
 msgctxt "NOMINATIVE"
 msgid "May"
 msgstr "Maggio"
@@ -1086,9 +1097,9 @@ msgstr "Età media alla morte per coorte del secolo di nascita, suddivisa per se
 msgid ""
 "Mean number of children per dated family per century — the long-arc trend in "
 "family size."
-msgstr ""
+msgstr "Numero medio di figli per famiglia datata per secolo — la tendenza a lungo termine nella dimensione familiare."
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:104
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:106
 msgid "Mean parent-to-child birth-year delta across the whole tree."
 msgstr "Differenza media dell'anno di nascita genitore-figlio in tutto l'albero."
 
@@ -1112,7 +1123,15 @@ msgstr "Evento di morte mancante"
 msgid "Missing death place"
 msgstr "Luogo di morte mancante"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:130
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:59
+msgid "Missing marriage event"
+msgstr "Evento di matrimonio mancante"
+
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:60
+msgid "Missing marriage place"
+msgstr "Luogo di matrimonio mancante"
+
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:132
 msgid "Missing-event gaps"
 msgstr "Lacune di eventi mancanti"
 
@@ -1161,12 +1180,12 @@ msgstr "Nessun dato registrato per questa metrica."
 msgid "No marriage cohort meets the minimum size threshold."
 msgstr "Nessuna coorte di matrimonio raggiunge la soglia minima."
 
-#: src/Statistic.php:937
+#: src/Statistic.php:939
 msgctxt "NOMINATIVE"
 msgid "November"
 msgstr "Novembre"
 
-#: src/Statistic.php:936
+#: src/Statistic.php:938
 msgctxt "NOMINATIVE"
 msgid "October"
 msgstr "Ottobre"
@@ -1206,7 +1225,7 @@ msgstr[1] "Top %s catene verificate a questa profondità (foglia più giovane pr
 msgid "Overview"
 msgstr "Panoramica"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:116
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:118
 msgid "Parent-to-child birth-year delta, averaged across every usable pair."
 msgstr "Differenza dell'anno di nascita genitore-figlio, mediata su tutte le coppie utilizzabili."
 
@@ -1218,7 +1237,7 @@ msgstr "Pila delle età dei coniugi al divorzio per secolo."
 msgid ""
 "Percentage of marriages from each decade that ended in divorce. Cohorts with "
 "fewer than three marriages are hidden."
-msgstr ""
+msgstr "Percentuale di matrimoni di ogni decennio terminati con divorzio. Le coorti con meno di tre matrimoni sono nascoste."
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:36
 msgid "Place of birth"
@@ -1240,9 +1259,9 @@ msgstr "Residenze registrate"
 msgid ""
 "Relative density of deaths in December – February compared with an even 12-"
 "month baseline."
-msgstr ""
+msgstr "Densità relativa dei decessi in dicembre – febbraio rispetto a una linea di base uniforme di 12 mesi."
 
-#: src/Statistic.php:935
+#: src/Statistic.php:937
 msgctxt "NOMINATIVE"
 msgid "September"
 msgstr "Settembre"
@@ -1255,13 +1274,14 @@ msgstr "Sesso"
 msgid ""
 "Share of individuals with both birth and death dates whose death occurred "
 "before their 5th birthday."
-msgstr ""
+msgstr "Quota di individui con date di nascita e morte la cui morte è avvenuta prima del 5° compleanno."
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:131
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:133
 msgid ""
-"Share of individuals without a recorded birth or death event, with or "
-"without a place."
-msgstr ""
+"Share of individuals without a recorded birth, death, or marriage event, "
+"with or without a place. Marriage rows use spouses as the denominator (never-"
+"married individuals are excluded)."
+msgstr "Quota di individui senza evento di nascita, morte o matrimonio registrato, con o senza luogo. Le righe di matrimonio usano i coniugi come denominatore (gli individui mai sposati sono esclusi)."
 
 #: resources/views/modules/statistics-chart/Templates/Overview.phtml:161
 msgid "Shortest marriage"
@@ -1276,7 +1296,7 @@ msgstr "Divario di età tra fratelli"
 msgid "Single"
 msgstr "Celibe/Nubile"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:77
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:79
 msgid "Source-citation coverage"
 msgstr "Copertura delle citazioni delle fonti"
 
@@ -1312,9 +1332,9 @@ msgstr "Top 10 più anziani (viventi)"
 #, php-format
 msgid ""
 "Top-%s given names, stacked into a stream that reads as relative magnitudes."
-msgstr ""
+msgstr "Top %s nomi, impilati in un flusso che si legge come grandezze relative."
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:152
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:154
 msgid "Tree growth — births per decade"
 msgstr "Crescita dell'albero — nascite per decennio"
 
@@ -1338,7 +1358,7 @@ msgstr "Grafici su varie statistiche."
 msgid ""
 "Walk reached the safety cap (20 generations) — check the tree for cyclic "
 "FAMC/FAMS edits."
-msgstr ""
+msgstr "Il percorso ha raggiunto il limite di sicurezza (20 generazioni) — controlla l'albero per modifiche FAMC/FAMS cicliche."
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:360
 msgid "Weddings by century"
@@ -1360,6 +1380,14 @@ msgstr "Moglie più anziana di %s anni"
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:212
 msgid "Winter-peak score"
 msgstr "Punteggio di picco invernale"
+
+#: src/Repository/ChildrenRepository.php:586
+msgid "With children"
+msgstr "Con figli"
+
+#: src/Repository/ChildrenRepository.php:587
+msgid "Without children"
+msgstr "Senza figli"
 
 #: resources/views/modules/statistics-chart/Templates/Overview.phtml:217
 msgid "Youngest father at first child"
@@ -1383,12 +1411,12 @@ msgstr "generazioni"
 
 #: resources/views/modules/statistics-chart/Partials/RateList.phtml:33
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:231
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:113
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:115
 msgid "no data"
 msgstr "nessun dato"
 
-#: src/Repository/LifeSpanRepository.php:460
-#: src/Repository/LifeSpanRepository.php:467
+#: src/Repository/LifeSpanRepository.php:463
+#: src/Repository/LifeSpanRepository.php:470
 #, php-format
 msgid "no data (n < %s)"
 msgstr "nessun dato (n < %s)"
@@ -1397,7 +1425,7 @@ msgstr "nessun dato (n < %s)"
 msgid "places"
 msgstr "luoghi"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:114
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:116
 msgid "years"
 msgstr "anni"
 
