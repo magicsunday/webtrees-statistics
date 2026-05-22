@@ -12,6 +12,8 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Support;
 
 use Fisharebest\Webtrees\I18N;
+use MagicSunday\Webtrees\Statistic\Model\Dto\LineChart\LineChartPayload;
+use MagicSunday\Webtrees\Statistic\Model\Dto\LineChart\LineChartSeries;
 
 use function array_keys;
 use function array_values;
@@ -53,13 +55,8 @@ final readonly class SiblingGapRowMapper
      * than a bare integer.
      *
      * @param array<string, int> $histogram Bucketed `{label: count}` map
-     *
-     * @return array{
-     *     categories: list<string>,
-     *     series: list<array{name: string, values: list<int>, tooltips: list<string>, tooltipLabels: list<string>}>
-     * }
      */
-    public static function toLineChartPayload(array $histogram): array
+    public static function toLineChartPayload(array $histogram): LineChartPayload
     {
         $values            = array_values($histogram);
         $displayCategories = [];
@@ -79,16 +76,16 @@ final readonly class SiblingGapRowMapper
                 : I18N::plural('%s-year gap', '%s-year gaps', $year, I18N::number($year));
         }
 
-        return [
-            'categories' => $displayCategories,
-            'series'     => [
-                [
-                    'name'          => I18N::translate('Consecutive-sibling pairs'),
-                    'values'        => $values,
-                    'tooltips'      => $tooltips,
-                    'tooltipLabels' => $tooltipLabels,
-                ],
+        return new LineChartPayload(
+            categories: $displayCategories,
+            series: [
+                new LineChartSeries(
+                    name: I18N::translate('Consecutive-sibling pairs'),
+                    values: $values,
+                    tooltips: $tooltips,
+                    tooltipLabels: $tooltipLabels,
+                ),
             ],
-        ];
+        );
     }
 }

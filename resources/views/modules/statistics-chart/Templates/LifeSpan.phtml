@@ -340,7 +340,7 @@ $childMortalityPayload = [
     // shape — no PHP-side re-shaping required.
     $lifespanBySexCentury = $statistic->getAverageLifespanBySexAndCentury();
 ?>
-    <?php if ($lifespanBySexCentury['categories'] !== []) { ?>
+    <?php if ($lifespanBySexCentury->categories !== []) { ?>
     <div class="row row-cols-1 g-3">
         <div class="col">
             <div class="card">

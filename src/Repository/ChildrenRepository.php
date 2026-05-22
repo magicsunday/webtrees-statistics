@@ -20,6 +20,8 @@ use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
+use MagicSunday\Webtrees\Statistic\Model\Dto\LineChart\LineChartPayload;
+use MagicSunday\Webtrees\Statistic\Model\Dto\LineChart\LineChartSeries;
 use MagicSunday\Webtrees\Statistic\Support\CenturyName;
 
 use function array_combine;
@@ -333,18 +335,13 @@ final readonly class ChildrenRepository
      * series tracking the central tendency over time. Computed as
      * `total_children / family_count` per century from the same
      * MARR-anchored aggregation as the stacked share charts.
-     *
-     * @return array{
-     *     categories: list<string>,
-     *     series: list<array{name: string, values: list<float>, tooltips: list<string>, tooltipLabels: list<string>}>
-     * }
      */
-    public function averageFamilySizeByCentury(): array
+    public function averageFamilySizeByCentury(): LineChartPayload
     {
         $perCentury = $this->familySizesPerCenturyRaw();
 
         if ($perCentury === []) {
-            return ['categories' => [], 'series' => []];
+            return new LineChartPayload(categories: [], series: []);
         }
 
         ksort($perCentury);
@@ -375,17 +372,17 @@ final readonly class ChildrenRepository
             $tooltipLabels[] = $longName;
         }
 
-        return [
-            'categories' => $categories,
-            'series'     => [
-                [
-                    'name'          => I18N::translate('Children per family'),
-                    'values'        => $values,
-                    'tooltips'      => $tooltips,
-                    'tooltipLabels' => $tooltipLabels,
-                ],
+        return new LineChartPayload(
+            categories: $categories,
+            series: [
+                new LineChartSeries(
+                    name: I18N::translate('Children per family'),
+                    values: $values,
+                    tooltips: $tooltips,
+                    tooltipLabels: $tooltipLabels,
+                ),
             ],
-        ];
+        );
     }
 
     /**

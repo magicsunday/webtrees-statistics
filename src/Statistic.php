@@ -16,6 +16,7 @@ use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\StatisticsData;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Chord\ChordMatrixPayload;
+use MagicSunday\Webtrees\Statistic\Model\Dto\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\ChildMortalitySummary;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\EndogamyRate;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\PlaceDispersionSummary;
@@ -337,13 +338,8 @@ final readonly class Statistic
     /**
      * Average lifespan grouped by birth-century × sex — feeds the
      * multi-series LineChart in the LifeSpan tab.
-     *
-     * @return array{
-     *     categories: list<string>,
-     *     series: list<array{name: string, values: list<float>, tooltips: list<string>, tooltipLabels: list<string>, class: string}>
-     * }
      */
-    public function getAverageLifespanBySexAndCentury(): array
+    public function getAverageLifespanBySexAndCentury(): LineChartPayload
     {
         return $this->lifeSpanRepository->averageLifespanBySexAndCentury();
     }
@@ -686,13 +682,8 @@ final readonly class Statistic
     /**
      * Average children per family by century — single LineChart
      * series tracking the central tendency over time.
-     *
-     * @return array{
-     *     categories: list<string>,
-     *     series: list<array{name: string, values: list<float>, tooltips: list<string>, tooltipLabels: list<string>}>
-     * }
      */
-    public function getAverageFamilySizeByCentury(): array
+    public function getAverageFamilySizeByCentury(): LineChartPayload
     {
         return $this->childrenRepository->averageFamilySizeByCentury();
     }

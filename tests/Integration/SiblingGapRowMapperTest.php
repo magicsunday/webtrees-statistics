@@ -40,8 +40,8 @@ final class SiblingGapRowMapperTest extends IntegrationTestCase
     {
         $payload = SiblingGapRowMapper::toLineChartPayload([]);
 
-        self::assertSame([], $payload['categories']);
-        self::assertSame([], $payload['series'][0]['values']);
+        self::assertSame([], $payload->categories);
+        self::assertSame([], $payload->series[0]->values);
     }
 
     /**
@@ -58,8 +58,8 @@ final class SiblingGapRowMapperTest extends IntegrationTestCase
             '2y' => 7,
         ]);
 
-        self::assertSame(['0y', '1y', '2y'], $payload['categories']);
-        self::assertSame([5, 12, 7], $payload['series'][0]['values']);
+        self::assertSame(['0y', '1y', '2y'], $payload->categories);
+        self::assertSame([5, 12, 7], $payload->series[0]->values);
     }
 
     /**
@@ -76,10 +76,10 @@ final class SiblingGapRowMapperTest extends IntegrationTestCase
             '10y+' => 8,
         ]);
 
-        self::assertSame(['9y', '10y+'], $payload['categories']);
-        self::assertStringContainsString('9-year', $payload['series'][0]['tooltipLabels'][0]);
-        self::assertStringContainsString('10', $payload['series'][0]['tooltipLabels'][1]);
-        self::assertStringContainsString('more', $payload['series'][0]['tooltipLabels'][1]);
+        self::assertSame(['9y', '10y+'], $payload->categories);
+        self::assertStringContainsString('9-year', $payload->series[0]->tooltipLabels[0]);
+        self::assertStringContainsString('10', $payload->series[0]->tooltipLabels[1]);
+        self::assertStringContainsString('more', $payload->series[0]->tooltipLabels[1]);
     }
 
     /**
@@ -95,9 +95,9 @@ final class SiblingGapRowMapperTest extends IntegrationTestCase
             '15y+' => 11,
         ]);
 
-        self::assertSame(['14y', '15y+'], $payload['categories']);
-        self::assertStringContainsString('15', $payload['series'][0]['tooltipLabels'][1]);
-        self::assertStringContainsString('more', $payload['series'][0]['tooltipLabels'][1]);
+        self::assertSame(['14y', '15y+'], $payload->categories);
+        self::assertStringContainsString('15', $payload->series[0]->tooltipLabels[1]);
+        self::assertStringContainsString('more', $payload->series[0]->tooltipLabels[1]);
     }
 
     /**
@@ -112,7 +112,7 @@ final class SiblingGapRowMapperTest extends IntegrationTestCase
             '1y' => 4,
         ]);
 
-        self::assertStringContainsString('1 pair', $payload['series'][0]['tooltips'][0]);
-        self::assertStringContainsString('4 pairs', $payload['series'][0]['tooltips'][1]);
+        self::assertStringContainsString('1 pair', $payload->series[0]->tooltips[0]);
+        self::assertStringContainsString('4 pairs', $payload->series[0]->tooltips[1]);
     }
 }

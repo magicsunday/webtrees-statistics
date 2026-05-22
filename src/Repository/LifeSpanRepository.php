@@ -20,6 +20,8 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\ModuleBase\Processor\NameProcessor;
+use MagicSunday\Webtrees\Statistic\Model\Dto\LineChart\LineChartPayload;
+use MagicSunday\Webtrees\Statistic\Model\Dto\LineChart\LineChartSeries;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\WinterPeakScore;
 use MagicSunday\Webtrees\Statistic\Support\CenturyName;
 use MagicSunday\Webtrees\Statistic\Support\HistogramTrim;
@@ -348,13 +350,8 @@ final readonly class LifeSpanRepository
      * order, two series (Male / Female). Per-cohort sample counts
      * below {@see MIN_COHORT_SIZE} are suppressed (replaced with
      * zero) so a single outlier doesn't dominate the visual.
-     *
-     * @return array{
-     *     categories: list<string>,
-     *     series: list<array{name: string, values: list<float>, tooltips: list<string>, tooltipLabels: list<string>, class: string}>
-     * }
      */
-    public function averageLifespanBySexAndCentury(): array
+    public function averageLifespanBySexAndCentury(): LineChartPayload
     {
         $maxAge = $this->maxPlausibleAge();
 
@@ -416,7 +413,7 @@ final readonly class LifeSpanRepository
         }
 
         if ($cohorts === []) {
-            return ['categories' => [], 'series' => []];
+            return new LineChartPayload(categories: [], series: []);
         }
 
         ksort($cohorts);
@@ -473,25 +470,25 @@ final readonly class LifeSpanRepository
             $femaleTooltipLabels[] = $longLabel;
         }
 
-        return [
-            'categories' => $categories,
-            'series'     => [
-                [
-                    'name'          => I18N::translate('Male'),
-                    'values'        => $maleValues,
-                    'tooltips'      => $maleTooltips,
-                    'tooltipLabels' => $maleTooltipLabels,
-                    'class'         => 'male',
-                ],
-                [
-                    'name'          => I18N::translate('Female'),
-                    'values'        => $femaleValues,
-                    'tooltips'      => $femaleTooltips,
-                    'tooltipLabels' => $femaleTooltipLabels,
-                    'class'         => 'female',
-                ],
+        return new LineChartPayload(
+            categories: $categories,
+            series: [
+                new LineChartSeries(
+                    name: I18N::translate('Male'),
+                    values: $maleValues,
+                    tooltips: $maleTooltips,
+                    tooltipLabels: $maleTooltipLabels,
+                    class: 'male',
+                ),
+                new LineChartSeries(
+                    name: I18N::translate('Female'),
+                    values: $femaleValues,
+                    tooltips: $femaleTooltips,
+                    tooltipLabels: $femaleTooltipLabels,
+                    class: 'female',
+                ),
             ],
-        ];
+        );
     }
 
     /**
