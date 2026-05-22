@@ -223,4 +223,32 @@ final class ArchitectureTest
             )
             ->because('DTOs are leaf value objects; only repositories/facade construct them, never the reverse');
     }
+
+    /**
+     * The `Model` namespace (sibling of `Model\Dto`) holds domain
+     * enums and value objects that classify webtrees data without
+     * carrying behaviour. The same layering invariant applies:
+     * enums must not reach into repositories, the facade, the
+     * composition root, or Support helpers — they ARE the
+     * vocabulary repositories speak, not the other way around.
+     */
+    #[TestRule]
+    public function modelDoesNotDependOnAnyOtherProductionLayer(): Rule
+    {
+        return PHPat::rule()
+            ->classes(
+                Selector::AllOf(
+                    Selector::inNamespace(self::NAMESPACE_ROOT . '\\Model'),
+                    Selector::Not(Selector::inNamespace(self::NAMESPACE_ROOT . '\\Model\\Dto')),
+                ),
+            )
+            ->shouldNot()->dependOn()
+            ->classes(
+                Selector::inNamespace(self::NAMESPACE_ROOT . '\\Repository'),
+                Selector::inNamespace(self::NAMESPACE_ROOT . '\\Support'),
+                Selector::classname(self::NAMESPACE_ROOT . '\\Statistic'),
+                Selector::classname(self::NAMESPACE_ROOT . '\\Module'),
+            )
+            ->because('Model enums and value objects are the vocabulary the rest of the module speaks; they cannot depend back into repositories, the facade, the composition root, or Support helpers');
+    }
 }

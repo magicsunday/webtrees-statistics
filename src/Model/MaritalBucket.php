@@ -9,13 +9,13 @@
 
 declare(strict_types=1);
 
-namespace MagicSunday\Webtrees\Statistic;
+namespace MagicSunday\Webtrees\Statistic\Model;
 
 /**
  * One of four mutually-exclusive marital states that every living individual
- * is sorted into. Cases are listed in the precedence order applied by
- * {@see Repository\FamilyRepository::classifyLivingIndividuals()}: the
- * highest-precedence match wins.
+ * is sorted into. Cases are listed in highest-precedence-first order so the
+ * marital classifier can walk them top-to-bottom and keep the first match
+ * that fits a row.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0

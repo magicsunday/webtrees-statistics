@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test;
 
-use MagicSunday\Webtrees\Statistic\MaritalBucket;
 use MagicSunday\Webtrees\Statistic\Model\FamilyRow;
+use MagicSunday\Webtrees\Statistic\Model\MaritalBucket;
 use MagicSunday\Webtrees\Statistic\Repository\FamilyRepository;
 use MagicSunday\Webtrees\Statistic\Support\GedcomScanner;
 use PHPUnit\Framework\Attributes\DataProvider;

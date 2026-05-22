@@ -9,13 +9,11 @@
 
 declare(strict_types=1);
 
-namespace MagicSunday\Webtrees\Statistic\Repository;
+namespace MagicSunday\Webtrees\Statistic\Support;
 
 use Fisharebest\Webtrees\Tree;
-use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\JoinClause;
-use MagicSunday\Webtrees\Statistic\Support\DateJoin;
 
 /**
  * Builder factory for individuals joined to their dated BIRT and
@@ -29,11 +27,15 @@ use MagicSunday\Webtrees\Statistic\Support\DateJoin;
  * callers add their own `select()` / `where()` / `groupBy()`
  * on top.
  *
+ * Lives in the Support layer because the helper is consumed by
+ * multiple repositories and carries no repository-specific state
+ * (it's a query template, not a domain-aware query).
+ *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-final class BirthDeathPairsQuery
+final readonly class BirthDeathPairsQuery
 {
     /**
      * Prevent instantiation — static-only utility.
@@ -46,15 +48,10 @@ final class BirthDeathPairsQuery
      * Build an `individuals` query joined to dated BIRT (`birth`
      * alias) and DEAT (`death` alias) rows, restricted to the
      * given tree.
-     *
-     * @param Tree $tree The tree the statistics are computed for
-     *
-     * @return Builder
      */
     public static function for(Tree $tree): Builder
     {
-        return DB::table('individuals')
-            ->where('i_file', '=', $tree->id())
+        return TreeScope::table($tree, 'individuals')
             ->join('dates AS birth', static function (JoinClause $join): void {
                 DateJoin::on($join, 'birth', 'i_file', 'i_id', 'BIRT', DateJoin::JD_GREATER_THAN_ZERO);
             })
