@@ -28,12 +28,12 @@ use MagicSunday\Webtrees\Statistic\Support\CenturyName;
 use MagicSunday\Webtrees\Statistic\Support\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\HistogramTrim;
 use MagicSunday\Webtrees\Statistic\Support\RowCast;
-use MagicSunday\Webtrees\Statistic\Support\SeasonalityScore;
 use MagicSunday\Webtrees\Statistic\Support\TreeScope;
 
 use function array_fill_keys;
 use function array_key_last;
 use function array_map;
+use function array_sum;
 use function getdate;
 use function GregorianToJD;
 use function intdiv;
@@ -78,6 +78,23 @@ final readonly class LifeSpanRepository
      * outlier doesn't drag the cohort mean.
      */
     private const int MIN_COHORT_SIZE = 5;
+
+    /**
+     * Minimum recorded-deaths sample below which the
+     * {@see deathWinterPeakScore()} returns null because the
+     * baseline-to-season ratio is too noisy to be meaningful at
+     * lower sample sizes. 12 = at least one death per calendar
+     * month on average.
+     */
+    private const int WINTER_PEAK_MIN_SAMPLE = 12;
+
+    /**
+     * Northern-hemisphere winter months as a `[month => true]` hash
+     * for O(1) lookup. Map shape (vs a list) lets the foreach in
+     * {@see deathWinterPeakScore()} test membership via `isset`
+     * without paying for an `in_array` linear scan per iteration.
+     */
+    private const array WINTER_MONTHS = ['DEC' => true, 'JAN' => true, 'FEB' => true];
 
     /**
      * Living-individual age-band cut-offs. The buckets are designed
@@ -202,16 +219,34 @@ final readonly class LifeSpanRepository
      * Winter-peak indicator for deaths — relative density of
      * December + January + February death events compared to a
      * perfectly-even 12-month baseline. Returns null when fewer
-     * than 12 dated deaths are recorded (below that threshold the
-     * score is too noisy to be meaningful).
+     * than {@see self::WINTER_PEAK_MIN_SAMPLE} dated deaths are
+     * recorded (below that threshold the score is too noisy to
+     * be meaningful).
+     *
+     * Score = (winterDeaths / 3) / (totalDeaths / 12); 1.0 means
+     * the season carries its proportional share, > 1.0 means an
+     * actual winter peak, < 1.0 means winter is under-represented.
      */
     public function deathWinterPeakScore(): ?WinterPeakScore
     {
-        return SeasonalityScore::score(
-            $this->data->countEventsByMonth('DEAT', 0, 0),
-            SeasonalityScore::NORTHERN_WINTER,
-            12,
-        );
+        $monthCounts = $this->data->countEventsByMonth('DEAT', 0, 0);
+        $total       = array_sum($monthCounts);
+
+        if ($total < self::WINTER_PEAK_MIN_SAMPLE) {
+            return null;
+        }
+
+        $winterCount = 0;
+
+        foreach ($monthCounts as $month => $count) {
+            if (isset(self::WINTER_MONTHS[$month])) {
+                $winterCount += $count;
+            }
+        }
+
+        $score = round(($winterCount / 3) / ($total / 12), 2);
+
+        return new WinterPeakScore(score: $score, seasonCount: $winterCount, total: $total);
     }
 
     /**

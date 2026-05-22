@@ -13,7 +13,6 @@ namespace MagicSunday\Webtrees\Statistic\Test\Unit\Model\Dto;
 
 use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\MigrationFlowsPayload;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\SankeyLink;
-use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\SankeyNode;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\SankeySample;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -45,8 +44,8 @@ final class MigrationFlowsPayloadTest extends TestCase
     {
         $payload = new MigrationFlowsPayload(
             nodes: [
-                new SankeyNode(name: 'Germany'),
-                new SankeyNode(name: 'USA'),
+                'Germany',
+                'USA',
             ],
             links: [
                 new SankeyLink(
@@ -97,19 +96,6 @@ final class MigrationFlowsPayloadTest extends TestCase
             ['nodes' => [], 'links' => []],
             json_decode(json_encode($payload, JSON_THROW_ON_ERROR), true, 512, JSON_THROW_ON_ERROR),
         );
-    }
-
-    /**
-     * `SankeyNode` is a one-field DTO; the parity assertion stays
-     * close to its constructor so a future field addition flags the
-     * wire-shape change immediately.
-     */
-    #[Test]
-    public function sankeyNodeSerialisesToTheNameKeyOnly(): void
-    {
-        $node = new SankeyNode(name: 'Austria');
-
-        self::assertSame(['name' => 'Austria'], json_decode(json_encode($node, JSON_THROW_ON_ERROR), true, 512, JSON_THROW_ON_ERROR));
     }
 
     /**

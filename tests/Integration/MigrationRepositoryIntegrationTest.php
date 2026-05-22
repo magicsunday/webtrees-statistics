@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\SankeyLink;
-use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\SankeyNode;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\SankeySample;
 use MagicSunday\Webtrees\Statistic\Repository\MigrationRepository;
 use PHPUnit\Framework\Attributes\Test;
@@ -59,7 +58,7 @@ final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
         // (USA, England, France, Canada) in insertion order.
         self::assertSame(
             ['Germany', 'Austria', 'USA', 'England', 'France', 'Canada'],
-            array_map(static fn (SankeyNode $node): string => $node->name, $result->nodes),
+            $result->nodes,
         );
 
         // Heaviest flow leads — Germany (source idx 0) → USA (target
@@ -100,8 +99,8 @@ final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
         // With only the Germany → USA flow surviving, the node table
         // shrinks to one source and one target.
         self::assertCount(2, $result->nodes);
-        self::assertSame('Germany', $result->nodes[0]->name);
-        self::assertSame('USA', $result->nodes[1]->name);
+        self::assertSame('Germany', $result->nodes[0]);
+        self::assertSame('USA', $result->nodes[1]);
     }
 
     /**
@@ -174,7 +173,7 @@ final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
 
         foreach ($result->links as $link) {
             if (($link->value === 1)
-                && ($result->nodes[$link->target]->name === 'Canada')
+                && ($result->nodes[$link->target] === 'Canada')
             ) {
                 $canada = $link;
 
@@ -220,7 +219,7 @@ final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
         // countries appear on both sides.
         self::assertCount(2, $result->links);
 
-        $names = array_map(static fn (SankeyNode $node): string => $node->name, $result->nodes);
+        $names = $result->nodes;
 
         // Germany and USA each appear twice: once on the source side,
         // once on the target side.

@@ -14,18 +14,18 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\ChildMortalitySummary;
 use MagicSunday\Webtrees\Statistic\Support\CenturyName;
-use MagicSunday\Webtrees\Statistic\Support\ChildMortalityRate;
 use MagicSunday\Webtrees\Statistic\Support\RowCast;
 
 use function ksort;
+use function round;
 
 /**
  * Child-mortality metrics for the LifeSpan tab — pairs every
- * individual's BIRT and DEAT julian-day, hands them to
- * {@see ChildMortalityRate::compute()}, and produces both a
- * tree-wide summary and a per-birth-century breakdown so the
- * dramatic historical decline (often 30–40 % in the 1700s, < 2 %
- * in modern cohorts) becomes visible.
+ * individual's BIRT and DEAT julian-day, computes the WHO/UN
+ * under-5-mortality rate per cohort, and produces both a tree-wide
+ * summary and a per-birth-century breakdown so the dramatic
+ * historical decline (often 30–40 % in the 1700s, < 2 % in modern
+ * cohorts) becomes visible.
  *
  * Individuals with only BIRT or only DEAT are silently excluded —
  * we can't determine survival without both anchors, and including
@@ -38,6 +38,20 @@ use function ksort;
  */
 final readonly class ChildMortalityRepository
 {
+    /**
+     * WHO/UN standard "under-5 mortality" threshold expressed in
+     * julian days. Comparable across historical periods because the
+     * cut-off is age-based rather than date-based.
+     */
+    private const int UNDER_FIVE_THRESHOLD_DAYS = 5 * 365;
+
+    /**
+     * Below this cohort size a single dead child swings the
+     * displayed mortality rate by more than 10 percentage points —
+     * we drop the bucket entirely rather than show a noisy spike.
+     */
+    private const int MIN_COHORT_SIZE = 5;
+
     /**
      * @param Tree $tree The tree the statistics are computed for
      */
@@ -54,7 +68,7 @@ final readonly class ChildMortalityRepository
      */
     public function summary(): ?ChildMortalitySummary
     {
-        return ChildMortalityRate::compute($this->fetchBirthDeathPairs());
+        return $this->computeRate($this->fetchBirthDeathPairs());
     }
 
     /**
@@ -96,7 +110,7 @@ final readonly class ChildMortalityRepository
         $out = [];
 
         foreach ($perCentury as $century => $pairs) {
-            $summary = ChildMortalityRate::compute($pairs);
+            $summary = $this->computeRate($pairs);
 
             if (!$summary instanceof ChildMortalitySummary) {
                 continue;
@@ -115,6 +129,56 @@ final readonly class ChildMortalityRepository
         }
 
         return $out;
+    }
+
+    /**
+     * Compute the child-mortality summary for a list of BIRT + DEAT
+     * julian-day pairs. Pairs whose death julian-day precedes the
+     * birth (recording error) are dropped so they cannot inflate
+     * the rate; the caller has already filtered out individuals
+     * without both anchors. Returns null when no valid pair survives
+     * the inner filter so the view can render a "no data" placeholder
+     * rather than a misleading "0 %".
+     *
+     * @param iterable<array{birthJd: int, deathJd: int}> $pairs Iterable of valid BIRT + DEAT julian-day pairs
+     */
+    private function computeRate(iterable $pairs): ?ChildMortalitySummary
+    {
+        $total = 0;
+        $died  = 0;
+
+        foreach ($pairs as $pair) {
+            $birthJd = $pair['birthJd'];
+            $deathJd = $pair['deathJd'];
+
+            if ($birthJd <= 0) {
+                continue;
+            }
+
+            if ($deathJd <= 0) {
+                continue;
+            }
+
+            if ($deathJd < $birthJd) {
+                continue;
+            }
+
+            ++$total;
+
+            if (($deathJd - $birthJd) < self::UNDER_FIVE_THRESHOLD_DAYS) {
+                ++$died;
+            }
+        }
+
+        if ($total === 0) {
+            return null;
+        }
+
+        return new ChildMortalitySummary(
+            total: $total,
+            died: $died,
+            rate: round(($died / $total) * 100, 1),
+        );
     }
 
     /**
@@ -153,11 +217,4 @@ final readonly class ChildMortalityRepository
 
         return $pairs;
     }
-
-    /**
-     * Below this cohort size a single dead child swings the
-     * displayed mortality rate by more than 10 percentage points —
-     * we drop the bucket entirely rather than show a noisy spike.
-     */
-    private const int MIN_COHORT_SIZE = 5;
 }

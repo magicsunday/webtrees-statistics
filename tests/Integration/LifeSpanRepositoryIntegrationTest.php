@@ -176,4 +176,72 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
         // opaque bucket-count mismatch.
         self::assertSame(range(1700, 1950, 10), array_keys($result));
     }
+
+    /**
+     * Sub-threshold sample (life-span.ged only carries 5 dated
+     * deaths, the threshold is 12) returns null because the
+     * winter / baseline ratio derived from too few samples is too
+     * noisy to publish.
+     */
+    #[Test]
+    public function deathWinterPeakScoreReturnsNullBelowMinimumSample(): void
+    {
+        $tree = $this->importFixtureTree('life-span.ged');
+
+        self::assertNull($this->repository($tree)->deathWinterPeakScore());
+    }
+
+    /**
+     * Winter-peak fixture has 12 deaths with six in DEC/JAN/FEB and
+     * six spread across the rest of the calendar. Score becomes
+     * (6 / 3) / (12 / 12) = 2.0 — the peak is exactly twice the
+     * baseline rate. Locks both the threshold trip and the formula.
+     */
+    #[Test]
+    public function deathWinterPeakScoreComputesRatioForWinterHeavyFixture(): void
+    {
+        $tree   = $this->importFixtureTree('winter-peak.ged');
+        $result = $this->repository($tree)->deathWinterPeakScore();
+
+        self::assertNotNull($result);
+        self::assertSame(2.0, $result->score);
+        self::assertSame(6, $result->seasonCount);
+        self::assertSame(12, $result->total);
+    }
+
+    /**
+     * Evenly-distributed fixture: one death per calendar month,
+     * twelve months. Winter share equals the baseline so the score
+     * lands exactly at 1.0 — the neutral middle the consumer reads
+     * as "no winter peak".
+     */
+    #[Test]
+    public function deathWinterPeakScoreLandsAtOneForEvenDistribution(): void
+    {
+        $tree   = $this->importFixtureTree('winter-flat.ged');
+        $result = $this->repository($tree)->deathWinterPeakScore();
+
+        self::assertNotNull($result);
+        self::assertSame(1.0, $result->score);
+        self::assertSame(3, $result->seasonCount);
+        self::assertSame(12, $result->total);
+    }
+
+    /**
+     * Winter-trough fixture: one death in JAN, none in DEC/FEB,
+     * eleven spread across the rest. Winter density falls well
+     * below the baseline so the score sits under 1.0 — the
+     * widget surfaces this as "winter is under-represented".
+     */
+    #[Test]
+    public function deathWinterPeakScoreFallsBelowOneForWinterPoorDistribution(): void
+    {
+        $tree   = $this->importFixtureTree('winter-trough.ged');
+        $result = $this->repository($tree)->deathWinterPeakScore();
+
+        self::assertNotNull($result);
+        self::assertLessThan(1.0, $result->score);
+        self::assertSame(1, $result->seasonCount);
+        self::assertSame(12, $result->total);
+    }
 }

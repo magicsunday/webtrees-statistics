@@ -14,7 +14,6 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\MigrationFlowsPayload;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\SankeyLink;
-use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\SankeyNode;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\SankeySample;
 use MagicSunday\Webtrees\Statistic\Support\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\RowCast;
@@ -160,12 +159,12 @@ final readonly class MigrationRepository
 
             if (!isset($sourceIndex[$origin])) {
                 $sourceIndex[$origin] = count($sourceNodes);
-                $sourceNodes[]        = new SankeyNode(name: $origin);
+                $sourceNodes[]        = $origin;
             }
 
             if (!isset($targetIndex[$destination])) {
                 $targetIndex[$destination] = count($targetNodes);
-                $targetNodes[]             = new SankeyNode(name: $destination);
+                $targetNodes[]             = $destination;
             }
 
             $rawLinks[] = [

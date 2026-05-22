@@ -23,10 +23,12 @@ use MagicSunday\Webtrees\Statistic\Model\Dto\Record\IndividualAgeRecord;
  * no longer be materialised into a live `Individual` (e.g. the
  * row pointed at a deleted record).
  *
- * Extracted so Parenthood, Marriage, and other repositories that
- * walk a tree-scoped pair-iterator and pick the youngest / oldest
- * candidate share a single resolver instead of inlining the same
- * Registry lookup + instanceof guard at every record method.
+ * Kept in the Support layer so the DTO itself stays free of
+ * service-location and remains a pure value carrier. Parenthood,
+ * Marriage, and other repositories that walk a tree-scoped
+ * pair-iterator and pick the youngest / oldest candidate share a
+ * single resolver instead of inlining the same Registry lookup +
+ * instanceof guard at every record method.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
