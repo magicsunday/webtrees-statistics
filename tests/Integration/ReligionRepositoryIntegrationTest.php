@@ -28,9 +28,9 @@ use PHPUnit\Framework\Attributes\Test;
 final class ReligionRepositoryIntegrationTest extends IntegrationTestCase
 {
     /**
-     * `Katholisch` appears twice (Anna + Berta with lowercase
-     * variant `katholisch`), `Evangelisch` once (Carl), `Jüdisch`
-     * once (Emil). The lowercase variant merges via case-folded keys.
+     * `Catholic` appears twice (Anna + Berta with lowercase
+     * variant `catholic`), `Protestant` once (Carl), `Jewish` once
+     * (Emil). The lowercase variant merges via case-folded keys.
      */
     #[Test]
     public function topReligionsReturnsCaseFoldedFrequencies(): void
@@ -39,7 +39,7 @@ final class ReligionRepositoryIntegrationTest extends IntegrationTestCase
         $result = (new ReligionRepository($tree))->top(10);
 
         self::assertSame(
-            ['Katholisch' => 2, 'Evangelisch' => 1, 'Jüdisch' => 1],
+            ['Catholic' => 2, 'Protestant' => 1, 'Jewish' => 1],
             $result,
         );
     }
@@ -63,11 +63,11 @@ final class ReligionRepositoryIntegrationTest extends IntegrationTestCase
      * fact) still surfaces a meaningful Top-N.
      *
      * Fixture composition:
-     *   I1: 1 BAPM / 2 RELI evangelisch-lutherisch                     → +1 lutherisch sub
-     *   I2: 1 BAPM / 2 RELI evangelisch-lutherisch + 1 CONF / 2 RELI … → +2 sub
-     *   I3: 1 RELI Katholisch + 1 BAPM / 2 RELI Katholisch             → +1 top + +1 sub
-     *   I4: 1 BAPM / 2 RELI lutherisch                                  → +1 sub
-     *   I5: 1 BAPM (no RELI)                                            → 0
+     *   I1: 1 BAPM / 2 RELI Lutheran                          → +1 sub
+     *   I2: 1 BAPM / 2 RELI Lutheran + 1 CONF / 2 RELI Lutheran → +2 sub
+     *   I3: 1 RELI Catholic + 1 BAPM / 2 RELI Catholic        → +1 top + +1 sub
+     *   I4: 1 BAPM / 2 RELI Methodist                         → +1 sub
+     *   I5: 1 BAPM (no RELI)                                  → 0
      */
     #[Test]
     public function topReligionsCombinesTopLevelAndEventBoundReli(): void
@@ -76,7 +76,7 @@ final class ReligionRepositoryIntegrationTest extends IntegrationTestCase
         $result = (new ReligionRepository($tree))->top(10);
 
         self::assertSame(
-            ['evangelisch-lutherisch' => 3, 'Katholisch' => 2, 'lutherisch' => 1],
+            ['Lutheran' => 3, 'Catholic' => 2, 'Methodist' => 1],
             $result,
         );
     }

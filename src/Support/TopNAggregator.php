@@ -43,7 +43,7 @@ final readonly class TopNAggregator
     /**
      * Walk `$rows`, run `$extract` on each row's GEDCOM column, count
      * the extracted label strings case-folded so spelling variants
-     * (`Katholisch` / `katholisch ` / `KATHOLISCH`) merge into a
+     * (`Catholic` / `catholic ` / `CATHOLIC`) merge into a
      * single bucket. The display label is the first-seen original
      * casing; the count returns the merged total.
      *

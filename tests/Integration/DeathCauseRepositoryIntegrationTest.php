@@ -17,8 +17,8 @@ use PHPUnit\Framework\Attributes\Test;
 /**
  * End-to-end test of {@see DeathCauseRepository}. The shared
  * `individual-facts.ged` fixture carries three individuals with a
- * DEAT/CAUS sub-fact (Anna=Cholera, Berta=Tuberkulose, Carl=
- * Tuberkulose), one with DEAT but no CAUS (Doris — must NOT
+ * DEAT/CAUS sub-fact (Anna=Cholera, Berta=Tuberculosis, Carl=
+ * Tuberculosis), one with DEAT but no CAUS (Doris — must NOT
  * contribute), and three with no DEAT at all (Emil, Franz, Gerda
  * — also must NOT contribute).
  *
@@ -29,7 +29,7 @@ use PHPUnit\Framework\Attributes\Test;
 final class DeathCauseRepositoryIntegrationTest extends IntegrationTestCase
 {
     /**
-     * `Tuberkulose` appears twice (Berta + Carl), `Cholera` once
+     * `Tuberculosis` appears twice (Berta + Carl), `Cholera` once
      * (Anna). The DEAT-without-CAUS individual (Doris) is silently
      * skipped — proves the sub-tag-absence branch.
      */
@@ -40,7 +40,7 @@ final class DeathCauseRepositoryIntegrationTest extends IntegrationTestCase
         $result = (new DeathCauseRepository($tree))->top(10);
 
         self::assertSame(
-            ['Tuberkulose' => 2, 'Cholera' => 1],
+            ['Tuberculosis' => 2, 'Cholera' => 1],
             $result,
         );
     }

@@ -31,12 +31,12 @@ use function array_keys;
 final class OccupationRepositoryIntegrationTest extends IntegrationTestCase
 {
     /**
-     * `Schmied` appears three times (Anna, Berta with lowercase
-     * variant `schmied`, and Gerda's first OCCU line). `Bauer` twice
-     * (Carl + Emil). `Lehrerin` and `Schmiedin` once each. The
-     * lowercase variant `schmied` merges into the `Schmied` bucket
-     * via case-folded keys, with the first-seen casing winning as
-     * the display label.
+     * `Blacksmith` appears three times (Anna, Berta with lowercase
+     * variant `blacksmith`, and Gerda's first OCCU line). `Farmer`
+     * twice (Carl + Emil). `Teacher` and `Carpenter` once each. The
+     * lowercase variant `blacksmith` merges into the `Blacksmith`
+     * bucket via case-folded keys, with the first-seen casing
+     * winning as the display label.
      */
     #[Test]
     public function topOccupationsReturnsCaseFoldedFrequencies(): void
@@ -45,7 +45,7 @@ final class OccupationRepositoryIntegrationTest extends IntegrationTestCase
         $result = (new OccupationRepository($tree))->top(10);
 
         self::assertSame(
-            ['Schmied' => 3, 'Bauer' => 2, 'Lehrerin' => 1, 'Schmiedin' => 1],
+            ['Blacksmith' => 3, 'Farmer' => 2, 'Teacher' => 1, 'Carpenter' => 1],
             $result,
         );
     }
@@ -59,7 +59,7 @@ final class OccupationRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('individual-facts.ged');
         $result = (new OccupationRepository($tree))->top(2);
 
-        self::assertSame(['Schmied', 'Bauer'], array_keys($result));
+        self::assertSame(['Blacksmith', 'Farmer'], array_keys($result));
     }
 
     /**

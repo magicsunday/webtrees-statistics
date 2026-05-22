@@ -258,15 +258,15 @@ final class GedcomScannerTest extends TestCase
     public static function extractAllTagValuesSamples(): iterable
     {
         yield 'single OCCU returns one value' => [
-            "0 @I1@ INDI\n1 NAME Anna /Test/\n1 OCCU Schmied\n1 SEX F",
+            "0 @I1@ INDI\n1 NAME Anna /Test/\n1 OCCU Blacksmith\n1 SEX F",
             'OCCU',
-            ['Schmied'],
+            ['Blacksmith'],
         ];
 
         yield 'multiple OCCU lines return both values in encounter order' => [
-            "0 @I1@ INDI\n1 OCCU Schmied\n1 OCCU Hufschmied\n1 SEX M",
+            "0 @I1@ INDI\n1 OCCU Blacksmith\n1 OCCU Farrier\n1 SEX M",
             'OCCU',
-            ['Schmied', 'Hufschmied'],
+            ['Blacksmith', 'Farrier'],
         ];
 
         yield 'missing tag returns empty list' => [
@@ -276,9 +276,9 @@ final class GedcomScannerTest extends TestCase
         ];
 
         yield 'tag value with trailing whitespace is trimmed' => [
-            "0 @I1@ INDI\n1 OCCU    Bauer   \n1 SEX M",
+            "0 @I1@ INDI\n1 OCCU    Farmer   \n1 SEX M",
             'OCCU',
-            ['Bauer'],
+            ['Farmer'],
         ];
 
         yield 'tag with only whitespace value is dropped' => [
@@ -288,9 +288,9 @@ final class GedcomScannerTest extends TestCase
         ];
 
         yield 'RELI captured the same way as OCCU' => [
-            "0 @I1@ INDI\n1 RELI Katholisch\n1 SEX F",
+            "0 @I1@ INDI\n1 RELI Catholic\n1 SEX F",
             'RELI',
-            ['Katholisch'],
+            ['Catholic'],
         ];
     }
 
@@ -351,10 +351,10 @@ final class GedcomScannerTest extends TestCase
         ];
 
         yield 'sub-value is trimmed' => [
-            "0 @I1@ INDI\n1 DEAT\n2 CAUS    Tuberkulose  \n2 PLAC Berlin",
+            "0 @I1@ INDI\n1 DEAT\n2 CAUS    Tuberculosis  \n2 PLAC Berlin",
             'DEAT',
             'CAUS',
-            'Tuberkulose',
+            'Tuberculosis',
         ];
     }
 
@@ -382,15 +382,15 @@ final class GedcomScannerTest extends TestCase
     public static function extractAllSubTagValuesSamples(): iterable
     {
         yield 'single 2 RELI under BAPM is captured' => [
-            "0 @I1@ INDI\n1 BAPM\n2 DATE 10 APR 1810\n2 RELI evangelisch-lutherisch",
+            "0 @I1@ INDI\n1 BAPM\n2 DATE 10 APR 1810\n2 RELI Lutheran",
             'RELI',
-            ['evangelisch-lutherisch'],
+            ['Lutheran'],
         ];
 
         yield 'multiple 2 RELI lines under different events are all captured' => [
-            "0 @I1@ INDI\n1 BAPM\n2 RELI Katholisch\n1 CONF\n2 RELI Katholisch",
+            "0 @I1@ INDI\n1 BAPM\n2 RELI Catholic\n1 CONF\n2 RELI Catholic",
             'RELI',
-            ['Katholisch', 'Katholisch'],
+            ['Catholic', 'Catholic'],
         ];
 
         yield 'no 2 RELI line returns empty list' => [
@@ -406,13 +406,13 @@ final class GedcomScannerTest extends TestCase
         ];
 
         yield 'trimmed value is returned' => [
-            "0 @I1@ INDI\n1 BAPM\n2 RELI    lutherisch   \n2 PLAC Hamburg",
+            "0 @I1@ INDI\n1 BAPM\n2 RELI    Methodist   \n2 PLAC Hamburg",
             'RELI',
-            ['lutherisch'],
+            ['Methodist'],
         ];
 
         yield 'level-1 same-tag is NOT captured by sub-tag scan' => [
-            "0 @I1@ INDI\n1 RELI evangelisch-lutherisch\n1 BAPM\n2 PLAC Hamburg",
+            "0 @I1@ INDI\n1 RELI Lutheran\n1 BAPM\n2 PLAC Hamburg",
             'RELI',
             [],
         ];
