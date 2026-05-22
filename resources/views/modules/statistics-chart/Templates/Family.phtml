@@ -63,7 +63,7 @@ $totalAncestorsRows   = array_sum($ancestorDistribution);
 $generationDepth             = $statistic->getGenerationDepthSummary();
 $generationDepthDistribution = [];
 
-foreach ($generationDepth['distribution'] as $gen => $count) {
+foreach ($generationDepth->distribution as $gen => $count) {
     $generationDepthDistribution[(string) $gen] = $count;
 }
 
@@ -744,7 +744,7 @@ if ($cohortCategories !== []) {
         </div>
     </div>
 
-    <?php if ($generationDepth['maxDepth'] > 0) { ?>
+    <?php if ($generationDepth->maxDepth > 0) { ?>
     <?php
     $generationDepthExplanation = I18N::translate(
         'The maximum generation depth is the longest unbroken parent-child chain recorded in the tree. The widget walks every individual upward, follows fathers and mothers in parallel, and reports the deepest verified line. The distribution histogram on the right shows, for every individual, how many generations of descendants sit below them in the tree — so a value of 0 means a leaf (no recorded descendants), and the bucket at the maximum depth shows the eldest ancestors. A safety cap at 20 generations catches accidentally-cyclic GEDCOM edits.'
@@ -780,25 +780,25 @@ if ($cohortCategories !== []) {
             echo view(
                 $module . '::modules/statistics-chart/Partials/Scalar',
                 [
-                    'value'   => I18N::number($generationDepth['maxDepth']),
+                    'value'   => I18N::number($generationDepth->maxDepth),
                     'unit'    => I18N::translate('generations'),
-                    'caption' => $generationDepth['capped']
+                    'caption' => $generationDepth->capped
                         ? I18N::translate('Walk reached the safety cap (20 generations) — check the tree for cyclic FAMC/FAMS edits.')
                         : I18N::translate('Each step is one parent–child link upward; siblings, half-lines and dead-ends are merged into the longest path.'),
                 ],
             );
         ?>
-                    <?php if ($generationDepth['chains'] !== []) { ?>
+                    <?php if ($generationDepth->chains !== []) { ?>
                     <div class="wt-generation-chains mt-3">
                         <div class="wt-generation-chain-label text-muted text-center small mb-2">
                             <?php echo I18N::plural(
                                 'One verified chain at this depth:',
                                 'Top %s verified chains at this depth (youngest leaf first):',
-                                count($generationDepth['chains']),
-                                I18N::number(count($generationDepth['chains'])),
+                                count($generationDepth->chains),
+                                I18N::number(count($generationDepth->chains)),
                             ); ?>
                         </div>
-                        <?php foreach ($generationDepth['chains'] as $chain) { ?>
+                        <?php foreach ($generationDepth->chains as $chain) { ?>
                         <ol class="wt-generation-chain-list list-unstyled mb-2 text-center">
                             <?php foreach ($chain as $index => $member) { ?>
                             <li>
@@ -811,7 +811,7 @@ if ($cohortCategories !== []) {
                         </ol>
                         <?php } ?>
                         <?php
-        $additionalChainCount = $generationDepth['totalChainCount'] - count($generationDepth['chains']);
+        $additionalChainCount = $generationDepth->totalChainCount - count($generationDepth->chains);
 
                         if ($additionalChainCount > 0) {
                             echo '<div class="text-muted text-center small mt-1">'

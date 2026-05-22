@@ -46,11 +46,11 @@ final class GenerationDepthRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('generation-depth.ged');
         $result = (new GenerationDepthRepository($tree, new ParentMapRepository($tree)))->summary();
 
-        self::assertSame(2, $result['maxDepth']);
-        self::assertFalse($result['capped']);
+        self::assertSame(2, $result->maxDepth);
+        self::assertFalse($result->capped);
         self::assertSame(
             [0 => 1, 1 => 1, 2 => 1],
-            $result['distribution'],
+            $result->distribution,
         );
     }
 }

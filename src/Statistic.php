@@ -23,6 +23,7 @@ use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\RateCount;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\WinterPeakScore;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\MigrationFlowsPayload;
 use MagicSunday\Webtrees\Statistic\Model\Dto\StreamGraph\GivenNameTrendsPayload;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Tree\GenerationDepthReport;
 use MagicSunday\Webtrees\Statistic\Repository\ChildMortalityRepository;
 use MagicSunday\Webtrees\Statistic\Repository\ChildrenRepository;
 use MagicSunday\Webtrees\Statistic\Repository\CountryRepository;
@@ -412,10 +413,8 @@ final readonly class Statistic
      * eldest-ancestor → leaf-descendant) that reach the tree-wide
      * maximum depth, and the total number of distinct chains so
      * the view can surface "+N more" when more than three exist.
-     *
-     * @return array{maxDepth: int, distribution: array<int, int>, capped: bool, chains: list<list<Individual>>, totalChainCount: int}
      */
-    public function getGenerationDepthSummary(): array
+    public function getGenerationDepthSummary(): GenerationDepthReport
     {
         return $this->generationDepthRepository->summary();
     }

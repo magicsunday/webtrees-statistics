@@ -15,6 +15,7 @@ use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Tree\GenerationDepthReport;
 use MagicSunday\Webtrees\Statistic\Support\GenerationDepth;
 
 use function array_keys;
@@ -73,10 +74,8 @@ final readonly class GenerationDepthRepository
      * tree-wide maximum depth, and the total number of distinct
      * leaf-anchored chains so the view can advertise "+N more"
      * when more than one exists.
-     *
-     * @return array{maxDepth: int, distribution: array<int, int>, capped: bool, chains: list<list<Individual>>, totalChainCount: int}
      */
-    public function summary(): array
+    public function summary(): GenerationDepthReport
     {
         $parentOf   = $this->parentMapRepository->build();
         $result     = GenerationDepth::compute($parentOf);
@@ -124,13 +123,13 @@ final readonly class GenerationDepthRepository
             }
         }
 
-        return [
-            'maxDepth'        => $result['maxDepth'],
-            'distribution'    => $result['distribution'],
-            'capped'          => $result['capped'],
-            'chains'          => $chains,
-            'totalChainCount' => count($byLeaf),
-        ];
+        return new GenerationDepthReport(
+            maxDepth: $result['maxDepth'],
+            distribution: $result['distribution'],
+            capped: $result['capped'],
+            chains: $chains,
+            totalChainCount: count($byLeaf),
+        );
     }
 
     /**
