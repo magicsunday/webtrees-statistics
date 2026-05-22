@@ -15,6 +15,7 @@ use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\JoinClause;
+use MagicSunday\Webtrees\Statistic\Support\DateJoin;
 
 /**
  * Builder factory for individuals joined to their dated BIRT and
@@ -55,20 +56,10 @@ final class BirthDeathPairsQuery
         return DB::table('individuals')
             ->where('i_file', '=', $tree->id())
             ->join('dates AS birth', static function (JoinClause $join): void {
-                $join
-                    ->on('birth.d_file', '=', 'i_file')
-                    ->on('birth.d_gid', '=', 'i_id')
-                    ->where('birth.d_fact', '=', 'BIRT')
-                    ->whereIn('birth.d_type', ['@#DGREGORIAN@', '@#DJULIAN@'])
-                    ->where('birth.d_julianday1', '>', 0);
+                DateJoin::on($join, 'birth', 'i_file', 'i_id', 'BIRT', DateJoin::JD_GREATER_THAN_ZERO);
             })
             ->join('dates AS death', static function (JoinClause $join): void {
-                $join
-                    ->on('death.d_file', '=', 'i_file')
-                    ->on('death.d_gid', '=', 'i_id')
-                    ->where('death.d_fact', '=', 'DEAT')
-                    ->whereIn('death.d_type', ['@#DGREGORIAN@', '@#DJULIAN@'])
-                    ->where('death.d_julianday1', '>', 0);
+                DateJoin::on($join, 'death', 'i_file', 'i_id', 'DEAT', DateJoin::JD_GREATER_THAN_ZERO);
             });
     }
 }

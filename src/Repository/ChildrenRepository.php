@@ -27,6 +27,7 @@ use MagicSunday\Webtrees\Statistic\Model\Dto\Record\IndividualCountRecord;
 use MagicSunday\Webtrees\Statistic\Model\Dto\StackedBar\StackedBarPayload;
 use MagicSunday\Webtrees\Statistic\Model\Dto\StackedBar\StackedBarSeries;
 use MagicSunday\Webtrees\Statistic\Support\CenturyName;
+use MagicSunday\Webtrees\Statistic\Support\DateJoin;
 
 use function array_combine;
 use function array_keys;
@@ -177,11 +178,7 @@ final readonly class ChildrenRepository
         $rows = DB::table('families')
             ->where('f_file', '=', $this->tree->id())
             ->leftJoin('dates AS marr', static function (JoinClause $join): void {
-                $join
-                    ->on('marr.d_file', '=', 'f_file')
-                    ->on('marr.d_gid', '=', 'f_id')
-                    ->where('marr.d_fact', '=', 'MARR')
-                    ->whereIn('marr.d_type', ['@#DGREGORIAN@', '@#DJULIAN@']);
+                DateJoin::on($join, 'marr', 'f_file', 'f_id', 'MARR');
             })
             ->select(['f_id', 'f_numchil AS n', 'marr.d_year AS year'])
             ->get();
@@ -398,12 +395,7 @@ final readonly class ChildrenRepository
             ->where('l_file', '=', $this->tree->id())
             ->where('l_type', '=', 'FAMC')
             ->join('dates AS birth', static function (JoinClause $join): void {
-                $join
-                    ->on('birth.d_file', '=', 'l_file')
-                    ->on('birth.d_gid', '=', 'l_from')
-                    ->where('birth.d_fact', '=', 'BIRT')
-                    ->whereIn('birth.d_type', ['@#DGREGORIAN@', '@#DJULIAN@'])
-                    ->where('birth.d_julianday1', '<>', 0);
+                DateJoin::on($join, 'birth', 'l_file', 'l_from', 'BIRT', DateJoin::JD_NOT_EQUAL_ZERO);
             })
             ->select(['l_to AS family_id', 'birth.d_julianday1 AS birth_jd'])
             ->orderBy('l_to')

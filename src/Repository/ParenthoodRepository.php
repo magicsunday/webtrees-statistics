@@ -17,6 +17,7 @@ use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Record\IndividualAgeRecord;
 use MagicSunday\Webtrees\Statistic\Support\AgeBuckets;
+use MagicSunday\Webtrees\Statistic\Support\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\IndividualAgeRecordResolver;
 
 use function intdiv;
@@ -167,12 +168,7 @@ final readonly class ParenthoodRepository
         $rows = DB::table('families AS fam')
             ->where('fam.f_file', '=', $this->tree->id())
             ->join('dates AS parent_birth', static function (JoinClause $join) use ($parentColumn): void {
-                $join
-                    ->on('parent_birth.d_file', '=', 'fam.f_file')
-                    ->on('parent_birth.d_gid', '=', 'fam.' . $parentColumn)
-                    ->where('parent_birth.d_fact', '=', 'BIRT')
-                    ->whereIn('parent_birth.d_type', ['@#DGREGORIAN@', '@#DJULIAN@'])
-                    ->where('parent_birth.d_julianday1', '>', 0);
+                DateJoin::on($join, 'parent_birth', 'fam.f_file', 'fam.' . $parentColumn, 'BIRT', DateJoin::JD_GREATER_THAN_ZERO);
             })
             ->join('link AS famc', static function (JoinClause $join): void {
                 $join
@@ -181,12 +177,7 @@ final readonly class ParenthoodRepository
                     ->where('famc.l_type', '=', 'FAMC');
             })
             ->join('dates AS child_birth', static function (JoinClause $join): void {
-                $join
-                    ->on('child_birth.d_file', '=', 'famc.l_file')
-                    ->on('child_birth.d_gid', '=', 'famc.l_from')
-                    ->where('child_birth.d_fact', '=', 'BIRT')
-                    ->whereIn('child_birth.d_type', ['@#DGREGORIAN@', '@#DJULIAN@'])
-                    ->where('child_birth.d_julianday1', '>', 0);
+                DateJoin::on($join, 'child_birth', 'famc.l_file', 'famc.l_from', 'BIRT', DateJoin::JD_GREATER_THAN_ZERO);
             })
             ->groupBy('fam.' . $parentColumn, 'parent_birth.d_julianday1')
             ->select([

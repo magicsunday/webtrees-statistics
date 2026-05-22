@@ -25,6 +25,7 @@ use MagicSunday\Webtrees\Statistic\Model\Dto\LineChart\LineChartSeries;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\WinterPeakScore;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Record\IndividualAgeRecord;
 use MagicSunday\Webtrees\Statistic\Support\CenturyName;
+use MagicSunday\Webtrees\Statistic\Support\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\HistogramTrim;
 use MagicSunday\Webtrees\Statistic\Support\SeasonalityScore;
 
@@ -530,11 +531,7 @@ final readonly class LifeSpanRepository
                     ->where('d_fact', '=', 'DEAT');
             })
             ->join('dates AS birth', static function (JoinClause $join): void {
-                $join
-                    ->on('birth.d_file', '=', 'i_file')
-                    ->on('birth.d_gid', '=', 'i_id')
-                    ->where('birth.d_fact', '=', 'BIRT')
-                    ->whereIn('birth.d_type', ['@#DGREGORIAN@', '@#DJULIAN@']);
+                DateJoin::on($join, 'birth', 'i_file', 'i_id', 'BIRT');
             })
             ->select([
                 new Expression(

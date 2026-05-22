@@ -24,6 +24,7 @@ use MagicSunday\Webtrees\Statistic\Model\Dto\Record\FamilyDurationYearsRecord;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Record\IndividualAgeRecord;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Record\IndividualCountRecord;
 use MagicSunday\Webtrees\Statistic\Support\AgeBuckets;
+use MagicSunday\Webtrees\Statistic\Support\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\IndividualAgeRecordResolver;
 
 use function abs;
@@ -314,20 +315,10 @@ final readonly class MarriageRepository
         $rows = DB::table('families AS fam')
             ->where('fam.f_file', '=', $this->tree->id())
             ->join('dates AS marr', static function (JoinClause $join): void {
-                $join
-                    ->on('marr.d_file', '=', 'fam.f_file')
-                    ->on('marr.d_gid', '=', 'fam.f_id')
-                    ->where('marr.d_fact', '=', 'MARR')
-                    ->whereIn('marr.d_type', ['@#DGREGORIAN@', '@#DJULIAN@'])
-                    ->where('marr.d_julianday1', '>', 0);
+                DateJoin::on($join, 'marr', 'fam.f_file', 'fam.f_id', 'MARR', DateJoin::JD_GREATER_THAN_ZERO);
             })
             ->join('dates AS birth', static function (JoinClause $join) use ($spouseColumn): void {
-                $join
-                    ->on('birth.d_file', '=', 'fam.f_file')
-                    ->on('birth.d_gid', '=', 'fam.' . $spouseColumn)
-                    ->where('birth.d_fact', '=', 'BIRT')
-                    ->whereIn('birth.d_type', ['@#DGREGORIAN@', '@#DJULIAN@'])
-                    ->where('birth.d_julianday1', '>', 0);
+                DateJoin::on($join, 'birth', 'fam.f_file', 'fam.' . $spouseColumn, 'BIRT', DateJoin::JD_GREATER_THAN_ZERO);
             })
             ->select([
                 'fam.' . $spouseColumn . ' AS xref',
@@ -378,32 +369,16 @@ final readonly class MarriageRepository
         $rows = DB::table('families')
             ->where('f_file', '=', $this->tree->id())
             ->join('dates AS marr', static function (JoinClause $join): void {
-                $join
-                    ->on('marr.d_file', '=', 'f_file')
-                    ->on('marr.d_gid', '=', 'f_id')
-                    ->where('marr.d_fact', '=', 'MARR')
-                    ->whereIn('marr.d_type', ['@#DGREGORIAN@', '@#DJULIAN@']);
+                DateJoin::on($join, 'marr', 'f_file', 'f_id', 'MARR');
             })
             ->leftJoin('dates AS divr', static function (JoinClause $join): void {
-                $join
-                    ->on('divr.d_file', '=', 'f_file')
-                    ->on('divr.d_gid', '=', 'f_id')
-                    ->where('divr.d_fact', '=', 'DIV')
-                    ->whereIn('divr.d_type', ['@#DGREGORIAN@', '@#DJULIAN@']);
+                DateJoin::on($join, 'divr', 'f_file', 'f_id', 'DIV');
             })
             ->leftJoin('dates AS husb_d', static function (JoinClause $join): void {
-                $join
-                    ->on('husb_d.d_file', '=', 'f_file')
-                    ->on('husb_d.d_gid', '=', 'f_husb')
-                    ->where('husb_d.d_fact', '=', 'DEAT')
-                    ->whereIn('husb_d.d_type', ['@#DGREGORIAN@', '@#DJULIAN@']);
+                DateJoin::on($join, 'husb_d', 'f_file', 'f_husb', 'DEAT');
             })
             ->leftJoin('dates AS wife_d', static function (JoinClause $join): void {
-                $join
-                    ->on('wife_d.d_file', '=', 'f_file')
-                    ->on('wife_d.d_gid', '=', 'f_wife')
-                    ->where('wife_d.d_fact', '=', 'DEAT')
-                    ->whereIn('wife_d.d_type', ['@#DGREGORIAN@', '@#DJULIAN@']);
+                DateJoin::on($join, 'wife_d', 'f_file', 'f_wife', 'DEAT');
             })
             ->select([
                 'f_id AS xref',
@@ -457,20 +432,10 @@ final readonly class MarriageRepository
         $rows = DB::table('families')
             ->where('f_file', '=', $this->tree->id())
             ->join('dates AS hb', static function (JoinClause $join): void {
-                $join
-                    ->on('hb.d_file', '=', 'f_file')
-                    ->on('hb.d_gid', '=', 'f_husb')
-                    ->where('hb.d_fact', '=', 'BIRT')
-                    ->whereIn('hb.d_type', ['@#DGREGORIAN@', '@#DJULIAN@'])
-                    ->where('hb.d_julianday1', '<>', 0);
+                DateJoin::on($join, 'hb', 'f_file', 'f_husb', 'BIRT', DateJoin::JD_NOT_EQUAL_ZERO);
             })
             ->join('dates AS wb', static function (JoinClause $join): void {
-                $join
-                    ->on('wb.d_file', '=', 'f_file')
-                    ->on('wb.d_gid', '=', 'f_wife')
-                    ->where('wb.d_fact', '=', 'BIRT')
-                    ->whereIn('wb.d_type', ['@#DGREGORIAN@', '@#DJULIAN@'])
-                    ->where('wb.d_julianday1', '<>', 0);
+                DateJoin::on($join, 'wb', 'f_file', 'f_wife', 'BIRT', DateJoin::JD_NOT_EQUAL_ZERO);
             })
             ->select([
                 'hb.d_julianday1 AS hb_jd',
