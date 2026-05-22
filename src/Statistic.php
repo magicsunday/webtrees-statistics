@@ -23,6 +23,7 @@ use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\PlaceDispersionSummary;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\RateCount;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\WinterPeakScore;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\MigrationFlowsPayload;
+use MagicSunday\Webtrees\Statistic\Model\Dto\StackedBar\StackedBarPayload;
 use MagicSunday\Webtrees\Statistic\Model\Dto\StreamGraph\GivenNameTrendsPayload;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Tree\GenerationDepthReport;
 use MagicSunday\Webtrees\Statistic\Repository\ChildMortalityRepository;
@@ -623,14 +624,8 @@ final readonly class Statistic
     /**
      * Divorces cross-tabulated by divorce century and age-band —
      * feeds the StackedBar widget on the Family tab.
-     *
-     * @return array{
-     *     categories: list<string>,
-     *     tooltipLabels: list<string>,
-     *     series: list<array{name: string, data: list<int>, class: string}>
-     * }
      */
-    public function getDivorcesByCenturyAndAgeBand(): array
+    public function getDivorcesByCenturyAndAgeBand(): StackedBarPayload
     {
         return $this->divorceRepository->divorcesByCenturyAndAgeBand();
     }
@@ -667,14 +662,8 @@ final readonly class Statistic
      * Family-size composition pivoted into a StackedBar payload —
      * one bar per decade (1900s, 1910s, …), segments stack
      * 1/2/3/4+ children.
-     *
-     * @return array{
-     *     categories: list<string>,
-     *     tooltipLabels: list<string>,
-     *     series: list<array{name: string, data: list<int>, class: string}>
-     * }
      */
-    public function getFamilySizeStackedByDecade(): array
+    public function getFamilySizeStackedByDecade(): StackedBarPayload
     {
         return $this->childrenRepository->familySizeStackedByDecade();
     }

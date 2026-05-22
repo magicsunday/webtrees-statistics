@@ -14,10 +14,10 @@ namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 use Fisharebest\Webtrees\Services\UserService;
 use Fisharebest\Webtrees\StatisticsData;
 use Fisharebest\Webtrees\Tree;
+use MagicSunday\Webtrees\Statistic\Model\Dto\StackedBar\StackedBarSeries;
 use MagicSunday\Webtrees\Statistic\Repository\DivorceRepository;
 use PHPUnit\Framework\Attributes\Test;
 
-use function array_column;
 use function array_combine;
 use function array_map;
 use function array_sum;
@@ -148,17 +148,20 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('divorce.ged');
         $result = $this->repository($tree)->divorcesByCenturyAndAgeBand();
 
-        self::assertSame(['20th', '21st'], $result['categories']);
-        self::assertSame(['20th Century', '21st Century'], $result['tooltipLabels']);
+        self::assertSame(['20th', '21st'], $result->categories);
+        self::assertSame(['20th Century', '21st Century'], $result->tooltipLabels);
 
         // Every band must appear in the legend regardless of zeros.
-        $bandNames = array_column($result['series'], 'name');
+        $bandNames = array_map(static fn (StackedBarSeries $series): string => $series->name, $result->series);
         self::assertSame(
             ['0–24', '25–34', '35–44', '45–54', '55+', 'Unknown'],
             $bandNames,
         );
 
-        $perBand = array_combine($bandNames, array_column($result['series'], 'data'));
+        $perBand = array_combine(
+            $bandNames,
+            array_map(static fn (StackedBarSeries $series): array => $series->data, $result->series),
+        );
 
         self::assertSame([1, 0], $perBand['35–44']);
         self::assertSame([0, 2], $perBand['45–54']);
@@ -188,8 +191,8 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
         $stacked = $repo->divorcesByCenturyAndAgeBand();
 
         $stackedGrandTotal = array_sum(array_map(
-            static fn (array $series): int => array_sum($series['data']),
-            $stacked['series'],
+            static fn (StackedBarSeries $series): int => array_sum($series->data),
+            $stacked->series,
         ));
 
         self::assertSame(array_sum($repo->divorcesByCentury()), $stackedGrandTotal);
@@ -214,11 +217,11 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('divorce-age-bands.ged');
         $result = $this->repository($tree)->divorcesByCenturyAndAgeBand();
 
-        self::assertSame(['19th', '20th', '21st'], $result['categories']);
+        self::assertSame(['19th', '20th', '21st'], $result->categories);
 
         $perBand = array_combine(
-            array_column($result['series'], 'name'),
-            array_column($result['series'], 'data'),
+            array_map(static fn (StackedBarSeries $series): string => $series->name, $result->series),
+            array_map(static fn (StackedBarSeries $series): array => $series->data, $result->series),
         );
 
         // Hugo 90 (55+, 20th) + Wilma 40 wife-fallback (35–44, 20th).
@@ -243,8 +246,8 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
         $stacked = $repo->divorcesByCenturyAndAgeBand();
 
         $stackedGrandTotal = array_sum(array_map(
-            static fn (array $series): int => array_sum($series['data']),
-            $stacked['series'],
+            static fn (StackedBarSeries $series): int => array_sum($series->data),
+            $stacked->series,
         ));
 
         self::assertSame(4, array_sum($repo->divorcesByCentury()));
@@ -262,9 +265,9 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('empty-marriages.ged');
         $result = $this->repository($tree)->divorcesByCenturyAndAgeBand();
 
-        self::assertSame([], $result['categories']);
-        self::assertSame([], $result['tooltipLabels']);
-        self::assertSame([], $result['series']);
+        self::assertSame([], $result->categories);
+        self::assertSame([], $result->tooltipLabels);
+        self::assertSame([], $result->series);
     }
 
     /**

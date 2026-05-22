@@ -22,6 +22,8 @@ use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Model\Dto\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Model\Dto\LineChart\LineChartSeries;
+use MagicSunday\Webtrees\Statistic\Model\Dto\StackedBar\StackedBarPayload;
+use MagicSunday\Webtrees\Statistic\Model\Dto\StackedBar\StackedBarSeries;
 use MagicSunday\Webtrees\Statistic\Support\CenturyName;
 
 use function array_combine;
@@ -229,14 +231,8 @@ final readonly class ChildrenRepository
      * recorded children. Decade label uses the `${start}s`
      * convention to dodge German locale's thousand-separator
      * formatting ("2000s" rather than "2.000s").
-     *
-     * @return array{
-     *     categories: list<string>,
-     *     tooltipLabels: list<string>,
-     *     series: list<array{name: string, data: list<int>, class: string}>
-     * }
      */
-    public function familySizeStackedByDecade(): array
+    public function familySizeStackedByDecade(): StackedBarPayload
     {
         $perDecade = [];
 
@@ -246,7 +242,7 @@ final readonly class ChildrenRepository
         }
 
         if ($perDecade === []) {
-            return ['categories' => [], 'tooltipLabels' => [], 'series' => []];
+            return new StackedBarPayload(categories: [], tooltipLabels: [], series: []);
         }
 
         ksort($perDecade);
@@ -316,18 +312,18 @@ final readonly class ChildrenRepository
                 $data[] = $buckets[$def['index']];
             }
 
-            $series[] = [
-                'name'  => $def['name'],
-                'data'  => $data,
-                'class' => $def['class'],
-            ];
+            $series[] = new StackedBarSeries(
+                name: $def['name'],
+                data: $data,
+                class: $def['class'],
+            );
         }
 
-        return [
-            'categories'    => $categories,
-            'tooltipLabels' => $tooltipLabels,
-            'series'        => $series,
-        ];
+        return new StackedBarPayload(
+            categories: $categories,
+            tooltipLabels: $tooltipLabels,
+            series: $series,
+        );
     }
 
     /**

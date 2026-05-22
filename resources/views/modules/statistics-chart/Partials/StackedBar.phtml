@@ -10,18 +10,15 @@ declare(strict_types=1);
  */
 
 use Fisharebest\Webtrees\I18N;
+use MagicSunday\Webtrees\Statistic\Model\Dto\StackedBar\StackedBarPayload;
 
 /**
- * @var string $identifier Host element id
- * @var array{
- *     categories: array<int, string>,
- *     tooltipLabels?: array<int, string>,
- *     series: array<int, array{name: string, data: array<int, int>, class?: string}>
- * }                                            $data       Stacked-bar payload: categories + per-series counts
- * @var int|null    $height     Optional viewport height (defaults to 280)
- * @var bool|null   $legend     Toggle the legend row (default true)
- * @var bool|null   $percentage Toggle 100%-stacked composition view (default false)
- * @var string|null $ariaLabel  Accessible label on the host svg
+ * @var string            $identifier Host element id
+ * @var StackedBarPayload $data       Stacked-bar payload: categories + per-series counts
+ * @var int|null          $height     Optional viewport height (defaults to 280)
+ * @var bool|null         $legend     Toggle the legend row (default true)
+ * @var bool|null         $percentage Toggle 100%-stacked composition view (default false)
+ * @var string|null       $ariaLabel  Accessible label on the host svg
  */
 $height ??= 280;
 

@@ -16,6 +16,8 @@ use Fisharebest\Webtrees\StatisticsData;
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\JoinClause;
+use MagicSunday\Webtrees\Statistic\Model\Dto\StackedBar\StackedBarPayload;
+use MagicSunday\Webtrees\Statistic\Model\Dto\StackedBar\StackedBarSeries;
 use MagicSunday\Webtrees\Statistic\Support\CenturyName;
 
 use function array_key_last;
@@ -193,14 +195,8 @@ final readonly class DivorceRepository
      * window fall into a sixth "Unknown" band so the per-century
      * totals stay equal to `divorcesByCentury` even on sparsely
      * dated trees.
-     *
-     * @return array{
-     *     categories: list<string>,
-     *     tooltipLabels: list<string>,
-     *     series: list<array{name: string, data: list<int>, class: string}>
-     * }
      */
-    public function divorcesByCenturyAndAgeBand(): array
+    public function divorcesByCenturyAndAgeBand(): StackedBarPayload
     {
         // Match core's `countEventsByCentury` reach — accept DIV
         // rows with any positive year, including ones that lack a
@@ -292,7 +288,7 @@ final readonly class DivorceRepository
         }
 
         if ($cohorts === []) {
-            return ['categories' => [], 'tooltipLabels' => [], 'series' => []];
+            return new StackedBarPayload(categories: [], tooltipLabels: [], series: []);
         }
 
         ksort($cohorts);
@@ -324,18 +320,18 @@ final readonly class DivorceRepository
             $displayName = $bandIndex === $unknownBandIndex
                 ? I18N::translate($band['name'])
                 : $band['name'];
-            $series[] = [
-                'name'  => $displayName,
-                'data'  => $values,
-                'class' => $band['class'],
-            ];
+            $series[] = new StackedBarSeries(
+                name: $displayName,
+                data: $values,
+                class: $band['class'],
+            );
         }
 
-        return [
-            'categories'    => $categories,
-            'tooltipLabels' => $tooltipLabels,
-            'series'        => $series,
-        ];
+        return new StackedBarPayload(
+            categories: $categories,
+            tooltipLabels: $tooltipLabels,
+            series: $series,
+        );
     }
 
     /**
