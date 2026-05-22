@@ -11,85 +11,37 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
-use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Support\GedcomScanner;
-use MagicSunday\Webtrees\Statistic\Support\TopNAggregator;
-use MagicSunday\Webtrees\Statistic\Support\TreeScope;
-
-use function array_slice;
-use function count;
 
 /**
  * Top-N aggregation over the `2 CAUS` sub-tag within each
  * individual's `1 DEAT` block — the GEDCOM cause-of-death field.
- * Multiple deaths per INDI cannot occur, so each contributes at most
- * one value. Case-folded counting collapses spelling variants
- * (`Cholera` / `cholera`) into one bucket; the first-seen original
- * casing wins as the display label. The full aggregation is computed
- * once per instance — `topDeathCauses()` and
- * `countDistinctDeathCauses()` both read from the same cached
- * intermediate so a single LifeSpan render does not pay for two
- * independent INDI scans.
+ * Each INDI contributes at most one value (only one death per
+ * person). The extract closure projects the optional single value
+ * into a list so it slots into the same harvester shape the base
+ * class expects.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-final class DeathCauseRepository
+final class DeathCauseRepository extends AbstractGedcomTagTopNRepository
 {
     /**
-     * Cached full aggregation (descending count). `null` until the
-     * first consumer triggers the scan.
+     * Harvests the optional `2 CAUS` sub-tag under the `1 DEAT`
+     * event of the INDI record. Records without DEAT or without a
+     * CAUS sub-tag contribute nothing (empty list); the projection
+     * to a single-element list keeps the harvester shape uniform
+     * with the multi-tag siblings.
      *
-     * @var array<string, int>|null
-     */
-    private ?array $cache = null;
-
-    /**
-     * @param Tree $tree The tree the statistics are computed for
-     */
-    public function __construct(
-        private readonly Tree $tree,
-    ) {
-    }
-
-    /**
-     * @param int $limit Maximum number of causes to surface (descending by count)
+     * @param string $gedcom The raw INDI GEDCOM record to scan
      *
-     * @return array<string, int>
+     * @return list<string>
      */
-    public function topDeathCauses(int $limit): array
+    protected function extract(string $gedcom): array
     {
-        return array_slice($this->aggregate(), 0, $limit, true);
-    }
+        $cause = GedcomScanner::extractEventSubValue($gedcom, 'DEAT', 'CAUS');
 
-    /**
-     * Number of distinct death causes (case-folded) recorded across the tree.
-     */
-    public function countDistinctDeathCauses(): int
-    {
-        return count($this->aggregate());
-    }
-
-    /**
-     * Run (or replay from cache) the full aggregation. The extract
-     * closure wraps {@see GedcomScanner::extractEventSubValue()} to
-     * project an optional single value into a list (so it slots into
-     * the same `Closure(string): list<string>` shape the aggregator
-     * expects).
-     *
-     * @return array<string, int>
-     */
-    private function aggregate(): array
-    {
-        return $this->cache ??= TopNAggregator::topN(
-            TreeScope::individualGedcoms($this->tree),
-            static function (string $gedcom): array {
-                $cause = GedcomScanner::extractEventSubValue($gedcom, 'DEAT', 'CAUS');
-
-                return ($cause === null) ? [] : [$cause];
-            },
-            0,
-        );
+        return $cause === null ? [] : [$cause];
     }
 }

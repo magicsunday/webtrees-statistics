@@ -36,7 +36,7 @@ final class ReligionRepositoryIntegrationTest extends IntegrationTestCase
     public function topReligionsReturnsCaseFoldedFrequencies(): void
     {
         $tree   = $this->importFixtureTree('individual-facts.ged');
-        $result = (new ReligionRepository($tree))->topReligions(10);
+        $result = (new ReligionRepository($tree))->top(10);
 
         self::assertSame(
             ['Katholisch' => 2, 'Evangelisch' => 1, 'Jüdisch' => 1],
@@ -52,7 +52,7 @@ final class ReligionRepositoryIntegrationTest extends IntegrationTestCase
     {
         $tree = $this->importFixtureTree('individual-facts.ged');
 
-        self::assertSame(3, (new ReligionRepository($tree))->countDistinctReligions());
+        self::assertSame(3, (new ReligionRepository($tree))->countDistinct());
     }
 
     /**
@@ -73,7 +73,7 @@ final class ReligionRepositoryIntegrationTest extends IntegrationTestCase
     public function topReligionsCombinesTopLevelAndEventBoundReli(): void
     {
         $tree   = $this->importFixtureTree('religion-event-bound.ged');
-        $result = (new ReligionRepository($tree))->topReligions(10);
+        $result = (new ReligionRepository($tree))->top(10);
 
         self::assertSame(
             ['evangelisch-lutherisch' => 3, 'Katholisch' => 2, 'lutherisch' => 1],

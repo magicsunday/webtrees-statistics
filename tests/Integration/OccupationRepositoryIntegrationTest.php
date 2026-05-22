@@ -42,7 +42,7 @@ final class OccupationRepositoryIntegrationTest extends IntegrationTestCase
     public function topOccupationsReturnsCaseFoldedFrequencies(): void
     {
         $tree   = $this->importFixtureTree('individual-facts.ged');
-        $result = (new OccupationRepository($tree))->topOccupations(10);
+        $result = (new OccupationRepository($tree))->top(10);
 
         self::assertSame(
             ['Schmied' => 3, 'Bauer' => 2, 'Lehrerin' => 1, 'Schmiedin' => 1],
@@ -57,7 +57,7 @@ final class OccupationRepositoryIntegrationTest extends IntegrationTestCase
     public function topOccupationsRespectsTheLimit(): void
     {
         $tree   = $this->importFixtureTree('individual-facts.ged');
-        $result = (new OccupationRepository($tree))->topOccupations(2);
+        $result = (new OccupationRepository($tree))->top(2);
 
         self::assertSame(['Schmied', 'Bauer'], array_keys($result));
     }
@@ -71,6 +71,6 @@ final class OccupationRepositoryIntegrationTest extends IntegrationTestCase
     {
         $tree = $this->importFixtureTree('individual-facts.ged');
 
-        self::assertSame(4, (new OccupationRepository($tree))->countDistinctOccupations());
+        self::assertSame(4, (new OccupationRepository($tree))->countDistinct());
     }
 }

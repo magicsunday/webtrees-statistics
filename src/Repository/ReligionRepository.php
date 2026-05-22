@@ -11,13 +11,7 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
-use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Support\GedcomScanner;
-use MagicSunday\Webtrees\Statistic\Support\TopNAggregator;
-use MagicSunday\Webtrees\Statistic\Support\TreeScope;
-
-use function array_slice;
-use function count;
 
 /**
  * Top-N aggregation over the religion / confession affiliations
@@ -34,68 +28,29 @@ use function count;
  *      carry a separate `1 RELI` line, only the event-bound one).
  *
  * Both sources contribute to the same aggregation. Multi-occurrence
- * per INDI is preserved. Case-folded counting collapses spelling
- * variants (`Katholisch` / `katholisch` / `KATH.`) into one bucket;
- * the first-seen original casing wins as the display label. The
- * full aggregation is computed once per instance — `topReligions()`
- * and `countDistinctReligions()` both read from the same cached
- * intermediate so a single Overview render does not pay for two
- * independent INDI scans.
+ * per INDI is preserved.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-final class ReligionRepository
+final class ReligionRepository extends AbstractGedcomTagTopNRepository
 {
     /**
-     * Cached full aggregation (descending count). `null` until the
-     * first consumer triggers the scan.
+     * Harvests BOTH top-level `1 RELI` lines and event-bound
+     * `2 RELI` sub-tags from the INDI record. The two sources are
+     * merged into one flat list so the case-folded frequency
+     * rollup treats them as the same fact.
      *
-     * @var array<string, int>|null
-     */
-    private ?array $cache = null;
-
-    /**
-     * @param Tree $tree The tree the statistics are computed for
-     */
-    public function __construct(
-        private readonly Tree $tree,
-    ) {
-    }
-
-    /**
-     * @param int $limit Maximum number of religions to surface (descending by count)
+     * @param string $gedcom The raw INDI GEDCOM record to scan
      *
-     * @return array<string, int>
+     * @return list<string>
      */
-    public function topReligions(int $limit): array
+    protected function extract(string $gedcom): array
     {
-        return array_slice($this->aggregate(), 0, $limit, true);
-    }
-
-    /**
-     * Number of distinct religions (case-folded) recorded across the tree.
-     */
-    public function countDistinctReligions(): int
-    {
-        return count($this->aggregate());
-    }
-
-    /**
-     * Run (or replay from cache) the full aggregation.
-     *
-     * @return array<string, int>
-     */
-    private function aggregate(): array
-    {
-        return $this->cache ??= TopNAggregator::topN(
-            TreeScope::individualGedcoms($this->tree),
-            static fn (string $gedcom): array => [
-                ...GedcomScanner::extractAllTagValues($gedcom, 'RELI'),
-                ...GedcomScanner::extractAllSubTagValues($gedcom, 'RELI'),
-            ],
-            0,
-        );
+        return [
+            ...GedcomScanner::extractAllTagValues($gedcom, 'RELI'),
+            ...GedcomScanner::extractAllSubTagValues($gedcom, 'RELI'),
+        ];
     }
 }

@@ -11,75 +11,29 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
-use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Support\GedcomScanner;
-use MagicSunday\Webtrees\Statistic\Support\TopNAggregator;
-use MagicSunday\Webtrees\Statistic\Support\TreeScope;
-
-use function array_slice;
-use function count;
 
 /**
- * Top-N aggregation over the `1 OCCU` (occupation) facts attached to
- * individuals. Multiple OCCU lines per INDI all contribute. Case-folded
- * counting collapses spelling variants (`Schmied` / `schmied` /
- * `SCHMIED`) into one bucket; the first-seen original casing wins as
- * the display label. The full aggregation is computed once per
- * instance — `topOccupations()` and `countDistinctOccupations()` both
- * read from the same cached intermediate so a single Overview render
- * does not pay for two independent INDI scans.
+ * Top-N aggregation over the `1 OCCU` (occupation) facts attached
+ * to individuals. Multiple OCCU lines per INDI all contribute.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-final class OccupationRepository
+final class OccupationRepository extends AbstractGedcomTagTopNRepository
 {
     /**
-     * Cached full aggregation (descending count). `null` until the
-     * first consumer triggers the scan.
+     * Harvests every top-level `1 OCCU` line from the INDI record.
+     * An individual carrying two recorded occupations contributes
+     * two entries to the frequency rollup.
      *
-     * @var array<string, int>|null
-     */
-    private ?array $cache = null;
-
-    /**
-     * @param Tree $tree The tree the statistics are computed for
-     */
-    public function __construct(
-        private readonly Tree $tree,
-    ) {
-    }
-
-    /**
-     * @param int $limit Maximum number of occupations to surface (descending by count)
+     * @param string $gedcom The raw INDI GEDCOM record to scan
      *
-     * @return array<string, int>
+     * @return list<string>
      */
-    public function topOccupations(int $limit): array
+    protected function extract(string $gedcom): array
     {
-        return array_slice($this->aggregate(), 0, $limit, true);
-    }
-
-    /**
-     * Number of distinct occupations (case-folded) recorded across the tree.
-     */
-    public function countDistinctOccupations(): int
-    {
-        return count($this->aggregate());
-    }
-
-    /**
-     * Run (or replay from cache) the full aggregation.
-     *
-     * @return array<string, int>
-     */
-    private function aggregate(): array
-    {
-        return $this->cache ??= TopNAggregator::topN(
-            TreeScope::individualGedcoms($this->tree),
-            static fn (string $gedcom): array => GedcomScanner::extractAllTagValues($gedcom, 'OCCU'),
-            0,
-        );
+        return GedcomScanner::extractAllTagValues($gedcom, 'OCCU');
     }
 }

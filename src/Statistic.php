@@ -783,7 +783,7 @@ final readonly class Statistic
      */
     public function getTopOccupations(int $limit): array
     {
-        return $this->occupationRepository->topOccupations($limit);
+        return $this->occupationRepository->top($limit);
     }
 
     /**
@@ -791,7 +791,7 @@ final readonly class Statistic
      */
     public function getTotalOccupations(): int
     {
-        return $this->occupationRepository->countDistinctOccupations();
+        return $this->occupationRepository->countDistinct();
     }
 
     /**
@@ -805,7 +805,7 @@ final readonly class Statistic
      */
     public function getTopReligions(int $limit): array
     {
-        return $this->religionRepository->topReligions($limit);
+        return $this->religionRepository->top($limit);
     }
 
     /**
@@ -813,7 +813,7 @@ final readonly class Statistic
      */
     public function getTotalReligions(): int
     {
-        return $this->religionRepository->countDistinctReligions();
+        return $this->religionRepository->countDistinct();
     }
 
     /**
@@ -827,7 +827,7 @@ final readonly class Statistic
      */
     public function getTopDeathCauses(int $limit): array
     {
-        return $this->deathCauseRepository->topDeathCauses($limit);
+        return $this->deathCauseRepository->top($limit);
     }
 
     /**
@@ -835,7 +835,7 @@ final readonly class Statistic
      */
     public function getTotalDeathCauses(): int
     {
-        return $this->deathCauseRepository->countDistinctDeathCauses();
+        return $this->deathCauseRepository->countDistinct();
     }
 
     /**

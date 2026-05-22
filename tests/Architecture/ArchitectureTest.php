@@ -87,12 +87,20 @@ final class ArchitectureTest
      * result on first call and therefore stay non-readonly by
      * necessity — `final` alone is the strongest invariant we can
      * enforce for the whole layer.
+     *
+     * Abstract repositories are exempted: `AbstractGedcomTagTopNRepository`
+     * is the shared scaffolding for the three Top-N repos
+     * (`ReligionRepository`, `OccupationRepository`, `DeathCauseRepository`).
+     * Each concrete subclass is still `final`, so the
+     * invariant survives transitively — the only callable types
+     * the DI container resolves are the sealed leaves.
      */
     #[TestRule]
     public function repositoryClassesAreFinal(): Rule
     {
         return PHPat::rule()
             ->classes(Selector::inNamespace(self::NAMESPACE_ROOT . '\\Repository'))
+            ->excluding(Selector::isAbstract())
             ->should()->beFinal()
             ->because('Repositories must be final so the Tree-DI contract cannot be subverted by a subclass');
     }

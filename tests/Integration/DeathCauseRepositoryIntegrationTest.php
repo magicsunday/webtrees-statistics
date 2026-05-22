@@ -37,7 +37,7 @@ final class DeathCauseRepositoryIntegrationTest extends IntegrationTestCase
     public function topDeathCausesReturnsAggregatedFrequencies(): void
     {
         $tree   = $this->importFixtureTree('individual-facts.ged');
-        $result = (new DeathCauseRepository($tree))->topDeathCauses(10);
+        $result = (new DeathCauseRepository($tree))->top(10);
 
         self::assertSame(
             ['Tuberkulose' => 2, 'Cholera' => 1],
@@ -54,6 +54,6 @@ final class DeathCauseRepositoryIntegrationTest extends IntegrationTestCase
     {
         $tree = $this->importFixtureTree('individual-facts.ged');
 
-        self::assertSame(2, (new DeathCauseRepository($tree))->countDistinctDeathCauses());
+        self::assertSame(2, (new DeathCauseRepository($tree))->countDistinct());
     }
 }
