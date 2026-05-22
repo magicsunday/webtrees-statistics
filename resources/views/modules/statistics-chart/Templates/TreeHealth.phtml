@@ -10,6 +10,7 @@ declare(strict_types=1);
  */
 
 use Fisharebest\Webtrees\I18N;
+use MagicSunday\Webtrees\Statistic\Model\Dto\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Statistic;
 
 /**
@@ -26,30 +27,19 @@ $totalBirths    = array_sum($birthsByDecade);
 // convert the map shape the repository returns into parallel
 // arrays of categories, values and pre-pluralised tooltips so
 // the hover surfaces "4 births" rather than a bare "4".
-$birthsCategories = [];
-$birthsValues     = [];
-$birthsTooltips   = [];
-
-foreach ($birthsByDecade as $decade => $count) {
-    $birthsCategories[] = I18N::translate('%ss', (string) $decade);
-    $birthsValues[]     = (int) $count;
-    $birthsTooltips[]   = I18N::plural('%s birth', '%s births', $count, I18N::number($count));
-}
-
-$birthsLineSeries = [
-    'categories' => $birthsCategories,
-    'series'     => [
-        [
-            'name'     => I18N::translate('Births'),
-            'values'   => $birthsValues,
-            'tooltips' => $birthsTooltips,
-        ],
+$birthsLineSeries = LineChartPayload::singleSeries(
+    seriesName: I18N::translate('Births'),
+    countsByCategory: $birthsByDecade,
+    project: static fn (int|string $decade, int|float $count): array => [
+        'categoryLabel' => I18N::translate('%ss', (string) $decade),
+        'tooltipBody'   => I18N::plural('%s birth', '%s births', (int) $count, I18N::number($count)),
+        'tooltipLabel'  => I18N::translate('%ss', (string) $decade),
     ],
-];
+);
 
 // Show every Nth decade label so axis stays legible on
 // tree-spanning-centuries datasets.
-$birthsXLabelEvery = max(1, (int) ceil(count($birthsCategories) / 12));
+$birthsXLabelEvery = max(1, (int) ceil(count($birthsLineSeries->categories) / 12));
 
 $gapLabels = [
     'BIRT.event' => I18N::translate('Missing birth event'),

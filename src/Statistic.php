@@ -625,9 +625,9 @@ final readonly class Statistic
      *
      * @return array<array-key, int>
      */
-    public function getChildrenPerFamilyHistogram(): array
+    public function getChildrenPerFamilyDistribution(): array
     {
-        return $this->childrenRepository->childrenPerFamilyHistogram();
+        return $this->childrenRepository->childrenPerFamilyDistribution();
     }
 
     /**
@@ -676,9 +676,9 @@ final readonly class Statistic
      *
      * @return list<array{label: string, value: int, class: string}>
      */
-    public function getChildlessFamiliesBreakdown(): array
+    public function getChildlessFamiliesDistribution(): array
     {
-        return $this->childrenRepository->childlessFamiliesBreakdown();
+        return $this->childrenRepository->childlessFamiliesDistribution();
     }
 
     /**

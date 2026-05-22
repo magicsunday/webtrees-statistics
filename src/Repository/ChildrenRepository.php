@@ -97,7 +97,7 @@ final readonly class ChildrenRepository
      *
      * @return array<array-key, int>
      */
-    public function childrenPerFamilyHistogram(): array
+    public function childrenPerFamilyDistribution(): array
     {
         $rows = TreeScope::table($this->tree, 'families')
             ->select(['f_numchil AS n'])
@@ -550,7 +550,7 @@ final readonly class ChildrenRepository
      *
      * @return list<array{label: string, value: int, class: string}>
      */
-    public function childlessFamiliesBreakdown(): array
+    public function childlessFamiliesDistribution(): array
     {
         $total = TreeScope::table($this->tree, 'families')
             ->count();

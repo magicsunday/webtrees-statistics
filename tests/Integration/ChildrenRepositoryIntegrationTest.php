@@ -44,10 +44,10 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
      * overflow stays empty.
      */
     #[Test]
-    public function childrenPerFamilyHistogramCountsByFamilyChildCount(): void
+    public function childrenPerFamilyDistributionCountsByFamilyChildCount(): void
     {
         $tree   = $this->importFixtureTree('children.ged');
-        $result = $this->repository($tree)->childrenPerFamilyHistogram();
+        $result = $this->repository($tree)->childrenPerFamilyDistribution();
 
         self::assertSame(1, $result['0'], 'F2 has zero children');
         self::assertSame(1, $result['3'], 'F1 has three children');
@@ -74,10 +74,10 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
      * F2 (without).
      */
     #[Test]
-    public function childlessFamiliesBreakdownIsBinary(): void
+    public function childlessFamiliesDistributionIsBinary(): void
     {
         $tree   = $this->importFixtureTree('children.ged');
-        $result = $this->repository($tree)->childlessFamiliesBreakdown();
+        $result = $this->repository($tree)->childlessFamiliesDistribution();
 
         $byLabel = [];
 
