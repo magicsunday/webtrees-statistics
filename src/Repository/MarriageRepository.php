@@ -24,6 +24,7 @@ use MagicSunday\Webtrees\Statistic\Model\Dto\Record\IndividualAgeRecord;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Record\IndividualCountRecord;
 use MagicSunday\Webtrees\Statistic\Sex;
 use MagicSunday\Webtrees\Statistic\Support\AgeBuckets;
+use MagicSunday\Webtrees\Statistic\Support\AgePairExtremum;
 use MagicSunday\Webtrees\Statistic\Support\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\IndividualAgeRecordResolver;
 use MagicSunday\Webtrees\Statistic\Support\RowCast;
@@ -223,27 +224,7 @@ final readonly class MarriageRepository
      */
     public function youngestSpouseAtMarriageRecord(string $sex): ?IndividualAgeRecord
     {
-        $best = null;
-
-        foreach ($this->spouseAgeAtMarriage($sex) as $entry) {
-            if ($entry['years'] < self::MIN_PLAUSIBLE_SPOUSE_AGE) {
-                continue;
-            }
-
-            if ($entry['years'] > self::MAX_PLAUSIBLE_SPOUSE_AGE) {
-                continue;
-            }
-
-            if (($best === null) || ($entry['years'] < $best['years'])) {
-                $best = $entry;
-            }
-        }
-
-        return IndividualAgeRecordResolver::resolve(
-            $this->tree,
-            $best['xref'] ?? null,
-            $best['years'] ?? null,
-        );
+        return $this->spouseAtMarriageRecord($sex, AgePairExtremum::Lowest);
     }
 
     /**
@@ -253,21 +234,31 @@ final readonly class MarriageRepository
      */
     public function oldestSpouseAtMarriageRecord(string $sex): ?IndividualAgeRecord
     {
-        $best = null;
+        return $this->spouseAtMarriageRecord($sex, AgePairExtremum::Highest);
+    }
 
-        foreach ($this->spouseAgeAtMarriage($sex) as $entry) {
-            if ($entry['years'] < self::MIN_PLAUSIBLE_SPOUSE_AGE) {
-                continue;
-            }
+    /**
+     * Shared min / max walk over the spouse-age iterator with the
+     * plausibility band applied before the comparison. The caller
+     * picks the direction via {@see AgePairExtremum}.
+     */
+    private function spouseAtMarriageRecord(string $sex, AgePairExtremum $direction): ?IndividualAgeRecord
+    {
+        $plausible = (function () use ($sex): iterable {
+            foreach ($this->spouseAgeAtMarriage($sex) as $entry) {
+                if ($entry['years'] < self::MIN_PLAUSIBLE_SPOUSE_AGE) {
+                    continue;
+                }
 
-            if ($entry['years'] > self::MAX_PLAUSIBLE_SPOUSE_AGE) {
-                continue;
-            }
+                if ($entry['years'] > self::MAX_PLAUSIBLE_SPOUSE_AGE) {
+                    continue;
+                }
 
-            if (($best === null) || ($entry['years'] > $best['years'])) {
-                $best = $entry;
+                yield $entry;
             }
-        }
+        })();
+
+        $best = $direction->pick($plausible);
 
         return IndividualAgeRecordResolver::resolve(
             $this->tree,

@@ -18,6 +18,7 @@ use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Record\IndividualAgeRecord;
 use MagicSunday\Webtrees\Statistic\Sex;
 use MagicSunday\Webtrees\Statistic\Support\AgeBuckets;
+use MagicSunday\Webtrees\Statistic\Support\AgePairExtremum;
 use MagicSunday\Webtrees\Statistic\Support\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\IndividualAgeRecordResolver;
 use MagicSunday\Webtrees\Statistic\Support\RowCast;
@@ -116,17 +117,9 @@ final readonly class ParenthoodRepository
      */
     public function youngestParentAtFirstChildRecord(string $sex): ?IndividualAgeRecord
     {
-        $bestYears = null;
-        $bestXref  = null;
+        $best = AgePairExtremum::Lowest->pick($this->ageAtFirstChildPairs($sex));
 
-        foreach ($this->ageAtFirstChildPairs($sex) as $pair) {
-            if (($bestYears === null) || ($pair['years'] < $bestYears)) {
-                $bestYears = $pair['years'];
-                $bestXref  = $pair['xref'];
-            }
-        }
-
-        return IndividualAgeRecordResolver::resolve($this->tree, $bestXref, $bestYears);
+        return IndividualAgeRecordResolver::resolve($this->tree, $best['xref'] ?? null, $best['years'] ?? null);
     }
 
     /**
@@ -137,17 +130,9 @@ final readonly class ParenthoodRepository
      */
     public function oldestParentAtFirstChildRecord(string $sex): ?IndividualAgeRecord
     {
-        $bestYears = null;
-        $bestXref  = null;
+        $best = AgePairExtremum::Highest->pick($this->ageAtFirstChildPairs($sex));
 
-        foreach ($this->ageAtFirstChildPairs($sex) as $pair) {
-            if (($bestYears === null) || ($pair['years'] > $bestYears)) {
-                $bestYears = $pair['years'];
-                $bestXref  = $pair['xref'];
-            }
-        }
-
-        return IndividualAgeRecordResolver::resolve($this->tree, $bestXref, $bestYears);
+        return IndividualAgeRecordResolver::resolve($this->tree, $best['xref'] ?? null, $best['years'] ?? null);
     }
 
     /**

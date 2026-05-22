@@ -149,6 +149,41 @@ final class RecordsIntegrationTest extends IntegrationTestCase
     }
 
     /**
+     * Oldest father at first child — I7 BigDad (BIRT 1900) +
+     * Child1 (BIRT 1925) → 25 years. Beats I15 YoungParent at 15.
+     * Mirrors the youngest-father test so both AgePairExtremum
+     * branches (Lowest / Highest) carry direct coverage through
+     * the ParenthoodRepository pair iterator.
+     */
+    #[Test]
+    public function oldestFatherAtFirstChildPicksTwentyFiveYearOldBigDad(): void
+    {
+        $tree   = $this->importFixtureTree('records.ged');
+        $record = (new ParenthoodRepository($tree))->oldestParentAtFirstChildRecord('M');
+
+        self::assertNotNull($record);
+        self::assertSame('I7', $record->individual->xref());
+        self::assertSame(25, $record->ageYears);
+    }
+
+    /**
+     * Oldest mother at first child — I8 BigMom (BIRT 1905) +
+     * Child1 (BIRT 1925) → 20 years. The only plausible mother in
+     * the fixture: I16 YoungParentWife was 10 at EarlyChild's birth
+     * which sits below MIN_PLAUSIBLE_AGE (12) and gets filtered out.
+     */
+    #[Test]
+    public function oldestMotherAtFirstChildPicksTwentyYearOldBigMom(): void
+    {
+        $tree   = $this->importFixtureTree('records.ged');
+        $record = (new ParenthoodRepository($tree))->oldestParentAtFirstChildRecord('F');
+
+        self::assertNotNull($record);
+        self::assertSame('I8', $record->individual->xref());
+        self::assertSame(20, $record->ageYears);
+    }
+
+    /**
      * Most-spouses picks PolygamistA (I18) with two FAMS.
      */
     #[Test]
