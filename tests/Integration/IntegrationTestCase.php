@@ -23,6 +23,7 @@ use Fisharebest\Webtrees\Services\TreeService;
 use Fisharebest\Webtrees\Services\UserService;
 use Fisharebest\Webtrees\Session;
 use Fisharebest\Webtrees\Site;
+use Fisharebest\Webtrees\StatisticsData;
 use Fisharebest\Webtrees\Tree;
 use Fisharebest\Webtrees\Webtrees;
 use Illuminate\Database\Capsule\Manager as Capsule;
@@ -169,5 +170,17 @@ abstract class IntegrationTestCase extends TestCase
         }
 
         return $tree;
+    }
+
+    /**
+     * Build a {@see StatisticsData} accessor scoped to the imported
+     * tree — every Integration test that wires a repository depending
+     * on core's stats facade needs this exact construction, so it
+     * lives here once instead of being re-rolled in seven sibling
+     * test classes.
+     */
+    final protected function statisticsData(Tree $tree): StatisticsData
+    {
+        return new StatisticsData($tree, new UserService());
     }
 }

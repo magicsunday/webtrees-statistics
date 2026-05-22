@@ -11,9 +11,6 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
-use Fisharebest\Webtrees\Services\UserService;
-use Fisharebest\Webtrees\StatisticsData;
-use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Repository\ChildrenRepository;
 use MagicSunday\Webtrees\Statistic\Repository\LifeSpanRepository;
 use MagicSunday\Webtrees\Statistic\Repository\MarriageRepository;
@@ -226,16 +223,5 @@ final class RecordsIntegrationTest extends IntegrationTestCase
         self::assertNotNull($record);
         self::assertSame('I6', $record->individual->xref());
         self::assertSame(25, $record->ageYears);
-    }
-
-    /**
-     * Build a {@see StatisticsData} accessor scoped to the
-     * imported test tree. Multiple repositories collaborate with
-     * it so the test helpers share a single factory instead of
-     * repeating the constructor each time.
-     */
-    private function statisticsData(Tree $tree): StatisticsData
-    {
-        return new StatisticsData($tree, new UserService());
     }
 }

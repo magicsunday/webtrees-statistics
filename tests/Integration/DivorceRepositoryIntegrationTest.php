@@ -11,8 +11,6 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
-use Fisharebest\Webtrees\Services\UserService;
-use Fisharebest\Webtrees\StatisticsData;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Model\Dto\StackedBar\StackedBarSeries;
 use MagicSunday\Webtrees\Statistic\Repository\DivorceRepository;
@@ -40,7 +38,7 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
     {
         return new DivorceRepository(
             $tree,
-            new StatisticsData($tree, new UserService()),
+            $this->statisticsData($tree),
         );
     }
 

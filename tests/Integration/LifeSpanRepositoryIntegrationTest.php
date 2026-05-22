@@ -11,8 +11,6 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
-use Fisharebest\Webtrees\Services\UserService;
-use Fisharebest\Webtrees\StatisticsData;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Repository\LifeSpanRepository;
 use PHPUnit\Framework\Attributes\Test;
@@ -48,7 +46,7 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
     {
         return new LifeSpanRepository(
             $tree,
-            new StatisticsData($tree, new UserService()),
+            $this->statisticsData($tree),
         );
     }
 
