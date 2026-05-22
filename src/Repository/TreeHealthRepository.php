@@ -35,13 +35,6 @@ use function is_string;
 final readonly class TreeHealthRepository
 {
     /**
-     * GEDCOM tags whose presence (or absence) populates the missing-event
-     * gap-rate ProgressList. Each tag yields two ProgressList rows: one
-     * for the event itself and one for the event's PLAC sub-line.
-     */
-    private const array EVENT_TAGS = ['BIRT', 'DEAT'];
-
-    /**
      * @param Tree $tree The tree the statistics are computed for
      */
     public function __construct(
@@ -80,36 +73,65 @@ final readonly class TreeHealthRepository
     }
 
     /**
-     * Per-event missing-data rates. For each event tag in {@see EVENT_TAGS}
-     * the repository emits two rows — one for the event itself, one for
+     * Per-event missing-data rates for BIRT, DEAT, and MARR. Each event
+     * yields two ProgressList rows — one for the event itself, one for
      * its `2 PLAC` sub-line. Event-presence is computed in SQL via
      * anchored NOT LIKE filters; PLAC-within-event requires PHP-side
      * scanning so the place check is scoped to the right event block.
+     *
+     * Marriage gaps use a different denominator: only individuals who
+     * are actually spouses in at least one family contribute. Counting
+     * every minor and never-married person as "missing MARR" would dilute
+     * the data-quality signal we care about.
      *
      * @return array<string, array{event: string, kind: string, value: int, total: int}>
      */
     public function missingEventGaps(): array
     {
-        $total   = $this->countIndividuals();
-        $missing = [];
+        $total       = $this->countIndividuals();
+        $spouseTotal = $this->countSpouses();
 
-        foreach (self::EVENT_TAGS as $tag) {
-            $missing[$tag . '_event'] = [
-                'event' => $tag,
+        $birthMissing = $this->countIndividualsMissingEvent('BIRT');
+        $deathMissing = $this->countIndividualsMissingEvent('DEAT');
+
+        return [
+            'BIRT_event' => [
+                'event' => 'BIRT',
                 'kind'  => 'event',
-                'value' => $this->countIndividualsMissingEvent($tag),
+                'value' => $birthMissing,
                 'total' => $total,
-            ];
-
-            $missing[$tag . '_place'] = [
-                'event' => $tag,
+            ],
+            'BIRT_place' => [
+                'event' => 'BIRT',
                 'kind'  => 'place',
-                'value' => $this->countIndividualsMissingEventPlace($tag, $missing[$tag . '_event']['value']),
+                'value' => $this->countIndividualsMissingEventPlace('BIRT', $birthMissing),
                 'total' => $total,
-            ];
-        }
-
-        return $missing;
+            ],
+            'MARR_event' => [
+                'event' => 'MARR',
+                'kind'  => 'event',
+                'value' => $this->countSpousesMissingMarriageEvent(),
+                'total' => $spouseTotal,
+            ],
+            'MARR_place' => [
+                'event' => 'MARR',
+                'kind'  => 'place',
+                'value' => $this->countSpousesMissingMarriagePlace(),
+                'total' => $spouseTotal,
+            ],
+            'DEAT_event' => [
+                'event' => 'DEAT',
+                'kind'  => 'event',
+                'value' => $deathMissing,
+                'total' => $total,
+            ],
+            'DEAT_place' => [
+                'event' => 'DEAT',
+                'kind'  => 'place',
+                'value' => $this->countIndividualsMissingEventPlace('DEAT', $deathMissing),
+                'total' => $total,
+            ],
+        ];
     }
 
     /**
@@ -174,6 +196,124 @@ final readonly class TreeHealthRepository
      * Total individual count for the tree, scoped to the same connection
      * the other repository methods use so the percentages always reconcile.
      */
+    /**
+     * Count individuals who are spouses in at least one family (have
+     * a `FAMS` link). This is the denominator the marriage-gap rows
+     * use — "of those who married, how many lack a recorded MARR" is
+     * a meaningful data-quality signal, while including minors and
+     * never-married people would dilute it.
+     */
+    private function countSpouses(): int
+    {
+        return DB::table('individuals')
+            ->where('i_file', '=', $this->tree->id())
+            ->whereExists(static function (Builder $query): void {
+                $query
+                    ->select(new Expression('1'))
+                    ->from('link')
+                    ->whereColumn('link.l_file', 'individuals.i_file')
+                    ->whereColumn('link.l_from', 'individuals.i_id')
+                    ->where('link.l_type', '=', 'FAMS');
+            })
+            ->count('i_id');
+    }
+
+    /**
+     * Spouses whose every FAMS family lacks a level-1 MARR event.
+     * Walks the per-individual FAMS chain and checks each family's
+     * gedcom blob; an individual counts as "missing MARR" only when
+     * none of their spouse-families carries the event.
+     */
+    private function countSpousesMissingMarriageEvent(): int
+    {
+        $patterns = GedcomScanner::anchoredLikePatterns('MARR');
+
+        return DB::table('individuals')
+            ->where('i_file', '=', $this->tree->id())
+            ->whereExists(static function (Builder $outer): void {
+                $outer
+                    ->select(new Expression('1'))
+                    ->from('link')
+                    ->whereColumn('link.l_file', 'individuals.i_file')
+                    ->whereColumn('link.l_from', 'individuals.i_id')
+                    ->where('link.l_type', '=', 'FAMS');
+            })
+            ->whereNotExists(static function (Builder $outer) use ($patterns): void {
+                $outer
+                    ->select(new Expression('1'))
+                    ->from('link')
+                    ->join('families', static function (JoinClause $join): void {
+                        $join
+                            ->on('families.f_id', '=', 'link.l_to')
+                            ->on('families.f_file', '=', 'link.l_file');
+                    })
+                    ->whereColumn('link.l_file', 'individuals.i_file')
+                    ->whereColumn('link.l_from', 'individuals.i_id')
+                    ->where('link.l_type', '=', 'FAMS')
+                    ->where(static function (Builder $patternQuery) use ($patterns): void {
+                        foreach ($patterns as $pattern) {
+                            $patternQuery->orWhere('families.f_gedcom', 'LIKE', $pattern);
+                        }
+                    });
+            })
+            ->count('i_id');
+    }
+
+    /**
+     * Spouses whose every FAMS family with MARR lacks the `2 PLAC`
+     * sub-line. Builds on the per-event missing pattern but scoped
+     * to families that DO have MARR, otherwise the "missing place"
+     * would double-count families that lack MARR entirely.
+     */
+    private function countSpousesMissingMarriagePlace(): int
+    {
+        $eventPatterns = GedcomScanner::anchoredLikePatterns('MARR');
+
+        $candidates = DB::table('individuals')
+            ->where('i_file', '=', $this->tree->id())
+            ->whereExists(static function (Builder $outer) use ($eventPatterns): void {
+                $outer
+                    ->select(new Expression('1'))
+                    ->from('link')
+                    ->join('families', static function (JoinClause $join): void {
+                        $join
+                            ->on('families.f_id', '=', 'link.l_to')
+                            ->on('families.f_file', '=', 'link.l_file');
+                    })
+                    ->whereColumn('link.l_file', 'individuals.i_file')
+                    ->whereColumn('link.l_from', 'individuals.i_id')
+                    ->where('link.l_type', '=', 'FAMS')
+                    ->where(static function (Builder $patternQuery) use ($eventPatterns): void {
+                        foreach ($eventPatterns as $pattern) {
+                            $patternQuery->orWhere('families.f_gedcom', 'LIKE', $pattern);
+                        }
+                    });
+            })
+            ->pluck('i_id');
+
+        $missingPlace = 0;
+
+        foreach ($candidates as $individualId) {
+            $hasPlace = DB::table('link')
+                ->join('families', static function (JoinClause $join): void {
+                    $join
+                        ->on('families.f_id', '=', 'link.l_to')
+                        ->on('families.f_file', '=', 'link.l_file');
+                })
+                ->where('link.l_file', '=', $this->tree->id())
+                ->where('link.l_from', '=', $individualId)
+                ->where('link.l_type', '=', 'FAMS')
+                ->pluck('families.f_gedcom')
+                ->contains(static fn (string $gedcom): bool => GedcomScanner::hasEventPlace($gedcom, 'MARR'));
+
+            if (!$hasPlace) {
+                ++$missingPlace;
+            }
+        }
+
+        return $missingPlace;
+    }
+
     private function countIndividuals(): int
     {
         return DB::table('individuals')

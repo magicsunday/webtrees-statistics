@@ -56,6 +56,8 @@ $gapLabels = [
     'BIRT.place' => I18N::translate('Missing birth place'),
     'DEAT.event' => I18N::translate('Missing death event'),
     'DEAT.place' => I18N::translate('Missing death place'),
+    'MARR.event' => I18N::translate('Missing marriage event'),
+    'MARR.place' => I18N::translate('Missing marriage place'),
 ];
 
 $gapRows = [];
@@ -128,7 +130,7 @@ foreach ($gaps as $gap) {
             <div class="card h-100">
                 <div class="card-header">
                     <h5 class="card-title"><?php echo I18N::translate('Missing-event gaps'); ?></h5>
-                    <small><?php echo I18N::translate('Share of individuals without a recorded birth or death event, with or without a place.'); ?></small>
+                    <small><?php echo I18N::translate('Share of individuals without a recorded birth, death, or marriage event, with or without a place. Marriage rows use spouses as the denominator (never-married individuals are excluded).'); ?></small>
                 </div>
                 <div class="card-body">
                     <?php
