@@ -13,6 +13,7 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
+use MagicSunday\Webtrees\Statistic\Model\Dto\PlaceDispersionSummary;
 
 use function array_unique;
 use function count;
@@ -67,10 +68,8 @@ final readonly class PlaceDispersionRepository
      * excluded — they would skew the average toward zero without
      * meaningfully participating in the "how many places does each
      * documented person carry" question.
-     *
-     * @return array{average: float, sampled: int, distribution: array<array-key, int>}
      */
-    public function dispersionSummary(): array
+    public function dispersionSummary(): PlaceDispersionSummary
     {
         $rows = DB::table('individuals')
             ->where('i_file', '=', $this->tree->id())
@@ -99,11 +98,11 @@ final readonly class PlaceDispersionRepository
 
         $average = $sampled === 0 ? 0.0 : round($totalPlaces / $sampled, 2);
 
-        return [
-            'average'      => $average,
-            'sampled'      => $sampled,
-            'distribution' => $distribution,
-        ];
+        return new PlaceDispersionSummary(
+            average: $average,
+            sampled: $sampled,
+            distribution: $distribution,
+        );
     }
 
     /**

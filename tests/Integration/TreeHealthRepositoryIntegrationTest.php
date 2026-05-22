@@ -37,7 +37,8 @@ final class TreeHealthRepositoryIntegrationTest extends IntegrationTestCase
         $tree     = $this->importFixtureTree('tree-health.ged');
         $coverage = (new TreeHealthRepository($tree))->sourceCitationCoverage();
 
-        self::assertSame(['value' => 2, 'total' => 6], $coverage);
+        self::assertSame(2, $coverage->value);
+        self::assertSame(6, $coverage->total);
     }
 
     /**

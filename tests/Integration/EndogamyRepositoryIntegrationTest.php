@@ -55,9 +55,9 @@ final class EndogamyRepositoryIntegrationTest extends IntegrationTestCase
         $result = (new EndogamyRepository($tree, new ParentMapRepository($tree)))->summary();
 
         self::assertNotNull($result);
-        self::assertSame(2, $result['total']);
-        self::assertSame(1, $result['endogamous']);
-        self::assertSame(50.0, $result['rate']);
-        self::assertSame(EndogamyRepository::DEFAULT_DEPTH, $result['depth']);
+        self::assertSame(2, $result->total);
+        self::assertSame(1, $result->endogamous);
+        self::assertSame(50.0, $result->rate);
+        self::assertSame(EndogamyRepository::DEFAULT_DEPTH, $result->depth);
     }
 }

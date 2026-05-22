@@ -196,7 +196,7 @@ echo view(
         </div>
     </div>
 
-    <?php if ($placeDispersion['sampled'] > 0) { ?>
+    <?php if ($placeDispersion->sampled > 0) { ?>
     <?php
     $placeDispersionExplanation = I18N::translate(
         'For every individual the widget collects every distinct PLAC value that appears on any of their level-1 events (BIRT, DEAT, BAPM, BURI, RESI, …) and counts the unique places. Duplicates within the same individual (e.g. BIRT and DEAT both in Hamburg) collapse to one place, so the count reflects geographic mobility rather than how many events are recorded. The average is across every individual with at least one PLAC sample; individuals with no place data at all are excluded. The distribution on the right shows how those counts split across 1 / 2 / 3 / 4 / 5+ distinct places per person — a high tail signals migrant ancestors, a heavy bar at "1" signals a sedentary or sparsely-documented population.'
@@ -228,13 +228,13 @@ echo view(
             echo view(
                 $module . '::modules/statistics-chart/Partials/Scalar',
                 [
-                    'value'   => I18N::number($placeDispersion['average'], 2),
+                    'value'   => I18N::number($placeDispersion->average, 2),
                     'unit'    => I18N::translate('places'),
                     'caption' => I18N::plural(
                         'Across %s individual with at least one recorded place.',
                         'Across %s individuals with at least one recorded place.',
-                        $placeDispersion['sampled'],
-                        I18N::number($placeDispersion['sampled']),
+                        $placeDispersion->sampled,
+                        I18N::number($placeDispersion->sampled),
                     ),
                 ],
             );
@@ -254,7 +254,7 @@ echo view(
                     $module . '::modules/statistics-chart/Partials/ProgressList',
                     [
                         'class' => 'progress-place-dispersion',
-                        'data'  => $placeDispersion['distribution'],
+                        'data'  => $placeDispersion->distribution,
                     ],
                 );
         ?>

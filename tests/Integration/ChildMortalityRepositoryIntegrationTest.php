@@ -51,9 +51,9 @@ final class ChildMortalityRepositoryIntegrationTest extends IntegrationTestCase
         $result = (new ChildMortalityRepository($tree))->summary();
 
         self::assertNotNull($result);
-        self::assertSame(11, $result['total']);
-        self::assertSame(4, $result['died']);
-        self::assertSame(36.4, $result['rate']);
+        self::assertSame(11, $result->total);
+        self::assertSame(4, $result->died);
+        self::assertSame(36.4, $result->rate);
     }
 
     /**

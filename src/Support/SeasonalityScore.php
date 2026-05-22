@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Support;
 
+use MagicSunday\Webtrees\Statistic\Model\Dto\WinterPeakScore;
+
 use function array_sum;
 use function in_array;
 use function round;
@@ -61,10 +63,8 @@ final readonly class SeasonalityScore
      * @param array<string, int> $monthCounts Map of month-abbrev → count (any case)
      * @param list<string>       $season      GEDCOM abbreviations of the season's months
      * @param int                $minSample   Minimum total count for the score to be meaningful
-     *
-     * @return array{score: float, seasonCount: int, total: int}|null
      */
-    public static function score(array $monthCounts, array $season, int $minSample = 12): ?array
+    public static function score(array $monthCounts, array $season, int $minSample = 12): ?WinterPeakScore
     {
         $total       = array_sum($monthCounts);
         $seasonCount = 0;
@@ -92,10 +92,10 @@ final readonly class SeasonalityScore
         $perMonthInSeason = $seasonCount / count($season);
         $score            = round($perMonthInSeason / $baseline, 2);
 
-        return [
-            'score'       => $score,
-            'seasonCount' => $seasonCount,
-            'total'       => $total,
-        ];
+        return new WinterPeakScore(
+            score: $score,
+            seasonCount: $seasonCount,
+            total: $total,
+        );
     }
 }

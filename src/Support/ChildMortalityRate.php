@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Support;
 
+use MagicSunday\Webtrees\Statistic\Model\Dto\ChildMortalitySummary;
+
 use function round;
 
 /**
@@ -53,10 +55,8 @@ final readonly class ChildMortalityRate
      *
      * @param iterable<array{birthJd: int, deathJd: int}> $pairs         Iterable of valid BIRT + DEAT julian-day pairs
      * @param int                                         $thresholdDays Death-before-N-days cut-off, defaults to five years
-     *
-     * @return array{total: int, died: int, rate: float}|null
      */
-    public static function compute(iterable $pairs, int $thresholdDays = self::DEFAULT_THRESHOLD_DAYS): ?array
+    public static function compute(iterable $pairs, int $thresholdDays = self::DEFAULT_THRESHOLD_DAYS): ?ChildMortalitySummary
     {
         $total = 0;
         $died  = 0;
@@ -88,10 +88,10 @@ final readonly class ChildMortalityRate
             return null;
         }
 
-        return [
-            'total' => $total,
-            'died'  => $died,
-            'rate'  => round(($died / $total) * 100, 1),
-        ];
+        return new ChildMortalitySummary(
+            total: $total,
+            died: $died,
+            rate: round(($died / $total) * 100, 1),
+        );
     }
 }

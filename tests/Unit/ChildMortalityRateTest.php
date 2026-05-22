@@ -59,9 +59,9 @@ final class ChildMortalityRateTest extends TestCase
         $result = ChildMortalityRate::compute($pairs);
 
         self::assertNotNull($result);
-        self::assertSame(5, $result['total']);
-        self::assertSame(3, $result['died']);
-        self::assertSame(60.0, $result['rate']);
+        self::assertSame(5, $result->total);
+        self::assertSame(3, $result->died);
+        self::assertSame(60.0, $result->rate);
     }
 
     /**
@@ -82,9 +82,9 @@ final class ChildMortalityRateTest extends TestCase
         $result = ChildMortalityRate::compute($pairs);
 
         self::assertNotNull($result);
-        self::assertSame(2, $result['total']);
-        self::assertSame(1, $result['died']);
-        self::assertSame(50.0, $result['rate']);
+        self::assertSame(2, $result->total);
+        self::assertSame(1, $result->died);
+        self::assertSame(50.0, $result->rate);
     }
 
     /**
@@ -104,15 +104,15 @@ final class ChildMortalityRateTest extends TestCase
         $under1 = ChildMortalityRate::compute($pairs, 365);
 
         self::assertNotNull($under1);
-        self::assertSame(2, $under1['total']);
-        self::assertSame(1, $under1['died']);
-        self::assertSame(50.0, $under1['rate']);
+        self::assertSame(2, $under1->total);
+        self::assertSame(1, $under1->died);
+        self::assertSame(50.0, $under1->rate);
 
         $under6Months = ChildMortalityRate::compute($pairs, 180);
 
         self::assertNotNull($under6Months);
-        self::assertSame(2, $under6Months['total']);
-        self::assertSame(0, $under6Months['died']);
-        self::assertSame(0.0, $under6Months['rate']);
+        self::assertSame(2, $under6Months->total);
+        self::assertSame(0, $under6Months->died);
+        self::assertSame(0.0, $under6Months->rate);
     }
 }

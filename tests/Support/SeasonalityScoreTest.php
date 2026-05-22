@@ -40,9 +40,9 @@ final class SeasonalityScoreTest extends TestCase
         $result = SeasonalityScore::score($months, SeasonalityScore::NORTHERN_WINTER);
 
         self::assertNotNull($result);
-        self::assertSame(1.0, $result['score']);
-        self::assertSame(30, $result['seasonCount']);
-        self::assertSame(120, $result['total']);
+        self::assertSame(1.0, $result->score);
+        self::assertSame(30, $result->seasonCount);
+        self::assertSame(120, $result->total);
     }
 
     /**
@@ -62,9 +62,9 @@ final class SeasonalityScoreTest extends TestCase
         $result = SeasonalityScore::score($months, SeasonalityScore::NORTHERN_WINTER);
 
         self::assertNotNull($result);
-        self::assertSame(2.0, $result['score']);
-        self::assertSame(18, $result['seasonCount']);
-        self::assertSame(36, $result['total']);
+        self::assertSame(2.0, $result->score);
+        self::assertSame(18, $result->seasonCount);
+        self::assertSame(36, $result->total);
     }
 
     /**
@@ -82,9 +82,9 @@ final class SeasonalityScoreTest extends TestCase
         $result = SeasonalityScore::score($months, SeasonalityScore::NORTHERN_WINTER);
 
         self::assertNotNull($result);
-        self::assertLessThan(1.0, $result['score']);
-        self::assertSame(15, $result['seasonCount']);
-        self::assertSame(105, $result['total']);
+        self::assertLessThan(1.0, $result->score);
+        self::assertSame(15, $result->seasonCount);
+        self::assertSame(105, $result->total);
     }
 
     /**
@@ -104,7 +104,7 @@ final class SeasonalityScoreTest extends TestCase
         $result = SeasonalityScore::score($months, SeasonalityScore::NORTHERN_WINTER);
 
         self::assertNotNull($result);
-        self::assertSame(2.0, $result['score']);
+        self::assertSame(2.0, $result->score);
     }
 
     /**

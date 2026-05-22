@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
+use MagicSunday\Webtrees\Statistic\Model\Dto\ChildMortalitySummary;
 use MagicSunday\Webtrees\Statistic\Support\ChildMortalityRate;
 
 use function intdiv;
@@ -50,10 +51,8 @@ final readonly class ChildMortalityRepository
      * both BIRT + DEAT dates, count of those who died before age 5,
      * and the resulting percentage. Returns `null` if no such pair
      * exists in the tree.
-     *
-     * @return array{total: int, died: int, rate: float}|null
      */
-    public function summary(): ?array
+    public function summary(): ?ChildMortalitySummary
     {
         return ChildMortalityRate::compute($this->fetchBirthDeathPairs());
     }
@@ -99,19 +98,19 @@ final readonly class ChildMortalityRepository
         foreach ($perCentury as $century => $pairs) {
             $summary = ChildMortalityRate::compute($pairs);
 
-            if ($summary === null) {
+            if (!$summary instanceof ChildMortalitySummary) {
                 continue;
             }
 
-            if ($summary['total'] < self::MIN_COHORT_SIZE) {
+            if ($summary->total < self::MIN_COHORT_SIZE) {
                 continue;
             }
 
             $out[] = [
                 'century' => $century,
-                'total'   => $summary['total'],
-                'died'    => $summary['died'],
-                'rate'    => $summary['rate'],
+                'total'   => $summary->total,
+                'died'    => $summary->died,
+                'rate'    => $summary->rate,
             ];
         }
 

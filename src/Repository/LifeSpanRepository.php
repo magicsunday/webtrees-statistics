@@ -20,6 +20,7 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\ModuleBase\Processor\NameProcessor;
+use MagicSunday\Webtrees\Statistic\Model\Dto\WinterPeakScore;
 use MagicSunday\Webtrees\Statistic\Support\CenturyName;
 use MagicSunday\Webtrees\Statistic\Support\HistogramTrim;
 use MagicSunday\Webtrees\Statistic\Support\SeasonalityScore;
@@ -191,10 +192,8 @@ final readonly class LifeSpanRepository
      * perfectly-even 12-month baseline. Returns null when fewer
      * than 12 dated deaths are recorded (below that threshold the
      * score is too noisy to be meaningful).
-     *
-     * @return array{score: float, seasonCount: int, total: int}|null
      */
-    public function deathWinterPeakScore(): ?array
+    public function deathWinterPeakScore(): ?WinterPeakScore
     {
         return SeasonalityScore::score(
             $this->data->countEventsByMonth('DEAT', 0, 0),

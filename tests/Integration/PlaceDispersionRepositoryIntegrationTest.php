@@ -46,12 +46,12 @@ final class PlaceDispersionRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('place-dispersion.ged');
         $result = (new PlaceDispersionRepository($tree))->dispersionSummary();
 
-        self::assertSame(5, $result['sampled'], 'Franz (no events) is excluded; the other 5 contribute');
-        self::assertSame(2.4, $result['average'], '(1 + 2 + 3 + 5 + 1) / 5 = 2.4');
+        self::assertSame(5, $result->sampled, 'Franz (no events) is excluded; the other 5 contribute');
+        self::assertSame(2.4, $result->average, '(1 + 2 + 3 + 5 + 1) / 5 = 2.4');
 
         self::assertSame(
             ['1' => 2, '2' => 1, '3' => 1, '4' => 0, '5+' => 1],
-            $result['distribution'],
+            $result->distribution,
         );
     }
 
@@ -68,6 +68,6 @@ final class PlaceDispersionRepositoryIntegrationTest extends IntegrationTestCase
 
         // The distribution shows TWO individuals at count 1: Anna
         // (BIRT+DEAT same place, de-duped) and Emil (single BIRT).
-        self::assertSame(2, $result['distribution']['1']);
+        self::assertSame(2, $result->distribution['1']);
     }
 }

@@ -16,6 +16,7 @@ use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
+use MagicSunday\Webtrees\Statistic\Model\Dto\RateCount;
 use MagicSunday\Webtrees\Statistic\Support\GedcomScanner;
 
 use function array_sum;
@@ -46,15 +47,13 @@ final readonly class TreeHealthRepository
      * Fraction of individuals with at least one SOUR citation, expressed
      * as `{value, total}` so the RateList partial can derive both the
      * percentage and the absolute counts.
-     *
-     * @return array{value: int, total: int}
      */
-    public function sourceCitationCoverage(): array
+    public function sourceCitationCoverage(): RateCount
     {
         $total = $this->countIndividuals();
 
         if ($total === 0) {
-            return ['value' => 0, 'total' => 0];
+            return new RateCount(value: 0, total: 0);
         }
 
         $withSources = DB::table('individuals')
@@ -69,7 +68,7 @@ final readonly class TreeHealthRepository
             })
             ->count('i_id');
 
-        return ['value' => $withSources, 'total' => $total];
+        return new RateCount(value: $withSources, total: $total);
     }
 
     /**

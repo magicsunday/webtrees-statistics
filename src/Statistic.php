@@ -15,7 +15,12 @@ use Fisharebest\Webtrees\Family;
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\StatisticsData;
+use MagicSunday\Webtrees\Statistic\Model\Dto\ChildMortalitySummary;
+use MagicSunday\Webtrees\Statistic\Model\Dto\EndogamyRate;
 use MagicSunday\Webtrees\Statistic\Model\Dto\MigrationFlowsPayload;
+use MagicSunday\Webtrees\Statistic\Model\Dto\PlaceDispersionSummary;
+use MagicSunday\Webtrees\Statistic\Model\Dto\RateCount;
+use MagicSunday\Webtrees\Statistic\Model\Dto\WinterPeakScore;
 use MagicSunday\Webtrees\Statistic\Repository\ChildMortalityRepository;
 use MagicSunday\Webtrees\Statistic\Repository\ChildrenRepository;
 use MagicSunday\Webtrees\Statistic\Repository\CountryRepository;
@@ -359,10 +364,8 @@ final readonly class Statistic
     /**
      * Winter-peak indicator for deaths (Dec+Jan+Feb vs. baseline).
      * Returns null when fewer than 12 dated deaths are recorded.
-     *
-     * @return array{score: float, seasonCount: int, total: int}|null
      */
-    public function getDeathWinterPeakScore(): ?array
+    public function getDeathWinterPeakScore(): ?WinterPeakScore
     {
         return $this->lifeSpanRepository->deathWinterPeakScore();
     }
@@ -371,10 +374,8 @@ final readonly class Statistic
      * Distinct-PLAC dispersion across the tree. Average + sampled
      * count + distribution shaped for a side-by-side
      * Scalar + ProgressList visual on the Places tab.
-     *
-     * @return array{average: float, sampled: int, distribution: array<array-key, int>}
      */
-    public function getPlaceDispersionSummary(): array
+    public function getPlaceDispersionSummary(): PlaceDispersionSummary
     {
         return $this->placeDispersionRepository->dispersionSummary();
     }
@@ -383,10 +384,8 @@ final readonly class Statistic
      * Tree-wide under-5 child mortality summary: count of individuals
      * with both BIRT + DEAT julian-days, count that died before age
      * five, and the percentage. Null when no BIRT+DEAT pair exists.
-     *
-     * @return array{total: int, died: int, rate: float}|null
      */
-    public function getChildMortalitySummary(): ?array
+    public function getChildMortalitySummary(): ?ChildMortalitySummary
     {
         return $this->childMortalityRepository->summary();
     }
@@ -439,10 +438,8 @@ final readonly class Statistic
      * common ancestor within the default depth, the resulting
      * percentage, and the depth used. Null when no testable couple
      * exists (a tree with no recorded parentage links anywhere).
-     *
-     * @return array{total: int, endogamous: int, rate: float, depth: int}|null
      */
-    public function getEndogamySummary(): ?array
+    public function getEndogamySummary(): ?EndogamyRate
     {
         return $this->endogamyRepository->summary();
     }
@@ -756,10 +753,8 @@ final readonly class Statistic
     /**
      * Source-citation coverage as `{value, total}`, ready for the
      * ProgressList partial to derive the percentage and absolute counts.
-     *
-     * @return array{value: int, total: int}
      */
-    public function getSourceCitationCoverage(): array
+    public function getSourceCitationCoverage(): RateCount
     {
         return $this->treeHealthRepository->sourceCitationCoverage();
     }

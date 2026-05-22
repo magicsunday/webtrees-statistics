@@ -13,6 +13,7 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
+use MagicSunday\Webtrees\Statistic\Model\Dto\EndogamyRate;
 use MagicSunday\Webtrees\Statistic\Support\Endogamy;
 
 use function is_string;
@@ -63,10 +64,8 @@ final readonly class EndogamyRepository
      * the percentage, and the depth used so the view can label the
      * caveat ("within four generations"). Returns null when no
      * testable couple exists.
-     *
-     * @return array{total: int, endogamous: int, rate: float, depth: int}|null
      */
-    public function summary(int $depth = self::DEFAULT_DEPTH): ?array
+    public function summary(int $depth = self::DEFAULT_DEPTH): ?EndogamyRate
     {
         $parentOf   = $this->parentMapRepository->build();
         $total      = 0;
@@ -108,11 +107,11 @@ final readonly class EndogamyRepository
             return null;
         }
 
-        return [
-            'total'      => $total,
-            'endogamous' => $endogamous,
-            'rate'       => round(($endogamous / $total) * 100, 1),
-            'depth'      => $depth,
-        ];
+        return new EndogamyRate(
+            total: $total,
+            endogamous: $endogamous,
+            rate: round(($endogamous / $total) * 100, 1),
+            depth: $depth,
+        );
     }
 }
