@@ -13,22 +13,18 @@ use Fisharebest\Webtrees\I18N;
 use MagicSunday\Webtrees\Statistic\Model\Dto\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Statistic;
 use MagicSunday\Webtrees\Statistic\Support\CenturyName;
-use MagicSunday\Webtrees\Statistic\Support\HistogramTrim;
 use MagicSunday\Webtrees\Statistic\Support\SiblingGapRowMapper;
 
 /**
  * @var string    $module    The name of the module
  * @var Statistic $statistic
  */
-$ageAtMarriageM = $statistic->getAgeAtMarriageDistribution('M');
-$ageAtMarriageF = $statistic->getAgeAtMarriageDistribution('F');
-
-// Trim leading / trailing buckets that are 0 in BOTH sex variants so
-// the side-by-side histograms don't render rows like `0–4: 0` /
-// `5–9: 0` that carry no information. Keeping a non-zero in either
-// series preserves the bucket on both sides so the visual axis
-// stays aligned.
-[$ageAtMarriageM, $ageAtMarriageF] = HistogramTrim::dropCoZeroEnds($ageAtMarriageM, $ageAtMarriageF);
+// Co-trimmed pair — leading and trailing buckets that are 0 in
+// BOTH sex variants are dropped so the side-by-side histograms
+// don't render rows like `0–4: 0` / `5–9: 0` that carry no
+// information. Keeping a non-zero in either series preserves the
+// bucket on both sides so the visual axis stays aligned.
+[$ageAtMarriageM, $ageAtMarriageF] = $statistic->getTrimmedAgeAtMarriageDistributions();
 
 $duration  = $statistic->getMarriageDurationDistribution();
 $ageGap    = $statistic->getCoupleAgeGapDistribution();
@@ -37,11 +33,9 @@ $byMonth   = $statistic->getWeddingsByMonth();
 
 $divorcesByCentury = $statistic->getDivorcesByCentury();
 $divorcesByMonth   = $statistic->getDivorcesByMonth();
-$divorceAgeM       = $statistic->getAgeAtDivorceDistribution('M');
-$divorceAgeF       = $statistic->getAgeAtDivorceDistribution('F');
 
 // Same co-zero trim for the divorce-age histograms.
-[$divorceAgeM, $divorceAgeF] = HistogramTrim::dropCoZeroEnds($divorceAgeM, $divorceAgeF);
+[$divorceAgeM, $divorceAgeF] = $statistic->getTrimmedAgeAtDivorceDistributions();
 $cohortRates                 = $statistic->getDivorceRateByMarriageCohort();
 
 $avgChildren             = $statistic->getAverageChildrenPerFamily();
@@ -68,13 +62,10 @@ foreach ($generationDepth->distribution as $gen => $count) {
     $generationDepthDistribution[(string) $gen] = $count;
 }
 
-$ageAtFirstChildM = $statistic->getAgeAtFirstChildDistribution('M');
-$ageAtFirstChildF = $statistic->getAgeAtFirstChildDistribution('F');
-$endogamy         = $statistic->getEndogamySummary();
-
 // Trim co-zero ends so the side-by-side fathers/mothers histograms
 // don't begin and end with rows of 0/0 that carry no information.
-[$ageAtFirstChildM, $ageAtFirstChildF] = HistogramTrim::dropCoZeroEnds($ageAtFirstChildM, $ageAtFirstChildF);
+[$ageAtFirstChildM, $ageAtFirstChildF] = $statistic->getTrimmedAgeAtFirstChildDistributions();
+$endogamy                              = $statistic->getEndogamySummary();
 
 $totalFirstChildM = array_sum($ageAtFirstChildM);
 $totalFirstChildF = array_sum($ageAtFirstChildF);

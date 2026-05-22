@@ -13,14 +13,13 @@ use Fisharebest\Webtrees\I18N;
 use MagicSunday\Webtrees\Statistic\Model\Dto\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Statistic;
 use MagicSunday\Webtrees\Statistic\Support\CenturyName;
-use MagicSunday\Webtrees\Statistic\Support\ZodiacLabels;
 
 /**
  * @var string    $module    The name of the module
  * @var Statistic $statistic
  */
 $birthsByMonth      = $statistic->getBirthsByMonth();
-$birthsByZodiacSign = ZodiacLabels::translateKeys($statistic->getBirthsByZodiacSign());
+$birthsByZodiacSign = $statistic->getBirthsByZodiacSign();
 $birthsByCentury    = $statistic->getBirthsByCentury();
 $deathsByMonth      = $statistic->getDeathsByMonth();
 $deathsByCentury    = $statistic->getDeathsByCentury();

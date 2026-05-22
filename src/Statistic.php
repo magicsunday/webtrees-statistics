@@ -47,6 +47,8 @@ use MagicSunday\Webtrees\Statistic\Repository\ParenthoodRepository;
 use MagicSunday\Webtrees\Statistic\Repository\PlaceDispersionRepository;
 use MagicSunday\Webtrees\Statistic\Repository\ReligionRepository;
 use MagicSunday\Webtrees\Statistic\Repository\TreeHealthRepository;
+use MagicSunday\Webtrees\Statistic\Support\HistogramTrim;
+use MagicSunday\Webtrees\Statistic\Support\ZodiacLabels;
 
 use function array_sum;
 use function array_values;
@@ -264,11 +266,17 @@ final readonly class Statistic
     }
 
     /**
+     * Births grouped by zodiac sign, keyed by the locale-translated
+     * sign label (Aries / Bélier / Widder etc.) — the view renders
+     * the `{label => count}` map directly. Callers needing the
+     * canonical English keys go through
+     * {@see EventRepository::getBirthsByZodiacSign()} instead.
+     *
      * @return array<string, int>
      */
     public function getBirthsByZodiacSign(): array
     {
-        return $this->eventRepository->getBirthsByZodiacSign();
+        return ZodiacLabels::translateKeys($this->eventRepository->getBirthsByZodiacSign());
     }
 
     /**
@@ -417,16 +425,19 @@ final readonly class Statistic
     }
 
     /**
-     * Age-at-first-child distribution for parents of the given sex,
-     * bucketed into 5-year bands.
+     * Co-trimmed `{father, mother}` age-at-first-child distributions
+     * — both 5-year-band maps with leading and trailing all-zero
+     * buckets dropped symmetrically. Index 0 is fathers, index 1 is
+     * mothers.
      *
-     * @param string $sex 'M' for fathers, 'F' for mothers
-     *
-     * @return array<string, int>
+     * @return array{0: array<string, int>, 1: array<string, int>}
      */
-    public function getAgeAtFirstChildDistribution(string $sex): array
+    public function getTrimmedAgeAtFirstChildDistributions(): array
     {
-        return $this->parenthoodRepository->ageAtFirstChildDistribution($sex);
+        return HistogramTrim::dropCoZeroEnds(
+            $this->parenthoodRepository->ageAtFirstChildDistribution('M'),
+            $this->parenthoodRepository->ageAtFirstChildDistribution('F'),
+        );
     }
 
     /**
@@ -504,16 +515,19 @@ final readonly class Statistic
     }
 
     /**
-     * Age-at-marriage histogram for one sex (5-year bands + 60+
-     * overflow).
+     * Co-trimmed `{husband, wife}` age-at-marriage distributions —
+     * both 5-year-band maps (incl. 60+ overflow) with leading and
+     * trailing all-zero buckets dropped symmetrically. Index 0 is
+     * husbands, index 1 is wives.
      *
-     * @param string $sex 'M' or 'F'
-     *
-     * @return array<string, int>
+     * @return array{0: array<string, int>, 1: array<string, int>}
      */
-    public function getAgeAtMarriageDistribution(string $sex): array
+    public function getTrimmedAgeAtMarriageDistributions(): array
     {
-        return $this->marriageRepository->ageAtMarriageDistribution($sex);
+        return HistogramTrim::dropCoZeroEnds(
+            $this->marriageRepository->ageAtMarriageDistribution('M'),
+            $this->marriageRepository->ageAtMarriageDistribution('F'),
+        );
     }
 
     /**
@@ -580,16 +594,19 @@ final readonly class Statistic
     }
 
     /**
-     * Age-at-divorce histogram for one sex (5-year bands, 80+
-     * overflow).
+     * Co-trimmed `{husband, wife}` age-at-divorce distributions —
+     * both 5-year-band maps (incl. 80+ overflow) with leading and
+     * trailing all-zero buckets dropped symmetrically. Index 0 is
+     * husbands, index 1 is wives.
      *
-     * @param string $sex 'M' or 'F'
-     *
-     * @return array<string, int>
+     * @return array{0: array<string, int>, 1: array<string, int>}
      */
-    public function getAgeAtDivorceDistribution(string $sex): array
+    public function getTrimmedAgeAtDivorceDistributions(): array
     {
-        return $this->divorceRepository->ageAtDivorceDistribution($sex);
+        return HistogramTrim::dropCoZeroEnds(
+            $this->divorceRepository->ageAtDivorceDistribution('M'),
+            $this->divorceRepository->ageAtDivorceDistribution('F'),
+        );
     }
 
     /**
