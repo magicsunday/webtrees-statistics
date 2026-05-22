@@ -10,11 +10,12 @@ declare(strict_types=1);
  */
 
 use Fisharebest\Webtrees\I18N;
+use MagicSunday\Webtrees\Statistic\Model\Dto\MigrationFlowsPayload;
 
 /**
- * @var string                                                                                                                                              $identifier Host element id
- * @var array{nodes: list<array{name: string}>, links: list<array{source: int, target: int, value: int, samples: list<array{name: string, xref: string}>}>} $data       Sankey payload built by Statistic::getMigrationFlows()
- * @var int|null                                                                                                                                            $height     Optional viewport height (defaults to 360)
+ * @var string                $identifier Host element id
+ * @var MigrationFlowsPayload $data       Sankey payload built by Statistic::getMigrationFlows() — serialises to JSON via JsonSerializable
+ * @var int|null              $height     Optional viewport height (defaults to 360)
  */
 $height ??= 360;
 

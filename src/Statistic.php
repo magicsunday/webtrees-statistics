@@ -15,6 +15,7 @@ use Fisharebest\Webtrees\Family;
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\StatisticsData;
+use MagicSunday\Webtrees\Statistic\Model\Dto\MigrationFlowsPayload;
 use MagicSunday\Webtrees\Statistic\Repository\ChildMortalityRepository;
 use MagicSunday\Webtrees\Statistic\Repository\ChildrenRepository;
 use MagicSunday\Webtrees\Statistic\Repository\CountryRepository;
@@ -872,13 +873,8 @@ final readonly class Statistic
      * movement); only the top-N weighted links are returned.
      *
      * @param int $topLinks Maximum number of distinct flows to retain
-     *
-     * @return array{
-     *     nodes: list<array{name: string}>,
-     *     links: list<array{source: int, target: int, value: int, samples: list<array{name: string, xref: string}>}>
-     * }
      */
-    public function getMigrationFlows(int $topLinks): array
+    public function getMigrationFlows(int $topLinks): MigrationFlowsPayload
     {
         return $this->migrationRepository->flowsByCountry($topLinks);
     }

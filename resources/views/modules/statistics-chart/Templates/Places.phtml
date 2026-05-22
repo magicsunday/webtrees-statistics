@@ -179,7 +179,7 @@ echo view(
                             aria-label="<?php echo e(I18N::translate('About this chart')); ?>"
                         >?</button>
                     </h5>
-                    <small><?php echo I18N::plural('%s distinct migration path', '%s distinct migration paths', count($migrationFlows['links']), I18N::number(count($migrationFlows['links']))); ?></small>
+                    <small><?php echo I18N::plural('%s distinct migration path', '%s distinct migration paths', count($migrationFlows->links), I18N::number(count($migrationFlows->links))); ?></small>
                 </div>
                 <div class="card-body">
                     <?php

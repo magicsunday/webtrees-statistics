@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Architecture;
 
 use Illuminate\Database\Capsule\Manager;
+use JsonSerializable;
 use PHPat\Selector\Selector;
 use PHPat\Test\Attributes\TestRule;
 use PHPat\Test\Builder\Rule;
@@ -28,6 +29,7 @@ use PHPat\Test\PHPat;
  *   - Module        (composition root; wires Statistic → Repositories)
  *   - Statistic     (facade exposing widget-shaped getters to views)
  *   - Repository    (DB queries + GEDCOM scans, one per metric domain)
+ *   - Model\Dto     (immutable wire-shape value objects returned by repositories)
  *   - Support       (pure helpers: bucketing, GedcomScanner, ParentMap…)
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
@@ -160,5 +162,63 @@ final class ArchitectureTest
             ->shouldNot()->dependOn()
             ->classes(Selector::classname(self::NAMESPACE_ROOT . '\\Module'))
             ->because('Module.php is the composition root and may only be referenced from module.php');
+    }
+
+    /**
+     * Every DTO must be `final`. A subclass could add mutable state
+     * or override `jsonSerialize` and silently drift the wire
+     * shape — the whole point of moving repository return types
+     * from `array{…}` PHPDoc to typed DTOs is that the wire shape
+     * stays pinned at a single class per payload.
+     */
+    #[TestRule]
+    public function dtoClassesAreFinal(): Rule
+    {
+        return PHPat::rule()
+            ->classes(Selector::inNamespace(self::NAMESPACE_ROOT . '\\Model\\Dto'))
+            ->should()->beFinal()
+            ->because('DTOs must be final so the wire shape can never be subverted by a subclass');
+    }
+
+    /**
+     * Every DTO must implement `JsonSerializable`. The whole
+     * Model\Dto layer exists to be serialised to JSON for the
+     * chart-lib widgets via `json_encode`; a DTO without
+     * `jsonSerialize` would silently fall back to PHP's default
+     * object-serialisation (mangled property names) and break the
+     * widget contract on the wire.
+     */
+    #[TestRule]
+    public function dtoClassesAreJsonSerializable(): Rule
+    {
+        return PHPat::rule()
+            ->classes(Selector::inNamespace(self::NAMESPACE_ROOT . '\\Model\\Dto'))
+            ->should()->implement()
+            ->classes(Selector::classname(JsonSerializable::class))
+            ->because('DTOs ship to the wire via json_encode; without JsonSerializable the JSON shape would drift away from PHPDoc');
+    }
+
+    /**
+     * DTOs are pure value objects: they may not depend on a
+     * repository, the facade, the composition root, or even a
+     * Support helper. The dependency arrow points the other way —
+     * repositories construct DTOs from query results, the facade
+     * surfaces them, and the view layer consumes them. A DTO that
+     * pulled in a repository would turn into a service in
+     * disguise and break the layering this module relies on.
+     */
+    #[TestRule]
+    public function dtoDoesNotDependOnAnyOtherProductionLayer(): Rule
+    {
+        return PHPat::rule()
+            ->classes(Selector::inNamespace(self::NAMESPACE_ROOT . '\\Model\\Dto'))
+            ->shouldNot()->dependOn()
+            ->classes(
+                Selector::inNamespace(self::NAMESPACE_ROOT . '\\Repository'),
+                Selector::inNamespace(self::NAMESPACE_ROOT . '\\Support'),
+                Selector::classname(self::NAMESPACE_ROOT . '\\Statistic'),
+                Selector::classname(self::NAMESPACE_ROOT . '\\Module'),
+            )
+            ->because('DTOs are leaf value objects; only repositories/facade construct them, never the reverse');
     }
 }

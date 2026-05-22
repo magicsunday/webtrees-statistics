@@ -13,6 +13,10 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
+use MagicSunday\Webtrees\Statistic\Model\Dto\MigrationFlowsPayload;
+use MagicSunday\Webtrees\Statistic\Model\Dto\SankeyLink;
+use MagicSunday\Webtrees\Statistic\Model\Dto\SankeyNode;
+use MagicSunday\Webtrees\Statistic\Model\Dto\SankeySample;
 use MagicSunday\Webtrees\Statistic\Support\GedcomScanner;
 
 use function array_slice;
@@ -71,13 +75,8 @@ final readonly class MigrationRepository
      * path — the acceptance criterion from issue #12.
      *
      * @param int $topLinks Maximum number of distinct flows to retain
-     *
-     * @return array{
-     *     nodes: list<array{name: string}>,
-     *     links: list<array{source: int, target: int, value: int, samples: list<array{name: string, xref: string}>}>
-     * }
      */
-    public function flowsByCountry(int $topLinks): array
+    public function flowsByCountry(int $topLinks): MigrationFlowsPayload
     {
         // ORDER BY i_id pins iteration to the (lexicographic) xref
         // order so the SAMPLES_PER_FLOW cap always picks the same
@@ -129,15 +128,15 @@ final readonly class MigrationRepository
             $linkSamples[$key] ??= [];
 
             if (count($linkSamples[$key]) < self::SAMPLES_PER_FLOW) {
-                $linkSamples[$key][] = [
-                    'name' => GedcomScanner::extractPrimaryName($gedcom),
-                    'xref' => $xref,
-                ];
+                $linkSamples[$key][] = new SankeySample(
+                    name: GedcomScanner::extractPrimaryName($gedcom),
+                    xref: $xref,
+                );
             }
         }
 
         if ($linkWeight === []) {
-            return ['nodes' => [], 'links' => []];
+            return new MigrationFlowsPayload(nodes: [], links: []);
         }
 
         // Sort descending by weight, then keep the top-N flows.
@@ -162,12 +161,12 @@ final readonly class MigrationRepository
 
             if (!isset($sourceIndex[$origin])) {
                 $sourceIndex[$origin] = count($sourceNodes);
-                $sourceNodes[]        = ['name' => $origin];
+                $sourceNodes[]        = new SankeyNode(name: $origin);
             }
 
             if (!isset($targetIndex[$destination])) {
                 $targetIndex[$destination] = count($targetNodes);
-                $targetNodes[]             = ['name' => $destination];
+                $targetNodes[]             = new SankeyNode(name: $destination);
             }
 
             $rawLinks[] = [
@@ -186,18 +185,15 @@ final readonly class MigrationRepository
         $links            = [];
 
         foreach ($rawLinks as $link) {
-            $links[] = [
-                'source'  => $link['source'],
-                'target'  => $sourceColumnSize + $link['target'],
-                'value'   => $link['value'],
-                'samples' => $link['samples'],
-            ];
+            $links[] = new SankeyLink(
+                source: $link['source'],
+                target: $sourceColumnSize + $link['target'],
+                value: $link['value'],
+                samples: $link['samples'],
+            );
         }
 
-        return [
-            'nodes' => $nodes,
-            'links' => $links,
-        ];
+        return new MigrationFlowsPayload(nodes: $nodes, links: $links);
     }
 
     /**

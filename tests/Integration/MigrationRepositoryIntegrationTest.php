@@ -11,6 +11,9 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
+use MagicSunday\Webtrees\Statistic\Model\Dto\SankeyLink;
+use MagicSunday\Webtrees\Statistic\Model\Dto\SankeyNode;
+use MagicSunday\Webtrees\Statistic\Model\Dto\SankeySample;
 use MagicSunday\Webtrees\Statistic\Repository\MigrationRepository;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -50,33 +53,33 @@ final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
 
         // Four flows survive: Germany→USA (×4), Germany→England (×1),
         // Austria→France (×1), Germany→Canada (×1).
-        self::assertCount(4, $result['links']);
+        self::assertCount(4, $result->links);
 
         // Two source nodes (Germany, Austria) then four target nodes
         // (USA, England, France, Canada) in insertion order.
         self::assertSame(
             ['Germany', 'Austria', 'USA', 'England', 'France', 'Canada'],
-            array_map(static fn (array $node): string => $node['name'], $result['nodes']),
+            array_map(static fn (SankeyNode $node): string => $node->name, $result->nodes),
         );
 
         // Heaviest flow leads — Germany (source idx 0) → USA (target
         // idx 0, shifted by sourceColumnSize=2 to absolute idx 2).
-        $heaviest = $result['links'][0];
-        self::assertSame(0, $heaviest['source']);
-        self::assertSame(2, $heaviest['target']);
-        self::assertSame(4, $heaviest['value']);
-        self::assertNotEmpty($heaviest['samples']);
+        $heaviest = $result->links[0];
+        self::assertSame(0, $heaviest->source);
+        self::assertSame(2, $heaviest->target);
+        self::assertSame(4, $heaviest->value);
+        self::assertNotEmpty($heaviest->samples);
 
         // The remaining three flows are weighted 1.
-        $remainingValues = array_map(static fn (array $link): int => $link['value'], array_slice($result['links'], 1));
+        $remainingValues = array_map(static fn (SankeyLink $link): int => $link->value, array_slice($result->links, 1));
         self::assertSame([1, 1, 1], $remainingValues);
 
         // Every link respects the bipartite invariant: source index is
         // in the source column [0, 2), target index is in the target
         // column [2, 6).
-        foreach ($result['links'] as $link) {
-            self::assertLessThan(2, $link['source'], 'source index must be in the source column');
-            self::assertGreaterThanOrEqual(2, $link['target'], 'target index must be in the target column');
+        foreach ($result->links as $link) {
+            self::assertLessThan(2, $link->source, 'source index must be in the source column');
+            self::assertGreaterThanOrEqual(2, $link->target, 'target index must be in the target column');
         }
     }
 
@@ -91,14 +94,14 @@ final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('migration-flows.ged');
         $result = (new MigrationRepository($tree))->flowsByCountry(1);
 
-        self::assertCount(1, $result['links']);
-        self::assertSame(4, $result['links'][0]['value']);
+        self::assertCount(1, $result->links);
+        self::assertSame(4, $result->links[0]->value);
 
         // With only the Germany → USA flow surviving, the node table
         // shrinks to one source and one target.
-        self::assertCount(2, $result['nodes']);
-        self::assertSame('Germany', $result['nodes'][0]['name']);
-        self::assertSame('USA', $result['nodes'][1]['name']);
+        self::assertCount(2, $result->nodes);
+        self::assertSame('Germany', $result->nodes[0]->name);
+        self::assertSame('USA', $result->nodes[1]->name);
     }
 
     /**
@@ -112,8 +115,8 @@ final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('migration-same-country.ged');
         $result = (new MigrationRepository($tree))->flowsByCountry(10);
 
-        self::assertSame([], $result['nodes']);
-        self::assertSame([], $result['links']);
+        self::assertSame([], $result->nodes);
+        self::assertSame([], $result->links);
     }
 
     /**
@@ -138,14 +141,14 @@ final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('migration-flows.ged');
         $result = (new MigrationRepository($tree))->flowsByCountry(10);
 
-        $heaviest = $result['links'][0];
+        $heaviest = $result->links[0];
         // Germany → USA carries 4 contributors; samples cap at 3.
-        self::assertSame(4, $heaviest['value'], 'flow weight reflects all 4 contributors');
-        self::assertCount(3, $heaviest['samples'], 'sample list caps at SAMPLES_PER_FLOW=3');
+        self::assertSame(4, $heaviest->value, 'flow weight reflects all 4 contributors');
+        self::assertCount(3, $heaviest->samples, 'sample list caps at SAMPLES_PER_FLOW=3');
 
         $names = array_map(
-            static fn (array $sample): string => $sample['name'],
-            $heaviest['samples'],
+            static fn (SankeySample $sample): string => $sample->name,
+            $heaviest->samples,
         );
         // Every surfaced sample must be one of the four known Germany→USA
         // contributors — proves the cap picks from the right population.
@@ -160,8 +163,8 @@ final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
 
         // Every sample also carries its source xref so the tooltip
         // could link to the individual page if the consumer wants.
-        foreach ($heaviest['samples'] as $sample) {
-            self::assertStringStartsWith('I', $sample['xref']);
+        foreach ($heaviest->samples as $sample) {
+            self::assertStringStartsWith('I', $sample->xref);
         }
 
         // The thin Germany → Canada flow has exactly one contributor;
@@ -169,9 +172,9 @@ final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
         // a fixed length.
         $canada = null;
 
-        foreach ($result['links'] as $link) {
-            if (($link['value'] === 1)
-                && ($result['nodes'][$link['target']]['name'] === 'Canada')
+        foreach ($result->links as $link) {
+            if (($link->value === 1)
+                && ($result->nodes[$link->target]->name === 'Canada')
             ) {
                 $canada = $link;
 
@@ -180,7 +183,7 @@ final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
         }
 
         self::assertNotNull($canada);
-        self::assertCount(1, $canada['samples']);
+        self::assertCount(1, $canada->samples);
     }
 
     /**
@@ -196,9 +199,9 @@ final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('migration-noname.ged');
         $result = (new MigrationRepository($tree))->flowsByCountry(10);
 
-        self::assertCount(1, $result['links']);
-        self::assertCount(1, $result['links'][0]['samples']);
-        self::assertSame('(no name)', $result['links'][0]['samples'][0]['name']);
+        self::assertCount(1, $result->links);
+        self::assertCount(1, $result->links[0]->samples);
+        self::assertSame('(no name)', $result->links[0]->samples[0]->name);
     }
 
     /**
@@ -215,9 +218,9 @@ final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
 
         // Two flows: Germany → USA (×2) and USA → Germany (×1). Both
         // countries appear on both sides.
-        self::assertCount(2, $result['links']);
+        self::assertCount(2, $result->links);
 
-        $names = array_map(static fn (array $node): string => $node['name'], $result['nodes']);
+        $names = array_map(static fn (SankeyNode $node): string => $node->name, $result->nodes);
 
         // Germany and USA each appear twice: once on the source side,
         // once on the target side.
@@ -226,8 +229,8 @@ final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
 
         // No link can reference a source-index that equals its
         // target-index — would indicate a fold-back.
-        foreach ($result['links'] as $link) {
-            self::assertNotSame($link['source'], $link['target']);
+        foreach ($result->links as $link) {
+            self::assertNotSame($link->source, $link->target);
         }
     }
 }
