@@ -22,6 +22,8 @@ import {
     WorldMap,
 } from "@magicsunday/webtrees-chart-lib";
 
+import { DashboardBus } from "./dashboard-bus.js";
+
 const WORLD_GEOJSON_URL =
     "/index.php?route=%2Fmodule%2F_webtrees-statistics_%2FAsset&asset=js/world-map.geojson";
 
@@ -65,7 +67,11 @@ async function loadWorldGeoJson() {
  * @returns {(node: HTMLElement, data: unknown, options: object) => unknown}
  */
 function fromChartLib(Widget) {
-    return (node, data, options) => new Widget(node, options).draw(data);
+    return (node, data, options) => {
+        const widget = new Widget(node, options);
+        widget.draw(data);
+        return widget;
+    };
 }
 
 /**
@@ -88,7 +94,8 @@ async function drawWorldMap(node, data, options) {
         geojson,
         projection: geoMercator(),
     });
-    return widget.draw(data);
+    widget.draw(data);
+    return widget;
 }
 
 /**
@@ -129,6 +136,8 @@ const WIDGETS = {
  */
 export function renderWidgets(root) {
     const nodes = root.querySelectorAll("[data-widget]");
+    const bus = new DashboardBus();
+    const widgets = [];
 
     nodes.forEach((node) => {
         const widget = WIDGETS[node.dataset.widget];
@@ -139,11 +148,56 @@ export function renderWidgets(root) {
 
         const data = parseJsonAttribute(node.dataset.payload, null);
         const options = parseJsonAttribute(node.dataset.options, {});
+        const instance = widget(node, data, options);
 
-        widget(node, data, options);
+        // Async widgets (world-map) return a Promise instead of the
+        // widget instance; connect the bus inside the .then so the
+        // wiring happens once the widget has actually rendered.
+        if (instance instanceof Promise) {
+            instance.then((resolved) => connectToBus(resolved, bus, widgets));
+        } else {
+            connectToBus(instance, bus, widgets);
+        }
     });
 
     initPopovers(root);
+    return { bus, widgets };
+}
+
+/**
+ * Wire a single widget into the shared bus: emit clicks via
+ * `bus.emit`, re-broadcast incoming selections via the widget's
+ * `setSelection` hook. Widgets without a recognisable interface
+ * (no `onSelectionChanged` / `setSelection`) are skipped silently
+ * so the dispatcher stays additive — a future widget that opts in
+ * to the bus only needs to expose the two hooks.
+ *
+ * The receiver ignores echoes of its own emission so a widget never
+ * fights its own click via the round-trip.
+ *
+ * @param {object|null|undefined} instance
+ * @param {DashboardBus}          bus
+ * @param {Array<object>}         widgets   Mutated — every instance the bus accepted is pushed.
+ * @returns {void}
+ */
+function connectToBus(instance, bus, widgets) {
+    if (instance === null || instance === undefined) {
+        return;
+    }
+    if (typeof instance.onSelectionChanged !== "function") {
+        return;
+    }
+    widgets.push(instance);
+    const ownSource = typeof instance.options?.source === "string" ? instance.options.source : "";
+    instance.onSelectionChanged((payload) => bus.emit(payload));
+    bus.onSelectionChanged((payload) => {
+        if (payload.source === ownSource && ownSource !== "") {
+            return;
+        }
+        if (typeof instance.setSelection === "function") {
+            instance.setSelection(payload.predicate);
+        }
+    });
 }
 
 /**
