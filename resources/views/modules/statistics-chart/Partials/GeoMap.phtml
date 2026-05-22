@@ -10,6 +10,7 @@
 declare(strict_types=1);
 
 use Fisharebest\Webtrees\Tree;
+use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
 
 /**
  * @var string                                                            $identifier Host element id
@@ -21,7 +22,7 @@ use Fisharebest\Webtrees\Tree;
     <div id="<?php echo e($identifier); ?>"
          class="world-map"
          data-widget="world-map"
-         data-payload="<?php echo e(json_encode($data, JSON_THROW_ON_ERROR)); ?>"
-         data-options="<?php echo e(json_encode(['width' => 900, 'height' => 510], JSON_THROW_ON_ERROR)); ?>"
+         data-payload="<?php echo e(WidgetJson::encode($data)); ?>"
+         data-options="<?php echo e(WidgetJson::encode(['width' => 900, 'height' => 510])); ?>"
     ></div>
 </div>

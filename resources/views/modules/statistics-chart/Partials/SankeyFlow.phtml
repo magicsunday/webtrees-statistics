@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 use Fisharebest\Webtrees\I18N;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\MigrationFlowsPayload;
+use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
 
 /**
  * @var string                $identifier Host element id
@@ -32,8 +33,8 @@ $sankeyI18n = [
     <div id="<?php echo e($identifier); ?>"
          class="wt-sankey-host"
          data-widget="sankey-flow"
-         data-payload="<?php echo e(json_encode($data, JSON_THROW_ON_ERROR)); ?>"
-         data-options="<?php echo e(json_encode(['height' => $height, 'i18n' => $sankeyI18n], JSON_THROW_ON_ERROR)); ?>"
+         data-payload="<?php echo e(WidgetJson::encode($data)); ?>"
+         data-options="<?php echo e(WidgetJson::encode(['height' => $height, 'i18n' => $sankeyI18n])); ?>"
          data-empty-message="<?php echo e(I18N::translate('No country-to-country movements recorded yet.')); ?>"
     ></div>
 </div>

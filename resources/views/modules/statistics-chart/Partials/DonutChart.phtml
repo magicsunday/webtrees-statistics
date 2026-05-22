@@ -10,6 +10,7 @@
 declare(strict_types=1);
 
 use Fisharebest\Webtrees\I18N;
+use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
 
 /**
  * @var string                                                                      $identifier   Host element id
@@ -28,8 +29,8 @@ if (array_sum(array_column($data, 'value')) === 0) {
     <div id="<?php echo e($identifier); ?>"
          class="donut-chart"
          data-widget="donut"
-         data-payload="<?php echo e(json_encode($data, JSON_THROW_ON_ERROR)); ?>"
-         data-options="<?php echo e(json_encode(['holeSize' => 90, 'width' => 250, 'height' => 250], JSON_THROW_ON_ERROR)); ?>"
+         data-payload="<?php echo e(WidgetJson::encode($data)); ?>"
+         data-options="<?php echo e(WidgetJson::encode(['holeSize' => 90, 'width' => 250, 'height' => 250])); ?>"
     ></div>
 
     <table class="legend">

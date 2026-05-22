@@ -72,6 +72,18 @@ final readonly class MarriageRepository
     private const int AGE_GAP_LIMIT_HI = 30;
 
     /**
+     * Plausibility band for the spouse-at-marriage and longest-marriage
+     * records. Anything below this minimum is most likely a data-entry
+     * error (BIRT and MARR swapped); anything above is either a
+     * stepparent relationship or a stale BIRT. The two records reject
+     * candidates outside the band so neither extreme is captured by
+     * a single bad row.
+     */
+    private const int MIN_PLAUSIBLE_SPOUSE_AGE = 10;
+
+    private const int MAX_PLAUSIBLE_SPOUSE_AGE = 90;
+
+    /**
      * @param Tree           $tree The tree the statistics are computed for
      * @param StatisticsData $data Core accessor that exposes statsMarrAgeQuery + countEventsByCentury
      */
@@ -151,7 +163,7 @@ final readonly class MarriageRepository
             }
         }
 
-        if (($bestXref === null) || ($bestYears <= 0) || ($bestYears > 90)) {
+        if (($bestXref === null) || ($bestYears <= 0) || ($bestYears > self::MAX_PLAUSIBLE_SPOUSE_AGE)) {
             return null;
         }
 
@@ -203,7 +215,7 @@ final readonly class MarriageRepository
      * Youngest spouse at marriage: smallest positive (MARR julian-
      * day − spouse-BIRT julian-day) across the tree. Restricted to
      * one sex per call ('M' = husband, 'F' = wife). Implausible
-     * young ages (< 10) are dropped to filter out data-entry
+     * young ages (below {@see self::MIN_PLAUSIBLE_SPOUSE_AGE}) are dropped to filter out data-entry
      * errors where BIRT and MARR were swapped.
      *
      * @param string $sex 'M' for husbands, 'F' for wives
@@ -213,11 +225,11 @@ final readonly class MarriageRepository
         $best = null;
 
         foreach ($this->spouseAgeAtMarriage($sex) as $entry) {
-            if ($entry['years'] < 10) {
+            if ($entry['years'] < self::MIN_PLAUSIBLE_SPOUSE_AGE) {
                 continue;
             }
 
-            if ($entry['years'] > 90) {
+            if ($entry['years'] > self::MAX_PLAUSIBLE_SPOUSE_AGE) {
                 continue;
             }
 
@@ -243,11 +255,11 @@ final readonly class MarriageRepository
         $best = null;
 
         foreach ($this->spouseAgeAtMarriage($sex) as $entry) {
-            if ($entry['years'] < 10) {
+            if ($entry['years'] < self::MIN_PLAUSIBLE_SPOUSE_AGE) {
                 continue;
             }
 
-            if ($entry['years'] > 90) {
+            if ($entry['years'] > self::MAX_PLAUSIBLE_SPOUSE_AGE) {
                 continue;
             }
 

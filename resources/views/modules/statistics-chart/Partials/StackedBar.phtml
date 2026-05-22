@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 use Fisharebest\Webtrees\I18N;
 use MagicSunday\Webtrees\Statistic\Model\Dto\StackedBar\StackedBarPayload;
+use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
 
 /**
  * @var string            $identifier Host element id
@@ -34,14 +35,14 @@ $stackedBarI18n = [
     <div id="<?php echo e($identifier); ?>"
          class="wt-stacked-bar-host"
          data-widget="stacked-bar"
-         data-payload="<?php echo e(json_encode($data, JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE)); ?>"
-         data-options="<?php echo e(json_encode([
+         data-payload="<?php echo e(WidgetJson::encode($data)); ?>"
+         data-options="<?php echo e(WidgetJson::encode([
              'height'     => $height,
              'legend'     => $legend ?? null,
              'percentage' => $percentage ?? null,
              'ariaLabel'  => $ariaLabel ?? null,
              'i18n'       => $stackedBarI18n,
-         ], JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE)); ?>"
+         ])); ?>"
          data-empty-message="<?php echo e(I18N::translate('No data available yet.')); ?>"
     ></div>
 </div>

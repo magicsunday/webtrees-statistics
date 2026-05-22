@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 use Fisharebest\Webtrees\I18N;
 use MagicSunday\Webtrees\Statistic\Model\Dto\LineChart\LineChartPayload;
+use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
 
 /**
  * @var string           $identifier  Host element id
@@ -27,13 +28,13 @@ $xLabelEvery ??= 1;
     <div id="<?php echo e($identifier); ?>"
          class="wt-line-chart-host"
          data-widget="line-chart"
-         data-payload="<?php echo e(json_encode($data, JSON_THROW_ON_ERROR)); ?>"
-         data-options="<?php echo e(json_encode([
+         data-payload="<?php echo e(WidgetJson::encode($data)); ?>"
+         data-options="<?php echo e(WidgetJson::encode([
              'height'      => $height,
              'xLabelEvery' => $xLabelEvery,
              'showArea'    => $showArea ?? null,
              'ariaLabel'   => $ariaLabel ?? null,
-         ], JSON_THROW_ON_ERROR)); ?>"
+         ])); ?>"
          data-empty-message="<?php echo e(I18N::translate('No data available yet.')); ?>"
     ></div>
 </div>

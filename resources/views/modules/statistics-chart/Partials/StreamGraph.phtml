@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 use Fisharebest\Webtrees\I18N;
 use MagicSunday\Webtrees\Statistic\Model\Dto\StreamGraph\GivenNameTrendsPayload;
+use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
 
 /**
  * @var string                 $identifier Host element id
@@ -43,8 +44,8 @@ $streamGraphI18n = [
     <div id="<?php echo e($identifier); ?>"
          class="wt-stream-graph-host"
          data-widget="stream-graph"
-         data-payload="<?php echo e(json_encode($data, JSON_THROW_ON_ERROR)); ?>"
-         data-options="<?php echo e(json_encode(['height' => $height, 'i18n' => $streamGraphI18n], JSON_THROW_ON_ERROR)); ?>"
+         data-payload="<?php echo e(WidgetJson::encode($data)); ?>"
+         data-options="<?php echo e(WidgetJson::encode(['height' => $height, 'i18n' => $streamGraphI18n])); ?>"
          data-empty-message="<?php echo e(I18N::translate('No data available yet.')); ?>"
     ></div>
 </div>

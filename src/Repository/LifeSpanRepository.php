@@ -63,6 +63,13 @@ final readonly class LifeSpanRepository
     private const int MAX_BUCKET = 100;
 
     /**
+     * Tree-wide fallback for the per-tree `MAX_ALIVE_AGE` preference
+     * — webtrees defaults to 120 and so do we when the preference
+     * cannot be read or parsed.
+     */
+    private const int DEFAULT_MAX_ALIVE_AGE = 120;
+
+    /**
      * Minimum per-cohort sample size for the
      * lifespan-by-sex × century LineChart. A century × sex group
      * with fewer than this many dated deaths gets suppressed
@@ -494,21 +501,21 @@ final readonly class LifeSpanRepository
      * Per-tree plausibility ceiling for "max lifespan" / "max age
      * still considered alive" — webtrees keeps this as the
      * `MAX_ALIVE_AGE` preference on every tree (default 120).
-     * Falls back to 120 when the preference is missing or
-     * non-numeric so a fresh-import tree without preferences
-     * still produces sensible records.
+     * Falls back to {@see self::DEFAULT_MAX_ALIVE_AGE} when the
+     * preference is missing or non-numeric so a fresh-import tree
+     * without preferences still produces sensible records.
      */
     private function maxPlausibleAge(): int
     {
         $pref = $this->tree->getPreference('MAX_ALIVE_AGE');
 
         if (!is_numeric($pref)) {
-            return 120;
+            return self::DEFAULT_MAX_ALIVE_AGE;
         }
 
         $value = (int) $pref;
 
-        return $value > 0 ? $value : 120;
+        return $value > 0 ? $value : self::DEFAULT_MAX_ALIVE_AGE;
     }
 
     /**
