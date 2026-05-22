@@ -13,6 +13,7 @@ namespace MagicSunday\Webtrees\Statistic\Support;
 
 use function explode;
 use function implode;
+use function in_array;
 use function mb_convert_encoding;
 use function mb_substitute_character;
 use function preg_match;

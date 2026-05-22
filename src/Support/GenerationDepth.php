@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Support;
 
+use function array_fill;
 use function array_keys;
 use function array_pop;
 use function array_reverse;
@@ -80,11 +81,7 @@ final readonly class GenerationDepth
             $maxDepth = max($maxDepth, $depth);
         }
 
-        $distribution = [];
-
-        for ($i = 0; $i <= $maxDepth; ++$i) {
-            $distribution[$i] = 0;
-        }
+        $distribution = array_fill(0, $maxDepth + 1, 0);
 
         foreach ($depthCache as $depth) {
             $distribution[$depth] = ($distribution[$depth] ?? 0) + 1;
@@ -282,18 +279,18 @@ final readonly class GenerationDepth
     }
 
     /**
-     * Iteratively walk downward from `$id`, returning the largest
-     * generation distance to any leaf descendant. Memoised so the
-     * same descendant is not re-explored when reached through
-     * multiple ancestors.
+     * Iteratively walk downward from `$id` and write the largest
+     * generation distance to any leaf descendant into
+     * `$depthCache[$id]`. Memoised so the same descendant is not
+     * re-explored when reached through multiple ancestors.
      *
      * @param array<string, list<string>> $childrenOf
      * @param array<string, int>          $depthCache In/out cache, mutated on every call
      */
-    private static function deepestDescendantDistance(array $childrenOf, string $id, array &$depthCache): int
+    private static function deepestDescendantDistance(array $childrenOf, string $id, array &$depthCache): void
     {
         if (isset($depthCache[$id])) {
-            return $depthCache[$id];
+            return;
         }
 
         // DFS with an explicit stack so deep chains don't blow PHP's
@@ -328,8 +325,6 @@ final readonly class GenerationDepth
         }
 
         $depthCache[$id] = $deepest;
-
-        return $deepest;
     }
 
     /**
@@ -434,10 +429,10 @@ final readonly class GenerationDepth
      * @param array<string, array{0: string|null, 1: string|null}> $parentOf
      * @param array<string, int>                                   $cache    In/out cache, mutated on every call
      */
-    private static function deepestAncestorDistance(array $parentOf, string $id, array &$cache): int
+    private static function deepestAncestorDistance(array $parentOf, string $id, array &$cache): void
     {
         if (isset($cache[$id])) {
-            return $cache[$id];
+            return;
         }
 
         /** @var list<array{0: string, 1: int}> $stack */
@@ -475,7 +470,5 @@ final readonly class GenerationDepth
         }
 
         $cache[$id] = $deepest;
-
-        return $deepest;
     }
 }

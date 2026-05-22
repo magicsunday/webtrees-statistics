@@ -38,6 +38,7 @@ use function html_entity_decode;
 use function intdiv;
 use function ksort;
 use function max;
+use function min;
 use function sort;
 use function strip_tags;
 use function substr;
@@ -116,8 +117,7 @@ final readonly class ChildrenRepository
                 $n = 0;
             }
 
-            $index = $n >= self::CHILDREN_HISTOGRAM_MAX ? self::CHILDREN_HISTOGRAM_MAX : $n;
-            ++$counts[$index];
+            ++$counts[min($n, self::CHILDREN_HISTOGRAM_MAX)];
         }
 
         $labels = [];

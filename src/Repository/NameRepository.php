@@ -13,6 +13,8 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\StatisticsData;
 
+use function count;
+
 use const PHP_INT_MAX;
 
 /**
