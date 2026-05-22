@@ -19,7 +19,7 @@ This repository hosts the webtrees statistics module — a six-tab dashboard of 
 - Single PHPUnit test: `composer ci:test:php:unit -- --filter TestClassName`.
 - Auto-fix: `composer ci:cgl` (PHP style), `composer ci:rector` (Rector), `npm run lint:fix` + `npm run format` (Biome).
 - JS bundles: `make build` (rollup), `make watch` (dev rebuild loop).
-- Translations: `make lang` (compile .po → .mo). All locale files must have non-empty `msgstr` entries.
+- Translations: `make lang` runs the full pipeline — extract `resources/lang/messages.pot` from `src/` + `resources/views/`, merge it into each locale's `messages.po` (seeding missing ones via `msginit`), and compile every PO to MO. Sub-targets `lang-extract`, `lang-merge`, `lang-compile` exist for partial runs. The POT itself is gitignored (regenerated on demand); the PO + MO files are committed.
 - Add PHPUnit attribute-based coverage (positive AND negative cases) for every class/method introduced or modified — the project follows the "test every class" standard.
 - PHPStan runs at `level: max` against `src/` with no baseline. Every change fixes the underlying defect; the baseline file is intentionally absent so future drift cannot be ignored.
 
@@ -89,6 +89,14 @@ The `Statistic` aggregator service is resolved via the webtrees DI container (`R
 - **`dashboard-bus.js`** — Shared selection observable (see Cross-widget selection bus section below).
 
 All d3 modules are peer-dependencies pulled in via `package.json` — `d3-array`, `d3-axis`, `d3-ease`, `d3-fetch`, `d3-geo`, `d3-interpolate`, `d3-sankey`, `d3-scale`, `d3-scale-chromatic`, `d3-selection`, `d3-shape`, `d3-transition` — declared as `external` in `rollup.config.js`.
+
+### Translations (`resources/lang/<locale>/`)
+- 11 locale baselines ship in the repo: `en-US`, `de`, `fr`, `nl`, `pl`, `da`, `ru`, `it`, `zh-Hans`, `cs`, `nb`. Locale selection follows the dev.webtrees.net installation share (top 10 by usage) plus `en-US` as the Poedit-editor reference (its msgstr mirrors the msgid). German (`de`) is the primary maintained locale and ships near-complete `msgstr` entries. The other 9 ship best-effort baselines (UI labels, common nouns, card titles, plurals); native-speaker translators are expected to refine via Poedit. A `msgstr ""` falls back to the English `msgid` automatically.
+- `make lang` is the single entry point for the i18n pipeline:
+    1. `lang-extract`: `xgettext` walks `src/` + `resources/views/` for `I18N::translate`, `I18N::plural`, `I18N::translateContext` calls, writes `resources/lang/messages.pot` (gitignored).
+    2. `lang-merge`: `msgmerge` reconciles each locale's `messages.po` with the fresh POT, `msginit`-seeds any missing locale entry.
+    3. `lang-compile`: `msgfmt` produces every `messages.mo` from its sibling `messages.po`. Webtrees core reads the MO at runtime via the module's resource loader.
+- The `*.pot` file is gitignored; PO + MO are committed. Adding a new locale: append the language code to the `LOCALES :=` list in `Make/lang.mk`, then run `make lang` once.
 
 ## Key patterns
 - **Bucket precedence (per individual)**: current > divorced > widowed > single. Applied in `FamilyRepository::classifyOneIndividual()` so a remarried-after-widowed living person is classed as "current", not "widowed".

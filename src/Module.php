@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic;
 
+use Fisharebest\Localization\Translation;
 use Fisharebest\Webtrees\Auth;
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Module\ModuleChartInterface;
@@ -26,6 +27,7 @@ use Override;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
+use function is_file;
 use function realpath;
 
 /**
@@ -105,6 +107,30 @@ class Module extends StatisticsChartModule implements ModuleAssetUrlInterface, M
     public function chartMenuClass(): string
     {
         return 'menu-chart-statistics';
+    }
+
+    /**
+     * Load the compiled gettext catalogue for the requested locale
+     * so I18N::translate() returns the module's own translations
+     * rather than falling back to the English msgid. Returns an
+     * empty array when no MO file ships for the language (webtrees
+     * core then keeps the English baseline).
+     *
+     * @return array<string, string>
+     */
+    #[Override]
+    public function customTranslations(string $language): array
+    {
+        $catalogue = $this->resourcesFolder() . 'lang/' . $language . '/messages.mo';
+
+        if (!is_file($catalogue)) {
+            return [];
+        }
+
+        /** @var array<string, string> $translations */
+        $translations = (new Translation($catalogue))->asArray();
+
+        return $translations;
     }
 
     /**
