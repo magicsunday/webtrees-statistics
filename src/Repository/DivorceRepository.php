@@ -18,6 +18,7 @@ use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Model\Dto\StackedBar\StackedBarPayload;
 use MagicSunday\Webtrees\Statistic\Model\Dto\StackedBar\StackedBarSeries;
+use MagicSunday\Webtrees\Statistic\Support\AgeBuckets;
 use MagicSunday\Webtrees\Statistic\Support\CenturyName;
 
 use function array_key_last;
@@ -147,7 +148,7 @@ final readonly class DivorceRepository
             ])
             ->get();
 
-        $buckets = $this->initBuckets(0, self::AGE_AT_DIVORCE_MAX, self::AGE_AT_DIVORCE_BUCKET);
+        $buckets = AgeBuckets::init(0, self::AGE_AT_DIVORCE_MAX, self::AGE_AT_DIVORCE_BUCKET);
 
         foreach ($rows as $row) {
             $divJd   = is_numeric($row->div_jd ?? null) ? (int) $row->div_jd : 0;
@@ -166,7 +167,7 @@ final readonly class DivorceRepository
             }
 
             $years = intdiv($divJd - $birthJd, 365);
-            $label = $this->bucketLabel($years);
+            $label = AgeBuckets::label($years, self::AGE_AT_DIVORCE_MAX, self::AGE_AT_DIVORCE_BUCKET);
 
             $buckets[$label] = ($buckets[$label] ?? 0) + 1;
         }
@@ -453,38 +454,5 @@ final readonly class DivorceRepository
         }
 
         return $rates;
-    }
-
-    /**
-     * Initialise an integer-keyed bucket map [0, max) plus a "max+"
-     * overflow.
-     *
-     * @return array<string, int>
-     */
-    private function initBuckets(int $minInclusive, int $maxExclusive, int $width): array
-    {
-        $buckets = [];
-
-        for ($lower = $minInclusive; $lower < $maxExclusive; $lower += $width) {
-            $buckets[$lower . '–' . ($lower + $width - 1)] = 0;
-        }
-
-        $buckets[$maxExclusive . '+'] = 0;
-
-        return $buckets;
-    }
-
-    /**
-     * Resolve an integer value to the matching bucket label.
-     */
-    private function bucketLabel(int $value): string
-    {
-        if ($value >= self::AGE_AT_DIVORCE_MAX) {
-            return self::AGE_AT_DIVORCE_MAX . '+';
-        }
-
-        $lower = intdiv($value, self::AGE_AT_DIVORCE_BUCKET) * self::AGE_AT_DIVORCE_BUCKET;
-
-        return $lower . '–' . ($lower + self::AGE_AT_DIVORCE_BUCKET - 1);
     }
 }

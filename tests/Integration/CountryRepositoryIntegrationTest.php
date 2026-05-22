@@ -35,6 +35,19 @@ use function sort;
 final class CountryRepositoryIntegrationTest extends IntegrationTestCase
 {
     /**
+     * Reset the IsoCountryMap singleton cache before every test so
+     * each scenario sees a freshly-loaded ISO table — the cache is
+     * shared across the suite and would otherwise leak in-memory
+     * state between fixtures.
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        IsoCountryMap::clearCache();
+    }
+
+    /**
      * Births aggregated per country, including the Munich (3-segment
      * place) → Germany and Wien → Austria collapses. Atlantis is not
      * a country and is silently skipped; the empty BIRT (I5) and
@@ -43,8 +56,6 @@ final class CountryRepositoryIntegrationTest extends IntegrationTestCase
     #[Test]
     public function countByCountryReturnsExpectedBirthDistribution(): void
     {
-        IsoCountryMap::clearCache();
-
         $tree   = $this->importFixtureTree('places-test.ged');
         $result = (new CountryRepository($tree, new IsoCountryMap()))->countByCountry('BIRT');
 
@@ -73,8 +84,6 @@ final class CountryRepositoryIntegrationTest extends IntegrationTestCase
     #[Test]
     public function countByCountryReturnsExpectedDeathDistribution(): void
     {
-        IsoCountryMap::clearCache();
-
         $tree   = $this->importFixtureTree('places-test.ged');
         $result = (new CountryRepository($tree, new IsoCountryMap()))->countByCountry('DEAT');
 
@@ -102,8 +111,6 @@ final class CountryRepositoryIntegrationTest extends IntegrationTestCase
     #[Test]
     public function countByCountryEntriesCarryLocalisedLabels(): void
     {
-        IsoCountryMap::clearCache();
-
         $tree   = $this->importFixtureTree('places-test.ged');
         $result = (new CountryRepository($tree, new IsoCountryMap()))->countByCountry('BIRT');
 
@@ -127,8 +134,6 @@ final class CountryRepositoryIntegrationTest extends IntegrationTestCase
     #[Test]
     public function countByCountryCollapsesDeeplyNestedPlaceHierarchy(): void
     {
-        IsoCountryMap::clearCache();
-
         $tree   = $this->importFixtureTree('places-test.ged');
         $result = (new CountryRepository($tree, new IsoCountryMap()))->countByCountry('BIRT');
 
@@ -170,8 +175,6 @@ final class CountryRepositoryIntegrationTest extends IntegrationTestCase
     #[Test]
     public function countByCountryHandlesDiacriticsInCountryName(): void
     {
-        IsoCountryMap::clearCache();
-
         $tree = $this->importFixtureTree('places-test.ged');
         $repo = new CountryRepository($tree, new IsoCountryMap());
 
@@ -206,8 +209,6 @@ final class CountryRepositoryIntegrationTest extends IntegrationTestCase
     #[Test]
     public function countByCountrySumMatchesResolvableIndividuals(): void
     {
-        IsoCountryMap::clearCache();
-
         $tree   = $this->importFixtureTree('places-test.ged');
         $result = (new CountryRepository($tree, new IsoCountryMap()))->countByCountry('BIRT');
 
@@ -241,8 +242,6 @@ final class CountryRepositoryIntegrationTest extends IntegrationTestCase
     #[Test]
     public function residencesByCountryCountsEachResiOccurrence(): void
     {
-        IsoCountryMap::clearCache();
-
         $tree   = $this->importFixtureTree('residences.ged');
         $result = (new CountryRepository($tree, new IsoCountryMap()))->residencesByCountry();
 
