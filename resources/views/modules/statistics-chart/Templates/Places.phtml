@@ -167,17 +167,7 @@ echo view(
                 <div class="card-header">
                     <h5 class="card-title">
                         <?php echo I18N::translate('Migrations between birth and death country'); ?>
-                        <button
-                            type="button"
-                            class="wt-card-info-button"
-                            data-bs-toggle="popover"
-                            data-bs-trigger="hover focus"
-                            data-bs-placement="top"
-                            data-bs-html="false"
-                            data-bs-title="<?php echo e(I18N::translate('About this chart')); ?>"
-                            data-bs-content="<?php echo e($sankeyExplanation); ?>"
-                            aria-label="<?php echo e(I18N::translate('About this chart')); ?>"
-                        >?</button>
+                        <?php echo view($module . '::modules/statistics-chart/Partials/InfoTrigger', ['content' => $sankeyExplanation]); ?>
                     </h5>
                     <small><?php echo I18N::plural('%s distinct migration path', '%s distinct migration paths', count($migrationFlows->links), I18N::number(count($migrationFlows->links))); ?></small>
                 </div>
@@ -208,18 +198,7 @@ echo view(
                 <div class="card-header">
                     <h5 class="card-title">
                         <?php echo I18N::translate('Geographic dispersion'); ?>
-                        <button
-                            type="button"
-                            class="wt-card-info-button"
-                            data-bs-toggle="popover"
-                            data-bs-trigger="hover focus"
-                            data-bs-placement="top"
-                            data-bs-html="false"
-                            data-bs-custom-class="wt-popover-wide"
-                            data-bs-title="<?php echo e(I18N::translate('About this metric')); ?>"
-                            data-bs-content="<?php echo e($placeDispersionExplanation); ?>"
-                            aria-label="<?php echo e(I18N::translate('About this metric')); ?>"
-                        >?</button>
+                        <?php echo view($module . '::modules/statistics-chart/Partials/InfoTrigger', ['content' => $placeDispersionExplanation, 'kind' => 'metric', 'wide' => true]); ?>
                     </h5>
                     <small><?php echo I18N::translate('Average count of distinct PLAC values per individual across BIRT, DEAT, BAPM, BURI, RESI and similar level-1 events.'); ?></small>
                 </div>

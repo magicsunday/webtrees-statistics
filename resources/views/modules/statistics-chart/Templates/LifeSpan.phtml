@@ -275,18 +275,7 @@ $childMortalityPayload = [
                 <div class="card-header">
                     <h5 class="card-title">
                         <?php echo I18N::translate('Child mortality (under 5)'); ?>
-                        <button
-                            type="button"
-                            class="wt-card-info-button"
-                            data-bs-toggle="popover"
-                            data-bs-trigger="hover focus"
-                            data-bs-placement="top"
-                            data-bs-html="false"
-                            data-bs-custom-class="wt-popover-wide"
-                            data-bs-title="<?php echo e(I18N::translate('About this metric')); ?>"
-                            data-bs-content="<?php echo e($childMortalityExplanation); ?>"
-                            aria-label="<?php echo e(I18N::translate('About this metric')); ?>"
-                        >?</button>
+                        <?php echo view($module . '::modules/statistics-chart/Partials/InfoTrigger', ['content' => $childMortalityExplanation, 'kind' => 'metric', 'wide' => true]); ?>
                     </h5>
                     <small><?php echo I18N::translate('Share of individuals with both birth and death dates whose death occurred before their 5th birthday.'); ?></small>
                 </div>

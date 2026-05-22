@@ -428,18 +428,7 @@ $divorcesAgeBandExplain = I18N::translate(
                 <div class="card-header">
                     <h5 class="card-title">
                         <?php echo I18N::translate('Divorces by century × age band'); ?>
-                        <button
-                            type="button"
-                            class="wt-card-info-button"
-                            data-bs-toggle="popover"
-                            data-bs-trigger="hover focus"
-                            data-bs-placement="top"
-                            data-bs-html="false"
-                            data-bs-custom-class="wt-popover-wide"
-                            data-bs-title="<?php echo e(I18N::translate('About this chart')); ?>"
-                            data-bs-content="<?php echo e($divorcesAgeBandExplain); ?>"
-                            aria-label="<?php echo e(I18N::translate('About this chart')); ?>"
-                        >?</button>
+                        <?php echo view($module . '::modules/statistics-chart/Partials/InfoTrigger', ['content' => $divorcesAgeBandExplain, 'wide' => true]); ?>
                     </h5>
                     <small><?php echo I18N::translate('Per-century stack of spouse ages at divorce.'); ?></small>
                 </div>
@@ -655,18 +644,7 @@ $divorcesAgeBandExplain = I18N::translate(
                 <div class="card-header">
                     <h5 class="card-title">
                         <?php echo I18N::translate('Average pedigree completeness'); ?>
-                        <button
-                            type="button"
-                            class="wt-card-info-button"
-                            data-bs-toggle="popover"
-                            data-bs-trigger="hover focus"
-                            data-bs-placement="top"
-                            data-bs-html="false"
-                            data-bs-custom-class="wt-popover-wide"
-                            data-bs-title="<?php echo e(I18N::translate('About this chart')); ?>"
-                            data-bs-content="<?php echo e($pedigreeExplanation); ?>"
-                            aria-label="<?php echo e(I18N::translate('About this chart')); ?>"
-                        >?</button>
+                        <?php echo view($module . '::modules/statistics-chart/Partials/InfoTrigger', ['content' => $pedigreeExplanation, 'wide' => true]); ?>
                     </h5>
                     <small><?php echo I18N::translate('Lacy 1989 — mean fraction of direct ancestors known up to four generations across all individuals.'); ?></small>
                 </div>
@@ -760,18 +738,7 @@ if ($cohortCategories !== []) {
                 <div class="card-header">
                     <h5 class="card-title">
                         <?php echo I18N::translate('Maximum generation depth'); ?>
-                        <button
-                            type="button"
-                            class="wt-card-info-button"
-                            data-bs-toggle="popover"
-                            data-bs-trigger="hover focus"
-                            data-bs-placement="top"
-                            data-bs-html="false"
-                            data-bs-custom-class="wt-popover-wide"
-                            data-bs-title="<?php echo e(I18N::translate('About this metric')); ?>"
-                            data-bs-content="<?php echo e($generationDepthExplanation); ?>"
-                            aria-label="<?php echo e(I18N::translate('About this metric')); ?>"
-                        >?</button>
+                        <?php echo view($module . '::modules/statistics-chart/Partials/InfoTrigger', ['content' => $generationDepthExplanation, 'kind' => 'metric', 'wide' => true]); ?>
                     </h5>
                     <small><?php echo I18N::translate('Longest verified vertical chain from a leaf descendant up to its furthest ancestor.'); ?></small>
                 </div>
@@ -834,18 +801,7 @@ if ($cohortCategories !== []) {
                 <div class="card-header">
                     <h5 class="card-title">
                         <?php echo I18N::translate('Generation depth distribution'); ?>
-                        <button
-                            type="button"
-                            class="wt-card-info-button"
-                            data-bs-toggle="popover"
-                            data-bs-trigger="hover focus"
-                            data-bs-placement="top"
-                            data-bs-html="false"
-                            data-bs-custom-class="wt-popover-wide"
-                            data-bs-title="<?php echo e(I18N::translate('About this histogram')); ?>"
-                            data-bs-content="<?php echo e($generationDepthDistributionExplanation); ?>"
-                            aria-label="<?php echo e(I18N::translate('About this histogram')); ?>"
-                        >?</button>
+                        <?php echo view($module . '::modules/statistics-chart/Partials/InfoTrigger', ['content' => $generationDepthDistributionExplanation, 'kind' => 'histogram', 'wide' => true]); ?>
                     </h5>
                     <small><?php echo I18N::translate('How many individuals sit at exactly N generations above their deepest recorded descendant.'); ?></small>
                 </div>
@@ -874,18 +830,7 @@ if ($cohortCategories !== []) {
                 <div class="card-header">
                     <h5 class="card-title">
                         <?php echo I18N::translate('Endogamy rate (within 4 generations)'); ?>
-                        <button
-                            type="button"
-                            class="wt-card-info-button"
-                            data-bs-toggle="popover"
-                            data-bs-trigger="hover focus"
-                            data-bs-placement="top"
-                            data-bs-html="false"
-                            data-bs-custom-class="wt-popover-wide"
-                            data-bs-title="<?php echo e(I18N::translate('About this metric')); ?>"
-                            data-bs-content="<?php echo e($endogamyExplanation); ?>"
-                            aria-label="<?php echo e(I18N::translate('About this metric')); ?>"
-                        >?</button>
+                        <?php echo view($module . '::modules/statistics-chart/Partials/InfoTrigger', ['content' => $endogamyExplanation, 'kind' => 'metric', 'wide' => true]); ?>
                     </h5>
                     <small><?php echo I18N::translate('Couples whose spouses share at least one common ancestor within four generations — a marker of cousin marriages and pedigree collapse.'); ?></small>
                 </div>
@@ -894,14 +839,14 @@ if ($cohortCategories !== []) {
             echo view(
                 $module . '::modules/statistics-chart/Partials/Scalar',
                 [
-                    'value'   => I18N::number($endogamy['rate'], 1),
+                    'value'   => I18N::number($endogamy->rate, 1),
                     'unit'    => '%',
                     'caption' => I18N::plural(
                         '%1$s of %2$s couple where both spouses had at least one recorded parent share a common ancestor.',
                         '%1$s of %2$s couples where both spouses had at least one recorded parent share a common ancestor.',
-                        $endogamy['total'],
-                        I18N::number($endogamy['endogamous']),
-                        I18N::number($endogamy['total']),
+                        $endogamy->total,
+                        I18N::number($endogamy->endogamous),
+                        I18N::number($endogamy->total),
                     ),
                 ],
             );
