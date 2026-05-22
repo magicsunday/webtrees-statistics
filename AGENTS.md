@@ -30,25 +30,37 @@ This repository hosts the webtrees statistics module — a six-tab dashboard of 
 ```
 Module.php (entry point, registers route + 6 tab action methods)
   → Templates/<TabName>.phtml (tab body — Overview, Names, TreeHealth, LifeSpan, Family, Places)
-    → Partials/<WidgetName>.phtml (DonutChart, ProgressList, GeoMap, TagCloud, StreamGraph, SankeyFlow)
+    → Partials/<WidgetName>.phtml (DonutChart, ProgressList, LineChart, BarChart, StackedBar,
+                                   DivergingBar, AreaDensity, GeoMap, SankeyFlow, ChordDiagram,
+                                   StreamGraph, TagCloud, RateList, Scalar, InfoTrigger)
       → renders <div data-widget="..." data-payload="..." data-options="...">
         → page.phtml AJAX-tab-callback fires
           WebtreesStatistic.renderWidgets(tabPane)
             → modules/index.js dispatch table:
-              donut        → @magicsunday/webtrees-chart-lib::DonutChart
-              world-map    → drawWorldMap (geojson fetch wrapper around chart-lib WorldMap)
-              stream-graph → @magicsunday/webtrees-chart-lib::StreamGraph
-              sankey-flow  → @magicsunday/webtrees-chart-lib::SankeyFlow
+              donut         → @magicsunday/webtrees-chart-lib::DonutChart
+              world-map     → drawWorldMap (geojson fetch wrapper around chart-lib WorldMap)
+              stream-graph  → @magicsunday/webtrees-chart-lib::StreamGraph
+              sankey-flow   → @magicsunday/webtrees-chart-lib::SankeyFlow
+              line-chart    → @magicsunday/webtrees-chart-lib::LineChart
+              bar-chart     → @magicsunday/webtrees-chart-lib::BarChart
+              stacked-bar   → @magicsunday/webtrees-chart-lib::StackedBar
+              diverging-bar → @magicsunday/webtrees-chart-lib::DivergingBar
+              area-density  → @magicsunday/webtrees-chart-lib::AreaDensity
+              box-plot      → @magicsunday/webtrees-chart-lib::BoxPlot
+              chord-diagram → @magicsunday/webtrees-chart-lib::ChordDiagram
 ```
 
 Every tab action delegates to the private `renderTab(string $template)` helper, which loads `Templates/<template>.phtml` with the active `Statistic` aggregator. Adding a new tab is a three-place change: an entry in `tabCatalog()`, a `get<Name>Action()` method that calls `renderTab('<Name>')`, and a `Templates/<Name>.phtml` body.
 
-The `Statistic` aggregator service is resolved via the webtrees DI container (`Registry::container()->get(Statistic::class)`) and aggregates data from fifteen repositories plus core's `StatisticsData`.
+The `Statistic` aggregator service is resolved via the webtrees DI container (`Registry::container()->get(Statistic::class)`) and aggregates data from twenty-one repositories plus core's `StatisticsData`.
 
 ### PHP (`src/`)
 - **`Module.php`** — Entry point, extends webtrees `StatisticsChartModule`, implements `ModuleAssetUrlInterface` + `ModuleCustomInterface`. Registers six tab actions (Overview, Names, TreeHealth, LifeSpan, Family, Places) that all delegate to a shared `renderTab()` helper.
-- **`Statistic.php`** — `final readonly` aggregator service. Constructor-injects `StatisticsData` (core) plus the fifteen repositories. Public methods return either scalars, `[{label, value, class?}]` shapes for chart-lib widgets, or `label => count` maps for the ProgressList partial.
-- **`MaritalBucket.php`** — Backed enum (`current` / `divorced` / `widowed` / `single`) used as the typed bucket-key for `FamilyRepository::classifyLivingIndividuals()`.
+- **`Statistic.php`** — `final readonly` aggregator service. Constructor-injects `StatisticsData` (core) plus the twenty-one repositories. Public methods return either scalars, typed DTOs from `Model/Dto/` (LineChart / StackedBar / Sankey / Chord / StreamGraph / Tree / Record / Metric payloads), `[{label, value, class?}]` shapes for chart-lib widgets, or `label => count` maps for the ProgressList partial.
+- **`Sex.php`** — Backed enum (`M` / `F`) used internally by the marriage / divorce / parenthood repositories to pick the correct spouse column via `spouseColumn()`. Repository public methods accept a raw `string $sex` and convert via `Sex::from(…)`; the `Statistic` facade exposes M-specific and F-specific methods (or pre-paired tuples) rather than a sex parameter, so the enum stays purely internal to the repository layer.
+- **`Model/MaritalBucket.php`** — Backed enum (`current` / `divorced` / `widowed` / `single`) used as the typed bucket-key for `FamilyRepository::classifyLivingIndividuals()`.
+- **`Model/FamilyRow.php`** — DTO for the raw FAM row carried through the marital-classification pipeline.
+- **`Model/Dto/`** — Wire-format DTOs grouped by chart-lib widget shape (`LineChart/`, `StackedBar/`, `Sankey/`, `Chord/`, `StreamGraph/`, `Tree/`, `Record/`, `Metric/`). Each implements `JsonSerializable` so the partial layer just JSON-encodes the value.
 
 ### Repositories (`src/Repository/`)
 | Repository | Responsibility |
@@ -56,33 +68,43 @@ The `Statistic` aggregator service is resolved via the webtrees DI container (`R
 | `FamilyRepository` | Marital-status classification (current / divorced / widowed / single) |
 | `EventRepository` | Births-by-zodiac-sign — the one stat core doesn't expose |
 | `NameRepository` | Distinct surname / given-name counts, restricted to `n_num = 0` |
-| `TreeHealthRepository` | Source-citation coverage, missing-event gaps, average generation length |
+| `TreeHealthRepository` | Source-citation coverage, missing-event gaps, average generation length, per-issue stacked breakdown |
 | `GivenNameTrendsRepository` | Per-decade frequency of the top-N given names for the stream graph |
 | `MigrationRepository` | Birth → death country flows for the Sankey diagram (bipartite split for DAG safety) |
 | `CountryRepository` | Births / deaths grouped by ISO-3166-1 alpha-2 country |
-| `LifeSpanRepository` | Age-at-death histogram, oldest deceased / living, age-band donut |
+| `LifeSpanRepository` | Age-at-death histogram, oldest deceased / living, age-band donut, seasonality scoring, lifespan-by-sex×century |
 | `MarriageRepository` | Age at marriage M+F, duration, couple age-gap, weddings century+month |
 | `DivorceRepository` | Divorces by century / month, age at divorce M+F, divorce rate per MARR cohort |
 | `ChildrenRepository` | Children-per-family histogram, sibling-age-gap, top-10 largest families, childless donut, first-children-by-month |
+| `ParenthoodRepository` | Age-at-first-child distributions per sex, parent-of-first-child records |
+| `EndogamyRepository` | Couple-pairs sharing a common ancestor within a configurable depth; emits a typed `EndogamyRate` |
 | `KinshipRepository` | Known-ancestor distribution + average pedigree completeness (Lacy 1989) |
-| `OccupationRepository` | Top-N occupations (`1 OCCU` facts), case-folded merge of spelling variants. Cached per instance — both top-N and distinct count read from one aggregation. |
-| `ReligionRepository` | Top-N religions / confessions (`1 RELI` facts), case-folded. Cached as above. |
-| `DeathCauseRepository` | Top-N causes of death (`2 CAUS` sub-tag inside `1 DEAT`), case-folded. Cached as above. |
+| `GenerationDepthRepository` | Tree-wide deepest-line summary backed by the `GenerationDepth` support helper |
+| `ChildMortalityRepository` | Under-5 mortality rate per birth century |
+| `PlaceDispersionRepository` | Birth-place clustering scalar (entropy across countries) |
+| `MarriageMatrixRepository` | Symmetric surname-marriage chord matrix |
+| `AbstractGedcomTagTopNRepository` | Shared scaffolding (`top()`, `countDistinct()`, cache, INDI-iteration template) for the three Top-N tag repos below |
+| `OccupationRepository` | Top-N occupations (`1 OCCU` facts), case-folded merge of spelling variants. Extends the abstract base. |
+| `ReligionRepository` | Top-N religions / confessions (`1 RELI` top-level + `2 RELI` event-bound), case-folded. Extends the abstract base. |
+| `DeathCauseRepository` | Top-N causes of death (`2 CAUS` sub-tag inside `1 DEAT`), case-folded. Extends the abstract base. |
+| `ParentMapRepository` | Internal helper consumed by `Kinship`, `Endogamy` and `GenerationDepth` — builds the `child → [father, mother]` and inverse maps once per request so the three downstream repos don't each pay for the scan. Not injected into `Statistic`. |
 
 ### Support (`src/Support/`)
-- **`GedcomScanner`** — Reusable raw-GEDCOM helpers (`hasAnyTagAnchored`, `extractEventYear`, `extractEventPlace`, `extractPrimaryName`, `extractAllTagValues`, `extractEventSubValue`) so anchored tag matching (`\n1 <tag>` followed by space / newline / EOS) lives in one place. `DIV` does not match `DIVF`; bare `2 PLAC` (no place name) is treated as no place at all. `extractPrimaryName` strips the surname-delimiter slashes from the first `1 NAME` line, collapses internal whitespace, scrubs to valid UTF-8, and falls back to `(no name)` for blank entries. `extractAllTagValues` captures every value of a `1 <tag>` line for multi-occurrence facts (OCCU, RELI, …); `extractEventSubValue` pulls the first `2 <subTag>` value from inside a `1 <eventTag>` block, scoped so a sibling event's sub-tag cannot satisfy the lookup.
-- **`TopNAggregator`** — Generic Top-N counter for `(row set, extract closure, limit)` triples. Case-folded keys merge spelling variants; the first-seen original casing wins as the display label; `arsort` (stable in PHP 8.0+) breaks ties by encounter order. Consumed by `OccupationRepository`, `ReligionRepository`, `DeathCauseRepository`.
+- **`GedcomScanner`** — Reusable raw-GEDCOM helpers (`hasAnyTagAnchored`, `extractEventYear`, `extractEventPlace`, `extractPrimaryName`, `extractAllTagValues`, `extractAllSubTagValues`, `extractEventSubValue`, `anchoredLikePatterns`) so anchored tag matching (`\n1 <tag>` followed by space / newline / EOS) lives in one place. `DIV` does not match `DIVF`; bare `2 PLAC` (no place name) is treated as no place at all. `extractPrimaryName` strips the surname-delimiter slashes from the first `1 NAME` line, collapses internal whitespace, scrubs to valid UTF-8, and falls back to `(no name)` for blank entries. `extractAllTagValues` and `extractAllSubTagValues` share a private `extractAtLevel(int $level, …)` engine so they can never drift. `extractEventSubValue` pulls the first `2 <subTag>` value from inside a `1 <eventTag>` block, scoped so a sibling event's sub-tag cannot satisfy the lookup.
+- **`TopNAggregator`** — Generic Top-N counter for `(row set, extract closure, limit)` triples. Case-folded keys merge spelling variants; the first-seen original casing wins as the display label; `arsort` (stable in PHP 8.0+) breaks ties by encounter order. Consumed by `AbstractGedcomTagTopNRepository` (and therefore the three concrete Top-N tag repos).
 - **`IsoCountryMap`** — Free-text country name → ISO-3166-1 alpha-2 resolver. Built on PHP's intl extension (`Locale::getDisplayRegion`) across nine pre-seeded locales (English, German, French, Spanish, Italian, Dutch, Portuguese, Polish, Russian) plus the active webtrees locale, with a manual-aliases list for common GEDCOM abbreviations (USA, UK, Deutschland, …). Labels resolve against the active `I18N::languageTag()`.
+- **`TreeScope`** — Tree-scoped Eloquent query builder (`TreeScope::table($tree, 'individuals')` etc.) plus `individualGedcoms($tree)` for the canonical `i_gedcom` iteration. Every repository goes through this helper so the `i_file` (tree-id) where-clause is never forgotten.
+- **`GedcomScanner`-adjacent helpers**: `HistogramTrim` (drops leading/trailing all-zero buckets in a co-trimmed M+F pair), `AgeBuckets` (5-year band classifier), `AgePairExtremum` (lowest/highest age picker over an iterable), `CenturyName` (year → century label), `BirthDeathPairsQuery` (shared birth+death join builder), `DateJoin` (date-table join helper), `RowCast` (stdClass-row safe int/string casting), `WidgetJson` (UTF-8-scrubbed JSON encoder for `data-payload`), `IndividualAgeRecordResolver` (single-individual age-record resolution), `SiblingGapRowMapper` (sibling-age-gap histogram → LineChart payload), `ZodiacLabels` (canonical → locale-translated key map), `Endogamy` (couple-pair search), `GenerationDepth` (iterative DFS over `childrenOf` / `parentOf` graphs with per-individual depth memoisation).
 
 ### Views (`resources/views/modules/statistics-chart/`)
 - **`page.phtml`** — Outer six-tab navigation. AJAX-loads each tab body lazily and runs `WebtreesStatistic.renderWidgets(pane)` against the freshly-injected pane on the `show.bs.tab` event.
-- **`Templates/Overview.phtml`** — Three donut cards (sex, living/deceased, marital status) plus a conditional second row of progress-list cards (top-15 occupations, top-15 religions) rendered only when the underlying facts are present.
-- **`Templates/Names.phtml`** — Three tag-cloud cards (common surnames, male given names, female given names) + given-name popularity stream graph (top-10 by decade).
-- **`Templates/TreeHealth.phtml`** — Source-citation coverage, missing-event gaps, average generation length.
-- **`Templates/LifeSpan.phtml`** — Births / deaths by month / zodiac / century, age-at-death histogram (10-year bands), age-band donut (life-stages), top-10 oldest deceased + living, plus a conditional top-15 causes of death progress-list rendered when the underlying `2 CAUS` facts are present.
-- **`Templates/Family.phtml`** — Age at marriage M+F, marriage duration, couple age gap, weddings century + month, divorces century + month + age M+F, divorce-cohort rate, children-per-family, sibling gap, top-10 largest families, with / without children donut, ancestor count, average pedigree completeness, first children by month.
-- **`Templates/Places.phtml`** — Birth-country map + companion top-10, death-country map + companion top-10, birth → death migration Sankey.
-- **`Partials/<Widget>.phtml`** — Thin shells that emit the `data-widget` JSON marker and the empty target element consumed by chart-lib widgets.
+- **`Templates/Overview.phtml`** — Three donut cards (sex, living/deceased, marital status) plus a conditional second row of progress-list cards (top-15 occupations, top-15 religions) rendered only when the underlying facts are present, plus a "Tree records" hall-of-fame table populated from `TreeRecordsReport` (oldest deceased / living, longest / shortest marriage, youngest / oldest spouse at marriage, most spouses, largest family, most children per person, parent-of-first-child records).
+- **`Templates/Names.phtml`** — Three tag-cloud cards (common surnames, male given names, female given names) + given-name popularity stream graph (top-10 by decade) + a surname × surname marriage `ChordDiagram` over the top-N surnames.
+- **`Templates/TreeHealth.phtml`** — Source-citation coverage `RateList`, missing-event-gaps `RateList` (births, deaths, marriages — events and places counted separately), average-generation-length `Scalar`, and a tree-growth `LineChart` (births per decade).
+- **`Templates/LifeSpan.phtml`** — Births by month / zodiac / century, deaths by month / century, winter-peak score `Scalar`, child-mortality (under-5) per birth century, average lifespan by sex × century, age-at-death histogram (10-year bands), age-band donut (life-stages), top-10 oldest deceased + living, plus a conditional top-15 causes of death progress-list rendered when the underlying `2 CAUS` facts are present.
+- **`Templates/Family.phtml`** — Age at marriage M+F (co-trimmed), marriage-duration `BarChart`, couple age gap `DivergingBar`, age at first child M+F (co-trimmed), weddings century + month, divorces century + month + age-at-divorce M+F, divorces-by-century-and-age-band `StackedBar`, divorce-cohort rate, children-per-family histogram, sibling-age-gap `LineChart`, family-size composition share by decade, average family size by century, top-10 largest families, with / without children donut, ancestor count + distribution, average pedigree completeness, endogamy summary, generation-depth `Scalar` + distribution, first children by month.
+- **`Templates/Places.phtml`** — Birth-country map + companion top-10, recorded-residences top-10, death-country map + companion top-10, birth → death migration Sankey, distinct-places-per-individual distribution, place-dispersion `Scalar`.
+- **`Partials/<Widget>.phtml`** — Thin shells that emit the `data-widget` JSON marker and the empty target element consumed by chart-lib widgets. Current set: `DonutChart`, `ProgressList`, `LineChart`, `BarChart`, `StackedBar`, `DivergingBar`, `AreaDensity`, `GeoMap`, `SankeyFlow`, `ChordDiagram`, `StreamGraph`, `TagCloud`, `RateList`, `Scalar`, `InfoTrigger` (the chart-header info popover trigger).
 
 ### JS (`resources/js/modules/`)
 - **`index.js`** — exports `renderWidgets(root)`. Scans every `[data-widget]` element, parses `data-payload` / `data-options` JSON, and dispatches to the registered draw function. The world-map dispatch is async because it fetches the GeoJSON (cached per page load) before instantiating the chart-lib widget. Also initialises Bootstrap popovers attached to chart-header info buttons after each render.

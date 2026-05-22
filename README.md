@@ -6,7 +6,7 @@
 # Statistics
 A tab-based statistics dashboard for the [webtrees](https://www.webtrees.net) genealogy application.
 
-Renders tree-wide statistics across six tabs (Overview, Names, Tree health, Life span, Family, Places) using donut charts, progress lists, world maps, and tag clouds. Built on the shared widget library [`@magicsunday/webtrees-chart-lib`](https://github.com/magicsunday/webtrees-chart-lib).
+Renders tree-wide statistics across six tabs (Overview, Names, Tree health, Life span, Family, Places) using donut charts, progress lists, world maps, tag clouds, line / bar / stacked / diverging-bar charts, sankey flows, chord diagrams and stream graphs. Built on the shared widget library [`@magicsunday/webtrees-chart-lib`](https://github.com/magicsunday/webtrees-chart-lib).
 
 
 <!-- TOC -->
@@ -54,29 +54,24 @@ git clone https://github.com/magicsunday/webtrees-statistics.git modules_v4/webt
 
 
 ## What renders today
-Phase 1 ships four populated tabs and two placeholder tabs:
+All six tabs render populated content out of the box:
 
-| Tab          | Status      | Content                                                                                                        |
-|--------------|-------------|----------------------------------------------------------------------------------------------------------------|
-| Overview     | Populated   | Sex / Living-deceased / Marital-status donuts                                                                  |
-| Names        | Populated   | Common-surname + male / female given-name tag clouds (stream graph tracked in [#13](https://github.com/magicsunday/webtrees-statistics/issues/13)) |
-| Tree health  | Placeholder | Data-quality metrics tracked in [#11](https://github.com/magicsunday/webtrees-statistics/issues/11)            |
-| Life span    | Populated   | Births by month / zodiac sign / century, deaths by month / century (age / lifespan widgets in [#3](https://github.com/magicsunday/webtrees-statistics/issues/3)) |
-| Family       | Placeholder | Marriage / divorce / children / kinship widgets tracked in [#4](https://github.com/magicsunday/webtrees-statistics/issues/4), [#5](https://github.com/magicsunday/webtrees-statistics/issues/5), [#6](https://github.com/magicsunday/webtrees-statistics/issues/6), [#2](https://github.com/magicsunday/webtrees-statistics/issues/2) |
-| Places       | Populated   | Country-of-birth and country-of-death world maps with companion top-10 progress lists (migration sankey in [#12](https://github.com/magicsunday/webtrees-statistics/issues/12)) |
+| Tab          | Content                                                                                                                                                                                                  |
+|--------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Overview     | Sex / Living-deceased / Marital-status donuts; top-15 occupations + top-15 religions progress lists; "Tree records" hall-of-fame table (oldest deceased / living, longest / shortest marriage, youngest / oldest spouse at marriage, most spouses, largest family, most children per person, parent-of-first-child records) |
+| Names        | Common-surname + male / female given-name tag clouds, given-name popularity stream graph (top-10 by decade), surname × surname marriage chord matrix                                                     |
+| Tree health  | Source-citation coverage RateList, missing-event-gaps RateList, average generation length Scalar, tree-growth LineChart (births per decade)                                                              |
+| Life span    | Births by month / zodiac sign / century, deaths by month / century, winter-peak score, age-at-death histogram (10-year bands), age-band donut, child mortality, average lifespan by sex+century, top-10 oldest deceased + living, top-15 causes of death |
+| Family       | Age at marriage M+F (co-trimmed), marriage duration, couple age gap DivergingBar, weddings century + month, divorces century + month + age M+F, divorces-by-century-and-age-band StackedBar, divorce-rate by cohort, age at first child M+F (co-trimmed), children-per-family, sibling-age-gap, family-size composition by decade, average family size by century, top-10 largest families, childless donut, ancestor count, average pedigree completeness, endogamy, generation-depth + distribution, first children by month |
+| Places       | Birth-country world map + top-10 list, death-country world map + top-10 list, recorded-residences top-10, distinct-places-per-individual distribution, birth → death migration Sankey, place-dispersion scalar                                     |
 
 The marital-status donut counts each living individual exactly once. Precedence follows the same per-family decision order webtrees core uses in `\Fisharebest\Webtrees\Census\AbstractCensusColumnCondition`: an active divorce tag classes the survivor as `divorced`, a deceased partner as `widowed`, an active marriage with a living partner as `current`. Anything else falls into `single`. The four buckets sum exactly to `StatisticsData::countIndividualsLiving()` without clamping.
 
 
 ## Architecture
-The aggregator service `MagicSunday\Webtrees\Statistic\Statistic` is resolved through the webtrees DI container and pulls data from four sources:
+The aggregator service `MagicSunday\Webtrees\Statistic\Statistic` is resolved through the webtrees DI container and composes twenty-one per-domain repositories plus core's `StatisticsData`. The repositories split by data nature — names, events, life-span, marriages, divorces, children, parenthood, kinship, endogamy, generation depth, migration, places, marriage matrix, tree health, and three Top-N tag repositories (occupations, religions, death causes) that share an `AbstractGedcomTagTopNRepository` base.
 
-- `Fisharebest\Webtrees\StatisticsData` — core data accessor for individual, family, and event counts.
-- `Repository/FamilyRepository` — Census-aligned marital classification not exposed by core.
-- `Repository/EventRepository` — zodiac-sign grouping not exposed by core.
-- `Repository/NameRepository` — primary-name distinct counts (`n_num = 0`) so totals stay in sync with the Top-N name lists.
-
-Each tab renders a template under `resources/views/modules/statistics-chart/Templates/` that composes Partials (`DonutChart`, `ProgressList`, `GeoMap`, `TagCloud`) and passes them aggregator output.
+Each tab renders a template under `resources/views/modules/statistics-chart/Templates/` that composes Partials (`DonutChart`, `ProgressList`, `LineChart`, `BarChart`, `StackedBar`, `DivergingBar`, `AreaDensity`, `GeoMap`, `SankeyFlow`, `ChordDiagram`, `StreamGraph`, `TagCloud`, `RateList`, `Scalar`, …) which emit `data-widget`/`data-payload`/`data-options` JSON markers. The shared JS dispatcher `WebtreesStatistic.renderWidgets(pane)` then hands each off to the matching [`@magicsunday/webtrees-chart-lib`](https://github.com/magicsunday/webtrees-chart-lib) widget.
 
 
 ## Theming
