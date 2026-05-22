@@ -11,9 +11,9 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
-use MagicSunday\Webtrees\Statistic\Model\Dto\SankeyLink;
-use MagicSunday\Webtrees\Statistic\Model\Dto\SankeyNode;
-use MagicSunday\Webtrees\Statistic\Model\Dto\SankeySample;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\SankeyLink;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\SankeyNode;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\SankeySample;
 use MagicSunday\Webtrees\Statistic\Repository\MigrationRepository;
 use PHPUnit\Framework\Attributes\Test;
 

@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
-use MagicSunday\Webtrees\Statistic\Model\Dto\ChildMortalitySummary;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\ChildMortalitySummary;
 use MagicSunday\Webtrees\Statistic\Support\ChildMortalityRate;
 
 use function intdiv;

@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Support;
 
-use MagicSunday\Webtrees\Statistic\Model\Dto\WinterPeakScore;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\WinterPeakScore;
 
 use function array_sum;
 use function in_array;

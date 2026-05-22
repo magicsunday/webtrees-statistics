@@ -20,7 +20,7 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\ModuleBase\Processor\NameProcessor;
-use MagicSunday\Webtrees\Statistic\Model\Dto\WinterPeakScore;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\WinterPeakScore;
 use MagicSunday\Webtrees\Statistic\Support\CenturyName;
 use MagicSunday\Webtrees\Statistic\Support\HistogramTrim;
 use MagicSunday\Webtrees\Statistic\Support\SeasonalityScore;

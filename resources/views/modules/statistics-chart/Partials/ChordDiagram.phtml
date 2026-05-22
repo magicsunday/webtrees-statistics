@@ -18,6 +18,17 @@ use Fisharebest\Webtrees\I18N;
  * @var string|null                                                                  $ariaLabel  Accessible label on the host svg
  */
 $height ??= 600;
+
+// chart-lib chord-diagram reads `options.i18n.tooltipValueSingular`
+// and `tooltipValuePlural` for the ribbon-hover tooltip body. Curly-
+// brace {count} placeholder instead of sprintf %s — see the
+// StreamGraph partial for the rationale. Callers that don't pass
+// an i18n object get the bare numeric default ("11" instead of
+// "11 marriages") so the widget stays generic across consumers.
+$chordI18n ??= [
+    'tooltipValueSingular' => I18N::translate('{count} marriage'),
+    'tooltipValuePlural'   => I18N::translate('{count} marriages'),
+];
 ?>
 <div class="wt-chord-diagram-container">
     <div id="<?php echo e($identifier); ?>"
@@ -27,6 +38,7 @@ $height ??= 600;
          data-options="<?php echo e(json_encode([
              'height'    => $height,
              'ariaLabel' => $ariaLabel ?? null,
+             'i18n'      => $chordI18n,
          ], JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE)); ?>"
          data-empty-message="<?php echo e(I18N::translate('No data')); ?>"
     ></div>

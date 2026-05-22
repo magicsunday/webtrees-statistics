@@ -13,10 +13,10 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
-use MagicSunday\Webtrees\Statistic\Model\Dto\MigrationFlowsPayload;
-use MagicSunday\Webtrees\Statistic\Model\Dto\SankeyLink;
-use MagicSunday\Webtrees\Statistic\Model\Dto\SankeyNode;
-use MagicSunday\Webtrees\Statistic\Model\Dto\SankeySample;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\MigrationFlowsPayload;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\SankeyLink;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\SankeyNode;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\SankeySample;
 use MagicSunday\Webtrees\Statistic\Support\GedcomScanner;
 
 use function array_slice;

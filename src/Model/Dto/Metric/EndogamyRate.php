@@ -9,7 +9,7 @@
 
 declare(strict_types=1);
 
-namespace MagicSunday\Webtrees\Statistic\Model\Dto;
+namespace MagicSunday\Webtrees\Statistic\Model\Dto\Metric;
 
 use JsonSerializable;
 

@@ -9,38 +9,39 @@
 
 declare(strict_types=1);
 
-namespace MagicSunday\Webtrees\Statistic\Model\Dto;
+namespace MagicSunday\Webtrees\Statistic\Model\Dto\Metric;
 
 use JsonSerializable;
 
 /**
- * Generic rate counter — `value` over `total`. Consumed by the
- * RateList partial which derives both the percentage and the
- * absolute counts from one DTO. Currently feeds the source-
- * citation coverage metric on the Tree-Health tab.
+ * Tree-wide under-5 child mortality summary: total children with
+ * both BIRT + DEAT dates, count of those who died before age 5,
+ * and the fraction `died / total`. Consumed by the Life-Span tab.
  *
- * Serialises to `{value: int, total: int}`.
+ * Serialises to `{total: int, died: int, rate: float}`.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-final readonly class RateCount implements JsonSerializable
+final readonly class ChildMortalitySummary implements JsonSerializable
 {
     public function __construct(
-        public int $value,
         public int $total,
+        public int $died,
+        public float $rate,
     ) {
     }
 
     /**
-     * @return array{value: int, total: int}
+     * @return array{total: int, died: int, rate: float}
      */
     public function jsonSerialize(): array
     {
         return [
-            'value' => $this->value,
             'total' => $this->total,
+            'died'  => $this->died,
+            'rate'  => $this->rate,
         ];
     }
 }

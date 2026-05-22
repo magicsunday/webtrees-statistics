@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Statistics\n"
 "Report-Msgid-Bugs-To: https://github.com/magicsunday/webtrees-statistics/"
 "issues\n"
-"POT-Creation-Date: 2026-05-22 12:45+0000\n"
+"POT-Creation-Date: 2026-05-22 13:53+0000\n"
 "PO-Revision-Date: 2026-05-22 07:04+0000\n"
 "Last-Translator: Rico Sonntag <mail@ricosonntag.de>\n"
 "Language-Team: \n"
@@ -65,8 +65,8 @@ msgstr ""
 "%1$s z %2$s úmrtí připadlo na prosinec – únor. 1,0 = bez sezónnosti, > 1,0 = "
 "zimní vrchol, < 1,0 = zimní propad."
 
-#: src/Repository/LifeSpanRepository.php:459
-#: src/Repository/LifeSpanRepository.php:466
+#: src/Repository/LifeSpanRepository.php:458
+#: src/Repository/LifeSpanRepository.php:465
 #, php-format
 msgid "%1$s years (n = %2$s)"
 msgstr "%1$s let (n = %2$s)"
@@ -688,7 +688,7 @@ msgstr "Věk při sňatku — manželky"
 msgid "Age in years at death, longest-lived first"
 msgstr "Věk v letech při úmrtí, nejdéle žijící první"
 
-#: src/Statistic.php:949
+#: src/Statistic.php:940
 msgctxt "NOMINATIVE"
 msgid "April"
 msgstr "Duben"
@@ -710,7 +710,7 @@ msgid "At least one parent-child pair with parseable birth dates is required."
 msgstr ""
 "Je vyžadován alespoň jeden pár rodič-dítě s rozeznatelnými daty narození."
 
-#: src/Statistic.php:953
+#: src/Statistic.php:944
 msgctxt "NOMINATIVE"
 msgid "August"
 msgstr "Srpen"
@@ -856,11 +856,11 @@ msgstr "Úmrtí podle století"
 msgid "Deaths by month"
 msgstr "Úmrtí podle měsíce"
 
-#: src/Statistic.php:154
+#: src/Statistic.php:160
 msgid "Deceased"
 msgstr "Zemřelí"
 
-#: src/Statistic.php:957
+#: src/Statistic.php:948
 msgctxt "NOMINATIVE"
 msgid "December"
 msgstr "Prosinec"
@@ -884,7 +884,7 @@ msgstr "Míra rozvodovosti"
 msgid "Divorce rate per marriage cohort"
 msgstr "Míra rozvodovosti podle ročníku sňatku"
 
-#: src/Statistic.php:174
+#: src/Statistic.php:180
 msgid "Divorced"
 msgstr "Rozvedený"
 
@@ -1009,12 +1009,12 @@ msgstr "Rodina"
 msgid "Family size composition share by decade"
 msgstr "Podíl složení velikosti rodiny podle desetiletí"
 
-#: src/Statistic.php:947
+#: src/Statistic.php:938
 msgctxt "NOMINATIVE"
 msgid "February"
 msgstr "Únor"
 
-#: src/Repository/LifeSpanRepository.php:488 src/Statistic.php:142
+#: src/Repository/LifeSpanRepository.php:487 src/Statistic.php:148
 msgid "Female"
 msgstr "Žena"
 
@@ -1115,17 +1115,17 @@ msgstr "Manžel starší o %s let"
 msgid "Individuals with at least one source linked to their record."
 msgstr "Osoby s alespoň jedním zdrojem propojeným s jejich záznamem."
 
-#: src/Statistic.php:946
+#: src/Statistic.php:937
 msgctxt "NOMINATIVE"
 msgid "January"
 msgstr "Leden"
 
-#: src/Statistic.php:952
+#: src/Statistic.php:943
 msgctxt "NOMINATIVE"
 msgid "July"
 msgstr "Červenec"
 
-#: src/Statistic.php:951
+#: src/Statistic.php:942
 msgctxt "NOMINATIVE"
 msgid "June"
 msgstr "Červen"
@@ -1158,7 +1158,7 @@ msgstr "Váhy"
 msgid "Life span"
 msgstr "Délka života"
 
-#: src/Statistic.php:153
+#: src/Statistic.php:159
 msgid "Living"
 msgstr "Žijící"
 
@@ -1182,11 +1182,11 @@ msgstr ""
 "Nejdelší ověřený vertikální řetězec od listového potomka po jeho "
 "nejvzdálenějšího předka."
 
-#: src/Repository/LifeSpanRepository.php:481 src/Statistic.php:141
+#: src/Repository/LifeSpanRepository.php:480 src/Statistic.php:147
 msgid "Male"
 msgstr "Muž"
 
-#: src/Statistic.php:948
+#: src/Statistic.php:939
 msgctxt "NOMINATIVE"
 msgid "March"
 msgstr "Březen"
@@ -1209,7 +1209,7 @@ msgstr "Sňatky"
 msgid "Marriages between the top-%s surnames in the tree."
 msgstr ""
 
-#: src/Statistic.php:171
+#: src/Statistic.php:177
 msgid "Married"
 msgstr "Ženatý/Vdaná"
 
@@ -1217,7 +1217,7 @@ msgstr "Ženatý/Vdaná"
 msgid "Maximum generation depth"
 msgstr "Maximální hloubka generací"
 
-#: src/Statistic.php:950
+#: src/Statistic.php:941
 msgctxt "NOMINATIVE"
 msgid "May"
 msgstr "Květen"
@@ -1293,11 +1293,11 @@ msgid "No birth century has enough recorded children to plot a reliable rate."
 msgstr ""
 "Žádné století narození nemá dostatek zaznamenaných dětí pro spolehlivou míru."
 
-#: resources/views/modules/statistics-chart/Partials/SankeyFlow.phtml:36
+#: resources/views/modules/statistics-chart/Partials/SankeyFlow.phtml:37
 msgid "No country-to-country movements recorded yet."
 msgstr "Zatím nejsou zaznamenány žádné pohyby mezi zeměmi."
 
-#: resources/views/modules/statistics-chart/Partials/ChordDiagram.phtml:31
+#: resources/views/modules/statistics-chart/Partials/ChordDiagram.phtml:43
 #: resources/views/modules/statistics-chart/Partials/StreamGraph.phtml:47
 msgid "No data"
 msgstr "Žádná data"
@@ -1319,12 +1319,12 @@ msgstr "Pro tuto metriku nejsou zaznamenána žádná data."
 msgid "No marriage cohort meets the minimum size threshold."
 msgstr "Žádná manželská kohorta nesplňuje minimální velikost."
 
-#: src/Statistic.php:956
+#: src/Statistic.php:947
 msgctxt "NOMINATIVE"
 msgid "November"
 msgstr "Listopad"
 
-#: src/Statistic.php:955
+#: src/Statistic.php:946
 msgctxt "NOMINATIVE"
 msgid "October"
 msgstr "Říjen"
@@ -1418,7 +1418,7 @@ msgstr "Střelec"
 msgid "Scorpio"
 msgstr "Štír"
 
-#: src/Statistic.php:954
+#: src/Statistic.php:945
 msgctxt "NOMINATIVE"
 msgid "September"
 msgstr "Září"
@@ -1454,7 +1454,7 @@ msgstr "Nejkratší manželství"
 msgid "Sibling age gap"
 msgstr "Věkový rozdíl sourozenců"
 
-#: src/Statistic.php:172
+#: src/Statistic.php:178
 msgid "Single"
 msgstr "Svobodný"
 
@@ -1519,7 +1519,7 @@ msgstr "Stav stromu"
 msgid "Tree records"
 msgstr "Záznamy stromu"
 
-#: src/Statistic.php:143
+#: src/Statistic.php:149
 msgid "Unknown"
 msgstr "Neznámé"
 
@@ -1547,7 +1547,7 @@ msgstr "Svatby podle století"
 msgid "Weddings by month"
 msgstr "Svatby podle měsíce"
 
-#: src/Statistic.php:173
+#: src/Statistic.php:179
 msgid "Widowed"
 msgstr "Ovdovělý"
 
@@ -1594,8 +1594,8 @@ msgstr "generace"
 msgid "no data"
 msgstr "žádná data"
 
-#: src/Repository/LifeSpanRepository.php:463
-#: src/Repository/LifeSpanRepository.php:470
+#: src/Repository/LifeSpanRepository.php:462
+#: src/Repository/LifeSpanRepository.php:469
 #, php-format
 msgid "no data (n < %s)"
 msgstr "žádná data (n < %s)"
@@ -1617,17 +1617,27 @@ msgstr ""
 msgid "years"
 msgstr "roky"
 
-#: resources/views/modules/statistics-chart/Partials/SankeyFlow.phtml:26
+#: resources/views/modules/statistics-chart/Partials/SankeyFlow.phtml:27
 #: resources/views/modules/statistics-chart/Partials/StreamGraph.phtml:35
 #, fuzzy
 msgid "{count} individual"
 msgstr "Dokumentované osoby"
 
-#: resources/views/modules/statistics-chart/Partials/SankeyFlow.phtml:27
+#: resources/views/modules/statistics-chart/Partials/SankeyFlow.phtml:28
 #: resources/views/modules/statistics-chart/Partials/StreamGraph.phtml:36
 #, fuzzy
 msgid "{count} individuals"
 msgstr "Dokumentované osoby"
+
+#: resources/views/modules/statistics-chart/Partials/ChordDiagram.phtml:29
+#, fuzzy
+msgid "{count} marriage"
+msgstr "Nejdelší manželství"
+
+#: resources/views/modules/statistics-chart/Partials/ChordDiagram.phtml:30
+#, fuzzy
+msgid "{count} marriages"
+msgstr "Nejdelší manželství"
 
 #: resources/views/modules/statistics-chart/Partials/StackedBar.phtml:33
 msgid "{count} total in this category"

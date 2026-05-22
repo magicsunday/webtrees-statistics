@@ -16,7 +16,7 @@ use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
-use MagicSunday\Webtrees\Statistic\Model\Dto\RateCount;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\RateCount;
 use MagicSunday\Webtrees\Statistic\Support\GedcomScanner;
 
 use function array_sum;

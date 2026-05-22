@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Support;
 
-use MagicSunday\Webtrees\Statistic\Model\Dto\ChildMortalitySummary;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\ChildMortalitySummary;
 
 use function round;
 

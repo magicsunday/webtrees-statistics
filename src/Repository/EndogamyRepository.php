@@ -13,7 +13,7 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
-use MagicSunday\Webtrees\Statistic\Model\Dto\EndogamyRate;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\EndogamyRate;
 use MagicSunday\Webtrees\Statistic\Support\Endogamy;
 
 use function is_string;

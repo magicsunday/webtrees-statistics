@@ -13,7 +13,7 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
-use MagicSunday\Webtrees\Statistic\Model\Dto\PlaceDispersionSummary;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\PlaceDispersionSummary;
 
 use function array_unique;
 use function count;

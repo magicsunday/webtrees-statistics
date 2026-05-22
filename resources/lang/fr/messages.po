@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Statistics\n"
 "Report-Msgid-Bugs-To: https://github.com/magicsunday/webtrees-statistics/"
 "issues\n"
-"POT-Creation-Date: 2026-05-22 12:45+0000\n"
+"POT-Creation-Date: 2026-05-22 13:53+0000\n"
 "PO-Revision-Date: 2026-05-22 07:04+0000\n"
 "Last-Translator: Rico Sonntag <mail@ricosonntag.de>\n"
 "Language-Team: \n"
@@ -64,8 +64,8 @@ msgstr ""
 "%1$s sur %2$s décès sont survenus en décembre – février. 1,0 = aucune "
 "saisonnalité, > 1,0 = pic hivernal, < 1,0 = creux hivernal."
 
-#: src/Repository/LifeSpanRepository.php:459
-#: src/Repository/LifeSpanRepository.php:466
+#: src/Repository/LifeSpanRepository.php:458
+#: src/Repository/LifeSpanRepository.php:465
 #, php-format
 msgid "%1$s years (n = %2$s)"
 msgstr "%1$s ans (n = %2$s)"
@@ -643,7 +643,7 @@ msgstr "Âge au mariage — épouses"
 msgid "Age in years at death, longest-lived first"
 msgstr "Âge en années au décès, plus longue vie en premier"
 
-#: src/Statistic.php:949
+#: src/Statistic.php:940
 msgctxt "NOMINATIVE"
 msgid "April"
 msgstr "Avril"
@@ -666,7 +666,7 @@ msgstr ""
 "Au moins une paire parent-enfant avec dates de naissance analysables est "
 "requise."
 
-#: src/Statistic.php:953
+#: src/Statistic.php:944
 msgctxt "NOMINATIVE"
 msgid "August"
 msgstr "Août"
@@ -814,11 +814,11 @@ msgstr "Décès par siècle"
 msgid "Deaths by month"
 msgstr "Décès par mois"
 
-#: src/Statistic.php:154
+#: src/Statistic.php:160
 msgid "Deceased"
 msgstr "Décédés"
 
-#: src/Statistic.php:957
+#: src/Statistic.php:948
 msgctxt "NOMINATIVE"
 msgid "December"
 msgstr "Décembre"
@@ -844,7 +844,7 @@ msgstr "Taux de divorce"
 msgid "Divorce rate per marriage cohort"
 msgstr "Taux de divorce par cohorte de mariage"
 
-#: src/Statistic.php:174
+#: src/Statistic.php:180
 msgid "Divorced"
 msgstr "Divorcé(e)"
 
@@ -971,12 +971,12 @@ msgstr "Famille"
 msgid "Family size composition share by decade"
 msgstr "Composition de la taille des familles par décennie"
 
-#: src/Statistic.php:947
+#: src/Statistic.php:938
 msgctxt "NOMINATIVE"
 msgid "February"
 msgstr "Février"
 
-#: src/Repository/LifeSpanRepository.php:488 src/Statistic.php:142
+#: src/Repository/LifeSpanRepository.php:487 src/Statistic.php:148
 msgid "Female"
 msgstr "Féminin"
 
@@ -1077,17 +1077,17 @@ msgstr "Mari plus âgé de %s ans"
 msgid "Individuals with at least one source linked to their record."
 msgstr "Personnes ayant au moins une source liée à leur fiche."
 
-#: src/Statistic.php:946
+#: src/Statistic.php:937
 msgctxt "NOMINATIVE"
 msgid "January"
 msgstr "Janvier"
 
-#: src/Statistic.php:952
+#: src/Statistic.php:943
 msgctxt "NOMINATIVE"
 msgid "July"
 msgstr "Juillet"
 
-#: src/Statistic.php:951
+#: src/Statistic.php:942
 msgctxt "NOMINATIVE"
 msgid "June"
 msgstr "Juin"
@@ -1120,7 +1120,7 @@ msgstr "Balance"
 msgid "Life span"
 msgstr "Durée de vie"
 
-#: src/Statistic.php:153
+#: src/Statistic.php:159
 msgid "Living"
 msgstr "Vivant(e)"
 
@@ -1144,11 +1144,11 @@ msgstr ""
 "Plus longue chaîne verticale vérifiée d'un descendant feuille jusqu'à son "
 "ancêtre le plus éloigné."
 
-#: src/Repository/LifeSpanRepository.php:481 src/Statistic.php:141
+#: src/Repository/LifeSpanRepository.php:480 src/Statistic.php:147
 msgid "Male"
 msgstr "Masculin"
 
-#: src/Statistic.php:948
+#: src/Statistic.php:939
 msgctxt "NOMINATIVE"
 msgid "March"
 msgstr "Mars"
@@ -1171,7 +1171,7 @@ msgstr "Mariages"
 msgid "Marriages between the top-%s surnames in the tree."
 msgstr ""
 
-#: src/Statistic.php:171
+#: src/Statistic.php:177
 msgid "Married"
 msgstr "Marié(e)"
 
@@ -1179,7 +1179,7 @@ msgstr "Marié(e)"
 msgid "Maximum generation depth"
 msgstr "Profondeur maximale de génération"
 
-#: src/Statistic.php:950
+#: src/Statistic.php:941
 msgctxt "NOMINATIVE"
 msgid "May"
 msgstr "Mai"
@@ -1257,11 +1257,11 @@ msgstr ""
 "Aucun siècle de naissance n'a assez d'enfants enregistrés pour un taux "
 "fiable."
 
-#: resources/views/modules/statistics-chart/Partials/SankeyFlow.phtml:36
+#: resources/views/modules/statistics-chart/Partials/SankeyFlow.phtml:37
 msgid "No country-to-country movements recorded yet."
 msgstr "Aucun déplacement de pays à pays enregistré pour le moment."
 
-#: resources/views/modules/statistics-chart/Partials/ChordDiagram.phtml:31
+#: resources/views/modules/statistics-chart/Partials/ChordDiagram.phtml:43
 #: resources/views/modules/statistics-chart/Partials/StreamGraph.phtml:47
 msgid "No data"
 msgstr "Aucune donnée"
@@ -1283,12 +1283,12 @@ msgstr "Aucune donnée enregistrée pour cette métrique."
 msgid "No marriage cohort meets the minimum size threshold."
 msgstr "Aucune cohorte de mariage n'atteint le seuil minimal."
 
-#: src/Statistic.php:956
+#: src/Statistic.php:947
 msgctxt "NOMINATIVE"
 msgid "November"
 msgstr "Novembre"
 
-#: src/Statistic.php:955
+#: src/Statistic.php:946
 msgctxt "NOMINATIVE"
 msgid "October"
 msgstr "Octobre"
@@ -1384,7 +1384,7 @@ msgstr "Sagittaire"
 msgid "Scorpio"
 msgstr "Scorpion"
 
-#: src/Statistic.php:954
+#: src/Statistic.php:945
 msgctxt "NOMINATIVE"
 msgid "September"
 msgstr "Septembre"
@@ -1420,7 +1420,7 @@ msgstr "Mariage le plus court"
 msgid "Sibling age gap"
 msgstr "Écart d'âge entre frères et sœurs"
 
-#: src/Statistic.php:172
+#: src/Statistic.php:178
 msgid "Single"
 msgstr "Célibataire"
 
@@ -1483,7 +1483,7 @@ msgstr "Santé de l'arbre"
 msgid "Tree records"
 msgstr "Enregistrements de l'arbre"
 
-#: src/Statistic.php:143
+#: src/Statistic.php:149
 msgid "Unknown"
 msgstr "Inconnu"
 
@@ -1511,7 +1511,7 @@ msgstr "Mariages par siècle"
 msgid "Weddings by month"
 msgstr "Mariages par mois"
 
-#: src/Statistic.php:173
+#: src/Statistic.php:179
 msgid "Widowed"
 msgstr "Veuf/Veuve"
 
@@ -1558,8 +1558,8 @@ msgstr "générations"
 msgid "no data"
 msgstr "aucune donnée"
 
-#: src/Repository/LifeSpanRepository.php:463
-#: src/Repository/LifeSpanRepository.php:470
+#: src/Repository/LifeSpanRepository.php:462
+#: src/Repository/LifeSpanRepository.php:469
 #, php-format
 msgid "no data (n < %s)"
 msgstr "aucune donnée (n < %s)"
@@ -1581,17 +1581,27 @@ msgstr ""
 msgid "years"
 msgstr "années"
 
-#: resources/views/modules/statistics-chart/Partials/SankeyFlow.phtml:26
+#: resources/views/modules/statistics-chart/Partials/SankeyFlow.phtml:27
 #: resources/views/modules/statistics-chart/Partials/StreamGraph.phtml:35
 #, fuzzy
 msgid "{count} individual"
 msgstr "Personnes documentées"
 
-#: resources/views/modules/statistics-chart/Partials/SankeyFlow.phtml:27
+#: resources/views/modules/statistics-chart/Partials/SankeyFlow.phtml:28
 #: resources/views/modules/statistics-chart/Partials/StreamGraph.phtml:36
 #, fuzzy
 msgid "{count} individuals"
 msgstr "Personnes documentées"
+
+#: resources/views/modules/statistics-chart/Partials/ChordDiagram.phtml:29
+#, fuzzy
+msgid "{count} marriage"
+msgstr "Mariage le plus long"
+
+#: resources/views/modules/statistics-chart/Partials/ChordDiagram.phtml:30
+#, fuzzy
+msgid "{count} marriages"
+msgstr "Mariage le plus long"
 
 #: resources/views/modules/statistics-chart/Partials/StackedBar.phtml:33
 msgid "{count} total in this category"

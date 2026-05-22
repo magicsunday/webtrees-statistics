@@ -11,10 +11,10 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Unit\Model\Dto;
 
-use MagicSunday\Webtrees\Statistic\Model\Dto\MigrationFlowsPayload;
-use MagicSunday\Webtrees\Statistic\Model\Dto\SankeyLink;
-use MagicSunday\Webtrees\Statistic\Model\Dto\SankeyNode;
-use MagicSunday\Webtrees\Statistic\Model\Dto\SankeySample;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\MigrationFlowsPayload;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\SankeyLink;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\SankeyNode;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\SankeySample;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

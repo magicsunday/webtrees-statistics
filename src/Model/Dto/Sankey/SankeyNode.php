@@ -9,39 +9,35 @@
 
 declare(strict_types=1);
 
-namespace MagicSunday\Webtrees\Statistic\Model\Dto;
+namespace MagicSunday\Webtrees\Statistic\Model\Dto\Sankey;
 
 use JsonSerializable;
 
 /**
- * Tree-wide under-5 child mortality summary: total children with
- * both BIRT + DEAT dates, count of those who died before age 5,
- * and the fraction `died / total`. Consumed by the Life-Span tab.
+ * One arc on a sankey diagram — the named endpoint a {@see SankeyLink}
+ * connects to. The position in the parent payload's `nodes` list
+ * defines the integer index links reference via `source` / `target`.
  *
- * Serialises to `{total: int, died: int, rate: float}`.
+ * Serialises to `{name: string}` for the chart-lib sankey-flow widget.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-final readonly class ChildMortalitySummary implements JsonSerializable
+final readonly class SankeyNode implements JsonSerializable
 {
     public function __construct(
-        public int $total,
-        public int $died,
-        public float $rate,
+        public string $name,
     ) {
     }
 
     /**
-     * @return array{total: int, died: int, rate: float}
+     * @return array{name: string}
      */
     public function jsonSerialize(): array
     {
         return [
-            'total' => $this->total,
-            'died'  => $this->died,
-            'rate'  => $this->rate,
+            'name' => $this->name,
         ];
     }
 }
