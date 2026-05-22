@@ -17,12 +17,12 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Model\Dto\StreamGraph\GivenNameTrendsPayload;
 use MagicSunday\Webtrees\Statistic\Support\GedcomScanner;
+use MagicSunday\Webtrees\Statistic\Support\RowCast;
 
 use function array_keys;
 use function array_slice;
 use function arsort;
 use function intdiv;
-use function is_string;
 use function max;
 use function min;
 use function preg_match;
@@ -199,8 +199,8 @@ final readonly class GivenNameTrendsRepository
         $out = [];
 
         foreach ($rows as $row) {
-            $givn   = is_string($row->givn) ? $row->givn : '';
-            $gedcom = is_string($row->gedcom) ? $row->gedcom : '';
+            $givn   = RowCast::string($row, 'givn');
+            $gedcom = RowCast::string($row, 'gedcom');
             $year   = GedcomScanner::extractEventYear($gedcom, 'BIRT');
 
             if ($givn === '') {

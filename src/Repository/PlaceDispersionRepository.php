@@ -14,10 +14,10 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\PlaceDispersionSummary;
+use MagicSunday\Webtrees\Statistic\Support\RowCast;
 
 use function array_unique;
 use function count;
-use function is_string;
 use function preg_match_all;
 use function round;
 use function trim;
@@ -81,7 +81,7 @@ final readonly class PlaceDispersionRepository
         $sampled      = 0;
 
         foreach ($rows as $row) {
-            $gedcom = is_string($row->gedcom ?? null) ? $row->gedcom : '';
+            $gedcom = RowCast::string($row, 'gedcom');
 
             $distinct = $this->distinctPlaceCount($gedcom);
 

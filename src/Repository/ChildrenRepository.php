@@ -28,6 +28,7 @@ use MagicSunday\Webtrees\Statistic\Model\Dto\StackedBar\StackedBarPayload;
 use MagicSunday\Webtrees\Statistic\Model\Dto\StackedBar\StackedBarSeries;
 use MagicSunday\Webtrees\Statistic\Support\CenturyName;
 use MagicSunday\Webtrees\Statistic\Support\DateJoin;
+use MagicSunday\Webtrees\Statistic\Support\RowCast;
 
 use function array_combine;
 use function array_keys;
@@ -36,8 +37,6 @@ use function array_values;
 use function count;
 use function html_entity_decode;
 use function intdiv;
-use function is_numeric;
-use function is_string;
 use function ksort;
 use function max;
 use function sort;
@@ -113,7 +112,7 @@ final readonly class ChildrenRepository
         }
 
         foreach ($rows as $row) {
-            $n = is_numeric($row->n ?? null) ? (int) $row->n : 0;
+            $n = RowCast::int($row, 'n');
 
             if ($n < 0) {
                 $n = 0;
@@ -187,16 +186,16 @@ final readonly class ChildrenRepository
         $perFamily = [];
 
         foreach ($rows as $row) {
-            $familyId = is_string($row->f_id ?? null) ? $row->f_id : '';
+            $familyId = RowCast::string($row, 'f_id');
 
             if ($familyId === '') {
                 continue;
             }
 
-            $year = is_numeric($row->year ?? null) ? (int) $row->year : 0;
+            $year = RowCast::int($row, 'year');
 
             if (!isset($perFamily[$familyId])) {
-                $childCount           = is_numeric($row->n ?? null) ? (int) $row->n : 0;
+                $childCount           = RowCast::int($row, 'n');
                 $perFamily[$familyId] = [
                     'n'    => max($childCount, 0),
                     'year' => max($year, 0),
@@ -405,9 +404,8 @@ final readonly class ChildrenRepository
         $perFamily = [];
 
         foreach ($rows as $row) {
-            $rawFamId = $row->family_id ?? null;
-            $famId    = is_string($rawFamId) ? $rawFamId : '';
-            $birthJd  = is_numeric($row->birth_jd ?? null) ? (int) $row->birth_jd : 0;
+            $famId   = RowCast::string($row, 'family_id');
+            $birthJd = RowCast::int($row, 'birth_jd');
 
             if ($famId === '') {
                 continue;
@@ -511,8 +509,8 @@ final readonly class ChildrenRepository
             return null;
         }
 
-        $xref  = is_string($row->xref ?? null) ? $row->xref : '';
-        $total = is_numeric($row->total_children ?? null) ? (int) $row->total_children : 0;
+        $xref  = RowCast::string($row, 'xref');
+        $total = RowCast::int($row, 'total_children');
 
         if (($xref === '') || ($total <= 0)) {
             return null;

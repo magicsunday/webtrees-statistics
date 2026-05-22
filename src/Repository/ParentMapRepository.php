@@ -13,6 +13,7 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
+use MagicSunday\Webtrees\Statistic\Support\RowCast;
 
 use function is_string;
 
@@ -61,7 +62,7 @@ final readonly class ParentMapRepository
         $familyParents = [];
 
         foreach ($familyRows as $row) {
-            $famId = is_string($row->f_id) ? $row->f_id : '';
+            $famId = RowCast::string($row, 'f_id');
 
             if ($famId === '') {
                 continue;
@@ -82,8 +83,8 @@ final readonly class ParentMapRepository
         $parentOf = [];
 
         foreach ($childRows as $row) {
-            $child  = is_string($row->child ?? null) ? $row->child : '';
-            $family = is_string($row->family ?? null) ? $row->family : '';
+            $child  = RowCast::string($row, 'child');
+            $family = RowCast::string($row, 'family');
 
             if ($child === '') {
                 continue;

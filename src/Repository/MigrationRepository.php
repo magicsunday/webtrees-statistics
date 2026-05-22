@@ -18,12 +18,12 @@ use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\SankeyLink;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\SankeyNode;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\SankeySample;
 use MagicSunday\Webtrees\Statistic\Support\GedcomScanner;
+use MagicSunday\Webtrees\Statistic\Support\RowCast;
 
 use function array_slice;
 use function count;
 use function end;
 use function explode;
-use function is_string;
 use function trim;
 use function uasort;
 
@@ -94,8 +94,8 @@ final readonly class MigrationRepository
         $linkSamples = [];
 
         foreach ($rows as $row) {
-            $gedcom = is_string($row->gedcom) ? $row->gedcom : '';
-            $xref   = is_string($row->xref) ? $row->xref : '';
+            $gedcom = RowCast::string($row, 'gedcom');
+            $xref   = RowCast::string($row, 'xref');
 
             $birthPlace = GedcomScanner::extractEventPlace($gedcom, 'BIRT');
             $deathPlace = GedcomScanner::extractEventPlace($gedcom, 'DEAT');

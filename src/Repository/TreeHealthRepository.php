@@ -18,6 +18,7 @@ use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\RateCount;
 use MagicSunday\Webtrees\Statistic\Support\GedcomScanner;
+use MagicSunday\Webtrees\Statistic\Support\RowCast;
 
 use function array_sum;
 use function count;
@@ -173,8 +174,8 @@ final readonly class TreeHealthRepository
         $deltas = [];
 
         foreach ($rows as $row) {
-            $parentBlob = is_string($row->parent_gedcom) ? $row->parent_gedcom : '';
-            $childBlob  = is_string($row->child_gedcom) ? $row->child_gedcom : '';
+            $parentBlob = RowCast::string($row, 'parent_gedcom');
+            $childBlob  = RowCast::string($row, 'child_gedcom');
 
             $parentYear = GedcomScanner::extractEventYear($parentBlob, 'BIRT');
             $childYear  = GedcomScanner::extractEventYear($childBlob, 'BIRT');

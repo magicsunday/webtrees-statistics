@@ -15,8 +15,8 @@ use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\ChildMortalitySummary;
 use MagicSunday\Webtrees\Statistic\Support\CenturyName;
 use MagicSunday\Webtrees\Statistic\Support\ChildMortalityRate;
+use MagicSunday\Webtrees\Statistic\Support\RowCast;
 
-use function is_numeric;
 use function ksort;
 
 /**
@@ -140,9 +140,9 @@ final readonly class ChildMortalityRepository
         $pairs = [];
 
         foreach ($rows as $row) {
-            $birthJd   = is_numeric($row->birth_jd ?? null) ? (int) $row->birth_jd : 0;
-            $deathJd   = is_numeric($row->death_jd ?? null) ? (int) $row->death_jd : 0;
-            $birthYear = is_numeric($row->birth_year ?? null) ? (int) $row->birth_year : 0;
+            $birthJd   = RowCast::int($row, 'birth_jd');
+            $deathJd   = RowCast::int($row, 'death_jd');
+            $birthYear = RowCast::int($row, 'birth_year');
 
             $pairs[] = [
                 'birthJd'   => $birthJd,

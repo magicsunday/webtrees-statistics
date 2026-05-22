@@ -13,6 +13,7 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
+use MagicSunday\Webtrees\Statistic\Support\RowCast;
 
 use function array_fill_keys;
 use function array_keys;
@@ -20,7 +21,6 @@ use function array_sum;
 use function array_unique;
 use function count;
 use function intdiv;
-use function is_string;
 use function round;
 
 /**
@@ -100,7 +100,7 @@ final readonly class KinshipRepository
             ->get();
 
         foreach ($individuals as $row) {
-            $id = is_string($row->i_id) ? $row->i_id : '';
+            $id = RowCast::string($row, 'i_id');
 
             if ($id === '') {
                 continue;
@@ -145,7 +145,7 @@ final readonly class KinshipRepository
         $count = 0;
 
         foreach ($individuals as $row) {
-            $id = is_string($row->i_id) ? $row->i_id : '';
+            $id = RowCast::string($row, 'i_id');
 
             if ($id === '') {
                 continue;

@@ -19,10 +19,9 @@ use MagicSunday\Webtrees\Statistic\Model\Dto\Record\IndividualAgeRecord;
 use MagicSunday\Webtrees\Statistic\Support\AgeBuckets;
 use MagicSunday\Webtrees\Statistic\Support\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\IndividualAgeRecordResolver;
+use MagicSunday\Webtrees\Statistic\Support\RowCast;
 
 use function intdiv;
-use function is_numeric;
-use function is_string;
 
 /**
  * Age-at-first-child distributions for the Family tab. For every
@@ -188,9 +187,9 @@ final readonly class ParenthoodRepository
             ->get();
 
         foreach ($rows as $row) {
-            $xref     = is_string($row->parent_xref ?? null) ? $row->parent_xref : '';
-            $parentJd = is_numeric($row->parent_birth_jd ?? null) ? (int) $row->parent_birth_jd : 0;
-            $childJd  = is_numeric($row->first_child_jd ?? null) ? (int) $row->first_child_jd : 0;
+            $xref     = RowCast::string($row, 'parent_xref');
+            $parentJd = RowCast::int($row, 'parent_birth_jd');
+            $childJd  = RowCast::int($row, 'first_child_jd');
 
             if ($xref === '') {
                 continue;

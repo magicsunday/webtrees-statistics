@@ -17,12 +17,11 @@ use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Tree\GenerationDepthReport;
 use MagicSunday\Webtrees\Statistic\Support\GenerationDepth;
+use MagicSunday\Webtrees\Statistic\Support\RowCast;
 
 use function array_keys;
 use function array_slice;
 use function count;
-use function is_numeric;
-use function is_string;
 use function max;
 use function uksort;
 
@@ -200,8 +199,8 @@ final readonly class GenerationDepthRepository
         $out = [];
 
         foreach ($rows as $row) {
-            $id   = is_string($row->d_gid ?? null) ? $row->d_gid : '';
-            $jday = is_numeric($row->d_julianday1 ?? null) ? (int) $row->d_julianday1 : 0;
+            $id   = RowCast::string($row, 'd_gid');
+            $jday = RowCast::int($row, 'd_julianday1');
 
             if ($id === '') {
                 continue;

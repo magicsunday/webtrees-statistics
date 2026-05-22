@@ -16,6 +16,7 @@ use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Chord\ChordMatrixPayload;
+use MagicSunday\Webtrees\Statistic\Support\RowCast;
 
 use function array_flip;
 use function array_keys;
@@ -23,7 +24,6 @@ use function array_slice;
 use function array_values;
 use function arsort;
 use function count;
-use function is_string;
 use function sort;
 
 /**
@@ -124,8 +124,8 @@ final readonly class MarriageMatrixRepository
         $pairs = [];
 
         foreach ($rows as $row) {
-            $h = is_string($row->h_surn ?? null) ? $row->h_surn : '';
-            $w = is_string($row->w_surn ?? null) ? $row->w_surn : '';
+            $h = RowCast::string($row, 'h_surn');
+            $w = RowCast::string($row, 'w_surn');
 
             if ($h === '') {
                 continue;

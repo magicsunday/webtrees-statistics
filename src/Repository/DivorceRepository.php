@@ -21,12 +21,12 @@ use MagicSunday\Webtrees\Statistic\Model\Dto\StackedBar\StackedBarSeries;
 use MagicSunday\Webtrees\Statistic\Support\AgeBuckets;
 use MagicSunday\Webtrees\Statistic\Support\CenturyName;
 use MagicSunday\Webtrees\Statistic\Support\DateJoin;
+use MagicSunday\Webtrees\Statistic\Support\RowCast;
 
 use function array_key_last;
 use function array_keys;
 use function array_slice;
 use function intdiv;
-use function is_numeric;
 use function ksort;
 use function max;
 use function round;
@@ -143,8 +143,8 @@ final readonly class DivorceRepository
         $buckets = AgeBuckets::init(0, self::AGE_AT_DIVORCE_MAX, self::AGE_AT_DIVORCE_BUCKET);
 
         foreach ($rows as $row) {
-            $divJd   = is_numeric($row->div_jd ?? null) ? (int) $row->div_jd : 0;
-            $birthJd = is_numeric($row->birth_jd ?? null) ? (int) $row->birth_jd : 0;
+            $divJd   = RowCast::int($row, 'div_jd');
+            $birthJd = RowCast::int($row, 'birth_jd');
 
             if ($divJd <= 0) {
                 continue;
@@ -221,8 +221,8 @@ final readonly class DivorceRepository
         $cohorts = [];
 
         foreach ($rows as $row) {
-            $divYear = is_numeric($row->div_year ?? null) ? (int) $row->div_year : 0;
-            $divJd   = is_numeric($row->div_jd ?? null) ? (int) $row->div_jd : 0;
+            $divYear = RowCast::int($row, 'div_year');
+            $divJd   = RowCast::int($row, 'div_jd');
 
             if ($divYear <= 0) {
                 continue;
@@ -234,10 +234,10 @@ final readonly class DivorceRepository
             // so the per-century totals match `divorcesByCentury`
             // exactly. Counting both spouses would render twice the
             // sample size and confuse cross-card comparison.
-            $birthJd = is_numeric($row->hb_jd ?? null) ? (int) $row->hb_jd : 0;
+            $birthJd = RowCast::int($row, 'hb_jd');
 
             if ($birthJd <= 0) {
-                $birthJd = is_numeric($row->wb_jd ?? null) ? (int) $row->wb_jd : 0;
+                $birthJd = RowCast::int($row, 'wb_jd');
             }
 
             $classified = false;
@@ -354,7 +354,7 @@ final readonly class DivorceRepository
         $perCohort = [];
 
         foreach ($rows as $row) {
-            $marrYear = is_numeric($row->marr_year ?? null) ? (int) $row->marr_year : 0;
+            $marrYear = RowCast::int($row, 'marr_year');
 
             if ($marrYear === 0) {
                 continue;

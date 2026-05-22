@@ -16,9 +16,9 @@ use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Support\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\IsoCountryMap;
+use MagicSunday\Webtrees\Statistic\Support\RowCast;
 
 use function arsort;
-use function is_string;
 use function str_ends_with;
 use function strrpos;
 use function substr;
@@ -79,8 +79,8 @@ final readonly class CountryRepository
         $counts = [];
 
         foreach ($rows as $row) {
-            $place  = is_string($row->place) ? $row->place : '';
-            $gedcom = is_string($row->gedcom) ? $row->gedcom : '';
+            $place  = RowCast::string($row, 'place');
+            $gedcom = RowCast::string($row, 'gedcom');
 
             $iso2 = $this->isoMap->resolve($place);
 
@@ -147,7 +147,7 @@ final readonly class CountryRepository
         $counts = [];
 
         foreach ($rows as $row) {
-            $gedcom = is_string($row->gedcom) ? $row->gedcom : '';
+            $gedcom = RowCast::string($row, 'gedcom');
 
             foreach (GedcomScanner::extractAllEventPlaces($gedcom, 'RESI') as $place) {
                 // RESI PLAC strings come straight from the GEDCOM as

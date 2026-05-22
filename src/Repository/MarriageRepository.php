@@ -26,11 +26,11 @@ use MagicSunday\Webtrees\Statistic\Model\Dto\Record\IndividualCountRecord;
 use MagicSunday\Webtrees\Statistic\Support\AgeBuckets;
 use MagicSunday\Webtrees\Statistic\Support\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\IndividualAgeRecordResolver;
+use MagicSunday\Webtrees\Statistic\Support\RowCast;
 
 use function abs;
 use function intdiv;
 use function is_numeric;
-use function is_string;
 
 /**
  * Marriage-related aggregations for the Family tab. Combines core's
@@ -282,8 +282,8 @@ final readonly class MarriageRepository
             return null;
         }
 
-        $xref  = is_string($row->xref ?? null) ? $row->xref : '';
-        $count = is_numeric($row->marriage_count ?? null) ? (int) $row->marriage_count : 0;
+        $xref  = RowCast::string($row, 'xref');
+        $count = RowCast::int($row, 'marriage_count');
 
         if (($xref === '') || ($count < 2)) {
             return null;
@@ -328,9 +328,9 @@ final readonly class MarriageRepository
             ->get();
 
         foreach ($rows as $row) {
-            $marrJd  = is_numeric($row->marr_jd ?? null) ? (int) $row->marr_jd : 0;
-            $birthJd = is_numeric($row->birth_jd ?? null) ? (int) $row->birth_jd : 0;
-            $xref    = is_string($row->xref ?? null) ? $row->xref : '';
+            $marrJd  = RowCast::int($row, 'marr_jd');
+            $birthJd = RowCast::int($row, 'birth_jd');
+            $xref    = RowCast::string($row, 'xref');
 
             if ($xref === '') {
                 continue;
@@ -390,8 +390,8 @@ final readonly class MarriageRepository
             ->get();
 
         foreach ($rows as $row) {
-            $marrJd = is_numeric($row->marr_jd ?? null) ? (int) $row->marr_jd : 0;
-            $xref   = is_string($row->xref ?? null) ? $row->xref : '';
+            $marrJd = RowCast::int($row, 'marr_jd');
+            $xref   = RowCast::string($row, 'xref');
 
             if ($marrJd <= 0) {
                 continue;
@@ -453,8 +453,8 @@ final readonly class MarriageRepository
         $buckets[$this->signedOverflowLabel(self::AGE_GAP_LIMIT_HI)] = 0;
 
         foreach ($rows as $row) {
-            $hbJd = is_numeric($row->hb_jd ?? null) ? (int) $row->hb_jd : 0;
-            $wbJd = is_numeric($row->wb_jd ?? null) ? (int) $row->wb_jd : 0;
+            $hbJd = RowCast::int($row, 'hb_jd');
+            $wbJd = RowCast::int($row, 'wb_jd');
 
             if ($hbJd <= 0) {
                 continue;

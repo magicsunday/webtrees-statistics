@@ -27,6 +27,7 @@ use MagicSunday\Webtrees\Statistic\Model\Dto\Record\IndividualAgeRecord;
 use MagicSunday\Webtrees\Statistic\Support\CenturyName;
 use MagicSunday\Webtrees\Statistic\Support\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\HistogramTrim;
+use MagicSunday\Webtrees\Statistic\Support\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\SeasonalityScore;
 
 use function array_fill_keys;
@@ -160,7 +161,7 @@ final readonly class LifeSpanRepository
         $byDecade = [];
 
         foreach ($rows as $row) {
-            $year = is_numeric($row->d_year ?? null) ? (int) $row->d_year : 0;
+            $year = RowCast::int($row, 'd_year');
 
             if ($year === 0) {
                 continue;
@@ -372,15 +373,15 @@ final readonly class LifeSpanRepository
         $cohorts = [];
 
         foreach ($rows as $row) {
-            $year = is_numeric($row->birth_year ?? null) ? (int) $row->birth_year : 0;
+            $year = RowCast::int($row, 'birth_year');
 
             if ($year <= 0) {
                 continue;
             }
 
             $sex     = $row->sex === 'F' ? 'F' : 'M';
-            $birthJd = is_numeric($row->birth_jd ?? null) ? (int) $row->birth_jd : 0;
-            $deathJd = is_numeric($row->death_jd ?? null) ? (int) $row->death_jd : 0;
+            $birthJd = RowCast::int($row, 'birth_jd');
+            $deathJd = RowCast::int($row, 'death_jd');
 
             if ($birthJd <= 0) {
                 continue;
@@ -547,7 +548,7 @@ final readonly class LifeSpanRepository
         );
 
         foreach ($rows as $row) {
-            $rawAge = is_numeric($row->age) ? (int) $row->age : 0;
+            $rawAge = RowCast::int($row, 'age');
             $age    = max(0, $rawAge);
             ++$bandCounts[$this->bandLabel($age)];
         }
