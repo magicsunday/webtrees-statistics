@@ -331,21 +331,7 @@ final readonly class GedcomScanner
      */
     public static function extractAllTagValues(string $gedcom, string $tag): array
     {
-        if (preg_match_all('/^1 ' . $tag . ' (.*)$/m', $gedcom, $matches) === 0) {
-            return [];
-        }
-
-        $values = [];
-
-        foreach ($matches[1] as $raw) {
-            $value = trim($raw);
-
-            if ($value !== '') {
-                $values[] = $value;
-            }
-        }
-
-        return $values;
+        return self::extractAtLevel(1, $gedcom, $tag);
     }
 
     /**
@@ -368,7 +354,24 @@ final readonly class GedcomScanner
      */
     public static function extractAllSubTagValues(string $gedcom, string $subTag): array
     {
-        if (preg_match_all('/^2 ' . $subTag . ' (.*)$/m', $gedcom, $matches) === 0) {
+        return self::extractAtLevel(2, $gedcom, $subTag);
+    }
+
+    /**
+     * Shared engine behind {@see extractAllTagValues()} and
+     * {@see extractAllSubTagValues()}: anchor a regex to the given
+     * level-prefix, grab everything after the tag, trim, and drop
+     * empty matches. Multi-occurrence is preserved.
+     *
+     * @param int    $level  GEDCOM nesting level the line must carry (1 or 2)
+     * @param string $gedcom Raw GEDCOM record body
+     * @param string $tag    Tag whose values to capture at that level
+     *
+     * @return list<string>
+     */
+    private static function extractAtLevel(int $level, string $gedcom, string $tag): array
+    {
+        if (preg_match_all('/^' . $level . ' ' . $tag . ' (.*)$/m', $gedcom, $matches) === 0) {
             return [];
         }
 
