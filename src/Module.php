@@ -37,7 +37,7 @@ use function realpath;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-class Module extends StatisticsChartModule implements ModuleAssetUrlInterface, ModuleCustomInterface
+final class Module extends StatisticsChartModule implements ModuleAssetUrlInterface, ModuleCustomInterface
 {
     use ModuleChartTrait;
     use ModuleCustomTrait;

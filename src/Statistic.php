@@ -409,7 +409,7 @@ final readonly class Statistic
      * vertical descent, per-individual `[depth → count]` histogram
      * across the entire parentage graph, a `capped` flag that
      * trips when the depth-cap guard fired, up to three concrete
-     * chains (each a list of {@see Individual} objects, ordered
+     * chains (each a list of {@see \Fisharebest\Webtrees\Individual} objects, ordered
      * eldest-ancestor → leaf-descendant) that reach the tree-wide
      * maximum depth, and the total number of distinct chains so
      * the view can surface "+N more" when more than three exist.
@@ -770,8 +770,7 @@ final readonly class Statistic
      * across the entire decade.
      *
      * @param int $topN Maximum number of distinct given names to keep
-     *
-     * */
+     */
     public function getGivenNameTrends(int $topN): GivenNameTrendsPayload
     {
         return $this->givenNameTrendsRepository->countByDecade($topN);

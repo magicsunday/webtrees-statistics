@@ -169,7 +169,11 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame(0, $result[1870]);
         self::assertSame(0, $result[1930]);
 
-        // Total entries = 26 (1700 through 1950 in 10-year steps).
-        self::assertCount(26, $result);
+        // Dense decade window between first and last active decade —
+        // assert the exact key sequence instead of a count so that
+        // adding a fixture row that widens or narrows the envelope
+        // fails the assertion at the boundary rather than at an
+        // opaque bucket-count mismatch.
+        self::assertSame(range(1700, 1950, 10), array_keys($result));
     }
 }
