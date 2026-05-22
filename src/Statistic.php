@@ -15,12 +15,14 @@ use Fisharebest\Webtrees\Family;
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\StatisticsData;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Chord\ChordMatrixPayload;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\ChildMortalitySummary;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\EndogamyRate;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\PlaceDispersionSummary;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\RateCount;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\WinterPeakScore;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\MigrationFlowsPayload;
+use MagicSunday\Webtrees\Statistic\Model\Dto\StreamGraph\GivenNameTrendsPayload;
 use MagicSunday\Webtrees\Statistic\Repository\ChildMortalityRepository;
 use MagicSunday\Webtrees\Statistic\Repository\ChildrenRepository;
 use MagicSunday\Webtrees\Statistic\Repository\CountryRepository;
@@ -121,10 +123,8 @@ final readonly class Statistic
      * symmetric so `[i][j] === [j][i]` for every off-diagonal cell.
      *
      * @param int $topN Cap on the number of arcs.
-     *
-     * @return array{labels: list<string>, matrix: list<list<int>>}
      */
-    public function getSurnameMarriageMatrix(int $topN = 8): array
+    public function getSurnameMarriageMatrix(int $topN = 8): ChordMatrixPayload
     {
         return $this->marriageMatrixRepository->surnameMarriageMatrix($topN);
     }
@@ -789,9 +789,8 @@ final readonly class Statistic
      *
      * @param int $topN Maximum number of distinct given names to keep
      *
-     * @return array{decades: list<int>, names: list<string>, series: array<string, array<int, int>>}
-     */
-    public function getGivenNameTrends(int $topN): array
+     * */
+    public function getGivenNameTrends(int $topN): GivenNameTrendsPayload
     {
         return $this->givenNameTrendsRepository->countByDecade($topN);
     }

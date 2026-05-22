@@ -15,6 +15,7 @@ use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\JoinClause;
+use MagicSunday\Webtrees\Statistic\Model\Dto\StreamGraph\GivenNameTrendsPayload;
 use MagicSunday\Webtrees\Statistic\Support\GedcomScanner;
 
 use function array_keys;
@@ -63,10 +64,8 @@ final readonly class GivenNameTrendsRepository
      * out axes and band labels without re-aggregating.
      *
      * @param int $topN Maximum number of distinct given names to keep
-     *
-     * @return array{decades: list<int>, names: list<string>, series: array<string, array<int, int>>}
      */
-    public function countByDecade(int $topN): array
+    public function countByDecade(int $topN): GivenNameTrendsPayload
     {
         $rows = $this->loadIndividualNamesAndYears();
 
@@ -83,7 +82,7 @@ final readonly class GivenNameTrendsRepository
         $topNames = array_slice(array_keys($perNameTotal), 0, $topN);
 
         if ($topNames === []) {
-            return ['decades' => [], 'names' => [], 'series' => []];
+            return new GivenNameTrendsPayload(decades: [], names: [], series: []);
         }
 
         // Second pass — bucket the same individuals by decade for the top names.
@@ -126,11 +125,11 @@ final readonly class GivenNameTrendsRepository
             }
         }
 
-        return [
-            'decades' => $decades,
-            'names'   => $topNames,
-            'series'  => $series,
-        ];
+        return new GivenNameTrendsPayload(
+            decades: $decades,
+            names: $topNames,
+            series: $series,
+        );
     }
 
     /**

@@ -70,7 +70,7 @@ final class MarriageMatrixRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('surname-marriage-matrix.ged');
         $result = $this->repository($tree)->surnameMarriageMatrix(8);
 
-        self::assertSame(['Klein', 'Müller', 'Schmidt', 'Weber'], $result['labels']);
+        self::assertSame(['Klein', 'Müller', 'Schmidt', 'Weber'], $result->labels);
     }
 
     /**
@@ -84,7 +84,7 @@ final class MarriageMatrixRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('surname-marriage-matrix.ged');
         $result = $this->repository($tree)->surnameMarriageMatrix(8);
 
-        $matrix = $result['matrix'];
+        $matrix = $result->matrix;
         $n      = count($matrix);
 
         for ($i = 0; $i < $n; ++$i) {
@@ -110,7 +110,7 @@ final class MarriageMatrixRepositoryIntegrationTest extends IntegrationTestCase
         $result = $this->repository($tree)->surnameMarriageMatrix(8);
 
         // Labels resolve to indices Klein=0, Müller=1, Schmidt=2, Weber=3.
-        $matrix = $result['matrix'];
+        $matrix = $result->matrix;
 
         // Diagonal: zero across the board (no endogamous marriages).
         self::assertSame(0, $matrix[0][0], 'Klein-Klein: no endogamy');
@@ -149,11 +149,11 @@ final class MarriageMatrixRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('surname-marriage-matrix.ged');
         $result = $this->repository($tree)->surnameMarriageMatrix(2);
 
-        self::assertCount(2, $result['labels']);
-        self::assertContains('Müller', $result['labels']);
-        self::assertContains('Schmidt', $result['labels']);
-        self::assertCount(2, $result['matrix']);
-        self::assertCount(2, $result['matrix'][0]);
+        self::assertCount(2, $result->labels);
+        self::assertContains('Müller', $result->labels);
+        self::assertContains('Schmidt', $result->labels);
+        self::assertCount(2, $result->matrix);
+        self::assertCount(2, $result->matrix[0]);
     }
 
     /**
@@ -167,6 +167,7 @@ final class MarriageMatrixRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('surname-marriage-matrix.ged');
         $result = $this->repository($tree)->surnameMarriageMatrix(0);
 
-        self::assertSame(['labels' => [], 'matrix' => []], $result);
+        self::assertSame([], $result->labels);
+        self::assertSame([], $result->matrix);
     }
 }

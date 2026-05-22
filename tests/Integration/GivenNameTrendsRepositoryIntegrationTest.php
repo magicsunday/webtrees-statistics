@@ -46,7 +46,7 @@ final class GivenNameTrendsRepositoryIntegrationTest extends IntegrationTestCase
         // show fade-out tails at both ends of the stream.
         self::assertSame(
             [1850, 1860, 1870, 1880, 1890, 1900, 1910, 1920, 1930, 1940, 1950, 1960],
-            $result['decades'],
+            $result->decades,
         );
 
         // Top-N order: arsort is stable, so within a tie the first-seen
@@ -56,7 +56,7 @@ final class GivenNameTrendsRepositoryIntegrationTest extends IntegrationTestCase
         // first-seen order. Lisa is the only count-1 entry.
         self::assertSame(
             ['Anna', 'Hans', 'Friedrich', 'Maria', 'Lisa'],
-            $result['names'],
+            $result->names,
         );
 
         self::assertSame(
@@ -74,13 +74,13 @@ final class GivenNameTrendsRepositoryIntegrationTest extends IntegrationTestCase
                 1950 => 0,
                 1960 => 0,
             ],
-            $result['series']['Anna'],
+            $result->series['Anna'],
             'Anna peaks twice — in the 1850s and again in the 1900s',
         );
 
-        self::assertSame(3, $result['series']['Hans'][1950] ?? null);
-        self::assertSame(2, $result['series']['Friedrich'][1860] ?? null);
-        self::assertSame(0, $result['series']['Friedrich'][1900] ?? null);
+        self::assertSame(3, $result->series['Hans'][1950] ?? null);
+        self::assertSame(2, $result->series['Friedrich'][1860] ?? null);
+        self::assertSame(0, $result->series['Friedrich'][1900] ?? null);
     }
 
     /**
@@ -95,18 +95,18 @@ final class GivenNameTrendsRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('name-trends.ged');
         $result = (new GivenNameTrendsRepository($tree))->countByDecade(2);
 
-        self::assertSame(['Anna', 'Hans'], $result['names']);
+        self::assertSame(['Anna', 'Hans'], $result->names);
 
         // Decade range still spans the entire population's birth history
         // (1850–1960). The smaller top-N only narrows the bands, never
         // the x-axis.
-        self::assertCount(12, $result['decades']);
-        self::assertSame(1850, $result['decades'][0]);
-        self::assertSame(1960, $result['decades'][11]);
+        self::assertCount(12, $result->decades);
+        self::assertSame(1850, $result->decades[0]);
+        self::assertSame(1960, $result->decades[11]);
 
-        self::assertSame(2, $result['series']['Anna'][1850]);
-        self::assertSame(1, $result['series']['Anna'][1900]);
-        self::assertSame(0, $result['series']['Anna'][1950]);
-        self::assertSame(3, $result['series']['Hans'][1950]);
+        self::assertSame(2, $result->series['Anna'][1850]);
+        self::assertSame(1, $result->series['Anna'][1900]);
+        self::assertSame(0, $result->series['Anna'][1950]);
+        self::assertSame(3, $result->series['Hans'][1950]);
     }
 }

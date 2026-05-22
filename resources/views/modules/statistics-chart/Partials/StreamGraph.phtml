@@ -10,11 +10,12 @@ declare(strict_types=1);
  */
 
 use Fisharebest\Webtrees\I18N;
+use MagicSunday\Webtrees\Statistic\Model\Dto\StreamGraph\GivenNameTrendsPayload;
 
 /**
- * @var string                                                                                 $identifier Host element id
- * @var array{decades: list<int>, names: list<string>, series: array<string, array<int, int>>} $data       Series payload built by Statistic::getGivenNameTrends()
- * @var int|null                                                                               $height     Optional viewport height (defaults to 320)
+ * @var string                 $identifier Host element id
+ * @var GivenNameTrendsPayload $data       Series payload built by Statistic::getGivenNameTrends() — serialises to JSON via JsonSerializable
+ * @var int|null               $height     Optional viewport height (defaults to 320)
  */
 $height ??= 320;
 

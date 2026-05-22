@@ -106,7 +106,7 @@ $surnameMarriageMatrixExplanation = I18N::translate(
                             aria-label="<?php echo e(I18N::translate('About this chart')); ?>"
                         >?</button>
                     </h5>
-                    <small><?php echo I18N::translate('Top-%s given names, stacked into a stream that reads as relative magnitudes.', I18N::number(count($givenNameTrends['names']))); ?></small>
+                    <small><?php echo I18N::translate('Top-%s given names, stacked into a stream that reads as relative magnitudes.', I18N::number(count($givenNameTrends->names))); ?></small>
                 </div>
                 <div class="card-body">
                     <?php
@@ -123,7 +123,7 @@ $surnameMarriageMatrixExplanation = I18N::translate(
         </div>
     </div>
 
-    <?php if ($surnameMarriageMatrix['labels'] !== []) { ?>
+    <?php if ($surnameMarriageMatrix->labels !== []) { ?>
     <div class="row row-cols-1 g-3">
         <div class="col">
             <div class="card h-100">
@@ -143,7 +143,7 @@ $surnameMarriageMatrixExplanation = I18N::translate(
                             aria-label="<?php echo e(I18N::translate('About this chart')); ?>"
                         >?</button>
                     </h5>
-                    <small><?php echo I18N::translate('Marriages between the top-%s surnames in the tree.', I18N::number(count($surnameMarriageMatrix['labels']))); ?></small>
+                    <small><?php echo I18N::translate('Marriages between the top-%s surnames in the tree.', I18N::number(count($surnameMarriageMatrix->labels))); ?></small>
                 </div>
                 <div class="card-body">
                     <?php

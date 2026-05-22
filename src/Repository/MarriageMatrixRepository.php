@@ -15,6 +15,7 @@ use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\JoinClause;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Chord\ChordMatrixPayload;
 
 use function array_flip;
 use function array_keys;
@@ -59,31 +60,29 @@ final readonly class MarriageMatrixRepository
      * across renders.
      *
      * @param int $topN Cap on the number of arcs in the chord diagram. 8 is a comfortable upper bound for most trees; the widget gets unreadable beyond ~12 arcs.
-     *
-     * @return array{labels: list<string>, matrix: list<list<int>>}
      */
-    public function surnameMarriageMatrix(int $topN): array
+    public function surnameMarriageMatrix(int $topN): ChordMatrixPayload
     {
         if ($topN <= 0) {
-            return ['labels' => [], 'matrix' => []];
+            return new ChordMatrixPayload(labels: [], matrix: []);
         }
 
         $pairs = $this->collectMarriagePairs();
 
         if ($pairs === []) {
-            return ['labels' => [], 'matrix' => []];
+            return new ChordMatrixPayload(labels: [], matrix: []);
         }
 
         $labels = $this->selectTopSurnames($pairs, $topN);
 
         if ($labels === []) {
-            return ['labels' => [], 'matrix' => []];
+            return new ChordMatrixPayload(labels: [], matrix: []);
         }
 
-        return [
-            'labels' => $labels,
-            'matrix' => $this->buildMatrix($pairs, $labels),
-        ];
+        return new ChordMatrixPayload(
+            labels: $labels,
+            matrix: $this->buildMatrix($pairs, $labels),
+        );
     }
 
     /**

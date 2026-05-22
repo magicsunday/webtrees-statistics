@@ -10,12 +10,13 @@ declare(strict_types=1);
  */
 
 use Fisharebest\Webtrees\I18N;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Chord\ChordMatrixPayload;
 
 /**
- * @var string                                                                       $identifier Host element id
- * @var array{labels: list<string>, matrix: list<list<int>>, classes?: list<string>} $data    Chord payload — labels per arc + symmetric N×N connection matrix
- * @var int|null                                                                     $height     Optional viewport height (defaults to 360)
- * @var string|null                                                                  $ariaLabel  Accessible label on the host svg
+ * @var string             $identifier Host element id
+ * @var ChordMatrixPayload $data       Chord payload — labels per arc + symmetric N×N connection matrix (serialises to JSON via JsonSerializable)
+ * @var int|null           $height     Optional viewport height (defaults to 600)
+ * @var string|null        $ariaLabel  Accessible label on the host svg
  */
 $height ??= 600;
 
