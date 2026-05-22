@@ -23,6 +23,7 @@ use MagicSunday\Webtrees\ModuleBase\Processor\NameProcessor;
 use MagicSunday\Webtrees\Statistic\Model\Dto\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Model\Dto\LineChart\LineChartSeries;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\WinterPeakScore;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Record\IndividualAgeRecord;
 use MagicSunday\Webtrees\Statistic\Support\CenturyName;
 use MagicSunday\Webtrees\Statistic\Support\HistogramTrim;
 use MagicSunday\Webtrees\Statistic\Support\SeasonalityScore;
@@ -263,10 +264,8 @@ final readonly class LifeSpanRepository
      * largest DEAT − BIRT julian-day delta, capped at 120 years so
      * a single typo cannot win the slot. Used by the Hall-of-Fame
      * widget on the Overview tab.
-     *
-     * @return array{individual: Individual, ageYears: int}|null
      */
-    public function oldestDeceasedRecord(): ?array
+    public function oldestDeceasedRecord(): ?IndividualAgeRecord
     {
         $maxAge = $this->maxPlausibleAge();
 
@@ -292,7 +291,7 @@ final readonly class LifeSpanRepository
                 continue;
             }
 
-            return ['individual' => $individual, 'ageYears' => $years];
+            return new IndividualAgeRecord(individual: $individual, ageYears: $years);
         }
 
         return null;
@@ -302,10 +301,8 @@ final readonly class LifeSpanRepository
      * Single oldest-living record holder: the individual without a
      * recorded DEAT whose BIRT julian-day is earliest in the tree,
      * capped at 120 years to discard implausible BIRT typos.
-     *
-     * @return array{individual: Individual, ageYears: int}|null
      */
-    public function oldestLivingRecord(): ?array
+    public function oldestLivingRecord(): ?IndividualAgeRecord
     {
         $today          = getdate();
         $todayJulianDay = GregorianToJD($today['mon'], $today['mday'], $today['year']);
@@ -336,7 +333,7 @@ final readonly class LifeSpanRepository
                 continue;
             }
 
-            return ['individual' => $individual, 'ageYears' => $years];
+            return new IndividualAgeRecord(individual: $individual, ageYears: $years);
         }
 
         return null;

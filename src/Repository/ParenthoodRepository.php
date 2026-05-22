@@ -17,6 +17,7 @@ use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Record\IndividualAgeRecord;
 use MagicSunday\Webtrees\Statistic\Support\AgeBuckets;
 
 use function intdiv;
@@ -111,10 +112,8 @@ final readonly class ParenthoodRepository
      * iterator so a 5-year-old "father" cannot win the slot.
      *
      * @param string $sex 'M' for fathers, 'F' for mothers
-     *
-     * @return array{individual: Individual, ageYears: int}|null
      */
-    public function youngestParentAtFirstChildRecord(string $sex): ?array
+    public function youngestParentAtFirstChildRecord(string $sex): ?IndividualAgeRecord
     {
         $bestYears = null;
         $bestXref  = null;
@@ -134,10 +133,8 @@ final readonly class ParenthoodRepository
      * {@see youngestParentAtFirstChildRecord()}.
      *
      * @param string $sex 'M' for fathers, 'F' for mothers
-     *
-     * @return array{individual: Individual, ageYears: int}|null
      */
-    public function oldestParentAtFirstChildRecord(string $sex): ?array
+    public function oldestParentAtFirstChildRecord(string $sex): ?IndividualAgeRecord
     {
         $bestYears = null;
         $bestXref  = null;
@@ -233,13 +230,11 @@ final readonly class ParenthoodRepository
 
     /**
      * Resolve the {xref, years} pair the two record methods both
-     * picked into the public Individual+ageYears shape, with a
+     * picked into the public Individual+ageYears DTO, with a
      * null fall-back when the xref can no longer be made into a
      * live Individual.
-     *
-     * @return array{individual: Individual, ageYears: int}|null
      */
-    private function resolveParentRecord(?string $xref, ?int $years): ?array
+    private function resolveParentRecord(?string $xref, ?int $years): ?IndividualAgeRecord
     {
         if (($xref === null) || ($years === null)) {
             return null;
@@ -251,6 +246,6 @@ final readonly class ParenthoodRepository
             return null;
         }
 
-        return ['individual' => $individual, 'ageYears' => $years];
+        return new IndividualAgeRecord(individual: $individual, ageYears: $years);
     }
 }

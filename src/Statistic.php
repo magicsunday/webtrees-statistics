@@ -11,9 +11,7 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic;
 
-use Fisharebest\Webtrees\Family;
 use Fisharebest\Webtrees\I18N;
-use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\StatisticsData;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Chord\ChordMatrixPayload;
 use MagicSunday\Webtrees\Statistic\Model\Dto\LineChart\LineChartPayload;
@@ -22,6 +20,11 @@ use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\EndogamyRate;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\PlaceDispersionSummary;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\RateCount;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\WinterPeakScore;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Record\FamilyCountRecord;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Record\FamilyDurationDaysRecord;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Record\FamilyDurationYearsRecord;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Record\IndividualAgeRecord;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Record\IndividualCountRecord;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\MigrationFlowsPayload;
 use MagicSunday\Webtrees\Statistic\Model\Dto\StackedBar\StackedBarPayload;
 use MagicSunday\Webtrees\Statistic\Model\Dto\StreamGraph\GivenNameTrendsPayload;
@@ -448,21 +451,21 @@ final readonly class Statistic
      * extreme value the record-holder reached.
      *
      * @return array{
-     *     oldestDeceased:   array{individual: Individual, ageYears: int}|null,
-     *     oldestLiving:     array{individual: Individual, ageYears: int}|null,
-     *     longestMarriage:  array{family: Family, durationYears: int}|null,
-     *     shortestMarriage: array{family: Family, durationDays: int}|null,
-     *     youngestHusband:  array{individual: Individual, ageYears: int}|null,
-     *     youngestWife:     array{individual: Individual, ageYears: int}|null,
-     *     oldestHusband:    array{individual: Individual, ageYears: int}|null,
-     *     oldestWife:       array{individual: Individual, ageYears: int}|null,
-     *     mostSpouses:           array{individual: Individual, count: int}|null,
-     *     largestFamily:         array{family: Family, count: int}|null,
-     *     mostChildrenPerPerson: array{individual: Individual, count: int}|null,
-     *     youngestFatherAtFirstChild: array{individual: Individual, ageYears: int}|null,
-     *     youngestMotherAtFirstChild: array{individual: Individual, ageYears: int}|null,
-     *     oldestFatherAtFirstChild:   array{individual: Individual, ageYears: int}|null,
-     *     oldestMotherAtFirstChild:   array{individual: Individual, ageYears: int}|null
+     *     oldestDeceased:             IndividualAgeRecord|null,
+     *     oldestLiving:               IndividualAgeRecord|null,
+     *     longestMarriage:            FamilyDurationYearsRecord|null,
+     *     shortestMarriage:           FamilyDurationDaysRecord|null,
+     *     youngestHusband:            IndividualAgeRecord|null,
+     *     youngestWife:               IndividualAgeRecord|null,
+     *     oldestHusband:              IndividualAgeRecord|null,
+     *     oldestWife:                 IndividualAgeRecord|null,
+     *     mostSpouses:                IndividualCountRecord|null,
+     *     largestFamily:              FamilyCountRecord|null,
+     *     mostChildrenPerPerson:      IndividualCountRecord|null,
+     *     youngestFatherAtFirstChild: IndividualAgeRecord|null,
+     *     youngestMotherAtFirstChild: IndividualAgeRecord|null,
+     *     oldestFatherAtFirstChild:   IndividualAgeRecord|null,
+     *     oldestMotherAtFirstChild:   IndividualAgeRecord|null
      * }
      */
     public function getTreeRecords(): array

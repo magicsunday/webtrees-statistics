@@ -66,8 +66,8 @@ final class RecordsIntegrationTest extends IntegrationTestCase
         $record = (new LifeSpanRepository($tree, $this->statisticsData($tree)))->oldestDeceasedRecord();
 
         self::assertNotNull($record);
-        self::assertSame('I1', $record['individual']->xref());
-        self::assertSame(110, $record['ageYears']);
+        self::assertSame('I1', $record->individual->xref());
+        self::assertSame(110, $record->ageYears);
     }
 
     /**
@@ -82,8 +82,8 @@ final class RecordsIntegrationTest extends IntegrationTestCase
         $record = (new MarriageRepository($tree, $this->statisticsData($tree)))->longestMarriageRecord();
 
         self::assertNotNull($record);
-        self::assertSame('F1', $record['family']->xref());
-        self::assertSame(55, $record['durationYears']);
+        self::assertSame('F1', $record->family->xref());
+        self::assertSame(55, $record->durationYears);
     }
 
     /**
@@ -97,8 +97,8 @@ final class RecordsIntegrationTest extends IntegrationTestCase
         $record = (new MarriageRepository($tree, $this->statisticsData($tree)))->shortestMarriageRecord();
 
         self::assertNotNull($record);
-        self::assertSame('F3', $record['family']->xref());
-        self::assertSame(95, $record['durationDays']);
+        self::assertSame('F3', $record->family->xref());
+        self::assertSame(95, $record->durationDays);
     }
 
     /**
@@ -112,8 +112,8 @@ final class RecordsIntegrationTest extends IntegrationTestCase
         $record = (new ChildrenRepository($tree, $this->statisticsData($tree)))->largestFamilyRecord();
 
         self::assertNotNull($record);
-        self::assertSame('F2', $record['family']->xref());
-        self::assertSame(6, $record['count']);
+        self::assertSame('F2', $record->family->xref());
+        self::assertSame(6, $record->count);
     }
 
     /**
@@ -131,8 +131,8 @@ final class RecordsIntegrationTest extends IntegrationTestCase
         $record = (new ChildrenRepository($tree, $this->statisticsData($tree)))->mostChildrenPerPersonRecord();
 
         self::assertNotNull($record);
-        self::assertContains($record['individual']->xref(), ['I7', 'I8']);
-        self::assertSame(6, $record['count']);
+        self::assertContains($record->individual->xref(), ['I7', 'I8']);
+        self::assertSame(6, $record->count);
     }
 
     /**
@@ -147,8 +147,8 @@ final class RecordsIntegrationTest extends IntegrationTestCase
         $record = (new ParenthoodRepository($tree))->youngestParentAtFirstChildRecord('M');
 
         self::assertNotNull($record);
-        self::assertSame('I15', $record['individual']->xref());
-        self::assertSame(15, $record['ageYears']);
+        self::assertSame('I15', $record->individual->xref());
+        self::assertSame(15, $record->ageYears);
     }
 
     /**
@@ -161,8 +161,8 @@ final class RecordsIntegrationTest extends IntegrationTestCase
         $record = (new MarriageRepository($tree, $this->statisticsData($tree)))->mostSpousesRecord();
 
         self::assertNotNull($record);
-        self::assertSame('I18', $record['individual']->xref());
-        self::assertSame(2, $record['count']);
+        self::assertSame('I18', $record->individual->xref());
+        self::assertSame(2, $record->count);
     }
 
     /**

@@ -22,6 +22,8 @@ use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Model\Dto\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Model\Dto\LineChart\LineChartSeries;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Record\FamilyCountRecord;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Record\IndividualCountRecord;
 use MagicSunday\Webtrees\Statistic\Model\Dto\StackedBar\StackedBarPayload;
 use MagicSunday\Webtrees\Statistic\Model\Dto\StackedBar\StackedBarSeries;
 use MagicSunday\Webtrees\Statistic\Support\CenturyName;
@@ -486,10 +488,8 @@ final readonly class ChildrenRepository
      * not there (largest single family was 5). Counts each FAM's
      * `f_numchil` exactly once per spouse, so the same child does
      * not contribute to both parents' totals across remarriages.
-     *
-     * @return array{individual: Individual, count: int}|null
      */
-    public function mostChildrenPerPersonRecord(): ?array
+    public function mostChildrenPerPersonRecord(): ?IndividualCountRecord
     {
         // Use the raw prefixed table name (wt_families) inside
         // `Expression` and `orderByRaw` — Eloquent only auto-prefixes
@@ -532,17 +532,15 @@ final readonly class ChildrenRepository
             return null;
         }
 
-        return ['individual' => $individual, 'count' => $total];
+        return new IndividualCountRecord(individual: $individual, count: $total);
     }
 
     /**
      * Single largest-family record holder: the family with the
      * highest `f_numchil` count. Returns null when the tree has
      * no family with at least one child.
-     *
-     * @return array{family: Family, count: int}|null
      */
-    public function largestFamilyRecord(): ?array
+    public function largestFamilyRecord(): ?FamilyCountRecord
     {
         foreach ($this->data->familiesWithTheMostChildren(1) as $entry) {
             $family   = $entry->family ?? null;
@@ -556,7 +554,7 @@ final readonly class ChildrenRepository
                 continue;
             }
 
-            return ['family' => $family, 'count' => $children];
+            return new FamilyCountRecord(family: $family, count: $children);
         }
 
         return null;

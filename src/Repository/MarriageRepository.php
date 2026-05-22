@@ -19,6 +19,10 @@ use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Record\FamilyDurationDaysRecord;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Record\FamilyDurationYearsRecord;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Record\IndividualAgeRecord;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Record\IndividualCountRecord;
 use MagicSunday\Webtrees\Statistic\Support\AgeBuckets;
 
 use function abs;
@@ -130,10 +134,8 @@ final readonly class MarriageRepository
      * end is whichever happened first — DIV, husband's DEAT or
      * wife's DEAT. Returns null when no family has both a MARR
      * date AND a determinable end date. Capped at 90 years.
-     *
-     * @return array{family: Family, durationYears: int}|null
      */
-    public function longestMarriageRecord(): ?array
+    public function longestMarriageRecord(): ?FamilyDurationYearsRecord
     {
         $bestYears = 0;
         $bestXref  = null;
@@ -157,7 +159,7 @@ final readonly class MarriageRepository
             return null;
         }
 
-        return ['family' => $family, 'durationYears' => $bestYears];
+        return new FamilyDurationYearsRecord(family: $family, durationYears: $bestYears);
     }
 
     /**
@@ -167,10 +169,8 @@ final readonly class MarriageRepository
      * `endJd > marrJd` guard on the underlying iterator. Returns
      * the duration in days rather than years so a one-week or
      * one-month "fastest split" stays meaningful.
-     *
-     * @return array{family: Family, durationDays: int}|null
      */
-    public function shortestMarriageRecord(): ?array
+    public function shortestMarriageRecord(): ?FamilyDurationDaysRecord
     {
         $bestDays = null;
         $bestXref = null;
@@ -194,7 +194,7 @@ final readonly class MarriageRepository
             return null;
         }
 
-        return ['family' => $family, 'durationDays' => $bestDays];
+        return new FamilyDurationDaysRecord(family: $family, durationDays: $bestDays);
     }
 
     /**
@@ -205,10 +205,8 @@ final readonly class MarriageRepository
      * errors where BIRT and MARR were swapped.
      *
      * @param string $sex 'M' for husbands, 'F' for wives
-     *
-     * @return array{individual: Individual, ageYears: int}|null
      */
-    public function youngestSpouseAtMarriageRecord(string $sex): ?array
+    public function youngestSpouseAtMarriageRecord(string $sex): ?IndividualAgeRecord
     {
         $best = null;
 
@@ -236,17 +234,15 @@ final readonly class MarriageRepository
             return null;
         }
 
-        return ['individual' => $individual, 'ageYears' => $best['years']];
+        return new IndividualAgeRecord(individual: $individual, ageYears: $best['years']);
     }
 
     /**
      * Oldest spouse at marriage: mirror of {@see youngestSpouseAtMarriageRecord()}.
      *
      * @param string $sex 'M' for husbands, 'F' for wives
-     *
-     * @return array{individual: Individual, ageYears: int}|null
      */
-    public function oldestSpouseAtMarriageRecord(string $sex): ?array
+    public function oldestSpouseAtMarriageRecord(string $sex): ?IndividualAgeRecord
     {
         $best = null;
 
@@ -274,17 +270,15 @@ final readonly class MarriageRepository
             return null;
         }
 
-        return ['individual' => $individual, 'ageYears' => $best['years']];
+        return new IndividualAgeRecord(individual: $individual, ageYears: $best['years']);
     }
 
     /**
      * Most marriages per individual: the person who participated
      * in the largest number of FAM records (as husband or wife).
      * Recorded via the `link` table — one FAMS link per marriage.
-     *
-     * @return array{individual: Individual, count: int}|null
      */
-    public function mostSpousesRecord(): ?array
+    public function mostSpousesRecord(): ?IndividualCountRecord
     {
         $row = DB::table('link')
             ->where('l_file', '=', $this->tree->id())
@@ -311,7 +305,7 @@ final readonly class MarriageRepository
             return null;
         }
 
-        return ['individual' => $individual, 'count' => $count];
+        return new IndividualCountRecord(individual: $individual, count: $count);
     }
 
     /**
