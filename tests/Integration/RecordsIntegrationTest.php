@@ -166,6 +166,69 @@ final class RecordsIntegrationTest extends IntegrationTestCase
     }
 
     /**
+     * Youngest husband at marriage — F1 I3 (BIRT 1900, MARR 1925 → 25
+     * years) wins over I5 (BIRT 1900, MARR 1930 → 30 years). Pins the
+     * youngest-spouse picker through the resolver chain that just
+     * replaced the inline Registry+instanceof block.
+     */
+    #[Test]
+    public function youngestHusbandAtMarriagePicksTheTwentyFiveYearOld(): void
+    {
+        $tree   = $this->importFixtureTree('records.ged');
+        $record = (new MarriageRepository($tree, $this->statisticsData($tree)))->youngestSpouseAtMarriageRecord('M');
+
+        self::assertNotNull($record);
+        self::assertSame('I3', $record->individual->xref());
+        self::assertSame(25, $record->ageYears);
+    }
+
+    /**
+     * Oldest husband at marriage — F3 I5 (BIRT 1900, MARR 1930 → 30
+     * years) wins. Mirrors the youngest picker so both branches of
+     * the shared resolver carry coverage.
+     */
+    #[Test]
+    public function oldestHusbandAtMarriagePicksTheThirtyYearOld(): void
+    {
+        $tree   = $this->importFixtureTree('records.ged');
+        $record = (new MarriageRepository($tree, $this->statisticsData($tree)))->oldestSpouseAtMarriageRecord('M');
+
+        self::assertNotNull($record);
+        self::assertSame('I5', $record->individual->xref());
+        self::assertSame(30, $record->ageYears);
+    }
+
+    /**
+     * Youngest wife at marriage — F1 I4 (BIRT 1905, MARR 1925 → 20
+     * years) wins.
+     */
+    #[Test]
+    public function youngestWifeAtMarriagePicksTheTwentyYearOld(): void
+    {
+        $tree   = $this->importFixtureTree('records.ged');
+        $record = (new MarriageRepository($tree, $this->statisticsData($tree)))->youngestSpouseAtMarriageRecord('F');
+
+        self::assertNotNull($record);
+        self::assertSame('I4', $record->individual->xref());
+        self::assertSame(20, $record->ageYears);
+    }
+
+    /**
+     * Oldest wife at marriage — F3 I6 (BIRT 1905, MARR 1930 → 25
+     * years) wins.
+     */
+    #[Test]
+    public function oldestWifeAtMarriagePicksTheTwentyFiveYearOld(): void
+    {
+        $tree   = $this->importFixtureTree('records.ged');
+        $record = (new MarriageRepository($tree, $this->statisticsData($tree)))->oldestSpouseAtMarriageRecord('F');
+
+        self::assertNotNull($record);
+        self::assertSame('I6', $record->individual->xref());
+        self::assertSame(25, $record->ageYears);
+    }
+
+    /**
      * Build a {@see StatisticsData} accessor scoped to the
      * imported test tree. Multiple repositories collaborate with
      * it so the test helpers share a single factory instead of

@@ -13,9 +13,9 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\ChildMortalitySummary;
+use MagicSunday\Webtrees\Statistic\Support\CenturyName;
 use MagicSunday\Webtrees\Statistic\Support\ChildMortalityRate;
 
-use function intdiv;
 use function is_numeric;
 use function ksort;
 
@@ -80,7 +80,7 @@ final readonly class ChildMortalityRepository
                 continue;
             }
 
-            $century = intdiv($birthYear - 1, 100) + 1;
+            $century = CenturyName::fromYear($birthYear);
 
             if (!isset($perCentury[$century])) {
                 $perCentury[$century] = [];

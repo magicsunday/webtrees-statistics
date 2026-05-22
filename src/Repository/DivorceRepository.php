@@ -250,7 +250,7 @@ final readonly class DivorceRepository
                 continue;
             }
 
-            $century = intdiv($divYear - 1, 100) + 1;
+            $century = CenturyName::fromYear($divYear);
 
             // Husband first, wife fallback — one tick per divorce
             // so the per-century totals match `divorcesByCentury`

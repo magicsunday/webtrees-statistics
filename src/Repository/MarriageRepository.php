@@ -24,6 +24,7 @@ use MagicSunday\Webtrees\Statistic\Model\Dto\Record\FamilyDurationYearsRecord;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Record\IndividualAgeRecord;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Record\IndividualCountRecord;
 use MagicSunday\Webtrees\Statistic\Support\AgeBuckets;
+use MagicSunday\Webtrees\Statistic\Support\IndividualAgeRecordResolver;
 
 use function abs;
 use function intdiv;
@@ -224,17 +225,11 @@ final readonly class MarriageRepository
             }
         }
 
-        if ($best === null) {
-            return null;
-        }
-
-        $individual = Registry::individualFactory()->make($best['xref'], $this->tree);
-
-        if (!$individual instanceof Individual) {
-            return null;
-        }
-
-        return new IndividualAgeRecord(individual: $individual, ageYears: $best['years']);
+        return IndividualAgeRecordResolver::resolve(
+            $this->tree,
+            $best['xref'] ?? null,
+            $best['years'] ?? null,
+        );
     }
 
     /**
@@ -260,17 +255,11 @@ final readonly class MarriageRepository
             }
         }
 
-        if ($best === null) {
-            return null;
-        }
-
-        $individual = Registry::individualFactory()->make($best['xref'], $this->tree);
-
-        if (!$individual instanceof Individual) {
-            return null;
-        }
-
-        return new IndividualAgeRecord(individual: $individual, ageYears: $best['years']);
+        return IndividualAgeRecordResolver::resolve(
+            $this->tree,
+            $best['xref'] ?? null,
+            $best['years'] ?? null,
+        );
     }
 
     /**

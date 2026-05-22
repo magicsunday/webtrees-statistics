@@ -11,14 +11,13 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
-use Fisharebest\Webtrees\Individual;
-use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Record\IndividualAgeRecord;
 use MagicSunday\Webtrees\Statistic\Support\AgeBuckets;
+use MagicSunday\Webtrees\Statistic\Support\IndividualAgeRecordResolver;
 
 use function intdiv;
 use function is_numeric;
@@ -125,7 +124,7 @@ final readonly class ParenthoodRepository
             }
         }
 
-        return $this->resolveParentRecord($bestXref, $bestYears);
+        return IndividualAgeRecordResolver::resolve($this->tree, $bestXref, $bestYears);
     }
 
     /**
@@ -146,7 +145,7 @@ final readonly class ParenthoodRepository
             }
         }
 
-        return $this->resolveParentRecord($bestXref, $bestYears);
+        return IndividualAgeRecordResolver::resolve($this->tree, $bestXref, $bestYears);
     }
 
     /**
@@ -226,26 +225,5 @@ final readonly class ParenthoodRepository
 
             yield ['xref' => $xref, 'years' => $years];
         }
-    }
-
-    /**
-     * Resolve the {xref, years} pair the two record methods both
-     * picked into the public Individual+ageYears DTO, with a
-     * null fall-back when the xref can no longer be made into a
-     * live Individual.
-     */
-    private function resolveParentRecord(?string $xref, ?int $years): ?IndividualAgeRecord
-    {
-        if (($xref === null) || ($years === null)) {
-            return null;
-        }
-
-        $individual = Registry::individualFactory()->make($xref, $this->tree);
-
-        if (!$individual instanceof Individual) {
-            return null;
-        }
-
-        return new IndividualAgeRecord(individual: $individual, ageYears: $years);
     }
 }

@@ -402,7 +402,7 @@ final readonly class LifeSpanRepository
             // $year is already > 0 (guarded earlier), so the
             // century derivation cannot be non-positive — no
             // second guard needed.
-            $century = intdiv($year - 1, 100) + 1;
+            $century = CenturyName::fromYear($year);
 
             $cohorts[$century] ??= ['M' => ['sum' => 0, 'n' => 0], 'F' => ['sum' => 0, 'n' => 0]];
             $cohorts[$century][$sex]['sum'] += $years;

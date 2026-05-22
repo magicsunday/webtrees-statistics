@@ -13,6 +13,7 @@ namespace MagicSunday\Webtrees\Statistic\Support;
 
 use Fisharebest\Webtrees\I18N;
 
+use function intdiv;
 use function strip_tags;
 
 /**
@@ -36,6 +37,19 @@ final readonly class CenturyName
      */
     private function __construct()
     {
+    }
+
+    /**
+     * Map a 4-digit year to its 1-based century number using the
+     * Gregorian convention where year 1 lives in the 1st century
+     * and year 100 still does, but year 101 starts the 2nd. The
+     * formula `intdiv(year - 1, 100) + 1` is the single source of
+     * truth that every century-bucketing repository call site
+     * routes through.
+     */
+    public static function fromYear(int $year): int
+    {
+        return intdiv($year - 1, 100) + 1;
     }
 
     /**

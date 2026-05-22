@@ -157,7 +157,7 @@ final readonly class ChildrenRepository
         $perCentury = [];
 
         foreach ($this->familiesByEarliestMarriageYear() as $entry) {
-            $century                = intdiv($entry['year'] - 1, 100) + 1;
+            $century                = CenturyName::fromYear($entry['year']);
             $perCentury[$century][] = $entry['n'];
         }
 
