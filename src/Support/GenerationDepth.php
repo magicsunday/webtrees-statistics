@@ -198,25 +198,9 @@ final readonly class GenerationDepth
      */
     public static function depthCache(array $childrenOf, array $parentOf): array
     {
-        $allIds = [];
-
-        foreach ($parentOf as $childId => $parents) {
-            $allIds[$childId] = true;
-
-            [$father, $mother] = $parents;
-
-            if ($father !== null) {
-                $allIds[$father] = true;
-            }
-
-            if ($mother !== null) {
-                $allIds[$mother] = true;
-            }
-        }
-
         $depthCache = [];
 
-        foreach (array_keys($allIds) as $id) {
+        foreach (self::collectAllIds($parentOf) as $id) {
             self::deepestDescendantDistance($childrenOf, $id, $depthCache);
         }
 
@@ -395,6 +379,30 @@ final readonly class GenerationDepth
      */
     public static function upDistanceCache(array $parentOf): array
     {
+        $cache = [];
+
+        foreach (self::collectAllIds($parentOf) as $id) {
+            self::deepestAncestorDistance($parentOf, $id, $cache);
+        }
+
+        return $cache;
+    }
+
+    /**
+     * Flatten the `parentOf` map into every individual the graph
+     * mentions — children PLUS any non-null parent on the right
+     * side of an entry. Returned as a list of XREFs in insertion
+     * order; callers iterate it to seed both `depthCache()` and
+     * `upDistanceCache()` so a single tree-wide DFS sweep covers
+     * every node, including individuals that appear only as a
+     * parent (i.e. have no recorded parents of their own).
+     *
+     * @param array<string, array{0: string|null, 1: string|null}> $parentOf
+     *
+     * @return list<string>
+     */
+    private static function collectAllIds(array $parentOf): array
+    {
         $allIds = [];
 
         foreach ($parentOf as $childId => $parents) {
@@ -411,13 +419,7 @@ final readonly class GenerationDepth
             }
         }
 
-        $cache = [];
-
-        foreach (array_keys($allIds) as $id) {
-            self::deepestAncestorDistance($parentOf, $id, $cache);
-        }
-
-        return $cache;
+        return array_keys($allIds);
     }
 
     /**
