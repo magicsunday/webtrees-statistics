@@ -29,9 +29,11 @@ $topOldestDeceased       = $statistic->getTopOldestDeceased(10);
 $topOldestLiving         = $statistic->getTopOldestLiving(10);
 $livingByAgeBand         = $statistic->getLivingByAgeBand();
 $topDeathCauses          = $statistic->getTopDeathCauses(15);
+$totalDeathCauses        = $statistic->getTotalDeathCauses();
 $winterPeakScore         = $statistic->getDeathWinterPeakScore();
 $childMortality          = $statistic->getChildMortalitySummary();
 $childMortalityByCentury = $statistic->getChildMortalityByBirthCentury();
+$lifespanBySexCentury    = $statistic->getAverageLifespanBySexAndCentury();
 
 $totalBirthsByMonth   = array_sum($birthsByMonth);
 $totalBirthsByZodiac  = array_sum($birthsByZodiacSign);
@@ -40,11 +42,7 @@ $totalDeathsByMonth   = array_sum($deathsByMonth);
 $totalDeathsByCentury = array_sum($deathsByCentury);
 $totalAgeAtDeath      = array_sum($ageAtDeath);
 $totalLivingBanded    = array_sum(array_column($livingByAgeBand, 'value'));
-?>
-<?php
-// LineChart uses the unified `{categories, series}` payload —
-// build parallel arrays per century then assemble the single-
-// series payload at the end.
+
 $birthsByCenturyPayload = LineChartPayload::singleSeries(
     seriesName: I18N::translate('Births'),
     countsByCategory: $birthsByCentury,
@@ -65,10 +63,6 @@ $deathsByCenturyPayload = LineChartPayload::singleSeries(
     ],
 );
 
-// Pre-index the mortality-by-century entries on the rate value so
-// the shared LineChartPayload::singleSeries fold can populate the
-// line; the tooltip body needs the per-entry died/total counts so
-// they are looked up by century inside the project callback.
 $mortalityByCentury = [];
 $mortalityTooltips  = [];
 
@@ -96,168 +90,158 @@ $childMortalityPayload = LineChartPayload::singleSeries(
         ];
     },
 );
-?>
-<div class="container">
-    <div class="row row-cols-1 row-cols-md-2 g-3">
-        <div class="col">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title"><?php echo I18N::translate('Births by month'); ?></h5>
-                    <small><?php echo I18N::plural('%s individual with a recorded birth month', '%s individuals with a recorded birth month', $totalBirthsByMonth, I18N::number($totalBirthsByMonth)); ?></small>
-                </div>
-                <div class="card-body">
-                    <?php
-                        echo view(
-                            $module . '::modules/statistics-chart/Partials/ProgressList',
-                            [
-                                'class' => 'progress-births-month',
-                                'data'  => $birthsByMonth,
-                            ],
-                        );
-?>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title"><?php echo I18N::translate('Births by zodiac sign'); ?></h5>
-                    <small><?php echo I18N::plural('%s individual with a known zodiac sign', '%s individuals with a known zodiac sign', $totalBirthsByZodiac, I18N::number($totalBirthsByZodiac)); ?></small>
-                </div>
-                <div class="card-body">
-                    <?php
-    echo view(
-        $module . '::modules/statistics-chart/Partials/ProgressList',
-        [
-            'class' => 'progress-births-zodiac',
-            'data'  => $birthsByZodiacSign,
-        ],
-    );
-?>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <div class="row g-3">
-        <div class="col">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title"><?php echo I18N::translate('Births by century'); ?></h5>
-                    <small><?php echo I18N::plural('%s individual with a recorded birth year', '%s individuals with a recorded birth year', $totalBirthsByCentury, I18N::number($totalBirthsByCentury)); ?></small>
-                </div>
-                <div class="card-body">
-                    <?php
-        echo view(
-            $module . '::modules/statistics-chart/Partials/LineChart',
-            [
-                'identifier' => 'births-century-line',
-                'data'       => $birthsByCenturyPayload,
-            ],
-        );
+$childMortalityExplanation = I18N::translate(
+    'For every individual with both BIRT and DEAT julian-days the widget computes the number of days lived; a death within five years (1826 days) of birth counts as under-5 mortality. The tree-wide percentage is the share of such children across the whole tree, and the LineChart on the right groups them by their birth century so the historical decline becomes visible (typical 1700s value 30-40 percent, modern below 2 percent). Individuals with only BIRT or only DEAT are silently excluded — we cannot determine survival without both anchors, and including them would skew the rate. Per-century cohorts below 5 children are suppressed because a single dead child would spike the line by more than 10 percentage points.'
+);
 ?>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="wt-stat-grid">
 
-    <div class="row row-cols-1 row-cols-md-2 g-3">
-        <div class="col">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title"><?php echo I18N::translate('Deaths by month'); ?></h5>
-                    <small><?php echo I18N::plural('%s individual with a recorded death month', '%s individuals with a recorded death month', $totalDeathsByMonth, I18N::number($totalDeathsByMonth)); ?></small>
-                </div>
-                <div class="card-body">
-                    <?php
-    echo view(
-        $module . '::modules/statistics-chart/Partials/ProgressList',
-        [
-            'class' => 'progress-deaths-month',
-            'data'  => $deathsByMonth,
-        ],
-    );
-?>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title"><?php echo I18N::translate('Winter-peak score'); ?></h5>
-                    <small><?php echo I18N::translate('Relative density of deaths in December – February compared with an even 12-month baseline.'); ?></small>
-                </div>
-                <div class="card-body d-flex align-items-center justify-content-center">
-                    <?php
-            if ($winterPeakScore !== null) {
-                $scoreCaption = I18N::translate('%1$s of %2$s deaths fell in December – February. 1.0 = no seasonality, > 1.0 = winter-peaked, < 1.0 = winter-trough.', I18N::number($winterPeakScore->seasonCount), I18N::number($winterPeakScore->total));
-                echo view(
-                    $module . '::modules/statistics-chart/Partials/Scalar',
-                    [
-                        'value'   => I18N::number($winterPeakScore->score, 2),
-                        'unit'    => '×',
-                        'caption' => $scoreCaption,
-                    ],
-                );
-            } else {
-                echo view(
-                    $module . '::modules/statistics-chart/Partials/Scalar',
-                    [
-                        'value'   => I18N::translate('no data'),
-                        'unit'    => null,
-                        'caption' => I18N::translate('At least 12 dated deaths are required for a meaningful score.'),
-                    ],
-                );
-            }
-?>
-                </div>
-            </div>
-        </div>
-    </div>
+    <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
+        'kicker' => I18N::translate('LIFESPAN'),
+        'title'  => I18N::translate('How long was the life?'),
+        'sub'    => I18N::translate('Age at death, longevity and life-stage of the living.'),
+    ]); ?>
 
-    <div class="row g-3">
-        <div class="col">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title"><?php echo I18N::translate('Deaths by century'); ?></h5>
-                    <small><?php echo I18N::plural('%s individual with a recorded death year', '%s individuals with a recorded death year', $totalDeathsByCentury, I18N::number($totalDeathsByCentury)); ?></small>
-                </div>
-                <div class="card-body">
-                    <?php
-        echo view(
-            $module . '::modules/statistics-chart/Partials/LineChart',
-            [
-                'identifier' => 'deaths-century-line',
-                'data'       => $deathsByCenturyPayload,
-            ],
-        );
-?>
-                </div>
-            </div>
-        </div>
-    </div>
+    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+        'module'       => $module,
+        'title'        => I18N::translate('Age at death (10-year bands)'),
+        'sub'          => I18N::plural('%s individual with both birth and death dates', '%s individuals with both birth and death dates', $totalAgeAtDeath, I18N::number($totalAgeAtDeath)),
+        'eyebrow'      => I18N::translate('DISTRIBUTION'),
+        'accent'       => 'var(--wine)',
+        'illustration' => 'hourglass',
+        'span'         => 8,
+        'bodyRenderer' => static function () use ($module, $ageAtDeath): void {
+            echo view($module . '::modules/statistics-chart/Partials/ProgressList', [
+                'class' => 'progress-age-at-death',
+                'data'  => $ageAtDeath,
+            ]);
+        },
+    ]); ?>
+
+    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+        'module'       => $module,
+        'title'        => I18N::translate('Living individuals by life-stage'),
+        'sub'          => I18N::plural('%s living individual with a birth date', '%s living individuals with a birth date', $totalLivingBanded, I18N::number($totalLivingBanded)),
+        'eyebrow'      => I18N::translate('TODAY LIVING'),
+        'accent'       => 'var(--sage)',
+        'illustration' => 'candle',
+        'span'         => 4,
+        'bodyRenderer' => static function () use ($module, $livingByAgeBand): void {
+            echo view($module . '::modules/statistics-chart/Partials/DonutChart', [
+                'identifier' => 'living-age-band-donut',
+                'data'       => $livingByAgeBand,
+            ]);
+        },
+    ]); ?>
+
+    <?php if ($lifespanBySexCentury->categories !== []) { ?>
+        <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+            'module'       => $module,
+            'title'        => I18N::translate('Average lifespan by sex × century'),
+            'sub'          => I18N::translate('Mean age at death per birth-century cohort, split by recorded sex.'),
+            'eyebrow'      => I18N::translate('TIMELINE'),
+            'accent'       => 'var(--ochre)',
+            'illustration' => 'hourglass',
+            'span'         => 12,
+            'bodyRenderer' => static function () use ($module, $lifespanBySexCentury): void {
+                echo view($module . '::modules/statistics-chart/Partials/LineChart', [
+                    'identifier' => 'lifespan-by-sex-century',
+                    'data'       => $lifespanBySexCentury,
+                    'height'     => 280,
+                    'ariaLabel'  => I18N::translate('Average lifespan by sex and century'),
+                ]);
+            },
+        ]); ?>
+    <?php } ?>
+
+    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+        'module'       => $module,
+        'title'        => I18N::translate('Top 10 oldest (deceased)'),
+        'sub'          => I18N::translate('Age in years at death, longest-lived first'),
+        'eyebrow'      => I18N::translate('LONGEVITY'),
+        'accent'       => 'var(--wine)',
+        'illustration' => 'trophy',
+        'span'         => 6,
+        'bodyRenderer' => static function () use ($module, $topOldestDeceased): void {
+            echo view($module . '::modules/statistics-chart/Partials/ProgressList', [
+                'class' => 'progress-oldest-deceased',
+                'data'  => $topOldestDeceased,
+            ]);
+        },
+    ]); ?>
+
+    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+        'module'       => $module,
+        'title'        => I18N::translate('Top 10 oldest (living)'),
+        'sub'          => I18N::translate('Current age, oldest first'),
+        'eyebrow'      => I18N::translate('LONGEVITY'),
+        'accent'       => 'var(--sage)',
+        'illustration' => 'trophy',
+        'span'         => 6,
+        'bodyRenderer' => static function () use ($module, $topOldestLiving): void {
+            echo view($module . '::modules/statistics-chart/Partials/ProgressList', [
+                'class' => 'progress-oldest-living',
+                'data'  => $topOldestLiving,
+            ]);
+        },
+    ]); ?>
+
+    <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
+        'kicker' => I18N::translate('MORTALITY'),
+        'title'  => I18N::translate('Causes of death and infant mortality'),
+        'sub'    => I18N::translate('What the recorded individuals died of.'),
+    ]); ?>
+
+    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+        'module'       => $module,
+        'title'        => I18N::translate('Common causes of death'),
+        'sub'          => I18N::translate('%s distinct causes (top 15 shown)', I18N::number($totalDeathCauses)),
+        'eyebrow'      => I18N::translate('CAUSES'),
+        'accent'       => 'var(--wine)',
+        'illustration' => 'candle',
+        'span'         => 12,
+        'bodyRenderer' => static function () use ($module, $topDeathCauses): void {
+            echo view($module . '::modules/statistics-chart/Partials/ProgressList', [
+                'class' => 'progress-death-causes',
+                'data'  => $topDeathCauses,
+            ]);
+        },
+    ]); ?>
 
     <?php if ($childMortality !== null) { ?>
-    <?php
-    $childMortalityExplanation = I18N::translate(
-        'For every individual with both BIRT and DEAT julian-days the widget computes the number of days lived; a death within five years (1826 days) of birth counts as under-5 mortality. The tree-wide percentage is the share of such children across the whole tree, and the LineChart on the right groups them by their birth century so the historical decline becomes visible (typical 1700s value 30-40 percent, modern below 2 percent). Individuals with only BIRT or only DEAT are silently excluded — we cannot determine survival without both anchors, and including them would skew the rate. Per-century cohorts below 5 children are suppressed because a single dead child would spike the line by more than 10 percentage points.'
-    );
-        ?>
-    <div class="row row-cols-1 row-cols-md-2 g-3">
-        <div class="col">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title">
-                        <?php echo I18N::translate('Child mortality (under 5)'); ?>
-                        <?php echo view($module . '::modules/statistics-chart/Partials/InfoTrigger', ['content' => $childMortalityExplanation, 'kind' => 'metric', 'wide' => true]); ?>
-                    </h5>
-                    <small><?php echo I18N::translate('Share of individuals with both birth and death dates whose death occurred before their 5th birthday.'); ?></small>
-                </div>
-                <div class="card-body d-flex align-items-center justify-content-center">
-                    <?php
-            echo view(
-                $module . '::modules/statistics-chart/Partials/Scalar',
-                [
+        <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+            'module'       => $module,
+            'title'        => I18N::translate('Child mortality by birth century'),
+            'sub'          => I18N::translate('Cohorts below 5 children are suppressed — too noisy to plot.'),
+            'eyebrow'      => I18N::translate('MORTALITY'),
+            'accent'       => 'var(--wine)',
+            'illustration' => 'child',
+            'info'         => $childMortalityExplanation,
+            'span'         => 8,
+            'bodyRenderer' => static function () use ($module, $childMortalityPayload): void {
+                if ($childMortalityPayload->categories !== []) {
+                    echo view($module . '::modules/statistics-chart/Partials/LineChart', [
+                        'identifier' => 'child-mortality-century-line',
+                        'data'       => $childMortalityPayload,
+                    ]);
+                } else {
+                    echo '<p class="text-muted text-center mb-0">' . I18N::translate('No birth century has enough recorded children to plot a reliable rate.') . '</p>';
+                }
+            },
+        ]); ?>
+
+        <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+            'module'       => $module,
+            'title'        => I18N::translate('Child mortality (under 5)'),
+            'sub'          => I18N::translate('Share of individuals with both birth and death dates whose death occurred before their 5th birthday.'),
+            'eyebrow'      => I18N::translate('EXTREME'),
+            'accent'       => 'var(--wine)',
+            'illustration' => 'candle',
+            'span'         => 4,
+            'centered'     => true,
+            'bodyRenderer' => static function () use ($module, $childMortality): void {
+                echo view($module . '::modules/statistics-chart/Partials/Scalar', [
                     'value'   => I18N::number($childMortality->rate, 1),
                     'unit'    => '%',
                     'caption' => I18N::translate(
@@ -265,171 +249,127 @@ $childMortalityPayload = LineChartPayload::singleSeries(
                         I18N::number($childMortality->died),
                         I18N::number($childMortality->total),
                     ),
-                ],
-            );
-        ?>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title"><?php echo I18N::translate('Child mortality by birth century'); ?></h5>
-                    <small><?php echo I18N::translate('Cohorts below 5 children are suppressed — too noisy to plot.'); ?></small>
-                </div>
-                <div class="card-body">
-                    <?php
-        if ($childMortalityPayload->categories !== []) {
-            echo view(
-                $module . '::modules/statistics-chart/Partials/LineChart',
-                [
-                    'identifier' => 'child-mortality-century-line',
-                    'data'       => $childMortalityPayload,
-                ],
-            );
-        } else {
-            echo '<p class="text-muted text-center mb-0">' . I18N::translate('No birth century has enough recorded children to plot a reliable rate.') . '</p>';
-        }
-        ?>
-                </div>
-            </div>
-        </div>
-    </div>
+                ]);
+            },
+        ]); ?>
     <?php } ?>
 
-    <?php
-    // Lifespan by sex × century is a multi-series LineChart fed
-    // directly by the repository in the `{categories, series}`
-    // shape — no PHP-side re-shaping required.
-    $lifespanBySexCentury = $statistic->getAverageLifespanBySexAndCentury();
-?>
-    <?php if ($lifespanBySexCentury->categories !== []) { ?>
-    <div class="row row-cols-1 g-3">
-        <div class="col">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title"><?php echo I18N::translate('Average lifespan by sex × century'); ?></h5>
-                    <small><?php echo I18N::translate('Mean age at death per birth-century cohort, split by recorded sex.'); ?></small>
-                </div>
-                <div class="card-body">
-                    <?php
-        echo view(
-            $module . '::modules/statistics-chart/Partials/LineChart',
-            [
-                'identifier' => 'lifespan-by-sex-century',
-                'data'       => $lifespanBySexCentury,
-                'height'     => 280,
-                'ariaLabel'  => I18N::translate('Average lifespan by sex and century'),
-            ],
-        );
-        ?>
-                </div>
-            </div>
-        </div>
-    </div>
-    <?php } ?>
+    <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
+        'kicker' => I18N::translate('BIRTHS'),
+        'title'  => I18N::translate('When were they born?'),
+        'sub'    => I18N::translate('Time-distribution of births across centuries, decades and months.'),
+    ]); ?>
 
-    <div class="row row-cols-1 row-cols-md-2 g-3">
-        <div class="col">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title"><?php echo I18N::translate('Age at death (10-year bands)'); ?></h5>
-                    <small><?php echo I18N::plural('%s individual with both birth and death dates', '%s individuals with both birth and death dates', $totalAgeAtDeath, I18N::number($totalAgeAtDeath)); ?></small>
-                </div>
-                <div class="card-body">
-                    <?php
-                    echo view(
-                        $module . '::modules/statistics-chart/Partials/ProgressList',
-                        [
-                            'class' => 'progress-age-at-death',
-                            'data'  => $ageAtDeath,
-                        ],
-                    );
-?>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title"><?php echo I18N::translate('Living individuals by life-stage'); ?></h5>
-                    <small><?php echo I18N::plural('%s living individual with a birth date', '%s living individuals with a birth date', $totalLivingBanded, I18N::number($totalLivingBanded)); ?></small>
-                </div>
-                <div class="card-body">
-                    <?php
-    echo view(
-        $module . '::modules/statistics-chart/Partials/DonutChart',
-        [
-            'identifier' => 'living-age-band-donut',
-            'data'       => $livingByAgeBand,
-        ],
-    );
-?>
-                </div>
-            </div>
-        </div>
-    </div>
+    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+        'module'       => $module,
+        'title'        => I18N::translate('Births by century'),
+        'sub'          => I18N::plural('%s individual with a recorded birth year', '%s individuals with a recorded birth year', $totalBirthsByCentury, I18N::number($totalBirthsByCentury)),
+        'eyebrow'      => I18N::translate('TIMELINE'),
+        'accent'       => 'var(--ochre)',
+        'illustration' => 'sunrise',
+        'span'         => 4,
+        'bodyRenderer' => static function () use ($module, $birthsByCenturyPayload): void {
+            echo view($module . '::modules/statistics-chart/Partials/LineChart', [
+                'identifier' => 'births-century-line',
+                'data'       => $birthsByCenturyPayload,
+            ]);
+        },
+    ]); ?>
 
-    <div class="row row-cols-1 row-cols-md-2 g-3">
-        <div class="col">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title"><?php echo I18N::translate('Top 10 oldest (deceased)'); ?></h5>
-                    <small><?php echo I18N::translate('Age in years at death, longest-lived first'); ?></small>
-                </div>
-                <div class="card-body">
-                    <?php
-    echo view(
-        $module . '::modules/statistics-chart/Partials/ProgressList',
-        [
-            'class' => 'progress-oldest-deceased',
-            'data'  => $topOldestDeceased,
-        ],
-    );
-?>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title"><?php echo I18N::translate('Top 10 oldest (living)'); ?></h5>
-                    <small><?php echo I18N::translate('Current age, oldest first'); ?></small>
-                </div>
-                <div class="card-body">
-                    <?php
-    echo view(
-        $module . '::modules/statistics-chart/Partials/ProgressList',
-        [
-            'class' => 'progress-oldest-living',
-            'data'  => $topOldestLiving,
-        ],
-    );
-?>
-                </div>
-            </div>
-        </div>
-    </div>
+    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+        'module'       => $module,
+        'title'        => I18N::translate('Births by month'),
+        'sub'          => I18N::plural('%s individual with a recorded birth month', '%s individuals with a recorded birth month', $totalBirthsByMonth, I18N::number($totalBirthsByMonth)),
+        'eyebrow'      => I18N::translate('MONTH'),
+        'accent'       => 'var(--ochre)',
+        'illustration' => 'sunrise',
+        'span'         => 4,
+        'bodyRenderer' => static function () use ($module, $birthsByMonth): void {
+            echo view($module . '::modules/statistics-chart/Partials/ProgressList', [
+                'class' => 'progress-births-month',
+                'data'  => $birthsByMonth,
+            ]);
+        },
+    ]); ?>
 
-    <div class="row row-cols-1 row-cols-md-2 g-3">
-        <div class="col">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title"><?php echo I18N::translate('Common causes of death'); ?></h5>
-                    <small><?php echo I18N::translate('%s distinct causes (top 15 shown)', I18N::number($statistic->getTotalDeathCauses())); ?></small>
-                </div>
-                <div class="card-body">
-                    <?php
-        echo view(
-            $module . '::modules/statistics-chart/Partials/ProgressList',
-            [
-                'class' => 'progress-death-causes',
-                'data'  => $topDeathCauses,
-            ],
-        );
-?>
-                </div>
-            </div>
-        </div>
-    </div>
+    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+        'module'       => $module,
+        'title'        => I18N::translate('Births by zodiac sign'),
+        'sub'          => I18N::plural('%s individual with a known zodiac sign', '%s individuals with a known zodiac sign', $totalBirthsByZodiac, I18N::number($totalBirthsByZodiac)),
+        'eyebrow'      => I18N::translate('ZODIAC'),
+        'accent'       => 'var(--slate)',
+        'illustration' => 'zodiac',
+        'span'         => 4,
+        'bodyRenderer' => static function () use ($module, $birthsByZodiacSign): void {
+            echo view($module . '::modules/statistics-chart/Partials/ProgressList', [
+                'class' => 'progress-births-zodiac',
+                'data'  => $birthsByZodiacSign,
+            ]);
+        },
+    ]); ?>
+
+    <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
+        'kicker' => I18N::translate('DEATHS'),
+        'title'  => I18N::translate('When did they die?'),
+        'sub'    => I18N::translate('Season and century of recorded deaths.'),
+    ]); ?>
+
+    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+        'module'       => $module,
+        'title'        => I18N::translate('Deaths by century'),
+        'sub'          => I18N::plural('%s individual with a recorded death year', '%s individuals with a recorded death year', $totalDeathsByCentury, I18N::number($totalDeathsByCentury)),
+        'eyebrow'      => I18N::translate('TIMELINE'),
+        'accent'       => 'var(--wine)',
+        'illustration' => 'moon',
+        'span'         => 4,
+        'bodyRenderer' => static function () use ($module, $deathsByCenturyPayload): void {
+            echo view($module . '::modules/statistics-chart/Partials/LineChart', [
+                'identifier' => 'deaths-century-line',
+                'data'       => $deathsByCenturyPayload,
+            ]);
+        },
+    ]); ?>
+
+    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+        'module'       => $module,
+        'title'        => I18N::translate('Deaths by month'),
+        'sub'          => I18N::plural('%s individual with a recorded death month', '%s individuals with a recorded death month', $totalDeathsByMonth, I18N::number($totalDeathsByMonth)),
+        'eyebrow'      => I18N::translate('MONTH'),
+        'accent'       => 'var(--wine)',
+        'illustration' => 'moon',
+        'span'         => 4,
+        'bodyRenderer' => static function () use ($module, $deathsByMonth): void {
+            echo view($module . '::modules/statistics-chart/Partials/ProgressList', [
+                'class' => 'progress-deaths-month',
+                'data'  => $deathsByMonth,
+            ]);
+        },
+    ]); ?>
+
+    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+        'module'       => $module,
+        'title'        => I18N::translate('Winter-peak score'),
+        'sub'          => I18N::translate('Relative density of deaths in December – February compared with an even 12-month baseline.'),
+        'eyebrow'      => I18N::translate('SEASON'),
+        'accent'       => 'var(--wine)',
+        'illustration' => 'moon',
+        'span'         => 4,
+        'centered'     => true,
+        'bodyRenderer' => static function () use ($module, $winterPeakScore): void {
+            if ($winterPeakScore !== null) {
+                echo view($module . '::modules/statistics-chart/Partials/Scalar', [
+                    'value'   => I18N::number($winterPeakScore->score, 2),
+                    'unit'    => '×',
+                    'caption' => I18N::translate('%1$s of %2$s deaths fell in December – February. 1.0 = no seasonality, > 1.0 = winter-peaked, < 1.0 = winter-trough.', I18N::number($winterPeakScore->seasonCount), I18N::number($winterPeakScore->total)),
+                ]);
+            } else {
+                echo view($module . '::modules/statistics-chart/Partials/Scalar', [
+                    'value'   => I18N::translate('no data'),
+                    'unit'    => null,
+                    'caption' => I18N::translate('At least 12 dated deaths are required for a meaningful score.'),
+                ]);
+            }
+        },
+    ]); ?>
+
 </div>
