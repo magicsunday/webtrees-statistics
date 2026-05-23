@@ -16,6 +16,8 @@ import {
     DivergingBar,
     DonutChart,
     LineChart,
+    MonthRadial,
+    NameBubbles,
     SankeyFlow,
     StackedBar,
     StreamGraph,
@@ -118,6 +120,8 @@ const WIDGETS = {
     "area-density": fromChartLib(AreaDensity),
     "box-plot": fromChartLib(BoxPlot),
     "chord-diagram": fromChartLib(ChordDiagram),
+    "name-bubbles": fromChartLib(NameBubbles),
+    "month-radial": fromChartLib(MonthRadial),
 };
 
 /**

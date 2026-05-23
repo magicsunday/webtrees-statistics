@@ -284,12 +284,11 @@ $childMortalityExplanation = I18N::translate(
         'accent'       => 'var(--ochre)',
         'illustration' => 'sunrise',
         'span'         => 4,
-        'bodyRenderer' => static function () use ($module, $birthsByMonth): void {
-            echo view($module . '::modules/statistics-chart/Partials/ProgressList', [
-                'class' => 'progress-births-month',
-                'data'  => $birthsByMonth,
-            ]);
-        },
+        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/MonthRadial', [
+            'data'        => $birthsByMonth,
+            'accent'      => 'var(--ochre)',
+            'centerLabel' => I18N::translate('peak month'),
+        ]),
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
@@ -300,12 +299,11 @@ $childMortalityExplanation = I18N::translate(
         'accent'       => 'var(--slate)',
         'illustration' => 'zodiac',
         'span'         => 4,
-        'bodyRenderer' => static function () use ($module, $birthsByZodiacSign): void {
-            echo view($module . '::modules/statistics-chart/Partials/ProgressList', [
-                'class' => 'progress-births-zodiac',
-                'data'  => $birthsByZodiacSign,
-            ]);
-        },
+        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/MonthRadial', [
+            'data'        => $birthsByZodiacSign,
+            'accent'      => 'var(--slate)',
+            'centerLabel' => I18N::translate('peak sign'),
+        ]),
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
@@ -338,12 +336,11 @@ $childMortalityExplanation = I18N::translate(
         'accent'       => 'var(--wine)',
         'illustration' => 'moon',
         'span'         => 4,
-        'bodyRenderer' => static function () use ($module, $deathsByMonth): void {
-            echo view($module . '::modules/statistics-chart/Partials/ProgressList', [
-                'class' => 'progress-deaths-month',
-                'data'  => $deathsByMonth,
-            ]);
-        },
+        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/MonthRadial', [
+            'data'        => $deathsByMonth,
+            'accent'      => 'var(--wine)',
+            'centerLabel' => I18N::translate('peak month'),
+        ]),
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [

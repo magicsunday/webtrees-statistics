@@ -478,16 +478,23 @@
     padding:               0;
 }
 
-/* Section divider */
+/* Section divider — matches the mockup `.gs-section`:
+   margin-top + padding-top space the title away from the previous
+   card, and a top-border on every section after the first traces
+   the divider line. The first section keeps no border so it sits
+   flush against the hero / nav. */
 .wt-statistics-chart .wt-stat-section {
-    grid-column:    span 12;
-    margin:         32px 0 0;
-    padding-bottom: 8px;
-    border-bottom:  1px solid var(--border);
+    grid-column: span 12;
+    margin:      28px 0 0;
+    padding-top: 20px;
+}
+
+.wt-statistics-chart .wt-stat-grid > .wt-stat-section:not(:first-child) {
+    border-top: 1px solid var(--border);
 }
 
 .wt-statistics-chart .wt-stat-section-kicker {
-    margin:         0 0 6px;
+    margin:         0 0 8px;
     font-family:    var(--sans);
     font-size:      11px;
     font-weight:    600;
@@ -497,7 +504,7 @@
 }
 
 .wt-statistics-chart .wt-stat-section-title {
-    margin:         0 0 8px;
+    margin:         0;
     font-family:    var(--serif);
     font-size:      36px;
     font-weight:    400;
@@ -507,7 +514,7 @@
 }
 
 .wt-statistics-chart .wt-stat-section-sub {
-    margin:    0;
+    margin:    6px 0 0;
     max-width: 60ch;
     font-size: 14px;
     color:     var(--ink-2);
@@ -607,28 +614,40 @@
 }
 
 .wt-statistics-chart .wt-stat-card-title {
-    margin:         0 0 4px;
+    margin:         0 0 10px;
     font-family:    var(--serif);
     font-size:      24px;
     font-weight:    400;
     line-height:    1.25;
     letter-spacing: -0.01em;
     color:          var(--ink);
+    text-wrap:      balance;
 }
 
 .wt-statistics-chart .wt-stat-card-sub {
-    margin:    0;
-    min-height: 1.4em;
-    font-size: 13px;
-    color:     var(--ink-2);
+    margin:      0;
+    max-width:   60ch;
+    min-height:  2.9em;
+    font-size:   13px;
+    line-height: 1.45;
+    color:       var(--ink-2);
 }
 
-/* Card body */
+/* Card body — flex column that centres its content vertically by
+   default, matching the mockup. Cards whose body is a list (records
+   grid, progress lists) opt out via `:has` below. */
 .wt-statistics-chart .wt-stat-card-body {
-    flex:           1 1 auto;
-    display:        flex;
-    flex-direction: column;
-    min-width:      0;
+    flex:            1 1 auto;
+    min-height:      0;
+    display:         flex;
+    flex-direction:  column;
+    justify-content: center;
+    min-width:       0;
+}
+
+.wt-statistics-chart .wt-stat-card-body:has(.wt-stat-records),
+.wt-statistics-chart .wt-stat-card-body:has(.progress-bar-table) {
+    justify-content: flex-start;
 }
 
 /* Card footer (info button) — sits at the bottom of the card with a
@@ -787,22 +806,61 @@
 }
 
 /* ----------------------------------------------------------------------
-   Name bubbles (Names tab — circle-pack visualisation)
-   ----------------------------------------------------------------------
-   Replaces the legacy tag cloud for the surname / given-name lists.
-   Layout is server-rendered as static SVG via the Partials/NameBubbles
-   helper, which runs the same spiral-outward packing algorithm as the
-   design2 NameBubbles JSX component.
+   Month radial — 12-slice radial clock chart for monthly/zodiac data.
+   Server-rendered SVG, no JS.
    -------------------------------------------------------------------- */
-.wt-statistics-chart .wt-stat-bubble-wrap {
-    width:    100%;
-    overflow: hidden;
+.wt-statistics-chart .wt-stat-radial-host {
+    width:      100%;
+    max-width:  320px;
+    margin:     0 auto;
 }
 
-.wt-statistics-chart .wt-stat-bubble {
-    display: block;
+.wt-statistics-chart svg.wt-stat-radial-svg {
     width:   100%;
     height:  auto;
+    display: block;
+}
+
+.wt-statistics-chart .wt-stat-radial-lab {
+    font-family: var(--sans);
+    font-size:   11px;
+    font-weight: 500;
+}
+
+.wt-statistics-chart .wt-stat-radial-center {
+    font-family: var(--serif);
+    font-size:   22px;
+    font-weight: 400;
+}
+
+.wt-statistics-chart .wt-stat-radial-sub {
+    font-family:    var(--sans);
+    font-size:      10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+/* ----------------------------------------------------------------------
+   Name bubbles (Names tab — circle-pack visualisation rendered by the
+   chart-lib `NameBubbles` widget).
+   -------------------------------------------------------------------- */
+/* The max-height tracks the host card's span — a span-12 card gets
+   the full 600 px, a span-6 card 300 px, a span-4 card 200 px, etc.
+   Cards that don't expose `--wt-stat-card-span` fall back to 600 px. */
+.wt-statistics-chart .wt-stat-bubble-host {
+    width:           100%;
+    max-height:      calc(var(--wt-stat-card-span, 12) * 50px);
+    overflow:        hidden;
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+}
+
+.wt-statistics-chart svg.wt-stat-bubble {
+    display:    block;
+    width:      100%;
+    max-height: calc(var(--wt-stat-card-span, 12) * 50px);
+    height:     auto;
 }
 
 .wt-statistics-chart .wt-stat-bubble-g {

@@ -1,0 +1,44 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file distributed with this source code.
+ */
+
+use Fisharebest\Webtrees\I18N;
+use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
+
+/**
+ * Month-radial widget shell. Emits a `data-widget="month-radial"`
+ * marker carrying the 12-slice payload as JSON; the dispatcher hands
+ * it off to the `month-radial` client-side renderer.
+ *
+ * @var array<string, int|float> $data        Month → count map (or zodiac → count)
+ * @var string                   $accent      CSS color literal for slice fill
+ * @var string|null              $centerLabel Caption shown under the peak value
+ */
+if ($data === []) {
+    echo '<p class="text-muted text-center mb-0">' . e(I18N::translate('No data available yet.')) . '</p>';
+
+    return;
+}
+
+$payload = [];
+
+foreach ($data as $label => $value) {
+    $payload[] = ['label' => (string) $label, 'value' => (float) $value];
+}
+
+$options = [
+    'accent'      => (string) ($accent ?? 'var(--wine)'),
+    'centerLabel' => (string) ($centerLabel ?? I18N::translate('Peak')),
+];
+?>
+<div class="wt-stat-radial-host"
+     data-widget="month-radial"
+     data-payload="<?php echo e(WidgetJson::encode($payload)); ?>"
+     data-options="<?php echo e(WidgetJson::encode($options)); ?>"></div>

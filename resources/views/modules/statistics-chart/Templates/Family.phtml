@@ -243,7 +243,7 @@ $endogamyExplanation = I18N::translate(
         'accent'       => 'var(--wine)',
         'illustration' => 'bell',
         'span'         => 6,
-        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/ProgressList', ['class' => 'progress-weddings-month', 'data' => $byMonth]),
+        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/MonthRadial', ['data' => $byMonth, 'accent' => 'var(--wine)', 'centerLabel' => I18N::translate('peak month')]),
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
@@ -282,7 +282,7 @@ $endogamyExplanation = I18N::translate(
         'accent'       => 'var(--ochre)',
         'illustration' => 'child',
         'span'         => 4,
-        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/ProgressList', ['class' => 'progress-first-child-month', 'data' => $firstChildMonth]),
+        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/MonthRadial', ['data' => $firstChildMonth, 'accent' => 'var(--ochre)', 'centerLabel' => I18N::translate('peak month')]),
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
@@ -401,7 +401,7 @@ $endogamyExplanation = I18N::translate(
         'accent'       => 'var(--wine)',
         'illustration' => 'brokenHeart',
         'span'         => 4,
-        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/ProgressList', ['class' => 'progress-divorces-month', 'data' => $divorcesByMonth]),
+        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/MonthRadial', ['data' => $divorcesByMonth, 'accent' => 'var(--wine)', 'centerLabel' => I18N::translate('peak month')]),
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [

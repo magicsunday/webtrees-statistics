@@ -54,7 +54,7 @@ if ($centered === true) {
     $classes[] = 'wt-stat-card-centered';
 }
 
-$style = 'grid-column: span ' . (int) $span . ';';
+$style = 'grid-column: span ' . (int) $span . '; --wt-stat-card-span: ' . (int) $span . ';';
 ?>
 <section class="<?php echo e(implode(' ', $classes)); ?>" style="<?php echo e($style); ?>">
     <?php if ($illustration !== null) { ?>

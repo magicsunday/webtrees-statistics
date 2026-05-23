@@ -88,6 +88,12 @@ class BoxPlot {
 class ChordDiagram {
     draw() {}
 }
+class MonthRadial {
+    draw() {}
+}
+class NameBubbles {
+    draw() {}
+}
 
 jest.unstable_mockModule("@magicsunday/webtrees-chart-lib", () => ({
     DonutChart,
@@ -101,6 +107,8 @@ jest.unstable_mockModule("@magicsunday/webtrees-chart-lib", () => ({
     AreaDensity,
     BoxPlot,
     ChordDiagram,
+    MonthRadial,
+    NameBubbles,
 }));
 
 // world-map dispatch is async (geojson fetch); mock d3-fetch + d3-geo
