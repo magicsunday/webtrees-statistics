@@ -67,9 +67,9 @@
     --hero-fg-faint: rgb(250 250 250 / 0.55);
     --hero-border:  rgb(250 250 250 / 0.18);
 
-    /* Geometry */
-    --card-radius:  6px;
-    --hero-radius:  8px;
+    /* Geometry (Editorial aesthetic — softer, larger radii than Modern) */
+    --card-radius:  12px;
+    --hero-radius:  18px;
     --shadow-card:  0 1px 0 rgb(0 0 0 / 0.04);
 
     /* Typography */
@@ -515,18 +515,20 @@
     position:         relative;
     display:          flex;
     flex-direction:   column;
-    padding:          24px;
+    padding:          24px 26px 26px;
     background:       var(--card);
     border:           1px solid var(--border);
     border-radius:    var(--card-radius);
     box-shadow:       var(--shadow-card);
-    overflow:         hidden;
 }
 
-.wt-statistics-chart .wt-stat-card-illustrated {
-    /* Reserve a 80×80 corner so head + body never collide with the
-       illustration sitting in the top-right. */
-    padding-right: 96px;
+/* Centred-body variant (used by Scalar / Gauge / big-number cards) —
+   centres titles, eyebrow and sub as well, mirroring the Editorial
+   mockup's "gs-card-centered" rules. */
+.wt-statistics-chart .wt-stat-card-centered .wt-stat-card-title,
+.wt-statistics-chart .wt-stat-card-centered .wt-stat-card-sub,
+.wt-statistics-chart .wt-stat-card-centered .wt-stat-card-eyebrow {
+    text-align: center;
 }
 
 .wt-statistics-chart .wt-stat-card-centered .wt-stat-card-body {
@@ -534,31 +536,61 @@
     text-align:  center;
 }
 
-.wt-statistics-chart .wt-stat-card-illustration {
+/* Clip wrapper — same bounding box as the card so the illustration
+   can scale + rotate on hover without escaping the rounded corner. */
+.wt-statistics-chart .wt-stat-card-illustration-clip {
     position:       absolute;
-    top:            16px;
-    right:          16px;
-    width:          80px;
-    height:         80px;
-    opacity:        0.22;
+    inset:          0;
+    overflow:       hidden;
+    border-radius:  inherit;
     pointer-events: none;
-    transition:     opacity 200ms ease-out;
+    z-index:        0;
 }
 
-.wt-statistics-chart .wt-stat-card:hover .wt-stat-card-illustration,
-.wt-statistics-chart .wt-stat-card:focus-within .wt-stat-card-illustration {
-    opacity: 0.5;
+.wt-statistics-chart .wt-stat-card-illustration {
+    position:        absolute;
+    top:             24px;
+    right:           26px;
+    width:           80px;
+    height:          80px;
+    opacity:         0.18;
+    pointer-events:  none;
+    transform-origin: top right;
+    transition:      opacity 220ms, transform 260ms cubic-bezier(0.2, 0.7, 0.2, 1);
+    mix-blend-mode:  multiply;
+}
+
+[data-bs-theme="dark"] .wt-statistics-chart .wt-stat-card-illustration {
+    mix-blend-mode: screen;
+}
+
+.wt-statistics-chart .wt-stat-card-illustrated:hover .wt-stat-card-illustration,
+.wt-statistics-chart .wt-stat-card-illustrated:focus-within .wt-stat-card-illustration {
+    opacity:   0.45;
+    transform: scale(1.08) rotate(-2deg);
 }
 
 .wt-statistics-chart .wt-stat-card-illustration svg {
-    width:  100%;
-    height: 100%;
+    width:   100%;
+    height:  100%;
     display: block;
+}
+
+/* Card head + body stack above the illustration even though they
+   share the same flex flow. */
+.wt-statistics-chart .wt-stat-card-head,
+.wt-statistics-chart .wt-stat-card-body {
+    position: relative;
+    z-index:  1;
+}
+
+.wt-statistics-chart .wt-stat-card-illustrated .wt-stat-card-head {
+    padding-right: 100px;
 }
 
 /* Card header */
 .wt-statistics-chart .wt-stat-card-head {
-    margin: 0 0 16px;
+    margin: 0 0 22px;
 }
 
 .wt-statistics-chart .wt-stat-card-eyebrow {
@@ -596,33 +628,44 @@
     min-width:      0;
 }
 
-/* Card footer (info button) */
+/* Card footer (info button) — sits at the bottom of the card with a
+   dashed separator above, mirroring the mockup's `.gs-card-foot`. */
 .wt-statistics-chart .wt-stat-card-foot {
-    margin-top:      12px;
-    padding-top:     8px;
+    margin-top:      8px;
+    padding-top:     12px;
+    border-top:      1px dashed var(--border-soft);
     display:         flex;
     justify-content: flex-end;
+    align-items:     center;
+    position:        relative;
+    z-index:         2;
 }
 
 .wt-statistics-chart .wt-stat-card-info {
-    width:           1.5rem;
-    height:          1.5rem;
+    display:         inline-flex;
+    align-items:     center;
+    justify-content: center;
+    width:           22px;
+    height:          22px;
     padding:         0;
-    background:      transparent;
+    background:      var(--border-soft);
     border:          1px solid var(--border);
     border-radius:   50%;
-    color:           var(--ink-3);
-    font-size:       0.78rem;
+    font-family:     var(--mono);
+    font-size:       12px;
     font-weight:     600;
     line-height:     1;
-    cursor:          pointer;
-    transition:      color 120ms ease-out, border-color 120ms ease-out;
+    color:           var(--ink-2);
+    cursor:          help;
+    transition:      all 120ms ease-out;
 }
 
 .wt-statistics-chart .wt-stat-card-info:hover,
 .wt-statistics-chart .wt-stat-card-info:focus-visible {
-    color:        var(--ink);
-    border-color: var(--ink-2);
+    color:        var(--paper);
+    background:   var(--ochre);
+    border-color: var(--ochre);
+    outline:      none;
 }
 
 /* Narrow viewports — every card collapses to full width so the

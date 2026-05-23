@@ -45,10 +45,10 @@ final class ModuleTest extends TestCase
     private const array TAB_ACTIONS = [
         'Overview',
         'Names',
-        'TreeHealth',
         'LifeSpan',
         'Family',
         'Places',
+        'TreeHealth',
     ];
 
     /**

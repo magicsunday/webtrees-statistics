@@ -258,10 +258,10 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
         return [
             'Overview'   => I18N::translate('Overview'),
             'Names'      => I18N::translate('Names'),
-            'TreeHealth' => I18N::translate('Tree health'),
             'LifeSpan'   => I18N::translate('Life span'),
             'Family'     => I18N::translate('Family'),
             'Places'     => I18N::translate('Places'),
+            'TreeHealth' => I18N::translate('Tree health'),
         ];
     }
 

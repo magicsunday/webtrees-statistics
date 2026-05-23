@@ -58,10 +58,11 @@ $style = 'grid-column: span ' . (int) $span . ';';
 ?>
 <section class="<?php echo e(implode(' ', $classes)); ?>" style="<?php echo e($style); ?>">
     <?php if ($illustration !== null) { ?>
-        <div class="wt-stat-card-illustration"
-             <?php if ($accent !== null) { ?>style="color: <?php echo e($accent); ?>;"<?php } ?>
-             aria-hidden="true">
-            <?php echo view($module . '::modules/statistics-chart/Partials/Illustration', ['name' => $illustration]); ?>
+        <div class="wt-stat-card-illustration-clip" aria-hidden="true">
+            <div class="wt-stat-card-illustration"
+                 <?php if ($accent !== null) { ?>style="color: <?php echo e($accent); ?>;"<?php } ?>>
+                <?php echo view($module . '::modules/statistics-chart/Partials/Illustration', ['name' => $illustration]); ?>
+            </div>
         </div>
     <?php } ?>
 
