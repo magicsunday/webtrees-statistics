@@ -478,19 +478,21 @@
     padding:               0;
 }
 
-/* Section divider — matches the mockup `.gs-section`:
-   margin-top + padding-top space the title away from the previous
-   card, and a top-border on every section after the first traces
-   the divider line. The first section keeps no border so it sits
-   flush against the hero / nav. */
+/* Section divider — matches the mockup's `.gs-section` exactly:
+   16px / 0 / 4px padding, 8px top margin, top-border on every
+   section. The first section in the grid drops the border and the
+   top margin so it sits flush against the hero / nav. */
 .wt-statistics-chart .wt-stat-section {
-    grid-column: span 12;
-    margin:      28px 0 0;
-    padding-top: 20px;
+    grid-column: 1 / -1;
+    padding:     16px 0 4px;
+    margin-top:  8px;
+    border-top:  1px solid var(--border);
 }
 
-.wt-statistics-chart .wt-stat-grid > .wt-stat-section:not(:first-child) {
-    border-top: 1px solid var(--border);
+.wt-statistics-chart .wt-stat-grid > .wt-stat-section:first-child {
+    padding-top: 4px;
+    margin-top:  0;
+    border-top:  none;
 }
 
 .wt-statistics-chart .wt-stat-section-kicker {
@@ -504,7 +506,7 @@
 }
 
 .wt-statistics-chart .wt-stat-section-title {
-    margin:         0;
+    margin:         0 0 6px;
     font-family:    var(--serif);
     font-size:      36px;
     font-weight:    400;
@@ -514,7 +516,7 @@
 }
 
 .wt-statistics-chart .wt-stat-section-sub {
-    margin:    6px 0 0;
+    margin:    0;
     max-width: 60ch;
     font-size: 14px;
     color:     var(--ink-2);
@@ -530,6 +532,15 @@
     border:           1px solid var(--border);
     border-radius:    var(--card-radius);
     box-shadow:       var(--shadow-card);
+}
+
+/* Cards that carry the info-popover footer pull their bottom padding
+   in by 14 px — the dashed foot border doubles up as the bottom
+   margin, so the visual padding stays at 12 px without piling 26 +
+   12 below the footer. Mirrors the mockup's `.gs-card:has(.gs-card-
+   foot) { padding-bottom: 12px; }` rule. */
+.wt-statistics-chart .wt-stat-card:has(.wt-stat-card-foot) {
+    padding-bottom: 12px;
 }
 
 /* Centred-body variant (used by Scalar / Gauge / big-number cards) —
