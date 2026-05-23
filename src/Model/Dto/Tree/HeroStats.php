@@ -36,6 +36,7 @@ final readonly class HeroStats implements JsonSerializable
      * @param float|null $averageGenerationYears Mean years between parent and child birth across parseable pairs (null when the tree has no usable pair)
      * @param float      $pedigreeCompleteness   Mean Lacy (1989) 4-generation pedigree-completeness index across every individual; 0.0 – 1.0 fraction
      * @param float      $sourceCitationCoverage Fraction of individuals that carry at least one SOUR citation; 0.0 – 1.0
+     * @param int        $centurySpan            Distinct centuries with at least one recorded birth, used to spell out "X centuries" in the hero deck copy
      */
     public function __construct(
         public int $individuals,
@@ -44,11 +45,12 @@ final readonly class HeroStats implements JsonSerializable
         public ?float $averageGenerationYears,
         public float $pedigreeCompleteness,
         public float $sourceCitationCoverage,
+        public int $centurySpan,
     ) {
     }
 
     /**
-     * @return array{individuals: int, families: int, maxGenerationDepth: int, averageGenerationYears: float|null, pedigreeCompleteness: float, sourceCitationCoverage: float}
+     * @return array{individuals: int, families: int, maxGenerationDepth: int, averageGenerationYears: float|null, pedigreeCompleteness: float, sourceCitationCoverage: float, centurySpan: int}
      */
     public function jsonSerialize(): array
     {
@@ -59,6 +61,7 @@ final readonly class HeroStats implements JsonSerializable
             'averageGenerationYears' => $this->averageGenerationYears,
             'pedigreeCompleteness'   => $this->pedigreeCompleteness,
             'sourceCitationCoverage' => $this->sourceCitationCoverage,
+            'centurySpan'            => $this->centurySpan,
         ];
     }
 }

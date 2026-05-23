@@ -364,6 +364,99 @@
 }
 
 /* ----------------------------------------------------------------------
+   Sticky tab navigation + theme toggle
+   ----------------------------------------------------------------------
+   Replaces the stock Bootstrap `.nav.nav-tabs` look with the Editorial
+   strip: numbered tabs (`01 / 02 / …`) on the left, theme-toggle pill
+   on the right. The Bootstrap `data-bs-toggle="tab"` JavaScript stays
+   in charge of the actual tab-switching — we only restyle the markup.
+   `position: sticky` keeps the strip visible while the user scrolls
+   through long tabs (Family / Life span).
+   -------------------------------------------------------------------- */
+
+.wt-statistics-chart .wt-stat-nav {
+    position:                 sticky;
+    top:                      0;
+    z-index:                  50;
+    display:                  flex;
+    align-items:              stretch;
+    gap:                      12px;
+    margin:                   0 -32px 24px;
+    padding:                  0 32px;
+    background:               color-mix(in srgb, var(--paper) 92%, transparent);
+    border-bottom:            1px solid var(--border);
+    -webkit-backdrop-filter:  blur(12px);
+    backdrop-filter:          blur(12px);
+}
+
+.wt-statistics-chart .wt-stat-nav-tabs.nav.nav-tabs {
+    flex:              1 1 auto;
+    display:           flex;
+    flex-wrap:         nowrap;
+    gap:               4px;
+    margin:            0;
+    padding:           0;
+    border-bottom:     none;
+    overflow-x:        auto;
+    scrollbar-width:   none;
+}
+
+.wt-statistics-chart .wt-stat-nav-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.wt-statistics-chart .wt-stat-nav-tabs > .nav-item {
+    flex: 0 0 auto;
+}
+
+.wt-statistics-chart .wt-stat-nav-btn.nav-link {
+    display:           inline-flex;
+    flex-direction:    column;
+    align-items:       flex-start;
+    gap:               4px;
+    padding:           16px 22px 14px;
+    background:        transparent;
+    border:            0;
+    border-bottom:     2px solid transparent;
+    border-radius:     0;
+    color:             var(--ink-2);
+    transition:        color 120ms ease-out, border-color 120ms ease-out;
+    text-decoration:   none;
+}
+
+.wt-statistics-chart .wt-stat-nav-btn.nav-link:hover,
+.wt-statistics-chart .wt-stat-nav-btn.nav-link:focus-visible {
+    color:        var(--ink);
+    border-color: transparent;
+    isolation:    isolate;
+}
+
+.wt-statistics-chart .wt-stat-nav-btn.nav-link.active {
+    color:            var(--ink);
+    background:       transparent;
+    border-bottom:    2px solid var(--wine);
+}
+
+.wt-statistics-chart .wt-stat-nav-num {
+    font-family:          var(--mono);
+    font-size:            10px;
+    font-weight:          400;
+    letter-spacing:       0.1em;
+    color:                var(--ink-3);
+    font-variant-numeric: tabular-nums;
+}
+
+.wt-statistics-chart .wt-stat-nav-btn.nav-link.active .wt-stat-nav-num {
+    color: var(--wine);
+}
+
+.wt-statistics-chart .wt-stat-nav-lab {
+    font-size:   14px;
+    font-weight: 500;
+    line-height: 1.1;
+}
+
+/* ----------------------------------------------------------------------
    Card layout primitives
    -------------------------------------------------------------------- */
 

@@ -161,6 +161,7 @@ final readonly class Statistic
             averageGenerationYears: $this->getAverageGenerationLength(),
             pedigreeCompleteness: $this->getAveragePedigreeCompleteness(),
             sourceCitationCoverage: $coverage,
+            centurySpan: count($this->getBirthsByCentury()),
         );
     }
 

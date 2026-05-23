@@ -105,24 +105,29 @@ use MagicSunday\Webtrees\Statistic\Model\Dto\Tree\HeroStats;
     <div class="wt-stat-app">
         <?php echo view($module . '::modules/statistics-chart/Partials/Hero', ['tree' => $tree, 'hero' => $hero]); ?>
 
-        <ul class="nav nav-tabs mb-3" role="tablist">
-            <?php foreach ($tabs as $label => $url) { ?>
-                <?php $hash = e(md5($url)); ?>
-                <li class="nav-item" role="presentation">
-                    <a class="nav-link"
-                            id="<?php echo $hash; ?>-tab"
-                            href="#tab-<?php echo $hash; ?>"
-                            data-bs-toggle="tab"
-                            data-wt-href="<?php echo e($url); ?>"
-                            role="tab"
-                            aria-controls="tab-<?php echo $hash; ?>"
-                            aria-selected="false"
-                    >
-                        <?php echo $label; ?>
-                    </a>
-                </li>
-            <?php } ?>
-        </ul>
+        <nav class="wt-stat-nav">
+            <ul class="nav nav-tabs wt-stat-nav-tabs" role="tablist">
+                <?php $tabIndex = 0; ?>
+                <?php foreach ($tabs as $label => $url) { ?>
+                    <?php $hash = e(md5($url)); ?>
+                    <?php ++$tabIndex; ?>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link wt-stat-nav-btn"
+                                id="<?php echo $hash; ?>-tab"
+                                href="#tab-<?php echo $hash; ?>"
+                                data-bs-toggle="tab"
+                                data-wt-href="<?php echo e($url); ?>"
+                                role="tab"
+                                aria-controls="tab-<?php echo $hash; ?>"
+                                aria-selected="false"
+                        >
+                            <span class="wt-stat-nav-num"><?php echo e(str_pad((string) $tabIndex, 2, '0', STR_PAD_LEFT)); ?></span>
+                            <span class="wt-stat-nav-lab"><?php echo $label; ?></span>
+                        </a>
+                    </li>
+                <?php } ?>
+            </ul>
+        </nav>
 
         <div class="tab-content">
             <?php foreach ($tabs as $url) { ?>
