@@ -8,6 +8,8 @@ A tab-based statistics dashboard for the [webtrees](https://www.webtrees.net) ge
 
 Renders tree-wide statistics across six tabs (Overview, Names, Tree health, Life span, Family, Places) using donut charts, progress lists, world maps, tag clouds, line / bar / stacked / diverging-bar charts, sankey flows, chord diagrams and stream graphs. Built on the shared widget library [`@magicsunday/webtrees-chart-lib`](https://github.com/magicsunday/webtrees-chart-lib).
 
+The dashboard ships in an Editorial layout: a dark hero strip carrying the tree title, headline metrics and a deck that names the centuries the tree spans; a sticky numbered tab nav (`01 / 02 / 03 …`); per-tab section dividers grouping cards thematically, with each card framing its widget in a serif title, eyebrow tag, accent colour and a corner illustration.
+
 
 <!-- TOC -->
 * [Statistics](#statistics)
@@ -54,28 +56,30 @@ git clone https://github.com/magicsunday/webtrees-statistics.git modules_v4/webt
 
 
 ## What renders today
-All six tabs render populated content out of the box:
+Above every tab a dark hero strip carries the live tree title in the eyebrow, the static "Statistics" headline, a deck that names the centuries the tree spans, and a six-stat readout (individuals, families, max generation depth, average generation length, pedigree completeness, sourced-individuals share). Below the hero, a sticky numbered tab nav (`01 Overview` … `06 Places`) frames the per-tab grids.
 
-| Tab          | Content                                                                                                                                                                                                  |
-|--------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Overview     | Sex / Living-deceased / Marital-status donuts; top-15 occupations + top-15 religions progress lists; "Tree records" hall-of-fame table (oldest deceased / living, longest / shortest marriage, youngest / oldest spouse at marriage, most spouses, largest family, most children per person, parent-of-first-child records) |
-| Names        | Common-surname + male / female given-name tag clouds, given-name popularity stream graph (top-10 by decade), surname × surname marriage chord matrix                                                     |
-| Tree health  | Source-citation coverage RateList, missing-event-gaps RateList, average generation length Scalar, tree-growth LineChart (births per decade)                                                              |
-| Life span    | Births by month / zodiac sign / century, deaths by month / century, winter-peak score, age-at-death histogram (10-year bands), age-band donut, child mortality, average lifespan by sex+century, top-10 oldest deceased + living, top-15 causes of death |
-| Family       | Age at marriage M+F (co-trimmed), marriage duration, couple age gap DivergingBar, weddings century + month, divorces century + month + age M+F, divorces-by-century-and-age-band StackedBar, divorce-rate by cohort, age at first child M+F (co-trimmed), children-per-family, sibling-age-gap, family-size composition by decade, average family size by century, top-10 largest families, childless donut, ancestor count, average pedigree completeness, endogamy, generation-depth + distribution, first children by month |
-| Places       | Birth-country world map + top-10 list, death-country world map + top-10 list, recorded-residences top-10, distinct-places-per-individual distribution, birth → death migration Sankey, place-dispersion scalar                                     |
+Each tab renders into a 12-column `wt-stat-grid` shell with Section dividers grouping cards thematically:
 
-The marital-status donut counts each living individual exactly once. Precedence follows the same per-family decision order webtrees core uses in `\Fisharebest\Webtrees\Census\AbstractCensusColumnCondition`: an active divorce tag classes the survivor as `divorced`, a deceased partner as `widowed`, an active marriage with a living partner as `current`. Anything else falls into `single`. The four buckets sum exactly to `StatisticsData::countIndividualsLiving()` without clamping.
+| Tab         | Sections                                                                                              |
+|-------------|--------------------------------------------------------------------------------------------------------|
+| Overview    | DEMOGRAPHICS (sex / living / marital donuts) · CHRONICLE (tree-records hall-of-fame) · SOCIO-ECONOMICS (occupations / religions) |
+| Names       | FREQUENCIES (surname / male / female tag clouds) · EVOLUTION (given-name stream graph · surname × surname chord matrix) |
+| Tree health | DOCUMENTATION (source-citation coverage · average generation length) · GAPS (missing-event gaps) · GROWTH (tree-growth line chart) |
+| Life span   | LIFESPAN (age at death · living life-stage · lifespan by sex × century · top 10 oldest deceased + living) · MORTALITY (death causes · child mortality) · BIRTHS (century · month · zodiac) · DEATHS (century · month · winter-peak score) |
+| Family      | MARRIAGE (age at marriage M+F · duration · couple age gap · weddings century + month) · PARENTHOOD (age at first child M+F · first children by month) · FAMILY SIZE (children per family · sibling gap · family-size by decade · average family size · families with/without children · top 10 largest) · DIVORCE (cohort rate · century · month · century × age band · age at divorce M+F) · STRUCTURE (known ancestors · pedigree completeness · max generation depth + chains · depth distribution · endogamy rate) |
+| Places      | ORIGIN & FATE (birth / residence / death countries — each with top-10 list + world map) · MIGRATION (birth → death sankey flow) · MOBILITY (geographic dispersion · distinct places per individual) |
+
+Every chart is wrapped in a generic `Card` partial that owns the eyebrow tag, serif title, sub-headline, accent illustration in the top-right corner, and an optional info popover that explains non-trivial metrics. The marital-status donut counts each living individual exactly once — precedence follows the same per-family decision order webtrees core uses in `\Fisharebest\Webtrees\Census\AbstractCensusColumnCondition`: an active divorce tag classes the survivor as `divorced`, a deceased partner as `widowed`, an active marriage with a living partner as `current`. Anything else falls into `single`. The four buckets sum exactly to `StatisticsData::countIndividualsLiving()` without clamping.
 
 
 ## Architecture
 The aggregator service `MagicSunday\Webtrees\Statistic\Statistic` is resolved through the webtrees DI container and composes twenty-one per-domain repositories plus core's `StatisticsData`. The repositories split by data nature — names, events, life-span, marriages, divorces, children, parenthood, kinship, endogamy, generation depth, migration, places, marriage matrix, tree health, and three Top-N tag repositories (occupations, religions, death causes) that share an `AbstractGedcomTagTopNRepository` base.
 
-Each tab renders a template under `resources/views/modules/statistics-chart/Templates/` that composes Partials (`DonutChart`, `ProgressList`, `LineChart`, `BarChart`, `StackedBar`, `DivergingBar`, `AreaDensity`, `GeoMap`, `SankeyFlow`, `ChordDiagram`, `StreamGraph`, `TagCloud`, `RateList`, `Scalar`, …) which emit `data-widget`/`data-payload`/`data-options` JSON markers. The shared JS dispatcher `WebtreesStatistic.renderWidgets(pane)` then hands each off to the matching [`@magicsunday/webtrees-chart-lib`](https://github.com/magicsunday/webtrees-chart-lib) widget.
+Each tab template under `resources/views/modules/statistics-chart/Templates/` arranges its content through three layout partials — `Section.phtml` (kicker + serif title + sub), `Card.phtml` (eyebrow + title + sub + body slot + illustration + info popover), `Illustration.phtml` (22 thematic SVG icons keyed by name) — and feeds each Card body via the existing widget partials (`DonutChart`, `ProgressList`, `LineChart`, `BarChart`, `StackedBar`, `DivergingBar`, `GeoMap`, `SankeyFlow`, `ChordDiagram`, `StreamGraph`, `TagCloud`, `RateList`, `Scalar`). The widget partials emit `data-widget` / `data-payload` / `data-options` JSON markers, and the shared JS dispatcher `WebtreesStatistic.renderWidgets(pane)` hands each off to the matching [`@magicsunday/webtrees-chart-lib`](https://github.com/magicsunday/webtrees-chart-lib) widget. The hero above the nav is driven by a `Hero.phtml` partial that consumes a `HeroStats` DTO returned by `Statistic::getHeroStats()`.
 
 
 ## Theming
-The module ships a single stylesheet (`resources/css/statistics.css`) that is loaded once per page through `View::push('styles')`. All colours are defined as `--wmstats-*` custom properties on the `.wt-statistics-chart` root, with a `[data-bs-theme="dark"]` override block that lifts the donut and progress-bar palette into a dark-friendly range. Webtrees themes that toggle `data-bs-theme` on `<html>` switch the module's visuals automatically.
+The module ships a single stylesheet (`resources/css/statistics.css`) that is loaded once per page through `View::push('styles')`. The Editorial Modern palette lives in CSS custom properties on the `.wt-statistics-chart` root (`--paper`, `--card`, `--ink`, `--wine`, `--slate`, `--sage`, `--ochre`, `--rose`, plus geometry and typography tokens like `--card-radius`, `--serif`, `--sans`); a `[data-bs-theme="dark"]` override block lifts the surface and accent values into a dark-friendly range. Webtrees themes that toggle `data-bs-theme` on `<html>` switch the module's visuals automatically. The self-hosted typefaces (Instrument Serif + Geist, latin + latin-ext subsets, both SIL OFL 1.1) ship under `resources/fonts/` and load via `@font-face` declarations inlined into `page.phtml`.
 
 
 ## Development
