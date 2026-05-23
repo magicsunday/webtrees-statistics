@@ -21,6 +21,7 @@ use MagicSunday\Webtrees\Statistic\Support\CenturyName;
 $birthsByMonth      = $statistic->getBirthsByMonth();
 $birthsByZodiacSign = $statistic->getBirthsByZodiacSign();
 $birthsByCentury    = $statistic->getBirthsByCentury();
+$birthsByDecade     = $statistic->getBirthsByDecade();
 $deathsByMonth      = $statistic->getDeathsByMonth();
 $deathsByCentury    = $statistic->getDeathsByCentury();
 
@@ -38,6 +39,7 @@ $lifespanBySexCentury    = $statistic->getAverageLifespanBySexAndCentury();
 $totalBirthsByMonth   = array_sum($birthsByMonth);
 $totalBirthsByZodiac  = array_sum($birthsByZodiacSign);
 $totalBirthsByCentury = array_sum($birthsByCentury);
+$totalBirthsByDecade  = array_sum($birthsByDecade);
 $totalDeathsByMonth   = array_sum($deathsByMonth);
 $totalDeathsByCentury = array_sum($deathsByCentury);
 $totalAgeAtDeath      = array_sum($ageAtDeath);
@@ -52,6 +54,18 @@ $birthsByCenturyPayload = LineChartPayload::singleSeries(
         'tooltipLabel'  => CenturyName::longLabel((string) $century),
     ],
 );
+
+$birthsByDecadePayload = LineChartPayload::singleSeries(
+    seriesName: I18N::translate('Births'),
+    countsByCategory: $birthsByDecade,
+    project: static fn (int|string $decade, int|float $count): array => [
+        'categoryLabel' => I18N::translate('%ss', (string) $decade),
+        'tooltipBody'   => I18N::plural('%s birth', '%s births', (int) $count, I18N::number($count)),
+        'tooltipLabel'  => I18N::translate('%ss', (string) $decade),
+    ],
+);
+
+$birthsByDecadeXLabelEvery = max(1, (int) ceil(count($birthsByDecadePayload->categories) / 12));
 
 $deathsByCenturyPayload = LineChartPayload::singleSeries(
     seriesName: I18N::translate('Deaths'),
@@ -258,6 +272,25 @@ $childMortalityExplanation = I18N::translate(
         'kicker' => I18N::translate('BIRTHS'),
         'title'  => I18N::translate('When were they born?'),
         'sub'    => I18N::translate('Time-distribution of births across centuries, decades and months.'),
+    ]); ?>
+
+    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+        'module'       => $module,
+        'title'        => I18N::translate('Births by decade'),
+        'sub'          => I18N::plural('%s recorded birth date — tree growth across decades', '%s recorded birth dates — tree growth across decades', $totalBirthsByDecade, I18N::number($totalBirthsByDecade)),
+        'eyebrow'      => I18N::translate('TIMELINE'),
+        'accent'       => 'var(--ochre)',
+        'illustration' => 'sunrise',
+        'span'         => 12,
+        'bodyRenderer' => static function () use ($module, $birthsByDecadePayload, $birthsByDecadeXLabelEvery): void {
+            echo view($module . '::modules/statistics-chart/Partials/LineChart', [
+                'identifier'  => 'births-decade-line',
+                'data'        => $birthsByDecadePayload,
+                'height'      => 240,
+                'xLabelEvery' => $birthsByDecadeXLabelEvery,
+                'showArea'    => true,
+            ]);
+        },
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [

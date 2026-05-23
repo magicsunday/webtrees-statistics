@@ -15,6 +15,7 @@ import {
     ChordDiagram,
     DivergingBar,
     DonutChart,
+    GaugeArc,
     LineChart,
     MonthRadial,
     NameBubbles,
@@ -122,6 +123,7 @@ const WIDGETS = {
     "chord-diagram": fromChartLib(ChordDiagram),
     "name-bubbles": fromChartLib(NameBubbles),
     "month-radial": fromChartLib(MonthRadial),
+    "gauge-arc": fromChartLib(GaugeArc),
 };
 
 /**

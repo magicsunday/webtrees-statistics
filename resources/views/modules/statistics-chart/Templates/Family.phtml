@@ -42,17 +42,6 @@ $largestFamilies         = $statistic->getTopLargestFamilies(10);
 $childlessBreakdown      = $statistic->getChildlessFamiliesDistribution();
 $firstChildMonth         = $statistic->getFirstChildrenByMonth();
 
-$ancestorDistribution = $statistic->getAncestorCountDistribution();
-$avgPedigree          = $statistic->getAveragePedigreeCompleteness();
-$generationDepth      = $statistic->getGenerationDepthSummary();
-$endogamy             = $statistic->getEndogamySummary();
-
-$generationDepthDistribution = [];
-
-foreach ($generationDepth->distribution as $gen => $count) {
-    $generationDepthDistribution[(string) $gen] = $count;
-}
-
 $totalAgeM             = array_sum($ageAtMarriageM);
 $totalAgeF             = array_sum($ageAtMarriageF);
 $totalDur              = array_sum($duration);
@@ -68,7 +57,6 @@ $totalSiblingPairs     = array_sum($siblingGaps);
 $totalFirstChildMonth  = array_sum($firstChildMonth);
 $totalFirstChildM      = array_sum($ageAtFirstChildM);
 $totalFirstChildF      = array_sum($ageAtFirstChildF);
-$totalAncestorsRows    = array_sum($ancestorDistribution);
 
 $weddingsByCenturyPayload = LineChartPayload::singleSeries(
     seriesName: I18N::translate('Marriages'),
@@ -152,24 +140,8 @@ foreach ($ageGap as $label => $count) {
     ];
 }
 
-$pedigreeExplanation = I18N::translate(
-    'Each person in the tree has up to 30 possible direct ancestors within four generations (2 parents + 4 grandparents + 8 great-grandparents + 16 great-great-grandparents). The pedigree-completeness index (Lacy 1989) is the fraction of those 30 slots that are actually documented for that individual. The number shown here is the average across every individual in the tree, so 12 percent means "on average each person has 12 percent of their 4-generation ancestry recorded". Higher = more thorough research; lower = many gaps. Caveats: pedigree-collapse duplicates (cousin marriages) are not deduplicated, recent leaf-imports without ancestors drag the average down, and only direct ancestors are counted — siblings / cousins are out of scope.'
-);
-
 $divorcesAgeBandExplain = I18N::translate(
     'Each bar is one century of recorded divorces. The segments split the bar into five life-stage age bands measured at the time of divorce (0–24, 25–34, 35–44, 45–54, 55+) plus an Unknown band for divorces with no usable birth date on either spouse. One tick per divorce, classified by the husband\'s age when present and the wife\'s age otherwise, so the per-century totals line up exactly with the divorces-by-century chart above. Hover any segment for the per-band count and the century total.'
-);
-
-$generationDepthExplanation = I18N::translate(
-    'The maximum generation depth is the longest unbroken parent-child chain recorded in the tree. The widget walks every individual upward, follows fathers and mothers in parallel, and reports the deepest verified line. The distribution histogram on the right shows, for every individual, how many generations of descendants sit below them in the tree — so a value of 0 means a leaf (no recorded descendants), and the bucket at the maximum depth shows the eldest ancestors. A safety cap at 20 generations catches accidentally-cyclic GEDCOM edits.'
-);
-
-$generationDepthDistributionExplanation = I18N::translate(
-    'For every individual, this bucket counts how many generations of descendants are recorded below them in the tree. Bucket 0 = leaf (no descendants), bucket N = an individual whose deepest verified descendant is N generations younger. The shape tells you whether the tree is broadly wide (many leaves, low depth) or has a few unusually deep verified lines (small tail at the upper end).'
-);
-
-$endogamyExplanation = I18N::translate(
-    'For every couple where both spouses have at least one parent recorded, the widget walks each spouse\'s ancestor tree up to four generations (parents, grandparents, great-grandparents, great-great-grandparents) and intersects the two sets. A non-empty intersection means the couple share at least one common ancestor — the classic signature of cousin marriage and pedigree collapse, typical in rural pre-industrial populations and rare in well-mixed urban ones. Couples where at least one spouse has no recorded parents cannot be tested and are excluded from both numerator and denominator, so the rate stays honest.'
 );
 ?>
 <div class="wt-stat-grid">
@@ -345,6 +317,12 @@ $endogamyExplanation = I18N::translate(
         'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/DonutChart', ['identifier' => 'childless-families-donut', 'data' => $childlessBreakdown]),
     ]); ?>
 
+    <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
+        'kicker' => I18N::translate('DIVORCE'),
+        'title'  => I18N::translate('When marriages ended'),
+        'sub'    => I18N::translate('Divorce rate, season and life-stage of the divorced.'),
+    ]); ?>
+
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
         'module'       => $module,
         'title'        => I18N::translate('Top 10 largest families'),
@@ -354,12 +332,6 @@ $endogamyExplanation = I18N::translate(
         'illustration' => 'family',
         'span'         => 12,
         'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/ProgressList', ['class' => 'progress-largest-families', 'data' => $largestFamilies]),
-    ]); ?>
-
-    <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
-        'kicker' => I18N::translate('DIVORCE'),
-        'title'  => I18N::translate('When marriages ended'),
-        'sub'    => I18N::translate('Divorce rate, season and life-stage of the divorced.'),
     ]); ?>
 
     <?php if ($cohortCategories !== []) { ?>
@@ -438,137 +410,12 @@ $endogamyExplanation = I18N::translate(
         'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/ProgressList', ['class' => 'progress-age-at-divorce-f', 'data' => $divorceAgeF]),
     ]); ?>
 
-    <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
-        'kicker' => I18N::translate('STRUCTURE'),
-        'title'  => I18N::translate('How deep and branched is the tree?'),
-        'sub'    => I18N::translate('Generation depth, ancestor distribution and cousin marriages.'),
-    ]); ?>
-
-    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
-        'module'       => $module,
-        'title'        => I18N::translate('Known ancestors per individual'),
-        'sub'          => I18N::translate('Distinct ancestors recorded up to four generations (great-great-grandparents).'),
-        'eyebrow'      => I18N::translate('ANCESTORS'),
-        'accent'       => 'var(--ochre)',
-        'illustration' => 'family',
-        'span'         => 8,
-        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/ProgressList', ['class' => 'progress-ancestor-count', 'data' => $ancestorDistribution]),
-    ]); ?>
-
-    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
-        'module'       => $module,
-        'title'        => I18N::translate('Average pedigree completeness'),
-        'sub'          => I18N::translate('Lacy 1989 — mean fraction of direct ancestors known up to four generations across all individuals.'),
-        'eyebrow'      => I18N::translate('COMPLETENESS'),
-        'accent'       => 'var(--wine)',
-        'illustration' => 'magnifier',
-        'info'         => $pedigreeExplanation,
-        'span'         => 4,
-        'centered'     => true,
-        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/Scalar', [
-            'value'   => I18N::number($avgPedigree * 100, 1),
-            'unit'    => '%',
-            'caption' => I18N::plural('%s individual sampled', '%s individuals sampled', $totalAncestorsRows, I18N::number($totalAncestorsRows)),
-        ]),
-    ]); ?>
-
-    <?php if ($generationDepth->maxDepth > 0) { ?>
-        <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
-            'module'       => $module,
-            'title'        => I18N::translate('Maximum generation depth'),
-            'sub'          => I18N::translate('Longest verified vertical chain from a leaf descendant up to its furthest ancestor.'),
-            'eyebrow'      => I18N::translate('DEPTH'),
-            'accent'       => 'var(--slate)',
-            'illustration' => 'tree',
-            'info'         => $generationDepthExplanation,
-            'span'         => 4,
-            'centered'     => true,
-            'bodyRenderer' => static function () use ($module, $generationDepth): void {
-                echo view($module . '::modules/statistics-chart/Partials/Scalar', [
-                    'value'   => I18N::number($generationDepth->maxDepth),
-                    'unit'    => I18N::translate('generations'),
-                    'caption' => $generationDepth->capped
-                        ? I18N::translate('Walk reached the safety cap (20 generations) — check the tree for cyclic FAMC/FAMS edits.')
-                        : I18N::translate('Each step is one parent–child link upward; siblings, half-lines and dead-ends are merged into the longest path.'),
-                ]);
-
-                if ($generationDepth->chains !== []) {
-                    echo '<div class="wt-generation-chains mt-3">';
-                    echo '<div class="wt-generation-chain-label text-muted text-center small mb-2">';
-                    echo I18N::plural(
-                        'One verified chain at this depth:',
-                        'Top %s verified chains at this depth (youngest leaf first):',
-                        count($generationDepth->chains),
-                        I18N::number(count($generationDepth->chains)),
-                    );
-                    echo '</div>';
-
-                    foreach ($generationDepth->chains as $chain) {
-                        echo '<ol class="wt-generation-chain-list list-unstyled mb-2 text-center">';
-
-                        foreach ($chain as $index => $member) {
-                            echo '<li><a href="' . e($member->url()) . '">' . $member->fullName() . '</a>';
-
-                            if ($index < count($chain) - 1) {
-                                echo '<span class="wt-generation-chain-sep" aria-hidden="true">→</span>';
-                            }
-                            echo '</li>';
-                        }
-                        echo '</ol>';
-                    }
-                    $additionalChainCount = $generationDepth->totalChainCount - count($generationDepth->chains);
-
-                    if ($additionalChainCount > 0) {
-                        echo '<div class="text-muted text-center small mt-1">';
-                        echo I18N::plural(
-                            '%s additional chain at the same depth not shown.',
-                            '%s additional chains at the same depth not shown.',
-                            $additionalChainCount,
-                            I18N::number($additionalChainCount),
-                        );
-                        echo '</div>';
-                    }
-                    echo '</div>';
-                }
-            },
-        ]); ?>
-
-        <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
-            'module'       => $module,
-            'title'        => I18N::translate('Generation depth distribution'),
-            'sub'          => I18N::translate('How many individuals sit at exactly N generations above their deepest recorded descendant.'),
-            'eyebrow'      => I18N::translate('STRUCTURE'),
-            'accent'       => 'var(--slate)',
-            'illustration' => 'tree',
-            'info'         => $generationDepthDistributionExplanation,
-            'span'         => 8,
-            'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/ProgressList', ['class' => 'progress-generation-depth', 'data' => $generationDepthDistribution]),
-        ]); ?>
-    <?php } ?>
-
-    <?php if ($endogamy !== null) { ?>
-        <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
-            'module'       => $module,
-            'title'        => I18N::translate('Endogamy rate (within 4 generations)'),
-            'sub'          => I18N::translate('Couples whose spouses share at least one common ancestor within four generations — a marker of cousin marriages and pedigree collapse.'),
-            'eyebrow'      => I18N::translate('KINSHIP'),
-            'accent'       => 'var(--wine)',
-            'illustration' => 'knot',
-            'info'         => $endogamyExplanation,
-            'span'         => 12,
-            'centered'     => true,
-            'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/Scalar', [
-                'value'   => I18N::number($endogamy->rate, 1),
-                'unit'    => '%',
-                'caption' => I18N::plural(
-                    '%1$s of %2$s couple where both spouses had at least one recorded parent share a common ancestor.',
-                    '%1$s of %2$s couples where both spouses had at least one recorded parent share a common ancestor.',
-                    $endogamy->total,
-                    I18N::number($endogamy->endogamous),
-                    I18N::number($endogamy->total),
-                ),
-            ]),
-        ]); ?>
-    <?php } ?>
+    <?php /* The STRUCTURE section (known ancestors, pedigree
+              completeness, max generation depth, generation depth
+              distribution, endogamy rate) has migrated to the
+              `Tree health` tab in line with design2 — they're
+              tree-quality metrics, not Family content. See
+              Templates/TreeHealth.phtml for the corresponding
+              cards. */ ?>
 
 </div>

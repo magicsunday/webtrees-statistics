@@ -10,7 +10,6 @@ declare(strict_types=1);
  */
 
 use Fisharebest\Webtrees\I18N;
-use MagicSunday\Webtrees\Statistic\Model\Dto\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Statistic;
 
 /**
@@ -20,20 +19,19 @@ use MagicSunday\Webtrees\Statistic\Statistic;
 $sourceCoverage = $statistic->getSourceCitationCoverage();
 $gaps           = $statistic->getMissingEventGaps();
 $generation     = $statistic->getAverageGenerationLength();
-$birthsByDecade = $statistic->getBirthsByDecade();
-$totalBirths    = array_sum($birthsByDecade);
 
-$birthsLineSeries = LineChartPayload::singleSeries(
-    seriesName: I18N::translate('Births'),
-    countsByCategory: $birthsByDecade,
-    project: static fn (int|string $decade, int|float $count): array => [
-        'categoryLabel' => I18N::translate('%ss', (string) $decade),
-        'tooltipBody'   => I18N::plural('%s birth', '%s births', (int) $count, I18N::number($count)),
-        'tooltipLabel'  => I18N::translate('%ss', (string) $decade),
-    ],
-);
+$ancestorDistribution = $statistic->getAncestorCountDistribution();
+$avgPedigree          = $statistic->getAveragePedigreeCompleteness();
+$generationDepth      = $statistic->getGenerationDepthSummary();
+$endogamy             = $statistic->getEndogamySummary();
+$totalIndividuals     = $statistic->getTotalIndividuals();
+$totalAncestorsRows   = array_sum($ancestorDistribution);
 
-$birthsXLabelEvery = max(1, (int) ceil(count($birthsLineSeries->categories) / 12));
+$generationDepthDistribution = [];
+
+foreach ($generationDepth->distribution as $gen => $count) {
+    $generationDepthDistribution[(string) $gen] = $count;
+}
 
 $gapLabels = [
     'BIRT.event' => I18N::translate('Missing birth event'),
@@ -54,13 +52,32 @@ foreach ($gaps as $gap) {
         'total' => $gap['total'],
     ];
 }
+
+$sourcedPct      = ($sourceCoverage->total > 0) ? ($sourceCoverage->value / $sourceCoverage->total) * 100 : 0.0;
+$completenessPct = $avgPedigree * 100;
+
+$pedigreeExplanation = I18N::translate(
+    'Each person in the tree has up to 30 possible direct ancestors within four generations (2 parents + 4 grandparents + 8 great-grandparents + 16 great-great-grandparents). The pedigree-completeness index (Lacy 1989) is the fraction of those 30 slots that are actually documented for that individual. The number shown here is the average across every individual in the tree.'
+);
+
+$generationDepthExplanation = I18N::translate(
+    'The maximum generation depth is the longest unbroken parent-child chain recorded in the tree. The widget walks every individual upward, follows fathers and mothers in parallel, and reports the deepest verified line.'
+);
+
+$generationDepthDistributionExplanation = I18N::translate(
+    'For every individual, this bucket counts how many generations of descendants are recorded below them in the tree. Bucket 0 = leaf (no descendants), bucket N = an individual whose deepest verified descendant is N generations younger.'
+);
+
+$endogamyExplanation = I18N::translate(
+    'For every couple where both spouses have at least one parent recorded, the widget walks each spouse\'s ancestor tree up to four generations and intersects the two sets. A non-empty intersection means the couple share at least one common ancestor — the classic signature of cousin marriage and pedigree collapse.'
+);
 ?>
 <div class="wt-stat-grid">
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
         'kicker' => I18N::translate('DOCUMENTATION'),
         'title'  => I18N::translate('How well is the tree documented?'),
-        'sub'    => I18N::translate('Source coverage and the average years between generations.'),
+        'sub'    => I18N::translate('Source coverage, completeness and the average years between generations.'),
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
@@ -70,29 +87,44 @@ foreach ($gaps as $gap) {
         'eyebrow'      => I18N::translate('DOCUMENTATION'),
         'accent'       => 'var(--sage)',
         'illustration' => 'book',
-        'span'         => 6,
-        'bodyRenderer' => static function () use ($module, $sourceCoverage): void {
-            echo view($module . '::modules/statistics-chart/Partials/RateList', [
-                'class' => 'progress-tree-health',
-                'data'  => [
-                    [
-                        'label' => I18N::translate('Documented individuals'),
-                        'value' => $sourceCoverage->value,
-                        'total' => $sourceCoverage->total,
-                    ],
-                ],
-            ]);
-        },
+        'span'         => 4,
+        'centered'     => true,
+        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/GaugeArc', [
+            'value'   => $sourcedPct,
+            'accent'  => 'var(--sage)',
+            'label'   => I18N::translate('documented'),
+            'meta'    => I18N::translate('%1$s of %2$s individuals', I18N::number($sourceCoverage->value), I18N::number($sourceCoverage->total)),
+            'caption' => I18N::translate('Individuals with ≥ 1 source citation'),
+        ]),
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
         'module'       => $module,
-        'title'        => I18N::translate('Average generation length'),
-        'sub'          => I18N::translate('Mean parent-to-child birth-year delta across the whole tree.'),
+        'title'        => I18N::translate('Pedigree completeness'),
+        'sub'          => I18N::translate('Lacy index — mean fraction of known ancestors up to the 4th generation.'),
+        'eyebrow'      => I18N::translate('COMPLETENESS'),
+        'accent'       => 'var(--wine)',
+        'illustration' => 'magnifier',
+        'info'         => $pedigreeExplanation,
+        'span'         => 4,
+        'centered'     => true,
+        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/GaugeArc', [
+            'value'   => $completenessPct,
+            'accent'  => 'var(--wine)',
+            'label'   => I18N::translate('Lacy 1989'),
+            'meta'    => I18N::plural('%s individual sampled', '%s individuals sampled', $totalAncestorsRows, I18N::number($totalAncestorsRows)),
+            'caption' => I18N::translate('Higher = more thorough research'),
+        ]),
+    ]); ?>
+
+    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+        'module'       => $module,
+        'title'        => I18N::translate('Generation length'),
+        'sub'          => I18N::translate('Average birth-year gap from parent to child.'),
         'eyebrow'      => I18N::translate('TIME'),
         'accent'       => 'var(--ochre)',
         'illustration' => 'hourglass',
-        'span'         => 6,
+        'span'         => 4,
         'centered'     => true,
         'bodyRenderer' => static function () use ($module, $generation): void {
             echo view($module . '::modules/statistics-chart/Partials/Scalar', [
@@ -101,7 +133,7 @@ foreach ($gaps as $gap) {
                     : I18N::translate('no data'),
                 'unit'    => ($generation !== null) ? I18N::translate('years') : null,
                 'caption' => ($generation !== null)
-                    ? I18N::translate('Parent-to-child birth-year delta, averaged across every usable pair.')
+                    ? I18N::translate('Averaged across every parent-child pair with parseable birth dates.')
                     : I18N::translate('At least one parent-child pair with parseable birth dates is required.'),
             ]);
         },
@@ -116,7 +148,7 @@ foreach ($gaps as $gap) {
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
         'module'       => $module,
         'title'        => I18N::translate('Missing-event gaps'),
-        'sub'          => I18N::translate('Share of individuals without a recorded birth, death, or marriage event, with or without a place. Marriage rows use spouses as the denominator (never-married individuals are excluded).'),
+        'sub'          => I18N::translate('Share of individuals without a recorded birth, death, or marriage event.'),
         'eyebrow'      => I18N::translate('GAPS'),
         'accent'       => 'var(--wine)',
         'illustration' => 'magnifier',
@@ -130,27 +162,82 @@ foreach ($gaps as $gap) {
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
-        'kicker' => I18N::translate('GROWTH'),
-        'title'  => I18N::translate('How fast did the tree grow?'),
-        'sub'    => I18N::translate('Recorded births per decade across the lifetime of the tree.'),
+        'kicker' => I18N::translate('STRUCTURE'),
+        'title'  => I18N::translate('How deep and branched is the tree?'),
+        'sub'    => I18N::translate('Generation depth, ancestor distribution and cousin marriages.'),
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
         'module'       => $module,
-        'title'        => I18N::translate('Tree growth — births per decade'),
-        'sub'          => I18N::plural('%s recorded birth date across the visible decades', '%s recorded birth dates across the visible decades', $totalBirths, I18N::number($totalBirths)),
-        'eyebrow'      => I18N::translate('TIMELINE'),
-        'accent'       => 'var(--ochre)',
-        'illustration' => 'sunrise',
-        'span'         => 12,
-        'bodyRenderer' => static function () use ($module, $birthsLineSeries, $birthsXLabelEvery): void {
-            echo view($module . '::modules/statistics-chart/Partials/LineChart', [
-                'identifier'  => 'tree-growth-line-chart',
-                'data'        => $birthsLineSeries,
-                'height'      => 260,
-                'xLabelEvery' => $birthsXLabelEvery,
-            ]);
-        },
+        'title'        => I18N::translate('Maximum generation depth'),
+        'sub'          => I18N::translate('Longest verified vertical chain from a leaf descendant up to its furthest ancestor.'),
+        'eyebrow'      => I18N::translate('DEPTH'),
+        'accent'       => 'var(--slate)',
+        'illustration' => 'tree',
+        'info'         => $generationDepthExplanation,
+        'span'         => 4,
+        'centered'     => true,
+        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/Scalar', [
+            'value'   => I18N::number($generationDepth->maxDepth),
+            'unit'    => I18N::translate('generations'),
+            'caption' => $generationDepth->capped
+                ? I18N::translate('Walk reached the safety cap (20 generations) — check the tree for cyclic FAMC/FAMS edits.')
+                : I18N::translate('Each step is one parent–child link upward.'),
+        ]),
     ]); ?>
+
+    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+        'module'       => $module,
+        'title'        => I18N::translate('Generation depth distribution'),
+        'sub'          => I18N::translate('How many individuals sit at exactly N generations above their deepest recorded descendant.'),
+        'eyebrow'      => I18N::translate('STRUCTURE'),
+        'accent'       => 'var(--slate)',
+        'illustration' => 'tree',
+        'info'         => $generationDepthDistributionExplanation,
+        'span'         => 8,
+        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/ProgressList', [
+            'class' => 'progress-generation-depth',
+            'data'  => $generationDepthDistribution,
+        ]),
+    ]); ?>
+
+    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+        'module'       => $module,
+        'title'        => I18N::translate('Known ancestors per individual'),
+        'sub'          => I18N::translate('Distinct ancestors recorded up to four generations (great-great-grandparents).'),
+        'eyebrow'      => I18N::translate('ANCESTORS'),
+        'accent'       => 'var(--ochre)',
+        'illustration' => 'family',
+        'span'         => 8,
+        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/ProgressList', [
+            'class' => 'progress-ancestor-count',
+            'data'  => $ancestorDistribution,
+        ]),
+    ]); ?>
+
+    <?php if ($endogamy !== null) { ?>
+        <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+            'module'       => $module,
+            'title'        => I18N::translate('Endogamy rate'),
+            'sub'          => I18N::translate('Couples sharing a common ancestor within four generations.'),
+            'eyebrow'      => I18N::translate('KINSHIP'),
+            'accent'       => 'var(--wine)',
+            'illustration' => 'knot',
+            'info'         => $endogamyExplanation,
+            'span'         => 4,
+            'centered'     => true,
+            'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/Scalar', [
+                'value'   => I18N::number($endogamy->rate, 1),
+                'unit'    => '%',
+                'caption' => I18N::plural(
+                    '%1$s of %2$s couple where both spouses had at least one recorded parent share a common ancestor.',
+                    '%1$s of %2$s couples where both spouses had at least one recorded parent share a common ancestor.',
+                    $endogamy->total,
+                    I18N::number($endogamy->endogamous),
+                    I18N::number($endogamy->total),
+                ),
+            ]),
+        ]); ?>
+    <?php } ?>
 
 </div>
