@@ -16,234 +16,124 @@ use MagicSunday\Webtrees\Statistic\Statistic;
  * @var string    $module    The name of the module
  * @var Statistic $statistic
  */
-$topOccupations = $statistic->getTopOccupations(15);
-$topReligions   = $statistic->getTopReligions(15);
-$treeRecords    = $statistic->getTreeRecords();
+$totalIndividuals = $statistic->getTotalIndividuals();
+$totalOccupations = $statistic->getTotalOccupations();
+$totalReligions   = $statistic->getTotalReligions();
+$topOccupations   = $statistic->getTopOccupations(15);
+$topReligions     = $statistic->getTopReligions(15);
+$treeRecords      = $statistic->getTreeRecords();
 ?>
-<div class="container">
-    <div class="row row-cols-1 row-cols-md-3 g-3">
-        <div class="col">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title"><?php echo I18N::translate('Sex'); ?></h5>
-                    <small><?php echo I18N::plural('%s individual', '%s individuals', $statistic->getTotalIndividuals(), I18N::number($statistic->getTotalIndividuals())); ?></small>
-                </div>
-                <div class="card-body">
-                    <?php
-                        echo view(
-                            $module . '::modules/statistics-chart/Partials/DonutChart',
-                            [
-                                'identifier' => 'gender-donut-chart',
-                                'data'       => $statistic->getTotalIndividualsData(),
-                            ],
-                        );
-?>
-                </div>
-            </div>
-        </div>
+<div class="wt-stat-grid">
 
-        <div class="col">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title"><?php echo I18N::translate('Living or deceased'); ?></h5>
-                    <small><?php echo I18N::plural('%s individual', '%s individuals', $statistic->getTotalIndividuals(), I18N::number($statistic->getTotalIndividuals())); ?></small>
-                </div>
-                <div class="card-body">
-                    <?php
-    echo view(
-        $module . '::modules/statistics-chart/Partials/DonutChart',
-        [
-            'identifier' => 'living-donut-chart',
-            'data'       => $statistic->getTotalLivingDeceasedData(),
-        ],
-    );
-?>
-                </div>
-            </div>
-        </div>
+    <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
+        'kicker' => I18N::translate('DEMOGRAPHICS'),
+        'title'  => I18N::translate('Who is recorded?'),
+        'sub'    => I18N::translate('Sex, status and marital state of the individuals in this tree.'),
+    ]); ?>
 
-        <div class="col">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title"><?php echo I18N::translate('Marital status'); ?></h5>
-                    <small><?php echo I18N::plural('%s living individual', '%s living individuals', $statistic->getTotalIndividuals(), I18N::number($statistic->getTotalIndividuals())); ?></small>
-                </div>
-                <div class="card-body">
-                    <?php
-    echo view(
-        $module . '::modules/statistics-chart/Partials/DonutChart',
-        [
-            'identifier' => 'family-status-donut-chart',
-            'data'       => $statistic->getFamilyStatusData(),
-        ],
-    );
-?>
-                </div>
-            </div>
-        </div>
-    </div>
+    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+        'module'       => $module,
+        'title'        => I18N::translate('Sex'),
+        'sub'          => I18N::plural('%s individual', '%s individuals', $totalIndividuals, I18N::number($totalIndividuals)),
+        'eyebrow'      => I18N::translate('DISTRIBUTION'),
+        'accent'       => 'var(--slate)',
+        'illustration' => 'people',
+        'span'         => 4,
+        'bodyRenderer' => static function () use ($module, $statistic): void {
+            echo view($module . '::modules/statistics-chart/Partials/DonutChart', [
+                'identifier' => 'gender-donut-chart',
+                'data'       => $statistic->getTotalIndividualsData(),
+            ]);
+        },
+    ]); ?>
 
-    <div class="row row-cols-1 row-cols-md-2 g-3">
-        <div class="col">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title"><?php echo I18N::translate('Common occupations'); ?></h5>
-                    <small><?php echo I18N::translate('%s distinct occupations (top 15 shown)', I18N::number($statistic->getTotalOccupations())); ?></small>
-                </div>
-                <div class="card-body">
-                    <?php
-        echo view(
-            $module . '::modules/statistics-chart/Partials/ProgressList',
-            [
+    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+        'module'       => $module,
+        'title'        => I18N::translate('Living or deceased'),
+        'sub'          => I18N::plural('%s individual', '%s individuals', $totalIndividuals, I18N::number($totalIndividuals)),
+        'eyebrow'      => I18N::translate('STATUS'),
+        'accent'       => 'var(--sage)',
+        'illustration' => 'candle',
+        'span'         => 4,
+        'bodyRenderer' => static function () use ($module, $statistic): void {
+            echo view($module . '::modules/statistics-chart/Partials/DonutChart', [
+                'identifier' => 'living-donut-chart',
+                'data'       => $statistic->getTotalLivingDeceasedData(),
+            ]);
+        },
+    ]); ?>
+
+    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+        'module'       => $module,
+        'title'        => I18N::translate('Marital status'),
+        'sub'          => I18N::translate('living individuals'),
+        'eyebrow'      => I18N::translate('STATUS'),
+        'accent'       => 'var(--wine)',
+        'illustration' => 'rings',
+        'span'         => 4,
+        'bodyRenderer' => static function () use ($module, $statistic): void {
+            echo view($module . '::modules/statistics-chart/Partials/DonutChart', [
+                'identifier' => 'family-status-donut-chart',
+                'data'       => $statistic->getFamilyStatusData(),
+            ]);
+        },
+    ]); ?>
+
+    <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
+        'kicker' => I18N::translate('CHRONICLE'),
+        'title'  => I18N::translate('The extremes of the tree'),
+        'sub'    => I18N::translate('Oldest, longest marriages, largest families — records that anchor the dataset.'),
+    ]); ?>
+
+    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+        'module'       => $module,
+        'title'        => I18N::translate('Tree records'),
+        'sub'          => I18N::translate('Hall of fame across the whole tree.'),
+        'eyebrow'      => I18N::translate('RECORDS'),
+        'accent'       => 'var(--ochre)',
+        'illustration' => 'laurel',
+        'span'         => 12,
+        'bodyRenderer' => static function () use ($module, $treeRecords): void {
+            echo view($module . '::modules/statistics-chart/Partials/RecordsTable', ['treeRecords' => $treeRecords]);
+        },
+    ]); ?>
+
+    <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
+        'kicker' => I18N::translate('SOCIO-ECONOMICS'),
+        'title'  => I18N::translate('Occupation and confession'),
+        'sub'    => I18N::translate('Occupational and religious affiliation of the recorded individuals.'),
+    ]); ?>
+
+    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+        'module'       => $module,
+        'title'        => I18N::translate('Common occupations'),
+        'sub'          => I18N::translate('%s distinct occupations (top 15 shown)', I18N::number($totalOccupations)),
+        'eyebrow'      => I18N::translate('DEMOGRAPHICS'),
+        'accent'       => 'var(--wine)',
+        'illustration' => 'craft',
+        'span'         => 6,
+        'bodyRenderer' => static function () use ($module, $topOccupations): void {
+            echo view($module . '::modules/statistics-chart/Partials/ProgressList', [
                 'class' => 'progress-occupations',
                 'data'  => $topOccupations,
-            ],
-        );
-?>
-                </div>
-            </div>
-        </div>
+            ]);
+        },
+    ]); ?>
 
-        <div class="col">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title"><?php echo I18N::translate('Common religions'); ?></h5>
-                    <small><?php echo I18N::translate('%s distinct religions (top 15 shown)', I18N::number($statistic->getTotalReligions())); ?></small>
-                </div>
-                <div class="card-body">
-                    <?php
-        echo view(
-            $module . '::modules/statistics-chart/Partials/ProgressList',
-            [
+    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+        'module'       => $module,
+        'title'        => I18N::translate('Common religions'),
+        'sub'          => I18N::translate('%s distinct religions (top 15 shown)', I18N::number($totalReligions)),
+        'eyebrow'      => I18N::translate('DEMOGRAPHICS'),
+        'accent'       => 'var(--slate)',
+        'illustration' => 'chapel',
+        'span'         => 6,
+        'bodyRenderer' => static function () use ($module, $topReligions): void {
+            echo view($module . '::modules/statistics-chart/Partials/ProgressList', [
                 'class' => 'progress-religions',
                 'data'  => $topReligions,
-            ],
-        );
-?>
-                </div>
-            </div>
-        </div>
-    </div>
+            ]);
+        },
+    ]); ?>
 
-    <div class="row row-cols-1 g-3">
-        <div class="col">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title"><?php echo I18N::translate('Tree records'); ?></h5>
-                    <small><?php echo I18N::translate('Hall of fame across the whole tree: extremes that anchor the dataset.'); ?></small>
-                </div>
-                <div class="card-body">
-                    <table class="table table-sm wt-records-table mb-0">
-                        <tbody>
-                            <?php if ($treeRecords->oldestDeceased !== null) { ?>
-                            <tr>
-                                <th scope="row"><?php echo I18N::translate('Oldest deceased'); ?></th>
-                                <td><?php echo I18N::plural('%s year', '%s years', $treeRecords->oldestDeceased->ageYears, I18N::number($treeRecords->oldestDeceased->ageYears)); ?></td>
-                                <td><a href="<?php echo e($treeRecords->oldestDeceased->individual->url()); ?>"><?php echo $treeRecords->oldestDeceased->individual->fullName(); ?></a></td>
-                            </tr>
-                            <?php } ?>
-                            <?php if ($treeRecords->oldestLiving !== null) { ?>
-                            <tr>
-                                <th scope="row"><?php echo I18N::translate('Oldest living'); ?></th>
-                                <td><?php echo I18N::plural('%s year', '%s years', $treeRecords->oldestLiving->ageYears, I18N::number($treeRecords->oldestLiving->ageYears)); ?></td>
-                                <td><a href="<?php echo e($treeRecords->oldestLiving->individual->url()); ?>"><?php echo $treeRecords->oldestLiving->individual->fullName(); ?></a></td>
-                            </tr>
-                            <?php } ?>
-                            <?php if ($treeRecords->longestMarriage !== null) { ?>
-                            <tr>
-                                <th scope="row"><?php echo I18N::translate('Longest marriage'); ?></th>
-                                <td><?php echo I18N::plural('%s year', '%s years', $treeRecords->longestMarriage->durationYears, I18N::number($treeRecords->longestMarriage->durationYears)); ?></td>
-                                <td><a href="<?php echo e($treeRecords->longestMarriage->family->url()); ?>"><?php echo $treeRecords->longestMarriage->family->fullName(); ?></a></td>
-                            </tr>
-                            <?php } ?>
-                            <?php if ($treeRecords->shortestMarriage !== null) { ?>
-                            <tr>
-                                <th scope="row"><?php echo I18N::translate('Shortest marriage'); ?></th>
-                                <td><?php echo I18N::plural('%s day', '%s days', $treeRecords->shortestMarriage->durationDays, I18N::number($treeRecords->shortestMarriage->durationDays)); ?></td>
-                                <td><a href="<?php echo e($treeRecords->shortestMarriage->family->url()); ?>"><?php echo $treeRecords->shortestMarriage->family->fullName(); ?></a></td>
-                            </tr>
-                            <?php } ?>
-                            <?php if ($treeRecords->youngestHusband !== null) { ?>
-                            <tr>
-                                <th scope="row"><?php echo I18N::translate('Youngest husband at marriage'); ?></th>
-                                <td><?php echo I18N::plural('%s year', '%s years', $treeRecords->youngestHusband->ageYears, I18N::number($treeRecords->youngestHusband->ageYears)); ?></td>
-                                <td><a href="<?php echo e($treeRecords->youngestHusband->individual->url()); ?>"><?php echo $treeRecords->youngestHusband->individual->fullName(); ?></a></td>
-                            </tr>
-                            <?php } ?>
-                            <?php if ($treeRecords->youngestWife !== null) { ?>
-                            <tr>
-                                <th scope="row"><?php echo I18N::translate('Youngest wife at marriage'); ?></th>
-                                <td><?php echo I18N::plural('%s year', '%s years', $treeRecords->youngestWife->ageYears, I18N::number($treeRecords->youngestWife->ageYears)); ?></td>
-                                <td><a href="<?php echo e($treeRecords->youngestWife->individual->url()); ?>"><?php echo $treeRecords->youngestWife->individual->fullName(); ?></a></td>
-                            </tr>
-                            <?php } ?>
-                            <?php if ($treeRecords->oldestHusband !== null) { ?>
-                            <tr>
-                                <th scope="row"><?php echo I18N::translate('Oldest husband at marriage'); ?></th>
-                                <td><?php echo I18N::plural('%s year', '%s years', $treeRecords->oldestHusband->ageYears, I18N::number($treeRecords->oldestHusband->ageYears)); ?></td>
-                                <td><a href="<?php echo e($treeRecords->oldestHusband->individual->url()); ?>"><?php echo $treeRecords->oldestHusband->individual->fullName(); ?></a></td>
-                            </tr>
-                            <?php } ?>
-                            <?php if ($treeRecords->oldestWife !== null) { ?>
-                            <tr>
-                                <th scope="row"><?php echo I18N::translate('Oldest wife at marriage'); ?></th>
-                                <td><?php echo I18N::plural('%s year', '%s years', $treeRecords->oldestWife->ageYears, I18N::number($treeRecords->oldestWife->ageYears)); ?></td>
-                                <td><a href="<?php echo e($treeRecords->oldestWife->individual->url()); ?>"><?php echo $treeRecords->oldestWife->individual->fullName(); ?></a></td>
-                            </tr>
-                            <?php } ?>
-                            <?php if ($treeRecords->mostSpouses !== null) { ?>
-                            <tr>
-                                <th scope="row"><?php echo I18N::translate('Most spouses'); ?></th>
-                                <td><?php echo I18N::plural('%s spouse', '%s spouses', $treeRecords->mostSpouses->count, I18N::number($treeRecords->mostSpouses->count)); ?></td>
-                                <td><a href="<?php echo e($treeRecords->mostSpouses->individual->url()); ?>"><?php echo $treeRecords->mostSpouses->individual->fullName(); ?></a></td>
-                            </tr>
-                            <?php } ?>
-                            <?php if ($treeRecords->largestFamily !== null) { ?>
-                            <tr>
-                                <th scope="row"><?php echo I18N::translate('Largest family'); ?></th>
-                                <td><?php echo I18N::plural('%s child', '%s children', $treeRecords->largestFamily->count, I18N::number($treeRecords->largestFamily->count)); ?></td>
-                                <td><a href="<?php echo e($treeRecords->largestFamily->family->url()); ?>"><?php echo $treeRecords->largestFamily->family->fullName(); ?></a></td>
-                            </tr>
-                            <?php } ?>
-                            <?php if ($treeRecords->mostChildrenPerPerson !== null) { ?>
-                            <tr>
-                                <th scope="row"><?php echo I18N::translate('Most children per person'); ?></th>
-                                <td><?php echo I18N::plural('%s child', '%s children', $treeRecords->mostChildrenPerPerson->count, I18N::number($treeRecords->mostChildrenPerPerson->count)); ?></td>
-                                <td><a href="<?php echo e($treeRecords->mostChildrenPerPerson->individual->url()); ?>"><?php echo $treeRecords->mostChildrenPerPerson->individual->fullName(); ?></a></td>
-                            </tr>
-                            <?php } ?>
-                            <?php if ($treeRecords->youngestFatherAtFirstChild !== null) { ?>
-                            <tr>
-                                <th scope="row"><?php echo I18N::translate('Youngest father at first child'); ?></th>
-                                <td><?php echo I18N::plural('%s year', '%s years', $treeRecords->youngestFatherAtFirstChild->ageYears, I18N::number($treeRecords->youngestFatherAtFirstChild->ageYears)); ?></td>
-                                <td><a href="<?php echo e($treeRecords->youngestFatherAtFirstChild->individual->url()); ?>"><?php echo $treeRecords->youngestFatherAtFirstChild->individual->fullName(); ?></a></td>
-                            </tr>
-                            <?php } ?>
-                            <?php if ($treeRecords->youngestMotherAtFirstChild !== null) { ?>
-                            <tr>
-                                <th scope="row"><?php echo I18N::translate('Youngest mother at first child'); ?></th>
-                                <td><?php echo I18N::plural('%s year', '%s years', $treeRecords->youngestMotherAtFirstChild->ageYears, I18N::number($treeRecords->youngestMotherAtFirstChild->ageYears)); ?></td>
-                                <td><a href="<?php echo e($treeRecords->youngestMotherAtFirstChild->individual->url()); ?>"><?php echo $treeRecords->youngestMotherAtFirstChild->individual->fullName(); ?></a></td>
-                            </tr>
-                            <?php } ?>
-                            <?php if ($treeRecords->oldestFatherAtFirstChild !== null) { ?>
-                            <tr>
-                                <th scope="row"><?php echo I18N::translate('Oldest father at first child'); ?></th>
-                                <td><?php echo I18N::plural('%s year', '%s years', $treeRecords->oldestFatherAtFirstChild->ageYears, I18N::number($treeRecords->oldestFatherAtFirstChild->ageYears)); ?></td>
-                                <td><a href="<?php echo e($treeRecords->oldestFatherAtFirstChild->individual->url()); ?>"><?php echo $treeRecords->oldestFatherAtFirstChild->individual->fullName(); ?></a></td>
-                            </tr>
-                            <?php } ?>
-                            <?php if ($treeRecords->oldestMotherAtFirstChild !== null) { ?>
-                            <tr>
-                                <th scope="row"><?php echo I18N::translate('Oldest mother at first child'); ?></th>
-                                <td><?php echo I18N::plural('%s year', '%s years', $treeRecords->oldestMotherAtFirstChild->ageYears, I18N::number($treeRecords->oldestMotherAtFirstChild->ageYears)); ?></td>
-                                <td><a href="<?php echo e($treeRecords->oldestMotherAtFirstChild->individual->url()); ?>"><?php echo $treeRecords->oldestMotherAtFirstChild->individual->fullName(); ?></a></td>
-                            </tr>
-                            <?php } ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
