@@ -106,7 +106,7 @@ $maritalData    = $statistic->getFamilyStatusData();
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
         'module'       => $module,
         'title'        => I18N::translate('Common occupations'),
-        'sub'          => I18N::translate('%s distinct occupations (top 15 shown)', I18N::number($totalOccupations)),
+        'sub'          => I18N::translate('%s distinct occupations (top 15)', I18N::number($totalOccupations)),
         'eyebrow'      => I18N::translate('DEMOGRAPHICS'),
         'accent'       => 'var(--wine)',
         'illustration' => 'craft',
@@ -122,7 +122,7 @@ $maritalData    = $statistic->getFamilyStatusData();
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
         'module'       => $module,
         'title'        => I18N::translate('Common religions'),
-        'sub'          => I18N::translate('%s distinct religions (top 15 shown)', I18N::number($totalReligions)),
+        'sub'          => I18N::translate('%s distinct religions (top 15)', I18N::number($totalReligions)),
         'eyebrow'      => I18N::translate('DEMOGRAPHICS'),
         'accent'       => 'var(--slate)',
         'illustration' => 'chapel',

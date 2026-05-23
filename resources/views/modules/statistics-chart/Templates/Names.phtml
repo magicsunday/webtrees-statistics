@@ -44,7 +44,7 @@ $surnameMarriageMatrixExplanation = I18N::translate(
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
         'module'       => $module,
         'title'        => I18N::translate('Common surnames'),
-        'sub'          => I18N::translate('%s distinct surnames (top 15 shown)', I18N::number($totalSurnames)),
+        'sub'          => I18N::translate('%s distinct surnames (top 15)', I18N::number($totalSurnames)),
         'eyebrow'      => I18N::translate('SURNAMES'),
         'accent'       => 'var(--wine)',
         'illustration' => 'tree',
@@ -57,7 +57,7 @@ $surnameMarriageMatrixExplanation = I18N::translate(
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
         'module'       => $module,
         'title'        => I18N::translate('Common given names – male'),
-        'sub'          => I18N::translate('%s distinct male given names (top 15 shown)', I18N::number($totalMaleGivenNames)),
+        'sub'          => I18N::translate('%s distinct given names (top 15)', I18N::number($totalMaleGivenNames)),
         'eyebrow'      => I18N::translate('GIVEN NAMES'),
         'accent'       => 'var(--slate)',
         'illustration' => 'people',
@@ -70,7 +70,7 @@ $surnameMarriageMatrixExplanation = I18N::translate(
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
         'module'       => $module,
         'title'        => I18N::translate('Common given names – female'),
-        'sub'          => I18N::translate('%s distinct female given names (top 15 shown)', I18N::number($totalFemaleGivenNames)),
+        'sub'          => I18N::translate('%s distinct given names (top 15)', I18N::number($totalFemaleGivenNames)),
         'eyebrow'      => I18N::translate('GIVEN NAMES'),
         'accent'       => 'var(--rose)',
         'illustration' => 'people',

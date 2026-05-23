@@ -115,8 +115,8 @@ msgstr[1] "%s Kinder"
 #, php-format
 msgid "%s consecutive-sibling pair"
 msgid_plural "%s consecutive-sibling pairs"
-msgstr[0] "%s aufeinanderfolgendes Geschwister-Paar"
-msgstr[1] "%s aufeinanderfolgende Geschwister-Paare"
+msgstr[0] "%s aufeinanderfolgendes Geschwisterpaar"
+msgstr[1] "%s aufeinanderfolgende Geschwisterpaare"
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:248
 #, php-format
@@ -450,8 +450,8 @@ msgstr "%s%% geschieden"
 #, php-format
 msgid "%s-year gap"
 msgid_plural "%s-year gaps"
-msgstr[0] "%s-Jahr-Abstand"
-msgstr[1] "%s-Jahr-Abstände"
+msgstr[0] "%s-Jahre-Abstand"
+msgstr[1] "%s-Jahre-Abstände"
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:715
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:34
@@ -613,7 +613,7 @@ msgstr[1] "Über %s Personen mit mindestens einem erfassten Ort."
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:373
 msgid "Age at death (10-year bands)"
-msgstr "Sterbealter (10-Jahre-Klassen)"
+msgstr "Sterbealter (10-Jahres-Klassen)"
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:485
 msgid "Age at divorce — husbands"
@@ -700,7 +700,7 @@ msgstr "Durchschnittliche Lebensdauer nach Geschlecht × Jahrhundert"
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:657
 msgid "Average pedigree completeness"
-msgstr "Durchschnittliche Stammbaum-Vollständigkeit"
+msgstr "Durchschnittliche Stammbaumvollständigkeit"
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:521
 #, php-format
@@ -785,7 +785,7 @@ msgstr "Häufige Nachnamen"
 
 #: src/Support/SiblingGapRowMapper.php:86
 msgid "Consecutive-sibling pairs"
-msgstr "Aufeinanderfolgende Geschwister-Paare"
+msgstr "Aufeinanderfolgende Geschwisterpaare"
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:194
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:257
@@ -966,7 +966,7 @@ msgid ""
 msgstr ""
 "Jede Person im Baum hat bis zu 30 mögliche direkte Vorfahren in vier "
 "Generationen (2 Eltern + 4 Großeltern + 8 Urgroßeltern + 16 Ururgroßeltern). "
-"Der Stammbaum-Vollständigkeits-Index (Lacy 1989) ist der Anteil dieser 30 "
+"Der Stammbaumvollständigkeits-Index (Lacy 1989) ist der Anteil dieser 30 "
 "Plätze, die für diese Person tatsächlich dokumentiert sind. Die hier "
 "gezeigte Zahl ist der Durchschnitt über alle Personen im Baum, also bedeutet "
 "12 Prozent: im Schnitt hat jede Person 12 Prozent ihrer 4-Generationen-Ahnen "
@@ -986,7 +986,7 @@ msgstr ""
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:876
 msgid "Endogamy rate (within 4 generations)"
-msgstr "Endogamie-Rate (innerhalb 4 Generationen)"
+msgstr "Endogamierate (innerhalb 4 Generationen)"
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:622
 msgid "Families with vs without children"
@@ -999,7 +999,7 @@ msgstr "Familie"
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:559
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:570
 msgid "Family size composition share by decade"
-msgstr "Familiengrößen-Zusammensetzung pro Dekade"
+msgstr "Familiengrößenzusammensetzung pro Dekade"
 
 #: src/Statistic.php:938
 msgctxt "NOMINATIVE"
@@ -1397,7 +1397,7 @@ msgstr "Übersicht"
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:118
 msgid "Parent-to-child birth-year delta, averaged across every usable pair."
-msgstr "Geburtsjahr-Abstand Eltern-Kind, gemittelt über alle nutzbaren Paare."
+msgstr "Geburtsjahrabstand Eltern-Kind, gemittelt über alle nutzbaren Paare."
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:444
 msgid "Per-century stack of spouse ages at divorce."
@@ -1498,7 +1498,7 @@ msgstr "Statistiken"
 #: resources/views/modules/statistics-chart/Templates/Names.phtml:132
 #: resources/views/modules/statistics-chart/Templates/Names.phtml:155
 msgid "Surname × surname marriage matrix"
-msgstr "Nachname × Nachname Eheschließungs-Matrix"
+msgstr "Nachname × Nachname Eheschließungsmatrix"
 
 #: src/Support/ZodiacLabels.php:47
 msgid "Taurus"
@@ -1546,15 +1546,15 @@ msgstr ""
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:154
 msgid "Tree growth — births per decade"
-msgstr "Baum-Wachstum — Geburten pro Jahrzehnt"
+msgstr "Baumwachstum — Geburten pro Jahrzehnt"
 
 #: src/Module.php:249
 msgid "Tree health"
-msgstr "Stammbaum-Qualität"
+msgstr "Stammbaumqualität"
 
 #: resources/views/modules/statistics-chart/Templates/Overview.phtml:132
 msgid "Tree records"
-msgstr "Baum-Datensätze"
+msgstr "Baumdatensätze"
 
 #: src/Statistic.php:149
 msgid "Unknown"
@@ -1595,7 +1595,7 @@ msgstr "Ehefrau %s Jahre älter"
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:213
 msgid "Winter-peak score"
-msgstr "Winter-Spitzen-Index"
+msgstr "Winterspitzenindex"
 
 #: src/Repository/ChildrenRepository.php:586
 msgid "With children"

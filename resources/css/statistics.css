@@ -823,13 +823,23 @@
 
 /* ----------------------------------------------------------------------
    Donut chart + legend stack (Overview demographics + Family donuts)
-   ---------------------------------------------------------------------- */
+   ----------------------------------------------------------------------
+   Mockup default: donut LEFT, legend RIGHT in a `auto 1fr` grid with
+   24 px gutter. Cards that need the vertical variant (donut on top
+   of the legend) opt in via the `.wt-stat-donut-v` modifier on the
+   host wrapper.
+   -------------------------------------------------------------------- */
 .wt-statistics-chart .wt-stat-donut {
-    display:        flex;
-    flex-direction: column;
-    align-items:    center;
-    gap:            16px;
-    width:          100%;
+    display:               grid;
+    grid-template-columns: auto 1fr;
+    gap:                   24px;
+    align-items:           center;
+    width:                 100%;
+}
+
+.wt-statistics-chart .wt-stat-donut-v {
+    grid-template-columns: 1fr;
+    justify-items:         center;
 }
 
 .wt-statistics-chart .wt-stat-donut .donut-chart {
@@ -842,39 +852,64 @@
     display: block;
 }
 
+/* Narrow viewports collapse the horizontal donut+legend layout to
+   stacked, mirroring the mockup's `@media` rule. */
+@media (max-width: 720px) {
+    .wt-statistics-chart .wt-stat-donut {
+        grid-template-columns: 1fr;
+        justify-items:         center;
+        text-align:            center;
+    }
+}
+
 .wt-statistics-chart .wt-stat-legend {
     display:        flex;
     flex-direction: column;
     gap:            6px;
     width:          100%;
+    min-width:      0;
 }
 
 .wt-statistics-chart .wt-stat-legend-row {
     display:               grid;
-    grid-template-columns: 12px 1fr auto auto;
+    grid-template-columns: 10px 1fr auto auto;
     align-items:           center;
-    gap:                   10px;
-    font-size:             13px;
+    gap:                   8px;
+    padding:               6px 0;
+    font-size:             12px;
+    border-bottom:         1px solid var(--border-soft);
+}
+
+.wt-statistics-chart .wt-stat-legend-row:last-child {
+    border-bottom: none;
 }
 
 .wt-statistics-chart .wt-stat-legend-dot {
     width:         8px;
     height:        8px;
-    border-radius: 50%;
+    border-radius: 2px;
     background:    var(--ink-3);
 }
 
 .wt-statistics-chart .wt-stat-legend-lab {
-    color: var(--ink);
+    color:         var(--ink);
+    min-width:     0;
+    overflow:      hidden;
+    text-overflow: ellipsis;
+    white-space:   nowrap;
 }
 
 .wt-statistics-chart .wt-stat-legend-val {
     color:                var(--ink);
+    font-family:          var(--mono);
     font-variant-numeric: tabular-nums;
 }
 
 .wt-statistics-chart .wt-stat-legend-pct {
     color:                var(--ink-3);
+    font-family:          var(--mono);
+    font-size:            10px;
+    text-align:           right;
     font-variant-numeric: tabular-nums;
 }
 

@@ -211,7 +211,7 @@ $childMortalityExplanation = I18N::translate(
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
         'module'       => $module,
         'title'        => I18N::translate('Common causes of death'),
-        'sub'          => I18N::translate('%s distinct causes (top 15 shown)', I18N::number($totalDeathCauses)),
+        'sub'          => I18N::translate('%s distinct causes (top 15)', I18N::number($totalDeathCauses)),
         'eyebrow'      => I18N::translate('CAUSES'),
         'accent'       => 'var(--wine)',
         'illustration' => 'candle',
