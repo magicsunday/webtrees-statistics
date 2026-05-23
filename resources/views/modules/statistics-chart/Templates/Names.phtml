@@ -16,128 +16,111 @@ use MagicSunday\Webtrees\Statistic\Statistic;
  * @var string    $module    The name of the module
  * @var Statistic $statistic
  */
-$givenNameTrends = $statistic->getGivenNameTrends(10);
+$totalSurnames         = $statistic->getTotalSurnames();
+$totalMaleGivenNames   = $statistic->getTotalMaleGivenNames();
+$totalFemaleGivenNames = $statistic->getTotalFemaleGivenNames();
+$topSurnames           = $statistic->getTopSurnames(15);
+$topMaleGivenNames     = $statistic->getTopMaleGivenNames(15);
+$topFemaleGivenNames   = $statistic->getTopFemaleGivenNames(15);
+$givenNameTrends       = $statistic->getGivenNameTrends(10);
+$surnameMarriageMatrix = $statistic->getSurnameMarriageMatrix(8);
 
 $streamGraphExplanation = I18N::translate(
     'Each band stands for one of the most common given names in the tree. The band\'s vertical thickness in a given decade shows how many individuals born in that decade carried that name. The silhouette layout centres each band around zero, so the chart reads as relative magnitudes — hover any band to see absolute counts and its peak decade.'
 );
 
-$surnameMarriageMatrix = $statistic->getSurnameMarriageMatrix(8);
-
 $surnameMarriageMatrixExplanation = I18N::translate(
     'Each arc on the circumference is one of the top surnames in the tree, ranked by how many marriages that surname appears in (as husband OR wife). Ribbons between two arcs encode the number of marriages between those surnames; thickness is proportional to that count. The diagram is symmetric — a Schmidt × Müller marriage contributes equally to both arcs. Self-loops on an arc represent endogamous marriages where husband and wife share a surname.'
 );
 ?>
-<div class="container">
-    <div class="row row-cols-1 row-cols-lg-3 g-3">
-        <div class="col">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title"><?php echo I18N::translate('Common surnames'); ?></h5>
-                    <small><?php echo I18N::translate('%s distinct surnames (top 15 shown)', I18N::number($statistic->getTotalSurnames())); ?></small>
-                </div>
-                <div class="card-body">
-                    <?php
-                        echo view(
-                            $module . '::modules/statistics-chart/Partials/TagCloud',
-                            [
-                                'data' => $statistic->getTopSurnames(15),
-                            ],
-                        );
-?>
-                </div>
-            </div>
-        </div>
+<div class="wt-stat-grid">
 
-        <div class="col">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title"><?php echo I18N::translate('Common given names – male'); ?></h5>
-                    <small><?php echo I18N::translate('%s distinct male given names (top 15 shown)', I18N::number($statistic->getTotalMaleGivenNames())); ?></small>
-                </div>
-                <div class="card-body">
-                    <?php
-    echo view(
-        $module . '::modules/statistics-chart/Partials/TagCloud',
-        [
-            'data' => $statistic->getTopMaleGivenNames(15),
-        ],
-    );
-?>
-                </div>
-            </div>
-        </div>
+    <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
+        'kicker' => I18N::translate('FREQUENCIES'),
+        'title'  => I18N::translate('Which names return?'),
+        'sub'    => I18N::translate('Family names and given names by frequency across the tree.'),
+    ]); ?>
 
-        <div class="col">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title"><?php echo I18N::translate('Common given names – female'); ?></h5>
-                    <small><?php echo I18N::translate('%s distinct female given names (top 15 shown)', I18N::number($statistic->getTotalFemaleGivenNames())); ?></small>
-                </div>
-                <div class="card-body">
-                    <?php
-    echo view(
-        $module . '::modules/statistics-chart/Partials/TagCloud',
-        [
-            'data' => $statistic->getTopFemaleGivenNames(15),
-        ],
-    );
-?>
-                </div>
-            </div>
-        </div>
-    </div>
+    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+        'module'       => $module,
+        'title'        => I18N::translate('Common surnames'),
+        'sub'          => I18N::translate('%s distinct surnames (top 15 shown)', I18N::number($totalSurnames)),
+        'eyebrow'      => I18N::translate('SURNAMES'),
+        'accent'       => 'var(--wine)',
+        'illustration' => 'tree',
+        'span'         => 12,
+        'bodyRenderer' => static function () use ($module, $topSurnames): void {
+            echo view($module . '::modules/statistics-chart/Partials/TagCloud', ['data' => $topSurnames]);
+        },
+    ]); ?>
 
-    <div class="row row-cols-1 g-3">
-        <div class="col">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title">
-                        <?php echo I18N::translate('Given-name popularity across decades'); ?>
-                        <?php echo view($module . '::modules/statistics-chart/Partials/InfoTrigger', ['content' => $streamGraphExplanation]); ?>
-                    </h5>
-                    <small><?php echo I18N::translate('Top-%s given names, stacked into a stream that reads as relative magnitudes.', I18N::number(count($givenNameTrends->names))); ?></small>
-                </div>
-                <div class="card-body">
-                    <?php
-                        echo view(
-                            $module . '::modules/statistics-chart/Partials/StreamGraph',
-                            [
-                                'identifier' => 'given-name-trends-stream',
-                                'data'       => $givenNameTrends,
-                            ],
-                        );
-?>
-                </div>
-            </div>
-        </div>
-    </div>
+    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+        'module'       => $module,
+        'title'        => I18N::translate('Common given names – male'),
+        'sub'          => I18N::translate('%s distinct male given names (top 15 shown)', I18N::number($totalMaleGivenNames)),
+        'eyebrow'      => I18N::translate('GIVEN NAMES'),
+        'accent'       => 'var(--slate)',
+        'illustration' => 'people',
+        'span'         => 6,
+        'bodyRenderer' => static function () use ($module, $topMaleGivenNames): void {
+            echo view($module . '::modules/statistics-chart/Partials/TagCloud', ['data' => $topMaleGivenNames]);
+        },
+    ]); ?>
+
+    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+        'module'       => $module,
+        'title'        => I18N::translate('Common given names – female'),
+        'sub'          => I18N::translate('%s distinct female given names (top 15 shown)', I18N::number($totalFemaleGivenNames)),
+        'eyebrow'      => I18N::translate('GIVEN NAMES'),
+        'accent'       => 'var(--rose)',
+        'illustration' => 'people',
+        'span'         => 6,
+        'bodyRenderer' => static function () use ($module, $topFemaleGivenNames): void {
+            echo view($module . '::modules/statistics-chart/Partials/TagCloud', ['data' => $topFemaleGivenNames]);
+        },
+    ]); ?>
+
+    <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
+        'kicker' => I18N::translate('EVOLUTION'),
+        'title'  => I18N::translate('How names came and went over time'),
+        'sub'    => I18N::translate('Popularity over decades and marriage alliances between families.'),
+    ]); ?>
+
+    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+        'module'       => $module,
+        'title'        => I18N::translate('Given-name popularity across decades'),
+        'sub'          => I18N::translate('Top-%s given names, stacked into a stream that reads as relative magnitudes.', I18N::number(count($givenNameTrends->names))),
+        'eyebrow'      => I18N::translate('TIMELINE'),
+        'accent'       => 'var(--ochre)',
+        'illustration' => 'tree',
+        'info'         => $streamGraphExplanation,
+        'span'         => 12,
+        'bodyRenderer' => static function () use ($module, $givenNameTrends): void {
+            echo view($module . '::modules/statistics-chart/Partials/StreamGraph', [
+                'identifier' => 'given-name-trends-stream',
+                'data'       => $givenNameTrends,
+            ]);
+        },
+    ]); ?>
 
     <?php if ($surnameMarriageMatrix->labels !== []) { ?>
-    <div class="row row-cols-1 g-3">
-        <div class="col">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title">
-                        <?php echo I18N::translate('Surname × surname marriage matrix'); ?>
-                        <?php echo view($module . '::modules/statistics-chart/Partials/InfoTrigger', ['content' => $surnameMarriageMatrixExplanation, 'wide' => true]); ?>
-                    </h5>
-                    <small><?php echo I18N::translate('Marriages between the top-%s surnames in the tree.', I18N::number(count($surnameMarriageMatrix->labels))); ?></small>
-                </div>
-                <div class="card-body">
-                    <?php
-                        echo view(
-                            $module . '::modules/statistics-chart/Partials/ChordDiagram',
-                            [
-                                'identifier' => 'surname-marriage-chord',
-                                'data'       => $surnameMarriageMatrix,
-                                'ariaLabel'  => I18N::translate('Surname × surname marriage matrix'),
-                            ],
-                        );
-        ?>
-                </div>
-            </div>
-        </div>
-    </div>
+        <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+            'module'       => $module,
+            'title'        => I18N::translate('Surname × surname marriage matrix'),
+            'sub'          => I18N::translate('Marriages between the top-%s surnames in the tree.', I18N::number(count($surnameMarriageMatrix->labels))),
+            'eyebrow'      => I18N::translate('ALLIANCES'),
+            'accent'       => 'var(--wine)',
+            'illustration' => 'knot',
+            'info'         => $surnameMarriageMatrixExplanation,
+            'span'         => 12,
+            'bodyRenderer' => static function () use ($module, $surnameMarriageMatrix): void {
+                echo view($module . '::modules/statistics-chart/Partials/ChordDiagram', [
+                    'identifier' => 'surname-marriage-chord',
+                    'data'       => $surnameMarriageMatrix,
+                    'ariaLabel'  => I18N::translate('Surname × surname marriage matrix'),
+                ]);
+            },
+        ]); ?>
     <?php } ?>
+
 </div>
