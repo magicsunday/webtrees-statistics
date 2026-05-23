@@ -457,6 +457,187 @@
 }
 
 /* ----------------------------------------------------------------------
+   Editorial grid + Section divider + Card primitives
+   ----------------------------------------------------------------------
+   `.wt-stat-grid` wraps each tab body in a 12-column grid that hosts
+   both Section dividers (always span 12) and Cards (1–12 columns).
+   The Section component is a typographic strip — kicker + serif
+   title + sub. The Card frame carries the eyebrow / title / sub
+   header, the body slot, an optional accent illustration anchored
+   top-right, and an optional info popover footer.
+   -------------------------------------------------------------------- */
+
+.wt-statistics-chart .wt-stat-grid {
+    display:               grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap:                   18px;
+    margin:                0;
+    padding:               0;
+}
+
+/* Section divider */
+.wt-statistics-chart .wt-stat-section {
+    grid-column:    span 12;
+    margin:         32px 0 0;
+    padding-bottom: 8px;
+    border-bottom:  1px solid var(--border);
+}
+
+.wt-statistics-chart .wt-stat-section-kicker {
+    margin:         0 0 6px;
+    font-family:    var(--sans);
+    font-size:      11px;
+    font-weight:    600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color:          var(--ochre);
+}
+
+.wt-statistics-chart .wt-stat-section-title {
+    margin:         0 0 8px;
+    font-family:    var(--serif);
+    font-size:      36px;
+    font-weight:    400;
+    line-height:    1.05;
+    letter-spacing: -0.02em;
+    color:          var(--ink);
+}
+
+.wt-statistics-chart .wt-stat-section-sub {
+    margin:    0;
+    max-width: 60ch;
+    font-size: 14px;
+    color:     var(--ink-2);
+}
+
+/* Card frame */
+.wt-statistics-chart .wt-stat-card {
+    position:         relative;
+    display:          flex;
+    flex-direction:   column;
+    padding:          24px;
+    background:       var(--card);
+    border:           1px solid var(--border);
+    border-radius:    var(--card-radius);
+    box-shadow:       var(--shadow-card);
+    overflow:         hidden;
+}
+
+.wt-statistics-chart .wt-stat-card-illustrated {
+    /* Reserve a 80×80 corner so head + body never collide with the
+       illustration sitting in the top-right. */
+    padding-right: 96px;
+}
+
+.wt-statistics-chart .wt-stat-card-centered .wt-stat-card-body {
+    align-items: center;
+    text-align:  center;
+}
+
+.wt-statistics-chart .wt-stat-card-illustration {
+    position:       absolute;
+    top:            16px;
+    right:          16px;
+    width:          80px;
+    height:         80px;
+    opacity:        0.22;
+    pointer-events: none;
+    transition:     opacity 200ms ease-out;
+}
+
+.wt-statistics-chart .wt-stat-card:hover .wt-stat-card-illustration,
+.wt-statistics-chart .wt-stat-card:focus-within .wt-stat-card-illustration {
+    opacity: 0.5;
+}
+
+.wt-statistics-chart .wt-stat-card-illustration svg {
+    width:  100%;
+    height: 100%;
+    display: block;
+}
+
+/* Card header */
+.wt-statistics-chart .wt-stat-card-head {
+    margin: 0 0 16px;
+}
+
+.wt-statistics-chart .wt-stat-card-eyebrow {
+    margin:         0 0 6px;
+    font-family:    var(--sans);
+    font-size:      10px;
+    font-weight:    600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color:          var(--ochre);
+}
+
+.wt-statistics-chart .wt-stat-card-title {
+    margin:         0 0 4px;
+    font-family:    var(--serif);
+    font-size:      24px;
+    font-weight:    400;
+    line-height:    1.25;
+    letter-spacing: -0.01em;
+    color:          var(--ink);
+}
+
+.wt-statistics-chart .wt-stat-card-sub {
+    margin:    0;
+    min-height: 1.4em;
+    font-size: 13px;
+    color:     var(--ink-2);
+}
+
+/* Card body */
+.wt-statistics-chart .wt-stat-card-body {
+    flex:           1 1 auto;
+    display:        flex;
+    flex-direction: column;
+    min-width:      0;
+}
+
+/* Card footer (info button) */
+.wt-statistics-chart .wt-stat-card-foot {
+    margin-top:      12px;
+    padding-top:     8px;
+    display:         flex;
+    justify-content: flex-end;
+}
+
+.wt-statistics-chart .wt-stat-card-info {
+    width:           1.5rem;
+    height:          1.5rem;
+    padding:         0;
+    background:      transparent;
+    border:          1px solid var(--border);
+    border-radius:   50%;
+    color:           var(--ink-3);
+    font-size:       0.78rem;
+    font-weight:     600;
+    line-height:     1;
+    cursor:          pointer;
+    transition:      color 120ms ease-out, border-color 120ms ease-out;
+}
+
+.wt-statistics-chart .wt-stat-card-info:hover,
+.wt-statistics-chart .wt-stat-card-info:focus-visible {
+    color:        var(--ink);
+    border-color: var(--ink-2);
+}
+
+/* Narrow viewports — every card collapses to full width so the
+   12-column grid degrades gracefully on tablets and phones. */
+@media (max-width: 900px) {
+    .wt-statistics-chart .wt-stat-card {
+        grid-column: span 12 !important;
+    }
+
+    .wt-statistics-chart .wt-stat-section-title {
+        font-size: 28px;
+    }
+}
+
+/* ----------------------------------------------------------------------
    Card layout primitives
    -------------------------------------------------------------------- */
 

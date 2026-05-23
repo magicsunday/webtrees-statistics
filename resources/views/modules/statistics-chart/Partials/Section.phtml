@@ -1,0 +1,29 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+/**
+ * Section divider — full-width strip introducing a thematic group of
+ * cards. Kicker = small uppercased category line, title = serif
+ * headline, sub = optional muted explanatory sentence.
+ *
+ * @var string      $kicker Short category label, e.g. "DEMOGRAFIE"
+ * @var string      $title  Serif headline question, e.g. "Wer ist erfasst?"
+ * @var string|null $sub    Optional explanatory subtitle
+ */
+$sub ??= null;
+?>
+<div class="wt-stat-section">
+    <p class="wt-stat-section-kicker"><?php echo e($kicker); ?></p>
+    <h2 class="wt-stat-section-title"><?php echo e($title); ?></h2>
+    <?php if ($sub !== null && $sub !== '') { ?>
+        <p class="wt-stat-section-sub"><?php echo e($sub); ?></p>
+    <?php } ?>
+</div>

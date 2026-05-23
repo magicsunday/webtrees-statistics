@@ -1,0 +1,63 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+/**
+ * Thematic SVG illustrations referenced by name from `Card.phtml`.
+ * Each illustration uses `preserveAspectRatio="xMaxYMin meet"` so the
+ * shape anchors to the top-right of its 80×80 host container, and
+ * sets `stroke="currentColor"` so the accent colour the host card
+ * passes through bleeds in via CSS `color`. A tight viewBox per
+ * illustration keeps the drawn shape filling its allocated space
+ * regardless of the underlying art's own bounding box.
+ *
+ * @var string $name Illustration key (people, candle, rings, laurel, craft, chapel, zodiac, sunrise, moon, hourglass, magnifier, family, child, bell, brokenHeart, tree, boat, globe, book, trophy, knot)
+ */
+$svgs = [
+    'people'      => ['30 40 130 102', '<circle cx="70" cy="60" r="18"/><path d="M40 140 Q40 95 70 95 Q100 95 100 140"/><circle cx="130" cy="70" r="14"/><path d="M105 140 Q105 105 130 105 Q155 105 155 140"/>'],
+    'candle'      => ['75 25 50 150', '<path d="M100 28 Q88 48 92 62 Q96 72 100 72 Q104 72 108 62 Q112 48 100 28"/><path d="M85 85 L115 85 L113 165 L87 165 Z"/><line x1="100" y1="72" x2="100" y2="85"/><line x1="78" y1="170" x2="122" y2="170"/>'],
+    'rings'       => ['32 55 136 90', '<circle cx="78" cy="100" r="42"/><circle cx="122" cy="100" r="42"/>'],
+    'laurel'      => ['25 45 150 100', '<path d="M50 100 Q30 90 30 70 M60 90 Q40 75 50 55 M70 80 Q60 60 78 50"/><path d="M150 100 Q170 90 170 70 M140 90 Q160 75 150 55 M130 80 Q140 60 122 50"/><polygon points="100,80 108,100 130,100 112,114 120,136 100,122 80,136 88,114 70,100 92,100"/>'],
+    'craft'       => ['25 15 150 130', '<rect x="30" y="120" width="140" height="20" rx="2"/><path d="M50 120 L60 100 L140 100 L150 120"/><path d="M80 100 L80 60 Q80 40 100 40 Q120 40 120 60 L120 100"/><line x1="100" y1="40" x2="100" y2="20"/>'],
+    'chapel'      => ['35 35 130 130', '<path d="M40 160 L40 100 L100 60 L160 100 L160 160 Z"/><line x1="100" y1="40" x2="100" y2="80"/><line x1="85" y1="55" x2="115" y2="55"/><rect x="85" y="120" width="30" height="40"/>'],
+    'zodiac'      => ['30 30 140 140', '<circle cx="100" cy="100" r="60"/><line x1="100" y1="30" x2="100" y2="170"/><line x1="30" y1="100" x2="170" y2="100"/><line x1="50" y1="50" x2="150" y2="150"/><line x1="150" y1="50" x2="50" y2="150"/><circle cx="100" cy="100" r="6"/>'],
+    'sunrise'     => ['15 55 170 90', '<line x1="20" y1="140" x2="180" y2="140"/><path d="M55 140 A45 45 0 0 1 145 140"/><line x1="100" y1="60" x2="100" y2="75"/><line x1="60" y1="100" x2="74" y2="100"/><line x1="140" y1="100" x2="126" y2="100"/><line x1="70" y1="70" x2="80" y2="80"/><line x1="130" y1="70" x2="120" y2="80"/>'],
+    'moon'        => ['25 45 160 130', '<path d="M130 50 A50 50 0 1 0 130 150 A40 40 0 1 1 130 50 Z"/><path d="M30 170 Q50 130 70 150 M50 145 Q45 130 35 130"/>'],
+    'hourglass'   => ['45 25 110 150', '<line x1="50" y1="30" x2="150" y2="30"/><line x1="50" y1="170" x2="150" y2="170"/><path d="M60 30 L140 30 L100 100 L140 170 L60 170 L100 100 Z"/><path d="M75 50 L125 50"/><path d="M75 150 L125 150"/>'],
+    'magnifier'   => ['35 35 130 130', '<circle cx="85" cy="85" r="45"/><line x1="120" y1="120" x2="160" y2="160"/><line x1="68" y1="85" x2="102" y2="85"/><line x1="85" y1="68" x2="85" y2="102"/>'],
+    'family'      => ['35 35 130 135', '<path d="M100 165 C40 130 40 75 70 65 C85 60 100 75 100 90 C100 75 115 60 130 65 C160 75 160 130 100 165 Z"/><line x1="100" y1="90" x2="100" y2="60"/><line x1="100" y1="60" x2="80" y2="40"/><line x1="100" y1="60" x2="120" y2="40"/>'],
+    'child'       => ['65 40 70 135', '<circle cx="100" cy="60" r="18"/><path d="M70 150 L70 100 Q100 90 130 100 L130 150"/><line x1="85" y1="130" x2="85" y2="170"/><line x1="115" y1="130" x2="115" y2="170"/>'],
+    'bell'        => ['60 40 80 125', '<path d="M70 140 Q70 90 100 75 Q130 90 130 140 Z"/><line x1="65" y1="140" x2="135" y2="140"/><circle cx="100" cy="155" r="5"/><line x1="100" y1="75" x2="100" y2="55"/><circle cx="100" cy="50" r="8"/>'],
+    'brokenHeart' => ['35 55 130 115', '<path d="M100 165 C40 130 40 75 70 65 C85 60 100 75 100 90 L90 110 L110 130 L100 165 Z"/><path d="M100 165 C160 130 160 75 130 65 C115 60 100 75 100 90"/>'],
+    'tree'        => ['30 50 140 140', '<line x1="100" y1="170" x2="100" y2="130"/><path d="M100 130 L60 100 M100 130 L140 100"/><path d="M60 100 L40 70 M60 100 L80 70"/><path d="M140 100 L120 70 M140 100 L160 70"/><circle cx="40" cy="60" r="6"/><circle cx="80" cy="60" r="6"/><circle cx="120" cy="60" r="6"/><circle cx="160" cy="60" r="6"/><circle cx="100" cy="180" r="6"/>'],
+    'boat'        => ['15 55 170 115', '<path d="M30 140 L170 140 L150 165 L50 165 Z"/><path d="M100 140 L100 60 L40 140"/><path d="M100 60 L160 140"/><path d="M20 135 Q30 130 40 135 M50 135 Q60 130 70 135 M160 135 Q170 130 180 135"/>'],
+    'globe'       => ['35 35 130 130', '<circle cx="100" cy="100" r="60"/><ellipse cx="100" cy="100" rx="60" ry="22"/><ellipse cx="100" cy="100" rx="22" ry="60"/><ellipse cx="100" cy="100" rx="40" ry="60"/>'],
+    'book'        => ['25 45 150 110', '<path d="M30 60 Q60 50 100 60 Q140 50 170 60 L170 150 Q140 140 100 150 Q60 140 30 150 Z"/><line x1="100" y1="60" x2="100" y2="150"/><path d="M45 80 L85 75 M45 95 L85 90 M45 110 L85 105"/><path d="M115 75 L155 80 M115 90 L155 95 M115 105 L155 110"/>'],
+    'trophy'      => ['35 45 130 120', '<path d="M70 50 L130 50 L125 110 Q110 130 100 130 Q90 130 75 110 Z"/><path d="M70 60 L40 60 Q40 90 70 90"/><path d="M130 60 L160 60 Q160 90 130 90"/><line x1="100" y1="130" x2="100" y2="150"/><line x1="80" y1="150" x2="120" y2="150"/><line x1="70" y1="160" x2="130" y2="160"/>'],
+    'knot'        => ['45 55 110 90', '<path d="M50 100 Q50 60 100 60 Q150 60 150 100 Q150 140 100 140 Q50 140 50 100"/><path d="M70 80 Q100 110 130 80 M70 120 Q100 90 130 120"/>'],
+];
+
+if (!isset($svgs[$name])) {
+    return;
+}
+
+[$viewBox, $body] = $svgs[$name];
+?>
+<svg viewBox="<?php echo e($viewBox); ?>"
+     preserveAspectRatio="xMaxYMin meet"
+     fill="none"
+     stroke="currentColor"
+     stroke-width="2"
+     stroke-linecap="round"
+     stroke-linejoin="round"
+     aria-hidden="true"
+     focusable="false">
+    <?php echo $body; ?>
+</svg>
