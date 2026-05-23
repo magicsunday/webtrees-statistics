@@ -23,10 +23,6 @@ $generation     = $statistic->getAverageGenerationLength();
 $birthsByDecade = $statistic->getBirthsByDecade();
 $totalBirths    = array_sum($birthsByDecade);
 
-// LineChart uses the unified `{categories, series}` payload —
-// convert the map shape the repository returns into parallel
-// arrays of categories, values and pre-pluralised tooltips so
-// the hover surfaces "4 births" rather than a bare "4".
 $birthsLineSeries = LineChartPayload::singleSeries(
     seriesName: I18N::translate('Births'),
     countsByCategory: $birthsByDecade,
@@ -37,8 +33,6 @@ $birthsLineSeries = LineChartPayload::singleSeries(
     ],
 );
 
-// Show every Nth decade label so axis stays legible on
-// tree-spanning-centuries datasets.
 $birthsXLabelEvery = max(1, (int) ceil(count($birthsLineSeries->categories) / 12));
 
 $gapLabels = [
@@ -61,103 +55,102 @@ foreach ($gaps as $gap) {
     ];
 }
 ?>
-<div class="container">
-    <div class="row row-cols-1 row-cols-md-2 g-3">
-        <div class="col">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title"><?php echo I18N::translate('Source-citation coverage'); ?></h5>
-                    <small><?php echo I18N::translate('Individuals with at least one source linked to their record.'); ?></small>
-                </div>
-                <div class="card-body">
-                    <?php
-                        echo view(
-                            $module . '::modules/statistics-chart/Partials/RateList',
-                            [
-                                'class' => 'progress-tree-health',
-                                'data'  => [
-                                    [
-                                        'label' => I18N::translate('Documented individuals'),
-                                        'value' => $sourceCoverage->value,
-                                        'total' => $sourceCoverage->total,
-                                    ],
-                                ],
-                            ],
-                        );
-?>
-                </div>
-            </div>
-        </div>
+<div class="wt-stat-grid">
 
-        <div class="col">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title"><?php echo I18N::translate('Average generation length'); ?></h5>
-                    <small><?php echo I18N::translate('Mean parent-to-child birth-year delta across the whole tree.'); ?></small>
-                </div>
-                <div class="card-body d-flex align-items-center justify-content-center">
-                    <?php
-    echo view(
-        $module . '::modules/statistics-chart/Partials/Scalar',
-        [
-            'value' => ($generation !== null)
-                ? I18N::number((int) round($generation))
-                : I18N::translate('no data'),
-            'unit'    => ($generation !== null) ? I18N::translate('years') : null,
-            'caption' => ($generation !== null)
-                ? I18N::translate('Parent-to-child birth-year delta, averaged across every usable pair.')
-                : I18N::translate('At least one parent-child pair with parseable birth dates is required.'),
-        ],
-    );
-?>
-                </div>
-            </div>
-        </div>
-    </div>
+    <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
+        'kicker' => I18N::translate('DOCUMENTATION'),
+        'title'  => I18N::translate('How well is the tree documented?'),
+        'sub'    => I18N::translate('Source coverage and the average years between generations.'),
+    ]); ?>
 
-    <div class="row row-cols-1 g-3">
-        <div class="col">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title"><?php echo I18N::translate('Missing-event gaps'); ?></h5>
-                    <small><?php echo I18N::translate('Share of individuals without a recorded birth, death, or marriage event, with or without a place. Marriage rows use spouses as the denominator (never-married individuals are excluded).'); ?></small>
-                </div>
-                <div class="card-body">
-                    <?php
-    echo view(
-        $module . '::modules/statistics-chart/Partials/RateList',
-        [
-            'class' => 'progress-tree-health-gap',
-            'data'  => $gapRows,
-        ],
-    );
-?>
-                </div>
-            </div>
-        </div>
-    </div>
+    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+        'module'       => $module,
+        'title'        => I18N::translate('Source-citation coverage'),
+        'sub'          => I18N::translate('Individuals with at least one source linked to their record.'),
+        'eyebrow'      => I18N::translate('DOCUMENTATION'),
+        'accent'       => 'var(--sage)',
+        'illustration' => 'book',
+        'span'         => 6,
+        'bodyRenderer' => static function () use ($module, $sourceCoverage): void {
+            echo view($module . '::modules/statistics-chart/Partials/RateList', [
+                'class' => 'progress-tree-health',
+                'data'  => [
+                    [
+                        'label' => I18N::translate('Documented individuals'),
+                        'value' => $sourceCoverage->value,
+                        'total' => $sourceCoverage->total,
+                    ],
+                ],
+            ]);
+        },
+    ]); ?>
 
-    <div class="row row-cols-1 g-3">
-        <div class="col">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title"><?php echo I18N::translate('Tree growth — births per decade'); ?></h5>
-                    <small><?php echo I18N::plural('%s recorded birth date across the visible decades', '%s recorded birth dates across the visible decades', $totalBirths, I18N::number($totalBirths)); ?></small>
-                </div>
-                <div class="card-body">
-                    <?php
-        echo view(
-            $module . '::modules/statistics-chart/Partials/LineChart',
-            [
+    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+        'module'       => $module,
+        'title'        => I18N::translate('Average generation length'),
+        'sub'          => I18N::translate('Mean parent-to-child birth-year delta across the whole tree.'),
+        'eyebrow'      => I18N::translate('TIME'),
+        'accent'       => 'var(--ochre)',
+        'illustration' => 'hourglass',
+        'span'         => 6,
+        'centered'     => true,
+        'bodyRenderer' => static function () use ($module, $generation): void {
+            echo view($module . '::modules/statistics-chart/Partials/Scalar', [
+                'value' => ($generation !== null)
+                    ? I18N::number((int) round($generation))
+                    : I18N::translate('no data'),
+                'unit'    => ($generation !== null) ? I18N::translate('years') : null,
+                'caption' => ($generation !== null)
+                    ? I18N::translate('Parent-to-child birth-year delta, averaged across every usable pair.')
+                    : I18N::translate('At least one parent-child pair with parseable birth dates is required.'),
+            ]);
+        },
+    ]); ?>
+
+    <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
+        'kicker' => I18N::translate('GAPS'),
+        'title'  => I18N::translate('What is missing?'),
+        'sub'    => I18N::translate('Where the tree has gaps — events and places that have not been recorded.'),
+    ]); ?>
+
+    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+        'module'       => $module,
+        'title'        => I18N::translate('Missing-event gaps'),
+        'sub'          => I18N::translate('Share of individuals without a recorded birth, death, or marriage event, with or without a place. Marriage rows use spouses as the denominator (never-married individuals are excluded).'),
+        'eyebrow'      => I18N::translate('GAPS'),
+        'accent'       => 'var(--wine)',
+        'illustration' => 'magnifier',
+        'span'         => 12,
+        'bodyRenderer' => static function () use ($module, $gapRows): void {
+            echo view($module . '::modules/statistics-chart/Partials/RateList', [
+                'class' => 'progress-tree-health-gap',
+                'data'  => $gapRows,
+            ]);
+        },
+    ]); ?>
+
+    <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
+        'kicker' => I18N::translate('GROWTH'),
+        'title'  => I18N::translate('How fast did the tree grow?'),
+        'sub'    => I18N::translate('Recorded births per decade across the lifetime of the tree.'),
+    ]); ?>
+
+    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+        'module'       => $module,
+        'title'        => I18N::translate('Tree growth — births per decade'),
+        'sub'          => I18N::plural('%s recorded birth date across the visible decades', '%s recorded birth dates across the visible decades', $totalBirths, I18N::number($totalBirths)),
+        'eyebrow'      => I18N::translate('TIMELINE'),
+        'accent'       => 'var(--ochre)',
+        'illustration' => 'sunrise',
+        'span'         => 12,
+        'bodyRenderer' => static function () use ($module, $birthsLineSeries, $birthsXLabelEvery): void {
+            echo view($module . '::modules/statistics-chart/Partials/LineChart', [
                 'identifier'  => 'tree-growth-line-chart',
                 'data'        => $birthsLineSeries,
                 'height'      => 260,
                 'xLabelEvery' => $birthsXLabelEvery,
-            ],
-        );
-?>
-                </div>
-            </div>
-        </div>
-    </div>
+            ]);
+        },
+    ]); ?>
+
 </div>
