@@ -15,35 +15,50 @@ use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
 /**
  * @var string                                                                      $identifier   Host element id
  * @var array<int, array{label: string, value: int, class?: string, fill?: string}> $data         Slice payload
- * @var string                                                                      $emptyMessage Optional override for the "no data" placeholder
+ * @var string|null                                                                 $centerLabel  Optional caption rendered under the centre value (e.g. "Individuals")
+ * @var string|null                                                                 $emptyMessage Optional override for the "no data" placeholder
  */
 $emptyMessage ??= I18N::translate('No data recorded for this metric.');
+$centerLabel  ??= null;
 
-if (array_sum(array_column($data, 'value')) === 0) {
+$total = array_sum(array_column($data, 'value'));
+
+if ($total === 0) {
     echo '<p class="text-muted text-center mb-0">' . e($emptyMessage) . '</p>';
 
     return;
 }
+
+$options = [
+    'holeSize'    => 90,
+    'width'       => 250,
+    'height'      => 250,
+    'centerValue' => I18N::number($total),
+];
+
+if ($centerLabel !== null && $centerLabel !== '') {
+    $options['centerLabel'] = $centerLabel;
+}
 ?>
-<div class="donut-chart-container">
+<div class="wt-stat-donut">
     <div id="<?php echo e($identifier); ?>"
          class="donut-chart"
          data-widget="donut"
          data-payload="<?php echo e(WidgetJson::encode($data)); ?>"
-         data-options="<?php echo e(WidgetJson::encode(['holeSize' => 90, 'width' => 250, 'height' => 250])); ?>"
+         data-options="<?php echo e(WidgetJson::encode($options)); ?>"
     ></div>
 
-    <table class="legend">
+    <div class="wt-stat-legend">
         <?php foreach ($data as $entry) { ?>
-            <tr>
-                <td>
-                    <span class="dot<?php echo isset($entry['class']) ? (' ' . e($entry['class'])) : ''; ?>"
-                        <?php echo isset($entry['fill']) ? (' style="background-color: ' . e($entry['fill']) . ';"') : ''; ?>
-                    ></span>
-                </td>
-                <td><?php echo e($entry['label']); ?></td>
-                <td><?php echo I18N::number($entry['value']); ?></td>
-            </tr>
+            <?php $pct = ($total > 0) ? ((int) $entry['value'] / $total) * 100 : 0; ?>
+            <div class="wt-stat-legend-row">
+                <span class="wt-stat-legend-dot<?php echo isset($entry['class']) ? (' ' . e($entry['class'])) : ''; ?>"
+                    <?php echo isset($entry['fill']) ? (' style="background-color: ' . e($entry['fill']) . ';"') : ''; ?>
+                ></span>
+                <span class="wt-stat-legend-lab"><?php echo e($entry['label']); ?></span>
+                <span class="wt-stat-legend-val wt-stat-mono"><?php echo e(I18N::number((int) $entry['value'])); ?></span>
+                <span class="wt-stat-legend-pct wt-stat-mono"><?php echo e(I18N::number($pct, 1)); ?>%</span>
+            </div>
         <?php } ?>
-    </table>
+    </div>
 </div>

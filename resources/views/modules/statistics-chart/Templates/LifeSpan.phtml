@@ -143,8 +143,9 @@ $childMortalityExplanation = I18N::translate(
         'span'         => 4,
         'bodyRenderer' => static function () use ($module, $livingByAgeBand): void {
             echo view($module . '::modules/statistics-chart/Partials/DonutChart', [
-                'identifier' => 'living-age-band-donut',
-                'data'       => $livingByAgeBand,
+                'identifier'  => 'living-age-band-donut',
+                'data'        => $livingByAgeBand,
+                'centerLabel' => I18N::translate('living'),
             ]);
         },
     ]); ?>

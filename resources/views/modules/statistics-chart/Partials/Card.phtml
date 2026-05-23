@@ -89,8 +89,8 @@ $style = 'grid-column: span ' . (int) $span . '; --wt-stat-card-span: ' . (int) 
 ?>
     </div>
 
-    <?php if ($info !== null && $info !== '') { ?>
-        <footer class="wt-stat-card-foot">
+    <footer class="wt-stat-card-foot">
+        <?php if ($info !== null && $info !== '') { ?>
             <button type="button"
                     class="wt-stat-card-info"
                     data-bs-toggle="popover"
@@ -100,6 +100,6 @@ $style = 'grid-column: span ' . (int) $span . '; --wt-stat-card-span: ' . (int) 
                     data-bs-title="<?php echo e(I18N::translate('About this chart')); ?>"
                     data-bs-content="<?php echo e($info); ?>"
                     aria-label="<?php echo e(I18N::translate('About this chart')); ?>">?</button>
-        </footer>
-    <?php } ?>
+        <?php } ?>
+    </footer>
 </section>

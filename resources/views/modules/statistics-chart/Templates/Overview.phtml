@@ -46,8 +46,9 @@ $maritalData    = $statistic->getFamilyStatusData();
         'span'         => 4,
         'bodyRenderer' => static function () use ($module, $statistic): void {
             echo view($module . '::modules/statistics-chart/Partials/DonutChart', [
-                'identifier' => 'gender-donut-chart',
-                'data'       => $statistic->getTotalIndividualsData(),
+                'identifier'  => 'gender-donut-chart',
+                'data'        => $statistic->getTotalIndividualsData(),
+                'centerLabel' => I18N::translate('individuals'),
             ]);
         },
     ]); ?>

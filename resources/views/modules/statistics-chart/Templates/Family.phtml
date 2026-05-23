@@ -302,7 +302,7 @@ foreach ($ageGap as $label => $count) {
         'accent'       => 'var(--sage)',
         'illustration' => 'family',
         'span'         => 6,
-        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/DonutChart', ['identifier' => 'childless-families-donut', 'data' => $childlessBreakdown]),
+        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/DonutChart', ['identifier' => 'childless-families-donut', 'data' => $childlessBreakdown, 'centerLabel' => I18N::translate('families')]),
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
