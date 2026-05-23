@@ -1,0 +1,87 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+use Fisharebest\Webtrees\I18N;
+use Fisharebest\Webtrees\Tree;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Tree\HeroStats;
+
+/**
+ * @var Tree      $tree The current tree
+ * @var HeroStats $hero Aggregated headline metrics
+ */
+$percent     = static fn (float $fraction): string => I18N::number($fraction * 100, 1) . '%';
+$generations = $hero->maxGenerationDepth;
+$avgGenYears = $hero->averageGenerationYears;
+?>
+<header class="wt-stat-hero">
+    <div class="wt-stat-hero-inner">
+        <div class="wt-stat-hero-meta">
+            <p class="wt-stat-hero-eyebrow"><?php echo e(I18N::translate('Family history')); ?></p>
+            <h1 class="wt-stat-hero-title"><?php echo e($tree->title()); ?></h1>
+            <p class="wt-stat-hero-deck"><?php echo e(I18N::translate('A statistical portrait of every individual, family and event recorded in this tree.')); ?></p>
+        </div>
+
+        <dl class="wt-stat-hero-stats">
+            <div class="wt-stat-hero-stat">
+                <dd class="wt-stat-hero-stat-num"><?php echo e(I18N::number($hero->individuals)); ?></dd>
+                <dt class="wt-stat-hero-stat-lab"><?php echo e(I18N::translate('Individuals')); ?></dt>
+            </div>
+
+            <div class="wt-stat-hero-stat">
+                <dd class="wt-stat-hero-stat-num"><?php echo e(I18N::number($hero->families)); ?></dd>
+                <dt class="wt-stat-hero-stat-lab"><?php echo e(I18N::translate('Families')); ?></dt>
+            </div>
+
+            <div class="wt-stat-hero-stat">
+                <dd class="wt-stat-hero-stat-num">
+                    <?php echo e(I18N::number($generations)); ?>
+                    <span class="wt-stat-hero-stat-unit"><?php echo e(I18N::translate('gen.')); ?></span>
+                </dd>
+                <dt class="wt-stat-hero-stat-lab"><?php echo e(I18N::translate('Max generation depth')); ?></dt>
+            </div>
+
+            <div class="wt-stat-hero-stat">
+                <?php if ($avgGenYears !== null) { ?>
+                    <dd class="wt-stat-hero-stat-num">
+                        <?php echo e(I18N::number($avgGenYears, 1)); ?>
+                        <span class="wt-stat-hero-stat-unit"><?php echo e(I18N::translate('yr')); ?></span>
+                    </dd>
+                <?php } else { ?>
+                    <dd class="wt-stat-hero-stat-num wt-stat-hero-stat-empty">&mdash;</dd>
+                <?php } ?>
+                <dt class="wt-stat-hero-stat-lab"><?php echo e(I18N::translate('Avg. generation length')); ?></dt>
+            </div>
+
+            <div class="wt-stat-hero-stat">
+                <dd class="wt-stat-hero-stat-num"><?php echo e($percent($hero->pedigreeCompleteness)); ?></dd>
+                <dt class="wt-stat-hero-stat-lab"><?php echo e(I18N::translate('Pedigree completeness')); ?></dt>
+            </div>
+
+            <div class="wt-stat-hero-stat">
+                <dd class="wt-stat-hero-stat-num"><?php echo e($percent($hero->sourceCitationCoverage)); ?></dd>
+                <dt class="wt-stat-hero-stat-lab"><?php echo e(I18N::translate('Sourced individuals')); ?></dt>
+            </div>
+        </dl>
+
+        <svg class="wt-stat-hero-ornament" viewBox="0 0 720 720" aria-hidden="true" focusable="false">
+            <g fill="none" stroke="currentColor" stroke-width="0.6" opacity="0.18">
+                <?php for ($r = 60; $r <= 360; $r += 30) { ?>
+                    <circle cx="360" cy="360" r="<?php echo $r; ?>"></circle>
+                <?php } ?>
+                <?php for ($angle = 0; $angle < 360; $angle += 30) { ?>
+                    <line x1="360" y1="360"
+                          x2="<?php echo 360 + (int) round(360 * cos(deg2rad($angle))); ?>"
+                          y2="<?php echo 360 + (int) round(360 * sin(deg2rad($angle))); ?>"></line>
+                <?php } ?>
+            </g>
+        </svg>
+    </div>
+</header>

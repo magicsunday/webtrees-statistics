@@ -24,6 +24,7 @@ use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\MigrationFlowsPayload;
 use MagicSunday\Webtrees\Statistic\Model\Dto\StackedBar\StackedBarPayload;
 use MagicSunday\Webtrees\Statistic\Model\Dto\StreamGraph\GivenNameTrendsPayload;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Tree\GenerationDepthReport;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Tree\HeroStats;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Tree\TreeRecordsReport;
 use MagicSunday\Webtrees\Statistic\Model\MaritalBucket;
 use MagicSunday\Webtrees\Statistic\Repository\ChildMortalityRepository;
@@ -141,6 +142,26 @@ final readonly class Statistic
     public function getTotalIndividuals(): int
     {
         return $this->data->countIndividuals();
+    }
+
+    /**
+     * Facade aggregator that returns one DTO carrying every headline
+     * the hero template renders, so the view stays bound to a single
+     * facade call instead of six.
+     */
+    public function getHeroStats(): HeroStats
+    {
+        $sources  = $this->getSourceCitationCoverage();
+        $coverage = ($sources->total > 0) ? ($sources->value / $sources->total) : 0.0;
+
+        return new HeroStats(
+            individuals: $this->getTotalIndividuals(),
+            families: $this->data->countFamilies(),
+            maxGenerationDepth: $this->getGenerationDepthSummary()->maxDepth,
+            averageGenerationYears: $this->getAverageGenerationLength(),
+            pedigreeCompleteness: $this->getAveragePedigreeCompleteness(),
+            sourceCitationCoverage: $coverage,
+        );
     }
 
     /**

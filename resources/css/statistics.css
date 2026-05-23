@@ -225,6 +225,145 @@
 }
 
 /* ----------------------------------------------------------------------
+   Hero header
+   ----------------------------------------------------------------------
+   Dark-paper-on-light-paper headline strip that frames every tab. Lives
+   ABOVE the tab navigation, stays visible during AJAX tab switches.
+   The hero owns its own colour scope (hero-fg on hero-bg) so the dark
+   gradient reads correctly regardless of the page theme.
+   -------------------------------------------------------------------- */
+
+.wt-statistics-chart .wt-stat-hero {
+    position:      relative;
+    overflow:      hidden;
+    margin:        0 0 32px;
+    padding:       48px 56px 56px;
+    background:    linear-gradient(170deg, var(--hero-bg-from), var(--hero-bg-to));
+    border-radius: var(--hero-radius);
+    color:         var(--hero-fg);
+}
+
+.wt-statistics-chart .wt-stat-hero-inner {
+    position:              relative;
+    z-index:               1;
+    display:               grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    gap:                   48px;
+    align-items:           end;
+}
+
+.wt-statistics-chart .wt-stat-hero-meta {
+    min-width: 0;
+}
+
+.wt-statistics-chart .wt-stat-hero-eyebrow {
+    margin:         0 0 12px;
+    font-size:      11px;
+    font-weight:    500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color:          var(--ochre);
+}
+
+.wt-statistics-chart .wt-stat-hero-title {
+    margin:         0 0 18px;
+    font-family:    var(--serif);
+    font-size:      clamp(3rem, 7vw, 7.5rem);
+    font-weight:    400;
+    line-height:    0.92;
+    letter-spacing: -0.03em;
+    color:          var(--hero-fg);
+}
+
+.wt-statistics-chart .wt-stat-hero-deck {
+    margin:    0;
+    max-width: 42ch;
+    font-size: 16px;
+    color:     var(--hero-fg-mute);
+}
+
+.wt-statistics-chart .wt-stat-hero-stats {
+    display:               grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap:                   28px 36px;
+    margin:                0;
+    padding:               0;
+    min-width:             0;
+}
+
+.wt-statistics-chart .wt-stat-hero-stat {
+    display:        flex;
+    flex-direction: column;
+    gap:            6px;
+    min-width:      0;
+}
+
+.wt-statistics-chart .wt-stat-hero-stat-num {
+    margin:               0;
+    font-family:          var(--serif);
+    font-size:            clamp(2.2rem, 3.5vw, 3.5rem);
+    font-weight:          400;
+    line-height:          1;
+    letter-spacing:       -0.02em;
+    color:                var(--hero-fg);
+    font-variant-numeric: tabular-nums;
+}
+
+.wt-statistics-chart .wt-stat-hero-stat-num.wt-stat-hero-stat-empty {
+    color: var(--hero-fg-faint);
+}
+
+.wt-statistics-chart .wt-stat-hero-stat-unit {
+    margin-left: 0.15em;
+    font-family: var(--serif);
+    font-style:  italic;
+    font-size:   0.45em;
+    color:       var(--ochre);
+}
+
+.wt-statistics-chart .wt-stat-hero-stat-lab {
+    margin:         0;
+    font-size:      11px;
+    font-weight:    500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color:          var(--hero-fg-faint);
+}
+
+.wt-statistics-chart .wt-stat-hero-ornament {
+    position:       absolute;
+    top:            -120px;
+    right:          -120px;
+    width:          720px;
+    height:         720px;
+    color:          var(--hero-fg);
+    pointer-events: none;
+    z-index:        0;
+}
+
+/* Narrow viewports — stack hero meta and stats vertically and shrink
+   padding so the headline never blows out the page width. */
+@media (max-width: 900px) {
+    .wt-statistics-chart .wt-stat-hero {
+        padding: 32px 24px 36px;
+    }
+
+    .wt-statistics-chart .wt-stat-hero-inner {
+        grid-template-columns: 1fr;
+        gap:                   28px;
+    }
+
+    .wt-statistics-chart .wt-stat-hero-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap:                   20px 24px;
+    }
+
+    .wt-statistics-chart .wt-stat-hero-ornament {
+        opacity: 0.5;
+    }
+}
+
+/* ----------------------------------------------------------------------
    Card layout primitives
    -------------------------------------------------------------------- */
 

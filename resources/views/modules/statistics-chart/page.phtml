@@ -11,12 +11,14 @@ declare(strict_types=1);
 
 use Fisharebest\Webtrees\Tree;
 use Fisharebest\Webtrees\View;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Tree\HeroStats;
 
 /**
  * @var Tree                 $tree       The current tree
  * @var array<string,string> $tabs
  * @var string               $module     The name of the module
  * @var string               $title
+ * @var HeroStats            $hero       Aggregated headline metrics for the hero header
  * @var string               $javascript The javascript library to use
  * @var string               $stylesheet URL of the module-wide stylesheet
  * @var array<string,string> $fontUrls   Map of self-hosted woff2 asset URLs
@@ -95,12 +97,14 @@ use Fisharebest\Webtrees\View;
 </style>
 <?php View::endpush(); ?>
 
-<h2 class="wt-page-title">
+<h2 class="visually-hidden">
     <?php echo $title; ?>
 </h2>
 
 <div class="wt-page-content wt-chart wt-statistics-chart" id="statistics-tabs">
     <div class="wt-stat-app">
+        <?php echo view($module . '::modules/statistics-chart/Partials/Hero', ['tree' => $tree, 'hero' => $hero]); ?>
+
         <ul class="nav nav-tabs mb-3" role="tablist">
             <?php foreach ($tabs as $label => $url) { ?>
                 <?php $hash = e(md5($url)); ?>

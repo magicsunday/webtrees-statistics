@@ -161,6 +161,9 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
             );
         }
 
+        $statistic = Registry::container()->get(Statistic::class);
+        assert($statistic instanceof Statistic);
+
         return $this->viewResponse(
             $this->name() . '::modules/statistics-chart/page',
             [
@@ -168,6 +171,7 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
                 'tabs'       => $tabs,
                 'title'      => $this->title(),
                 'tree'       => $tree,
+                'hero'       => $statistic->getHeroStats(),
                 'javascript' => $this->assetUrl('js/webtrees-statistics.min.js'),
                 'stylesheet' => $this->assetUrl('css/statistics.css'),
                 'fontUrls'   => [
