@@ -170,6 +170,14 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
                 'tree'       => $tree,
                 'javascript' => $this->assetUrl('js/webtrees-statistics.min.js'),
                 'stylesheet' => $this->assetUrl('css/statistics.css'),
+                'fontUrls'   => [
+                    'instrumentSerifRegularLatin'    => $this->assetUrl('fonts/InstrumentSerif-Regular-latin.woff2'),
+                    'instrumentSerifRegularLatinExt' => $this->assetUrl('fonts/InstrumentSerif-Regular-latin-ext.woff2'),
+                    'instrumentSerifItalicLatin'     => $this->assetUrl('fonts/InstrumentSerif-Italic-latin.woff2'),
+                    'instrumentSerifItalicLatinExt'  => $this->assetUrl('fonts/InstrumentSerif-Italic-latin-ext.woff2'),
+                    'geistLatin'                     => $this->assetUrl('fonts/Geist-latin.woff2'),
+                    'geistLatinExt'                  => $this->assetUrl('fonts/Geist-latin-ext.woff2'),
+                ],
             ]
         );
     }

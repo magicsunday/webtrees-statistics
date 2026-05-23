@@ -5,52 +5,119 @@
  * LICENSE file that was distributed with this source code.
  */
 
+/*
+ * Self-hosted Editorial typefaces (Instrument Serif + Geist)
+ * are declared via @font-face in page.phtml, because the woff2
+ * URLs need to be generated through `Module::assetUrl()` — the
+ * relative `../fonts/…` path cannot resolve through the webtrees
+ * `?route=…&asset=css/statistics.css` query-style asset endpoint.
+ * Both faces are SIL OFL 1.1 (see resources/fonts/README.md).
+ */
+
 /* ----------------------------------------------------------------------
-   Theme-aware design tokens
+   Theme-aware design tokens — Editorial aesthetic, Modern color scheme
    ----------------------------------------------------------------------
-   Everything that needs to swap between light and dark is expressed as a
-   custom property on the module's root, then overridden under
-   [data-bs-theme="dark"]. The hex/rgb values stay grouped together so
-   palette adjustments touch one block.
+   Modern palette: clean reds + deep navy + green + warm ochre on a
+   near-white canvas. Editorial aesthetic: no `[data-aesthetic=…]`
+   override layer — these tokens ARE the base. Dark mode overrides
+   live below under `[data-bs-theme="dark"]`.
+
+   Legacy `--wmstats-*` tokens are kept as aliases so existing chart
+   styling rules (donut slices, progress bars, gradients) keep their
+   semantic names while the palette repoints at the new accents.
    -------------------------------------------------------------------- */
 
 .wt-statistics-chart {
-    --wmstats-card-text:                   var(--bs-body-color);
-    --wmstats-card-muted:                  var(--bs-secondary-color, rgb(108, 117, 125));
-    --wmstats-dot-empty:                   var(--bs-tertiary-bg, rgb(200, 200, 200));
-    --wmstats-map-stroke:                  var(--bs-border-color, rgb(221, 221, 221));
+    /*
+     * The full Editorial-Modern token block ships in S1 even though
+     * a subset of the tokens (hero-*, shadow-card, serif, mono,
+     * border-soft, *-soft accents) has no consumer in this cluster
+     * yet. They land here together so the palette stays coherent in
+     * one place; each upcoming cluster (S2 hero, S3 nav, S4 cards)
+     * picks up its slice without re-shaping the token surface.
+     */
 
-    --wmstats-progress-label-color:        var(--bs-secondary-color, rgb(89, 89, 89));
-    --wmstats-progress-bg-births-month:    rgb(255, 187, 131);
-    --wmstats-progress-bg-births-zodiac:   rgb(156, 151, 255);
-    --wmstats-progress-bg-births-century:  rgb(31, 102, 74);
-    --wmstats-progress-bg-deaths-month:    rgb(255, 187, 131);
-    --wmstats-progress-bg-deaths-century:  rgb(31, 102, 74);
+    /* Surface + text */
+    --paper:        #fafafa;
+    --card:         #ffffff;
+    --card-warm:    #f0f0f0;
+    --border:       #e3e3e3;
+    --border-soft:  #ededed;
+    --ink:          #0d0d0d;
+    --ink-2:        #5a5a5a;
+    --ink-3:        #909090;
 
-    --wmstats-gradient-births-start:       rgb(179, 209, 191);
-    --wmstats-gradient-births-end:         rgb(31, 102, 74);
-    --wmstats-gradient-deaths-start:       rgb(188, 186, 184);
-    --wmstats-gradient-deaths-end:         rgb(92, 81, 70);
-    --wmstats-gradient-residences-start:   rgb(220, 220, 240);
-    --wmstats-gradient-residences-end:     rgb(95, 80, 165);
+    /* Accents (Modern color scheme) */
+    --wine:         #d44a3a;
+    --wine-soft:    #e88577;
+    --slate:        #1a3a5c;
+    --slate-soft:   #4a6f93;
+    --sage:         #2e8a5c;
+    --ochre:        #d4a247;
+    --ochre-soft:   #e8c280;
+    --rose:         #d27a7a;
+    --mute:         #888888;
+    --deceased:     #3a3328;
 
-    --wmstats-gradient-tree-health-start:  rgb(204, 224, 215);
-    --wmstats-gradient-tree-health-end:    rgb(64, 144, 116);
-    --wmstats-gradient-tree-health-gap-start: rgb(244, 213, 192);
-    --wmstats-gradient-tree-health-gap-end:   rgb(214, 122, 80);
+    /* Hero shell (consumed in S2) */
+    --hero-bg-from: #0d0d0d;
+    --hero-bg-to:   #2a2a2a;
+    --hero-fg:      #fafafa;
+    --hero-fg-mute: rgb(250 250 250 / 0.65);
+    --hero-fg-faint: rgb(250 250 250 / 0.55);
+    --hero-border:  rgb(250 250 250 / 0.18);
 
-    --wmstats-scalar-value:                var(--bs-emphasis-color, rgb(33, 37, 41));
+    /* Geometry */
+    --card-radius:  6px;
+    --hero-radius:  8px;
+    --shadow-card:  0 1px 0 rgb(0 0 0 / 0.04);
 
-    --wmstats-sex-male:                    var(--sex-m-fg, rgb(129, 169, 203));
-    --wmstats-sex-female:                  var(--sex-f-fg, rgb(255, 32, 128));
-    --wmstats-sex-unknown:                 var(--sex-u-fg, rgb(129, 169, 203));
+    /* Typography */
+    --serif: 'Instrument Serif', 'EB Garamond', Georgia, serif;
+    --sans:  'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --mono:  'SF Mono', Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
 
-    --wmstats-living:                      rgb(141, 186, 159);
-    --wmstats-deceased:                    rgb(204, 204, 204);
-    --wmstats-married:                     rgb(181, 177, 255);
-    --wmstats-single:                      rgb(172, 181, 196);
-    --wmstats-widowed:                     rgb(141, 186, 159);
-    --wmstats-divorced:                    rgb(255, 201, 156);
+    /* ------------------------------------------------------------------
+       Legacy --wmstats-* tokens repointed at the new accent palette.
+       Charts/partials continue to use the semantic names; the visual
+       identity now matches the Editorial Modern scheme.
+       ------------------------------------------------------------------ */
+    --wmstats-card-text:                   var(--ink);
+    --wmstats-card-muted:                  var(--ink-2);
+    --wmstats-dot-empty:                   var(--border);
+    --wmstats-map-stroke:                  var(--border);
+
+    --wmstats-progress-label-color:        var(--ink-2);
+    --wmstats-progress-bg-births-month:    var(--ochre-soft);
+    --wmstats-progress-bg-births-zodiac:   var(--slate-soft);
+    --wmstats-progress-bg-births-century:  var(--sage);
+    --wmstats-progress-bg-deaths-month:    var(--mute);
+    --wmstats-progress-bg-deaths-century:  var(--deceased);
+
+    --wmstats-gradient-births-start:       color-mix(in srgb, var(--sage) 35%, var(--card));
+    --wmstats-gradient-births-end:         var(--sage);
+    --wmstats-gradient-deaths-start:       color-mix(in srgb, var(--deceased) 25%, var(--card));
+    --wmstats-gradient-deaths-end:         var(--deceased);
+    --wmstats-gradient-residences-start:   color-mix(in srgb, var(--slate) 25%, var(--card));
+    --wmstats-gradient-residences-end:     var(--slate);
+
+    --wmstats-gradient-tree-health-start:  color-mix(in srgb, var(--sage) 35%, var(--card));
+    --wmstats-gradient-tree-health-end:    var(--sage);
+    --wmstats-gradient-tree-health-gap-start: color-mix(in srgb, var(--wine) 35%, var(--card));
+    --wmstats-gradient-tree-health-gap-end:   var(--wine);
+
+    --wmstats-scalar-value:                var(--ink);
+
+    --wmstats-sex-male:                    var(--slate);
+    --wmstats-sex-female:                  var(--rose);
+    --wmstats-sex-unknown:                 var(--ink-3);
+
+    --wmstats-living:                      var(--sage);
+    --wmstats-deceased:                    var(--ink-3);
+    --wmstats-married:                     var(--slate-soft);
+    --wmstats-single:                      var(--ink-3);
+    --wmstats-widowed:                     var(--sage);
+    --wmstats-divorced:                    var(--wine);
 
     /* LifeSpan age-band donut + Divorce-by-century × age-band stack */
     --wmstats-age-band-0:                  rgb(255, 200, 130);
@@ -83,36 +150,37 @@
 }
 
 [data-bs-theme="dark"] .wt-statistics-chart {
-    /* Brighten the donut palette so contrast against the dark card body
-       stays usable. Hue stays the same, lightness lifts ~12%. */
-    --wmstats-progress-bg-births-month:    rgb(255, 196, 145);
-    --wmstats-progress-bg-births-zodiac:   rgb(180, 175, 255);
-    --wmstats-progress-bg-births-century:  rgb(82, 174, 137);
-    --wmstats-progress-bg-deaths-month:    rgb(255, 196, 145);
-    --wmstats-progress-bg-deaths-century:  rgb(82, 174, 137);
+    /* Editorial-Modern dark surface — near-black paper, slightly
+       lifted card. Accents lift ~12% lightness so contrast stays
+       readable against the dark body. */
+    --paper:        #0a0a0a;
+    --card:         #141414;
+    --card-warm:    #1d1d1d;
+    --border:       #252525;
+    --border-soft:  #1c1c1c;
+    --ink:          #fafafa;
+    --ink-2:        #b8b8b8;
+    --ink-3:        #707070;
 
-    --wmstats-gradient-births-start:       rgb(120, 175, 145);
-    --wmstats-gradient-births-end:         rgb(82, 174, 137);
-    --wmstats-gradient-deaths-start:       rgb(160, 156, 152);
-    --wmstats-gradient-deaths-end:         rgb(178, 162, 144);
-    --wmstats-gradient-residences-start:   rgb(170, 145, 220);
-    --wmstats-gradient-residences-end:     rgb(180, 160, 230);
+    --wine:         #e26252;
+    --wine-soft:    #ef9387;
+    --slate:        #6f93b8;
+    --slate-soft:   #95aec8;
+    --sage:         #58b285;
+    --ochre:        #e5b56b;
+    --ochre-soft:   #efcf99;
+    --rose:         #e29797;
+    --mute:         #6f6f6f;
+    --deceased:     #b8a890;
 
-    --wmstats-gradient-tree-health-start:  rgb(110, 160, 140);
-    --wmstats-gradient-tree-health-end:    rgb(72, 184, 138);
-    --wmstats-gradient-tree-health-gap-start: rgb(200, 150, 120);
-    --wmstats-gradient-tree-health-gap-end:   rgb(232, 142, 88);
+    --hero-bg-from: #000000;
+    --hero-bg-to:   #141414;
+    --hero-fg:      #fafafa;
+    --hero-fg-mute: rgb(250 250 250 / 0.70);
+    --hero-fg-faint: rgb(250 250 250 / 0.55);
+    --hero-border:  rgb(250 250 250 / 0.16);
 
-    --wmstats-sex-male:                    var(--sex-m-fg, rgb(120, 160, 210));
-    --wmstats-sex-female:                  var(--sex-f-fg, rgb(245, 130, 175));
-    --wmstats-sex-unknown:                 var(--sex-u-fg, rgb(140, 168, 195));
-
-    --wmstats-living:                      rgb(115, 170, 145);
-    --wmstats-deceased:                    rgb(150, 150, 150);
-    --wmstats-married:                     rgb(160, 152, 235);
-    --wmstats-single:                      rgb(150, 160, 180);
-    --wmstats-widowed:                     rgb(115, 170, 145);
-    --wmstats-divorced:                    rgb(225, 175, 130);
+    --shadow-card:  0 1px 0 rgb(0 0 0 / 0.45);
 
     /* Family-size palette (dark mode) — mid-band gradient on dark
        cards keeps contrast against the dark background and
@@ -132,6 +200,28 @@
     --wmstats-family-size-8:               rgb(212, 226, 240);
     --wmstats-family-size-9:               rgb(224, 234, 244);
     --wmstats-family-size-max:             rgb(238, 244, 250);
+}
+
+/* ----------------------------------------------------------------------
+   Editorial shell — paper background, serif/sans/mono typography
+   ----------------------------------------------------------------------
+   The outer `.wt-statistics-chart` becomes the design-system root.
+   Page-wide background switches to `var(--paper)`, body text uses the
+   Geist sans, and `.wt-stat-app` provides the centred 1400 px Heritage
+   container. Existing chart classes inside continue to consume the
+   `--wmstats-*` tokens above.
+   -------------------------------------------------------------------- */
+
+.wt-statistics-chart {
+    background-color: var(--paper);
+    color:            var(--ink);
+    font-family:      var(--sans);
+}
+
+.wt-statistics-chart .wt-stat-app {
+    max-width: 1400px;
+    margin:    0 auto;
+    padding:   32px 32px 80px;
 }
 
 /* ----------------------------------------------------------------------
@@ -324,13 +414,13 @@
 
 .wt-statistics-chart .progress-births-month,
 .wt-statistics-chart .progress-deaths-month {
-    --bs-progress-label-gradient-start: rgb(255, 224, 196);
-    --bs-progress-label-gradient-end:   rgb(220, 120, 40);
+    --bs-progress-label-gradient-start: color-mix(in srgb, var(--ochre) 35%, var(--card));
+    --bs-progress-label-gradient-end:   var(--ochre);
 }
 
 .wt-statistics-chart .progress-births-zodiac {
-    --bs-progress-label-gradient-start: rgb(220, 215, 250);
-    --bs-progress-label-gradient-end:   rgb(110, 95, 220);
+    --bs-progress-label-gradient-start: color-mix(in srgb, var(--slate) 25%, var(--card));
+    --bs-progress-label-gradient-end:   var(--slate);
 }
 
 .wt-statistics-chart .progress-births-century,
@@ -345,19 +435,19 @@
 }
 
 .wt-statistics-chart .progress-place-dispersion {
-    --bs-progress-label-gradient-start: rgb(215, 230, 220);
-    --bs-progress-label-gradient-end:   rgb(60, 130, 90);
+    --bs-progress-label-gradient-start: color-mix(in srgb, var(--sage) 30%, var(--card));
+    --bs-progress-label-gradient-end:   var(--sage);
 }
 
 .wt-statistics-chart .progress-generation-depth {
-    --bs-progress-label-gradient-start: rgb(230, 220, 240);
-    --bs-progress-label-gradient-end:   rgb(110, 75, 170);
+    --bs-progress-label-gradient-start: color-mix(in srgb, var(--slate) 25%, var(--card));
+    --bs-progress-label-gradient-end:   var(--slate);
 }
 
 .wt-statistics-chart .wt-records-table th {
     width:        14rem;
     font-weight:  600;
-    color:        var(--bs-secondary-color);
+    color:        var(--ink-2);
 }
 
 .wt-statistics-chart .wt-records-table td:nth-child(2) {
@@ -382,7 +472,7 @@
 }
 
 .wt-statistics-chart .wt-generation-chain-sep {
-    color:        var(--bs-secondary-color);
+    color:        var(--ink-2);
     font-weight:  bold;
     margin-inline: 0.4rem;
     user-select:  none;
@@ -418,27 +508,27 @@
 .wt-statistics-chart .progress-age-at-death,
 .wt-statistics-chart .progress-oldest-deceased,
 .wt-statistics-chart .progress-oldest-living {
-    --bs-progress-label-gradient-start: rgb(204, 230, 215);
-    --bs-progress-label-gradient-end:   rgb(46, 116, 75);
+    --bs-progress-label-gradient-start: color-mix(in srgb, var(--sage) 30%, var(--card));
+    --bs-progress-label-gradient-end:   var(--sage);
 }
 
 /* Sex-tinted gradients share the Overview-donut sex tokens so a
    palette adjustment in one place propagates to every sex-axis
-   histogram. The start colour is a hand-picked lighter shade of the
-   same hue — pinning gradient-end to the donut's full saturation
-   keeps the brightest bars in lockstep with the donut. */
+   histogram. The start colour is a soft tint of the same hue —
+   pinning gradient-end to the donut's full saturation keeps the
+   brightest bars in lockstep with the donut. */
 
 .wt-statistics-chart .progress-age-at-marriage-m,
 .wt-statistics-chart .progress-age-at-divorce-m,
 .wt-statistics-chart .progress-age-first-child-m {
-    --bs-progress-label-gradient-start: rgb(214, 230, 244);
+    --bs-progress-label-gradient-start: color-mix(in srgb, var(--wmstats-sex-male) 22%, var(--card));
     --bs-progress-label-gradient-end:   var(--wmstats-sex-male);
 }
 
 .wt-statistics-chart .progress-age-at-marriage-f,
 .wt-statistics-chart .progress-age-at-divorce-f,
 .wt-statistics-chart .progress-age-first-child-f {
-    --bs-progress-label-gradient-start: rgb(255, 217, 233);
+    --bs-progress-label-gradient-start: color-mix(in srgb, var(--wmstats-sex-female) 22%, var(--card));
     --bs-progress-label-gradient-end:   var(--wmstats-sex-female);
 }
 
@@ -446,43 +536,43 @@
 .wt-statistics-chart .progress-age-gap,
 .wt-statistics-chart .progress-weddings-century,
 .wt-statistics-chart .progress-weddings-month {
-    --bs-progress-label-gradient-start: rgb(230, 220, 245);
-    --bs-progress-label-gradient-end:   rgb(125, 95, 200);
+    --bs-progress-label-gradient-start: color-mix(in srgb, var(--ochre) 30%, var(--card));
+    --bs-progress-label-gradient-end:   var(--ochre);
 }
 
 .wt-statistics-chart .progress-divorces-century,
 .wt-statistics-chart .progress-divorces-month,
 .wt-statistics-chart .progress-divorce-cohort {
-    --bs-progress-label-gradient-start: rgb(252, 224, 197);
-    --bs-progress-label-gradient-end:   rgb(210, 110, 30);
+    --bs-progress-label-gradient-start: color-mix(in srgb, var(--wine) 25%, var(--card));
+    --bs-progress-label-gradient-end:   var(--wine);
 }
 
 .wt-statistics-chart .progress-children-per-family,
 .wt-statistics-chart .progress-sibling-gap,
 .wt-statistics-chart .progress-largest-families,
 .wt-statistics-chart .progress-first-child-month {
-    --bs-progress-label-gradient-start: rgb(245, 235, 205);
-    --bs-progress-label-gradient-end:   rgb(180, 140, 30);
+    --bs-progress-label-gradient-start: color-mix(in srgb, var(--sage) 25%, var(--card));
+    --bs-progress-label-gradient-end:   var(--sage);
 }
 
 .wt-statistics-chart .progress-ancestor-count {
-    --bs-progress-label-gradient-start: rgb(225, 215, 240);
-    --bs-progress-label-gradient-end:   rgb(95, 65, 165);
+    --bs-progress-label-gradient-start: color-mix(in srgb, var(--slate) 25%, var(--card));
+    --bs-progress-label-gradient-end:   var(--slate);
 }
 
 .wt-statistics-chart .progress-occupations {
-    --bs-progress-label-gradient-start: rgb(230, 220, 195);
-    --bs-progress-label-gradient-end:   rgb(145, 110, 50);
+    --bs-progress-label-gradient-start: color-mix(in srgb, var(--ochre) 30%, var(--card));
+    --bs-progress-label-gradient-end:   var(--ochre);
 }
 
 .wt-statistics-chart .progress-religions {
-    --bs-progress-label-gradient-start: rgb(220, 230, 240);
-    --bs-progress-label-gradient-end:   rgb(70, 110, 165);
+    --bs-progress-label-gradient-start: color-mix(in srgb, var(--slate) 25%, var(--card));
+    --bs-progress-label-gradient-end:   var(--slate);
 }
 
 .wt-statistics-chart .progress-death-causes {
-    --bs-progress-label-gradient-start: rgb(240, 220, 220);
-    --bs-progress-label-gradient-end:   rgb(150, 50, 50);
+    --bs-progress-label-gradient-start: color-mix(in srgb, var(--wine) 25%, var(--card));
+    --bs-progress-label-gradient-end:   var(--wine);
 }
 
 .wt-statistics-chart .wt-stat-scalar {
@@ -536,7 +626,7 @@
     width:           1.25rem;
     height:          1.25rem;
     padding:         0;
-    border:          1px solid var(--bs-border-color, rgb(221, 221, 221));
+    border:          1px solid var(--border);
     border-radius:   50%;
     background:      transparent;
     color:           var(--wmstats-card-muted);
@@ -549,9 +639,9 @@
 
 .wt-statistics-chart .wt-card-info-button:hover,
 .wt-statistics-chart .wt-card-info-button:focus-visible {
-    color:        var(--bs-body-color);
-    border-color: var(--bs-body-color);
-    background:   var(--bs-tertiary-bg, rgba(0, 0, 0, 0.04));
+    color:        var(--ink-2);
+    border-color: var(--ink-2);
+    background:   var(--card-warm);
     outline:      none;
 }
 
@@ -593,15 +683,24 @@
    tell them apart for cleanup — they carry no own styling.
    -------------------------------------------------------------------- */
 
+/*
+ * Tooltip lives on document.body, OUTSIDE `.wt-statistics-chart`, so
+ * the Editorial design-system tokens (--card, --ink, --border,
+ * --card-radius) don't cascade down here. Each var() therefore
+ * carries a literal fallback that mirrors the light-mode token
+ * value — without it, the property collapses to its initial value
+ * (transparent / currentColor / 0) and the tooltip surface
+ * disappears.
+ */
 .wt-chart-tooltip {
     position:        fixed;
     pointer-events:  none;
     z-index:         1080;
     opacity:         0;
-    background:      var(--bs-body-bg, #fff);
-    color:           var(--bs-body-color, #212529);
-    border:          1px solid var(--bs-border-color, rgb(221, 221, 221));
-    border-radius:   var(--bs-border-radius, 0.375rem);
+    background:      var(--card, #ffffff);
+    color:           var(--ink, #0d0d0d);
+    border:          1px solid var(--border, #e3e3e3);
+    border-radius:   var(--card-radius, 6px);
     padding:         0.5rem 0.75rem;
     font-size:       0.85rem;
     line-height:     1.35;
@@ -627,12 +726,35 @@
 }
 
 .wt-chart-tooltip__stat {
-    color: var(--bs-emphasis-color, #212529);
+    color: var(--ink, #0d0d0d);
 }
 
 .wt-chart-tooltip__meta {
-    color:     var(--bs-secondary-color, rgb(108, 117, 125));
+    color:     var(--ink-2, #5a5a5a);
     font-size: 0.78rem;
+}
+
+/*
+ * Theme-scoped tooltip dark-mode override — the tooltip lives on
+ * `document.body` (see the comment above .wt-chart-tooltip), so the
+ * dark-mode tokens declared inside [data-bs-theme="dark"]
+ * .wt-statistics-chart don't reach here. Mirror the dark Editorial
+ * surface as literals under the same Bootstrap theme attribute so a
+ * theme switch tracks the chart-area background instead of stranding
+ * a light tooltip on a dark page.
+ */
+[data-bs-theme="dark"] .wt-chart-tooltip {
+    background:      #141414;
+    color:           #fafafa;
+    border-color:    #252525;
+}
+
+[data-bs-theme="dark"] .wt-chart-tooltip__stat {
+    color: #fafafa;
+}
+
+[data-bs-theme="dark"] .wt-chart-tooltip__meta {
+    color: #b8b8b8;
 }
 
 .wt-statistics-chart svg.wt-stream-graph {
@@ -669,7 +791,7 @@
 
 .wt-statistics-chart svg.wt-stream-graph .x-axis line,
 .wt-statistics-chart svg.wt-stream-graph .x-axis path {
-    stroke: var(--bs-border-color, rgb(221, 221, 221));
+    stroke: var(--border);
 }
 
 .wt-statistics-chart svg.wt-stream-graph .x-axis text {
@@ -773,12 +895,12 @@
 }
 
 .wt-statistics-chart svg.wt-sankey .nodes rect {
-    stroke:       var(--bs-border-color, rgb(221, 221, 221));
+    stroke:       var(--border);
     stroke-width: 0.5px;
 }
 
 .wt-statistics-chart svg.wt-sankey .node-label {
-    fill:                 var(--bs-body-color);
+    fill:                 var(--ink-2);
     font-size:            0.78rem;
     font-variant-numeric: tabular-nums;
     pointer-events:       none;
@@ -817,18 +939,18 @@
 
 .wt-statistics-chart svg.wt-line-chart .point {
     fill:   var(--wmstats-gradient-births-end, rgb(220, 120, 40));
-    stroke: var(--bs-body-bg, white);
+    stroke: var(--card);
     stroke-width: 1.5px;
     cursor: default;
 }
 
 .wt-statistics-chart svg.wt-line-chart .point:hover {
-    fill: var(--bs-body-color);
+    fill: var(--ink-2);
 }
 
 .wt-statistics-chart svg.wt-line-chart .x-axis text,
 .wt-statistics-chart svg.wt-line-chart .y-axis text {
-    fill:      var(--bs-body-color);
+    fill:      var(--ink-2);
     font-size: 0.7rem;
 }
 
@@ -836,7 +958,7 @@
 .wt-statistics-chart svg.wt-line-chart .y-axis path,
 .wt-statistics-chart svg.wt-line-chart .x-axis line,
 .wt-statistics-chart svg.wt-line-chart .y-axis line {
-    stroke: var(--bs-border-color, rgb(221, 221, 221));
+    stroke: var(--border);
 }
 
 /* ----------------------------------------------------------------------
@@ -853,13 +975,13 @@
    -------------------------------------------------------------------- */
 
 .wt-statistics-chart svg.wt-bar-chart rect.bar {
-    fill:       var(--bs-primary, #0d6efd);
+    fill:       var(--slate);
     transition: opacity 200ms ease-out;
 }
 
 .wt-statistics-chart svg.wt-bar-chart .x-axis text,
 .wt-statistics-chart svg.wt-bar-chart .y-axis text {
-    fill:      var(--bs-body-color);
+    fill:      var(--ink-2);
     font-size: 0.7rem;
 }
 
@@ -867,7 +989,7 @@
 .wt-statistics-chart svg.wt-bar-chart .y-axis path,
 .wt-statistics-chart svg.wt-bar-chart .x-axis line,
 .wt-statistics-chart svg.wt-bar-chart .y-axis line {
-    stroke: var(--bs-border-color, rgb(221, 221, 221));
+    stroke: var(--border);
 }
 
 /*
@@ -902,8 +1024,12 @@
    -------------------------------------------------------------------- */
 
 .wt-statistics-chart {
-    --wmstats-chart-diverging-positive: var(--bs-info, rgb(120, 175, 145));
-    --wmstats-chart-diverging-negative: var(--bs-warning, rgb(245, 130, 175));
+    /* Couple-age-gap diverging-bar: husband-older side reads in the
+       male sex token, wife-older side in the female sex token, so the
+       direction of the gap encodes the same axis as every other M/F
+       histogram on the Family tab. */
+    --wmstats-chart-diverging-positive: var(--wmstats-sex-male);
+    --wmstats-chart-diverging-negative: var(--wmstats-sex-female);
 }
 
 .wt-statistics-chart svg.wt-diverging-bar rect.bar.positive {
@@ -915,13 +1041,13 @@
 }
 
 .wt-statistics-chart svg.wt-diverging-bar line.zero-axis {
-    stroke:       var(--bs-border-color, rgb(221, 221, 221));
+    stroke:       var(--border);
     stroke-width: 1.5;
 }
 
 .wt-statistics-chart svg.wt-diverging-bar .x-axis text,
 .wt-statistics-chart svg.wt-diverging-bar .y-axis text {
-    fill:      var(--bs-body-color);
+    fill:      var(--ink-2);
     font-size: 0.7rem;
 }
 
@@ -929,7 +1055,7 @@
 .wt-statistics-chart svg.wt-diverging-bar .y-axis path,
 .wt-statistics-chart svg.wt-diverging-bar .x-axis line,
 .wt-statistics-chart svg.wt-diverging-bar .y-axis line {
-    stroke: var(--bs-border-color, rgb(221, 221, 221));
+    stroke: var(--border);
 }
 
 /*
@@ -967,7 +1093,7 @@
 
 .wt-statistics-chart svg.wt-stacked-bar .x-axis text,
 .wt-statistics-chart svg.wt-stacked-bar .y-axis text {
-    fill:      var(--bs-body-color);
+    fill:      var(--ink-2);
     font-size: 0.7rem;
 }
 
@@ -975,7 +1101,7 @@
 .wt-statistics-chart svg.wt-stacked-bar .y-axis path,
 .wt-statistics-chart svg.wt-stacked-bar .x-axis line,
 .wt-statistics-chart svg.wt-stacked-bar .y-axis line {
-    stroke: var(--bs-border-color, rgb(221, 221, 221));
+    stroke: var(--border);
 }
 
 /*
@@ -984,12 +1110,12 @@
  * in lockstep.
  */
 .wt-statistics-chart svg.wt-stacked-bar .stack-legend .legend-swatch {
-    stroke:       var(--bs-border-color, rgb(221, 221, 221));
+    stroke:       var(--border);
     stroke-width: 0.5;
 }
 
 .wt-statistics-chart svg.wt-stacked-bar .stack-legend .legend-label {
-    fill:      var(--bs-body-color);
+    fill:      var(--ink-2);
     font-size: 0.7rem;
 }
 
@@ -1071,7 +1197,7 @@
 
 .wt-statistics-chart svg.wt-area-density .x-axis text,
 .wt-statistics-chart svg.wt-area-density .y-axis text {
-    fill:      var(--bs-body-color);
+    fill:      var(--ink-2);
     font-size: 0.7rem;
 }
 
@@ -1079,5 +1205,5 @@
 .wt-statistics-chart svg.wt-area-density .y-axis path,
 .wt-statistics-chart svg.wt-area-density .x-axis line,
 .wt-statistics-chart svg.wt-area-density .y-axis line {
-    stroke: var(--bs-border-color, rgb(221, 221, 221));
+    stroke: var(--border);
 }
