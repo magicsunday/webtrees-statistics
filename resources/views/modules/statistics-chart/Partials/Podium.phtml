@@ -1,0 +1,101 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+use Fisharebest\Webtrees\I18N;
+
+/**
+ * Top-N podium list — one row per entry as
+ * `[rank] | name | track [bar] | <serif-big> value <sans-small> suffix`.
+ * Reads top-down with the largest entry first; the `class` parameter
+ * picks the accent colour via the same CSS-variable map as
+ * {@see ProgressList.phtml}. Unlike ProgressList the value column
+ * renders the number itself in the editorial Serif at 22 px with the
+ * unit suffix detached in a small sans label — the layout the mockup
+ * uses for Longevity and Largest families.
+ *
+ * @var array<string, int|float> $data         Label → value map (largest first)
+ * @var string                   $class        Accent-key (e.g. `progress-oldest-deceased`)
+ * @var string                   $suffix       Unit appended to every value in the small sans column (e.g. "yr" / "J.")
+ * @var string                   $emptyMessage Optional override for the "no data" placeholder
+ */
+$suffix       ??= '';
+$emptyMessage ??= I18N::translate('No data recorded for this metric.');
+$class        ??= '';
+
+$rows = [];
+
+foreach ($data as $label => $value) {
+    $rows[] = ['label' => (string) $label, 'value' => (float) $value];
+}
+
+if ($rows === []) {
+    echo '<p class="text-muted text-center mb-0">' . e($emptyMessage) . '</p>';
+
+    return;
+}
+
+$max = 0.0;
+
+foreach ($rows as $row) {
+    if ($row['value'] > $max) {
+        $max = $row['value'];
+    }
+}
+
+if ($max <= 0) {
+    echo '<p class="text-muted text-center mb-0">' . e($emptyMessage) . '</p>';
+
+    return;
+}
+
+// Per-class accent map. Mirrors {@see ProgressList.phtml} so the same
+// `progress-*` key resolves to the same colour regardless of which
+// partial renders it.
+$accentByClass = [
+    'progress-occupations'         => 'var(--wine)',
+    'progress-religions'           => 'var(--slate)',
+    'progress-death-causes'        => 'var(--deceased)',
+    'progress-age-at-death'        => 'var(--wine)',
+    'progress-oldest-deceased'     => 'var(--wine)',
+    'progress-oldest-living'       => 'var(--sage)',
+    'progress-largest-families'    => 'var(--wine)',
+    'progress-children-per-family' => 'var(--ochre)',
+    'progress-generation-depth'    => 'var(--slate)',
+];
+
+$accent = $accentByClass[$class] ?? 'var(--wine)';
+?>
+<div class="wt-stat-podium">
+    <?php foreach ($rows as $i => $row) { ?>
+        <?php
+        $value        = $row['value'];
+        $label        = $row['label'];
+        $pct          = ($value / $max) * 100;
+        $rank         = str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT);
+        $displayValue = $value === (float) (int) $value
+            ? I18N::number((int) $value)
+            : I18N::number($value, 1);
+        ?>
+        <div class="wt-stat-podium-row">
+            <span class="wt-stat-podium-rank wt-stat-mono"><?php echo e($rank); ?></span>
+            <span class="wt-stat-podium-name"><?php echo e($label); ?></span>
+            <span class="wt-stat-podium-bar">
+                <span class="wt-stat-podium-fill" style="width: <?php echo $pct; ?>%; background: <?php echo e($accent); ?>;"></span>
+            </span>
+            <span class="wt-stat-podium-val wt-stat-serif">
+                <span class="wt-stat-podium-num"><?php echo e($displayValue); ?></span>
+                <?php if ($suffix !== '') { ?>
+                    <span class="wt-stat-podium-suf"><?php echo e($suffix); ?></span>
+                <?php } ?>
+            </span>
+        </div>
+    <?php } ?>
+</div>

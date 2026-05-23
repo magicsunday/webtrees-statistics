@@ -12,47 +12,96 @@ declare(strict_types=1);
 use Fisharebest\Webtrees\I18N;
 
 /**
- * @var array<string, int> $data
- * @var string             $class
- * @var string             $suffix       Optional unit appended to every value cell (e.g. "%")
- * @var string             $emptyMessage Optional override for the "no data" placeholder
+ * Top-N horizontal-bar list — one row per entry as
+ * `[rank] | label | track [bar] | value`. The list reads top-down,
+ * largest bar first; the `class` parameter picks the accent colour
+ * via a CSS-variable map so a single partial drives every Top-N
+ * surface in the module (Occupations / Religions / Death causes /
+ * Ages / Months / etc.).
+ *
+ * @var array<string, int|float> $data         Label → count map
+ * @var string                   $class        Legacy accent-key (e.g. `progress-occupations`); mapped to a CSS accent var below
+ * @var string                   $suffix       Optional unit appended to every value (e.g. "%")
+ * @var string                   $emptyMessage Optional override for the "no data" placeholder
+ * @var bool                     $showRank     Show the 01/02/03 rank prefix column. Defaults to true.
  */
 $suffix       ??= '';
 $emptyMessage ??= I18N::translate('No data recorded for this metric.');
+$showRank     ??= true;
+$class        ??= '';
 
-$maximum = ($data === []) ? 0 : max($data);
+$rows = [];
 
-if ($maximum === 0) {
+foreach ($data as $label => $value) {
+    $rows[] = ['label' => (string) $label, 'value' => (float) $value];
+}
+
+if ($rows === []) {
     echo '<p class="text-muted text-center mb-0">' . e($emptyMessage) . '</p>';
 
     return;
 }
-?>
-<div class="wt-births-list">
-    <table class="progress-bar-table">
-        <tbody>
-            <?php /* $maximum already computed above */ ?>
-            <?php foreach ($data as $key => $value) { ?>
-                <?php $width = ($maximum > 0) ? ($value * 100.0 / $maximum) : 0.0; ?>
 
-                <tr>
-                    <td class="label"><small><?php echo e($key); ?></small></td>
-                    <td class="value"><small><?php echo e($value . $suffix); ?></small></td>
-                </tr>
-                <tr>
-                    <td colspan="2" class="pb-2">
-                        <div class="progress" role="progressbar"
-                             aria-label="<?php echo e($key); ?>"
-                             aria-valuenow="<?php echo $width; ?>"
-                             aria-valuemin="0"
-                             aria-valuemax="100"
-                             style="height: 16px;"
-                        >
-                            <div class="progress-bar <?php echo e($class); ?>" style="width: calc(16px + <?php echo $width; ?>%); background-color: color-mix(in srgb, var(--bs-progress-label-gradient-start), var(--bs-progress-label-gradient-end) <?php echo $width; ?>%)"></div>
-                        </div>
-                    </td>
-                </tr>
+$max = 0;
+
+foreach ($rows as $row) {
+    if ($row['value'] > $max) {
+        $max = $row['value'];
+    }
+}
+
+if ($max <= 0) {
+    echo '<p class="text-muted text-center mb-0">' . e($emptyMessage) . '</p>';
+
+    return;
+}
+
+// Per-class accent map. New `progress-*` classes that need their own
+// colour just add a row here — the partial is colour-agnostic
+// otherwise and consumers don't need a partial-side change.
+$accentByClass = [
+    'progress-occupations'         => 'var(--wine)',
+    'progress-religions'           => 'var(--slate)',
+    'progress-death-causes'        => 'var(--deceased)',
+    'progress-age-at-death'        => 'var(--wine)',
+    'progress-oldest-deceased'     => 'var(--wine)',
+    'progress-oldest-living'       => 'var(--sage)',
+    'progress-age-at-marriage-m'   => 'var(--slate)',
+    'progress-age-at-marriage-f'   => 'var(--rose)',
+    'progress-age-first-child-m'   => 'var(--slate)',
+    'progress-age-first-child-f'   => 'var(--rose)',
+    'progress-age-at-divorce-m'    => 'var(--slate)',
+    'progress-age-at-divorce-f'    => 'var(--rose)',
+    'progress-children-per-family' => 'var(--ochre)',
+    'progress-largest-families'    => 'var(--wine)',
+    'progress-generation-depth'    => 'var(--slate)',
+    'progress-ancestor-count'      => 'var(--ochre)',
+    'progress-births-country'      => 'var(--slate)',
+    'progress-residences-country'  => 'var(--sage)',
+    'progress-deaths-country'      => 'var(--wine)',
+    'progress-place-dispersion'    => 'var(--slate)',
+];
+
+$accent = $accentByClass[$class] ?? 'var(--wine)';
+$fill   = 'linear-gradient(90deg, ' . $accent . ', color-mix(in srgb, ' . $accent . ' 75%, transparent))';
+?>
+<div class="wt-stat-hbars">
+    <?php foreach ($rows as $i => $row) { ?>
+        <?php
+        $value = $row['value'];
+        $label = $row['label'];
+        $pct   = ($value / $max) * 100;
+        $rank  = str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT);
+        ?>
+        <div class="wt-stat-hbar-row">
+            <?php if ($showRank) { ?>
+                <span class="wt-stat-hbar-rank wt-stat-mono"><?php echo e($rank); ?></span>
             <?php } ?>
-        </tbody>
-    </table>
+            <span class="wt-stat-hbar-label"><?php echo e($label); ?></span>
+            <span class="wt-stat-hbar-track">
+                <span class="wt-stat-hbar-fill" style="width: <?php echo $pct; ?>%; background: <?php echo e($fill); ?>;"></span>
+            </span>
+            <span class="wt-stat-hbar-val wt-stat-mono"><?php echo e(I18N::number($value) . $suffix); ?></span>
+        </div>
+    <?php } ?>
 </div>

@@ -377,6 +377,25 @@
    through long tabs (Family / Life span).
    -------------------------------------------------------------------- */
 
+/* `position: sticky` on the tab nav needs every ancestor up to the
+   page scroll container to use `overflow: visible`. Two ancestors
+   intercept us by default and have to be cleared on the statistics
+   route only — leaving the global rules untouched for other pages.
+   1. Core webtrees: `.wt-chart` clamps to `overflow-x:auto;overflow-y:hidden`
+      so extra-wide chart SVGs (sankey, family-book) scroll horizontally.
+   2. Core webtrees: `.wt-global` (the `<body>`) sets `overflow-y:scroll;
+      overflow-x:hidden` to lock scrollbar width even on short pages.
+   Statistics widgets never overflow the page width, so we override
+   both — `:has(.wt-statistics-chart)` keeps the override scoped to
+   the statistics route. */
+.wt-chart.wt-statistics-chart {
+    overflow: visible;
+}
+
+.wt-global:has(.wt-statistics-chart) {
+    overflow: visible;
+}
+
 .wt-statistics-chart .wt-stat-nav {
     position:                 sticky;
     top:                      0;
@@ -414,10 +433,10 @@
 
 .wt-statistics-chart .wt-stat-nav-btn.nav-link {
     display:           inline-flex;
-    flex-direction:    column;
-    align-items:       flex-start;
-    gap:               4px;
-    padding:           16px 22px 14px;
+    flex-direction:    row;
+    align-items:       baseline;
+    gap:               10px;
+    padding:           18px 22px 16px;
     background:        transparent;
     border:            0;
     border-bottom:     2px solid transparent;
@@ -657,6 +676,8 @@
 }
 
 .wt-statistics-chart .wt-stat-card-body:has(.wt-stat-records),
+.wt-statistics-chart .wt-stat-card-body:has(.wt-stat-hbars),
+.wt-statistics-chart .wt-stat-card-body:has(.wt-stat-podium),
 .wt-statistics-chart .wt-stat-card-body:has(.progress-bar-table) {
     justify-content: flex-start;
 }
@@ -822,6 +843,131 @@
 }
 
 /* ----------------------------------------------------------------------
+   HBars — horizontal-bar list (Occupations / Religions / Death causes)
+   ---------------------------------------------------------------------- */
+.wt-statistics-chart .wt-stat-hbars {
+    display:        flex;
+    flex-direction: column;
+    gap:            4px;
+}
+
+.wt-statistics-chart .wt-stat-hbar-row {
+    display:               grid;
+    grid-template-columns: auto 1fr 2fr auto;
+    align-items:           center;
+    gap:                   14px;
+    padding:               8px 0;
+    border-bottom:         1px solid var(--border-soft);
+    font-size:             13px;
+}
+
+.wt-statistics-chart .wt-stat-hbar-row:last-child {
+    border-bottom: none;
+}
+
+.wt-statistics-chart .wt-stat-hbar-rank {
+    width:     18px;
+    font-size: 10px;
+    color:     var(--ink-3);
+}
+
+.wt-statistics-chart .wt-stat-hbar-label {
+    color:         var(--ink);
+    min-width:     0;
+    overflow:      hidden;
+    text-overflow: ellipsis;
+    white-space:   nowrap;
+}
+
+.wt-statistics-chart .wt-stat-hbar-track {
+    height:        6px;
+    background:    var(--border-soft);
+    border-radius: 3px;
+    overflow:      hidden;
+}
+
+.wt-statistics-chart .wt-stat-hbar-fill {
+    display:       block;
+    height:        100%;
+    border-radius: 3px;
+}
+
+.wt-statistics-chart .wt-stat-hbar-val {
+    font-size:  13px;
+    text-align: right;
+    color:      var(--ink);
+}
+
+/* ----------------------------------------------------------------------
+   Podium — Longevity / Largest-families ranking list
+   ----------------------------------------------------------------------
+   Same horizontal-bar idiom as HBars but the value column carries the
+   number itself in the editorial Serif at 22 px with the unit suffix
+   detached in a small sans label — mockup-`gs-podium` layout.
+   -------------------------------------------------------------------- */
+.wt-statistics-chart .wt-stat-podium {
+    display:        flex;
+    flex-direction: column;
+    gap:            2px;
+}
+
+.wt-statistics-chart .wt-stat-podium-row {
+    display:               grid;
+    grid-template-columns: 30px 1fr 1.6fr auto;
+    align-items:           center;
+    gap:                   12px;
+    padding:               10px 0;
+    border-bottom:         1px solid var(--border-soft);
+}
+
+.wt-statistics-chart .wt-stat-podium-row:last-child {
+    border-bottom: none;
+}
+
+.wt-statistics-chart .wt-stat-podium-rank {
+    font-size: 11px;
+    color:     var(--ink-3);
+}
+
+.wt-statistics-chart .wt-stat-podium-name {
+    font-size:     13px;
+    color:         var(--ink);
+    min-width:     0;
+    overflow:      hidden;
+    text-overflow: ellipsis;
+    white-space:   nowrap;
+}
+
+.wt-statistics-chart .wt-stat-podium-bar {
+    height:        6px;
+    background:    var(--border-soft);
+    border-radius: 3px;
+    overflow:      hidden;
+}
+
+.wt-statistics-chart .wt-stat-podium-fill {
+    display:       block;
+    height:        100%;
+    border-radius: 3px;
+}
+
+.wt-statistics-chart .wt-stat-podium-val {
+    font-family:  var(--serif);
+    font-size:    22px;
+    line-height:  1;
+    color:        var(--ink);
+    display:      flex;
+    align-items:  baseline;
+    gap:          4px;
+}
+
+.wt-statistics-chart .wt-stat-podium-suf {
+    font-family: var(--sans);
+    font-size:   11px;
+    color:       var(--ink-3);
+}
+
+/* ----------------------------------------------------------------------
    Donut chart + legend stack (Overview demographics + Family donuts)
    ----------------------------------------------------------------------
    Mockup default: donut LEFT, legend RIGHT in a `auto 1fr` grid with
@@ -844,7 +990,7 @@
 
 .wt-statistics-chart .wt-stat-donut .donut-chart {
     width:     100%;
-    max-width: 250px;
+    max-width: 170px;
     height:    auto;
 }
 
@@ -1812,24 +1958,52 @@
 }
 
 .wt-statistics-chart svg.wt-line-chart .line {
-    stroke:       var(--wmstats-gradient-births-end, rgb(220, 120, 40));
+    stroke:       var(--wine);
     stroke-width: 1.75px;
     fill:         none;
 }
 
 .wt-statistics-chart svg.wt-line-chart .area {
-    fill: var(--wmstats-gradient-births-start, rgb(255, 224, 196));
+    fill:    var(--wine);
+    opacity: 0.18;
 }
 
 .wt-statistics-chart svg.wt-line-chart .point {
-    fill:   var(--wmstats-gradient-births-end, rgb(220, 120, 40));
-    stroke: var(--card);
+    fill:         var(--wine);
+    stroke:       var(--card);
     stroke-width: 1.5px;
-    cursor: default;
+    cursor:       default;
 }
 
 .wt-statistics-chart svg.wt-line-chart .point:hover {
     fill: var(--ink-2);
+}
+
+/* Sex-coloured pairs — `male`/`female` class hooks let the consumer
+   pin the slate/wine pairing without depending on chart-lib's
+   ordinal colour scale. */
+.wt-statistics-chart svg.wt-line-chart .series.male .line {
+    stroke: var(--slate);
+}
+
+.wt-statistics-chart svg.wt-line-chart .series.male .point {
+    fill: var(--slate);
+}
+
+.wt-statistics-chart svg.wt-line-chart .legend-swatch.male {
+    fill: var(--slate);
+}
+
+.wt-statistics-chart svg.wt-line-chart .series.female .line {
+    stroke: var(--wine);
+}
+
+.wt-statistics-chart svg.wt-line-chart .series.female .point {
+    fill: var(--wine);
+}
+
+.wt-statistics-chart svg.wt-line-chart .legend-swatch.female {
+    fill: var(--wine);
 }
 
 .wt-statistics-chart svg.wt-line-chart .x-axis text,
@@ -1838,10 +2012,19 @@
     font-size: 0.7rem;
 }
 
-.wt-statistics-chart svg.wt-line-chart .x-axis path,
-.wt-statistics-chart svg.wt-line-chart .y-axis path,
-.wt-statistics-chart svg.wt-line-chart .x-axis line,
-.wt-statistics-chart svg.wt-line-chart .y-axis line {
+/* Y-axis as gridline strip — hide the axis baseline ("domain") and
+   render each tick mark as a faint dashed cross-bar. */
+.wt-statistics-chart svg.wt-line-chart .y-axis path.domain,
+.wt-statistics-chart svg.wt-line-chart .x-axis path.domain {
+    display: none;
+}
+
+.wt-statistics-chart svg.wt-line-chart .y-axis .tick line {
+    stroke:           var(--border-soft);
+    stroke-dasharray: 2 3;
+}
+
+.wt-statistics-chart svg.wt-line-chart .x-axis .tick line {
     stroke: var(--border);
 }
 

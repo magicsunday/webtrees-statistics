@@ -108,6 +108,25 @@ $childMortalityPayload = LineChartPayload::singleSeries(
 $childMortalityExplanation = I18N::translate(
     'For every individual with both BIRT and DEAT julian-days the widget computes the number of days lived; a death within five years (1826 days) of birth counts as under-5 mortality. The tree-wide percentage is the share of such children across the whole tree, and the LineChart on the right groups them by their birth century so the historical decline becomes visible (typical 1700s value 30-40 percent, modern below 2 percent). Individuals with only BIRT or only DEAT are silently excluded — we cannot determine survival without both anchors, and including them would skew the rate. Per-century cohorts below 5 children are suppressed because a single dead child would spike the line by more than 10 percentage points.'
 );
+
+// Cohort with the highest under-5 mortality rate — feeds the
+// adjacent "Peak value" Scalar card. Sorted descending by rate so
+// the first entry is the worst century.
+$childMortalityPeak = null;
+
+foreach ($childMortalityByCentury as $entry) {
+    if ($childMortalityPeak === null || (float) $entry['rate'] > (float) $childMortalityPeak['rate']) {
+        $childMortalityPeak = $entry;
+    }
+}
+
+// Convert the band → count map into the row-of-objects shape that
+// the chart-lib BarChart payload expects.
+$ageAtDeathBars = [];
+
+foreach ($ageAtDeath as $bandLabel => $count) {
+    $ageAtDeathBars[] = ['label' => (string) $bandLabel, 'value' => (int) $count];
+}
 ?>
 <div class="wt-stat-grid">
 
@@ -125,17 +144,19 @@ $childMortalityExplanation = I18N::translate(
         'accent'       => 'var(--wine)',
         'illustration' => 'hourglass',
         'span'         => 8,
-        'bodyRenderer' => static function () use ($module, $ageAtDeath): void {
-            echo view($module . '::modules/statistics-chart/Partials/ProgressList', [
-                'class' => 'progress-age-at-death',
-                'data'  => $ageAtDeath,
+        'bodyRenderer' => static function () use ($module, $ageAtDeathBars): void {
+            echo view($module . '::modules/statistics-chart/Partials/BarChart', [
+                'identifier' => 'age-at-death-bars',
+                'data'       => $ageAtDeathBars,
+                'height'     => 260,
+                'ariaLabel'  => I18N::translate('Age at death distribution'),
             ]);
         },
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
         'module'       => $module,
-        'title'        => I18N::translate('Living individuals by life-stage'),
+        'title'        => I18N::translate('Life-stage (living)'),
         'sub'          => I18N::plural('%s living individual with a birth date', '%s living individuals with a birth date', $totalLivingBanded, I18N::number($totalLivingBanded)),
         'eyebrow'      => I18N::translate('TODAY LIVING'),
         'accent'       => 'var(--sage)',
@@ -143,9 +164,10 @@ $childMortalityExplanation = I18N::translate(
         'span'         => 4,
         'bodyRenderer' => static function () use ($module, $livingByAgeBand): void {
             echo view($module . '::modules/statistics-chart/Partials/DonutChart', [
-                'identifier'  => 'living-age-band-donut',
-                'data'        => $livingByAgeBand,
-                'centerLabel' => I18N::translate('living'),
+                'identifier'     => 'living-age-band-donut',
+                'data'           => $livingByAgeBand,
+                'centerLabel'    => I18N::translate('living'),
+                'legendPosition' => 'bottom',
             ]);
         },
     ]); ?>
@@ -179,9 +201,10 @@ $childMortalityExplanation = I18N::translate(
         'illustration' => 'trophy',
         'span'         => 6,
         'bodyRenderer' => static function () use ($module, $topOldestDeceased): void {
-            echo view($module . '::modules/statistics-chart/Partials/ProgressList', [
-                'class' => 'progress-oldest-deceased',
-                'data'  => $topOldestDeceased,
+            echo view($module . '::modules/statistics-chart/Partials/Podium', [
+                'class'  => 'progress-oldest-deceased',
+                'data'   => $topOldestDeceased,
+                'suffix' => I18N::translate('yr'),
             ]);
         },
     ]); ?>
@@ -195,9 +218,10 @@ $childMortalityExplanation = I18N::translate(
         'illustration' => 'trophy',
         'span'         => 6,
         'bodyRenderer' => static function () use ($module, $topOldestLiving): void {
-            echo view($module . '::modules/statistics-chart/Partials/ProgressList', [
-                'class' => 'progress-oldest-living',
-                'data'  => $topOldestLiving,
+            echo view($module . '::modules/statistics-chart/Partials/Podium', [
+                'class'  => 'progress-oldest-living',
+                'data'   => $topOldestLiving,
+                'suffix' => I18N::translate('yr'),
             ]);
         },
     ]); ?>
@@ -227,8 +251,8 @@ $childMortalityExplanation = I18N::translate(
     <?php if ($childMortality !== null) { ?>
         <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
             'module'       => $module,
-            'title'        => I18N::translate('Child mortality by birth century'),
-            'sub'          => I18N::translate('Cohorts below 5 children are suppressed — too noisy to plot.'),
+            'title'        => I18N::translate('Child mortality (under 5)'),
+            'sub'          => I18N::translate('Mortality rate per birth century'),
             'eyebrow'      => I18N::translate('MORTALITY'),
             'accent'       => 'var(--wine)',
             'illustration' => 'child',
@@ -246,27 +270,29 @@ $childMortalityExplanation = I18N::translate(
             },
         ]); ?>
 
-        <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
-            'module'       => $module,
-            'title'        => I18N::translate('Child mortality (under 5)'),
-            'sub'          => I18N::translate('Share of individuals with both birth and death dates whose death occurred before their 5th birthday.'),
-            'eyebrow'      => I18N::translate('EXTREME'),
-            'accent'       => 'var(--wine)',
-            'illustration' => 'candle',
-            'span'         => 4,
-            'centered'     => true,
-            'bodyRenderer' => static function () use ($module, $childMortality): void {
-                echo view($module . '::modules/statistics-chart/Partials/Scalar', [
-                    'value'   => I18N::number($childMortality->rate, 1),
-                    'unit'    => '%',
-                    'caption' => I18N::translate(
-                        '%1$s of %2$s children with known birth and death dates died before age 5.',
-                        I18N::number($childMortality->died),
-                        I18N::number($childMortality->total),
-                    ),
-                ]);
-            },
-        ]); ?>
+        <?php if ($childMortalityPeak !== null) { ?>
+            <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+                'module'       => $module,
+                'title'        => I18N::translate('Peak value'),
+                'sub'          => I18N::translate('Child mortality %s', CenturyName::for((int) $childMortalityPeak['century'])),
+                'eyebrow'      => I18N::translate('EXTREME'),
+                'accent'       => 'var(--wine)',
+                'illustration' => 'candle',
+                'span'         => 4,
+                'centered'     => true,
+                'bodyRenderer' => static function () use ($module, $childMortalityPeak): void {
+                    echo view($module . '::modules/statistics-chart/Partials/Scalar', [
+                        'value'   => I18N::number((float) $childMortalityPeak['rate'], 1),
+                        'unit'    => '%',
+                        'caption' => I18N::translate(
+                            '%1$s of %2$s children died before age 5 — the darkest cohort in the tree.',
+                            I18N::number((int) $childMortalityPeak['died']),
+                            I18N::number((int) $childMortalityPeak['total']),
+                        ),
+                    ]);
+                },
+            ]); ?>
+        <?php } ?>
     <?php } ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Section', [

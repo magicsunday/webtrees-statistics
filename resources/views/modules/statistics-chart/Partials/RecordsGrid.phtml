@@ -49,32 +49,32 @@ if ($treeRecords->shortestMarriage !== null) {
 }
 
 if ($treeRecords->youngestHusband !== null) {
-    $rows[] = ['cat' => 'marriage', 'label' => I18N::translate('Youngest husband at marriage'),
+    $rows[] = ['cat' => 'marriage', 'label' => I18N::translate('Youngest husband'),
         'value'      => I18N::plural('%s year', '%s years', $treeRecords->youngestHusband->ageYears, I18N::number($treeRecords->youngestHusband->ageYears)),
         'who'        => $treeRecords->youngestHusband->individual->fullName(), 'url' => $treeRecords->youngestHusband->individual->url()];
 }
 
 if ($treeRecords->youngestWife !== null) {
-    $rows[] = ['cat' => 'marriage', 'label' => I18N::translate('Youngest wife at marriage'),
+    $rows[] = ['cat' => 'marriage', 'label' => I18N::translate('Youngest wife'),
         'value'      => I18N::plural('%s year', '%s years', $treeRecords->youngestWife->ageYears, I18N::number($treeRecords->youngestWife->ageYears)),
         'who'        => $treeRecords->youngestWife->individual->fullName(), 'url' => $treeRecords->youngestWife->individual->url()];
 }
 
 if ($treeRecords->oldestHusband !== null) {
-    $rows[] = ['cat' => 'marriage', 'label' => I18N::translate('Oldest husband at marriage'),
+    $rows[] = ['cat' => 'marriage', 'label' => I18N::translate('Oldest husband'),
         'value'      => I18N::plural('%s year', '%s years', $treeRecords->oldestHusband->ageYears, I18N::number($treeRecords->oldestHusband->ageYears)),
         'who'        => $treeRecords->oldestHusband->individual->fullName(), 'url' => $treeRecords->oldestHusband->individual->url()];
 }
 
 if ($treeRecords->oldestWife !== null) {
-    $rows[] = ['cat' => 'marriage', 'label' => I18N::translate('Oldest wife at marriage'),
+    $rows[] = ['cat' => 'marriage', 'label' => I18N::translate('Oldest wife'),
         'value'      => I18N::plural('%s year', '%s years', $treeRecords->oldestWife->ageYears, I18N::number($treeRecords->oldestWife->ageYears)),
         'who'        => $treeRecords->oldestWife->individual->fullName(), 'url' => $treeRecords->oldestWife->individual->url()];
 }
 
 if ($treeRecords->mostSpouses !== null) {
     $rows[] = ['cat' => 'marriage', 'label' => I18N::translate('Most spouses'),
-        'value'      => I18N::plural('%s spouse', '%s spouses', $treeRecords->mostSpouses->count, I18N::number($treeRecords->mostSpouses->count)),
+        'value'      => I18N::plural('%s marriage', '%s marriages', $treeRecords->mostSpouses->count, I18N::number($treeRecords->mostSpouses->count)),
         'who'        => $treeRecords->mostSpouses->individual->fullName(), 'url' => $treeRecords->mostSpouses->individual->url()];
 }
 
@@ -85,31 +85,31 @@ if ($treeRecords->largestFamily !== null) {
 }
 
 if ($treeRecords->mostChildrenPerPerson !== null) {
-    $rows[] = ['cat' => 'family', 'label' => I18N::translate('Most children per person'),
+    $rows[] = ['cat' => 'family', 'label' => I18N::translate('Most children'),
         'value'      => I18N::plural('%s child', '%s children', $treeRecords->mostChildrenPerPerson->count, I18N::number($treeRecords->mostChildrenPerPerson->count)),
         'who'        => $treeRecords->mostChildrenPerPerson->individual->fullName(), 'url' => $treeRecords->mostChildrenPerPerson->individual->url()];
 }
 
 if ($treeRecords->youngestFatherAtFirstChild !== null) {
-    $rows[] = ['cat' => 'family', 'label' => I18N::translate('Youngest father at first child'),
+    $rows[] = ['cat' => 'family', 'label' => I18N::translate('Youngest father'),
         'value'      => I18N::plural('%s year', '%s years', $treeRecords->youngestFatherAtFirstChild->ageYears, I18N::number($treeRecords->youngestFatherAtFirstChild->ageYears)),
         'who'        => $treeRecords->youngestFatherAtFirstChild->individual->fullName(), 'url' => $treeRecords->youngestFatherAtFirstChild->individual->url()];
 }
 
 if ($treeRecords->youngestMotherAtFirstChild !== null) {
-    $rows[] = ['cat' => 'family', 'label' => I18N::translate('Youngest mother at first child'),
+    $rows[] = ['cat' => 'family', 'label' => I18N::translate('Youngest mother'),
         'value'      => I18N::plural('%s year', '%s years', $treeRecords->youngestMotherAtFirstChild->ageYears, I18N::number($treeRecords->youngestMotherAtFirstChild->ageYears)),
         'who'        => $treeRecords->youngestMotherAtFirstChild->individual->fullName(), 'url' => $treeRecords->youngestMotherAtFirstChild->individual->url()];
 }
 
 if ($treeRecords->oldestFatherAtFirstChild !== null) {
-    $rows[] = ['cat' => 'family', 'label' => I18N::translate('Oldest father at first child'),
+    $rows[] = ['cat' => 'family', 'label' => I18N::translate('Oldest father'),
         'value'      => I18N::plural('%s year', '%s years', $treeRecords->oldestFatherAtFirstChild->ageYears, I18N::number($treeRecords->oldestFatherAtFirstChild->ageYears)),
         'who'        => $treeRecords->oldestFatherAtFirstChild->individual->fullName(), 'url' => $treeRecords->oldestFatherAtFirstChild->individual->url()];
 }
 
 if ($treeRecords->oldestMotherAtFirstChild !== null) {
-    $rows[] = ['cat' => 'family', 'label' => I18N::translate('Oldest mother at first child'),
+    $rows[] = ['cat' => 'family', 'label' => I18N::translate('Oldest mother'),
         'value'      => I18N::plural('%s year', '%s years', $treeRecords->oldestMotherAtFirstChild->ageYears, I18N::number($treeRecords->oldestMotherAtFirstChild->ageYears)),
         'who'        => $treeRecords->oldestMotherAtFirstChild->individual->fullName(), 'url' => $treeRecords->oldestMotherAtFirstChild->individual->url()];
 }

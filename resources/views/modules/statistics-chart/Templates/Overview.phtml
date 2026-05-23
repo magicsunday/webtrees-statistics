@@ -104,9 +104,11 @@ $maritalData    = $statistic->getFamilyStatusData();
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
-        'module'       => $module,
-        'title'        => I18N::translate('Common occupations'),
-        'sub'          => I18N::translate('%s distinct occupations (top 15)', I18N::number($totalOccupations)),
+        'module' => $module,
+        'title'  => I18N::translate('Common occupations'),
+        'sub'    => $totalOccupations > 15
+            ? I18N::translate('%s distinct occupations (top 15)', I18N::number($totalOccupations))
+            : I18N::plural('%s distinct occupation', '%s distinct occupations', $totalOccupations, I18N::number($totalOccupations)),
         'eyebrow'      => I18N::translate('DEMOGRAPHICS'),
         'accent'       => 'var(--wine)',
         'illustration' => 'craft',
@@ -120,9 +122,11 @@ $maritalData    = $statistic->getFamilyStatusData();
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
-        'module'       => $module,
-        'title'        => I18N::translate('Common religions'),
-        'sub'          => I18N::translate('%s distinct religions (top 15)', I18N::number($totalReligions)),
+        'module' => $module,
+        'title'  => I18N::translate('Common religions'),
+        'sub'    => $totalReligions > 15
+            ? I18N::translate('%s distinct religions (top 15)', I18N::number($totalReligions))
+            : I18N::plural('%s distinct religion', '%s distinct religions', $totalReligions, I18N::number($totalReligions)),
         'eyebrow'      => I18N::translate('DEMOGRAPHICS'),
         'accent'       => 'var(--slate)',
         'illustration' => 'chapel',
