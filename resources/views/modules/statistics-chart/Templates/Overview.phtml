@@ -22,6 +22,11 @@ $totalReligions   = $statistic->getTotalReligions();
 $topOccupations   = $statistic->getTopOccupations(15);
 $topReligions     = $statistic->getTopReligions(15);
 $treeRecords      = $statistic->getTreeRecords();
+
+$livingDeceased = $statistic->getTotalLivingDeceasedData();
+$livingCount    = $livingDeceased[0]['value'] ?? 0;
+$deceasedCount  = $livingDeceased[1]['value'] ?? 0;
+$maritalData    = $statistic->getFamilyStatusData();
 ?>
 <div class="wt-stat-grid">
 
@@ -55,12 +60,10 @@ $treeRecords      = $statistic->getTreeRecords();
         'accent'       => 'var(--sage)',
         'illustration' => 'candle',
         'span'         => 4,
-        'bodyRenderer' => static function () use ($module, $statistic): void {
-            echo view($module . '::modules/statistics-chart/Partials/DonutChart', [
-                'identifier' => 'living-donut-chart',
-                'data'       => $statistic->getTotalLivingDeceasedData(),
-            ]);
-        },
+        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/LiveDeadCard', [
+            'living'   => $livingCount,
+            'deceased' => $deceasedCount,
+        ]),
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
@@ -71,12 +74,9 @@ $treeRecords      = $statistic->getTreeRecords();
         'accent'       => 'var(--wine)',
         'illustration' => 'rings',
         'span'         => 4,
-        'bodyRenderer' => static function () use ($module, $statistic): void {
-            echo view($module . '::modules/statistics-chart/Partials/DonutChart', [
-                'identifier' => 'family-status-donut-chart',
-                'data'       => $statistic->getFamilyStatusData(),
-            ]);
-        },
+        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/MaritalCard', [
+            'data' => $maritalData,
+        ]),
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
@@ -93,9 +93,7 @@ $treeRecords      = $statistic->getTreeRecords();
         'accent'       => 'var(--ochre)',
         'illustration' => 'laurel',
         'span'         => 12,
-        'bodyRenderer' => static function () use ($module, $treeRecords): void {
-            echo view($module . '::modules/statistics-chart/Partials/RecordsTable', ['treeRecords' => $treeRecords]);
-        },
+        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/RecordsGrid', ['treeRecords' => $treeRecords]),
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Section', [

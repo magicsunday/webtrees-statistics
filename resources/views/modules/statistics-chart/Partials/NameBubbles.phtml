@@ -1,0 +1,149 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file distributed with this source code.
+ */
+
+/**
+ * Name-bubble card body — circle-pack layout where each bubble's
+ * radius encodes its count and the colour saturation encodes
+ * intensity. The pack is computed server-side (deterministic spiral
+ * placement, no JS), so the rendered SVG stays cacheable and the
+ * markup ships with screen-readable text in every bubble.
+ *
+ * @var array<int, array{label: string, value: int}> $data    Top-N name → count rows
+ * @var string                                       $accent  CSS color literal or `var(--...)` reference for the bubble fill base
+ */
+$W       = 720;
+$H       = 360;
+$padding = 2;
+
+// Sort by count desc so the largest bubble lands first at the
+// centre and the spiral pushes smaller bubbles outward.
+$rows = $data;
+usort($rows, static fn (array $a, array $b): int => $b['value'] <=> $a['value']);
+
+$max = (int) ($rows[0]['value'] ?? 1);
+$max = max(1, $max);
+
+$placed = [];
+
+foreach ($rows as $idx => $row) {
+    $count = (int) $row['value'];
+    $name  = (string) $row['label'];
+    $r     = 14 + (int) round(sqrt($count / $max) * 52);
+
+    if ($idx === 0) {
+        $placed[] = ['name' => $name, 'count' => $count, 'r' => $r, 'x' => $W / 2, 'y' => $H / 2];
+
+        continue;
+    }
+
+    $bestX        = null;
+    $bestY        = null;
+    $fallbackX    = $W / 2;
+    $fallbackY    = $H / 2;
+    $fallbackDist = -INF;
+    $maxR         = max($W, $H);
+
+    for ($radius = $r + $padding; $radius < $maxR; $radius += 3) {
+        $angleStep = max(2.0, 360.0 / ($radius * 0.4));
+
+        for ($theta = 0.0; $theta < 360.0; $theta += $angleStep) {
+            $rad = ($theta * M_PI) / 180.0;
+            $x   = $W / 2 + cos($rad) * $radius;
+            $y   = $H / 2 + sin($rad) * $radius;
+
+            if ($x - $r < 4) {
+                continue;
+            }
+
+            if ($x + $r > $W - 4) {
+                continue;
+            }
+
+            if ($y - $r < 4) {
+                continue;
+            }
+
+            if ($y + $r > $H - 4) {
+                continue;
+            }
+
+            $overlap = false;
+            $minDist = INF;
+
+            foreach ($placed as $c) {
+                $dx   = $c['x'] - $x;
+                $dy   = $c['y'] - $y;
+                $dist = sqrt($dx * $dx + $dy * $dy);
+
+                if ($dist < $c['r'] + $r + $padding) {
+                    $overlap = true;
+
+                    break;
+                }
+                $gap = $dist - $c['r'] - $r;
+
+                if ($gap < $minDist) {
+                    $minDist = $gap;
+                }
+            }
+
+            if (!$overlap) {
+                $bestX = $x;
+                $bestY = $y;
+
+                break 2;
+            }
+
+            if ($minDist > $fallbackDist) {
+                $fallbackDist = $minDist;
+                $fallbackX    = $x;
+                $fallbackY    = $y;
+            }
+        }
+    }
+
+    $placed[] = [
+        'name'  => $name,
+        'count' => $count,
+        'r'     => $r,
+        'x'     => $bestX ?? $fallbackX,
+        'y'     => $bestY ?? $fallbackY,
+    ];
+}
+?>
+<div class="wt-stat-bubble-wrap">
+    <svg viewBox="0 0 <?php echo $W; ?> <?php echo $H; ?>" class="wt-stat-bubble" preserveAspectRatio="xMidYMid meet" aria-hidden="false" role="img">
+        <?php foreach ($placed as $b) { ?>
+            <?php
+            $intensity = $b['count'] / $max;
+            $mix       = (int) round(28 + $intensity * 64);
+            $fs        = max(9, min((int) round($b['r'] / 3), 22));
+            $bg        = 'color-mix(in srgb, ' . $accent . ' ' . $mix . '%, var(--card))';
+            $textFill  = $intensity > 0.45 ? 'var(--card)' : 'var(--ink)';
+            $countFill = $intensity > 0.45 ? 'var(--card-warm)' : 'var(--ink-3)';
+            ?>
+            <g class="wt-stat-bubble-g">
+                <title><?php echo e($b['name']); ?>: <?php echo $b['count']; ?></title>
+                <circle cx="<?php echo (int) round($b['x']); ?>" cy="<?php echo (int) round($b['y']); ?>" r="<?php echo $b['r']; ?>" fill="<?php echo e($bg); ?>"></circle>
+                <text x="<?php echo (int) round($b['x']); ?>" y="<?php echo (int) round($b['y'] - 2); ?>" text-anchor="middle"
+                      font-size="<?php echo $fs; ?>"
+                      font-family="var(--serif)"
+                      fill="<?php echo e($textFill); ?>"><?php echo e($b['name']); ?></text>
+                <?php if ($b['r'] > 22) { ?>
+                    <text x="<?php echo (int) round($b['x']); ?>" y="<?php echo (int) round($b['y'] + $fs - 2); ?>" text-anchor="middle"
+                          font-size="<?php echo (int) round($fs * 0.55); ?>"
+                          font-family="var(--mono)"
+                          fill="<?php echo e($countFill); ?>"><?php echo $b['count']; ?></text>
+                <?php } ?>
+            </g>
+        <?php } ?>
+    </svg>
+</div>

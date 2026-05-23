@@ -162,16 +162,19 @@
     --ink-2:        #b8b8b8;
     --ink-3:        #707070;
 
-    --wine:         #e26252;
-    --wine-soft:    #ef9387;
-    --slate:        #6f93b8;
-    --slate-soft:   #95aec8;
-    --sage:         #58b285;
-    --ochre:        #e5b56b;
-    --ochre-soft:   #efcf99;
-    --rose:         #e29797;
-    --mute:         #6f6f6f;
-    --deceased:     #b8a890;
+    /* Brightened accent colours so eyebrow labels and illustrations
+       remain readable against the dark surfaces (matches the design2
+       dark-mode override). */
+    --wine:         #ff6b5a;
+    --wine-soft:    #ff9484;
+    --slate:        #6a9ed8;
+    --slate-soft:   #8eb5e0;
+    --sage:         #58c98f;
+    --ochre:        #f0c160;
+    --ochre-soft:   #f5d28a;
+    --rose:         #e89aa0;
+    --mute:         #999999;
+    --deceased:     #c0c0c0;
 
     --hero-bg-from: #000000;
     --hero-bg-to:   #141414;
@@ -668,6 +671,219 @@
     outline:      none;
 }
 
+/* Serif utility for big-number readouts inside card bodies (Live/dead,
+   marital, records, etc.). The card head already carries serif on its
+   title; bodies that need the same display face opt in via this class. */
+.wt-statistics-chart .wt-stat-serif {
+    font-family:    var(--serif);
+    font-weight:    400;
+    letter-spacing: -0.02em;
+}
+
+/* ----------------------------------------------------------------------
+   Live vs deceased card body (Overview DEMOGRAPHICS section)
+   ---------------------------------------------------------------------- */
+.wt-statistics-chart .wt-stat-livedead {
+    display:        flex;
+    flex-direction: column;
+    gap:            14px;
+    padding:        8px 0;
+}
+
+.wt-statistics-chart .wt-stat-livedead-row {
+    display:     flex;
+    align-items: baseline;
+    gap:         12px;
+}
+
+.wt-statistics-chart .wt-stat-livedead-row-r {
+    justify-content: flex-end;
+}
+
+.wt-statistics-chart .wt-stat-livedead-num {
+    font-size:            44px;
+    line-height:          1;
+    font-variant-numeric: tabular-nums;
+}
+
+.wt-statistics-chart .wt-stat-livedead-lab {
+    font-size:      11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color:          var(--ink-2);
+}
+
+.wt-statistics-chart .wt-stat-stackbar {
+    display:       flex;
+    width:         100%;
+    border-radius: 6px;
+    overflow:      hidden;
+    gap:           2px;
+    height:        12px;
+}
+
+.wt-statistics-chart .wt-stat-stackbar-seg {
+    display:    block;
+    transition: opacity 120ms;
+}
+
+/* ----------------------------------------------------------------------
+   Marital card body (Overview DEMOGRAPHICS section)
+   ---------------------------------------------------------------------- */
+.wt-statistics-chart .wt-stat-marital {
+    display:        flex;
+    flex-direction: column;
+    gap:            10px;
+    padding-top:    8px;
+}
+
+.wt-statistics-chart .wt-stat-marital-row {
+    display:               grid;
+    grid-template-columns: 12px 100px 1fr 40px;
+    align-items:           center;
+    gap:                   12px;
+}
+
+.wt-statistics-chart .wt-stat-marital-dot {
+    width:         8px;
+    height:        8px;
+    border-radius: 50%;
+}
+
+.wt-statistics-chart .wt-stat-marital-dot-married  { background: var(--wmstats-married); }
+.wt-statistics-chart .wt-stat-marital-dot-single   { background: var(--wmstats-single); }
+.wt-statistics-chart .wt-stat-marital-dot-widowed  { background: var(--wmstats-widowed); }
+.wt-statistics-chart .wt-stat-marital-dot-divorced { background: var(--wmstats-divorced); }
+
+.wt-statistics-chart .wt-stat-marital-lab {
+    font-size: 13px;
+    color:     var(--ink);
+}
+
+.wt-statistics-chart .wt-stat-marital-bar {
+    height:        8px;
+    background:    var(--border-soft);
+    border-radius: 4px;
+    overflow:      hidden;
+}
+
+.wt-statistics-chart .wt-stat-marital-fill {
+    display:       block;
+    height:        100%;
+    border-radius: 4px;
+}
+
+.wt-statistics-chart .wt-stat-marital-fill-married  { background: var(--wmstats-married); }
+.wt-statistics-chart .wt-stat-marital-fill-single   { background: var(--wmstats-single); }
+.wt-statistics-chart .wt-stat-marital-fill-widowed  { background: var(--wmstats-widowed); }
+.wt-statistics-chart .wt-stat-marital-fill-divorced { background: var(--wmstats-divorced); }
+
+.wt-statistics-chart .wt-stat-marital-val {
+    font-family:          var(--mono);
+    font-size:            13px;
+    text-align:           right;
+    font-variant-numeric: tabular-nums;
+    color:                var(--ink);
+}
+
+/* ----------------------------------------------------------------------
+   Name bubbles (Names tab — circle-pack visualisation)
+   ----------------------------------------------------------------------
+   Replaces the legacy tag cloud for the surname / given-name lists.
+   Layout is server-rendered as static SVG via the Partials/NameBubbles
+   helper, which runs the same spiral-outward packing algorithm as the
+   design2 NameBubbles JSX component.
+   -------------------------------------------------------------------- */
+.wt-statistics-chart .wt-stat-bubble-wrap {
+    width:    100%;
+    overflow: hidden;
+}
+
+.wt-statistics-chart .wt-stat-bubble {
+    display: block;
+    width:   100%;
+    height:  auto;
+}
+
+.wt-statistics-chart .wt-stat-bubble-g {
+    transition: opacity 240ms ease;
+}
+
+/* ----------------------------------------------------------------------
+   Records hall-of-fame grid (Overview CHRONICLE section)
+   ----------------------------------------------------------------------
+   5-column grid of mini-cards with category-coloured dot, label,
+   serif headline value and a per-record name/family link. Background
+   = `--border`; cards `--card` so the grid lines read as 1 px gutters.
+   -------------------------------------------------------------------- */
+.wt-statistics-chart .wt-stat-records {
+    display:               grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap:                   1px;
+    background:            var(--border);
+    border-radius:         10px;
+    overflow:              hidden;
+    border:                1px solid var(--border);
+}
+
+.wt-statistics-chart .wt-stat-record {
+    background:     var(--card);
+    padding:        18px 18px 16px;
+    display:        flex;
+    flex-direction: column;
+    gap:            6px;
+    min-height:     130px;
+    transition:     background 120ms ease-out;
+}
+
+.wt-statistics-chart .wt-stat-record:hover {
+    background: var(--card-warm);
+}
+
+.wt-statistics-chart .wt-stat-record-head {
+    display:     flex;
+    align-items: center;
+    gap:         8px;
+}
+
+.wt-statistics-chart .wt-stat-record-cat {
+    width:         6px;
+    height:        6px;
+    border-radius: 50%;
+    background:    var(--ink-3);
+}
+
+.wt-statistics-chart .wt-stat-record-life     .wt-stat-record-cat { background: var(--sage); }
+.wt-statistics-chart .wt-stat-record-marriage .wt-stat-record-cat { background: var(--wine); }
+.wt-statistics-chart .wt-stat-record-family   .wt-stat-record-cat { background: var(--ochre); }
+
+.wt-statistics-chart .wt-stat-record-label {
+    font-size:      10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight:    500;
+    color:          var(--ink-2);
+}
+
+.wt-statistics-chart .wt-stat-record-val {
+    font-size:      32px;
+    line-height:    1.05;
+    color:          var(--ink);
+}
+
+.wt-statistics-chart .wt-stat-record-who {
+    font-size:        12px;
+    line-height:      1.35;
+    color:            var(--ink-2);
+    margin-top:       auto;
+    text-decoration:  none;
+}
+
+.wt-statistics-chart .wt-stat-record-who:hover {
+    color:           var(--ink);
+    text-decoration: underline;
+}
+
 /* Narrow viewports — every card collapses to full width so the
    12-column grid degrades gracefully on tablets and phones. */
 @media (max-width: 900px) {
@@ -677,6 +893,10 @@
 
     .wt-statistics-chart .wt-stat-section-title {
         font-size: 28px;
+    }
+
+    .wt-statistics-chart .wt-stat-records {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 

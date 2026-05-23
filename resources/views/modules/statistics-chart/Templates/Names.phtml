@@ -50,7 +50,7 @@ $surnameMarriageMatrixExplanation = I18N::translate(
         'illustration' => 'tree',
         'span'         => 12,
         'bodyRenderer' => static function () use ($module, $topSurnames): void {
-            echo view($module . '::modules/statistics-chart/Partials/TagCloud', ['data' => $topSurnames]);
+            echo view($module . '::modules/statistics-chart/Partials/NameBubbles', ['data' => $topSurnames, 'accent' => 'var(--wine)']);
         },
     ]); ?>
 
@@ -63,7 +63,7 @@ $surnameMarriageMatrixExplanation = I18N::translate(
         'illustration' => 'people',
         'span'         => 6,
         'bodyRenderer' => static function () use ($module, $topMaleGivenNames): void {
-            echo view($module . '::modules/statistics-chart/Partials/TagCloud', ['data' => $topMaleGivenNames]);
+            echo view($module . '::modules/statistics-chart/Partials/NameBubbles', ['data' => $topMaleGivenNames, 'accent' => 'var(--slate)']);
         },
     ]); ?>
 
@@ -76,7 +76,7 @@ $surnameMarriageMatrixExplanation = I18N::translate(
         'illustration' => 'people',
         'span'         => 6,
         'bodyRenderer' => static function () use ($module, $topFemaleGivenNames): void {
-            echo view($module . '::modules/statistics-chart/Partials/TagCloud', ['data' => $topFemaleGivenNames]);
+            echo view($module . '::modules/statistics-chart/Partials/NameBubbles', ['data' => $topFemaleGivenNames, 'accent' => 'var(--rose)']);
         },
     ]); ?>
 
