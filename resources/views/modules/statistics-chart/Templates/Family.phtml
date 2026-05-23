@@ -30,7 +30,6 @@ $byMonth   = $statistic->getWeddingsByMonth();
 
 $divorcesByCentury = $statistic->getDivorcesByCentury();
 $divorcesByMonth   = $statistic->getDivorcesByMonth();
-$divorcesAgeBand   = $statistic->getDivorcesByCenturyAndAgeBand();
 $cohortRates       = $statistic->getDivorceRateByMarriageCohort();
 
 $avgChildren             = $statistic->getAverageChildrenPerFamily();
@@ -140,9 +139,6 @@ foreach ($ageGap as $label => $count) {
     ];
 }
 
-$divorcesAgeBandExplain = I18N::translate(
-    'Each bar is one century of recorded divorces. The segments split the bar into five life-stage age bands measured at the time of divorce (0–24, 25–34, 35–44, 45–54, 55+) plus an Unknown band for divorces with no usable birth date on either spouse. One tick per divorce, classified by the husband\'s age when present and the wife\'s age otherwise, so the per-century totals line up exactly with the divorces-by-century chart above. Hover any segment for the per-band count and the century total.'
-);
 ?>
 <div class="wt-stat-grid">
 
@@ -154,24 +150,20 @@ $divorcesAgeBandExplain = I18N::translate(
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
         'module'       => $module,
-        'title'        => I18N::translate('Age at marriage — husbands'),
-        'sub'          => I18N::plural('%s husband with a known marriage age', '%s husbands with a known marriage age', $totalAgeM, I18N::number($totalAgeM)),
+        'title'        => I18N::translate('Age at marriage'),
+        'sub'          => I18N::translate('%1$s husbands and %2$s wives with a known marriage age', I18N::number($totalAgeM), I18N::number($totalAgeF)),
         'eyebrow'      => I18N::translate('LIFE EVENT'),
-        'accent'       => 'var(--slate)',
+        'accent'       => 'var(--wine)',
         'illustration' => 'rings',
-        'span'         => 6,
-        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/ProgressList', ['class' => 'progress-age-at-marriage-m', 'data' => $ageAtMarriageM]),
-    ]); ?>
-
-    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
-        'module'       => $module,
-        'title'        => I18N::translate('Age at marriage — wives'),
-        'sub'          => I18N::plural('%s wife with a known marriage age', '%s wives with a known marriage age', $totalAgeF, I18N::number($totalAgeF)),
-        'eyebrow'      => I18N::translate('LIFE EVENT'),
-        'accent'       => 'var(--rose)',
-        'illustration' => 'rings',
-        'span'         => 6,
-        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/ProgressList', ['class' => 'progress-age-at-marriage-f', 'data' => $ageAtMarriageF]),
+        'span'         => 12,
+        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/MirrorHistogram', [
+            'top'         => $ageAtMarriageM,
+            'bottom'      => $ageAtMarriageF,
+            'topLabel'    => I18N::translate('MEN'),
+            'bottomLabel' => I18N::translate('WOMEN'),
+            'topColor'    => 'var(--slate)',
+            'bottomColor' => 'var(--rose)',
+        ]),
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
@@ -226,24 +218,20 @@ $divorcesAgeBandExplain = I18N::translate(
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
         'module'       => $module,
-        'title'        => I18N::translate('Age at first child — fathers'),
-        'sub'          => I18N::plural('%s father with a dated first child', '%s fathers with a dated first child', $totalFirstChildM, I18N::number($totalFirstChildM)),
+        'title'        => I18N::translate('Age at first child'),
+        'sub'          => I18N::translate('%1$s fathers and %2$s mothers with a dated first child', I18N::number($totalFirstChildM), I18N::number($totalFirstChildF)),
         'eyebrow'      => I18N::translate('PARENTHOOD'),
-        'accent'       => 'var(--slate)',
+        'accent'       => 'var(--ochre)',
         'illustration' => 'child',
-        'span'         => 4,
-        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/ProgressList', ['class' => 'progress-age-first-child-m', 'data' => $ageAtFirstChildM]),
-    ]); ?>
-
-    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
-        'module'       => $module,
-        'title'        => I18N::translate('Age at first child — mothers'),
-        'sub'          => I18N::plural('%s mother with a dated first child', '%s mothers with a dated first child', $totalFirstChildF, I18N::number($totalFirstChildF)),
-        'eyebrow'      => I18N::translate('PARENTHOOD'),
-        'accent'       => 'var(--rose)',
-        'illustration' => 'child',
-        'span'         => 4,
-        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/ProgressList', ['class' => 'progress-age-first-child-f', 'data' => $ageAtFirstChildF]),
+        'span'         => 8,
+        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/MirrorHistogram', [
+            'top'         => $ageAtFirstChildM,
+            'bottom'      => $ageAtFirstChildF,
+            'topLabel'    => I18N::translate('FATHERS'),
+            'bottomLabel' => I18N::translate('MOTHERS'),
+            'topColor'    => 'var(--slate)',
+            'bottomColor' => 'var(--rose)',
+        ]),
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
@@ -378,36 +366,20 @@ $divorcesAgeBandExplain = I18N::translate(
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
         'module'       => $module,
-        'title'        => I18N::translate('Divorces by century × age band'),
-        'sub'          => I18N::translate('Per-century stack of spouse ages at divorce.'),
+        'title'        => I18N::translate('Divorces by age band'),
+        'sub'          => I18N::translate('%1$s divorced husbands and %2$s divorced wives with a known birth date', I18N::number($totalDivAgeM), I18N::number($totalDivAgeF)),
         'eyebrow'      => I18N::translate('AGE'),
         'accent'       => 'var(--wine)',
         'illustration' => 'brokenHeart',
-        'info'         => $divorcesAgeBandExplain,
         'span'         => 4,
-        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/StackedBar', ['identifier' => 'divorces-age-band-stacked', 'data' => $divorcesAgeBand, 'ariaLabel' => I18N::translate('Divorces by century and age band')]),
-    ]); ?>
-
-    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
-        'module'       => $module,
-        'title'        => I18N::translate('Age at divorce — husbands'),
-        'sub'          => I18N::plural('%s divorced husband with a known birth date', '%s divorced husbands with a known birth date', $totalDivAgeM, I18N::number($totalDivAgeM)),
-        'eyebrow'      => I18N::translate('LIFE EVENT'),
-        'accent'       => 'var(--slate)',
-        'illustration' => 'brokenHeart',
-        'span'         => 6,
-        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/ProgressList', ['class' => 'progress-age-at-divorce-m', 'data' => $divorceAgeM]),
-    ]); ?>
-
-    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
-        'module'       => $module,
-        'title'        => I18N::translate('Age at divorce — wives'),
-        'sub'          => I18N::plural('%s divorced wife with a known birth date', '%s divorced wives with a known birth date', $totalDivAgeF, I18N::number($totalDivAgeF)),
-        'eyebrow'      => I18N::translate('LIFE EVENT'),
-        'accent'       => 'var(--rose)',
-        'illustration' => 'brokenHeart',
-        'span'         => 6,
-        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/ProgressList', ['class' => 'progress-age-at-divorce-f', 'data' => $divorceAgeF]),
+        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/MirrorHistogram', [
+            'top'         => $divorceAgeM,
+            'bottom'      => $divorceAgeF,
+            'topLabel'    => I18N::translate('MEN'),
+            'bottomLabel' => I18N::translate('WOMEN'),
+            'topColor'    => 'var(--slate)',
+            'bottomColor' => 'var(--rose)',
+        ]),
     ]); ?>
 
     <?php /* The STRUCTURE section (known ancestors, pedigree

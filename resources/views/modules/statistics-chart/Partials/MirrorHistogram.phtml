@@ -1,0 +1,55 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file distributed with this source code.
+ */
+
+use Fisharebest\Webtrees\I18N;
+use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
+
+/**
+ * Mirror-histogram widget shell. Emits a `data-widget="mirror-histogram"`
+ * marker carrying the top + bottom row buckets as a JSON payload.
+ *
+ * @var array<string, int|float> $top         Top-side bucket map (e.g. husbands)
+ * @var array<string, int|float> $bottom      Bottom-side bucket map (e.g. wives)
+ * @var string                   $topLabel    Caption rendered on the top axis
+ * @var string                   $bottomLabel Caption rendered on the bottom axis
+ * @var string                   $topColor    CSS color literal for the top bars
+ * @var string                   $bottomColor CSS color literal for the bottom bars
+ */
+$topRows = [];
+
+foreach ($top as $label => $value) {
+    $topRows[] = ['label' => (string) $label, 'value' => (float) $value];
+}
+
+$bottomRows = [];
+
+foreach ($bottom as $label => $value) {
+    $bottomRows[] = ['label' => (string) $label, 'value' => (float) $value];
+}
+
+if ($topRows === [] && $bottomRows === []) {
+    echo '<p class="text-muted text-center mb-0">' . e(I18N::translate('No data available yet.')) . '</p>';
+
+    return;
+}
+
+$payload = ['top' => $topRows, 'bottom' => $bottomRows];
+$options = [
+    'topLabel'    => (string) ($topLabel ?? ''),
+    'bottomLabel' => (string) ($bottomLabel ?? ''),
+    'topColor'    => (string) ($topColor ?? 'var(--slate)'),
+    'bottomColor' => (string) ($bottomColor ?? 'var(--rose)'),
+];
+?>
+<div class="wt-stat-mirror-host"
+     data-widget="mirror-histogram"
+     data-payload="<?php echo e(WidgetJson::encode($payload)); ?>"
+     data-options="<?php echo e(WidgetJson::encode($options)); ?>"></div>

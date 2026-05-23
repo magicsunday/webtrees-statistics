@@ -17,6 +17,7 @@ import {
     DonutChart,
     GaugeArc,
     LineChart,
+    MirrorHistogram,
     MonthRadial,
     NameBubbles,
     SankeyFlow,
@@ -124,6 +125,7 @@ const WIDGETS = {
     "name-bubbles": fromChartLib(NameBubbles),
     "month-radial": fromChartLib(MonthRadial),
     "gauge-arc": fromChartLib(GaugeArc),
+    "mirror-histogram": fromChartLib(MirrorHistogram),
 };
 
 /**
