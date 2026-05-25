@@ -8,21 +8,27 @@
  */
 
 declare(strict_types=1);
-
-use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
 
 /**
  * @var string                                                            $identifier Host element id
- * @var Tree                                                              $tree
  * @var array<int, array{countryCode: string, label: string, count: int}> $data
+ * @var string|null                                                       $accent     Optional CSS colour string (e.g. `var(--sage)`)
+ *                                                                        for the country-fill scale. Falls back to the
+ *                                                                        chart-lib blues palette when omitted.
  */
+$accent ??= null;
+$options = ['width' => 900, 'height' => 510];
+
+if ($accent !== null) {
+    $options['accent'] = $accent;
+}
 ?>
 <div class="world-map-container">
     <div id="<?php echo e($identifier); ?>"
          class="world-map"
          data-widget="world-map"
          data-payload="<?php echo e(WidgetJson::encode($data)); ?>"
-         data-options="<?php echo e(WidgetJson::encode(['width' => 900, 'height' => 510])); ?>"
+         data-options="<?php echo e(WidgetJson::encode($options)); ?>"
     ></div>
 </div>

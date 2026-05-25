@@ -55,6 +55,7 @@ $activeView = $views[0]['view'] ?? '';
                 'identifier' => $view['mapIdentifier'],
                 'class'      => '',
                 'data'       => $view['raw'],
+                'accent'     => $view['accent'] ?? null,
             ]);
             ?>
             <div class="wt-stat-places-panel<?php echo ($view['view'] === $activeView) ? ' is-active' : ''; ?>"

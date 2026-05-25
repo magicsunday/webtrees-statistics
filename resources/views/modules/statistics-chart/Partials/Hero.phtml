@@ -22,12 +22,12 @@ $generations = $hero->maxGenerationDepth;
 $avgGenYears = $hero->averageGenerationYears;
 $deckText    = ($hero->centurySpan > 0)
     ? I18N::plural(
-        'A statistical reading of one family tree over a single century — births, marriages, migrations and gaps in the archive.',
-        'A statistical reading of one family tree over %s centuries — births, marriages, migrations and gaps in the archive.',
+        'A statistical overview of a single century — births, marriages, migrations and gaps in the archive.',
+        'A statistical overview of %s centuries — births, marriages, migrations and gaps in the archive.',
         $hero->centurySpan,
         SpelledNumber::for($hero->centurySpan),
     )
-    : I18N::translate('A statistical reading of one family tree — births, marriages, migrations and gaps in the archive.');
+    : I18N::translate('A statistical overview — births, marriages, migrations and gaps in the archive.');
 
 // Eyebrow tag: tree title + earliest/latest birth decade range when
 // both endpoints are known, mirroring the mockup's "Stammbaum X ·
