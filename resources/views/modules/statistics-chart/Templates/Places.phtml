@@ -70,7 +70,7 @@ $placesPanel = static function (string $title, string $progressClass, string $ma
     <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
         'kicker' => I18N::translate('ORIGIN & FATE'),
         'title'  => I18N::translate('Where they lived and died'),
-        'sub'    => I18N::translate('Births, residences and deaths by country — the geographic spread of the tree.'),
+        'sub'    => I18N::translate('Births, residences and deaths by country — the geographic spread of the tree'),
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
@@ -109,7 +109,7 @@ $placesPanel = static function (string $title, string $progressClass, string $ma
     <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
         'kicker' => I18N::translate('MIGRATION'),
         'title'  => I18N::translate('Movements'),
-        'sub'    => I18N::translate('Individuals born in one country and recorded as having died in another.'),
+        'sub'    => I18N::translate('Individuals born in one country and recorded as having died in another'),
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
@@ -128,13 +128,13 @@ $placesPanel = static function (string $title, string $progressClass, string $ma
         <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
             'kicker' => I18N::translate('MOBILITY'),
             'title'  => I18N::translate('How far they roamed'),
-            'sub'    => I18N::translate('Number of distinct places per individual — sedentary vs. migrating populations.'),
+            'sub'    => I18N::translate('Number of distinct places per individual — sedentary vs. migrating populations'),
         ]); ?>
 
         <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
             'module'       => $module,
             'title'        => I18N::translate('Geographic dispersion'),
-            'sub'          => I18N::translate('Average count of distinct PLAC values per individual across BIRT, DEAT, BAPM, BURI, RESI and similar level-1 events.'),
+            'sub'          => I18N::translate('Average distinct places per individual'),
             'eyebrow'      => I18N::translate('MOBILITY'),
             'accent'       => 'var(--sage)',
             'illustration' => 'globe',
@@ -156,7 +156,7 @@ $placesPanel = static function (string $title, string $progressClass, string $ma
         <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
             'module'       => $module,
             'title'        => I18N::translate('Distinct places per individual'),
-            'sub'          => I18N::translate('How many distinct places each individual carries, bucketed.'),
+            'sub'          => I18N::translate('Distribution in buckets'),
             'eyebrow'      => I18N::translate('MOBILITY'),
             'accent'       => 'var(--slate)',
             'illustration' => 'globe',

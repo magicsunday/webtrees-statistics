@@ -38,7 +38,7 @@ $surnameMarriageMatrixExplanation = I18N::translate(
     <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
         'kicker' => I18N::translate('FREQUENCIES'),
         'title'  => I18N::translate('Which names return?'),
-        'sub'    => I18N::translate('Family names and given names by frequency across the tree.'),
+        'sub'    => I18N::translate('Family names and given names by frequency across the tree'),
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
@@ -49,6 +49,7 @@ $surnameMarriageMatrixExplanation = I18N::translate(
         'accent'       => 'var(--wine)',
         'illustration' => 'tree',
         'span'         => 12,
+        'showFooter'   => false,
         'bodyRenderer' => static function () use ($module, $topSurnames): void {
             echo view($module . '::modules/statistics-chart/Partials/NameBubbles', ['data' => $topSurnames, 'accent' => 'var(--wine)']);
         },
@@ -62,6 +63,7 @@ $surnameMarriageMatrixExplanation = I18N::translate(
         'accent'       => 'var(--slate)',
         'illustration' => 'people',
         'span'         => 6,
+        'showFooter'   => false,
         'bodyRenderer' => static function () use ($module, $topMaleGivenNames): void {
             echo view($module . '::modules/statistics-chart/Partials/NameBubbles', ['data' => $topMaleGivenNames, 'accent' => 'var(--slate)']);
         },
@@ -75,6 +77,7 @@ $surnameMarriageMatrixExplanation = I18N::translate(
         'accent'       => 'var(--rose)',
         'illustration' => 'people',
         'span'         => 6,
+        'showFooter'   => false,
         'bodyRenderer' => static function () use ($module, $topFemaleGivenNames): void {
             echo view($module . '::modules/statistics-chart/Partials/NameBubbles', ['data' => $topFemaleGivenNames, 'accent' => 'var(--rose)']);
         },
@@ -83,13 +86,13 @@ $surnameMarriageMatrixExplanation = I18N::translate(
     <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
         'kicker' => I18N::translate('EVOLUTION'),
         'title'  => I18N::translate('How names came and went over time'),
-        'sub'    => I18N::translate('Popularity over decades and marriage alliances between families.'),
+        'sub'    => I18N::translate('Popularity over decades and marriage alliances between families'),
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
         'module'       => $module,
         'title'        => I18N::translate('Given-name popularity across decades'),
-        'sub'          => I18N::translate('Top-%s given names, stacked into a stream that reads as relative magnitudes.', I18N::number(count($givenNameTrends->names))),
+        'sub'          => I18N::translate('Top %s given names, stacked — band thickness = share per decade', I18N::number(count($givenNameTrends->names))),
         'eyebrow'      => I18N::translate('TIMELINE'),
         'accent'       => 'var(--ochre)',
         'illustration' => 'tree',
@@ -107,7 +110,7 @@ $surnameMarriageMatrixExplanation = I18N::translate(
         <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
             'module'       => $module,
             'title'        => I18N::translate('Surname × surname marriage matrix'),
-            'sub'          => I18N::translate('Marriages between the top-%s surnames in the tree.', I18N::number(count($surnameMarriageMatrix->labels))),
+            'sub'          => I18N::translate('Chord diagram: arcs = surnames, ribbons = marriages between them, loops = endogamy'),
             'eyebrow'      => I18N::translate('ALLIANCES'),
             'accent'       => 'var(--wine)',
             'illustration' => 'knot',

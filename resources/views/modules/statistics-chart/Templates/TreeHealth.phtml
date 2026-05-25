@@ -77,13 +77,13 @@ $endogamyExplanation = I18N::translate(
     <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
         'kicker' => I18N::translate('DOCUMENTATION'),
         'title'  => I18N::translate('How well is the tree documented?'),
-        'sub'    => I18N::translate('Source coverage, completeness and the average years between generations.'),
+        'sub'    => I18N::translate('Source coverage, completeness and average generation length'),
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
         'module'       => $module,
         'title'        => I18N::translate('Source-citation coverage'),
-        'sub'          => I18N::translate('Individuals with at least one source linked to their record.'),
+        'sub'          => I18N::translate('Individuals with at least one source'),
         'eyebrow'      => I18N::translate('DOCUMENTATION'),
         'accent'       => 'var(--sage)',
         'illustration' => 'book',
@@ -101,7 +101,7 @@ $endogamyExplanation = I18N::translate(
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
         'module'       => $module,
         'title'        => I18N::translate('Pedigree completeness'),
-        'sub'          => I18N::translate('Lacy index — mean fraction of known ancestors up to the 4th generation.'),
+        'sub'          => I18N::translate('Lacy index — average share of known ancestors up to the 4th generation'),
         'eyebrow'      => I18N::translate('COMPLETENESS'),
         'accent'       => 'var(--wine)',
         'illustration' => 'magnifier',
@@ -120,7 +120,7 @@ $endogamyExplanation = I18N::translate(
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
         'module'       => $module,
         'title'        => I18N::translate('Generation length'),
-        'sub'          => I18N::translate('Average birth-year gap from parent to child.'),
+        'sub'          => I18N::translate('Average birth-year gap parent → child'),
         'eyebrow'      => I18N::translate('TIME'),
         'accent'       => 'var(--ochre)',
         'illustration' => 'hourglass',
@@ -142,13 +142,13 @@ $endogamyExplanation = I18N::translate(
     <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
         'kicker' => I18N::translate('GAPS'),
         'title'  => I18N::translate('What is missing?'),
-        'sub'    => I18N::translate('Where the tree has gaps — events and places that have not been recorded.'),
+        'sub'    => I18N::translate('Where the tree has gaps — events and places not recorded'),
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
         'module'       => $module,
         'title'        => I18N::translate('Missing-event gaps'),
-        'sub'          => I18N::translate('Share of individuals without a recorded birth, death, or marriage event.'),
+        'sub'          => I18N::translate('Share of individuals without a recorded birth, death or marriage event'),
         'eyebrow'      => I18N::translate('GAPS'),
         'accent'       => 'var(--wine)',
         'illustration' => 'magnifier',
@@ -164,13 +164,13 @@ $endogamyExplanation = I18N::translate(
     <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
         'kicker' => I18N::translate('STRUCTURE'),
         'title'  => I18N::translate('How deep and branched is the tree?'),
-        'sub'    => I18N::translate('Generation depth, ancestor distribution and cousin marriages.'),
+        'sub'    => I18N::translate('Generation depth, ancestor distribution and kin marriages'),
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
         'module'       => $module,
         'title'        => I18N::translate('Maximum generation depth'),
-        'sub'          => I18N::translate('Longest verified vertical chain from a leaf descendant up to its furthest ancestor.'),
+        'sub'          => I18N::translate('Longest line in the tree, leaf to oldest ancestor'),
         'eyebrow'      => I18N::translate('DEPTH'),
         'accent'       => 'var(--slate)',
         'illustration' => 'tree',
@@ -189,7 +189,7 @@ $endogamyExplanation = I18N::translate(
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
         'module'       => $module,
         'title'        => I18N::translate('Generation depth distribution'),
-        'sub'          => I18N::translate('How many individuals sit at exactly N generations above their deepest recorded descendant.'),
+        'sub'          => I18N::translate('Individuals N generations above their deepest descendant'),
         'eyebrow'      => I18N::translate('STRUCTURE'),
         'accent'       => 'var(--slate)',
         'illustration' => 'tree',
@@ -204,7 +204,7 @@ $endogamyExplanation = I18N::translate(
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
         'module'       => $module,
         'title'        => I18N::translate('Known ancestors per individual'),
-        'sub'          => I18N::translate('Distinct ancestors recorded up to four generations (great-great-grandparents).'),
+        'sub'          => I18N::translate('Distinct ancestors up to 4 generations (max. 30)'),
         'eyebrow'      => I18N::translate('ANCESTORS'),
         'accent'       => 'var(--ochre)',
         'illustration' => 'family',
@@ -219,7 +219,7 @@ $endogamyExplanation = I18N::translate(
         <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
             'module'       => $module,
             'title'        => I18N::translate('Endogamy rate'),
-            'sub'          => I18N::translate('Couples sharing a common ancestor within four generations.'),
+            'sub'          => I18N::translate('Share of marriages within 4 generations'),
             'eyebrow'      => I18N::translate('KINSHIP'),
             'accent'       => 'var(--wine)',
             'illustration' => 'knot',

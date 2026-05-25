@@ -12,12 +12,12 @@ declare(strict_types=1);
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Tree\HeroStats;
+use MagicSunday\Webtrees\Statistic\Support\SpelledNumber;
 
 /**
  * @var Tree      $tree The current tree
  * @var HeroStats $hero Aggregated headline metrics
  */
-$percent     = static fn (float $fraction): string => I18N::number($fraction * 100, 1) . '%';
 $generations = $hero->maxGenerationDepth;
 $avgGenYears = $hero->averageGenerationYears;
 $deckText    = ($hero->centurySpan > 0)
@@ -25,71 +25,98 @@ $deckText    = ($hero->centurySpan > 0)
         'A statistical reading of one family tree over a single century — births, marriages, migrations and gaps in the archive.',
         'A statistical reading of one family tree over %s centuries — births, marriages, migrations and gaps in the archive.',
         $hero->centurySpan,
-        I18N::number($hero->centurySpan),
+        SpelledNumber::for($hero->centurySpan),
     )
     : I18N::translate('A statistical reading of one family tree — births, marriages, migrations and gaps in the archive.');
+
+// Eyebrow tag: tree title + earliest/latest birth decade range when
+// both endpoints are known, mirroring the mockup's "Stammbaum X ·
+// 1490er – 2020er" header. The decade-suffix is locale-specific —
+// I18N::translate('%ss') resolves to "1490s" in English and "1490er"
+// in German.
+$eyebrow = $tree->title();
+
+if ($hero->decadeFrom !== null && $hero->decadeTo !== null) {
+    $eyebrow .= ' · ' . I18N::translate('%ss', (string) $hero->decadeFrom)
+        . ' – ' . I18N::translate('%ss', (string) $hero->decadeTo);
+}
+
+// Dedicated translation context so the hero title can stay short
+// ("Statistik") instead of inheriting webtrees-core's plural
+// "Statistiken" for the generic "Statistics" string.
+$titleText = I18N::translateContext('hero title', 'Statistics');
 ?>
 <header class="wt-stat-hero">
     <div class="wt-stat-hero-inner">
         <div class="wt-stat-hero-meta">
-            <p class="wt-stat-hero-eyebrow"><?php echo e($tree->title()); ?></p>
-            <h1 class="wt-stat-hero-title"><?php echo e(I18N::translate('Statistics')); ?></h1>
+            <p class="wt-stat-hero-eyebrow"><?php echo e($eyebrow); ?></p>
+            <h1 class="wt-stat-hero-title"><?php echo e($titleText); ?></h1>
             <p class="wt-stat-hero-deck"><?php echo e($deckText); ?></p>
         </div>
 
-        <dl class="wt-stat-hero-stats">
+        <div class="wt-stat-hero-stats">
             <div class="wt-stat-hero-stat">
-                <dd class="wt-stat-hero-stat-num"><?php echo e(I18N::number($hero->individuals)); ?></dd>
-                <dt class="wt-stat-hero-stat-lab"><?php echo e(I18N::translate('Individuals')); ?></dt>
+                <div class="wt-stat-hero-stat-num"><?php echo e(I18N::number($hero->individuals)); ?></div>
+                <div class="wt-stat-hero-stat-lab"><?php echo e(I18N::translate('Individuals')); ?></div>
             </div>
 
             <div class="wt-stat-hero-stat">
-                <dd class="wt-stat-hero-stat-num"><?php echo e(I18N::number($hero->families)); ?></dd>
-                <dt class="wt-stat-hero-stat-lab"><?php echo e(I18N::translate('Families')); ?></dt>
+                <div class="wt-stat-hero-stat-num"><?php echo e(I18N::number($hero->families)); ?></div>
+                <div class="wt-stat-hero-stat-lab"><?php echo e(I18N::translate('Families')); ?></div>
             </div>
 
             <div class="wt-stat-hero-stat">
-                <dd class="wt-stat-hero-stat-num">
-                    <?php echo e(I18N::number($generations)); ?>
-                    <span class="wt-stat-hero-stat-unit"><?php echo e(I18N::translate('gen.')); ?></span>
-                </dd>
-                <dt class="wt-stat-hero-stat-lab"><?php echo e(I18N::translate('Max generation depth')); ?></dt>
+                <div class="wt-stat-hero-stat-num"><?php echo e(I18N::number($generations)); ?></div>
+                <div class="wt-stat-hero-stat-lab"><?php echo e(I18N::translate('Generations')); ?></div>
             </div>
 
             <div class="wt-stat-hero-stat">
                 <?php if ($avgGenYears !== null) { ?>
-                    <dd class="wt-stat-hero-stat-num">
-                        <?php echo e(I18N::number($avgGenYears, 1)); ?>
-                        <span class="wt-stat-hero-stat-unit"><?php echo e(I18N::translate('yr')); ?></span>
-                    </dd>
+                    <div class="wt-stat-hero-stat-num">
+                        <?php echo e(I18N::number($avgGenYears, 1)); ?><span class="wt-stat-hero-stat-unit"><?php echo e(I18N::translate('yr')); ?></span>
+                    </div>
                 <?php } else { ?>
-                    <dd class="wt-stat-hero-stat-num wt-stat-hero-stat-empty">&mdash;</dd>
+                    <div class="wt-stat-hero-stat-num wt-stat-hero-stat-empty">&mdash;</div>
                 <?php } ?>
-                <dt class="wt-stat-hero-stat-lab"><?php echo e(I18N::translate('Avg. generation length')); ?></dt>
+                <div class="wt-stat-hero-stat-lab"><?php echo e(I18N::translate('Avg. generation length')); ?></div>
             </div>
 
             <div class="wt-stat-hero-stat">
-                <dd class="wt-stat-hero-stat-num"><?php echo e($percent($hero->pedigreeCompleteness)); ?></dd>
-                <dt class="wt-stat-hero-stat-lab"><?php echo e(I18N::translate('Pedigree completeness')); ?></dt>
+                <div class="wt-stat-hero-stat-num">
+                    <?php echo e(I18N::number($hero->pedigreeCompleteness * 100, 1)); ?><span class="wt-stat-hero-stat-unit">%</span>
+                </div>
+                <div class="wt-stat-hero-stat-lab"><?php echo e(I18N::translate('Completeness')); ?></div>
             </div>
 
             <div class="wt-stat-hero-stat">
-                <dd class="wt-stat-hero-stat-num"><?php echo e($percent($hero->sourceCitationCoverage)); ?></dd>
-                <dt class="wt-stat-hero-stat-lab"><?php echo e(I18N::translate('Sourced individuals')); ?></dt>
+                <div class="wt-stat-hero-stat-num">
+                    <?php echo e(I18N::number($hero->sourceCitationCoverage * 100, 1)); ?><span class="wt-stat-hero-stat-unit">%</span>
+                </div>
+                <div class="wt-stat-hero-stat-lab"><?php echo e(I18N::translate('Sourced')); ?></div>
             </div>
-        </dl>
-
-        <svg class="wt-stat-hero-ornament" viewBox="0 0 720 720" aria-hidden="true" focusable="false">
-            <g fill="none" stroke="currentColor" stroke-width="0.6" opacity="0.18">
-                <?php for ($r = 60; $r <= 360; $r += 30) { ?>
-                    <circle cx="360" cy="360" r="<?php echo $r; ?>"></circle>
-                <?php } ?>
-                <?php for ($angle = 0; $angle < 360; $angle += 30) { ?>
-                    <line x1="360" y1="360"
-                          x2="<?php echo 360 + (int) round(360 * cos(deg2rad($angle))); ?>"
-                          y2="<?php echo 360 + (int) round(360 * sin(deg2rad($angle))); ?>"></line>
-                <?php } ?>
-            </g>
-        </svg>
+        </div>
     </div>
+
+    <svg class="wt-stat-hero-ornament" viewBox="0 0 600 600" aria-hidden="true" focusable="false">
+        <?php // 24 concentric circles, each one tier fainter — fades from 0.5 → ≈0.16. ?>
+        <?php for ($i = 0; $i < 24; ++$i) { ?>
+            <circle cx="300" cy="300"
+                    r="<?php echo 20 + ($i * 12); ?>"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="0.5"
+                    opacity="<?php echo number_format(0.5 - ($i * 0.015), 3, '.', ''); ?>"></circle>
+        <?php } ?>
+        <?php // 12 radial sun-rays at uniform 30° spacing. ?>
+        <?php for ($i = 0; $i < 12; ++$i) {
+            $angle = ($i / 12) * 2 * M_PI;
+            ?>
+            <line x1="300" y1="300"
+                  x2="<?php echo 300 + (int) round(310 * cos($angle)); ?>"
+                  y2="<?php echo 300 + (int) round(310 * sin($angle)); ?>"
+                  stroke="currentColor"
+                  stroke-width="0.4"
+                  opacity="0.18"></line>
+        <?php } ?>
+    </svg>
 </header>

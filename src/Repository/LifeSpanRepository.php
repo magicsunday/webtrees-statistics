@@ -98,6 +98,18 @@ final readonly class LifeSpanRepository
     private const array WINTER_MONTHS = ['DEC' => true, 'JAN' => true, 'FEB' => true];
 
     /**
+     * The twelve valid GEDCOM month codes. Acts as a whitelist when
+     * tallying deaths-by-month rows so individuals without a dated
+     * BIRT/DEAT month (returned by core under an empty string key)
+     * don't inflate the seasonality baseline.
+     */
+    private const array GEDCOM_MONTHS = [
+        'JAN' => true, 'FEB' => true, 'MAR' => true, 'APR' => true,
+        'MAY' => true, 'JUN' => true, 'JUL' => true, 'AUG' => true,
+        'SEP' => true, 'OCT' => true, 'NOV' => true, 'DEC' => true,
+    ];
+
+    /**
      * Living-individual age-band cut-offs. The buckets are designed
      * to read as life-stages (minor / young adult / working age /
      * retired) rather than equal-width decades.
@@ -231,18 +243,28 @@ final readonly class LifeSpanRepository
     public function deathWinterPeakScore(): ?WinterPeakScore
     {
         $monthCounts = $this->data->countEventsByMonth('DEAT', 0, 0);
-        $total       = array_sum($monthCounts);
 
-        if ($total < self::WINTER_PEAK_MIN_SAMPLE) {
-            return null;
-        }
-
+        // Restrict both numerator and denominator to dated deaths —
+        // core's countEventsByMonth returns an empty-string key for
+        // deaths without a parseable month, which would otherwise
+        // inflate $total and drag the seasonality score downward.
+        $total       = 0;
         $winterCount = 0;
 
         foreach ($monthCounts as $month => $count) {
+            if (!isset(self::GEDCOM_MONTHS[$month])) {
+                continue;
+            }
+
+            $total += $count;
+
             if (isset(self::WINTER_MONTHS[$month])) {
                 $winterCount += $count;
             }
+        }
+
+        if ($total < self::WINTER_PEAK_MIN_SAMPLE) {
+            return null;
         }
 
         $score = round(($winterCount / 3) / ($total / 12), 2);
