@@ -31,6 +31,10 @@ use Fisharebest\Webtrees\I18N;
  * @var string|null   $illustration Illustration key (see Illustration.phtml). Renders into the top-right corner.
  * @var string|null   $info         Optional long-form help text. When set, the card grows an info button + popover.
  * @var bool          $centered     Centres the body content
+ * @var bool          $showFooter   Render the dashed-line footer slot. Defaults to true ONLY when $info is set
+ *                                  (i.e. when there's actually an info button to show). Cards without $info
+ *                                  default to no footer so the dashed rhythm doesn't compete with the chart.
+ *                                  Override either way per card if needed.
  * @var callable|null $bodyRenderer Optional callable that emits the body markup (echoed inside .wt-stat-card-body)
  * @var string        $bodyHtml     Optional pre-rendered HTML body (echoed verbatim — caller must e() any user content)
  */
@@ -41,6 +45,7 @@ $accent       ??= null;
 $illustration ??= null;
 $info         ??= null;
 $centered     ??= false;
+$showFooter   ??= ($info !== null && $info !== '');
 $bodyRenderer ??= null;
 $bodyHtml     ??= '';
 
@@ -55,6 +60,10 @@ if ($centered === true) {
 }
 
 $style = 'grid-column: span ' . (int) $span . '; --wt-stat-card-span: ' . (int) $span . ';';
+
+if ($accent !== null && $accent !== '') {
+    $style .= ' --wt-stat-card-accent: ' . $accent . ';';
+}
 ?>
 <section class="<?php echo e(implode(' ', $classes)); ?>" style="<?php echo e($style); ?>">
     <?php if ($illustration !== null) { ?>
@@ -89,17 +98,20 @@ $style = 'grid-column: span ' . (int) $span . '; --wt-stat-card-span: ' . (int) 
 ?>
     </div>
 
-    <footer class="wt-stat-card-foot">
-        <?php if ($info !== null && $info !== '') { ?>
-            <button type="button"
-                    class="wt-stat-card-info"
-                    data-bs-toggle="popover"
-                    data-bs-trigger="focus hover"
-                    data-bs-placement="top"
-                    data-bs-html="true"
-                    data-bs-title="<?php echo e(I18N::translate('About this chart')); ?>"
-                    data-bs-content="<?php echo e($info); ?>"
-                    aria-label="<?php echo e(I18N::translate('About this chart')); ?>">?</button>
-        <?php } ?>
-    </footer>
+    <?php if ($showFooter === true) { ?>
+        <footer class="wt-stat-card-foot">
+            <?php if ($info !== null && $info !== '') { ?>
+                <button type="button"
+                        class="wt-stat-card-info"
+                        data-bs-toggle="popover"
+                        data-bs-trigger="focus hover"
+                        data-bs-placement="top"
+                        data-bs-html="true"
+                        data-bs-custom-class="wt-stat-popover wt-popover-wide"
+                        data-bs-title="<?php echo e(I18N::translate('About this chart')); ?>"
+                        data-bs-content="<?php echo e($info); ?>"
+                        aria-label="<?php echo e(I18N::translate('About this chart')); ?>">?</button>
+            <?php } ?>
+        </footer>
+    <?php } ?>
 </section>
