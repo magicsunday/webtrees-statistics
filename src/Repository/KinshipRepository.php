@@ -47,7 +47,7 @@ use function round;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-final readonly class KinshipRepository
+final class KinshipRepository
 {
     /**
      * How many generations of direct ancestors to walk. At depth=4
@@ -64,12 +64,23 @@ final readonly class KinshipRepository
     private const int ANCESTOR_BUCKET = 3;
 
     /**
+     * Per-instance memo for the per-generation ancestor walk. Both
+     * `ancestorCountDistribution()` and `averagePedigreeCompleteness()`
+     * iterate every individual and ask `countKnownPerGeneration` for
+     * the same walk — caching keeps it at one BFS per individual
+     * instead of two.
+     *
+     * @var array<string, array<int, int>>
+     */
+    private array $perGenCache = [];
+
+    /**
      * @param Tree                $tree                The tree the statistics are computed for
      * @param ParentMapRepository $parentMapRepository Shared parent-of map provider (FAMC + FAM scan)
      */
     public function __construct(
-        private Tree $tree,
-        private ParentMapRepository $parentMapRepository,
+        private readonly Tree $tree,
+        private readonly ParentMapRepository $parentMapRepository,
     ) {
     }
 
@@ -189,6 +200,10 @@ final readonly class KinshipRepository
      */
     private function countKnownPerGeneration(array $parentOf, string $id): array
     {
+        if (isset($this->perGenCache[$id])) {
+            return $this->perGenCache[$id];
+        }
+
         $perGen  = array_fill_keys(array_keys([1 => 0, 2 => 0, 3 => 0, 4 => 0]), 0);
         $current = [$id];
 
@@ -215,6 +230,8 @@ final readonly class KinshipRepository
             $perGen[$gen] = count($unique);
             $current      = $unique;
         }
+
+        $this->perGenCache[$id] = $perGen;
 
         return $perGen;
     }
