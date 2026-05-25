@@ -600,26 +600,37 @@
 }
 
 .wt-statistics-chart .wt-stat-card-illustration {
-    position:        absolute;
-    top:             24px;
-    right:           26px;
-    width:           80px;
-    height:          80px;
-    opacity:         0.18;
-    pointer-events:  none;
-    transform-origin: top right;
-    transition:      opacity 220ms, transform 260ms cubic-bezier(0.2, 0.7, 0.2, 1);
-    mix-blend-mode:  multiply;
+    position:       absolute;
+    top:            24px;
+    right:          26px;
+    width:          80px;
+    height:         80px;
+    opacity:        0.18;
+    pointer-events: none;
+    transition:     opacity 220ms, transform 260ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/* Keep stroke widths constant when the SVG scales on hover —
+   without this the lines visibly thicken with the transform and
+   the illustration loses its drawn-line feel. */
+.wt-statistics-chart .wt-stat-card-illustration svg * {
+    vector-effect: non-scaling-stroke;
 }
 
 [data-bs-theme="dark"] .wt-statistics-chart .wt-stat-card-illustration {
     mix-blend-mode: screen;
+    opacity:        0.40;
 }
 
 .wt-statistics-chart .wt-stat-card-illustrated:hover .wt-stat-card-illustration,
 .wt-statistics-chart .wt-stat-card-illustrated:focus-within .wt-stat-card-illustration {
     opacity:   0.45;
     transform: scale(1.08) rotate(-2deg);
+}
+
+[data-bs-theme="dark"] .wt-statistics-chart .wt-stat-card-illustrated:hover .wt-stat-card-illustration,
+[data-bs-theme="dark"] .wt-statistics-chart .wt-stat-card-illustrated:focus-within .wt-stat-card-illustration {
+    opacity: 0.75;
 }
 
 .wt-statistics-chart .wt-stat-card-illustration svg {
