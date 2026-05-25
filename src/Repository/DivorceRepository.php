@@ -66,11 +66,16 @@ final readonly class DivorceRepository
      * @see I18N::translate('Unknown')
      */
     private const array DIVORCE_AGE_BANDS = [
-        ['name' => '0–24', 'class' => 'age-band-0', 'lo' => 0, 'hi' => 24],
-        ['name' => '25–34', 'class' => 'age-band-1', 'lo' => 25, 'hi' => 34],
-        ['name' => '35–44', 'class' => 'age-band-2', 'lo' => 35, 'hi' => 44],
-        ['name' => '45–54', 'class' => 'age-band-3', 'lo' => 45, 'hi' => 54],
-        ['name' => '55+', 'class' => 'age-band-4', 'lo' => 55, 'hi' => self::AGE_AT_DIVORCE_TYPO_CAP],
+        ['name' => '0–9', 'class' => 'age-band-0', 'lo' => 0, 'hi' => 9],
+        ['name' => '10–19', 'class' => 'age-band-1', 'lo' => 10, 'hi' => 19],
+        ['name' => '20–29', 'class' => 'age-band-2', 'lo' => 20, 'hi' => 29],
+        ['name' => '30–39', 'class' => 'age-band-3', 'lo' => 30, 'hi' => 39],
+        ['name' => '40–49', 'class' => 'age-band-4', 'lo' => 40, 'hi' => 49],
+        ['name' => '50–59', 'class' => 'age-band-5', 'lo' => 50, 'hi' => 59],
+        ['name' => '60–69', 'class' => 'age-band-6', 'lo' => 60, 'hi' => 69],
+        ['name' => '70–79', 'class' => 'age-band-7', 'lo' => 70, 'hi' => 79],
+        ['name' => '80–89', 'class' => 'age-band-8', 'lo' => 80, 'hi' => 89],
+        ['name' => '90+', 'class' => 'age-band-9', 'lo' => 90, 'hi' => self::AGE_AT_DIVORCE_TYPO_CAP],
         ['name' => 'Unknown', 'class' => 'age-band-unknown', 'lo' => null, 'hi' => null],
     ];
 
