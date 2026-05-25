@@ -134,11 +134,11 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
 
     /**
      * `divorcesByCenturyAndAgeBand` classifies F1 (Alf 40) into the
-     * 35–44 band of the 20th century and F2 (Bert 50) + F4 (Dirk 45)
-     * into the 45–54 band of the 21st century. The legend always
-     * carries all six bands (five age cohorts + Unknown), even when
-     * a band has zero counts everywhere, so the reader sees the
-     * complete age scale.
+     * 40–49 band of the 20th century, F2 (Bert 50) into the 50–59
+     * band of the 21st century and F4 (Dirk 45) into the 40–49 band
+     * of the 21st century. The legend always carries every ten-year
+     * cohort plus Unknown, even when a band has zero counts
+     * everywhere, so the reader sees the complete age scale.
      */
     #[Test]
     public function divorcesByCenturyAndAgeBandBucketsByHusbandAge(): void
@@ -152,7 +152,7 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
         // Every band must appear in the legend regardless of zeros.
         $bandNames = array_map(static fn (StackedBarSeries $series): string => $series->name, $result->series);
         self::assertSame(
-            ['0–24', '25–34', '35–44', '45–54', '55+', 'Unknown'],
+            ['0–9', '10–19', '20–29', '30–39', '40–49', '50–59', '60–69', '70–79', '80–89', '90+', 'Unknown'],
             $bandNames,
         );
 
@@ -161,11 +161,16 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
             array_map(static fn (StackedBarSeries $series): array => $series->data, $result->series),
         );
 
-        self::assertSame([1, 0], $perBand['35–44']);
-        self::assertSame([0, 2], $perBand['45–54']);
-        self::assertSame([0, 0], $perBand['0–24']);
-        self::assertSame([0, 0], $perBand['25–34']);
-        self::assertSame([0, 0], $perBand['55+']);
+        self::assertSame([1, 1], $perBand['40–49']);
+        self::assertSame([0, 1], $perBand['50–59']);
+        self::assertSame([0, 0], $perBand['0–9']);
+        self::assertSame([0, 0], $perBand['10–19']);
+        self::assertSame([0, 0], $perBand['20–29']);
+        self::assertSame([0, 0], $perBand['30–39']);
+        self::assertSame([0, 0], $perBand['60–69']);
+        self::assertSame([0, 0], $perBand['70–79']);
+        self::assertSame([0, 0], $perBand['80–89']);
+        self::assertSame([0, 0], $perBand['90+']);
         self::assertSame([0, 0], $perBand['Unknown']);
     }
 
@@ -204,8 +209,8 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
      * than being silently dropped.
      *
      * Fixture (divorce-age-bands.ged):
-     *   F1 Hugo 1900 + Hilde 1903, DIV 1990 → husband 90 → 55+
-     *   F2 Walter (no BIRT) + Wilma 1955, DIV 1995 → wife 40 → 35–44
+     *   F1 Hugo 1900 + Hilde 1903, DIV 1990 → husband 90 → 90+
+     *   F2 Walter (no BIRT) + Wilma 1955, DIV 1995 → wife 40 → 40–49
      *   F3 Mark + Mira (no BIRT), DIV 2010 → Unknown
      *   F4 Otto 1700 + Olga 1705, DIV 1850 → age 150 typo → Unknown
      */
@@ -222,9 +227,9 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
             array_map(static fn (StackedBarSeries $series): array => $series->data, $result->series),
         );
 
-        // Hugo 90 (55+, 20th) + Wilma 40 wife-fallback (35–44, 20th).
-        self::assertSame([0, 1, 0], $perBand['55+']);
-        self::assertSame([0, 1, 0], $perBand['35–44']);
+        // Hugo 90 (90+, 20th) + Wilma 40 wife-fallback (40–49, 20th).
+        self::assertSame([0, 1, 0], $perBand['90+']);
+        self::assertSame([0, 1, 0], $perBand['40–49']);
 
         // F3 (no BIRT) → 21st Unknown; F4 (age 150 typo) → 19th Unknown.
         self::assertSame([1, 0, 1], $perBand['Unknown']);
