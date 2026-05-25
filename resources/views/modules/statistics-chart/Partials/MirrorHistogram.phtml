@@ -14,39 +14,30 @@ use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
 
 /**
  * Mirror-histogram widget shell. Emits a `data-widget="mirror-histogram"`
- * marker carrying the top + bottom row buckets as a JSON payload.
+ * marker carrying the top + bottom row buckets as a JSON payload. Bar
+ * colours and side-label colours come from CSS — `.wt-stat-mirror-bar-top`,
+ * `-bot`, `.wt-stat-mirror-axislabel-top`, `-bot` — not from PHP options.
  *
- * @var array<string, int|float> $top         Top-side bucket map (e.g. husbands)
- * @var array<string, int|float> $bottom      Bottom-side bucket map (e.g. wives)
- * @var string                   $topLabel    Caption rendered on the top axis
- * @var string                   $bottomLabel Caption rendered on the bottom axis
- * @var string                   $topColor    CSS color literal for the top bars
- * @var string                   $bottomColor CSS color literal for the bottom bars
+ * Caller is responsible for pre-building each row's tooltip strings
+ * with literal calls to `I18N::translate` / `I18N::plural`, so xgettext
+ * can extract them. Passing nouns as variables through this partial
+ * was tried and rejected — the strings stayed out of the POT.
+ *
+ * @var array<int, array{label: string, value: int|float, tooltipLabel?: string, tooltipBody?: string}> $top         Pre-built top-side rows
+ * @var array<int, array{label: string, value: int|float, tooltipLabel?: string, tooltipBody?: string}> $bottom      Pre-built bottom-side rows
+ * @var string                                                                                          $topLabel    Caption rendered on the top axis
+ * @var string                                                                                          $bottomLabel Caption rendered on the bottom axis
  */
-$topRows = [];
-
-foreach ($top as $label => $value) {
-    $topRows[] = ['label' => (string) $label, 'value' => (float) $value];
-}
-
-$bottomRows = [];
-
-foreach ($bottom as $label => $value) {
-    $bottomRows[] = ['label' => (string) $label, 'value' => (float) $value];
-}
-
-if ($topRows === [] && $bottomRows === []) {
+if ($top === [] && $bottom === []) {
     echo '<p class="text-muted text-center mb-0">' . e(I18N::translate('No data available yet.')) . '</p>';
 
     return;
 }
 
-$payload = ['top' => $topRows, 'bottom' => $bottomRows];
+$payload = ['top' => $top, 'bottom' => $bottom];
 $options = [
     'topLabel'    => (string) ($topLabel ?? ''),
     'bottomLabel' => (string) ($bottomLabel ?? ''),
-    'topColor'    => (string) ($topColor ?? 'var(--slate)'),
-    'bottomColor' => (string) ($bottomColor ?? 'var(--rose)'),
 ];
 ?>
 <div class="wt-stat-mirror-host"

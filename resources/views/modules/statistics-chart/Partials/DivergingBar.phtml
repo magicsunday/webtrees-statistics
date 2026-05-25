@@ -14,11 +14,13 @@ use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
 
 /**
  * @var string                                                                                            $identifier Host element id
- * @var array<int, array{label: string, value: int, sign: -1|1, tooltip?: string, tooltipLabel?: string}> $data    Rows in display order
- * @var int|null                                                                                          $height     Optional viewport height (defaults to 240)
+ * @var array<int, array{label: string, value: int, sign: -1|1, tooltip?: string, tooltipLabel?: string}> $data       Rows in display order
  * @var string|null                                                                                       $ariaLabel  Accessible label on the host svg
+ * @var string|null                                                                                       $leftCap    Caption rendered beneath the chart on the left side (negative-sign meaning)
+ * @var string|null                                                                                       $rightCap   Caption rendered beneath the chart on the right side (positive-sign meaning)
  */
-$height ??= 240;
+$leftCap  ??= null;
+$rightCap ??= null;
 ?>
 <div class="wt-diverging-bar-container">
     <div id="<?php echo e($identifier); ?>"
@@ -26,9 +28,14 @@ $height ??= 240;
          data-widget="diverging-bar"
          data-payload="<?php echo e(WidgetJson::encode($data)); ?>"
          data-options="<?php echo e(WidgetJson::encode([
-             'height'    => $height,
              'ariaLabel' => $ariaLabel ?? null,
          ])); ?>"
          data-empty-message="<?php echo e(I18N::translate('No data available yet.')); ?>"
     ></div>
+    <?php if (($leftCap !== null && $leftCap !== '') || ($rightCap !== null && $rightCap !== '')) { ?>
+        <div class="wt-stat-diverging-cap" aria-hidden="true">
+            <span class="wt-stat-diverging-cap-left"><?php echo '&larr; ' . e((string) $leftCap); ?></span>
+            <span class="wt-stat-diverging-cap-right"><?php echo e((string) $rightCap) . ' &rarr;'; ?></span>
+        </div>
+    <?php } ?>
 </div>
