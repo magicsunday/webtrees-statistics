@@ -22,15 +22,6 @@ use Fisharebest\Webtrees\I18N;
  *
  * @var array<int, array{label: string, value: int, total: int}> $rows
  */
-
-// I18N::number($x, 1) strips a trailing ".0" — percentages land
-// as "51%" next to "13.5%" and the column reads ragged. Probe
-// the locale's decimal separator once via a fractional sample,
-// then force every row through `%.1f` and swap the separator so
-// every cell renders "x,d%" / "x.d%" with identical column
-// width.
-$localeDecimalSample    = I18N::number(1.5, 1);
-$localeDecimalSeparator = (strpos($localeDecimalSample, ',') !== false) ? ',' : '.';
 ?>
 <div class="wt-stat-heatstrip">
     <?php foreach ($rows as $row) { ?>
@@ -39,7 +30,11 @@ $localeDecimalSeparator = (strpos($localeDecimalSample, ',') !== false) ? ',' : 
         $total      = max(1, (int) $row['total']);
         $pct        = ($missing / $total) * 100;
         $pctClamped = max(0.0, min(100.0, $pct));
-        $pctLabel   = str_replace('.', $localeDecimalSeparator, sprintf('%.1f', $pct));
+        // Whole-number percentages — the row's headline number
+        // is the share of MISSING records, where the difference
+        // between 49.2 % and 49 % isn't actionable. Keeping it on
+        // integers also gives every cell the same column width.
+        $pctLabel = I18N::number((int) round($pct));
         ?>
         <div class="wt-stat-heatstrip-row">
             <div class="wt-stat-heatstrip-label"><?php echo e((string) $row['label']); ?></div>
