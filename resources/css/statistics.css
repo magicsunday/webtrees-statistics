@@ -239,6 +239,16 @@
     padding:   32px 32px 80px;
 }
 
+/* Phone viewports — collapse the outer padding so the cards have
+   real estate to render in. Without this rule a 414-px viewport
+   would dedicate 128 px to side gutters. Mirrors design2's
+   760-px breakpoint on `.gs-app`. */
+@media (max-width: 760px) {
+    .wt-statistics-chart .wt-stat-app {
+        padding: 12px 12px 60px;
+    }
+}
+
 /* ----------------------------------------------------------------------
    Hero header
    ----------------------------------------------------------------------
@@ -360,7 +370,8 @@
 }
 
 /* Narrow viewports — stack hero meta and stats vertically and shrink
-   padding so the headline never blows out the page width. */
+   padding so the headline never blows out the page width. Mirrors
+   design2's 1100-px breakpoint. */
 @media (max-width: 900px) {
     .wt-statistics-chart .wt-stat-hero {
         padding: 32px 24px 36px;
@@ -380,6 +391,28 @@
 
     .wt-statistics-chart .wt-stat-hero-ornament {
         opacity: 0.5;
+    }
+}
+
+/* Phone viewports — shrink hero title further, drop the radial
+   ornament (the 720×720 SVG only crowds the small hero), tighten
+   the hero padding so the dark frame doesn't dwarf its content. */
+@media (max-width: 760px) {
+    .wt-statistics-chart .wt-stat-hero {
+        padding:       28px 20px;
+        border-radius: 14px;
+    }
+
+    .wt-statistics-chart .wt-stat-hero-title {
+        font-size: 56px;
+    }
+
+    .wt-statistics-chart .wt-stat-hero-stat-num {
+        font-size: 32px;
+    }
+
+    .wt-statistics-chart .wt-stat-hero-ornament {
+        display: none;
     }
 }
 
@@ -1334,6 +1367,48 @@
 
     .wt-statistics-chart .wt-stat-records {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    /* Below the tablet break the `01` / `02` … numerals duplicate
+       the tab label without adding information; dropping them
+       gives the labels more horizontal room before the strip
+       starts to scroll. */
+    .wt-statistics-chart .wt-stat-nav-num {
+        display: none;
+    }
+}
+
+/* Phone viewports — tighten card / nav / records / section type so
+   the layout reflows cleanly into one column without leaving the
+   card body crammed against an oversized chrome. Mirrors design2's
+   760-px breakpoint on `.gs-card`, `.gs-nav`, `.gs-records`,
+   `.gs-section-title` etc. */
+@media (max-width: 760px) {
+    .wt-statistics-chart .wt-stat-card {
+        padding: 16px 14px;
+    }
+
+    .wt-statistics-chart .wt-stat-card-title {
+        font-size: 20px;
+    }
+
+    .wt-statistics-chart .wt-stat-record-val {
+        font-size: 26px;
+    }
+
+    .wt-statistics-chart .wt-stat-nav {
+        margin:  0 -12px 16px;
+        padding: 0 12px;
+    }
+
+    /* Matches the Bootstrap-anchored base selector
+       `.wt-stat-nav-btn.nav-link` so the mobile padding override
+       wins the cascade — the base rule includes the `.nav-link`
+       class, which would otherwise out-specify a plain
+       `.wt-stat-nav-btn` selector. */
+    .wt-statistics-chart .wt-stat-nav-btn.nav-link {
+        padding:   14px 12px;
+        font-size: 12px;
     }
 }
 
