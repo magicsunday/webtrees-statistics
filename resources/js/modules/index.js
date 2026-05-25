@@ -169,7 +169,42 @@ export function renderWidgets(root) {
     });
 
     initPopovers(root);
+    initPlacesPanelTabs(root);
     return { bus, widgets };
+}
+
+/**
+ * Wire up the Place-of-birth / Recorded-residences / Place-of-death
+ * tab-switcher rendered by the PlacesPanel partial. The server
+ * ships ALL three panels in the DOM with `.is-active` toggled on
+ * the default; a click on a tab swaps that flag + the wrapper's
+ * `data-view` attribute (which CSS reads to recolour the accent).
+ * No widget re-instantiation — switching is purely a class toggle.
+ *
+ * @param {ParentNode} root Document fragment to scan.
+ */
+function initPlacesPanelTabs(root) {
+    root.querySelectorAll("[data-wt-stat-places]").forEach((wrap) => {
+        const tabs = wrap.querySelectorAll(".wt-stat-places-tab");
+        const panels = wrap.querySelectorAll(".wt-stat-places-panel");
+        tabs.forEach((tab) => {
+            tab.addEventListener("click", () => {
+                const targetView = tab.dataset.view;
+                if (typeof targetView !== "string" || targetView === "") {
+                    return;
+                }
+                tabs.forEach((other) => {
+                    const isActive = other === tab;
+                    other.classList.toggle("is-active", isActive);
+                    other.setAttribute("aria-selected", isActive ? "true" : "false");
+                });
+                panels.forEach((panel) => {
+                    panel.classList.toggle("is-active", panel.dataset.view === targetView);
+                });
+                wrap.dataset.view = targetView;
+            });
+        });
+    });
 }
 
 /**

@@ -104,35 +104,47 @@ $placesPanel = static function (string $title, string $progressClass, string $ma
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
         'module'       => $module,
-        'title'        => I18N::translate('Place of birth'),
-        'sub'          => I18N::plural('%s recorded country of birth', '%s recorded countries of birth', $totalBirths, I18N::number($totalBirths)),
+        'title'        => I18N::translate('Geographic origin & fate'),
+        'sub'          => I18N::translate('Three views of every individual — birth, residence, death'),
         'eyebrow'      => I18N::translate('Geography'),
         'accent'       => 'var(--slate)',
         'illustration' => 'globe',
         'span'         => 12,
-        'bodyHtml'     => $placesPanel(I18N::translate('Place of birth'), 'progress-births-country', 'living-geo-map', $birthsList, $birthsByCountry),
-    ]); ?>
-
-    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
-        'module'       => $module,
-        'title'        => I18N::translate('Recorded residences'),
-        'sub'          => I18N::plural('%s recorded residence', '%s recorded residences', $totalResidences, I18N::number($totalResidences)),
-        'eyebrow'      => I18N::translate('Geography'),
-        'accent'       => 'var(--sage)',
-        'illustration' => 'globe',
-        'span'         => 12,
-        'bodyHtml'     => $placesPanel(I18N::translate('Recorded residences'), 'progress-residences-country', 'residences-geo-map', $residencesList, $residencesByCountry),
-    ]); ?>
-
-    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
-        'module'       => $module,
-        'title'        => I18N::translate('Place of death'),
-        'sub'          => I18N::plural('%s recorded country of death', '%s recorded countries of death', $totalDeaths, I18N::number($totalDeaths)),
-        'eyebrow'      => I18N::translate('Geography'),
-        'accent'       => 'var(--wine)',
-        'illustration' => 'globe',
-        'span'         => 12,
-        'bodyHtml'     => $placesPanel(I18N::translate('Place of death'), 'progress-deaths-country', 'deaths-geo-map', $deathsList, $deathsByCountry),
+        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/PlacesPanel', [
+            'module' => $module,
+            'views'  => [
+                [
+                    'view'          => 'birth',
+                    'label'         => I18N::translate('Places of birth'),
+                    'accent'        => 'var(--sage)',
+                    'total'         => $totalBirths,
+                    'list'          => $birthsList,
+                    'raw'           => $birthsByCountry,
+                    'progressClass' => 'progress-births-country',
+                    'mapIdentifier' => 'living-geo-map',
+                ],
+                [
+                    'view'          => 'residence',
+                    'label'         => I18N::translate('Recorded residences'),
+                    'accent'        => 'var(--slate)',
+                    'total'         => $totalResidences,
+                    'list'          => $residencesList,
+                    'raw'           => $residencesByCountry,
+                    'progressClass' => 'progress-residences-country',
+                    'mapIdentifier' => 'residences-geo-map',
+                ],
+                [
+                    'view'          => 'death',
+                    'label'         => I18N::translate('Places of death'),
+                    'accent'        => 'var(--wine)',
+                    'total'         => $totalDeaths,
+                    'list'          => $deathsList,
+                    'raw'           => $deathsByCountry,
+                    'progressClass' => 'progress-deaths-country',
+                    'mapIdentifier' => 'deaths-geo-map',
+                ],
+            ],
+        ]),
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Section', [

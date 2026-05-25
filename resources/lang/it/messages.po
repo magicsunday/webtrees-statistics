@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Statistics\n"
 "Report-Msgid-Bugs-To: https://github.com/magicsunday/webtrees-statistics/"
 "issues\n"
-"POT-Creation-Date: 2026-05-25 14:37+0000\n"
+"POT-Creation-Date: 2026-05-25 14:42+0000\n"
 "PO-Revision-Date: 2026-05-22 08:05+0000\n"
 "Last-Translator: Rico Sonntag <mail@ricosonntag.de>\n"
 "Language-Team: \n"
@@ -399,20 +399,6 @@ msgid_plural "%s recorded birth dates — tree growth across decades"
 msgstr[0] "%s data di nascita registrata nei decenni visibili"
 msgstr[1] "%s date di nascita registrate nei decenni visibili"
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:108
-#, php-format
-msgid "%s recorded country of birth"
-msgid_plural "%s recorded countries of birth"
-msgstr[0] "%s paese di nascita registrato"
-msgstr[1] "%s paesi di nascita registrati"
-
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:130
-#, php-format
-msgid "%s recorded country of death"
-msgid_plural "%s recorded countries of death"
-msgstr[0] "%s paese di morte registrato"
-msgstr[1] "%s paesi di morte registrati"
-
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:478
 #, php-format
 msgid "%s recorded divorce"
@@ -426,13 +412,6 @@ msgid "%s recorded marriage"
 msgid_plural "%s recorded marriages"
 msgstr[0] "%s matrimonio registrato"
 msgstr[1] "%s matrimoni registrati"
-
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:119
-#, php-format
-msgid "%s recorded residence"
-msgid_plural "%s recorded residences"
-msgstr[0] "%s residenza registrata"
-msgstr[1] "%s residenze registrate"
 
 #: resources/views/modules/statistics-chart/Partials/RecordsTable.phtml:80
 #, php-format
@@ -672,7 +651,7 @@ msgstr "Informazioni su questo istogramma"
 msgid "About this metric"
 msgstr "Informazioni su questa metrica"
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:177
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:189
 #, php-format
 msgid "Across %s individual with at least one recorded place."
 msgid_plural "Across %s individuals with at least one recorded place."
@@ -803,7 +782,7 @@ msgstr "Agosto"
 msgid "Average birth-year gap parent → child"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:166
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:178
 #, fuzzy
 msgid "Average distinct places per individual"
 msgstr "Luoghi distinti per individuo"
@@ -1014,8 +993,8 @@ msgstr ""
 msgid "Distinct ancestors up to 4 generations (max. 30)"
 msgstr "Antenati distinti registrati fino a quattro generazioni (trisavoli)."
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:187
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:196
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:199
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:208
 msgid "Distinct places per individual"
 msgstr "Luoghi distinti per individuo"
 
@@ -1024,7 +1003,7 @@ msgstr "Luoghi distinti per individuo"
 msgid "Distribution"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:188
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:200
 msgid "Distribution in buckets"
 msgstr ""
 
@@ -1285,8 +1264,13 @@ msgstr "Lunghezza media della generazione"
 msgid "Generations"
 msgstr "generazioni"
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:165
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:177
 msgid "Geographic dispersion"
+msgstr "Dispersione geografica"
+
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:107
+#, fuzzy
+msgid "Geographic origin & fate"
 msgstr "Dispersione geografica"
 
 #: resources/views/modules/statistics-chart/Partials/PlacesPanel.phtml:34
@@ -1295,8 +1279,6 @@ msgid "Geographic view"
 msgstr "Dispersione geografica"
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:109
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:120
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:131
 #, fuzzy
 msgid "Geography"
 msgstr "Dispersione geografica"
@@ -1328,7 +1310,7 @@ msgstr ""
 msgid "How deep and branched is the tree?"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:159
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:171
 msgid "How far they roamed"
 msgstr ""
 
@@ -1371,7 +1353,7 @@ msgstr ""
 "Quanti individui si trovano esattamente N generazioni sopra il loro "
 "discendente più profondo registrato."
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:141
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:153
 msgid "Individuals born in one country and recorded as having died in another"
 msgstr ""
 
@@ -1527,12 +1509,12 @@ msgstr "Maggio"
 msgid "Men"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:139
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:151
 #, fuzzy
 msgid "Migration"
 msgstr "generazioni"
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:146
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:158
 msgid "Migrations between birth and death country"
 msgstr "Migrazioni tra paese di nascita e di morte"
 
@@ -1568,9 +1550,9 @@ msgstr "Lacune di eventi mancanti"
 msgid "Mobile population — migration and relocation were common."
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:158
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:167
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:189
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:170
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:179
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:201
 msgid "Mobility"
 msgstr ""
 
@@ -1620,12 +1602,12 @@ msgstr "Maggior numero di coniugi"
 msgid "Mothers"
 msgstr "Madre più anziana al primo figlio"
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:148
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:160
 #, fuzzy
 msgid "Movement"
 msgstr "Novembre"
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:140
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:152
 msgid "Movements"
 msgstr ""
 
@@ -1681,7 +1663,7 @@ msgid ""
 "Number of children, sibling spacing and the shift toward smaller families"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:160
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:172
 msgid ""
 "Number of distinct places per individual — sedentary vs. migrating "
 "populations"
@@ -1764,7 +1746,7 @@ msgstr "Panoramica"
 msgid "Parenthood"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:147
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:159
 msgid ""
 "Paths of individuals born in one country and recorded as having died in "
 "another"
@@ -1796,26 +1778,25 @@ msgstr ""
 msgid "Pisces"
 msgstr "Pesci"
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:107
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:113
-msgid "Place of birth"
-msgstr "Luogo di nascita"
-
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:129
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:135
-msgid "Place of death"
-msgstr "Luogo della morte"
-
 #: src/Module.php:263
 msgid "Places"
 msgstr "Luoghi"
+
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:118
+#, fuzzy
+msgid "Places of birth"
+msgstr "Luogo di nascita"
+
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:138
+#, fuzzy
+msgid "Places of death"
+msgstr "Luogo della morte"
 
 #: resources/views/modules/statistics-chart/Templates/Names.phtml:89
 msgid "Popularity over decades and marriage alliances between families"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:118
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:124
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:128
 msgid "Recorded residences"
 msgstr "Residenze registrate"
 
@@ -1947,6 +1928,10 @@ msgid ""
 "The maximum generation depth is the longest unbroken parent-child chain "
 "recorded in the tree. The widget walks every individual upward, follows "
 "fathers and mothers in parallel, and reports the deepest verified line."
+msgstr ""
+
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:108
+msgid "Three views of every individual — birth, residence, death"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:148
@@ -2271,7 +2256,7 @@ msgstr "Decessi per mese"
 msgid "peak sign"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:175
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:187
 msgid "places"
 msgstr "luoghi"
 
@@ -2354,6 +2339,24 @@ msgstr ""
 msgctxt "Unknown surname"
 msgid "…"
 msgstr "…"
+
+#, php-format
+#~ msgid "%s recorded country of birth"
+#~ msgid_plural "%s recorded countries of birth"
+#~ msgstr[0] "%s paese di nascita registrato"
+#~ msgstr[1] "%s paesi di nascita registrati"
+
+#, php-format
+#~ msgid "%s recorded country of death"
+#~ msgid_plural "%s recorded countries of death"
+#~ msgstr[0] "%s paese di morte registrato"
+#~ msgstr[1] "%s paesi di morte registrati"
+
+#, php-format
+#~ msgid "%s recorded residence"
+#~ msgid_plural "%s recorded residences"
+#~ msgstr[0] "%s residenza registrata"
+#~ msgstr[1] "%s residenze registrate"
 
 #, fuzzy, php-format
 #~ msgid "%1$s of %2$s individuals"

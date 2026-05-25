@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Statistics\n"
 "Report-Msgid-Bugs-To: https://github.com/magicsunday/webtrees-statistics/"
 "issues\n"
-"POT-Creation-Date: 2026-05-25 14:37+0000\n"
+"POT-Creation-Date: 2026-05-25 14:42+0000\n"
 "PO-Revision-Date: 2026-05-22 07:04+0000\n"
 "Last-Translator: Rico Sonntag <mail@ricosonntag.de>\n"
 "Language-Team: \n"
@@ -395,20 +395,6 @@ msgid_plural "%s recorded birth dates — tree growth across decades"
 msgstr[0] "可见十年中 %s 个已记录出生日期"
 msgstr[1] "可见十年中 %s 个已记录出生日期"
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:108
-#, php-format
-msgid "%s recorded country of birth"
-msgid_plural "%s recorded countries of birth"
-msgstr[0] "%s 个已记录出生国家"
-msgstr[1] "%s 个已记录出生国家"
-
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:130
-#, php-format
-msgid "%s recorded country of death"
-msgid_plural "%s recorded countries of death"
-msgstr[0] "%s 个已记录死亡国家"
-msgstr[1] "%s 个已记录死亡国家"
-
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:478
 #, php-format
 msgid "%s recorded divorce"
@@ -422,13 +408,6 @@ msgid "%s recorded marriage"
 msgid_plural "%s recorded marriages"
 msgstr[0] "%s 例已记录婚姻"
 msgstr[1] "%s 例已记录婚姻"
-
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:119
-#, php-format
-msgid "%s recorded residence"
-msgid_plural "%s recorded residences"
-msgstr[0] "%s 处已记录住所"
-msgstr[1] "%s 处已记录住所"
 
 #: resources/views/modules/statistics-chart/Partials/RecordsTable.phtml:80
 #, php-format
@@ -668,7 +647,7 @@ msgstr "关于此直方图"
 msgid "About this metric"
 msgstr "关于此指标"
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:177
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:189
 #, php-format
 msgid "Across %s individual with at least one recorded place."
 msgid_plural "Across %s individuals with at least one recorded place."
@@ -794,7 +773,7 @@ msgstr "八月"
 msgid "Average birth-year gap parent → child"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:166
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:178
 #, fuzzy
 msgid "Average distinct places per individual"
 msgstr "每人不同地点数"
@@ -1003,8 +982,8 @@ msgstr ""
 msgid "Distinct ancestors up to 4 generations (max. 30)"
 msgstr "记录至四代的不同祖先 (高祖父母)。"
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:187
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:196
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:199
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:208
 msgid "Distinct places per individual"
 msgstr "每人不同地点数"
 
@@ -1013,7 +992,7 @@ msgstr "每人不同地点数"
 msgid "Distribution"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:188
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:200
 msgid "Distribution in buckets"
 msgstr ""
 
@@ -1269,8 +1248,13 @@ msgstr "平均世代长度"
 msgid "Generations"
 msgstr "代"
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:165
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:177
 msgid "Geographic dispersion"
+msgstr "地理分布"
+
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:107
+#, fuzzy
+msgid "Geographic origin & fate"
 msgstr "地理分布"
 
 #: resources/views/modules/statistics-chart/Partials/PlacesPanel.phtml:34
@@ -1279,8 +1263,6 @@ msgid "Geographic view"
 msgstr "地理分布"
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:109
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:120
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:131
 #, fuzzy
 msgid "Geography"
 msgstr "地理分布"
@@ -1311,7 +1293,7 @@ msgstr ""
 msgid "How deep and branched is the tree?"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:159
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:171
 msgid "How far they roamed"
 msgstr ""
 
@@ -1352,7 +1334,7 @@ msgstr "%s 人"
 msgid "Individuals N generations above their deepest descendant"
 msgstr "有多少人正好位于其最深已记录后裔之上的 N 代。"
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:141
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:153
 msgid "Individuals born in one country and recorded as having died in another"
 msgstr ""
 
@@ -1506,12 +1488,12 @@ msgstr "五月"
 msgid "Men"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:139
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:151
 #, fuzzy
 msgid "Migration"
 msgstr "代"
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:146
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:158
 msgid "Migrations between birth and death country"
 msgstr "出生国与死亡国之间的迁移"
 
@@ -1547,9 +1529,9 @@ msgstr "缺少事件的空白"
 msgid "Mobile population — migration and relocation were common."
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:158
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:167
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:189
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:170
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:179
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:201
 msgid "Mobility"
 msgstr ""
 
@@ -1599,12 +1581,12 @@ msgstr "最多配偶"
 msgid "Mothers"
 msgstr "首胎最年长母亲"
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:148
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:160
 #, fuzzy
 msgid "Movement"
 msgstr "十一月"
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:140
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:152
 msgid "Movements"
 msgstr ""
 
@@ -1658,7 +1640,7 @@ msgid ""
 "Number of children, sibling spacing and the shift toward smaller families"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:160
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:172
 msgid ""
 "Number of distinct places per individual — sedentary vs. migrating "
 "populations"
@@ -1741,7 +1723,7 @@ msgstr "概览"
 msgid "Parenthood"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:147
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:159
 msgid ""
 "Paths of individuals born in one country and recorded as having died in "
 "another"
@@ -1773,26 +1755,25 @@ msgstr ""
 msgid "Pisces"
 msgstr "双鱼座"
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:107
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:113
-msgid "Place of birth"
-msgstr "出生地"
-
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:129
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:135
-msgid "Place of death"
-msgstr "去世地"
-
 #: src/Module.php:263
 msgid "Places"
 msgstr "地点"
+
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:118
+#, fuzzy
+msgid "Places of birth"
+msgstr "出生地"
+
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:138
+#, fuzzy
+msgid "Places of death"
+msgstr "去世地"
 
 #: resources/views/modules/statistics-chart/Templates/Names.phtml:89
 msgid "Popularity over decades and marriage alliances between families"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:118
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:124
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:128
 msgid "Recorded residences"
 msgstr "已记录住所"
 
@@ -1924,6 +1905,10 @@ msgid ""
 "The maximum generation depth is the longest unbroken parent-child chain "
 "recorded in the tree. The widget walks every individual upward, follows "
 "fathers and mothers in parallel, and reports the deepest verified line."
+msgstr ""
+
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:108
+msgid "Three views of every individual — birth, residence, death"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:148
@@ -2245,7 +2230,7 @@ msgstr "各月份死亡数"
 msgid "peak sign"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:175
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:187
 msgid "places"
 msgstr "地点"
 
@@ -2328,6 +2313,24 @@ msgstr ""
 msgctxt "Unknown surname"
 msgid "…"
 msgstr "…"
+
+#, php-format
+#~ msgid "%s recorded country of birth"
+#~ msgid_plural "%s recorded countries of birth"
+#~ msgstr[0] "%s 个已记录出生国家"
+#~ msgstr[1] "%s 个已记录出生国家"
+
+#, php-format
+#~ msgid "%s recorded country of death"
+#~ msgid_plural "%s recorded countries of death"
+#~ msgstr[0] "%s 个已记录死亡国家"
+#~ msgstr[1] "%s 个已记录死亡国家"
+
+#, php-format
+#~ msgid "%s recorded residence"
+#~ msgid_plural "%s recorded residences"
+#~ msgstr[0] "%s 处已记录住所"
+#~ msgstr[1] "%s 处已记录住所"
 
 #, fuzzy, php-format
 #~ msgid "%1$s of %2$s individuals"

@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Statistics\n"
 "Report-Msgid-Bugs-To: https://github.com/magicsunday/webtrees-statistics/"
 "issues\n"
-"POT-Creation-Date: 2026-05-25 14:37+0000\n"
+"POT-Creation-Date: 2026-05-25 14:42+0000\n"
 "PO-Revision-Date: 2026-05-22 07:04+0000\n"
 "Last-Translator: Rico Sonntag <mail@ricosonntag.de>\n"
 "Language-Team: \n"
@@ -399,20 +399,6 @@ msgid_plural "%s recorded birth dates — tree growth across decades"
 msgstr[0] "%s registrert fødselsdato i de synlige tiår"
 msgstr[1] "%s registrerte fødselsdatoer i de synlige tiår"
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:108
-#, php-format
-msgid "%s recorded country of birth"
-msgid_plural "%s recorded countries of birth"
-msgstr[0] "%s registrert fødeland"
-msgstr[1] "%s registrerte fødeland"
-
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:130
-#, php-format
-msgid "%s recorded country of death"
-msgid_plural "%s recorded countries of death"
-msgstr[0] "%s registrert dødsland"
-msgstr[1] "%s registrerte dødsland"
-
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:478
 #, php-format
 msgid "%s recorded divorce"
@@ -426,13 +412,6 @@ msgid "%s recorded marriage"
 msgid_plural "%s recorded marriages"
 msgstr[0] "%s registrert ekteskap"
 msgstr[1] "%s registrerte ekteskap"
-
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:119
-#, php-format
-msgid "%s recorded residence"
-msgid_plural "%s recorded residences"
-msgstr[0] "%s registrert bosted"
-msgstr[1] "%s registrerte bosteder"
 
 #: resources/views/modules/statistics-chart/Partials/RecordsTable.phtml:80
 #, php-format
@@ -672,7 +651,7 @@ msgstr "Om dette histogrammet"
 msgid "About this metric"
 msgstr "Om denne målingen"
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:177
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:189
 #, php-format
 msgid "Across %s individual with at least one recorded place."
 msgid_plural "Across %s individuals with at least one recorded place."
@@ -800,7 +779,7 @@ msgstr "August"
 msgid "Average birth-year gap parent → child"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:166
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:178
 #, fuzzy
 msgid "Average distinct places per individual"
 msgstr "Forskjellige steder per person"
@@ -1011,8 +990,8 @@ msgstr ""
 "Forskjellige forfedre registrert opp til fire generasjoner "
 "(tippoldeforeldre)."
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:187
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:196
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:199
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:208
 msgid "Distinct places per individual"
 msgstr "Forskjellige steder per person"
 
@@ -1021,7 +1000,7 @@ msgstr "Forskjellige steder per person"
 msgid "Distribution"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:188
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:200
 msgid "Distribution in buckets"
 msgstr ""
 
@@ -1281,8 +1260,13 @@ msgstr "Gjennomsnittlig generasjonslengde"
 msgid "Generations"
 msgstr "generasjoner"
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:165
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:177
 msgid "Geographic dispersion"
+msgstr "Geografisk spredning"
+
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:107
+#, fuzzy
+msgid "Geographic origin & fate"
 msgstr "Geografisk spredning"
 
 #: resources/views/modules/statistics-chart/Partials/PlacesPanel.phtml:34
@@ -1291,8 +1275,6 @@ msgid "Geographic view"
 msgstr "Geografisk spredning"
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:109
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:120
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:131
 #, fuzzy
 msgid "Geography"
 msgstr "Geografisk spredning"
@@ -1323,7 +1305,7 @@ msgstr ""
 msgid "How deep and branched is the tree?"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:159
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:171
 msgid "How far they roamed"
 msgstr ""
 
@@ -1366,7 +1348,7 @@ msgstr ""
 "Hvor mange personer sitter nøyaktig N generasjoner over deres dypeste "
 "registrerte etterkommer."
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:141
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:153
 msgid "Individuals born in one country and recorded as having died in another"
 msgstr ""
 
@@ -1522,12 +1504,12 @@ msgstr "Mai"
 msgid "Men"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:139
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:151
 #, fuzzy
 msgid "Migration"
 msgstr "generasjoner"
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:146
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:158
 msgid "Migrations between birth and death country"
 msgstr "Migrasjoner mellom fødeland og dødsland"
 
@@ -1563,9 +1545,9 @@ msgstr "Hull i manglende hendelser"
 msgid "Mobile population — migration and relocation were common."
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:158
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:167
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:189
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:170
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:179
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:201
 msgid "Mobility"
 msgstr ""
 
@@ -1615,12 +1597,12 @@ msgstr "Flest ektefeller"
 msgid "Mothers"
 msgstr "Eldste mor ved første barn"
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:148
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:160
 #, fuzzy
 msgid "Movement"
 msgstr "November"
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:140
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:152
 msgid "Movements"
 msgstr ""
 
@@ -1674,7 +1656,7 @@ msgid ""
 "Number of children, sibling spacing and the shift toward smaller families"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:160
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:172
 msgid ""
 "Number of distinct places per individual — sedentary vs. migrating "
 "populations"
@@ -1757,7 +1739,7 @@ msgstr "Oversikt"
 msgid "Parenthood"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:147
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:159
 msgid ""
 "Paths of individuals born in one country and recorded as having died in "
 "another"
@@ -1789,26 +1771,25 @@ msgstr ""
 msgid "Pisces"
 msgstr "Fiskene"
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:107
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:113
-msgid "Place of birth"
-msgstr "Fødselssted"
-
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:129
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:135
-msgid "Place of death"
-msgstr "Sted for dødsfall"
-
 #: src/Module.php:263
 msgid "Places"
 msgstr "Steder"
+
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:118
+#, fuzzy
+msgid "Places of birth"
+msgstr "Fødselssted"
+
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:138
+#, fuzzy
+msgid "Places of death"
+msgstr "Sted for dødsfall"
 
 #: resources/views/modules/statistics-chart/Templates/Names.phtml:89
 msgid "Popularity over decades and marriage alliances between families"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:118
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:124
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:128
 msgid "Recorded residences"
 msgstr "Registrerte bosteder"
 
@@ -1940,6 +1921,10 @@ msgid ""
 "The maximum generation depth is the longest unbroken parent-child chain "
 "recorded in the tree. The widget walks every individual upward, follows "
 "fathers and mothers in parallel, and reports the deepest verified line."
+msgstr ""
+
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:108
+msgid "Three views of every individual — birth, residence, death"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:148
@@ -2263,7 +2248,7 @@ msgstr "Dødsfall per måned"
 msgid "peak sign"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:175
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:187
 msgid "places"
 msgstr "steder"
 
@@ -2346,6 +2331,24 @@ msgstr ""
 msgctxt "Unknown surname"
 msgid "…"
 msgstr "…"
+
+#, php-format
+#~ msgid "%s recorded country of birth"
+#~ msgid_plural "%s recorded countries of birth"
+#~ msgstr[0] "%s registrert fødeland"
+#~ msgstr[1] "%s registrerte fødeland"
+
+#, php-format
+#~ msgid "%s recorded country of death"
+#~ msgid_plural "%s recorded countries of death"
+#~ msgstr[0] "%s registrert dødsland"
+#~ msgstr[1] "%s registrerte dødsland"
+
+#, php-format
+#~ msgid "%s recorded residence"
+#~ msgid_plural "%s recorded residences"
+#~ msgstr[0] "%s registrert bosted"
+#~ msgstr[1] "%s registrerte bosteder"
 
 #, fuzzy, php-format
 #~ msgid "%1$s of %2$s individuals"

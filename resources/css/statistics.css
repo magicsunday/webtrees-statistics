@@ -2439,6 +2439,96 @@
 }
 
 /* ----------------------------------------------------------------------
+   Places panel — single card holding the three geographic views
+   (place of birth / recorded residences / place of death) behind
+   an inline tab strip. The active tab swaps the panel below + the
+   accent colour via the `--view-accent` CSS variable bound on the
+   wrapper's data-view attribute. Pure CSS toggle — no per-tab JS
+   re-init beyond the click-to-toggle handler in modules/index.js.
+   -------------------------------------------------------------------- */
+.wt-statistics-chart .wt-stat-places {
+    --view-accent: var(--slate);
+}
+
+.wt-statistics-chart .wt-stat-places[data-view="birth"] {
+    --view-accent: var(--sage);
+}
+
+.wt-statistics-chart .wt-stat-places[data-view="residence"] {
+    --view-accent: var(--slate);
+}
+
+.wt-statistics-chart .wt-stat-places[data-view="death"] {
+    --view-accent: var(--wine);
+}
+
+.wt-statistics-chart .wt-stat-places-tabs {
+    display:        flex;
+    flex-wrap:      wrap;
+    gap:            8px;
+    margin-bottom:  18px;
+    padding-bottom: 12px;
+    border-bottom:  1px solid var(--border-soft);
+}
+
+.wt-statistics-chart .wt-stat-places-tab {
+    display:       inline-flex;
+    align-items:   baseline;
+    gap:           8px;
+    padding:       6px 12px;
+    border:        1px solid var(--border);
+    border-radius: 4px;
+    background:    transparent;
+    font-family:   var(--sans);
+    font-size:     13px;
+    color:         var(--ink-2);
+    cursor:        pointer;
+    transition:    border-color 160ms, color 160ms, background-color 160ms;
+}
+
+.wt-statistics-chart .wt-stat-places-tab:hover {
+    border-color: var(--ink-3);
+    color:        var(--ink);
+}
+
+.wt-statistics-chart .wt-stat-places-tab.is-active {
+    border-color: var(--view-accent);
+    color:        var(--ink);
+    background:   color-mix(in srgb, var(--view-accent) 8%, transparent);
+}
+
+.wt-statistics-chart .wt-stat-places-tab-lab {
+    font-weight: 500;
+}
+
+.wt-statistics-chart .wt-stat-places-tab-num {
+    font-size:            11px;
+    color:                var(--ink-3);
+    font-variant-numeric: tabular-nums;
+}
+
+.wt-statistics-chart .wt-stat-places-tab.is-active .wt-stat-places-tab-num {
+    color: var(--view-accent);
+}
+
+.wt-statistics-chart .wt-stat-places-panel {
+    display: none;
+}
+
+.wt-statistics-chart .wt-stat-places-panel.is-active {
+    display:               grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2.5fr);
+    gap:                   24px;
+    align-items:           start;
+}
+
+@media (max-width: 720px) {
+    .wt-statistics-chart .wt-stat-places-panel.is-active {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ----------------------------------------------------------------------
    Heat strip — gap heatmap for the Tree-health tab. Pure HTML/CSS
    rendering of the design2 `<HeatStrip>` row. One row per metric;
    the sage→ochre→wine track shows the "missing" share, the cover
