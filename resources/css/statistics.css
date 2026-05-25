@@ -2747,6 +2747,40 @@
     text-align:  right;
 }
 
+/* Tablet stage — shrink the fixed label + value columns so the
+   row keeps the 3-column rhythm without overflowing a span-12
+   card squeezed by the studio-surface chrome. Mirrors design2's
+   1100-px adjustment. */
+@media (max-width: 1100px) {
+    .wt-statistics-chart .wt-stat-heatstrip-row {
+        grid-template-columns: 170px 1fr 160px;
+    }
+}
+
+/* Phone stage — fall to a single column so the label, the
+   track and the value triple stack vertically; without this
+   rule the fixed 170 + 160 px columns crowd the 297-px card
+   body and push the values off-screen. Mirrors design2's
+   760-px stack. */
+@media (max-width: 760px) {
+    .wt-statistics-chart .wt-stat-heatstrip-row {
+        grid-template-columns: 1fr;
+        gap:                   6px;
+        padding:               14px 0;
+    }
+
+    .wt-statistics-chart .wt-stat-heatstrip-val {
+        grid-template-columns: auto auto auto 1fr;
+        justify-content:       flex-start;
+        column-gap:            8px;
+    }
+
+    .wt-statistics-chart .wt-stat-heatstrip-total,
+    .wt-statistics-chart .wt-stat-heatstrip-missing {
+        text-align: left;
+    }
+}
+
 /* ----------------------------------------------------------------------
    Stacked bar chart (chart-lib StackedBar)
    -------------------------------------------------------------------- */
