@@ -12,22 +12,23 @@ declare(strict_types=1);
 use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
 
 /**
- * GaugeArc widget shell. The payload is a single percentage value
- * (0–100); the consumer-rendered meta + caption strings live
- * outside the SVG so the gauge stays a pure chart-lib widget.
+ * GaugeArc widget shell. The SVG widget paints arc + headline `%`
+ * value only — the textual `label`, `meta` and `caption` strings
+ * render as sibling DOM elements UNDER the SVG so they sit clear
+ * of the bignum read.
  *
  * @var float       $value   Percentage value 0–100
  * @var string      $accent  CSS color literal for the filled arc
- * @var string      $label   Tiny caption underneath the value (e.g. "Lacy 1989")
- * @var string|null $meta    Optional mono caption rendered below the SVG (e.g. "326 of 2,156 individuals")
+ * @var string|null $label   Tiny eyebrow-style caption directly beneath the arc (e.g. "Lacy 1989")
+ * @var string|null $meta    Optional mono caption (e.g. "326 of 2,156")
  * @var string|null $caption Optional muted caption rendered under meta
  */
 $payload = ['value' => (float) $value];
 $options = [
     'accent' => (string) ($accent ?? 'var(--wine)'),
-    'label'  => (string) ($label ?? ''),
 ];
 
+$label   ??= null;
 $meta    ??= null;
 $caption ??= null;
 ?>
@@ -36,6 +37,9 @@ $caption ??= null;
          data-widget="gauge-arc"
          data-payload="<?php echo e(WidgetJson::encode($payload)); ?>"
          data-options="<?php echo e(WidgetJson::encode($options)); ?>"></div>
+    <?php if ($label !== null && $label !== '') { ?>
+        <div class="wt-stat-gauge-label"><?php echo e((string) $label); ?></div>
+    <?php } ?>
     <?php if ($meta !== null && $meta !== '') { ?>
         <div class="wt-stat-gauge-meta">
             <span class="wt-stat-gauge-meta-line wt-stat-mono"><?php echo e($meta); ?></span>

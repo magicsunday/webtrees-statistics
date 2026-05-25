@@ -653,7 +653,13 @@
 
 /* Card header */
 .wt-statistics-chart .wt-stat-card-head {
-    margin: 0 0 22px;
+    /* Reserve a baseline height for the header block so cards in
+       the same grid row stay aligned at the body — a longer sub
+       on one card won't push its chart lower than its neighbours.
+       96 px covers eyebrow (≈22) + title (≈38) + 3-line sub
+       (≈36), enough for every card-head text in the module. */
+    min-height: 96px;
+    margin:     0 0 22px;
 }
 
 .wt-statistics-chart .wt-stat-card-eyebrow {
@@ -1141,11 +1147,26 @@
     height:  auto;
 }
 
+/* Eyebrow-style caption right under the gauge SVG (e.g.
+   "DOCUMENTED" / "LACY 1989") — matches design2 `.gs-gauge-label`,
+   sitting between the arc and the mono meta line. */
+.wt-statistics-chart .wt-stat-gauge-label {
+    margin:         8px 0 0;
+    font-family:    var(--sans);
+    font-size:      10px;
+    font-weight:    500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color:          var(--ink-2);
+    text-align:     center;
+}
+
 .wt-statistics-chart .wt-stat-gauge-meta {
     display:        flex;
     flex-direction: column;
     align-items:    center;
     gap:            4px;
+    margin-top:     12px;
     text-align:     center;
 }
 
