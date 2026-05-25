@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Statistics\n"
 "Report-Msgid-Bugs-To: https://github.com/magicsunday/webtrees-statistics/"
 "issues\n"
-"POT-Creation-Date: 2026-05-25 14:07+0000\n"
+"POT-Creation-Date: 2026-05-25 14:09+0000\n"
 "PO-Revision-Date: 2026-05-22 07:04+0000\n"
 "Last-Translator: Rico Sonntag <mail@ricosonntag.de>\n"
 "Language-Team: \n"
@@ -183,14 +183,6 @@ msgstr "%s różnych przyczyn (top 15 pokazanych)"
 #, fuzzy, php-format
 msgid "%s distinct given names (top 15)"
 msgstr "%s różnych imion męskich (top 15 pokazanych)"
-
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:147
-#, php-format
-msgid "%s distinct migration path"
-msgid_plural "%s distinct migration paths"
-msgstr[0] "%s odrębna ścieżka migracji"
-msgstr[1] "%s odrębnych ścieżek migracji"
-msgstr[2] ""
 
 #: resources/views/modules/statistics-chart/Templates/Overview.phtml:115
 #, fuzzy, php-format
@@ -1799,6 +1791,12 @@ msgstr "Przegląd"
 msgid "PARENTHOOD"
 msgstr ""
 
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:147
+msgid ""
+"Paths of individuals born in one country and recorded as having died in "
+"another"
+msgstr ""
+
 #: resources/views/modules/statistics-chart/Partials/MonthRadial.phtml:38
 msgid "Peak"
 msgstr ""
@@ -2378,6 +2376,13 @@ msgstr ""
 msgctxt "Unknown surname"
 msgid "…"
 msgstr "…"
+
+#, php-format
+#~ msgid "%s distinct migration path"
+#~ msgid_plural "%s distinct migration paths"
+#~ msgstr[0] "%s odrębna ścieżka migracji"
+#~ msgstr[1] "%s odrębnych ścieżek migracji"
+#~ msgstr[2] ""
 
 #~ msgid "Divorces"
 #~ msgstr "Rozwody"

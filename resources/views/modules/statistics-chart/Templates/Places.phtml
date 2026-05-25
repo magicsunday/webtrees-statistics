@@ -144,7 +144,7 @@ $placesPanel = static function (string $title, string $progressClass, string $ma
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
         'module'       => $module,
         'title'        => I18N::translate('Migrations between birth and death country'),
-        'sub'          => I18N::plural('%s distinct migration path', '%s distinct migration paths', count($migrationFlows->links), I18N::number(count($migrationFlows->links))),
+        'sub'          => I18N::translate('Paths of individuals born in one country and recorded as having died in another'),
         'eyebrow'      => I18N::translate('MOVEMENT'),
         'accent'       => 'var(--wine)',
         'illustration' => 'boat',
