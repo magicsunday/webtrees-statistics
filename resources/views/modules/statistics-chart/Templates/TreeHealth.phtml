@@ -195,12 +195,9 @@ $endogamyExplanation = I18N::translate(
         'accent'       => 'var(--wine)',
         'illustration' => 'magnifier',
         'span'         => 12,
-        'bodyRenderer' => static function () use ($module, $gapRows): void {
-            echo view($module . '::modules/statistics-chart/Partials/RateList', [
-                'class' => 'progress-tree-health-gap',
-                'data'  => $gapRows,
-            ]);
-        },
+        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/HeatStrip', [
+            'rows' => $gapRows,
+        ]),
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Section', [

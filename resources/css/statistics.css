@@ -2439,6 +2439,91 @@
 }
 
 /* ----------------------------------------------------------------------
+   Heat strip — gap heatmap for the Tree-health tab. Pure HTML/CSS
+   rendering of the design2 `<HeatStrip>` row. One row per metric;
+   the sage→ochre→wine track shows the "missing" share, the cover
+   on the right hides the non-missing portion, the vertical marker
+   sits on the boundary.
+   -------------------------------------------------------------------- */
+.wt-statistics-chart .wt-stat-heatstrip {
+    display:        flex;
+    flex-direction: column;
+    gap:            6px;
+}
+
+.wt-statistics-chart .wt-stat-heatstrip-row {
+    display:               grid;
+    grid-template-columns: 220px 1fr 200px;
+    align-items:           center;
+    gap:                   16px;
+    padding:               12px 0;
+    border-bottom:         1px solid var(--border-soft);
+}
+
+.wt-statistics-chart .wt-stat-heatstrip-row:last-child {
+    border-bottom: none;
+}
+
+.wt-statistics-chart .wt-stat-heatstrip-label {
+    font-size: 13px;
+    color:     var(--ink);
+}
+
+.wt-statistics-chart .wt-stat-heatstrip-track {
+    position:      relative;
+    height:        14px;
+    background:    linear-gradient(90deg, var(--sage) 0%, var(--ochre) 50%, var(--wine) 100%);
+    border-radius: 3px;
+    overflow:      hidden;
+}
+
+.wt-statistics-chart .wt-stat-heatstrip-cover {
+    position:   absolute;
+    top:        0;
+    bottom:     0;
+    right:      0;
+    background: var(--border-soft);
+}
+
+.wt-statistics-chart .wt-stat-heatstrip-marker {
+    position:       absolute;
+    top:            -2px;
+    bottom:         -2px;
+    width:          2px;
+    background:     var(--ink);
+    pointer-events: none;
+}
+
+.wt-statistics-chart .wt-stat-heatstrip-val {
+    display:               grid;
+    grid-template-columns: 1fr auto 1fr 60px;
+    align-items:           center;
+    column-gap:            6px;
+    font-size:             12px;
+}
+
+.wt-statistics-chart .wt-stat-heatstrip-missing {
+    color:      var(--ink);
+    text-align: right;
+}
+
+.wt-statistics-chart .wt-stat-heatstrip-slash {
+    color: var(--ink-3);
+}
+
+.wt-statistics-chart .wt-stat-heatstrip-total {
+    color:      var(--ink-3);
+    text-align: left;
+}
+
+.wt-statistics-chart .wt-stat-heatstrip-pct {
+    font-size:   14px;
+    font-weight: 500;
+    color:       var(--wine);
+    text-align:  right;
+}
+
+/* ----------------------------------------------------------------------
    Stacked bar chart (chart-lib StackedBar)
    -------------------------------------------------------------------- */
 
