@@ -44,7 +44,8 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
 
     /**
      * Age-at-divorce histogram for husbands surfaces Alf (40),
-     * Bert (50), Dirk (45) in their respective 5-year buckets.
+     * Bert (50), Dirk (45) in their respective 10-year buckets —
+     * Alf and Dirk both fall into 40-49, Bert into 50-59.
      */
     #[Test]
     public function ageAtDivorceDistributionBucketsHusbands(): void
@@ -52,9 +53,8 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('divorce.ged');
         $result = $this->repository($tree)->ageAtDivorceDistribution('M');
 
-        self::assertSame(1, $result['40–44'] ?? null);
-        self::assertSame(1, $result['45–49'] ?? null);
-        self::assertSame(1, $result['50–54'] ?? null);
+        self::assertSame(2, $result['40–49'] ?? null);
+        self::assertSame(1, $result['50–59'] ?? null);
         self::assertSame(3, array_sum($result));
     }
 
@@ -117,8 +117,8 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
 
     /**
      * Age-at-divorce for wives separately: Anna 1952 → 1990 = 38
-     * → 35-39 bucket; Beate 1958 → 2005 = 47 → 45-49; Doris 1972
-     * → 2015 = 43 → 40-44.
+     * → 30-39 bucket; Beate 1958 → 2005 = 47 → 40-49; Doris 1972
+     * → 2015 = 43 → 40-49.
      */
     #[Test]
     public function ageAtDivorceDistributionForWives(): void
@@ -126,9 +126,8 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('divorce.ged');
         $result = $this->repository($tree)->ageAtDivorceDistribution('F');
 
-        self::assertSame(1, $result['35–39'] ?? null);
-        self::assertSame(1, $result['40–44'] ?? null);
-        self::assertSame(1, $result['45–49'] ?? null);
+        self::assertSame(1, $result['30–39'] ?? null);
+        self::assertSame(2, $result['40–49'] ?? null);
         self::assertSame(3, array_sum($result));
     }
 

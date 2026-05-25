@@ -44,7 +44,7 @@ use function round;
  */
 final readonly class DivorceRepository
 {
-    private const int AGE_AT_DIVORCE_BUCKET = 5;
+    private const int AGE_AT_DIVORCE_BUCKET = 10;
 
     private const int AGE_AT_DIVORCE_MAX = 80;
 
