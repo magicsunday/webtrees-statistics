@@ -5,9 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Statistics\n"
-"Report-Msgid-Bugs-To: https://github.com/magicsunday/webtrees-statistics/"
-"issues\n"
-"POT-Creation-Date: 2026-05-25 14:42+0000\n"
+"Report-Msgid-Bugs-To: https://github.com/magicsunday/webtrees-statistics/issues\n"
+"POT-Creation-Date: 2026-05-25 16:25+0000\n"
 "PO-Revision-Date: 2026-05-22 07:04+0000\n"
 "Last-Translator: Rico Sonntag <mail@ricosonntag.de>\n"
 "Language-Team: \n"
@@ -15,8 +14,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
-"X-Generator: Poedit 3.5\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 X-Generator: Poedit 3.5\n"
 "X-Poedit-Basepath: ../../..\n"
 "X-Poedit-KeywordsList: translate;translateContext:1c,2;plural:1,2\n"
 "X-Poedit-SearchPath-0: src\n"
@@ -28,12 +26,12 @@ msgstr ""
 msgid "%1$s children per family (n = %2$s)"
 msgstr "%1$s dzieci na rodzinę (n = %2$s)"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:313
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:312
 #, fuzzy, php-format
 msgid "%1$s fathers and %2$s mothers with a dated first child"
 msgstr "%s ojciec z datowanym pierwszym dzieckiem"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:232
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:231
 #, fuzzy, php-format
 msgid "%1$s husbands and %2$s wives with a known marriage age"
 msgstr "%s mąż ze znanym wiekiem ślubu"
@@ -70,8 +68,8 @@ msgstr[1] ""
 "zarejestrowanego rodzica, dzieli wspólnego przodka."
 msgstr[2] ""
 
-#: src/Repository/LifeSpanRepository.php:519
-#: src/Repository/LifeSpanRepository.php:526
+#: src/Repository/LifeSpanRepository.php:518
+#: src/Repository/LifeSpanRepository.php:525
 #, php-format
 msgid "%1$s years (n = %2$s)"
 msgstr "%1$s lat (n = %2$s)"
@@ -132,7 +130,7 @@ msgstr[0] "%s para następujących po sobie rodzeństwa"
 msgstr[1] "%s par następujących po sobie rodzeństwa"
 msgstr[2] ""
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:216
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:215
 #, php-format
 msgid "%s couple"
 msgid_plural "%s couples"
@@ -140,7 +138,7 @@ msgstr[0] "%s para"
 msgstr[1] "%s par"
 msgstr[2] ""
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:249
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:248
 #, php-format
 msgid "%s couple with a measurable duration"
 msgid_plural "%s couples with a measurable duration"
@@ -148,7 +146,7 @@ msgstr[0] "%s para z mierzalnym czasem trwania"
 msgstr[1] "%s par z mierzalnym czasem trwania"
 msgstr[2] ""
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:261
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:260
 #, php-format
 msgid "%s couple with both birth dates"
 msgid_plural "%s couples with both birth dates"
@@ -218,7 +216,7 @@ msgstr "%s różnych religii (top 15 pokazanych)"
 msgid "%s distinct surnames (top 15)"
 msgstr "%s różnych nazwisk (top 15 pokazanych)"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:154
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:153
 #, php-format
 msgid "%s divorce"
 msgid_plural "%s divorces"
@@ -243,14 +241,14 @@ msgstr[0] "%s rodzina"
 msgstr[1] "%s rodziny"
 msgstr[2] ""
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:107
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:106
 #, fuzzy, php-format
 msgid "%s father"
 msgid_plural "%s fathers"
 msgstr[0] "Najstarszy zmarły"
 msgstr[1] "Najstarszy zmarły"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:330
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:329
 #, fuzzy, php-format
 msgid "%s first-born child"
 msgid_plural "%s first-born children"
@@ -264,7 +262,7 @@ msgid_plural "%s generations deep"
 msgstr[0] "Maksymalna głębokość pokoleń"
 msgstr[1] "Maksymalna głębokość pokoleń"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:83
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:82
 #, fuzzy, php-format
 msgid "%s husband"
 msgid_plural "%s husbands"
@@ -348,9 +346,9 @@ msgstr[1] "%s osób z datami urodzenia i zgonu"
 msgstr[2] ""
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:54
-#, php-format
+#, php-format, fuzzy
 msgid "%s known ancestors"
-msgstr ""
+msgstr "%s known ancestors"
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:191
 #, php-format
@@ -360,16 +358,16 @@ msgstr[0] "%s żyjąca osoba z datą urodzenia"
 msgstr[1] "%s żyjących osób z datą urodzenia"
 msgstr[2] ""
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:131
-#, php-format
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:130
+#, php-format, fuzzy
 msgid "%s man"
 msgid_plural "%s men"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%s man"
+msgstr[1] "%s men"
 
 #: resources/views/modules/statistics-chart/Partials/RecordsGrid.phtml:77
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:67
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:181
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:66
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:180
 #, php-format
 msgid "%s marriage"
 msgid_plural "%s marriages"
@@ -377,7 +375,7 @@ msgstr[0] "%s małżeństwo"
 msgstr[1] "%s małżeństw"
 msgstr[2] ""
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:281
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:280
 #, php-format
 msgid "%s marriage with a recorded month"
 msgid_plural "%s marriages with a recorded month"
@@ -385,7 +383,7 @@ msgstr[0] "%s małżeństwo z zarejestrowanym miesiącem"
 msgstr[1] "%s małżeństw z zarejestrowanym miesiącem"
 msgstr[2] ""
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:119
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:118
 #, fuzzy, php-format
 msgid "%s mother"
 msgid_plural "%s mothers"
@@ -435,7 +433,7 @@ msgstr[0] "%s zarejestrowany rozwód"
 msgstr[1] "%s zarejestrowanych rozwodów"
 msgstr[2] ""
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:292
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:291
 #, php-format
 msgid "%s recorded marriage"
 msgid_plural "%s recorded marriages"
@@ -451,19 +449,19 @@ msgstr[0] "%s małżonek"
 msgstr[1] "%s małżonków"
 msgstr[2] ""
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:95
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:94
 #, fuzzy, php-format
 msgid "%s wife"
 msgid_plural "%s wives"
 msgstr[0] "Najstarszy żyjący"
 msgstr[1] "Najstarszy żyjący"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:143
-#, php-format
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:142
+#, php-format, fuzzy
 msgid "%s woman"
 msgid_plural "%s women"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%s woman"
+msgstr[1] "%s women"
 
 #: resources/views/modules/statistics-chart/Partials/RecordsGrid.phtml:29
 #: resources/views/modules/statistics-chart/Partials/RecordsGrid.phtml:35
@@ -494,20 +492,20 @@ msgstr[0] "%s rok"
 msgstr[1] "%s lata"
 msgstr[2] ""
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:82
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:94
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:106
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:118
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:130
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:142
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:180
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:81
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:93
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:105
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:117
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:129
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:141
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:179
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:57
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:132
 #, php-format
 msgid "%s years"
 msgstr "%s lat"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:171
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:170
 #, php-format
 msgid "%s%% divorced"
 msgstr "%s%% rozwiedzionych"
@@ -522,7 +520,7 @@ msgstr[2] ""
 
 #: resources/views/modules/statistics-chart/Partials/Hero.phtml:40
 #: resources/views/modules/statistics-chart/Partials/Hero.phtml:41
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:169
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:168
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:68
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:70
 #: src/Repository/ChildrenRepository.php:250
@@ -536,9 +534,9 @@ msgid "%sy"
 msgstr "lata %s."
 
 #: src/Support/SiblingGapRowMapper.php:71
-#, php-format
+#, php-format, fuzzy
 msgid "%sy+"
-msgstr ""
+msgstr "%sy+"
 
 #: src/Support/CenturyName.php:78
 msgctxt "CENTURY"
@@ -616,8 +614,9 @@ msgid "3rd"
 msgstr "3."
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:181
+#, fuzzy
 msgid "40 yr"
-msgstr ""
+msgstr "40 yr"
 
 #: src/Support/CenturyName.php:84
 msgctxt "CENTURY"
@@ -650,11 +649,12 @@ msgid "9th"
 msgstr "9."
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:61
+#, fuzzy
 msgid "A sedentary population — most lived and died in the same place."
-msgstr ""
+msgstr "A sedentary population — most lived and died in the same place."
 
 #: resources/views/modules/statistics-chart/Partials/Hero.phtml:25
-#, php-format
+#, php-format, fuzzy
 msgid ""
 "A statistical reading of one family tree over a single century — births, "
 "marriages, migrations and gaps in the archive."
@@ -662,13 +662,20 @@ msgid_plural ""
 "A statistical reading of one family tree over %s centuries — births, "
 "marriages, migrations and gaps in the archive."
 msgstr[0] ""
+"A statistical reading of one family tree over a single century — births, "
+"marriages, migrations and gaps in the archive."
 msgstr[1] ""
+"A statistical reading of one family tree over %s centuries — births, "
+"marriages, migrations and gaps in the archive."
 
 #: resources/views/modules/statistics-chart/Partials/Hero.phtml:30
+#, fuzzy
 msgid ""
-"A statistical reading of one family tree — births, marriages, migrations and "
-"gaps in the archive."
+"A statistical reading of one family tree — births, marriages, migrations and"
+" gaps in the archive."
 msgstr ""
+"A statistical reading of one family tree — births, marriages, migrations and"
+" gaps in the archive."
 
 #: resources/views/modules/statistics-chart/Partials/Card.phtml:111
 #: resources/views/modules/statistics-chart/Partials/Card.phtml:113
@@ -693,8 +700,9 @@ msgstr[1] "Wśród %s osób z co najmniej jednym zarejestrowanym miejscem."
 msgstr[2] ""
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:494
+#, fuzzy
 msgid "Age"
-msgstr ""
+msgstr "Age"
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:172
 msgid "Age at death (10-year bands)"
@@ -713,75 +721,100 @@ msgstr ""
 "zarejestrowaną płeć."
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:167
+#, fuzzy
 msgid "Age at death, longevity and life-stage of the living"
-msgstr ""
+msgstr "Age at death, longevity and life-stage of the living"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:312
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:311
 #, fuzzy
 msgid "Age at first child"
 msgstr "Wiek przy pierwszym dziecku — ojcowie"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:307
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:306
 #, fuzzy
 msgid "Age at first child and seasonal patterns of birth"
 msgstr "Wiek przy pierwszym dziecku — ojcowie"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:237
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:236
+#, fuzzy
 msgid ""
 "Age at first marriage, mirrored: husbands on top, wives below. Both sides "
 "share the same age bands so the two distributions can be compared at a "
 "glance."
 msgstr ""
+"Age at first marriage, mirrored: husbands on top, wives below. Both sides "
+"share the same age bands so the two distributions can be compared at a "
+"glance."
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:231
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:230
 #, fuzzy
 msgid "Age at marriage"
 msgstr "Najdłuższy staż"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:226
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:225
+#, fuzzy
 msgid "Age at marriage, duration and the age gap between the spouses"
-msgstr ""
+msgstr "Age at marriage, duration and the age gap between the spouses"
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:380
+#, fuzzy
 msgid ""
 "Age difference between consecutive siblings in the same family. Very small "
 "gaps (< 1 year) often signal twins or close-spaced births; very large gaps "
 "(10+ years) typically reflect second marriages or long intervals."
 msgstr ""
+"Age difference between consecutive siblings in the same family. Very small "
+"gaps (< 1 year) often signal twins or close-spaced births; very large gaps "
+"(10+ years) typically reflect second marriages or long intervals."
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:268
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:267
+#, fuzzy
 msgid ""
 "Age difference between spouses at marriage. Negative values (left, slate) "
 "mean the husband is older; positive values (right, rose) mean the wife is "
 "older. Bars are bucketed in 5-year bands; 30+ collapses everything above 29 "
 "years."
 msgstr ""
+"Age difference between spouses at marriage. Negative values (left, slate) "
+"mean the husband is older; positive values (right, rose) mean the wife is "
+"older. Bars are bucketed in 5-year bands; 30+ collapses everything above 29 "
+"years."
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:229
 msgid "Age in years at death, longest-lived first"
 msgstr "Wiek w latach przy zgonie, najdłużej żyjący pierwsi"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:318
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:317
+#, fuzzy
 msgid ""
 "Age of each parent at the birth of their first child. Top side shows "
 "fathers, bottom shows mothers — both share the same age bands so the two "
 "distributions can be compared at a glance."
 msgstr ""
+"Age of each parent at the birth of their first child. Top side shows "
+"fathers, bottom shows mothers — both share the same age bands so the two "
+"distributions can be compared at a glance."
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:498
+#, fuzzy
 msgid ""
 "Age of each spouse at the recorded divorce date. Mirrored so men and women "
 "share the same age bands and can be compared side by side. Empty bands stay "
 "visible so cohort gaps are not hidden."
 msgstr ""
+"Age of each spouse at the recorded divorce date. Mirrored so men and women "
+"share the same age bands and can be compared side by side. Empty bands stay "
+"visible so cohort gaps are not hidden."
 
 #: resources/views/modules/statistics-chart/Templates/Names.phtml:114
+#, fuzzy
 msgid "Alliances"
-msgstr ""
+msgstr "Alliances"
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:252
+#, fuzzy
 msgid "Ancestors"
-msgstr ""
+msgstr "Ancestors"
 
 #: src/Statistic.php:952
 msgctxt "NOMINATIVE"
@@ -804,7 +837,8 @@ msgstr ""
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:169
 msgid "At least one parent-child pair with parseable birth dates is required."
 msgstr ""
-"Wymagana co najmniej jedna para rodzic-dziecko z czytelnymi datami urodzenia."
+"Wymagana co najmniej jedna para rodzic-dziecko z czytelnymi datami "
+"urodzenia."
 
 #: src/Statistic.php:956
 msgctxt "NOMINATIVE"
@@ -812,8 +846,9 @@ msgid "August"
 msgstr "Sierpień"
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:147
+#, fuzzy
 msgid "Average birth-year gap parent → child"
-msgstr ""
+msgstr "Average birth-year gap parent → child"
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:178
 #, fuzzy
@@ -842,7 +877,8 @@ msgstr "Średnia: %s"
 #, fuzzy
 msgid "Averaged across every parent-child pair with parseable birth dates."
 msgstr ""
-"Wymagana co najmniej jedna para rodzic-dziecko z czytelnymi datami urodzenia."
+"Wymagana co najmniej jedna para rodzic-dziecko z czytelnymi datami "
+"urodzenia."
 
 #: resources/views/modules/statistics-chart/Partials/Hero.phtml:81
 #, fuzzy
@@ -873,9 +909,11 @@ msgid "Births per century"
 msgstr "Liczba urodzeń według stulecia"
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:102
+#, fuzzy
 msgid ""
 "Births, residences and deaths by country — the geographic spread of the tree"
 msgstr ""
+"Births, residences and deaths by country — the geographic spread of the tree"
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:425
 msgid "By recorded child count"
@@ -890,12 +928,14 @@ msgid "Capricornus"
 msgstr "Koziorożec"
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:270
+#, fuzzy
 msgid "Causes"
-msgstr ""
+msgstr "Causes"
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:262
+#, fuzzy
 msgid "Causes of death and infant mortality"
-msgstr ""
+msgstr "Causes of death and infant mortality"
 
 #: src/Support/CenturyName.php:102
 msgid "Century"
@@ -922,14 +962,18 @@ msgid "Children per family"
 msgstr "Dzieci na rodzinę"
 
 #: resources/views/modules/statistics-chart/Templates/Names.phtml:113
+#, fuzzy
 msgid ""
 "Chord diagram: arcs = surnames, ribbons = marriages between them, loops = "
 "endogamy"
 msgstr ""
+"Chord diagram: arcs = surnames, ribbons = marriages between them, loops = "
+"endogamy"
 
 #: resources/views/modules/statistics-chart/Templates/Overview.phtml:87
+#, fuzzy
 msgid "Chronicle"
-msgstr ""
+msgstr "Chronicle"
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:268
 msgid "Common causes of death"
@@ -965,8 +1009,8 @@ msgstr "Średnia kompletność drzewa genealogicznego"
 msgid "Consecutive-sibling pairs"
 msgstr "Następujące po sobie pary rodzeństwa"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:260
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:272
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:259
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:271
 #, fuzzy
 msgid "Couple age gap"
 msgstr "Różnica wieku rodzeństwa"
@@ -980,8 +1024,9 @@ msgid "Deaths"
 msgstr "Zgony"
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:465
+#, fuzzy
 msgid "Deaths are evenly spread across the year."
-msgstr ""
+msgstr "Deaths are evenly spread across the year."
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:410
 msgid "Deaths by century"
@@ -997,8 +1042,9 @@ msgid "Deaths per century"
 msgstr "Liczba zgonów według stulecia"
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:444
+#, fuzzy
 msgid "Dec – Feb vs. baseline"
-msgstr ""
+msgstr "Dec – Feb vs. baseline"
 
 #: src/Statistic.php:201
 msgid "Deceased"
@@ -1017,8 +1063,9 @@ msgid "Demographics"
 msgstr "Rozproszenie geograficzne"
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:217
+#, fuzzy
 msgid "Depth"
-msgstr ""
+msgstr "Depth"
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:251
 #, fuzzy
@@ -1033,25 +1080,36 @@ msgstr "Różne miejsca na osobę"
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:174
 #: resources/views/modules/statistics-chart/Templates/Overview.phtml:43
+#, fuzzy
 msgid "Distribution"
-msgstr ""
+msgstr "Distribution"
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:200
+#, fuzzy
 msgid "Distribution in buckets"
-msgstr ""
+msgstr "Distribution in buckets"
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:364
+#, fuzzy
 msgid ""
 "Distribution of children counts across families with at least one recorded "
 "child. Hover a bar for the number of families landing on that exact child "
 "count."
 msgstr ""
+"Distribution of children counts across families with at least one recorded "
+"child. Hover a bar for the number of families landing on that exact child "
+"count."
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:254
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:253
+#, fuzzy
 msgid ""
-"Distribution of marriage durations grouped into bands, computed from couples "
-"with both marriage and dissolution (divorce or spouse death) dates recorded."
+"Distribution of marriage durations grouped into bands, computed from couples"
+" with both marriage and dissolution (divorce or spouse death) dates "
+"recorded."
 msgstr ""
+"Distribution of marriage durations grouped into bands, computed from couples"
+" with both marriage and dissolution (divorce or spouse death) dates "
+"recorded."
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:438
 #, fuzzy
@@ -1068,10 +1126,13 @@ msgid "Divorce rate per marriage cohort"
 msgstr "Wskaźnik rozwodów według rocznika ślubu"
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:440
+#, fuzzy
 msgid ""
-"Divorce rate, season and life-stage of the divorced — a rare category in the "
-"tree"
+"Divorce rate, season and life-stage of the divorced — a rare category in the"
+" tree"
 msgstr ""
+"Divorce rate, season and life-stage of the divorced — a rare category in the"
+" tree"
 
 #: src/Statistic.php:221
 msgid "Divorced"
@@ -1093,18 +1154,26 @@ msgstr "Rozwody według miesiąca"
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:101
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:110
+#, fuzzy
 msgid "Documentation"
-msgstr ""
+msgstr "Documentation"
 
 #: resources/views/modules/statistics-chart/Templates/Names.phtml:33
+#, fuzzy
 msgid ""
-"Each arc on the circumference is one of the top surnames in the tree, ranked "
-"by how many marriages that surname appears in (as husband OR wife). Ribbons "
-"between two arcs encode the number of marriages between those surnames; "
+"Each arc on the circumference is one of the top surnames in the tree, ranked"
+" by how many marriages that surname appears in (as husband OR wife). Ribbons"
+" between two arcs encode the number of marriages between those surnames; "
 "thickness is proportional to that count. The diagram is symmetric — a "
-"Schmidt × Müller marriage contributes equally to both arcs. Self-loops on an "
-"arc represent endogamous marriages where husband and wife share a surname."
+"Schmidt × Müller marriage contributes equally to both arcs. Self-loops on an"
+" arc represent endogamous marriages where husband and wife share a surname."
 msgstr ""
+"Each arc on the circumference is one of the top surnames in the tree, ranked"
+" by how many marriages that surname appears in (as husband OR wife). Ribbons"
+" between two arcs encode the number of marriages between those surnames; "
+"thickness is proportional to that count. The diagram is symmetric — a "
+"Schmidt × Müller marriage contributes equally to both arcs. Self-loops on an"
+" arc represent endogamous marriages where husband and wife share a surname."
 
 #: resources/views/modules/statistics-chart/Templates/Names.phtml:29
 msgid ""
@@ -1121,13 +1190,19 @@ msgstr ""
 "liczby bezwzględne i szczytową dekadę."
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:46
+#, fuzzy
 msgid ""
 "Each flow shows individuals who were born in one country and died in "
 "another. The flow's thickness encodes the count: thicker bands mean more "
-"migrations along that path. Same-country trajectories are excluded — they're "
-"not migration. Hover any band to see the exact source → destination and "
+"migrations along that path. Same-country trajectories are excluded — they're"
+" not migration. Hover any band to see the exact source → destination and "
 "individual count."
 msgstr ""
+"Each flow shows individuals who were born in one country and died in "
+"another. The flow's thickness encodes the count: thicker bands mean more "
+"migrations along that path. Same-country trajectories are excluded — they're"
+" not migration. Hover any band to see the exact source → destination and "
+"individual count."
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:83
 #, fuzzy
@@ -1135,8 +1210,8 @@ msgid ""
 "Each person in the tree has up to 30 possible direct ancestors within four "
 "generations (2 parents + 4 grandparents + 8 great-grandparents + 16 great-"
 "great-grandparents). The pedigree-completeness index (Lacy 1989) is the "
-"fraction of those 30 slots that are actually documented for that individual. "
-"The number shown here is the average across every individual in the tree."
+"fraction of those 30 slots that are actually documented for that individual."
+" The number shown here is the average across every individual in the tree."
 msgstr ""
 "Każda osoba w drzewie ma do 30 możliwych bezpośrednich przodków w czterech "
 "pokoleniach. Indeks kompletności drzewa genealogicznego (Lacy 1989) to "
@@ -1144,25 +1219,30 @@ msgstr ""
 "gruntowniejsze badania; niższy = wiele luk."
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:228
+#, fuzzy
 msgid "Each step is one parent–child link upward."
-msgstr ""
+msgstr "Each step is one parent–child link upward."
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:266
+#, fuzzy
 msgid "Endogamy rate"
-msgstr ""
+msgstr "Endogamy rate"
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:448
 #: resources/views/modules/statistics-chart/Templates/Names.phtml:87
+#, fuzzy
 msgid "Evolution"
-msgstr ""
+msgstr "Evolution"
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:309
+#, fuzzy
 msgid "Extreme"
-msgstr ""
+msgstr "Extreme"
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:426
+#, fuzzy
 msgid "Extremes"
-msgstr ""
+msgstr "Extremes"
 
 #: resources/views/modules/statistics-chart/Partials/Hero.phtml:65
 #, fuzzy
@@ -1179,10 +1259,11 @@ msgid "Family"
 msgstr "Rodzina"
 
 #: resources/views/modules/statistics-chart/Templates/Names.phtml:41
+#, fuzzy
 msgid "Family names and given names by frequency across the tree"
-msgstr ""
+msgstr "Family names and given names by frequency across the tree"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:339
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:338
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:360
 #, fuzzy
 msgid "Family size"
@@ -1193,7 +1274,7 @@ msgstr "Rodzina"
 msgid "Family size composition share by decade"
 msgstr "Udział wielkości rodzin według dekady"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:322
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:321
 #, fuzzy
 msgid "Fathers"
 msgstr "Najstarszy zmarły"
@@ -1203,22 +1284,27 @@ msgctxt "NOMINATIVE"
 msgid "February"
 msgstr "Luty"
 
-#: src/Repository/LifeSpanRepository.php:548 src/Statistic.php:189
+#: src/Repository/LifeSpanRepository.php:547 src/Statistic.php:189
 msgid "Female"
 msgstr "Kobieta"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:329
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:328
 msgid "First children by month"
 msgstr "Pierworodne dzieci według miesiąca"
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:452
+#, fuzzy
 msgid ""
 "For each marriage decade, the share of those marriages that are recorded as "
-"ending in divorce. Tracks how openly the tree records dissolutions over time "
-"rather than the underlying historical rate."
+"ending in divorce. Tracks how openly the tree records dissolutions over time"
+" rather than the underlying historical rate."
 msgstr ""
+"For each marriage decade, the share of those marriages that are recorded as "
+"ending in divorce. Tracks how openly the tree records dissolutions over time"
+" rather than the underlying historical rate."
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:95
+#, fuzzy
 msgid ""
 "For every couple where both spouses have at least one parent recorded, the "
 "widget walks each spouse's ancestor tree up to four generations and "
@@ -1226,25 +1312,42 @@ msgid ""
 "least one common ancestor — the classic signature of cousin marriage and "
 "pedigree collapse."
 msgstr ""
+"For every couple where both spouses have at least one parent recorded, the "
+"widget walks each spouse's ancestor tree up to four generations and "
+"intersects the two sets. A non-empty intersection means the couple share at "
+"least one common ancestor — the classic signature of cousin marriage and "
+"pedigree collapse."
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:50
+#, fuzzy
 msgid ""
 "For every individual the widget collects every distinct PLAC value that "
-"appears on any of their level-1 events (BIRT, DEAT, BAPM, BURI, RESI, …) and "
-"counts the unique places. Duplicates within the same individual (e.g. BIRT "
+"appears on any of their level-1 events (BIRT, DEAT, BAPM, BURI, RESI, …) and"
+" counts the unique places. Duplicates within the same individual (e.g. BIRT "
 "and DEAT both in Hamburg) collapse to one place, so the count reflects "
-"geographic mobility rather than how many events are recorded. The average is "
-"across every individual with at least one PLAC sample; individuals with no "
+"geographic mobility rather than how many events are recorded. The average is"
+" across every individual with at least one PLAC sample; individuals with no "
 "place data at all are excluded. The distribution on the right shows how "
 "those counts split across 1 / 2 / 3 / 4 / 5+ distinct places per person — a "
 "high tail signals migrant ancestors, a heavy bar at \"1\" signals a "
 "sedentary or sparsely-documented population."
 msgstr ""
+"For every individual the widget collects every distinct PLAC value that "
+"appears on any of their level-1 events (BIRT, DEAT, BAPM, BURI, RESI, …) and"
+" counts the unique places. Duplicates within the same individual (e.g. BIRT "
+"and DEAT both in Hamburg) collapse to one place, so the count reflects "
+"geographic mobility rather than how many events are recorded. The average is"
+" across every individual with at least one PLAC sample; individuals with no "
+"place data at all are excluded. The distribution on the right shows how "
+"those counts split across 1 / 2 / 3 / 4 / 5+ distinct places per person — a "
+"high tail signals migrant ancestors, a heavy bar at \"1\" signals a "
+"sedentary or sparsely-documented population."
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:108
+#, fuzzy
 msgid ""
-"For every individual with both BIRT and DEAT julian-days the widget computes "
-"the number of days lived; a death within five years (1826 days) of birth "
+"For every individual with both BIRT and DEAT julian-days the widget computes"
+" the number of days lived; a death within five years (1826 days) of birth "
 "counts as under-5 mortality. The tree-wide percentage is the share of such "
 "children across the whole tree, and the LineChart on the right groups them "
 "by their birth century so the historical decline becomes visible (typical "
@@ -1254,23 +1357,40 @@ msgid ""
 "cohorts below 5 children are suppressed because a single dead child would "
 "spike the line by more than 10 percentage points."
 msgstr ""
+"For every individual with both BIRT and DEAT julian-days the widget computes"
+" the number of days lived; a death within five years (1826 days) of birth "
+"counts as under-5 mortality. The tree-wide percentage is the share of such "
+"children across the whole tree, and the LineChart on the right groups them "
+"by their birth century so the historical decline becomes visible (typical "
+"1700s value 30-40 percent, modern below 2 percent). Individuals with only "
+"BIRT or only DEAT are silently excluded — we cannot determine survival "
+"without both anchors, and including them would skew the rate. Per-century "
+"cohorts below 5 children are suppressed because a single dead child would "
+"spike the line by more than 10 percentage points."
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:91
+#, fuzzy
 msgid ""
-"For every individual, this bucket counts how many generations of descendants "
-"are recorded below them in the tree. Bucket 0 = leaf (no descendants), "
+"For every individual, this bucket counts how many generations of descendants"
+" are recorded below them in the tree. Bucket 0 = leaf (no descendants), "
 "bucket N = an individual whose deepest verified descendant is N generations "
 "younger."
 msgstr ""
+"For every individual, this bucket counts how many generations of descendants"
+" are recorded below them in the tree. Bucket 0 = leaf (no descendants), "
+"bucket N = an individual whose deepest verified descendant is N generations "
+"younger."
 
 #: resources/views/modules/statistics-chart/Templates/Names.phtml:39
+#, fuzzy
 msgid "Frequencies"
-msgstr ""
+msgstr "Frequencies"
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:189
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:198
+#, fuzzy
 msgid "Gaps"
-msgstr ""
+msgstr "Gaps"
 
 #: src/Support/ZodiacLabels.php:48
 msgid "Gemini"
@@ -1317,8 +1437,9 @@ msgstr "Rozproszenie geograficzne"
 
 #: resources/views/modules/statistics-chart/Templates/Names.phtml:62
 #: resources/views/modules/statistics-chart/Templates/Names.phtml:76
+#, fuzzy
 msgid "Given names"
-msgstr ""
+msgstr "Given names"
 
 #: resources/views/modules/statistics-chart/Templates/Names.phtml:94
 msgid "Given-name popularity across decades"
@@ -1331,44 +1452,51 @@ msgstr ""
 "Galeria sław całego drzewa: skrajne wartości charakteryzujące zestaw danych."
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:64
+#, fuzzy
 msgid "High mobility — strongly migrating ancestors."
-msgstr ""
+msgstr "High mobility — strongly migrating ancestors."
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:140
+#, fuzzy
 msgid "Higher = more thorough research"
-msgstr ""
+msgstr "Higher = more thorough research"
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:209
+#, fuzzy
 msgid "How deep and branched is the tree?"
-msgstr ""
+msgstr "How deep and branched is the tree?"
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:171
+#, fuzzy
 msgid "How far they roamed"
-msgstr ""
+msgstr "How far they roamed"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:340
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:339
 #, fuzzy
 msgid "How large were the families?"
 msgstr "Top 10 największych rodzin"
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:166
+#, fuzzy
 msgid "How long was the life?"
-msgstr ""
+msgstr "How long was the life?"
 
 #: resources/views/modules/statistics-chart/Templates/Names.phtml:88
+#, fuzzy
 msgid "How names came and went over time"
-msgstr ""
+msgstr "How names came and went over time"
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:102
+#, fuzzy
 msgid "How well is the tree documented?"
-msgstr ""
+msgstr "How well is the tree documented?"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:273
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:272
 #, fuzzy
 msgid "Husband older"
 msgstr "Mąż starszy o %s lat"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:214
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:213
 #, php-format
 msgid "Husband older by %s years"
 msgstr "Mąż starszy o %s lat"
@@ -1386,8 +1514,10 @@ msgstr ""
 "zarejestrowanym potomkiem."
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:153
+#, fuzzy
 msgid "Individuals born in one country and recorded as having died in another"
 msgstr ""
+"Individuals born in one country and recorded as having died in another"
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:109
 #, fuzzy
@@ -1415,8 +1545,9 @@ msgid "June"
 msgstr "Czerwiec"
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:268
+#, fuzzy
 msgid "Kinship"
-msgstr ""
+msgstr "Kinship"
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:250
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:259
@@ -1424,8 +1555,9 @@ msgid "Known ancestors per individual"
 msgstr "Znani przodkowie na osobę"
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:138
+#, fuzzy
 msgid "Lacy 1989"
-msgstr ""
+msgstr "Lacy 1989"
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:128
 #, fuzzy
@@ -1447,7 +1579,7 @@ msgstr "Lew"
 msgid "Libra"
 msgstr "Waga"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:233
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:232
 #, fuzzy
 msgid "Life event"
 msgstr "Długość życia"
@@ -1485,8 +1617,9 @@ msgid "Living vs deceased proportion"
 msgstr "Żyjący lub zmarli"
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:216
+#, fuzzy
 msgid "Longest line in the tree, leaf to oldest ancestor"
-msgstr ""
+msgstr "Longest line in the tree, leaf to oldest ancestor"
 
 #: resources/views/modules/statistics-chart/Partials/RecordsGrid.phtml:40
 #: resources/views/modules/statistics-chart/Partials/RecordsTable.phtml:37
@@ -1495,10 +1628,11 @@ msgstr "Najdłuższy staż"
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:230
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:247
+#, fuzzy
 msgid "Longevity"
-msgstr ""
+msgstr "Longevity"
 
-#: src/Repository/LifeSpanRepository.php:541 src/Statistic.php:188
+#: src/Repository/LifeSpanRepository.php:540 src/Statistic.php:188
 msgid "Male"
 msgstr "Mężczyzna"
 
@@ -1511,15 +1645,15 @@ msgstr "Marzec"
 msgid "Marital status"
 msgstr "Stan cywilny"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:224
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:250
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:264
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:223
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:249
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:263
 #, fuzzy
 msgid "Marriage"
 msgstr "Śluby"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:248
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:255
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:247
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:254
 msgid "Marriage duration"
 msgstr "Czas trwania małżeństwa"
 
@@ -1536,10 +1670,11 @@ msgctxt "NOMINATIVE"
 msgid "May"
 msgstr "Maj"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:241
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:240
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:502
+#, fuzzy
 msgid "Men"
-msgstr ""
+msgstr "Men"
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:151
 #, fuzzy
@@ -1579,26 +1714,30 @@ msgid "Missing-event gaps"
 msgstr "Luki w brakujących zdarzeniach"
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:63
+#, fuzzy
 msgid "Mobile population — migration and relocation were common."
-msgstr ""
+msgstr "Mobile population — migration and relocation were common."
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:170
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:179
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:201
+#, fuzzy
 msgid "Mobility"
-msgstr ""
+msgstr "Mobility"
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:62
+#, fuzzy
 msgid "Moderate mobility — many stayed in their region, some moved."
-msgstr ""
+msgstr "Moderate mobility — many stayed in their region, some moved."
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:282
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:331
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:281
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:330
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:468
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:376
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:430
+#, fuzzy
 msgid "Month clock"
-msgstr ""
+msgstr "Month clock"
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:261
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:287
@@ -1629,7 +1768,7 @@ msgstr "Najwięcej dzieci na osobę"
 msgid "Most spouses"
 msgstr "Najwięcej współmałżonków"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:323
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:322
 #, fuzzy
 msgid "Mothers"
 msgstr "Najstarsza matka przy pierwszym dziecku"
@@ -1640,8 +1779,9 @@ msgid "Movement"
 msgstr "Listopad"
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:152
+#, fuzzy
 msgid "Movements"
-msgstr ""
+msgstr "Movements"
 
 #: src/Module.php:260
 msgid "Names"
@@ -1681,33 +1821,40 @@ msgid "No names recorded yet."
 msgstr "Nie zarejestrowano jeszcze żadnych przemieszczeń między krajami."
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:387
-#, php-format
+#, php-format, fuzzy
 msgid "Normalised to 100 %% — shift from large to small families"
-msgstr ""
+msgstr "Normalised to 100 %% — shift from large to small families"
 
 #: src/Statistic.php:959
 msgctxt "NOMINATIVE"
 msgid "November"
 msgstr "Listopad"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:341
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:340
+#, fuzzy
 msgid ""
 "Number of children, sibling spacing and the shift toward smaller families"
 msgstr ""
+"Number of children, sibling spacing and the shift toward smaller families"
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:172
+#, fuzzy
 msgid ""
 "Number of distinct places per individual — sedentary vs. migrating "
 "populations"
 msgstr ""
+"Number of distinct places per individual — sedentary vs. migrating "
+"populations"
 
 #: resources/views/modules/statistics-chart/Templates/Overview.phtml:106
+#, fuzzy
 msgid "Occupation and confession"
-msgstr ""
+msgstr "Occupation and confession"
 
 #: resources/views/modules/statistics-chart/Templates/Overview.phtml:107
+#, fuzzy
 msgid "Occupational and religious affiliation of the recorded individuals"
-msgstr ""
+msgstr "Occupational and religious affiliation of the recorded individuals"
 
 #: src/Statistic.php:958
 msgctxt "NOMINATIVE"
@@ -1761,36 +1908,47 @@ msgid "Oldest wife at marriage"
 msgstr "Najstarsza żona przy ślubie"
 
 #: resources/views/modules/statistics-chart/Templates/Overview.phtml:89
+#, fuzzy
 msgid ""
-"Oldest, longest marriages, largest families — records that anchor the dataset"
+"Oldest, longest marriages, largest families — records that anchor the "
+"dataset"
 msgstr ""
+"Oldest, longest marriages, largest families — records that anchor the "
+"dataset"
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:100
+#, fuzzy
 msgid "Origin & fate"
-msgstr ""
+msgstr "Origin & fate"
 
 #: src/Module.php:259
 msgid "Overview"
 msgstr "Przegląd"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:305
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:314
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:304
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:313
+#, fuzzy
 msgid "Parenthood"
-msgstr ""
+msgstr "Parenthood"
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:159
+#, fuzzy
 msgid ""
 "Paths of individuals born in one country and recorded as having died in "
 "another"
 msgstr ""
+"Paths of individuals born in one country and recorded as having died in "
+"another"
 
 #: resources/views/modules/statistics-chart/Partials/MonthRadial.phtml:38
+#, fuzzy
 msgid "Peak"
-msgstr ""
+msgstr "Peak"
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:307
+#, fuzzy
 msgid "Peak value"
-msgstr ""
+msgstr "Peak value"
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:127
 #, fuzzy
@@ -1798,13 +1956,17 @@ msgid "Pedigree completeness"
 msgstr "Średnia kompletność drzewa genealogicznego"
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:392
-#, php-format
+#, php-format, fuzzy
 msgid ""
 "Per marriage decade, the bar splits into bands by child count (0, 1, 2 … "
 "10+) and is normalised to 100 %% so cohorts of very different size can be "
 "compared. The cream → wine ramp tracks family size, from childless on the "
 "left to large families on the right."
 msgstr ""
+"Per marriage decade, the bar splits into bands by child count (0, 1, 2 … "
+"10+) and is normalised to 100 %% so cohorts of very different size can be "
+"compared. The cream → wine ramp tracks family size, from childless on the "
+"left to large families on the right."
 
 #: src/Support/ZodiacLabels.php:57
 msgid "Pisces"
@@ -1825,8 +1987,9 @@ msgid "Places of death"
 msgstr "Miejsce śmierci"
 
 #: resources/views/modules/statistics-chart/Templates/Names.phtml:89
+#, fuzzy
 msgid "Popularity over decades and marriage alliances between families"
-msgstr ""
+msgstr "Popularity over decades and marriage alliances between families"
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:128
 msgid "Recorded residences"
@@ -1846,12 +2009,14 @@ msgid "Scorpio"
 msgstr "Skorpion"
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:445
+#, fuzzy
 msgid "Season"
-msgstr ""
+msgstr "Season"
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:405
+#, fuzzy
 msgid "Season and century of recorded deaths"
-msgstr ""
+msgstr "Season and century of recorded deaths"
 
 #: src/Statistic.php:957
 msgctxt "NOMINATIVE"
@@ -1863,8 +2028,9 @@ msgid "Sex"
 msgstr "Płeć"
 
 #: resources/views/modules/statistics-chart/Templates/Overview.phtml:36
+#, fuzzy
 msgid "Sex, status, marital state"
-msgstr ""
+msgstr "Sex, status, marital state"
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:197
 #, fuzzy
@@ -1872,8 +2038,9 @@ msgid "Share of individuals without a recorded birth, death or marriage event"
 msgstr "%s osoba z zarejestrowanym rokiem urodzenia"
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:447
+#, fuzzy
 msgid "Share of marriages per decade that ended in divorce"
-msgstr ""
+msgstr "Share of marriages per decade that ended in divorce"
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:267
 #, fuzzy
@@ -1881,8 +2048,9 @@ msgid "Share of marriages within 4 generations"
 msgstr "Wskaźnik endogamii (w obrębie 4 pokoleń)"
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:388
+#, fuzzy
 msgid "Shift"
-msgstr ""
+msgstr "Shift"
 
 #: resources/views/modules/statistics-chart/Partials/RecordsGrid.phtml:46
 #: resources/views/modules/statistics-chart/Partials/RecordsTable.phtml:44
@@ -1899,12 +2067,14 @@ msgid "Single"
 msgstr "Stanu wolnego"
 
 #: resources/views/modules/statistics-chart/Templates/Overview.phtml:105
+#, fuzzy
 msgid "Socio-economics"
-msgstr ""
+msgstr "Socio-economics"
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:103
+#, fuzzy
 msgid "Source coverage, completeness and average generation length"
-msgstr ""
+msgstr "Source coverage, completeness and average generation length"
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:108
 msgid "Source-citation coverage"
@@ -1934,13 +2104,15 @@ msgstr "Statystyki"
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:410
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:208
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:236
+#, fuzzy
 msgid "Structure"
-msgstr ""
+msgstr "Structure"
 
 #: resources/views/modules/statistics-chart/Templates/Names.phtml:112
 #: resources/views/modules/statistics-chart/Templates/Names.phtml:123
+#, fuzzy
 msgid "Surname × surname marriage matrix"
-msgstr ""
+msgstr "Surname × surname marriage matrix"
 
 #: resources/views/modules/statistics-chart/Templates/Names.phtml:48
 #, fuzzy
@@ -1952,29 +2124,37 @@ msgid "Taurus"
 msgstr "Byk"
 
 #: resources/views/modules/statistics-chart/Templates/Overview.phtml:88
+#, fuzzy
 msgid "The extremes of the tree"
-msgstr ""
+msgstr "The extremes of the tree"
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:87
+#, fuzzy
 msgid ""
 "The maximum generation depth is the longest unbroken parent-child chain "
 "recorded in the tree. The widget walks every individual upward, follows "
 "fathers and mothers in parallel, and reports the deepest verified line."
 msgstr ""
+"The maximum generation depth is the longest unbroken parent-child chain "
+"recorded in the tree. The widget walks every individual upward, follows "
+"fathers and mothers in parallel, and reports the deepest verified line."
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:108
+#, fuzzy
 msgid "Three views of every individual — birth, residence, death"
-msgstr ""
+msgstr "Three views of every individual — birth, residence, death"
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:148
+#, fuzzy
 msgid "Time"
-msgstr ""
+msgstr "Time"
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:332
+#, fuzzy
 msgid "Time-distribution of births"
-msgstr ""
+msgstr "Time-distribution of births"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:293
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:292
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:400
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:479
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:211
@@ -1982,8 +2162,9 @@ msgstr ""
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:358
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:412
 #: resources/views/modules/statistics-chart/Templates/Names.phtml:96
+#, fuzzy
 msgid "Timeline"
-msgstr ""
+msgstr "Timeline"
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:192
 #, fuzzy
@@ -2017,8 +2198,9 @@ msgid "Tree records"
 msgstr "Wpisy drzewa"
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:177
+#, fuzzy
 msgid "Typical range"
-msgstr ""
+msgstr "Typical range"
 
 #: src/Statistic.php:190
 msgid "Unknown"
@@ -2040,86 +2222,97 @@ msgstr ""
 "Przejście osiągnęło limit bezpieczeństwa (20 pokoleń) — sprawdź drzewo pod "
 "kątem cyklicznych edycji FAMC/FAMS."
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:291
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:300
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:290
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:299
 msgid "Weddings by century"
 msgstr "Śluby według wieku"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:280
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:279
 msgid "Weddings by month"
 msgstr "Śluby według miesiąca"
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:190
+#, fuzzy
 msgid "What is missing?"
-msgstr ""
+msgstr "What is missing?"
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:263
+#, fuzzy
 msgid "What the recorded individuals died of"
-msgstr ""
+msgstr "What the recorded individuals died of"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:225
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:224
+#, fuzzy
 msgid "When and whom they married"
-msgstr ""
+msgstr "When and whom they married"
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:404
+#, fuzzy
 msgid "When did they die?"
-msgstr ""
+msgstr "When did they die?"
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:439
 #, fuzzy
 msgid "When marriages ended"
 msgstr "Brakujące zdarzenie ślubu"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:306
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:305
 #, fuzzy
 msgid "When they had children"
 msgstr "Z dziećmi"
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:331
+#, fuzzy
 msgid "When were they born?"
-msgstr ""
+msgstr "When were they born?"
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:191
+#, fuzzy
 msgid "Where the tree has gaps — events and places not recorded"
-msgstr ""
+msgstr "Where the tree has gaps — events and places not recorded"
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:101
+#, fuzzy
 msgid "Where they lived and died"
-msgstr ""
+msgstr "Where they lived and died"
 
 #: resources/views/modules/statistics-chart/Templates/Names.phtml:40
+#, fuzzy
 msgid "Which names return?"
-msgstr ""
+msgstr "Which names return?"
 
 #: resources/views/modules/statistics-chart/Templates/Overview.phtml:35
+#, fuzzy
 msgid "Who is recorded?"
-msgstr ""
+msgstr "Who is recorded?"
 
 #: src/Statistic.php:220
 msgid "Widowed"
 msgstr "Owdowiały"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:274
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:273
 #, fuzzy
 msgid "Wife older"
 msgstr "Żona starsza o %s lat"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:215
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:214
 #, php-format
 msgid "Wife older by %s years"
 msgstr "Żona starsza o %s lat"
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:456
-#, php-format
+#, php-format, fuzzy
 msgid ""
 "Winter months show a %s%% higher mortality density than the annual average."
 msgstr ""
+"Winter months show a %s%% higher mortality density than the annual average."
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:461
-#, php-format
+#, php-format, fuzzy
 msgid ""
 "Winter months show a %s%% lower mortality density than the annual average."
 msgstr ""
+"Winter months show a %s%% lower mortality density than the annual average."
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:443
 msgid "Winter-peak score"
@@ -2133,10 +2326,11 @@ msgstr "Z dziećmi"
 msgid "Without children"
 msgstr "Bez dzieci"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:242
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:241
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:503
+#, fuzzy
 msgid "Women"
-msgstr ""
+msgstr "Women"
 
 #: resources/views/modules/statistics-chart/Partials/RecordsGrid.phtml:94
 #, fuzzy
@@ -2190,40 +2384,47 @@ msgid "deceased"
 msgstr "Zmarli"
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:119
+#, fuzzy
 msgid "documented"
-msgstr ""
+msgstr "documented"
 
 #: src/Support/SpelledNumber.php:38
+#, fuzzy
 msgctxt "count word"
 msgid "eight"
-msgstr ""
+msgstr "eight"
 
 #: src/Support/SpelledNumber.php:41
+#, fuzzy
 msgctxt "count word"
 msgid "eleven"
-msgstr ""
+msgstr "eleven"
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:417
+#, fuzzy
 msgid "families"
-msgstr ""
+msgstr "families"
 
 #: src/Support/SpelledNumber.php:35
+#, fuzzy
 msgctxt "count word"
 msgid "five"
-msgstr ""
+msgstr "five"
 
 #: src/Support/SpelledNumber.php:34
+#, fuzzy
 msgctxt "count word"
 msgid "four"
-msgstr ""
+msgstr "four"
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:225
 msgid "generations"
 msgstr "pokolenia"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:263
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:262
+#, fuzzy
 msgid "husband left, wife right"
-msgstr ""
+msgstr "husband left, wife right"
 
 #: resources/views/modules/statistics-chart/Templates/Overview.phtml:52
 #, fuzzy
@@ -2231,8 +2432,9 @@ msgid "individuals"
 msgstr "%s osoba"
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:433
+#, fuzzy
 msgid "kids"
-msgstr ""
+msgstr "kids"
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:200
 #, fuzzy
@@ -2250,9 +2452,10 @@ msgid "living today"
 msgstr "Żyjący lub zmarli"
 
 #: src/Support/SpelledNumber.php:39
+#, fuzzy
 msgctxt "count word"
 msgid "nine"
-msgstr ""
+msgstr "nine"
 
 #: resources/views/modules/statistics-chart/Partials/RateList.phtml:33
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:479
@@ -2260,23 +2463,25 @@ msgstr ""
 msgid "no data"
 msgstr "brak danych"
 
-#: src/Repository/LifeSpanRepository.php:523
-#: src/Repository/LifeSpanRepository.php:530
+#: src/Repository/LifeSpanRepository.php:522
+#: src/Repository/LifeSpanRepository.php:529
 #, php-format
 msgid "no data (n < %s)"
 msgstr "brak danych (n < %s)"
 
 #: src/Support/SpelledNumber.php:31
+#, fuzzy
 msgctxt "count word"
 msgid "one"
-msgstr ""
+msgstr "one"
 
 #: resources/views/modules/statistics-chart/Partials/StreamGraph.phtml:39
+#, fuzzy
 msgid "peak in the {decade}"
-msgstr ""
+msgstr "peak in the {decade}"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:286
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:335
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:285
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:334
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:472
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:383
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:437
@@ -2285,47 +2490,55 @@ msgid "peak month"
 msgstr "Zgony według miesiąca"
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:398
+#, fuzzy
 msgid "peak sign"
-msgstr ""
+msgstr "peak sign"
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:187
 msgid "places"
 msgstr "miejsca"
 
 #: resources/views/modules/statistics-chart/Partials/StreamGraph.phtml:36
+#, fuzzy
 msgctxt "decade-suffix"
 msgid "s"
-msgstr ""
+msgstr "s"
 
 #: src/Support/SpelledNumber.php:37
+#, fuzzy
 msgctxt "count word"
 msgid "seven"
-msgstr ""
+msgstr "seven"
 
 #: src/Support/SpelledNumber.php:36
+#, fuzzy
 msgctxt "count word"
 msgid "six"
-msgstr ""
+msgstr "six"
 
 #: src/Support/SpelledNumber.php:40
+#, fuzzy
 msgctxt "count word"
 msgid "ten"
-msgstr ""
+msgstr "ten"
 
 #: src/Support/SpelledNumber.php:33
+#, fuzzy
 msgctxt "count word"
 msgid "three"
-msgstr ""
+msgstr "three"
 
 #: src/Support/SpelledNumber.php:42
+#, fuzzy
 msgctxt "count word"
 msgid "twelve"
-msgstr ""
+msgstr "twelve"
 
 #: src/Support/SpelledNumber.php:32
+#, fuzzy
 msgctxt "count word"
 msgid "two"
-msgstr ""
+msgstr "two"
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:166
 msgid "years"
@@ -2334,8 +2547,9 @@ msgstr "lat"
 #: resources/views/modules/statistics-chart/Partials/Hero.phtml:76
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:238
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:255
+#, fuzzy
 msgid "yr"
-msgstr ""
+msgstr "yr"
 
 #: resources/views/modules/statistics-chart/Partials/SankeyFlow.phtml:28
 #: resources/views/modules/statistics-chart/Partials/StreamGraph.phtml:37
@@ -2360,12 +2574,14 @@ msgid "{count} marriages"
 msgstr "Najdłuższy staż"
 
 #: resources/views/modules/statistics-chart/Partials/StackedBar.phtml:31
+#, fuzzy
 msgid "{count} total in this category"
-msgstr ""
+msgstr "{count} total in this category"
 
 #: resources/views/modules/statistics-chart/Partials/StreamGraph.phtml:40
+#, fuzzy
 msgid "{name}: {total}, {peak}"
-msgstr ""
+msgstr "{name}: {total}, {peak}"
 
 #: resources/views/modules/statistics-chart/Partials/TagCloud.phtml:27
 msgctxt "Unknown surname"
@@ -2422,8 +2638,7 @@ msgstr "…"
 #~ msgstr "Udokumentowane osoby"
 
 #, fuzzy, php-format
-#~ msgid ""
-#~ "%1$s divorced husbands and %2$s divorced wives with a known birth date"
+#~ msgid "%1$s divorced husbands and %2$s divorced wives with a known birth date"
 #~ msgstr "%s rozwiedziony mąż ze znaną datą urodzenia"
 
 #, php-format
@@ -2435,8 +2650,8 @@ msgstr "…"
 
 #, php-format
 #~ msgid ""
-#~ "%1$s of %2$s deaths fell in December – February. 1.0 = no seasonality, > "
-#~ "1.0 = winter-peaked, < 1.0 = winter-trough."
+#~ "%1$s of %2$s deaths fell in December – February. 1.0 = no seasonality, > 1.0"
+#~ " = winter-peaked, < 1.0 = winter-trough."
 #~ msgstr ""
 #~ "%1$s z %2$s zgonów wystąpiło w grudniu – lutym. 1,0 = brak sezonowości, > "
 #~ "1,0 = szczyt zimowy, < 1,0 = spadek zimowy."
@@ -2454,8 +2669,8 @@ msgstr "…"
 
 #, php-format
 #~ msgid ""
-#~ "Each bar is one decade, normalised to 100 %% — the four segments stack 1, "
-#~ "2, 3, and 4 or more children per family. Surfaces the shift from large to "
+#~ "Each bar is one decade, normalised to 100 %% — the four segments stack 1, 2,"
+#~ " 3, and 4 or more children per family. Surfaces the shift from large to "
 #~ "small families over time."
 #~ msgstr ""
 #~ "Każdy słupek to jedna dekada, znormalizowana do 100 %% — cztery segmenty "
@@ -2476,32 +2691,32 @@ msgstr "…"
 #~ "najdalszego przodka."
 
 #~ msgid ""
-#~ "Mean number of children per dated family per century — the long-arc trend "
-#~ "in family size."
+#~ "Mean number of children per dated family per century — the long-arc trend in"
+#~ " family size."
 #~ msgstr ""
 #~ "Średnia liczba dzieci na datowaną rodzinę na wiek — długoterminowy trend "
 #~ "wielkości rodziny."
 
 #~ msgid ""
-#~ "Percentage of marriages from each decade that ended in divorce. Cohorts "
-#~ "with fewer than three marriages are hidden."
+#~ "Percentage of marriages from each decade that ended in divorce. Cohorts with"
+#~ " fewer than three marriages are hidden."
 #~ msgstr ""
-#~ "Procent małżeństw z każdej dekady, które zakończyły się rozwodem. Kohorty "
-#~ "z mniej niż trzema małżeństwami są ukryte."
+#~ "Procent małżeństw z każdej dekady, które zakończyły się rozwodem. Kohorty z "
+#~ "mniej niż trzema małżeństwami są ukryte."
 
 #~ msgid ""
 #~ "Relative density of deaths in December – February compared with an even "
 #~ "12-month baseline."
 #~ msgstr ""
-#~ "Względna gęstość zgonów w grudniu – lutym w porównaniu z równą 12-"
-#~ "miesięczną podstawą."
+#~ "Względna gęstość zgonów w grudniu – lutym w porównaniu z równą 12-miesięczną"
+#~ " podstawą."
 
 #~ msgid ""
 #~ "Share of individuals with both birth and death dates whose death occurred "
 #~ "before their 5th birthday."
 #~ msgstr ""
-#~ "Udział osób z datami urodzenia i zgonu, których zgon nastąpił przed ich "
-#~ "5. urodzinami."
+#~ "Udział osób z datami urodzenia i zgonu, których zgon nastąpił przed ich 5. "
+#~ "urodzinami."
 
 #, php-format
 #~ msgid "%s additional chain at the same depth not shown."
@@ -2552,8 +2767,8 @@ msgstr "…"
 #~ "generations — a marker of cousin marriages and pedigree collapse."
 #~ msgstr ""
 #~ "Pary, których małżonkowie dzielą co najmniej jednego wspólnego przodka w "
-#~ "obrębie czterech pokoleń — wskaźnik małżeństw kuzynowskich i kolapsu "
-#~ "drzewa genealogicznego."
+#~ "obrębie czterech pokoleń — wskaźnik małżeństw kuzynowskich i kolapsu drzewa "
+#~ "genealogicznego."
 
 #~ msgid "Divorces by century and age band"
 #~ msgstr "Rozwody według wieku i przedziału wiekowego"
