@@ -1048,7 +1048,18 @@
    -------------------------------------------------------------------- */
 .wt-statistics-chart .wt-stat-donut {
     display:               grid;
-    grid-template-columns: auto 1fr;
+    /* Donut sizes itself (auto), legend sizes to its longest row
+       (auto + the per-row `max-content` label column below). With
+       the previous `auto 1fr` the legend was force-stretched to
+       fill the remaining card width and the label column shrank
+       to whatever pixels were left after the fixed value/percent
+       columns — long German labels like "Unbekannt" (60 px) lost
+       their last character on a span-4 card with English-sized
+       reserve (59 px). `auto auto` lets both cells request what
+       they actually need; the container query below still kicks
+       in when the card can't host both side-by-side. */
+    grid-template-columns: auto auto;
+    justify-content:       center;
     gap:                   24px;
     align-items:           center;
     width:                 100%;
@@ -1122,7 +1133,16 @@
     display:        flex;
     flex-direction: column;
     gap:            6px;
-    width:          100%;
+    /* `max-content` lets the legend hug the widest row's full
+       content width regardless of viewport / card width, so the
+       label column is sized to the longest label rather than to
+       whatever pixels remain after the donut takes its auto
+       slice. `max-width: 100%` falls back to card width if a
+       single label is wider than the card (extreme edge case);
+       the container query in `.wt-stat-donut` stacks the legend
+       below when it can't fit beside the donut. */
+    width:          max-content;
+    max-width:      100%;
     min-width:      0;
 }
 
