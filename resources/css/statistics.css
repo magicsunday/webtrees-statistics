@@ -45,7 +45,7 @@
 
     /* Surface + text */
     --paper:        #fafafa;
-    --card:         #ffffff;
+    --card:         #fdfdfd;
     --card-warm:    #f0f0f0;
     --border:       #e3e3e3;
     --border-soft:  #ededed;
@@ -228,15 +228,20 @@
    -------------------------------------------------------------------- */
 
 .wt-statistics-chart {
-    background-color: var(--paper);
-    color:            var(--ink);
-    font-family:      var(--sans);
+    /* No `background-color` — the webtrees-core page background
+       shines through so themes that paint their own backdrop
+       (Clouds, Colors, FAB, …) stay visible behind the cards.
+       The cards themselves carry `--paper` (see
+       `.wt-stat-card`) so they keep the warm paper-on-paper
+       feel without painting the whole tab pane. */
+    color:       var(--ink);
+    font-family: var(--sans);
 }
 
 .wt-statistics-chart .wt-stat-app {
     max-width: 1400px;
     margin:    0 auto;
-    padding:   32px 32px 80px;
+    padding:   32px;
 }
 
 /* Phone viewports — collapse the outer padding so the cards have
@@ -245,7 +250,7 @@
    760-px breakpoint on `.gs-app`. */
 @media (max-width: 760px) {
     .wt-statistics-chart .wt-stat-app {
-        padding: 12px 12px 60px;
+        padding: 12px;
     }
 }
 
@@ -447,18 +452,26 @@
 }
 
 .wt-statistics-chart .wt-stat-nav {
-    position:                 sticky;
-    top:                      0;
-    z-index:                  50;
-    display:                  flex;
-    align-items:              stretch;
-    gap:                      12px;
-    margin:                   0 -32px 24px;
-    padding:                  0 32px;
-    background:               color-mix(in srgb, var(--paper) 92%, transparent);
-    border-bottom:            1px solid var(--border);
-    -webkit-backdrop-filter:  blur(12px);
-    backdrop-filter:          blur(12px);
+    position:                sticky;
+    top:                     0;
+    z-index:                 50;
+    display:                 flex;
+    align-items:             stretch;
+    gap:                     12px;
+    margin:                  0 0 24px;
+    padding:                 0;
+    /* Sticky strip needs an opaque-ish backdrop so the page
+       content that scrolls underneath doesn't bleed through.
+       Use `--paper` with a 92 % opacity blur, mirroring the
+       card surface — the chart wrapper itself stays transparent
+       so the webtrees-core theme backdrop shows around the
+       nav + cards. The strip stays inside the app padding
+       (no negative side margin), so the bottom border lines
+       up with the card column. */
+    background:              color-mix(in srgb, var(--paper) 92%, transparent);
+    border-bottom:           1px solid var(--border);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter:         blur(12px);
 }
 
 .wt-statistics-chart .wt-stat-nav-tabs.nav.nav-tabs {
@@ -591,7 +604,13 @@
     color:     var(--ink-2);
 }
 
-/* Card frame */
+/* Card frame
+   --
+   The wt-statistics-chart wrapper has no background of its own
+   so the underlying webtrees theme backdrop shines through;
+   each card paints its own surface on top via `--card`
+   (#fdfdfd in light, #141414 in dark). The border + shadow
+   give the card its outline against the theme bg. */
 .wt-statistics-chart .wt-stat-card {
     position:         relative;
     display:          flex;
@@ -1463,8 +1482,8 @@
     }
 
     .wt-statistics-chart .wt-stat-nav {
-        margin:  0 -12px 16px;
-        padding: 0 12px;
+        margin:  0 0 16px;
+        padding: 0;
     }
 
     /* Switch the six-tab strip to two-row wrap below 760 px —
