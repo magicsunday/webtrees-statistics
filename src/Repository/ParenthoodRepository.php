@@ -48,7 +48,7 @@ use function intdiv;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-final readonly class ParenthoodRepository
+final class ParenthoodRepository
 {
     /**
      * Below this age the row is almost certainly a data-entry
@@ -78,10 +78,20 @@ final readonly class ParenthoodRepository
     private const int BUCKET_WIDTH = 5;
 
     /**
+     * Per-instance cache for `ageAtFirstChildPairs`, keyed by sex.
+     * The Overview tab triggers four calls (young/old × M/F);
+     * memoising per sex collapses them into two SELECTs instead
+     * of four.
+     *
+     * @var array<string, array<int, array{xref: string, years: int}>>
+     */
+    private array $ageAtFirstChildPairsCache = [];
+
+    /**
      * @param Tree $tree The tree the statistics are computed for
      */
     public function __construct(
-        private Tree $tree,
+        private readonly Tree $tree,
     ) {
     }
 
@@ -144,10 +154,14 @@ final readonly class ParenthoodRepository
      *
      * @param string $sex 'M' for fathers, 'F' for mothers
      *
-     * @return iterable<int, array{xref: string, years: int}>
+     * @return array<int, array{xref: string, years: int}>
      */
-    private function ageAtFirstChildPairs(string $sex): iterable
+    private function ageAtFirstChildPairs(string $sex): array
     {
+        if (isset($this->ageAtFirstChildPairsCache[$sex])) {
+            return $this->ageAtFirstChildPairsCache[$sex];
+        }
+
         $parentColumn = Sex::from($sex)->spouseColumn();
         $tablePrefix  = DB::connection()->getTablePrefix();
 
@@ -171,6 +185,8 @@ final readonly class ParenthoodRepository
                 new Expression('MIN(' . $tablePrefix . 'child_birth.d_julianday1) AS first_child_jd'),
             ])
             ->get();
+
+        $out = [];
 
         foreach ($rows as $row) {
             $xref     = RowCast::string($row, 'parent_xref');
@@ -199,7 +215,11 @@ final readonly class ParenthoodRepository
                 continue;
             }
 
-            yield ['xref' => $xref, 'years' => $years];
+            $out[] = ['xref' => $xref, 'years' => $years];
         }
+
+        $this->ageAtFirstChildPairsCache[$sex] = $out;
+
+        return $out;
     }
 }

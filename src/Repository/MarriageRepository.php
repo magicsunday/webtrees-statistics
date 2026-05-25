@@ -44,7 +44,7 @@ use function is_numeric;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-final readonly class MarriageRepository
+final class MarriageRepository
 {
     /**
      * Age-at-marriage histogram uses 5-year bands. Smaller than the
@@ -86,12 +86,32 @@ final readonly class MarriageRepository
     private const int MAX_PLAUSIBLE_SPOUSE_AGE = 90;
 
     /**
+     * Per-instance cache for the marriage-duration row plucks.
+     * `longestMarriageRecord` + `shortestMarriageRecord` +
+     * `durationDistribution` all walk the same rows; sharing the
+     * materialised list collapses three SELECTs into one.
+     *
+     * @var array<int, array{marrJd: int, endJd: int, xref: string}>|null
+     */
+    private ?array $marriageDurationPairsCache = null;
+
+    /**
+     * Per-instance cache for `spouseAgeAtMarriage`, keyed by the
+     * sex argument. Both the youngest- and oldest-spouse records
+     * walk the same rows for a given sex; sharing the materialised
+     * list halves the SELECTs the Overview tab triggers.
+     *
+     * @var array<string, array<int, array{years: int, xref: string}>>
+     */
+    private array $spouseAgeAtMarriageCache = [];
+
+    /**
      * @param Tree           $tree The tree the statistics are computed for
      * @param StatisticsData $data Core accessor that exposes statsMarrAgeQuery + countEventsByCentury
      */
     public function __construct(
-        private Tree $tree,
-        private StatisticsData $data,
+        private readonly Tree $tree,
+        private readonly StatisticsData $data,
     ) {
     }
 
@@ -305,14 +325,20 @@ final readonly class MarriageRepository
      * Per-spouse age at marriage. Loops the existing core query
      * once per row and looks up the parent FAM's husband or wife
      * xref so the same row contributes to both age-at-marriage
-     * histograms AND the youngest/oldest-spouse records.
+     * histograms AND the youngest/oldest-spouse records. Result
+     * is memoised per `$sex` so the Overview tab's young/old
+     * extreme pair shares a single SELECT per sex.
      *
      * @param string $sex 'M' or 'F'
      *
-     * @return iterable<int, array{years: int, xref: string}>
+     * @return array<int, array{years: int, xref: string}>
      */
-    private function spouseAgeAtMarriage(string $sex): iterable
+    private function spouseAgeAtMarriage(string $sex): array
     {
+        if (isset($this->spouseAgeAtMarriageCache[$sex])) {
+            return $this->spouseAgeAtMarriageCache[$sex];
+        }
+
         $spouseColumn = Sex::from($sex)->spouseColumn();
 
         $rows = TreeScope::table($this->tree, 'families', 'fam')
@@ -328,6 +354,8 @@ final readonly class MarriageRepository
                 'birth.d_julianday1 AS birth_jd',
             ])
             ->get();
+
+        $out = [];
 
         foreach ($rows as $row) {
             $marrJd  = RowCast::int($row, 'marr_jd');
@@ -350,24 +378,32 @@ final readonly class MarriageRepository
                 continue;
             }
 
-            yield ['years' => intdiv($marrJd - $birthJd, 365), 'xref' => $xref];
+            $out[] = ['years' => intdiv($marrJd - $birthJd, 365), 'xref' => $xref];
         }
+
+        $this->spouseAgeAtMarriageCache[$sex] = $out;
+
+        return $out;
     }
 
     /**
-     * Iterate every family that has both a parseable MARR date AND
-     * a determinable marriage-end julian-day, yielding the raw
-     * `{marrJd, endJd, xref}` triple. Callers turn it into years
-     * (durationDistribution, longestMarriageRecord) or days
-     * (shortestMarriageRecord) themselves. The end julian-day is
-     * the earliest of DIV / husband-DEAT / wife-DEAT, so the row
-     * that survives is the one webtrees considers the marriage's
-     * true terminus.
+     * Every family with both a parseable MARR date AND a determinable
+     * marriage-end julian-day, returned as a `{marrJd, endJd, xref}`
+     * triple. Callers turn it into years (durationDistribution,
+     * longestMarriageRecord) or days (shortestMarriageRecord). The
+     * end julian-day is the earliest of DIV / husband-DEAT /
+     * wife-DEAT, so the row that survives is the one webtrees
+     * considers the marriage's true terminus. Memoised per instance
+     * — the three callers used to trigger three identical SELECTs.
      *
-     * @return iterable<int, array{marrJd: int, endJd: int, xref: string}>
+     * @return array<int, array{marrJd: int, endJd: int, xref: string}>
      */
-    private function marriageDurationPairs(): iterable
+    private function marriageDurationPairs(): array
     {
+        if ($this->marriageDurationPairsCache !== null) {
+            return $this->marriageDurationPairsCache;
+        }
+
         $rows = TreeScope::table($this->tree, 'families')
             ->join('dates AS marr', static function (JoinClause $join): void {
                 DateJoin::on($join, 'marr', 'f_file', 'f_id', 'MARR');
@@ -389,6 +425,8 @@ final readonly class MarriageRepository
                 'wife_d.d_julianday1 AS wife_jd',
             ])
             ->get();
+
+        $out = [];
 
         foreach ($rows as $row) {
             $marrJd = RowCast::int($row, 'marr_jd');
@@ -416,8 +454,12 @@ final readonly class MarriageRepository
                 continue;
             }
 
-            yield ['marrJd' => $marrJd, 'endJd' => $endJd, 'xref' => $xref];
+            $out[] = ['marrJd' => $marrJd, 'endJd' => $endJd, 'xref' => $xref];
         }
+
+        $this->marriageDurationPairsCache = $out;
+
+        return $out;
     }
 
     /**
