@@ -179,8 +179,8 @@ msgstr "%s nomi propri distinti (top 15)"
 #, php-format
 msgid "%s distinct occupation"
 msgid_plural "%s distinct occupations"
-msgstr[0] "%s distinct occupation"
-msgstr[1] "%s distinct occupations"
+msgstr[0] "%s professione distinta"
+msgstr[1] "%s professioni distinte"
 
 #: resources/views/modules/statistics-chart/Templates/Overview.phtml:114
 #, php-format
@@ -196,8 +196,8 @@ msgstr "%s luoghi distinti"
 #, php-format
 msgid "%s distinct religion"
 msgid_plural "%s distinct religions"
-msgstr[0] "%s distinct religion"
-msgstr[1] "%s distinct religions"
+msgstr[0] "%s religione distinta"
+msgstr[1] "%s religioni distinte"
 
 #: resources/views/modules/statistics-chart/Templates/Overview.phtml:133
 #, php-format
@@ -235,29 +235,29 @@ msgstr[1] "%s famiglie"
 #, php-format
 msgid "%s father"
 msgid_plural "%s fathers"
-msgstr[0] "%s father"
-msgstr[1] "%s fathers"
+msgstr[0] "%s padre"
+msgstr[1] "%s padri"
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:329
 #, php-format
 msgid "%s first-born child"
 msgid_plural "%s first-born children"
-msgstr[0] "%s first-born child"
-msgstr[1] "%s first-born children"
+msgstr[0] "%s primo figlio"
+msgstr[1] "%s primi figli"
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:42
 #, php-format
 msgid "%s generation deep"
 msgid_plural "%s generations deep"
-msgstr[0] "%s generation deep"
-msgstr[1] "%s generations deep"
+msgstr[0] "%s generazione di profondità"
+msgstr[1] "%s generazioni di profondità"
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:82
 #, php-format
 msgid "%s husband"
 msgid_plural "%s husbands"
-msgstr[0] "%s husband"
-msgstr[1] "%s husbands"
+msgstr[0] "%s marito"
+msgstr[1] "%s mariti"
 
 #: resources/views/modules/statistics-chart/Templates/Overview.phtml:42
 #: resources/views/modules/statistics-chart/Templates/Overview.phtml:60
@@ -342,8 +342,8 @@ msgstr[1] "%s persone viventi con data di nascita"
 #, php-format
 msgid "%s man"
 msgid_plural "%s men"
-msgstr[0] "%s man"
-msgstr[1] "%s men"
+msgstr[0] "%s uomo"
+msgstr[1] "%s uomini"
 
 #: resources/views/modules/statistics-chart/Partials/RecordsGrid.phtml:77
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:66
@@ -365,8 +365,8 @@ msgstr[1] "%s matrimoni con mese registrato"
 #, php-format
 msgid "%s mother"
 msgid_plural "%s mothers"
-msgstr[0] "%s mother"
-msgstr[1] "%s mothers"
+msgstr[0] "%s madre"
+msgstr[1] "%s madri"
 
 #: src/Repository/ChildrenRepository.php:295
 #, php-format
@@ -390,15 +390,17 @@ msgstr[1] "%s coppie"
 #, php-format
 msgid "%s person"
 msgid_plural "%s persons"
-msgstr[0] "%s person"
-msgstr[1] "%s persons"
+msgstr[0] "%s persona"
+msgstr[1] "%s persone"
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:338
 #, php-format
 msgid "%s recorded birth date — tree growth across decades"
 msgid_plural "%s recorded birth dates — tree growth across decades"
-msgstr[0] "%s recorded birth date — tree growth across decades"
-msgstr[1] "%s recorded birth dates — tree growth across decades"
+msgstr[0] ""
+"%s data di nascita registrata — crescita dell'albero nel corso dei decenni"
+msgstr[1] ""
+"%s date di nascita registrate — crescita dell'albero nel corso dei decenni"
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:478
 #, php-format
@@ -425,15 +427,15 @@ msgstr[1] "%s coniugi"
 #, php-format
 msgid "%s wife"
 msgid_plural "%s wives"
-msgstr[0] "%s wife"
-msgstr[1] "%s wives"
+msgstr[0] "%s moglie"
+msgstr[1] "%s mogli"
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:142
 #, php-format
 msgid "%s woman"
 msgid_plural "%s women"
-msgstr[0] "%s woman"
-msgstr[1] "%s women"
+msgstr[0] "%s donna"
+msgstr[1] "%s donne"
 
 #: resources/views/modules/statistics-chart/Partials/RecordsGrid.phtml:29
 #: resources/views/modules/statistics-chart/Partials/RecordsGrid.phtml:35
@@ -632,11 +634,11 @@ msgid_plural ""
 "A statistical reading of one family tree over %s centuries — births, "
 "marriages, migrations and gaps in the archive."
 msgstr[0] ""
-"A statistical reading of one family tree over a single century — births, "
-"marriages, migrations and gaps in the archive."
+"Una lettura statistica di un albero genealogico su un solo secolo — nascite,"
+" matrimoni, migrazioni e lacune negli archivi."
 msgstr[1] ""
-"A statistical reading of one family tree over %s centuries — births, "
-"marriages, migrations and gaps in the archive."
+"Una lettura statistica di un albero genealogico su %s secoli — nascite, "
+"matrimoni, migrazioni e lacune negli archivi."
 
 #: resources/views/modules/statistics-chart/Partials/Hero.phtml:30
 msgid ""
