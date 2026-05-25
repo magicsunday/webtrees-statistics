@@ -112,6 +112,7 @@ $endogamyExplanation = I18N::translate(
         'illustration' => 'book',
         'span'         => 4,
         'centered'     => true,
+        'showFooter'   => true,
         'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/GaugeArc', [
             'value'   => $sourcedPct,
             'accent'  => 'var(--sage)',
@@ -149,6 +150,7 @@ $endogamyExplanation = I18N::translate(
         'illustration' => 'hourglass',
         'span'         => 4,
         'centered'     => true,
+        'showFooter'   => true,
         'bodyRenderer' => static function () use ($module, $generation): void {
             $hasData      = $generation !== null;
             $generationInt = $hasData ? (int) round($generation) : 0;
