@@ -34,13 +34,24 @@ use function is_string;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-final readonly class ParentMapRepository
+final class ParentMapRepository
 {
+    /**
+     * Per-instance memo of the parent map. Repository is shared
+     * across multiple Tab-6 consumers (Kinship + Endogamy +
+     * GenerationDepth) within a single statistics-chart request,
+     * and the underlying SQL + map construction were dominating
+     * the tab's load time when each caller rebuilt independently.
+     *
+     * @var array<string, array{0: string|null, 1: string|null}>|null
+     */
+    private ?array $cache = null;
+
     /**
      * @param Tree $tree The tree the parent map is computed for
      */
     public function __construct(
-        private Tree $tree,
+        private readonly Tree $tree,
     ) {
     }
 
@@ -48,12 +59,17 @@ final readonly class ParentMapRepository
      * Build a child-id → [father-id|null, mother-id|null] map for
      * the configured tree. Children with no resolvable FAM-spouse
      * pair are absent from the map; callers treat absence as "root
-     * of the walk — no further ancestors known".
+     * of the walk — no further ancestors known". Result is cached
+     * for the lifetime of the repository instance.
      *
      * @return array<string, array{0: string|null, 1: string|null}>
      */
     public function build(): array
     {
+        if ($this->cache !== null) {
+            return $this->cache;
+        }
+
         $familyRows = TreeScope::table($this->tree, 'families')
             ->select(['f_id', 'f_husb AS husb', 'f_wife AS wife'])
             ->get();
@@ -98,6 +114,8 @@ final readonly class ParentMapRepository
 
             $parentOf[$child] = $familyParents[$family];
         }
+
+        $this->cache = $parentOf;
 
         return $parentOf;
     }
