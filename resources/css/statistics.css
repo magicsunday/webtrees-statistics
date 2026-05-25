@@ -1054,6 +1054,31 @@
     width:                 100%;
 }
 
+/* Container-query fallback for narrow CARDS — the viewport may
+   still be desktop-wide but a span-4 donut card squeezed into a
+   tight grid cell (e.g. the 943-px viewport stage where the
+   "Sex" card is only ~257 px wide) has no horizontal room for
+   the donut + legend side-by-side. Stack them vertically once
+   the card body shrinks below 320 px, mirroring the phone
+   layout we already render at <=760 px viewport width. */
+.wt-statistics-chart .wt-stat-card {
+    container-type: inline-size;
+    container-name: wt-stat-card;
+}
+
+@container wt-stat-card (max-width: 320px) {
+    .wt-statistics-chart .wt-stat-donut {
+        grid-template-columns: 1fr;
+        justify-items:         center;
+        text-align:            center;
+    }
+
+    .wt-statistics-chart .wt-stat-donut .wt-stat-legend {
+        width:     max-content;
+        max-width: 100%;
+    }
+}
+
 .wt-statistics-chart .wt-stat-donut-v {
     grid-template-columns: 1fr;
     justify-items:         center;
