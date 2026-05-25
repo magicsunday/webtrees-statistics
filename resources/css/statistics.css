@@ -718,7 +718,14 @@
 
 .wt-statistics-chart .wt-stat-card-sub {
     margin:      0;
-    max-width:   60ch;
+    /* No max-width — the sub line uses the full card-head text
+       column (same as `.wt-stat-card-title`) so longer caption
+       text doesn't wrap into multiple short lines just because
+       60 ch happens to be narrower than the card. The German
+       chord-diagram caption "Chord-Diagramm: Bögen = Nachnamen,
+       Bänder = Ehen zwischen ihnen, Schlaufen = Endogamie" is
+       ~95 chars; the English equivalent fits in 60 ch but
+       longer locales (DE / NL / IT) do not. */
     min-height:  2.9em;
     font-size:   13px;
     line-height: 1.45;
