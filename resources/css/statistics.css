@@ -466,10 +466,17 @@
        card surface — the chart wrapper itself stays transparent
        so the webtrees-core theme backdrop shows around the
        nav + cards. The strip stays inside the app padding
-       (no negative side margin), so the bottom border lines
+       (no negative side margin), so the rounded border lines
        up with the card column. */
     background:              color-mix(in srgb, var(--paper) 92%, transparent);
-    border-bottom:           1px solid var(--border);
+    border:                  1px solid var(--border);
+    border-radius:           var(--card-radius);
+    /* The active tab paints a 2-px wine line on its bottom
+       edge that sits flush against the strip's outer border;
+       `overflow: hidden` clips that line to the rounded
+       corners so it never spikes outside the radius on the
+       first / last tab. */
+    overflow:                hidden;
     -webkit-backdrop-filter: blur(12px);
     backdrop-filter:         blur(12px);
 }
