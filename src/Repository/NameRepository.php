@@ -26,8 +26,8 @@ use const PHP_INT_MAX;
  * (multi-name splits, initial filter) lives in core. The surname path
  * resolves to a single COUNT(DISTINCT) query — calling
  * {@see StatisticsData::commonSurnames()} with PHP_INT_MAX would fire
- * one extra COUNT per distinct surname, blowing the headline number
- * into an N+1 storm (Sonntag tree: 257 ms for a single count).
+ * one extra COUNT per distinct surname, turning a single count into an
+ * N+1 query storm.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0

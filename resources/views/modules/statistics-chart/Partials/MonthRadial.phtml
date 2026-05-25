@@ -22,7 +22,7 @@ use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
  * @var string|null              $centerLabel Caption shown under the peak value
  */
 if ($data === []) {
-    echo '<p class="text-muted text-center mb-0">' . e(I18N::translate('No data available yet.')) . '</p>';
+    echo '<p class="text-muted text-center mb-0">' . e(I18N::translate('No data recorded for this metric.')) . '</p>';
 
     return;
 }

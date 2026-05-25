@@ -40,12 +40,13 @@ use function sort;
 final readonly class GenerationDepth
 {
     /**
-     * Cap on the downward walk. Past 20 generations a tree describes
-     * roughly 1.5 million potential descendants — well past anything
-     * a widget can usefully visualise, and the practical signal
-     * (deepest verified line) is captured long before then.
+     * Cap on the downward walk. Deep nobility-style trees can
+     * legitimately trace 30+ generations of recorded descendants
+     * from a medieval root; the cap stays well above that band
+     * so the guard only fires on cyclic FAMC/FAMS edits, not on
+     * real long descent lines.
      */
-    public const int MAX_DEPTH = 20;
+    public const int MAX_DEPTH = 40;
 
     /**
      * Prevent instantiation — static-only utility.

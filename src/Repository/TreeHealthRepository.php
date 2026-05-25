@@ -88,10 +88,10 @@ final readonly class TreeHealthRepository
     public function missingEventGaps(): array
     {
         // Six per-event/per-place `NOT LIKE` counts used to each
-        // trigger a full-table scan against the `individuals` table
-        // (Sonntag tree: ~840 ms total). Pull every i_gedcom blob
-        // ONCE and aggregate the six BIRT/DEAT counts in PHP, then
-        // do the same for MARR via families+link in a single pluck.
+        // trigger a full-table scan against the `individuals` table.
+        // Pull every i_gedcom blob ONCE and aggregate the six
+        // BIRT/DEAT counts in PHP, then do the same for MARR via
+        // families+link in a single pluck.
         //
         // Aggregated counts on the individual side:
         //   birthMissing   : no `\n1 BIRT`

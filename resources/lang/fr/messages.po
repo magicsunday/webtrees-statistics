@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Statistics\n"
 "Report-Msgid-Bugs-To: https://github.com/magicsunday/webtrees-statistics/"
 "issues\n"
-"POT-Creation-Date: 2026-05-25 19:17+0000\n"
+"POT-Creation-Date: 2026-05-25 20:37+0000\n"
 "PO-Revision-Date: 2026-05-22 07:04+0000\n"
 "Last-Translator: Rico Sonntag <mail@ricosonntag.de>\n"
 "Language-Team: \n"
@@ -1661,17 +1661,14 @@ msgstr "Aucun déplacement de pays à pays enregistré pour le moment."
 #: resources/views/modules/statistics-chart/Partials/BarChart.phtml:38
 #: resources/views/modules/statistics-chart/Partials/ChordDiagram.phtml:45
 #: resources/views/modules/statistics-chart/Partials/DivergingBar.phtml:33
+#: resources/views/modules/statistics-chart/Partials/DonutChart.phtml:22
 #: resources/views/modules/statistics-chart/Partials/LineChart.phtml:38
 #: resources/views/modules/statistics-chart/Partials/MirrorHistogram.phtml:32
 #: resources/views/modules/statistics-chart/Partials/MonthRadial.phtml:25
-#: resources/views/modules/statistics-chart/Partials/StackedBar.phtml:46
-#: resources/views/modules/statistics-chart/Partials/StreamGraph.phtml:49
-msgid "No data available yet."
-msgstr "Aucune donnée disponible pour le moment."
-
-#: resources/views/modules/statistics-chart/Partials/DonutChart.phtml:22
 #: resources/views/modules/statistics-chart/Partials/Podium.phtml:30
 #: resources/views/modules/statistics-chart/Partials/ProgressList.phtml:29
+#: resources/views/modules/statistics-chart/Partials/StackedBar.phtml:46
+#: resources/views/modules/statistics-chart/Partials/StreamGraph.phtml:49
 msgid "No data recorded for this metric."
 msgstr "Aucune donnée enregistrée pour cette métrique."
 
@@ -2032,8 +2029,9 @@ msgid "Virgo"
 msgstr "Vierge"
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:227
+#, fuzzy
 msgid ""
-"Walk reached the safety cap (20 generations) — check the tree for cyclic "
+"Walk reached the safety cap (40 generations) — check the tree for cyclic "
 "FAMC/FAMS edits."
 msgstr ""
 "Le parcours a atteint la limite de sécurité (20 générations) — vérifiez "
@@ -2356,6 +2354,9 @@ msgstr "{name} : {total}, {peak}"
 msgctxt "Unknown surname"
 msgid "…"
 msgstr "…"
+
+#~ msgid "No data available yet."
+#~ msgstr "Aucune donnée disponible pour le moment."
 
 #, php-format
 #~ msgid "%s recorded country of birth"

@@ -29,7 +29,7 @@ use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
  * @var string                                                                                          $bottomLabel Caption rendered on the bottom axis
  */
 if ($top === [] && $bottom === []) {
-    echo '<p class="text-muted text-center mb-0">' . e(I18N::translate('No data available yet.')) . '</p>';
+    echo '<p class="text-muted text-center mb-0">' . e(I18N::translate('No data recorded for this metric.')) . '</p>';
 
     return;
 }
