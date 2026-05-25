@@ -45,14 +45,20 @@ $totalDeathsByCentury = array_sum($deathsByCentury);
 $totalAgeAtDeath      = array_sum($ageAtDeath);
 $totalLivingBanded    = array_sum(array_column($livingByAgeBand, 'value'));
 
-$birthsByCenturyPayload = LineChartPayload::singleSeries(
-    seriesName: I18N::translate('Births'),
-    countsByCategory: $birthsByCentury,
-    project: static fn (int|string $century, int|float $count): array => [
-        'categoryLabel' => (string) $century,
-        'tooltipBody'   => I18N::plural('%s birth', '%s births', (int) $count, I18N::number($count)),
-        'tooltipLabel'  => CenturyName::longLabel((string) $century),
-    ],
+// Enrich the living-age-band slices with long-form tooltip text
+// (band-in-years header + plural-aware "N persons" body). The donut
+// widget falls back to label/value when tooltipLabel/tooltipBody
+// are missing, so the enrichment is local to this template.
+$livingByAgeBand = array_map(
+    static function (array $band): array {
+        $value = (int) $band['value'];
+
+        return $band + [
+            'tooltipLabel' => I18N::translate('%s years', (string) $band['label']),
+            'tooltipBody'  => I18N::plural('%s person', '%s persons', $value, I18N::number($value)),
+        ];
+    },
+    $livingByAgeBand,
 );
 
 $birthsByDecadePayload = LineChartPayload::singleSeries(
@@ -66,16 +72,6 @@ $birthsByDecadePayload = LineChartPayload::singleSeries(
 );
 
 $birthsByDecadeXLabelEvery = max(1, (int) ceil(count($birthsByDecadePayload->categories) / 12));
-
-$deathsByCenturyPayload = LineChartPayload::singleSeries(
-    seriesName: I18N::translate('Deaths'),
-    countsByCategory: $deathsByCentury,
-    project: static fn (int|string $century, int|float $count): array => [
-        'categoryLabel' => (string) $century,
-        'tooltipBody'   => I18N::plural('%s death', '%s deaths', (int) $count, I18N::number($count)),
-        'tooltipLabel'  => CenturyName::longLabel((string) $century),
-    ],
-);
 
 $mortalityByCentury = [];
 $mortalityTooltips  = [];
@@ -98,7 +94,10 @@ $childMortalityPayload = LineChartPayload::singleSeries(
         $label = CenturyName::for((int) $century);
 
         return [
-            'categoryLabel' => $label,
+            // Append the locale-specific "Jh." abbreviation so the x-axis
+            // reads "16. Jh." instead of just "16." (DE) / "16th cent."
+            // instead of "16th" (EN), matching the mockup tick style.
+            'categoryLabel' => I18N::translate('%s cent.', $label),
             'tooltipBody'   => $mortalityTooltips[$century] ?? '',
             'tooltipLabel'  => CenturyName::longLabel($label),
         ];
@@ -121,11 +120,43 @@ foreach ($childMortalityByCentury as $entry) {
 }
 
 // Convert the band → count map into the row-of-objects shape that
-// the chart-lib BarChart payload expects.
+// the chart-lib BarChart payload expects. Empty bands are kept —
+// the chart renders a 1-px stub on the baseline so the tick still
+// communicates "nobody in this band" instead of dropping silently.
 $ageAtDeathBars = [];
 
 foreach ($ageAtDeath as $bandLabel => $count) {
-    $ageAtDeathBars[] = ['label' => (string) $bandLabel, 'value' => (int) $count];
+    $ageAtDeathBars[] = [
+        'label'        => (string) $bandLabel,
+        'value'        => (int) $count,
+        'tooltipLabel' => I18N::translate('%s years', (string) $bandLabel),
+        'tooltip'      => I18N::plural('%s person', '%s persons', (int) $count, I18N::number($count)),
+    ];
+}
+
+// Births / deaths per century — bar chart payload mirrors the
+// histogram look in the mockup (one bar per century, ordered
+// chronologically, full century name as tooltip header).
+$birthsByCenturyBars = [];
+
+foreach ($birthsByCentury as $century => $count) {
+    $birthsByCenturyBars[] = [
+        'label'        => (string) $century,
+        'value'        => (int) $count,
+        'tooltipLabel' => CenturyName::longLabel((string) $century),
+        'tooltip'      => I18N::plural('%s birth', '%s births', (int) $count, I18N::number($count)),
+    ];
+}
+
+$deathsByCenturyBars = [];
+
+foreach ($deathsByCentury as $century => $count) {
+    $deathsByCenturyBars[] = [
+        'label'        => (string) $century,
+        'value'        => (int) $count,
+        'tooltipLabel' => CenturyName::longLabel((string) $century),
+        'tooltip'      => I18N::plural('%s death', '%s deaths', (int) $count, I18N::number($count)),
+    ];
 }
 ?>
 <div class="wt-stat-grid">
@@ -133,7 +164,7 @@ foreach ($ageAtDeath as $bandLabel => $count) {
     <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
         'kicker' => I18N::translate('LIFESPAN'),
         'title'  => I18N::translate('How long was the life?'),
-        'sub'    => I18N::translate('Age at death, longevity and life-stage of the living.'),
+        'sub'    => I18N::translate('Age at death, longevity and life-stage of the living'),
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
@@ -176,7 +207,7 @@ foreach ($ageAtDeath as $bandLabel => $count) {
         <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
             'module'       => $module,
             'title'        => I18N::translate('Average lifespan by sex × century'),
-            'sub'          => I18N::translate('Mean age at death per birth-century cohort, split by recorded sex.'),
+            'sub'          => I18N::translate('Age at death per birth century, split by sex'),
             'eyebrow'      => I18N::translate('TIMELINE'),
             'accent'       => 'var(--ochre)',
             'illustration' => 'hourglass',
@@ -229,7 +260,7 @@ foreach ($ageAtDeath as $bandLabel => $count) {
     <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
         'kicker' => I18N::translate('MORTALITY'),
         'title'  => I18N::translate('Causes of death and infant mortality'),
-        'sub'    => I18N::translate('What the recorded individuals died of.'),
+        'sub'    => I18N::translate('What the recorded individuals died of'),
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
@@ -274,7 +305,7 @@ foreach ($ageAtDeath as $bandLabel => $count) {
             <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
                 'module'       => $module,
                 'title'        => I18N::translate('Peak value'),
-                'sub'          => I18N::translate('Child mortality %s', CenturyName::for((int) $childMortalityPeak['century'])),
+                'sub'          => I18N::translate('Child mortality %s century', CenturyName::for((int) $childMortalityPeak['century'])),
                 'eyebrow'      => I18N::translate('EXTREME'),
                 'accent'       => 'var(--wine)',
                 'illustration' => 'candle',
@@ -298,7 +329,7 @@ foreach ($ageAtDeath as $bandLabel => $count) {
     <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
         'kicker' => I18N::translate('BIRTHS'),
         'title'  => I18N::translate('When were they born?'),
-        'sub'    => I18N::translate('Time-distribution of births across centuries, decades and months.'),
+        'sub'    => I18N::translate('Time-distribution of births'),
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
@@ -328,10 +359,12 @@ foreach ($ageAtDeath as $bandLabel => $count) {
         'accent'       => 'var(--ochre)',
         'illustration' => 'sunrise',
         'span'         => 4,
-        'bodyRenderer' => static function () use ($module, $birthsByCenturyPayload): void {
-            echo view($module . '::modules/statistics-chart/Partials/LineChart', [
-                'identifier' => 'births-century-line',
-                'data'       => $birthsByCenturyPayload,
+        'bodyRenderer' => static function () use ($module, $birthsByCenturyBars): void {
+            echo view($module . '::modules/statistics-chart/Partials/BarChart', [
+                'identifier' => 'births-century-bars',
+                'data'       => $birthsByCenturyBars,
+                'height'     => 200,
+                'ariaLabel'  => I18N::translate('Births per century'),
             ]);
         },
     ]); ?>
@@ -340,7 +373,7 @@ foreach ($ageAtDeath as $bandLabel => $count) {
         'module'       => $module,
         'title'        => I18N::translate('Births by month'),
         'sub'          => I18N::plural('%s individual with a recorded birth month', '%s individuals with a recorded birth month', $totalBirthsByMonth, I18N::number($totalBirthsByMonth)),
-        'eyebrow'      => I18N::translate('MONTH'),
+        'eyebrow'      => I18N::translate('MONTH CLOCK'),
         'accent'       => 'var(--ochre)',
         'illustration' => 'sunrise',
         'span'         => 4,
@@ -353,7 +386,7 @@ foreach ($ageAtDeath as $bandLabel => $count) {
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
         'module'       => $module,
-        'title'        => I18N::translate('Births by zodiac sign'),
+        'title'        => I18N::translate('Zodiac signs'),
         'sub'          => I18N::plural('%s individual with a known zodiac sign', '%s individuals with a known zodiac sign', $totalBirthsByZodiac, I18N::number($totalBirthsByZodiac)),
         'eyebrow'      => I18N::translate('ZODIAC'),
         'accent'       => 'var(--slate)',
@@ -369,7 +402,7 @@ foreach ($ageAtDeath as $bandLabel => $count) {
     <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
         'kicker' => I18N::translate('DEATHS'),
         'title'  => I18N::translate('When did they die?'),
-        'sub'    => I18N::translate('Season and century of recorded deaths.'),
+        'sub'    => I18N::translate('Season and century of recorded deaths'),
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
@@ -380,10 +413,12 @@ foreach ($ageAtDeath as $bandLabel => $count) {
         'accent'       => 'var(--wine)',
         'illustration' => 'moon',
         'span'         => 4,
-        'bodyRenderer' => static function () use ($module, $deathsByCenturyPayload): void {
-            echo view($module . '::modules/statistics-chart/Partials/LineChart', [
-                'identifier' => 'deaths-century-line',
-                'data'       => $deathsByCenturyPayload,
+        'bodyRenderer' => static function () use ($module, $deathsByCenturyBars): void {
+            echo view($module . '::modules/statistics-chart/Partials/BarChart', [
+                'identifier' => 'deaths-century-bars',
+                'data'       => $deathsByCenturyBars,
+                'height'     => 200,
+                'ariaLabel'  => I18N::translate('Deaths per century'),
             ]);
         },
     ]); ?>
@@ -392,7 +427,7 @@ foreach ($ageAtDeath as $bandLabel => $count) {
         'module'       => $module,
         'title'        => I18N::translate('Deaths by month'),
         'sub'          => I18N::plural('%s individual with a recorded death month', '%s individuals with a recorded death month', $totalDeathsByMonth, I18N::number($totalDeathsByMonth)),
-        'eyebrow'      => I18N::translate('MONTH'),
+        'eyebrow'      => I18N::translate('MONTH CLOCK'),
         'accent'       => 'var(--wine)',
         'illustration' => 'moon',
         'span'         => 4,
@@ -406,7 +441,7 @@ foreach ($ageAtDeath as $bandLabel => $count) {
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
         'module'       => $module,
         'title'        => I18N::translate('Winter-peak score'),
-        'sub'          => I18N::translate('Relative density of deaths in December – February compared with an even 12-month baseline.'),
+        'sub'          => I18N::translate('Dec – Feb vs. baseline'),
         'eyebrow'      => I18N::translate('SEASON'),
         'accent'       => 'var(--wine)',
         'illustration' => 'moon',
@@ -414,10 +449,30 @@ foreach ($ageAtDeath as $bandLabel => $count) {
         'centered'     => true,
         'bodyRenderer' => static function () use ($module, $winterPeakScore): void {
             if ($winterPeakScore !== null) {
+                $deviation = ($winterPeakScore->score - 1.0) * 100.0;
+
+                if ($deviation > 0.5) {
+                    $caption = I18N::translate(
+                        'Winter months show a %s%% higher mortality density than the annual average.',
+                        I18N::number(abs($deviation), 0),
+                    );
+                } elseif ($deviation < -0.5) {
+                    $caption = I18N::translate(
+                        'Winter months show a %s%% lower mortality density than the annual average.',
+                        I18N::number(abs($deviation), 0),
+                    );
+                } else {
+                    $caption = I18N::translate('Deaths are evenly spread across the year.');
+                }
+
+                // Multiplier sigil stays inline with the serif value so
+                // the "× 0,84" reads as a single ratio token; Scalar's
+                // optional `unit` slot is reserved for trailing units
+                // (e.g. years, %), not leading sigils.
                 echo view($module . '::modules/statistics-chart/Partials/Scalar', [
-                    'value'   => I18N::number($winterPeakScore->score, 2),
-                    'unit'    => '×',
-                    'caption' => I18N::translate('%1$s of %2$s deaths fell in December – February. 1.0 = no seasonality, > 1.0 = winter-peaked, < 1.0 = winter-trough.', I18N::number($winterPeakScore->seasonCount), I18N::number($winterPeakScore->total)),
+                    'value'   => '× ' . I18N::number($winterPeakScore->score, 2),
+                    'unit'    => null,
+                    'caption' => $caption,
                 ]);
             } else {
                 echo view($module . '::modules/statistics-chart/Partials/Scalar', [
