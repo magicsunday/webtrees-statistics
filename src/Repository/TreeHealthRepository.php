@@ -89,49 +89,126 @@ final readonly class TreeHealthRepository
      */
     public function missingEventGaps(): array
     {
-        $total       = $this->countIndividuals();
-        $spouseTotal = $this->countSpouses();
+        // Six per-event/per-place `NOT LIKE` counts used to each
+        // trigger a full-table scan against the `individuals` table
+        // (Sonntag tree: ~840 ms total). Pull every i_gedcom blob
+        // ONCE and aggregate the six BIRT/DEAT counts in PHP, then
+        // do the same for MARR via families+link in a single pluck.
+        //
+        // Aggregated counts on the individual side:
+        //   birthMissing   : no `\n1 BIRT`
+        //   birthNoPlace   : BIRT present but no `\n2 PLAC` under it
+        //   deathMissing   : no `\n1 DEAT`
+        //   deathNoPlace   : DEAT present but no `\n2 PLAC` under it
+        // Aggregated counts on the spouse side (per individual):
+        //   spouseTotal              : has at least one FAMS link
+        //   spousesMissingMarrEvent  : every FAMS family lacks MARR
+        //   spousesMissingMarrPlace  : every MARR-bearing family lacks `\n2 PLAC`
+        $birthMissing = 0;
+        $birthNoPlace = 0;
+        $deathMissing = 0;
+        $deathNoPlace = 0;
+        $total        = 0;
 
-        $birthMissing = $this->countIndividualsMissingEvent('BIRT');
-        $deathMissing = $this->countIndividualsMissingEvent('DEAT');
+        $individualBlobs = TreeScope::table($this->tree, 'individuals')
+            ->select(['i_id', 'i_gedcom'])
+            ->get();
+
+        foreach ($individualBlobs as $row) {
+            ++$total;
+            $blob = RowCast::string($row, 'i_gedcom');
+
+            $hasBirth = GedcomScanner::hasTagAnchored($blob, 'BIRT');
+
+            if (!$hasBirth) {
+                ++$birthMissing;
+            } elseif (!GedcomScanner::hasEventPlace($blob, 'BIRT')) {
+                ++$birthNoPlace;
+            }
+
+            $hasDeath = GedcomScanner::hasTagAnchored($blob, 'DEAT');
+
+            if (!$hasDeath) {
+                ++$deathMissing;
+            } elseif (!GedcomScanner::hasEventPlace($blob, 'DEAT')) {
+                ++$deathNoPlace;
+            }
+        }
+
+        // Family side — pluck spouse links + family gedcoms once,
+        // then walk the FAMS chain per individual in PHP.
+        $famsLinks = DB::table('link')
+            ->where('l_file', '=', $this->tree->id())
+            ->where('l_type', '=', 'FAMS')
+            ->select(['l_from AS individual', 'l_to AS family'])
+            ->get();
+
+        $familyGedcoms = TreeScope::table($this->tree, 'families')
+            ->select(['f_id', 'f_gedcom'])
+            ->get()
+            ->keyBy('f_id');
+
+        // individual → list of family-ids
+        $spouseFamilies = [];
+
+        foreach ($famsLinks as $link) {
+            $individualId = RowCast::string($link, 'individual');
+            $familyId     = RowCast::string($link, 'family');
+
+            if ($individualId === '' || $familyId === '') {
+                continue;
+            }
+
+            $spouseFamilies[$individualId][] = $familyId;
+        }
+
+        $spouseTotal             = count($spouseFamilies);
+        $spousesMissingMarrEvent = 0;
+        $spousesMissingMarrPlace = 0;
+
+        foreach ($spouseFamilies as $familyIds) {
+            $anyHasMarr      = false;
+            $anyMarrHasPlace = false;
+
+            foreach ($familyIds as $familyId) {
+                $family = $familyGedcoms[$familyId] ?? null;
+
+                if ($family === null) {
+                    continue;
+                }
+
+                $famGedcom = RowCast::string($family, 'f_gedcom');
+
+                if (GedcomScanner::hasTagAnchored($famGedcom, 'MARR')) {
+                    $anyHasMarr = true;
+
+                    if (GedcomScanner::hasEventPlace($famGedcom, 'MARR')) {
+                        $anyMarrHasPlace = true;
+                    }
+                }
+            }
+
+            if (!$anyHasMarr) {
+                ++$spousesMissingMarrEvent;
+                // "MARR place" is only meaningful when MARR exists.
+                // Spouses without MARR at all aren't counted as
+                // "missing place" — the event-missing row already
+                // covers them.
+                continue;
+            }
+
+            if (!$anyMarrHasPlace) {
+                ++$spousesMissingMarrPlace;
+            }
+        }
 
         return [
-            'BIRT_event' => [
-                'event' => 'BIRT',
-                'kind'  => 'event',
-                'value' => $birthMissing,
-                'total' => $total,
-            ],
-            'BIRT_place' => [
-                'event' => 'BIRT',
-                'kind'  => 'place',
-                'value' => $this->countIndividualsMissingEventPlace('BIRT', $birthMissing),
-                'total' => $total,
-            ],
-            'MARR_event' => [
-                'event' => 'MARR',
-                'kind'  => 'event',
-                'value' => $this->countSpousesMissingMarriageEvent(),
-                'total' => $spouseTotal,
-            ],
-            'MARR_place' => [
-                'event' => 'MARR',
-                'kind'  => 'place',
-                'value' => $this->countSpousesMissingMarriagePlace(),
-                'total' => $spouseTotal,
-            ],
-            'DEAT_event' => [
-                'event' => 'DEAT',
-                'kind'  => 'event',
-                'value' => $deathMissing,
-                'total' => $total,
-            ],
-            'DEAT_place' => [
-                'event' => 'DEAT',
-                'kind'  => 'place',
-                'value' => $this->countIndividualsMissingEventPlace('DEAT', $deathMissing),
-                'total' => $total,
-            ],
+            'BIRT_event' => ['event' => 'BIRT', 'kind' => 'event', 'value' => $birthMissing, 'total' => $total],
+            'BIRT_place' => ['event' => 'BIRT', 'kind' => 'place', 'value' => $birthMissing + $birthNoPlace, 'total' => $total],
+            'MARR_event' => ['event' => 'MARR', 'kind' => 'event', 'value' => $spousesMissingMarrEvent, 'total' => $spouseTotal],
+            'MARR_place' => ['event' => 'MARR', 'kind' => 'place', 'value' => $spousesMissingMarrPlace, 'total' => $spouseTotal],
+            'DEAT_event' => ['event' => 'DEAT', 'kind' => 'event', 'value' => $deathMissing, 'total' => $total],
+            'DEAT_place' => ['event' => 'DEAT', 'kind' => 'place', 'value' => $deathMissing + $deathNoPlace, 'total' => $total],
         ];
     }
 
