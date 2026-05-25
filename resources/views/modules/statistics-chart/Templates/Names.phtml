@@ -36,7 +36,7 @@ $surnameMarriageMatrixExplanation = I18N::translate(
 <div class="wt-stat-grid">
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
-        'kicker' => I18N::translate('FREQUENCIES'),
+        'kicker' => I18N::translate('Frequencies'),
         'title'  => I18N::translate('Which names return?'),
         'sub'    => I18N::translate('Family names and given names by frequency across the tree'),
     ]); ?>
@@ -45,7 +45,7 @@ $surnameMarriageMatrixExplanation = I18N::translate(
         'module'       => $module,
         'title'        => I18N::translate('Common surnames'),
         'sub'          => I18N::translate('%s distinct surnames (top 15)', I18N::number($totalSurnames)),
-        'eyebrow'      => I18N::translate('SURNAMES'),
+        'eyebrow'      => I18N::translate('Surnames'),
         'accent'       => 'var(--wine)',
         'illustration' => 'tree',
         'span'         => 12,
@@ -59,7 +59,7 @@ $surnameMarriageMatrixExplanation = I18N::translate(
         'module'       => $module,
         'title'        => I18N::translate('Common given names – male'),
         'sub'          => I18N::translate('%s distinct given names (top 15)', I18N::number($totalMaleGivenNames)),
-        'eyebrow'      => I18N::translate('GIVEN NAMES'),
+        'eyebrow'      => I18N::translate('Given names'),
         'accent'       => 'var(--slate)',
         'illustration' => 'people',
         'span'         => 6,
@@ -73,7 +73,7 @@ $surnameMarriageMatrixExplanation = I18N::translate(
         'module'       => $module,
         'title'        => I18N::translate('Common given names – female'),
         'sub'          => I18N::translate('%s distinct given names (top 15)', I18N::number($totalFemaleGivenNames)),
-        'eyebrow'      => I18N::translate('GIVEN NAMES'),
+        'eyebrow'      => I18N::translate('Given names'),
         'accent'       => 'var(--rose)',
         'illustration' => 'people',
         'span'         => 6,
@@ -84,7 +84,7 @@ $surnameMarriageMatrixExplanation = I18N::translate(
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
-        'kicker' => I18N::translate('EVOLUTION'),
+        'kicker' => I18N::translate('Evolution'),
         'title'  => I18N::translate('How names came and went over time'),
         'sub'    => I18N::translate('Popularity over decades and marriage alliances between families'),
     ]); ?>
@@ -93,7 +93,7 @@ $surnameMarriageMatrixExplanation = I18N::translate(
         'module'       => $module,
         'title'        => I18N::translate('Given-name popularity across decades'),
         'sub'          => I18N::translate('Top %s given names, stacked — band thickness = share per decade', I18N::number(count($givenNameTrends->names))),
-        'eyebrow'      => I18N::translate('TIMELINE'),
+        'eyebrow'      => I18N::translate('Timeline'),
         'accent'       => 'var(--ochre)',
         'illustration' => 'tree',
         'info'         => $streamGraphExplanation,
@@ -111,7 +111,7 @@ $surnameMarriageMatrixExplanation = I18N::translate(
             'module'       => $module,
             'title'        => I18N::translate('Surname × surname marriage matrix'),
             'sub'          => I18N::translate('Chord diagram: arcs = surnames, ribbons = marriages between them, loops = endogamy'),
-            'eyebrow'      => I18N::translate('ALLIANCES'),
+            'eyebrow'      => I18N::translate('Alliances'),
             'accent'       => 'var(--wine)',
             'illustration' => 'knot',
             'info'         => $surnameMarriageMatrixExplanation,

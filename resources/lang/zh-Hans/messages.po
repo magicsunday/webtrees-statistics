@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Statistics\n"
 "Report-Msgid-Bugs-To: https://github.com/magicsunday/webtrees-statistics/"
 "issues\n"
-"POT-Creation-Date: 2026-05-25 14:13+0000\n"
+"POT-Creation-Date: 2026-05-25 14:25+0000\n"
 "PO-Revision-Date: 2026-05-22 07:04+0000\n"
 "Last-Translator: Rico Sonntag <mail@ricosonntag.de>\n"
 "Language-Team: \n"
@@ -654,18 +654,6 @@ msgid ""
 "gaps in the archive."
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:494
-msgid "AGE"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Names.phtml:114
-msgid "ALLIANCES"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:251
-msgid "ANCESTORS"
-msgstr ""
-
 #: resources/views/modules/statistics-chart/Partials/Card.phtml:111
 #: resources/views/modules/statistics-chart/Partials/Card.phtml:113
 #: resources/views/modules/statistics-chart/Partials/InfoTrigger.phtml:33
@@ -686,6 +674,10 @@ msgid "Across %s individual with at least one recorded place."
 msgid_plural "Across %s individuals with at least one recorded place."
 msgstr[0] "跨 %s 人有至少一个已记录地点。"
 msgstr[1] "跨 %s 人有至少一个已记录地点。"
+
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:494
+msgid "Age"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:172
 msgid "Age at death (10-year bands)"
@@ -764,6 +756,14 @@ msgid ""
 "visible so cohort gaps are not hidden."
 msgstr ""
 
+#: resources/views/modules/statistics-chart/Templates/Names.phtml:114
+msgid "Alliances"
+msgstr ""
+
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:251
+msgid "Ancestors"
+msgstr ""
+
 #: src/Statistic.php:952
 msgctxt "NOMINATIVE"
 msgid "April"
@@ -827,11 +827,8 @@ msgstr "需要至少一对父母-子女且具有可解析的出生日期。"
 msgid "Avg. generation length"
 msgstr "平均世代长度"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:330
-msgid "BIRTHS"
-msgstr ""
-
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:65
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:330
 msgid "Births"
 msgstr "出生报告"
 
@@ -862,18 +859,6 @@ msgstr ""
 msgid "By recorded child count"
 msgstr "按已记录子女数"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:270
-msgid "CAUSES"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Overview.phtml:87
-msgid "CHRONICLE"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:129
-msgid "COMPLETENESS"
-msgstr ""
-
 #: src/Support/ZodiacLabels.php:49
 msgid "Cancer"
 msgstr "巨蟹座"
@@ -881,6 +866,10 @@ msgstr "巨蟹座"
 #: src/Support/ZodiacLabels.php:55
 msgid "Capricornus"
 msgstr "摩羯座"
+
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:270
+msgid "Causes"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:262
 msgid "Causes of death and infant mortality"
@@ -916,6 +905,10 @@ msgid ""
 "endogamy"
 msgstr ""
 
+#: resources/views/modules/statistics-chart/Templates/Overview.phtml:87
+msgid "Chronicle"
+msgstr ""
+
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:268
 msgid "Common causes of death"
 msgstr "常见死因"
@@ -941,6 +934,7 @@ msgid "Common surnames"
 msgstr "常见姓氏"
 
 #: resources/views/modules/statistics-chart/Partials/Hero.phtml:88
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:129
 #, fuzzy
 msgid "Completeness"
 msgstr "平均族谱完整度"
@@ -960,32 +954,8 @@ msgid "Current age, oldest first"
 msgstr "当前年龄,最年长者排在前"
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:403
-msgid "DEATHS"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Overview.phtml:34
-#: resources/views/modules/statistics-chart/Templates/Overview.phtml:116
-#: resources/views/modules/statistics-chart/Templates/Overview.phtml:135
-msgid "DEMOGRAPHICS"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:216
-msgid "DEPTH"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:174
-#: resources/views/modules/statistics-chart/Templates/Overview.phtml:43
-msgid "DISTRIBUTION"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:438
-msgid "DIVORCE"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:101
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:110
-msgid "DOCUMENTATION"
-msgstr ""
+msgid "Deaths"
+msgstr "去世"
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:465
 msgid "Deaths are evenly spread across the year."
@@ -1017,6 +987,17 @@ msgctxt "NOMINATIVE"
 msgid "December"
 msgstr "十二月"
 
+#: resources/views/modules/statistics-chart/Templates/Overview.phtml:34
+#: resources/views/modules/statistics-chart/Templates/Overview.phtml:116
+#: resources/views/modules/statistics-chart/Templates/Overview.phtml:135
+#, fuzzy
+msgid "Demographics"
+msgstr "地理分布"
+
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:216
+msgid "Depth"
+msgstr ""
+
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:250
 #, fuzzy
 msgid "Distinct ancestors up to 4 generations (max. 30)"
@@ -1026,6 +1007,11 @@ msgstr "记录至四代的不同祖先 (高祖父母)。"
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:196
 msgid "Distinct places per individual"
 msgstr "每人不同地点数"
+
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:174
+#: resources/views/modules/statistics-chart/Templates/Overview.phtml:43
+msgid "Distribution"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:188
 msgid "Distribution in buckets"
@@ -1043,6 +1029,11 @@ msgid ""
 "Distribution of marriage durations grouped into bands, computed from couples "
 "with both marriage and dissolution (divorce or spouse death) dates recorded."
 msgstr ""
+
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:438
+#, fuzzy
+msgid "Divorce"
+msgstr "离异"
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:457
 msgid "Divorce rate"
@@ -1077,17 +1068,9 @@ msgstr "各世纪离婚数"
 msgid "Divorces by month"
 msgstr "各月份离婚数"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:448
-#: resources/views/modules/statistics-chart/Templates/Names.phtml:87
-msgid "EVOLUTION"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:309
-msgid "EXTREME"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:426
-msgid "EXTREMES"
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:101
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:110
+msgid "Documentation"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/Templates/Names.phtml:33
@@ -1141,21 +1124,17 @@ msgstr ""
 msgid "Endogamy rate"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:376
-msgid "FAMILY"
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:448
+#: resources/views/modules/statistics-chart/Templates/Names.phtml:87
+msgid "Evolution"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:339
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:360
-msgid "FAMILY SIZE"
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:309
+msgid "Extreme"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:322
-msgid "FATHERS"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Names.phtml:39
-msgid "FREQUENCIES"
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:426
+msgid "Extremes"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/Partials/Hero.phtml:65
@@ -1167,6 +1146,7 @@ msgstr "家庭"
 msgid "Families with vs without children"
 msgstr "有子女与无子女家庭"
 
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:376
 #: src/Module.php:262
 msgid "Family"
 msgstr "家庭"
@@ -1175,10 +1155,21 @@ msgstr "家庭"
 msgid "Family names and given names by frequency across the tree"
 msgstr ""
 
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:339
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:360
+#, fuzzy
+msgid "Family size"
+msgstr "家庭"
+
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:386
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:393
 msgid "Family size composition share by decade"
 msgstr "按十年的家庭规模构成比例"
+
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:322
+#, fuzzy
+msgid "Fathers"
+msgstr "最长寿已故者"
 
 #: src/Statistic.php:950
 msgctxt "NOMINATIVE"
@@ -1245,20 +1236,13 @@ msgid ""
 "younger."
 msgstr ""
 
+#: resources/views/modules/statistics-chart/Templates/Names.phtml:39
+msgid "Frequencies"
+msgstr ""
+
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:185
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:194
-msgid "GAPS"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:109
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:120
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:131
-msgid "GEOGRAPHY"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Names.phtml:62
-#: resources/views/modules/statistics-chart/Templates/Names.phtml:76
-msgid "GIVEN NAMES"
+msgid "Gaps"
 msgstr ""
 
 #: src/Support/ZodiacLabels.php:48
@@ -1293,6 +1277,18 @@ msgstr "地理分布"
 #, fuzzy
 msgid "Geographic view"
 msgstr "地理分布"
+
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:109
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:120
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:131
+#, fuzzy
+msgid "Geography"
+msgstr "地理分布"
+
+#: resources/views/modules/statistics-chart/Templates/Names.phtml:62
+#: resources/views/modules/statistics-chart/Templates/Names.phtml:76
+msgid "Given names"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/Templates/Names.phtml:94
 msgid "Given-name popularity across decades"
@@ -1386,26 +1382,13 @@ msgid "June"
 msgstr "六月"
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:267
-msgid "KINSHIP"
+msgid "Kinship"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:249
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:258
 msgid "Known ancestors per individual"
 msgstr "每人已知祖先数"
-
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:233
-msgid "LIFE EVENT"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:165
-msgid "LIFESPAN"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:230
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:247
-msgid "LONGEVITY"
-msgstr ""
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:138
 msgid "Lacy 1989"
@@ -1429,6 +1412,11 @@ msgstr "狮子座"
 msgid "Libra"
 msgstr "天秤座"
 
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:233
+#, fuzzy
+msgid "Life event"
+msgstr "寿命"
+
 #: src/Module.php:261
 msgid "Life span"
 msgstr "寿命"
@@ -1442,6 +1430,11 @@ msgstr "最长寿在世者"
 #, fuzzy
 msgid "Life-stage at divorce — men vs. women"
 msgstr "离婚年龄 — 妻子"
+
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:165
+#, fuzzy
+msgid "Lifespan"
+msgstr "寿命"
 
 #: src/Statistic.php:200
 msgid "Living"
@@ -1465,46 +1458,9 @@ msgstr ""
 msgid "Longest marriage"
 msgstr "最长久的婚姻"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:224
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:250
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:264
-msgid "MARRIAGE"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:241
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:502
-msgid "MEN"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:139
-msgid "MIGRATION"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:158
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:167
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:189
-msgid "MOBILITY"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:282
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:331
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:468
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:376
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:430
-msgid "MONTH CLOCK"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:261
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:287
-msgid "MORTALITY"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:323
-msgid "MOTHERS"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:148
-msgid "MOVEMENT"
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:230
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:247
+msgid "Longevity"
 msgstr ""
 
 #: src/Repository/LifeSpanRepository.php:541 src/Statistic.php:188
@@ -1519,6 +1475,13 @@ msgstr "三月"
 #: resources/views/modules/statistics-chart/Templates/Overview.phtml:74
 msgid "Marital status"
 msgstr "婚姻状况"
+
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:224
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:250
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:264
+#, fuzzy
+msgid "Marriage"
+msgstr "婚姻"
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:248
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:255
@@ -1537,6 +1500,16 @@ msgstr "最大世代深度"
 msgctxt "NOMINATIVE"
 msgid "May"
 msgstr "五月"
+
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:241
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:502
+msgid "Men"
+msgstr ""
+
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:139
+#, fuzzy
+msgid "Migration"
+msgstr "代"
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:146
 msgid "Migrations between birth and death country"
@@ -1574,9 +1547,29 @@ msgstr "缺少事件的空白"
 msgid "Mobile population — migration and relocation were common."
 msgstr ""
 
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:158
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:167
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:189
+msgid "Mobility"
+msgstr ""
+
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:62
 msgid "Moderate mobility — many stayed in their region, some moved."
 msgstr ""
+
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:282
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:331
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:468
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:376
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:430
+msgid "Month clock"
+msgstr ""
+
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:261
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:287
+#, fuzzy
+msgid "Mortality"
+msgstr "死亡率"
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:91
 msgid "Mortality rate"
@@ -1600,6 +1593,16 @@ msgstr "每人最多子女"
 #: resources/views/modules/statistics-chart/Partials/RecordsTable.phtml:79
 msgid "Most spouses"
 msgstr "最多配偶"
+
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:323
+#, fuzzy
+msgid "Mothers"
+msgstr "首胎最年长母亲"
+
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:148
+#, fuzzy
+msgid "Movement"
+msgstr "十一月"
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:140
 msgid "Movements"
@@ -1659,10 +1662,6 @@ msgstr ""
 msgid ""
 "Number of distinct places per individual — sedentary vs. migrating "
 "populations"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:100
-msgid "ORIGIN & FATE"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/Templates/Overview.phtml:106
@@ -1729,13 +1728,17 @@ msgid ""
 "Oldest, longest marriages, largest families — records that anchor the dataset"
 msgstr ""
 
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:100
+msgid "Origin & fate"
+msgstr ""
+
 #: src/Module.php:259
 msgid "Overview"
 msgstr "概览"
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:305
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:314
-msgid "PARENTHOOD"
+msgid "Parenthood"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:147
@@ -1788,41 +1791,15 @@ msgstr "地点"
 msgid "Popularity over decades and marriage alliances between families"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/Overview.phtml:96
-msgid "RECORDS"
-msgstr ""
-
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:118
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:124
 msgid "Recorded residences"
 msgstr "已记录住所"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:445
-msgid "SEASON"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:388
-msgid "SHIFT"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Overview.phtml:105
-msgid "SOCIO-ECONOMICS"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Overview.phtml:61
-#: resources/views/modules/statistics-chart/Templates/Overview.phtml:76
-msgid "STATUS"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:410
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:207
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:235
-msgid "STRUCTURE"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Names.phtml:48
-msgid "SURNAMES"
-msgstr ""
+#: resources/views/modules/statistics-chart/Templates/Overview.phtml:96
+#, fuzzy
+msgid "Records"
+msgstr "族谱记录"
 
 #: src/Support/ZodiacLabels.php:54
 msgid "Sagittarius"
@@ -1831,6 +1808,10 @@ msgstr "射手座"
 #: src/Support/ZodiacLabels.php:53
 msgid "Scorpio"
 msgstr "天蝎座"
+
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:445
+msgid "Season"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:405
 msgid "Season and century of recorded deaths"
@@ -1863,6 +1844,10 @@ msgstr ""
 msgid "Share of marriages within 4 generations"
 msgstr "近亲通婚率(四代内)"
 
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:388
+msgid "Shift"
+msgstr ""
+
 #: resources/views/modules/statistics-chart/Partials/RecordsGrid.phtml:46
 #: resources/views/modules/statistics-chart/Partials/RecordsTable.phtml:44
 msgid "Shortest marriage"
@@ -1876,6 +1861,10 @@ msgstr "兄弟姐妹年龄差"
 #: src/Statistic.php:219
 msgid "Single"
 msgstr "未婚"
+
+#: resources/views/modules/statistics-chart/Templates/Overview.phtml:105
+msgid "Socio-economics"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:103
 msgid "Source coverage, completeness and average generation length"
@@ -1900,29 +1889,27 @@ msgctxt "hero title"
 msgid "Statistics"
 msgstr "统计表"
 
+#: resources/views/modules/statistics-chart/Templates/Overview.phtml:61
+#: resources/views/modules/statistics-chart/Templates/Overview.phtml:76
+#, fuzzy
+msgid "Status"
+msgstr "统计表"
+
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:410
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:207
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:235
+msgid "Structure"
+msgstr ""
+
 #: resources/views/modules/statistics-chart/Templates/Names.phtml:112
 #: resources/views/modules/statistics-chart/Templates/Names.phtml:123
 msgid "Surname × surname marriage matrix"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:148
-msgid "TIME"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:293
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:400
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:479
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:211
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:339
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:358
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:412
-#: resources/views/modules/statistics-chart/Templates/Names.phtml:96
-msgid "TIMELINE"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:192
-msgid "TODAY LIVING"
-msgstr ""
+#: resources/views/modules/statistics-chart/Templates/Names.phtml:48
+#, fuzzy
+msgid "Surnames"
+msgstr "姓名"
 
 #: src/Support/ZodiacLabels.php:47
 msgid "Taurus"
@@ -1939,9 +1926,29 @@ msgid ""
 "fathers and mothers in parallel, and reports the deepest verified line."
 msgstr ""
 
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:148
+msgid "Time"
+msgstr ""
+
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:332
 msgid "Time-distribution of births"
 msgstr ""
+
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:293
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:400
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:479
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:211
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:339
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:358
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:412
+#: resources/views/modules/statistics-chart/Templates/Names.phtml:96
+msgid "Timeline"
+msgstr ""
+
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:192
+#, fuzzy
+msgid "Today living"
+msgstr "在世的"
 
 #: resources/views/modules/statistics-chart/Templates/Names.phtml:95
 #, fuzzy, php-format
@@ -1983,11 +1990,6 @@ msgstr "各种统计图表。"
 #: src/Support/ZodiacLabels.php:51
 msgid "Virgo"
 msgstr "处女座"
-
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:242
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:503
-msgid "WOMEN"
-msgstr ""
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:226
 msgid ""
@@ -2088,6 +2090,11 @@ msgstr "有子女"
 msgid "Without children"
 msgstr "无子女"
 
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:242
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:503
+msgid "Women"
+msgstr ""
+
 #: resources/views/modules/statistics-chart/Partials/RecordsGrid.phtml:94
 #, fuzzy
 msgid "Youngest father"
@@ -2125,8 +2132,9 @@ msgid "Youngest wife at marriage"
 msgstr "结婚最年轻妻子"
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:391
-msgid "ZODIAC"
-msgstr ""
+#, fuzzy
+msgid "Zodiac"
+msgstr "各星座出生数"
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:389
 #, fuzzy
@@ -2340,9 +2348,6 @@ msgstr "…"
 #~ msgstr[0] "%s 名长子女有记录月份"
 #~ msgstr[1] "%s 名长子女有记录月份"
 
-#~ msgid "Marriages"
-#~ msgstr "婚姻"
-
 #~ msgid "Couple age gap (husband − wife)"
 #~ msgstr "夫妻年龄差(丈夫 − 妻子)"
 
@@ -2376,9 +2381,6 @@ msgstr "…"
 
 #~ msgid "Cohorts below 5 children are suppressed — too noisy to plot."
 #~ msgstr "少于5个孩子的队列被抑制 — 噪声过大无法绘图。"
-
-#~ msgid "Deaths"
-#~ msgstr "去世"
 
 #, php-format
 #~ msgid ""

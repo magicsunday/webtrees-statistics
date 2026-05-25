@@ -97,7 +97,7 @@ $placesPanel = static function (string $title, string $progressClass, string $ma
 <div class="wt-stat-grid">
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
-        'kicker' => I18N::translate('ORIGIN & FATE'),
+        'kicker' => I18N::translate('Origin & fate'),
         'title'  => I18N::translate('Where they lived and died'),
         'sub'    => I18N::translate('Births, residences and deaths by country — the geographic spread of the tree'),
     ]); ?>
@@ -106,7 +106,7 @@ $placesPanel = static function (string $title, string $progressClass, string $ma
         'module'       => $module,
         'title'        => I18N::translate('Place of birth'),
         'sub'          => I18N::plural('%s recorded country of birth', '%s recorded countries of birth', $totalBirths, I18N::number($totalBirths)),
-        'eyebrow'      => I18N::translate('GEOGRAPHY'),
+        'eyebrow'      => I18N::translate('Geography'),
         'accent'       => 'var(--slate)',
         'illustration' => 'globe',
         'span'         => 12,
@@ -117,7 +117,7 @@ $placesPanel = static function (string $title, string $progressClass, string $ma
         'module'       => $module,
         'title'        => I18N::translate('Recorded residences'),
         'sub'          => I18N::plural('%s recorded residence', '%s recorded residences', $totalResidences, I18N::number($totalResidences)),
-        'eyebrow'      => I18N::translate('GEOGRAPHY'),
+        'eyebrow'      => I18N::translate('Geography'),
         'accent'       => 'var(--sage)',
         'illustration' => 'globe',
         'span'         => 12,
@@ -128,7 +128,7 @@ $placesPanel = static function (string $title, string $progressClass, string $ma
         'module'       => $module,
         'title'        => I18N::translate('Place of death'),
         'sub'          => I18N::plural('%s recorded country of death', '%s recorded countries of death', $totalDeaths, I18N::number($totalDeaths)),
-        'eyebrow'      => I18N::translate('GEOGRAPHY'),
+        'eyebrow'      => I18N::translate('Geography'),
         'accent'       => 'var(--wine)',
         'illustration' => 'globe',
         'span'         => 12,
@@ -136,7 +136,7 @@ $placesPanel = static function (string $title, string $progressClass, string $ma
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
-        'kicker' => I18N::translate('MIGRATION'),
+        'kicker' => I18N::translate('Migration'),
         'title'  => I18N::translate('Movements'),
         'sub'    => I18N::translate('Individuals born in one country and recorded as having died in another'),
     ]); ?>
@@ -145,7 +145,7 @@ $placesPanel = static function (string $title, string $progressClass, string $ma
         'module'       => $module,
         'title'        => I18N::translate('Migrations between birth and death country'),
         'sub'          => I18N::translate('Paths of individuals born in one country and recorded as having died in another'),
-        'eyebrow'      => I18N::translate('MOVEMENT'),
+        'eyebrow'      => I18N::translate('Movement'),
         'accent'       => 'var(--wine)',
         'illustration' => 'boat',
         'info'         => $sankeyExplanation,
@@ -155,7 +155,7 @@ $placesPanel = static function (string $title, string $progressClass, string $ma
 
     <?php if ($placeDispersion->sampled > 0) { ?>
         <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
-            'kicker' => I18N::translate('MOBILITY'),
+            'kicker' => I18N::translate('Mobility'),
             'title'  => I18N::translate('How far they roamed'),
             'sub'    => I18N::translate('Number of distinct places per individual — sedentary vs. migrating populations'),
         ]); ?>
@@ -164,7 +164,7 @@ $placesPanel = static function (string $title, string $progressClass, string $ma
             'module'       => $module,
             'title'        => I18N::translate('Geographic dispersion'),
             'sub'          => I18N::translate('Average distinct places per individual'),
-            'eyebrow'      => I18N::translate('MOBILITY'),
+            'eyebrow'      => I18N::translate('Mobility'),
             'accent'       => 'var(--sage)',
             'illustration' => 'globe',
             'info'         => $placeDispersionExplanation,
@@ -186,7 +186,7 @@ $placesPanel = static function (string $title, string $progressClass, string $ma
             'module'       => $module,
             'title'        => I18N::translate('Distinct places per individual'),
             'sub'          => I18N::translate('Distribution in buckets'),
-            'eyebrow'      => I18N::translate('MOBILITY'),
+            'eyebrow'      => I18N::translate('Mobility'),
             'accent'       => 'var(--slate)',
             'illustration' => 'globe',
             'span'         => 7,

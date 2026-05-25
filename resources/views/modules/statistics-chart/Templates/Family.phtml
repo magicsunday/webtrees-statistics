@@ -221,7 +221,7 @@ foreach ($ageGap as $label => $count) {
 <div class="wt-stat-grid">
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
-        'kicker' => I18N::translate('MARRIAGE'),
+        'kicker' => I18N::translate('Marriage'),
         'title'  => I18N::translate('When and whom they married'),
         'sub'    => I18N::translate('Age at marriage, duration and the age gap between the spouses'),
     ]); ?>
@@ -230,7 +230,7 @@ foreach ($ageGap as $label => $count) {
         'module'       => $module,
         'title'        => I18N::translate('Age at marriage'),
         'sub'          => I18N::translate('%1$s husbands and %2$s wives with a known marriage age', I18N::number($totalAgeM), I18N::number($totalAgeF)),
-        'eyebrow'      => I18N::translate('LIFE EVENT'),
+        'eyebrow'      => I18N::translate('Life event'),
         'accent'       => 'var(--wine)',
         'illustration' => 'rings',
         'span'         => 12,
@@ -238,8 +238,8 @@ foreach ($ageGap as $label => $count) {
         'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/MirrorHistogram', [
             'top'         => $ageAtMarriageMRows,
             'bottom'      => $ageAtMarriageFRows,
-            'topLabel'    => I18N::translate('MEN'),
-            'bottomLabel' => I18N::translate('WOMEN'),
+            'topLabel'    => I18N::translate('Men'),
+            'bottomLabel' => I18N::translate('Women'),
         ]),
     ]); ?>
 
@@ -247,7 +247,7 @@ foreach ($ageGap as $label => $count) {
         'module'       => $module,
         'title'        => I18N::translate('Marriage duration'),
         'sub'          => I18N::plural('%s couple with a measurable duration', '%s couples with a measurable duration', $totalDur, I18N::number($totalDur)),
-        'eyebrow'      => I18N::translate('MARRIAGE'),
+        'eyebrow'      => I18N::translate('Marriage'),
         'accent'       => 'var(--wine)',
         'illustration' => 'rings',
         'span'         => 6,
@@ -261,7 +261,7 @@ foreach ($ageGap as $label => $count) {
         'sub'          => I18N::plural('%s couple with both birth dates', '%s couples with both birth dates', $totalAgeGap, I18N::number($totalAgeGap))
             . ' · '
             . I18N::translate('husband left, wife right'),
-        'eyebrow'      => I18N::translate('MARRIAGE'),
+        'eyebrow'      => I18N::translate('Marriage'),
         'accent'       => 'var(--slate)',
         'illustration' => 'rings',
         'span'         => 6,
@@ -279,7 +279,7 @@ foreach ($ageGap as $label => $count) {
         'module'       => $module,
         'title'        => I18N::translate('Weddings by month'),
         'sub'          => I18N::plural('%s marriage with a recorded month', '%s marriages with a recorded month', $totalMonth, I18N::number($totalMonth)),
-        'eyebrow'      => I18N::translate('MONTH CLOCK'),
+        'eyebrow'      => I18N::translate('Month clock'),
         'accent'       => 'var(--wine)',
         'illustration' => 'bell',
         'span'         => 6,
@@ -290,7 +290,7 @@ foreach ($ageGap as $label => $count) {
         'module'       => $module,
         'title'        => I18N::translate('Weddings by century'),
         'sub'          => I18N::plural('%s recorded marriage', '%s recorded marriages', $totalCentury, I18N::number($totalCentury)),
-        'eyebrow'      => I18N::translate('TIMELINE'),
+        'eyebrow'      => I18N::translate('Timeline'),
         'accent'       => 'var(--ochre)',
         'illustration' => 'bell',
         'span'         => 6,
@@ -302,7 +302,7 @@ foreach ($ageGap as $label => $count) {
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
-        'kicker' => I18N::translate('PARENTHOOD'),
+        'kicker' => I18N::translate('Parenthood'),
         'title'  => I18N::translate('When they had children'),
         'sub'    => I18N::translate('Age at first child and seasonal patterns of birth'),
     ]); ?>
@@ -311,7 +311,7 @@ foreach ($ageGap as $label => $count) {
         'module'       => $module,
         'title'        => I18N::translate('Age at first child'),
         'sub'          => I18N::translate('%1$s fathers and %2$s mothers with a dated first child', I18N::number($totalFirstChildM), I18N::number($totalFirstChildF)),
-        'eyebrow'      => I18N::translate('PARENTHOOD'),
+        'eyebrow'      => I18N::translate('Parenthood'),
         'accent'       => 'var(--ochre)',
         'illustration' => 'child',
         'span'         => 8,
@@ -319,8 +319,8 @@ foreach ($ageGap as $label => $count) {
         'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/MirrorHistogram', [
             'top'         => $ageAtFirstChildMRows,
             'bottom'      => $ageAtFirstChildFRows,
-            'topLabel'    => I18N::translate('FATHERS'),
-            'bottomLabel' => I18N::translate('MOTHERS'),
+            'topLabel'    => I18N::translate('Fathers'),
+            'bottomLabel' => I18N::translate('Mothers'),
         ]),
     ]); ?>
 
@@ -328,7 +328,7 @@ foreach ($ageGap as $label => $count) {
         'module'       => $module,
         'title'        => I18N::translate('First children by month'),
         'sub'          => I18N::plural('%s first-born child', '%s first-born children', $totalFirstChildMonth, I18N::number($totalFirstChildMonth)),
-        'eyebrow'      => I18N::translate('MONTH CLOCK'),
+        'eyebrow'      => I18N::translate('Month clock'),
         'accent'       => 'var(--ochre)',
         'illustration' => 'child',
         'span'         => 4,
@@ -336,7 +336,7 @@ foreach ($ageGap as $label => $count) {
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
-        'kicker' => I18N::translate('FAMILY SIZE'),
+        'kicker' => I18N::translate('Family size'),
         'title'  => I18N::translate('How large were the families?'),
         'sub'    => I18N::translate('Number of children, sibling spacing and the shift toward smaller families'),
     ]); ?>
@@ -357,7 +357,7 @@ foreach ($ageGap as $label => $count) {
         'module'       => $module,
         'title'        => I18N::translate('Children per family'),
         'sub'          => I18N::translate('Average: %s', I18N::number($avgChildren, 1)) . ' · ' . I18N::plural('%s family', '%s families', $totalChildrenFamilies, I18N::number($totalChildrenFamilies)),
-        'eyebrow'      => I18N::translate('FAMILY SIZE'),
+        'eyebrow'      => I18N::translate('Family size'),
         'accent'       => 'var(--ochre)',
         'illustration' => 'child',
         'span'         => 6,
@@ -373,7 +373,7 @@ foreach ($ageGap as $label => $count) {
         'module'       => $module,
         'title'        => I18N::translate('Sibling age gap'),
         'sub'          => I18N::plural('%s consecutive-sibling pair', '%s consecutive-sibling pairs', $totalSiblingPairs, I18N::number($totalSiblingPairs)),
-        'eyebrow'      => I18N::translate('FAMILY'),
+        'eyebrow'      => I18N::translate('Family'),
         'accent'       => 'var(--sage)',
         'illustration' => 'child',
         'span'         => 6,
@@ -385,7 +385,7 @@ foreach ($ageGap as $label => $count) {
         'module'       => $module,
         'title'        => I18N::translate('Family size composition share by decade'),
         'sub'          => I18N::translate('Normalised to 100 %% — shift from large to small families'),
-        'eyebrow'      => I18N::translate('SHIFT'),
+        'eyebrow'      => I18N::translate('Shift'),
         'accent'       => 'var(--wine)',
         'illustration' => 'family',
         'span'         => 12,
@@ -397,7 +397,7 @@ foreach ($ageGap as $label => $count) {
         'module'       => $module,
         'title'        => I18N::translate('Average family size by century'),
         'sub'          => I18N::translate('Children per dated family'),
-        'eyebrow'      => I18N::translate('TIMELINE'),
+        'eyebrow'      => I18N::translate('Timeline'),
         'accent'       => 'var(--sage)',
         'illustration' => 'family',
         'span'         => 6,
@@ -407,7 +407,7 @@ foreach ($ageGap as $label => $count) {
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
         'module'       => $module,
         'title'        => I18N::translate('Families with vs without children'),
-        'eyebrow'      => I18N::translate('STRUCTURE'),
+        'eyebrow'      => I18N::translate('Structure'),
         'accent'       => 'var(--sage)',
         'illustration' => 'family',
         'span'         => 6,
@@ -423,7 +423,7 @@ foreach ($ageGap as $label => $count) {
         'module'       => $module,
         'title'        => I18N::translate('Top 10 largest families'),
         'sub'          => I18N::translate('By recorded child count'),
-        'eyebrow'      => I18N::translate('EXTREMES'),
+        'eyebrow'      => I18N::translate('Extremes'),
         'accent'       => 'var(--wine)',
         'illustration' => 'family',
         'span'         => 12,
@@ -435,7 +435,7 @@ foreach ($ageGap as $label => $count) {
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
-        'kicker' => I18N::translate('DIVORCE'),
+        'kicker' => I18N::translate('Divorce'),
         'title'  => I18N::translate('When marriages ended'),
         'sub'    => I18N::translate('Divorce rate, season and life-stage of the divorced — a rare category in the tree'),
     ]); ?>
@@ -445,7 +445,7 @@ foreach ($ageGap as $label => $count) {
             'module'       => $module,
             'title'        => I18N::translate('Divorce rate per marriage cohort'),
             'sub'          => I18N::translate('Share of marriages per decade that ended in divorce'),
-            'eyebrow'      => I18N::translate('EVOLUTION'),
+            'eyebrow'      => I18N::translate('Evolution'),
             'accent'       => 'var(--wine)',
             'illustration' => 'brokenHeart',
             'span'         => 12,
@@ -465,7 +465,7 @@ foreach ($ageGap as $label => $count) {
         'module'       => $module,
         'title'        => I18N::translate('Divorces by month'),
         'sub'          => I18N::plural('%s divorce with a recorded month', '%s divorces with a recorded month', $totalDivMonth, I18N::number($totalDivMonth)),
-        'eyebrow'      => I18N::translate('MONTH CLOCK'),
+        'eyebrow'      => I18N::translate('Month clock'),
         'accent'       => 'var(--deceased)',
         'illustration' => 'brokenHeart',
         'span'         => 4,
@@ -476,7 +476,7 @@ foreach ($ageGap as $label => $count) {
         'module'       => $module,
         'title'        => I18N::translate('Divorces by century'),
         'sub'          => I18N::plural('%s recorded divorce', '%s recorded divorces', $totalDivCentury, I18N::number($totalDivCentury)),
-        'eyebrow'      => I18N::translate('TIMELINE'),
+        'eyebrow'      => I18N::translate('Timeline'),
         'accent'       => 'var(--deceased)',
         'illustration' => 'brokenHeart',
         'span'         => 4,
@@ -491,7 +491,7 @@ foreach ($ageGap as $label => $count) {
         'module'       => $module,
         'title'        => I18N::translate('Divorces by age band'),
         'sub'          => I18N::translate('Life-stage at divorce — men vs. women'),
-        'eyebrow'      => I18N::translate('AGE'),
+        'eyebrow'      => I18N::translate('Age'),
         'accent'       => 'var(--deceased)',
         'illustration' => 'brokenHeart',
         'span'         => 4,
@@ -499,8 +499,8 @@ foreach ($ageGap as $label => $count) {
         'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/MirrorHistogram', [
             'top'         => $divorceAgeMRows,
             'bottom'      => $divorceAgeFRows,
-            'topLabel'    => I18N::translate('MEN'),
-            'bottomLabel' => I18N::translate('WOMEN'),
+            'topLabel'    => I18N::translate('Men'),
+            'bottomLabel' => I18N::translate('Women'),
         ]),
     ]); ?>
 

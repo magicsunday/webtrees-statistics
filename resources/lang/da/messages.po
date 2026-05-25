@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Statistics\n"
 "Report-Msgid-Bugs-To: https://github.com/magicsunday/webtrees-statistics/"
 "issues\n"
-"POT-Creation-Date: 2026-05-25 14:13+0000\n"
+"POT-Creation-Date: 2026-05-25 14:25+0000\n"
 "PO-Revision-Date: 2026-05-22 07:04+0000\n"
 "Last-Translator: Rico Sonntag <mail@ricosonntag.de>\n"
 "Language-Team: \n"
@@ -658,18 +658,6 @@ msgid ""
 "gaps in the archive."
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:494
-msgid "AGE"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Names.phtml:114
-msgid "ALLIANCES"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:251
-msgid "ANCESTORS"
-msgstr ""
-
 #: resources/views/modules/statistics-chart/Partials/Card.phtml:111
 #: resources/views/modules/statistics-chart/Partials/Card.phtml:113
 #: resources/views/modules/statistics-chart/Partials/InfoTrigger.phtml:33
@@ -690,6 +678,10 @@ msgid "Across %s individual with at least one recorded place."
 msgid_plural "Across %s individuals with at least one recorded place."
 msgstr[0] "På tværs af %s person med mindst ét registreret sted."
 msgstr[1] "På tværs af %s personer med mindst ét registreret sted."
+
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:494
+msgid "Age"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:172
 msgid "Age at death (10-year bands)"
@@ -770,6 +762,14 @@ msgid ""
 "visible so cohort gaps are not hidden."
 msgstr ""
 
+#: resources/views/modules/statistics-chart/Templates/Names.phtml:114
+msgid "Alliances"
+msgstr ""
+
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:251
+msgid "Ancestors"
+msgstr ""
+
 #: src/Statistic.php:952
 msgctxt "NOMINATIVE"
 msgid "April"
@@ -833,11 +833,8 @@ msgstr "Mindst ét forælder-barn-par med læsbare fødselsdatoer kræves."
 msgid "Avg. generation length"
 msgstr "Gennemsnitlig generationslængde"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:330
-msgid "BIRTHS"
-msgstr ""
-
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:65
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:330
 msgid "Births"
 msgstr "Fødsler"
 
@@ -868,18 +865,6 @@ msgstr ""
 msgid "By recorded child count"
 msgstr "Efter registreret børneantal"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:270
-msgid "CAUSES"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Overview.phtml:87
-msgid "CHRONICLE"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:129
-msgid "COMPLETENESS"
-msgstr ""
-
 #: src/Support/ZodiacLabels.php:49
 msgid "Cancer"
 msgstr "Krebsen"
@@ -887,6 +872,10 @@ msgstr "Krebsen"
 #: src/Support/ZodiacLabels.php:55
 msgid "Capricornus"
 msgstr "Stenbukken"
+
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:270
+msgid "Causes"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:262
 msgid "Causes of death and infant mortality"
@@ -922,6 +911,10 @@ msgid ""
 "endogamy"
 msgstr ""
 
+#: resources/views/modules/statistics-chart/Templates/Overview.phtml:87
+msgid "Chronicle"
+msgstr ""
+
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:268
 msgid "Common causes of death"
 msgstr "Almindelige dødsårsager"
@@ -947,6 +940,7 @@ msgid "Common surnames"
 msgstr "Almindelige efternavne"
 
 #: resources/views/modules/statistics-chart/Partials/Hero.phtml:88
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:129
 #, fuzzy
 msgid "Completeness"
 msgstr "Gennemsnitlig stamtræsfuldstændighed"
@@ -966,32 +960,8 @@ msgid "Current age, oldest first"
 msgstr "Nuværende alder, ældste først"
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:403
-msgid "DEATHS"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Overview.phtml:34
-#: resources/views/modules/statistics-chart/Templates/Overview.phtml:116
-#: resources/views/modules/statistics-chart/Templates/Overview.phtml:135
-msgid "DEMOGRAPHICS"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:216
-msgid "DEPTH"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:174
-#: resources/views/modules/statistics-chart/Templates/Overview.phtml:43
-msgid "DISTRIBUTION"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:438
-msgid "DIVORCE"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:101
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:110
-msgid "DOCUMENTATION"
-msgstr ""
+msgid "Deaths"
+msgstr "Dødsfald"
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:465
 msgid "Deaths are evenly spread across the year."
@@ -1023,6 +993,17 @@ msgctxt "NOMINATIVE"
 msgid "December"
 msgstr "December"
 
+#: resources/views/modules/statistics-chart/Templates/Overview.phtml:34
+#: resources/views/modules/statistics-chart/Templates/Overview.phtml:116
+#: resources/views/modules/statistics-chart/Templates/Overview.phtml:135
+#, fuzzy
+msgid "Demographics"
+msgstr "Geografisk spredning"
+
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:216
+msgid "Depth"
+msgstr ""
+
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:250
 #, fuzzy
 msgid "Distinct ancestors up to 4 generations (max. 30)"
@@ -1033,6 +1014,11 @@ msgstr ""
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:196
 msgid "Distinct places per individual"
 msgstr "Forskellige steder pr. person"
+
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:174
+#: resources/views/modules/statistics-chart/Templates/Overview.phtml:43
+msgid "Distribution"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:188
 msgid "Distribution in buckets"
@@ -1050,6 +1036,11 @@ msgid ""
 "Distribution of marriage durations grouped into bands, computed from couples "
 "with both marriage and dissolution (divorce or spouse death) dates recorded."
 msgstr ""
+
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:438
+#, fuzzy
+msgid "Divorce"
+msgstr "Skilt"
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:457
 msgid "Divorce rate"
@@ -1084,17 +1075,9 @@ msgstr "Skilsmisser pr. århundrede"
 msgid "Divorces by month"
 msgstr "Skilsmisser pr. måned"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:448
-#: resources/views/modules/statistics-chart/Templates/Names.phtml:87
-msgid "EVOLUTION"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:309
-msgid "EXTREME"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:426
-msgid "EXTREMES"
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:101
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:110
+msgid "Documentation"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/Templates/Names.phtml:33
@@ -1152,21 +1135,17 @@ msgstr ""
 msgid "Endogamy rate"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:376
-msgid "FAMILY"
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:448
+#: resources/views/modules/statistics-chart/Templates/Names.phtml:87
+msgid "Evolution"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:339
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:360
-msgid "FAMILY SIZE"
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:309
+msgid "Extreme"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:322
-msgid "FATHERS"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Names.phtml:39
-msgid "FREQUENCIES"
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:426
+msgid "Extremes"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/Partials/Hero.phtml:65
@@ -1178,6 +1157,7 @@ msgstr "Familie"
 msgid "Families with vs without children"
 msgstr "Familier med vs. uden børn"
 
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:376
 #: src/Module.php:262
 msgid "Family"
 msgstr "Familie"
@@ -1186,10 +1166,21 @@ msgstr "Familie"
 msgid "Family names and given names by frequency across the tree"
 msgstr ""
 
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:339
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:360
+#, fuzzy
+msgid "Family size"
+msgstr "Familie"
+
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:386
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:393
 msgid "Family size composition share by decade"
 msgstr "Familiestørrelses-sammensætning pr. årti"
+
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:322
+#, fuzzy
+msgid "Fathers"
+msgstr "Ældste afdøde"
 
 #: src/Statistic.php:950
 msgctxt "NOMINATIVE"
@@ -1256,20 +1247,13 @@ msgid ""
 "younger."
 msgstr ""
 
+#: resources/views/modules/statistics-chart/Templates/Names.phtml:39
+msgid "Frequencies"
+msgstr ""
+
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:185
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:194
-msgid "GAPS"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:109
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:120
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:131
-msgid "GEOGRAPHY"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Names.phtml:62
-#: resources/views/modules/statistics-chart/Templates/Names.phtml:76
-msgid "GIVEN NAMES"
+msgid "Gaps"
 msgstr ""
 
 #: src/Support/ZodiacLabels.php:48
@@ -1304,6 +1288,18 @@ msgstr "Geografisk spredning"
 #, fuzzy
 msgid "Geographic view"
 msgstr "Geografisk spredning"
+
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:109
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:120
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:131
+#, fuzzy
+msgid "Geography"
+msgstr "Geografisk spredning"
+
+#: resources/views/modules/statistics-chart/Templates/Names.phtml:62
+#: resources/views/modules/statistics-chart/Templates/Names.phtml:76
+msgid "Given names"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/Templates/Names.phtml:94
 msgid "Given-name popularity across decades"
@@ -1399,26 +1395,13 @@ msgid "June"
 msgstr "Juni"
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:267
-msgid "KINSHIP"
+msgid "Kinship"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:249
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:258
 msgid "Known ancestors per individual"
 msgstr "Kendte forfædre pr. person"
-
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:233
-msgid "LIFE EVENT"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:165
-msgid "LIFESPAN"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:230
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:247
-msgid "LONGEVITY"
-msgstr ""
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:138
 msgid "Lacy 1989"
@@ -1444,6 +1427,11 @@ msgstr "Løven"
 msgid "Libra"
 msgstr "Vægten"
 
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:233
+#, fuzzy
+msgid "Life event"
+msgstr "Levetid"
+
 #: src/Module.php:261
 msgid "Life span"
 msgstr "Levetid"
@@ -1457,6 +1445,11 @@ msgstr "Ældste levende"
 #, fuzzy
 msgid "Life-stage at divorce — men vs. women"
 msgstr "Alder ved skilsmisse — kvinder"
+
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:165
+#, fuzzy
+msgid "Lifespan"
+msgstr "Levetid"
 
 #: src/Statistic.php:200
 msgid "Living"
@@ -1480,46 +1473,9 @@ msgstr ""
 msgid "Longest marriage"
 msgstr "Længste ægteskab"
 
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:224
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:250
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:264
-msgid "MARRIAGE"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:241
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:502
-msgid "MEN"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:139
-msgid "MIGRATION"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:158
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:167
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:189
-msgid "MOBILITY"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:282
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:331
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:468
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:376
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:430
-msgid "MONTH CLOCK"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:261
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:287
-msgid "MORTALITY"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:323
-msgid "MOTHERS"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:148
-msgid "MOVEMENT"
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:230
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:247
+msgid "Longevity"
 msgstr ""
 
 #: src/Repository/LifeSpanRepository.php:541 src/Statistic.php:188
@@ -1534,6 +1490,13 @@ msgstr "Marts"
 #: resources/views/modules/statistics-chart/Templates/Overview.phtml:74
 msgid "Marital status"
 msgstr "Civilstand"
+
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:224
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:250
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:264
+#, fuzzy
+msgid "Marriage"
+msgstr "Ægteskaber"
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:248
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:255
@@ -1552,6 +1515,16 @@ msgstr "Maksimal generationsdybde"
 msgctxt "NOMINATIVE"
 msgid "May"
 msgstr "Maj"
+
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:241
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:502
+msgid "Men"
+msgstr ""
+
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:139
+#, fuzzy
+msgid "Migration"
+msgstr "generationer"
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:146
 msgid "Migrations between birth and death country"
@@ -1589,9 +1562,29 @@ msgstr "Mangler ved manglende begivenheder"
 msgid "Mobile population — migration and relocation were common."
 msgstr ""
 
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:158
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:167
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:189
+msgid "Mobility"
+msgstr ""
+
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:62
 msgid "Moderate mobility — many stayed in their region, some moved."
 msgstr ""
+
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:282
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:331
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:468
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:376
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:430
+msgid "Month clock"
+msgstr ""
+
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:261
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:287
+#, fuzzy
+msgid "Mortality"
+msgstr "Dødelighedsrate"
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:91
 msgid "Mortality rate"
@@ -1615,6 +1608,16 @@ msgstr "Flest børn pr. person"
 #: resources/views/modules/statistics-chart/Partials/RecordsTable.phtml:79
 msgid "Most spouses"
 msgstr "Flest ægtefæller"
+
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:323
+#, fuzzy
+msgid "Mothers"
+msgstr "Ældste mor ved første barn"
+
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:148
+#, fuzzy
+msgid "Movement"
+msgstr "November"
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:140
 msgid "Movements"
@@ -1675,10 +1678,6 @@ msgstr ""
 msgid ""
 "Number of distinct places per individual — sedentary vs. migrating "
 "populations"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Places.phtml:100
-msgid "ORIGIN & FATE"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/Templates/Overview.phtml:106
@@ -1745,13 +1744,17 @@ msgid ""
 "Oldest, longest marriages, largest families — records that anchor the dataset"
 msgstr ""
 
+#: resources/views/modules/statistics-chart/Templates/Places.phtml:100
+msgid "Origin & fate"
+msgstr ""
+
 #: src/Module.php:259
 msgid "Overview"
 msgstr "Oversigt"
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:305
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:314
-msgid "PARENTHOOD"
+msgid "Parenthood"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:147
@@ -1804,41 +1807,15 @@ msgstr "Steder"
 msgid "Popularity over decades and marriage alliances between families"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/Overview.phtml:96
-msgid "RECORDS"
-msgstr ""
-
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:118
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:124
 msgid "Recorded residences"
 msgstr "Registrerede bopæle"
 
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:445
-msgid "SEASON"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:388
-msgid "SHIFT"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Overview.phtml:105
-msgid "SOCIO-ECONOMICS"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Overview.phtml:61
-#: resources/views/modules/statistics-chart/Templates/Overview.phtml:76
-msgid "STATUS"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:410
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:207
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:235
-msgid "STRUCTURE"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Names.phtml:48
-msgid "SURNAMES"
-msgstr ""
+#: resources/views/modules/statistics-chart/Templates/Overview.phtml:96
+#, fuzzy
+msgid "Records"
+msgstr "Træregistreringer"
 
 #: src/Support/ZodiacLabels.php:54
 msgid "Sagittarius"
@@ -1847,6 +1824,10 @@ msgstr "Skytten"
 #: src/Support/ZodiacLabels.php:53
 msgid "Scorpio"
 msgstr "Skorpionen"
+
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:445
+msgid "Season"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:405
 msgid "Season and century of recorded deaths"
@@ -1879,6 +1860,10 @@ msgstr ""
 msgid "Share of marriages within 4 generations"
 msgstr "Endogami-rate (inden for 4 generationer)"
 
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:388
+msgid "Shift"
+msgstr ""
+
 #: resources/views/modules/statistics-chart/Partials/RecordsGrid.phtml:46
 #: resources/views/modules/statistics-chart/Partials/RecordsTable.phtml:44
 msgid "Shortest marriage"
@@ -1892,6 +1877,10 @@ msgstr "Aldersforskel mellem søskende"
 #: src/Statistic.php:219
 msgid "Single"
 msgstr "Ugift"
+
+#: resources/views/modules/statistics-chart/Templates/Overview.phtml:105
+msgid "Socio-economics"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:103
 msgid "Source coverage, completeness and average generation length"
@@ -1916,29 +1905,27 @@ msgctxt "hero title"
 msgid "Statistics"
 msgstr "Statistik"
 
+#: resources/views/modules/statistics-chart/Templates/Overview.phtml:61
+#: resources/views/modules/statistics-chart/Templates/Overview.phtml:76
+#, fuzzy
+msgid "Status"
+msgstr "Statistik"
+
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:410
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:207
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:235
+msgid "Structure"
+msgstr ""
+
 #: resources/views/modules/statistics-chart/Templates/Names.phtml:112
 #: resources/views/modules/statistics-chart/Templates/Names.phtml:123
 msgid "Surname × surname marriage matrix"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:148
-msgid "TIME"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:293
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:400
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:479
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:211
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:339
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:358
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:412
-#: resources/views/modules/statistics-chart/Templates/Names.phtml:96
-msgid "TIMELINE"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:192
-msgid "TODAY LIVING"
-msgstr ""
+#: resources/views/modules/statistics-chart/Templates/Names.phtml:48
+#, fuzzy
+msgid "Surnames"
+msgstr "Navne"
 
 #: src/Support/ZodiacLabels.php:47
 msgid "Taurus"
@@ -1955,9 +1942,29 @@ msgid ""
 "fathers and mothers in parallel, and reports the deepest verified line."
 msgstr ""
 
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:148
+msgid "Time"
+msgstr ""
+
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:332
 msgid "Time-distribution of births"
 msgstr ""
+
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:293
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:400
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:479
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:211
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:339
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:358
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:412
+#: resources/views/modules/statistics-chart/Templates/Names.phtml:96
+msgid "Timeline"
+msgstr ""
+
+#: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:192
+#, fuzzy
+msgid "Today living"
+msgstr "Lever"
 
 #: resources/views/modules/statistics-chart/Templates/Names.phtml:95
 #, fuzzy, php-format
@@ -2000,11 +2007,6 @@ msgstr "Diverse statistik diagrammer."
 #: src/Support/ZodiacLabels.php:51
 msgid "Virgo"
 msgstr "Jomfruen"
-
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:242
-#: resources/views/modules/statistics-chart/Templates/Family.phtml:503
-msgid "WOMEN"
-msgstr ""
 
 #: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:226
 msgid ""
@@ -2107,6 +2109,11 @@ msgstr "Med børn"
 msgid "Without children"
 msgstr "Uden børn"
 
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:242
+#: resources/views/modules/statistics-chart/Templates/Family.phtml:503
+msgid "Women"
+msgstr ""
+
 #: resources/views/modules/statistics-chart/Partials/RecordsGrid.phtml:94
 #, fuzzy
 msgid "Youngest father"
@@ -2144,8 +2151,9 @@ msgid "Youngest wife at marriage"
 msgstr "Yngste kvinde ved bryllup"
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:391
-msgid "ZODIAC"
-msgstr ""
+#, fuzzy
+msgid "Zodiac"
+msgstr "Fødsler pr. stjernetegn"
 
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:389
 #, fuzzy
@@ -2359,9 +2367,6 @@ msgstr "…"
 #~ msgstr[0] "%s førstefødt barn med registreret måned"
 #~ msgstr[1] "%s førstefødte børn med registreret måned"
 
-#~ msgid "Marriages"
-#~ msgstr "Ægteskaber"
-
 #~ msgid "Couple age gap (husband − wife)"
 #~ msgstr "Aldersforskel mellem par (mand − kvinde)"
 
@@ -2397,9 +2402,6 @@ msgstr "…"
 
 #~ msgid "Cohorts below 5 children are suppressed — too noisy to plot."
 #~ msgstr "Kohorter under 5 børn er undertrykt — for støjende til at plotte."
-
-#~ msgid "Deaths"
-#~ msgstr "Dødsfald"
 
 #, php-format
 #~ msgid ""
