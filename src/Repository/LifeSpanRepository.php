@@ -34,7 +34,6 @@ use MagicSunday\Webtrees\Statistic\Support\TreeScope;
 use function array_fill_keys;
 use function array_key_last;
 use function array_map;
-use function array_sum;
 use function getdate;
 use function GregorianToJD;
 use function intdiv;
