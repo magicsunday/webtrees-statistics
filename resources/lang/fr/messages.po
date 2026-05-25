@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Statistics\n"
 "Report-Msgid-Bugs-To: https://github.com/magicsunday/webtrees-statistics/"
 "issues\n"
-"POT-Creation-Date: 2026-05-25 14:09+0000\n"
+"POT-Creation-Date: 2026-05-25 14:13+0000\n"
 "PO-Revision-Date: 2026-05-22 07:04+0000\n"
 "Last-Translator: Rico Sonntag <mail@ricosonntag.de>\n"
 "Language-Team: \n"
@@ -37,6 +37,11 @@ msgstr "%s père avec un premier enfant daté"
 msgid "%1$s husbands and %2$s wives with a known marriage age"
 msgstr "%s mari avec âge au mariage connu"
 
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:120
+#, fuzzy, php-format
+msgid "%1$s of %2$s"
+msgstr "%1$s sur %2$s (%3$s%%)"
+
 #: resources/views/modules/statistics-chart/Partials/RateList.phtml:32
 #, php-format
 msgid "%1$s of %2$s (%3$s%%)"
@@ -48,7 +53,7 @@ msgid ""
 "%1$s of %2$s children died before age 5 — the darkest cohort in the tree."
 msgstr "%1$s%% — %2$s sur %3$s enfants décédés avant 5 ans"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:275
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:277
 #, php-format
 msgid ""
 "%1$s of %2$s couple where both spouses had at least one recorded parent "
@@ -62,11 +67,6 @@ msgstr[0] ""
 msgstr[1] ""
 "%1$s sur %2$s couples où les deux conjoints ont au moins un parent "
 "enregistré partagent un ancêtre commun."
-
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:119
-#, fuzzy, php-format
-msgid "%1$s of %2$s individuals"
-msgstr "%s individu"
 
 #: src/Repository/LifeSpanRepository.php:519
 #: src/Repository/LifeSpanRepository.php:526
@@ -276,7 +276,7 @@ msgid_plural "%s individuals carry this name"
 msgstr[0] "%s personne porte ce nom"
 msgstr[1] "%s personnes portent ce nom"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:138
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:139
 #, php-format
 msgid "%s individual sampled"
 msgid_plural "%s individuals sampled"
@@ -603,7 +603,7 @@ msgctxt "CENTURY"
 msgid "3rd"
 msgstr "3ᵉ"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:175
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:177
 msgid "40 yr"
 msgstr ""
 
@@ -666,7 +666,7 @@ msgstr ""
 msgid "ALLIANCES"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:249
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:251
 msgid "ANCESTORS"
 msgstr ""
 
@@ -787,7 +787,7 @@ msgstr "Bélier"
 msgid "At least 12 dated deaths are required for a meaningful score."
 msgstr "Au moins 12 décès datés sont nécessaires pour un score significatif."
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:163
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:165
 msgid "At least one parent-child pair with parseable birth dates is required."
 msgstr ""
 "Au moins une paire parent-enfant avec dates de naissance analysables est "
@@ -798,7 +798,7 @@ msgctxt "NOMINATIVE"
 msgid "August"
 msgstr "Août"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:146
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:147
 msgid "Average birth-year gap parent → child"
 msgstr ""
 
@@ -825,7 +825,7 @@ msgstr "Durée de vie moyenne par sexe × siècle"
 msgid "Average: %s"
 msgstr "Moyenne : %s"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:162
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:164
 #, fuzzy
 msgid "Averaged across every parent-child pair with parseable birth dates."
 msgstr ""
@@ -880,7 +880,7 @@ msgstr ""
 msgid "CHRONICLE"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:128
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:129
 msgid "COMPLETENESS"
 msgstr ""
 
@@ -979,7 +979,7 @@ msgstr ""
 msgid "DEMOGRAPHICS"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:214
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:216
 msgid "DEPTH"
 msgstr ""
 
@@ -1027,7 +1027,7 @@ msgctxt "NOMINATIVE"
 msgid "December"
 msgstr "Décembre"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:248
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:250
 #, fuzzy
 msgid "Distinct ancestors up to 4 generations (max. 30)"
 msgstr ""
@@ -1150,11 +1150,11 @@ msgstr ""
 "fraction de ces emplacements réellement documentés. Plus élevé = recherche "
 "plus approfondie ; plus bas = nombreuses lacunes."
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:225
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:227
 msgid "Each step is one parent–child link upward."
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:263
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:265
 msgid "Endogamy rate"
 msgstr ""
 
@@ -1262,8 +1262,8 @@ msgid ""
 "younger."
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:183
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:192
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:185
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:194
 msgid "GAPS"
 msgstr ""
 
@@ -1282,17 +1282,17 @@ msgstr ""
 msgid "Gemini"
 msgstr "Gémeaux"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:231
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:241
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:233
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:243
 msgid "Generation depth distribution"
 msgstr "Distribution de la profondeur de génération"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:207
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:209
 #, fuzzy
 msgid "Generation depth, ancestor distribution and kin marriages"
 msgstr "Distribution de la profondeur de génération"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:145
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:146
 #, fuzzy
 msgid "Generation length"
 msgstr "Durée moyenne d'une génération"
@@ -1304,6 +1304,11 @@ msgstr "générations"
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:165
 msgid "Geographic dispersion"
+msgstr "Dispersion géographique"
+
+#: resources/views/modules/statistics-chart/Partials/PlacesPanel.phtml:34
+#, fuzzy
+msgid "Geographic view"
 msgstr "Dispersion géographique"
 
 #: resources/views/modules/statistics-chart/Templates/Names.phtml:94
@@ -1320,11 +1325,11 @@ msgstr ""
 msgid "High mobility — strongly migrating ancestors."
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:139
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:140
 msgid "Higher = more thorough research"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:206
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:208
 msgid "How deep and branched is the tree?"
 msgstr ""
 
@@ -1364,7 +1369,7 @@ msgstr "Mari plus âgé de %s ans"
 msgid "Individuals"
 msgstr "%s individu"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:232
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:234
 #, fuzzy
 msgid "Individuals N generations above their deepest descendant"
 msgstr ""
@@ -1380,7 +1385,7 @@ msgstr ""
 msgid "Individuals with at least one source"
 msgstr "Personnes ayant au moins une source liée à leur fiche."
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:120
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:121
 #, fuzzy
 msgid "Individuals with ≥ 1 source citation"
 msgstr "Personnes ayant au moins une source liée à leur fiche."
@@ -1400,12 +1405,12 @@ msgctxt "NOMINATIVE"
 msgid "June"
 msgstr "Juin"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:265
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:267
 msgid "KINSHIP"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:247
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:256
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:249
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:258
 msgid "Known ancestors per individual"
 msgstr "Ancêtres connus par individu"
 
@@ -1422,11 +1427,11 @@ msgstr ""
 msgid "LONGEVITY"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:137
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:138
 msgid "Lacy 1989"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:127
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:128
 #, fuzzy
 msgid "Lacy index — average share of known ancestors up to the 4th generation"
 msgstr ""
@@ -1473,7 +1478,7 @@ msgstr "Vivants ou décédés"
 msgid "Living vs deceased proportion"
 msgstr "Vivants ou décédés"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:213
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:215
 msgid "Longest line in the tree, leaf to oldest ancestor"
 msgstr ""
 
@@ -1546,7 +1551,7 @@ msgstr "Durée du mariage"
 msgid "Married"
 msgstr "Marié(e)"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:212
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:214
 msgid "Maximum generation depth"
 msgstr "Profondeur maximale de génération"
 
@@ -1583,7 +1588,7 @@ msgstr "Événement de mariage manquant"
 msgid "Missing marriage place"
 msgstr "Lieu de mariage manquant"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:190
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:192
 msgid "Missing-event gaps"
 msgstr "Lacunes d'événements manquants"
 
@@ -1771,7 +1776,7 @@ msgstr ""
 msgid "Peak value"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:126
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:127
 #, fuzzy
 msgid "Pedigree completeness"
 msgstr "Complétude moyenne de la généalogie"
@@ -1834,8 +1839,8 @@ msgid "STATUS"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:410
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:205
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:233
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:207
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:235
 msgid "STRUCTURE"
 msgstr ""
 
@@ -1868,7 +1873,7 @@ msgstr "Sexe"
 msgid "Sex, status, marital state"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:191
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:193
 #, fuzzy
 msgid "Share of individuals without a recorded birth, death or marriage event"
 msgstr "%s personne avec année de naissance enregistrée"
@@ -1877,7 +1882,7 @@ msgstr "%s personne avec année de naissance enregistrée"
 msgid "Share of marriages per decade that ended in divorce"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:264
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:266
 #, fuzzy
 msgid "Share of marriages within 4 generations"
 msgstr "Taux d'endogamie (dans les 4 générations)"
@@ -1924,7 +1929,7 @@ msgstr "Statistiques"
 msgid "Surname × surname marriage matrix"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:147
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:148
 msgid "TIME"
 msgstr ""
 
@@ -1987,7 +1992,7 @@ msgstr "Santé de l'arbre"
 msgid "Tree records"
 msgstr "Enregistrements de l'arbre"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:171
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:173
 msgid "Typical range"
 msgstr ""
 
@@ -2008,7 +2013,7 @@ msgstr "Vierge"
 msgid "WOMEN"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:224
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:226
 msgid ""
 "Walk reached the safety cap (20 generations) — check the tree for cyclic "
 "FAMC/FAMS edits."
@@ -2025,7 +2030,7 @@ msgstr "Mariages par siècle"
 msgid "Weddings by month"
 msgstr "Mariages par mois"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:184
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:186
 msgid "What is missing?"
 msgstr ""
 
@@ -2055,7 +2060,7 @@ msgstr "Avec enfants"
 msgid "When were they born?"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:185
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:187
 msgid "Where the tree has gaps — events and places not recorded"
 msgstr ""
 
@@ -2159,7 +2164,7 @@ msgstr "Naissances par signe du zodiaque"
 msgid "deceased"
 msgstr "Décédés"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:118
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:119
 msgid "documented"
 msgstr ""
 
@@ -2187,7 +2192,7 @@ msgctxt "count word"
 msgid "four"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:222
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:224
 msgid "generations"
 msgstr "générations"
 
@@ -2226,7 +2231,7 @@ msgstr ""
 
 #: resources/views/modules/statistics-chart/Partials/RateList.phtml:33
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:479
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:159
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:161
 msgid "no data"
 msgstr "aucune donnée"
 
@@ -2297,7 +2302,7 @@ msgctxt "count word"
 msgid "two"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:160
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:162
 msgid "years"
 msgstr "années"
 
@@ -2341,6 +2346,10 @@ msgstr ""
 msgctxt "Unknown surname"
 msgid "…"
 msgstr "…"
+
+#, fuzzy, php-format
+#~ msgid "%1$s of %2$s individuals"
+#~ msgstr "%s individu"
 
 #, php-format
 #~ msgid "%s distinct migration path"

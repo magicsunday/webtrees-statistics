@@ -117,7 +117,7 @@ $endogamyExplanation = I18N::translate(
             'value'   => $sourcedPct,
             'accent'  => 'var(--sage)',
             'label'   => I18N::translate('documented'),
-            'meta'    => I18N::translate('%1$s of %2$s individuals', I18N::number($sourceCoverage->value), I18N::number($sourceCoverage->total)),
+            'meta'    => I18N::translate('%1$s of %2$s', I18N::number($sourceCoverage->value), I18N::number($sourceCoverage->total)),
             'caption' => I18N::translate('Individuals with ≥ 1 source citation'),
         ]),
     ]); ?>

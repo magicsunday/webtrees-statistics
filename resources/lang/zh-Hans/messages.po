@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Statistics\n"
 "Report-Msgid-Bugs-To: https://github.com/magicsunday/webtrees-statistics/"
 "issues\n"
-"POT-Creation-Date: 2026-05-25 14:09+0000\n"
+"POT-Creation-Date: 2026-05-25 14:13+0000\n"
 "PO-Revision-Date: 2026-05-22 07:04+0000\n"
 "Last-Translator: Rico Sonntag <mail@ricosonntag.de>\n"
 "Language-Team: \n"
@@ -37,6 +37,11 @@ msgstr "%s 名父亲首胎有日期"
 msgid "%1$s husbands and %2$s wives with a known marriage age"
 msgstr "%s 名丈夫有已知结婚年龄"
 
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:120
+#, fuzzy, php-format
+msgid "%1$s of %2$s"
+msgstr "%1$s 共 %2$s (%3$s%%)"
+
 #: resources/views/modules/statistics-chart/Partials/RateList.phtml:32
 #, php-format
 msgid "%1$s of %2$s (%3$s%%)"
@@ -48,7 +53,7 @@ msgid ""
 "%1$s of %2$s children died before age 5 — the darkest cohort in the tree."
 msgstr "%1$s%% — %2$s/%3$s 名儿童在 5 岁前去世"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:275
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:277
 #, php-format
 msgid ""
 "%1$s of %2$s couple where both spouses had at least one recorded parent "
@@ -58,11 +63,6 @@ msgid_plural ""
 "share a common ancestor."
 msgstr[0] "%2$s 对夫妇中有 %1$s 对(双方都有至少一位父母记录)共享一位共同祖先。"
 msgstr[1] "%2$s 对夫妇中有 %1$s 对(双方都有至少一位父母记录)共享一位共同祖先。"
-
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:119
-#, fuzzy, php-format
-msgid "%1$s of %2$s individuals"
-msgstr "%s 人"
 
 #: src/Repository/LifeSpanRepository.php:519
 #: src/Repository/LifeSpanRepository.php:526
@@ -272,7 +272,7 @@ msgid_plural "%s individuals carry this name"
 msgstr[0] "%s 人使用此名字"
 msgstr[1] "%s 人使用此名字"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:138
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:139
 #, php-format
 msgid "%s individual sampled"
 msgid_plural "%s individuals sampled"
@@ -599,7 +599,7 @@ msgctxt "CENTURY"
 msgid "3rd"
 msgstr "3"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:175
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:177
 msgid "40 yr"
 msgstr ""
 
@@ -662,7 +662,7 @@ msgstr ""
 msgid "ALLIANCES"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:249
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:251
 msgid "ANCESTORS"
 msgstr ""
 
@@ -781,7 +781,7 @@ msgstr "白羊座"
 msgid "At least 12 dated deaths are required for a meaningful score."
 msgstr "需要至少12个有日期的死亡记录才能给出有意义的得分。"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:163
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:165
 msgid "At least one parent-child pair with parseable birth dates is required."
 msgstr "需要至少一对父母-子女且具有可解析的出生日期。"
 
@@ -790,7 +790,7 @@ msgctxt "NOMINATIVE"
 msgid "August"
 msgstr "八月"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:146
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:147
 msgid "Average birth-year gap parent → child"
 msgstr ""
 
@@ -817,7 +817,7 @@ msgstr "按性别 × 世纪的平均寿命"
 msgid "Average: %s"
 msgstr "平均:%s"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:162
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:164
 #, fuzzy
 msgid "Averaged across every parent-child pair with parseable birth dates."
 msgstr "需要至少一对父母-子女且具有可解析的出生日期。"
@@ -870,7 +870,7 @@ msgstr ""
 msgid "CHRONICLE"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:128
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:129
 msgid "COMPLETENESS"
 msgstr ""
 
@@ -969,7 +969,7 @@ msgstr ""
 msgid "DEMOGRAPHICS"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:214
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:216
 msgid "DEPTH"
 msgstr ""
 
@@ -1017,7 +1017,7 @@ msgctxt "NOMINATIVE"
 msgid "December"
 msgstr "十二月"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:248
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:250
 #, fuzzy
 msgid "Distinct ancestors up to 4 generations (max. 30)"
 msgstr "记录至四代的不同祖先 (高祖父母)。"
@@ -1133,11 +1133,11 @@ msgstr ""
 "族谱中每人在四代内最多可有 30 位直系祖先。族谱完整度指数 (Lacy 1989) 是这些位"
 "置中实际记录的比例。更高 = 研究更彻底;更低 = 缺口较多。"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:225
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:227
 msgid "Each step is one parent–child link upward."
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:263
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:265
 msgid "Endogamy rate"
 msgstr ""
 
@@ -1245,8 +1245,8 @@ msgid ""
 "younger."
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:183
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:192
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:185
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:194
 msgid "GAPS"
 msgstr ""
 
@@ -1265,17 +1265,17 @@ msgstr ""
 msgid "Gemini"
 msgstr "双子座"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:231
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:241
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:233
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:243
 msgid "Generation depth distribution"
 msgstr "世代深度分布"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:207
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:209
 #, fuzzy
 msgid "Generation depth, ancestor distribution and kin marriages"
 msgstr "世代深度分布"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:145
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:146
 #, fuzzy
 msgid "Generation length"
 msgstr "平均世代长度"
@@ -1287,6 +1287,11 @@ msgstr "代"
 
 #: resources/views/modules/statistics-chart/Templates/Places.phtml:165
 msgid "Geographic dispersion"
+msgstr "地理分布"
+
+#: resources/views/modules/statistics-chart/Partials/PlacesPanel.phtml:34
+#, fuzzy
+msgid "Geographic view"
 msgstr "地理分布"
 
 #: resources/views/modules/statistics-chart/Templates/Names.phtml:94
@@ -1302,11 +1307,11 @@ msgstr "整个族谱的名人堂:界定数据集的极端值。"
 msgid "High mobility — strongly migrating ancestors."
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:139
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:140
 msgid "Higher = more thorough research"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:206
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:208
 msgid "How deep and branched is the tree?"
 msgstr ""
 
@@ -1346,7 +1351,7 @@ msgstr "丈夫年长%s岁"
 msgid "Individuals"
 msgstr "%s 人"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:232
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:234
 #, fuzzy
 msgid "Individuals N generations above their deepest descendant"
 msgstr "有多少人正好位于其最深已记录后裔之上的 N 代。"
@@ -1360,7 +1365,7 @@ msgstr ""
 msgid "Individuals with at least one source"
 msgstr "至少有一个来源关联到记录的人物。"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:120
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:121
 #, fuzzy
 msgid "Individuals with ≥ 1 source citation"
 msgstr "至少有一个来源关联到记录的人物。"
@@ -1380,12 +1385,12 @@ msgctxt "NOMINATIVE"
 msgid "June"
 msgstr "六月"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:265
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:267
 msgid "KINSHIP"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:247
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:256
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:249
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:258
 msgid "Known ancestors per individual"
 msgstr "每人已知祖先数"
 
@@ -1402,11 +1407,11 @@ msgstr ""
 msgid "LONGEVITY"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:137
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:138
 msgid "Lacy 1989"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:127
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:128
 #, fuzzy
 msgid "Lacy index — average share of known ancestors up to the 4th generation"
 msgstr "Lacy 1989 — 所有人物中四代以内已知直系祖先的平均比例。"
@@ -1451,7 +1456,7 @@ msgstr "在世或已故"
 msgid "Living vs deceased proportion"
 msgstr "在世或已故"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:213
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:215
 msgid "Longest line in the tree, leaf to oldest ancestor"
 msgstr ""
 
@@ -1524,7 +1529,7 @@ msgstr "婚姻持续时间"
 msgid "Married"
 msgstr "已婚"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:212
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:214
 msgid "Maximum generation depth"
 msgstr "最大世代深度"
 
@@ -1561,7 +1566,7 @@ msgstr "缺少婚姻事件"
 msgid "Missing marriage place"
 msgstr "缺少婚姻地"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:190
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:192
 msgid "Missing-event gaps"
 msgstr "缺少事件的空白"
 
@@ -1747,7 +1752,7 @@ msgstr ""
 msgid "Peak value"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:126
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:127
 #, fuzzy
 msgid "Pedigree completeness"
 msgstr "平均族谱完整度"
@@ -1810,8 +1815,8 @@ msgid "STATUS"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/Templates/Family.phtml:410
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:205
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:233
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:207
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:235
 msgid "STRUCTURE"
 msgstr ""
 
@@ -1844,7 +1849,7 @@ msgstr "性别"
 msgid "Sex, status, marital state"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:191
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:193
 #, fuzzy
 msgid "Share of individuals without a recorded birth, death or marriage event"
 msgstr "%s 人有已记录出生年份"
@@ -1853,7 +1858,7 @@ msgstr "%s 人有已记录出生年份"
 msgid "Share of marriages per decade that ended in divorce"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:264
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:266
 #, fuzzy
 msgid "Share of marriages within 4 generations"
 msgstr "近亲通婚率(四代内)"
@@ -1900,7 +1905,7 @@ msgstr "统计表"
 msgid "Surname × surname marriage matrix"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:147
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:148
 msgid "TIME"
 msgstr ""
 
@@ -1963,7 +1968,7 @@ msgstr "族谱质量"
 msgid "Tree records"
 msgstr "族谱记录"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:171
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:173
 msgid "Typical range"
 msgstr ""
 
@@ -1984,7 +1989,7 @@ msgstr "处女座"
 msgid "WOMEN"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:224
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:226
 msgid ""
 "Walk reached the safety cap (20 generations) — check the tree for cyclic "
 "FAMC/FAMS edits."
@@ -1999,7 +2004,7 @@ msgstr "各世纪婚礼数"
 msgid "Weddings by month"
 msgstr "各月份婚礼数"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:184
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:186
 msgid "What is missing?"
 msgstr ""
 
@@ -2029,7 +2034,7 @@ msgstr "有子女"
 msgid "When were they born?"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:185
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:187
 msgid "Where the tree has gaps — events and places not recorded"
 msgstr ""
 
@@ -2133,7 +2138,7 @@ msgstr "各星座出生数"
 msgid "deceased"
 msgstr "已故"
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:118
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:119
 msgid "documented"
 msgstr ""
 
@@ -2161,7 +2166,7 @@ msgctxt "count word"
 msgid "four"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:222
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:224
 msgid "generations"
 msgstr "代"
 
@@ -2200,7 +2205,7 @@ msgstr ""
 
 #: resources/views/modules/statistics-chart/Partials/RateList.phtml:33
 #: resources/views/modules/statistics-chart/Templates/LifeSpan.phtml:479
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:159
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:161
 msgid "no data"
 msgstr "无数据"
 
@@ -2271,7 +2276,7 @@ msgctxt "count word"
 msgid "two"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:160
+#: resources/views/modules/statistics-chart/Templates/TreeHealth.phtml:162
 msgid "years"
 msgstr "年"
 
@@ -2315,6 +2320,10 @@ msgstr ""
 msgctxt "Unknown surname"
 msgid "…"
 msgstr "…"
+
+#, fuzzy, php-format
+#~ msgid "%1$s of %2$s individuals"
+#~ msgstr "%s 人"
 
 #, php-format
 #~ msgid "%s distinct migration path"
