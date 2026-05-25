@@ -77,7 +77,7 @@ final readonly class Statistic
      * @param StatisticsData            $data                      Core data accessor for individual, family and event counts
      * @param FamilyRepository          $familyRepository          Census-style marital classification not exposed by core
      * @param EventRepository           $eventRepository           Zodiac-sign grouping not exposed by core
-     * @param NameRepository            $nameRepository            Distinct primary-name counts (bypass commonSurnames/GivenNames limit-zero quirk)
+     * @param NameRepository            $nameRepository            Distinct primary-name counts (direct COUNT(DISTINCT) to avoid the N+1 query storm hidden in commonSurnames(PHP_INT_MAX))
      * @param TreeHealthRepository      $treeHealthRepository      Data-quality metrics: source coverage, missing-event gaps, generation length
      * @param GivenNameTrendsRepository $givenNameTrendsRepository Per-decade frequency of the top-N given names for the stream graph
      * @param MigrationRepository       $migrationRepository       Birth → death country flows for the Places-tab Sankey diagram

@@ -28,7 +28,7 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
 {
     private function repository(Tree $tree): NameRepository
     {
-        return new NameRepository($this->statisticsData($tree));
+        return new NameRepository($tree, $this->statisticsData($tree));
     }
 
     /**
