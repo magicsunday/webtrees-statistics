@@ -50,6 +50,20 @@ $placeDispersionExplanation = I18N::translate(
     'For every individual the widget collects every distinct PLAC value that appears on any of their level-1 events (BIRT, DEAT, BAPM, BURI, RESI, …) and counts the unique places. Duplicates within the same individual (e.g. BIRT and DEAT both in Hamburg) collapse to one place, so the count reflects geographic mobility rather than how many events are recorded. The average is across every individual with at least one PLAC sample; individuals with no place data at all are excluded. The distribution on the right shows how those counts split across 1 / 2 / 3 / 4 / 5+ distinct places per person — a high tail signals migrant ancestors, a heavy bar at "1" signals a sedentary or sparsely-documented population.'
 );
 
+// Interpret the average distinct-places-per-individual into a
+// one-line characterisation of the population — sedentary,
+// moderately mobile, or strongly mobile. Thresholds picked from
+// observation of real genealogical datasets: below 1.5 ≈ village
+// communities where most individuals never moved; 1.5-2.5 ≈ rural
+// populations with regional migration; 2.5-4 ≈ urbanised cohorts;
+// above 4 ≈ migrant ancestors (settlers, emigrants, traders).
+$dispersionInterpretation = match (true) {
+    $placeDispersion->average < 1.5  => I18N::translate('A sedentary population — most lived and died in the same place.'),
+    $placeDispersion->average < 2.5  => I18N::translate('Moderate mobility — many stayed in their region, some moved.'),
+    $placeDispersion->average < 4.0  => I18N::translate('Mobile population — migration and relocation were common.'),
+    default                           => I18N::translate('High mobility — strongly migrating ancestors.'),
+};
+
 // BarChart rows for the distinct-places-per-individual histogram —
 // matches design2 `Histogram rows={D.placesPerPerson}`. tooltipLabel
 // + tooltip use literal I18N calls so xgettext picks them up.
@@ -164,7 +178,7 @@ $placesPanel = static function (string $title, string $progressClass, string $ma
                     'Across %s individuals with at least one recorded place.',
                     $placeDispersion->sampled,
                     I18N::number($placeDispersion->sampled),
-                ),
+                ) . ' ' . $dispersionInterpretation,
             ]),
         ]); ?>
 
