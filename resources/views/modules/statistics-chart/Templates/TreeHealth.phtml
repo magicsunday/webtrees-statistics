@@ -27,10 +27,33 @@ $endogamy             = $statistic->getEndogamySummary();
 $totalIndividuals     = $statistic->getTotalIndividuals();
 $totalAncestorsRows   = array_sum($ancestorDistribution);
 
-$generationDepthDistribution = [];
+// BarChart rows for generation-depth distribution + known-ancestors
+// distribution. Both render as histograms in design2 — switch from
+// ProgressList to BarChart to match. tooltipLabel + tooltipBody are
+// pre-built with literal I18N::plural calls so xgettext picks the
+// strings up.
+$generationDepthBars = [];
 
 foreach ($generationDepth->distribution as $gen => $count) {
-    $generationDepthDistribution[(string) $gen] = $count;
+    $bucketCount           = (int) $count;
+    $generationDepthBars[] = [
+        'label'        => (string) $gen,
+        'value'        => $bucketCount,
+        'tooltipLabel' => I18N::plural('%s generation deep', '%s generations deep', (int) $gen, I18N::number((int) $gen)),
+        'tooltip'      => I18N::plural('%s individual', '%s individuals', $bucketCount, I18N::number($bucketCount)),
+    ];
+}
+
+$ancestorDistributionBars = [];
+
+foreach ($ancestorDistribution as $bucket => $count) {
+    $bucketCount                = (int) $count;
+    $ancestorDistributionBars[] = [
+        'label'        => (string) $bucket,
+        'value'        => $bucketCount,
+        'tooltipLabel' => I18N::translate('%s known ancestors', (string) $bucket),
+        'tooltip'      => I18N::plural('%s individual', '%s individuals', $bucketCount, I18N::number($bucketCount)),
+    ];
 }
 
 $gapLabels = [
@@ -195,9 +218,10 @@ $endogamyExplanation = I18N::translate(
         'illustration' => 'tree',
         'info'         => $generationDepthDistributionExplanation,
         'span'         => 8,
-        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/ProgressList', [
-            'class' => 'progress-generation-depth',
-            'data'  => $generationDepthDistribution,
+        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/BarChart', [
+            'identifier' => 'generation-depth-bars',
+            'data'       => $generationDepthBars,
+            'ariaLabel'  => I18N::translate('Generation depth distribution'),
         ]),
     ]); ?>
 
@@ -209,9 +233,10 @@ $endogamyExplanation = I18N::translate(
         'accent'       => 'var(--ochre)',
         'illustration' => 'family',
         'span'         => 8,
-        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/ProgressList', [
-            'class' => 'progress-ancestor-count',
-            'data'  => $ancestorDistribution,
+        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/BarChart', [
+            'identifier' => 'ancestor-count-bars',
+            'data'       => $ancestorDistributionBars,
+            'ariaLabel'  => I18N::translate('Known ancestors per individual'),
         ]),
     ]); ?>
 

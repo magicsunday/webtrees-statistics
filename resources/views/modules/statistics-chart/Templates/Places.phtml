@@ -50,6 +50,21 @@ $placeDispersionExplanation = I18N::translate(
     'For every individual the widget collects every distinct PLAC value that appears on any of their level-1 events (BIRT, DEAT, BAPM, BURI, RESI, …) and counts the unique places. Duplicates within the same individual (e.g. BIRT and DEAT both in Hamburg) collapse to one place, so the count reflects geographic mobility rather than how many events are recorded. The average is across every individual with at least one PLAC sample; individuals with no place data at all are excluded. The distribution on the right shows how those counts split across 1 / 2 / 3 / 4 / 5+ distinct places per person — a high tail signals migrant ancestors, a heavy bar at "1" signals a sedentary or sparsely-documented population.'
 );
 
+// BarChart rows for the distinct-places-per-individual histogram —
+// matches design2 `Histogram rows={D.placesPerPerson}`. tooltipLabel
+// + tooltip use literal I18N calls so xgettext picks them up.
+$placeDispersionBars = [];
+
+foreach ($placeDispersion->distribution as $bucket => $count) {
+    $bucketCount           = (int) $count;
+    $placeDispersionBars[] = [
+        'label'        => (string) $bucket,
+        'value'        => $bucketCount,
+        'tooltipLabel' => I18N::translate('%s distinct places', (string) $bucket),
+        'tooltip'      => I18N::plural('%s individual', '%s individuals', $bucketCount, I18N::number($bucketCount)),
+    ];
+}
+
 $placesPanel = static function (string $title, string $progressClass, string $mapIdentifier, array $list, array $rawData) use ($module): string {
     $progress = view($module . '::modules/statistics-chart/Partials/ProgressList', [
         'class' => $progressClass,
@@ -161,9 +176,10 @@ $placesPanel = static function (string $title, string $progressClass, string $ma
             'accent'       => 'var(--slate)',
             'illustration' => 'globe',
             'span'         => 7,
-            'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/ProgressList', [
-                'class' => 'progress-place-dispersion',
-                'data'  => $placeDispersion->distribution,
+            'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/BarChart', [
+                'identifier' => 'place-dispersion-bars',
+                'data'       => $placeDispersionBars,
+                'ariaLabel'  => I18N::translate('Distinct places per individual'),
             ]),
         ]); ?>
     <?php } ?>
