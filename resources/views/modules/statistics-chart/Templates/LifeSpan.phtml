@@ -51,10 +51,10 @@ $totalLivingBanded    = array_sum(array_column($livingByAgeBand, 'value'));
 // are missing, so the enrichment is local to this template.
 $livingByAgeBand = array_map(
     static function (array $band): array {
-        $value = (int) $band['value'];
+        $value = $band['value'];
 
         return $band + [
-            'tooltipLabel' => I18N::translate('%s years', (string) $band['label']),
+            'tooltipLabel' => I18N::translate('%s years', $band['label']),
             'tooltipBody'  => I18N::plural('%s person', '%s persons', $value, I18N::number($value)),
         ];
     },

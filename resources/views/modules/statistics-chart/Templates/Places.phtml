@@ -58,10 +58,10 @@ $placeDispersionExplanation = I18N::translate(
 // populations with regional migration; 2.5-4 ≈ urbanised cohorts;
 // above 4 ≈ migrant ancestors (settlers, emigrants, traders).
 $dispersionInterpretation = match (true) {
-    $placeDispersion->average < 1.5  => I18N::translate('A sedentary population — most lived and died in the same place.'),
-    $placeDispersion->average < 2.5  => I18N::translate('Moderate mobility — many stayed in their region, some moved.'),
-    $placeDispersion->average < 4.0  => I18N::translate('Mobile population — migration and relocation were common.'),
-    default                           => I18N::translate('High mobility — strongly migrating ancestors.'),
+    $placeDispersion->average < 1.5 => I18N::translate('A sedentary population — most lived and died in the same place.'),
+    $placeDispersion->average < 2.5 => I18N::translate('Moderate mobility — many stayed in their region, some moved.'),
+    $placeDispersion->average < 4.0 => I18N::translate('Mobile population — migration and relocation were common.'),
+    default                         => I18N::translate('High mobility — strongly migrating ancestors.'),
 };
 
 // BarChart rows for the distinct-places-per-individual histogram —

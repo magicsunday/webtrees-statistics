@@ -10,7 +10,6 @@ declare(strict_types=1);
  */
 
 use Fisharebest\Webtrees\I18N;
-use MagicSunday\Webtrees\Statistic\Model\Dto\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Statistic;
 use MagicSunday\Webtrees\Statistic\Support\CenturyName;
 use MagicSunday\Webtrees\Statistic\Support\SiblingGapRowMapper;
@@ -189,17 +188,17 @@ foreach ($ageGap as $label => $count) {
     $isNegative = ($first === '-') || ($first === '<');
 
     if ($isNegative) {
-        if (str_starts_with($label, '<')) {
-            $cleaned = '>' . substr($label, 2);
+        if (str_starts_with((string) $label, '<')) {
+            $cleaned = '>' . substr((string) $label, 2);
         } else {
-            $parts = explode(' to ', $label);
+            $parts = explode(' to ', (string) $label);
 
             if (count($parts) === 2) {
                 $lo      = abs((int) $parts[0]);
                 $hi      = abs((int) $parts[1]);
                 $cleaned = min($lo, $hi) . '–' . max($lo, $hi);
             } else {
-                $cleaned = ltrim($label, '-');
+                $cleaned = ltrim((string) $label, '-');
             }
         }
     } else {
@@ -256,9 +255,9 @@ foreach ($ageGap as $label => $count) {
     ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
-        'module'       => $module,
-        'title'        => I18N::translate('Couple age gap'),
-        'sub'          => I18N::plural('%s couple with both birth dates', '%s couples with both birth dates', $totalAgeGap, I18N::number($totalAgeGap))
+        'module' => $module,
+        'title'  => I18N::translate('Couple age gap'),
+        'sub'    => I18N::plural('%s couple with both birth dates', '%s couples with both birth dates', $totalAgeGap, I18N::number($totalAgeGap))
             . ' · '
             . I18N::translate('husband left, wife right'),
         'eyebrow'      => I18N::translate('Marriage'),
@@ -343,166 +342,167 @@ foreach ($ageGap as $label => $count) {
 
     <?php
     $childrenPerFamilyBars = [];
-    foreach ($childrenHistogram as $bucket => $count) {
-        $bucketCount             = (int) $count;
-        $childrenPerFamilyBars[] = [
-            'label'        => (string) $bucket,
-            'value'        => $bucketCount,
-            'tooltipLabel' => I18N::translate('%s children', (string) $bucket),
-            'tooltip'      => I18N::plural('%s family', '%s families', $bucketCount, I18N::number($bucketCount)),
-        ];
-    }
-    ?>
+
+foreach ($childrenHistogram as $bucket => $count) {
+    $bucketCount             = (int) $count;
+    $childrenPerFamilyBars[] = [
+        'label'        => (string) $bucket,
+        'value'        => $bucketCount,
+        'tooltipLabel' => I18N::translate('%s children', (string) $bucket),
+        'tooltip'      => I18N::plural('%s family', '%s families', $bucketCount, I18N::number($bucketCount)),
+    ];
+}
+?>
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
-        'module'       => $module,
-        'title'        => I18N::translate('Children per family'),
-        'sub'          => I18N::translate('Average: %s', I18N::number($avgChildren, 1)) . ' · ' . I18N::plural('%s family', '%s families', $totalChildrenFamilies, I18N::number($totalChildrenFamilies)),
-        'eyebrow'      => I18N::translate('Family size'),
-        'accent'       => 'var(--ochre)',
-        'illustration' => 'child',
-        'span'         => 6,
-        'info'         => I18N::translate('Distribution of children counts across families with at least one recorded child. Hover a bar for the number of families landing on that exact child count.'),
-        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/BarChart', [
-            'identifier' => 'children-per-family-bars',
-            'data'       => $childrenPerFamilyBars,
-            'ariaLabel'  => I18N::translate('Children per family'),
-        ]),
-    ]); ?>
+    'module'       => $module,
+    'title'        => I18N::translate('Children per family'),
+    'sub'          => I18N::translate('Average: %s', I18N::number($avgChildren, 1)) . ' · ' . I18N::plural('%s family', '%s families', $totalChildrenFamilies, I18N::number($totalChildrenFamilies)),
+    'eyebrow'      => I18N::translate('Family size'),
+    'accent'       => 'var(--ochre)',
+    'illustration' => 'child',
+    'span'         => 6,
+    'info'         => I18N::translate('Distribution of children counts across families with at least one recorded child. Hover a bar for the number of families landing on that exact child count.'),
+    'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/BarChart', [
+        'identifier' => 'children-per-family-bars',
+        'data'       => $childrenPerFamilyBars,
+        'ariaLabel'  => I18N::translate('Children per family'),
+    ]),
+]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
-        'module'       => $module,
-        'title'        => I18N::translate('Sibling age gap'),
-        'sub'          => I18N::plural('%s consecutive-sibling pair', '%s consecutive-sibling pairs', $totalSiblingPairs, I18N::number($totalSiblingPairs)),
-        'eyebrow'      => I18N::translate('Family'),
-        'accent'       => 'var(--sage)',
-        'illustration' => 'child',
-        'span'         => 6,
-        'info'         => I18N::translate('Age difference between consecutive siblings in the same family. Very small gaps (< 1 year) often signal twins or close-spaced births; very large gaps (10+ years) typically reflect second marriages or long intervals.'),
-        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/LineChart', ['identifier' => 'sibling-age-gap-line', 'data' => SiblingGapRowMapper::toLineChartPayload($siblingGaps), 'ariaLabel' => I18N::translate('Sibling age gap')]),
-    ]); ?>
+    'module'       => $module,
+    'title'        => I18N::translate('Sibling age gap'),
+    'sub'          => I18N::plural('%s consecutive-sibling pair', '%s consecutive-sibling pairs', $totalSiblingPairs, I18N::number($totalSiblingPairs)),
+    'eyebrow'      => I18N::translate('Family'),
+    'accent'       => 'var(--sage)',
+    'illustration' => 'child',
+    'span'         => 6,
+    'info'         => I18N::translate('Age difference between consecutive siblings in the same family. Very small gaps (< 1 year) often signal twins or close-spaced births; very large gaps (10+ years) typically reflect second marriages or long intervals.'),
+    'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/LineChart', ['identifier' => 'sibling-age-gap-line', 'data' => SiblingGapRowMapper::toLineChartPayload($siblingGaps), 'ariaLabel' => I18N::translate('Sibling age gap')]),
+]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
-        'module'       => $module,
-        'title'        => I18N::translate('Family size composition share by decade'),
-        'sub'          => I18N::translate('Normalised to 100 %% — shift from large to small families'),
-        'eyebrow'      => I18N::translate('Shift'),
-        'accent'       => 'var(--wine)',
-        'illustration' => 'family',
-        'span'         => 12,
-        'info'         => I18N::translate('Per marriage decade, the bar splits into bands by child count (0, 1, 2 … 10+) and is normalised to 100 %% so cohorts of very different size can be compared. The cream → wine ramp tracks family size, from childless on the left to large families on the right.'),
-        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/StackedBar', ['identifier' => 'family-size-stacked-percent-by-decade', 'data' => $familySizeStackedDecade, 'percentage' => true, 'ariaLabel' => I18N::translate('Family size composition share by decade')]),
-    ]); ?>
+    'module'       => $module,
+    'title'        => I18N::translate('Family size composition share by decade'),
+    'sub'          => I18N::translate('Normalised to 100 %% — shift from large to small families'),
+    'eyebrow'      => I18N::translate('Shift'),
+    'accent'       => 'var(--wine)',
+    'illustration' => 'family',
+    'span'         => 12,
+    'info'         => I18N::translate('Per marriage decade, the bar splits into bands by child count (0, 1, 2 … 10+) and is normalised to 100 %% so cohorts of very different size can be compared. The cream → wine ramp tracks family size, from childless on the left to large families on the right.'),
+    'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/StackedBar', ['identifier' => 'family-size-stacked-percent-by-decade', 'data' => $familySizeStackedDecade, 'percentage' => true, 'ariaLabel' => I18N::translate('Family size composition share by decade')]),
+]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
-        'module'       => $module,
-        'title'        => I18N::translate('Average family size by century'),
-        'sub'          => I18N::translate('Children per dated family'),
-        'eyebrow'      => I18N::translate('Timeline'),
-        'accent'       => 'var(--sage)',
-        'illustration' => 'family',
-        'span'         => 6,
-        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/LineChart', ['identifier' => 'average-family-size-line', 'data' => $averageFamilySizeLine, 'ariaLabel' => I18N::translate('Average family size by century')]),
-    ]); ?>
+    'module'       => $module,
+    'title'        => I18N::translate('Average family size by century'),
+    'sub'          => I18N::translate('Children per dated family'),
+    'eyebrow'      => I18N::translate('Timeline'),
+    'accent'       => 'var(--sage)',
+    'illustration' => 'family',
+    'span'         => 6,
+    'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/LineChart', ['identifier' => 'average-family-size-line', 'data' => $averageFamilySizeLine, 'ariaLabel' => I18N::translate('Average family size by century')]),
+]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
-        'module'       => $module,
-        'title'        => I18N::translate('Families with vs without children'),
-        'eyebrow'      => I18N::translate('Structure'),
-        'accent'       => 'var(--sage)',
-        'illustration' => 'family',
-        'span'         => 6,
-        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/DonutChart', [
-            'identifier'     => 'childless-families-donut',
-            'data'           => $childlessBreakdown,
-            'centerLabel'    => I18N::translate('families'),
-            'legendPosition' => 'bottom',
-        ]),
-    ]); ?>
+    'module'       => $module,
+    'title'        => I18N::translate('Families with vs without children'),
+    'eyebrow'      => I18N::translate('Structure'),
+    'accent'       => 'var(--sage)',
+    'illustration' => 'family',
+    'span'         => 6,
+    'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/DonutChart', [
+        'identifier'     => 'childless-families-donut',
+        'data'           => $childlessBreakdown,
+        'centerLabel'    => I18N::translate('families'),
+        'legendPosition' => 'bottom',
+    ]),
+]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
-        'module'       => $module,
-        'title'        => I18N::translate('Top 10 largest families'),
-        'sub'          => I18N::translate('By recorded child count'),
-        'eyebrow'      => I18N::translate('Extremes'),
-        'accent'       => 'var(--wine)',
-        'illustration' => 'family',
-        'span'         => 12,
-        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/Podium', [
-            'class'  => 'progress-largest-families',
-            'data'   => $largestFamilies,
-            'suffix' => I18N::translate('kids'),
-        ]),
-    ]); ?>
+    'module'       => $module,
+    'title'        => I18N::translate('Top 10 largest families'),
+    'sub'          => I18N::translate('By recorded child count'),
+    'eyebrow'      => I18N::translate('Extremes'),
+    'accent'       => 'var(--wine)',
+    'illustration' => 'family',
+    'span'         => 12,
+    'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/Podium', [
+        'class'  => 'progress-largest-families',
+        'data'   => $largestFamilies,
+        'suffix' => I18N::translate('kids'),
+    ]),
+]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
-        'kicker' => I18N::translate('Divorce'),
-        'title'  => I18N::translate('When marriages ended'),
-        'sub'    => I18N::translate('Divorce rate, season and life-stage of the divorced — a rare category in the tree'),
-    ]); ?>
+    'kicker' => I18N::translate('Divorce'),
+    'title'  => I18N::translate('When marriages ended'),
+    'sub'    => I18N::translate('Divorce rate, season and life-stage of the divorced — a rare category in the tree'),
+]); ?>
 
     <?php if ($cohortCategories !== []) { ?>
         <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
-            'module'       => $module,
-            'title'        => I18N::translate('Divorce rate per marriage cohort'),
-            'sub'          => I18N::translate('Share of marriages per decade that ended in divorce'),
-            'eyebrow'      => I18N::translate('Evolution'),
-            'accent'       => 'var(--wine)',
-            'illustration' => 'brokenHeart',
-            'span'         => 12,
-            'info'         => I18N::translate('For each marriage decade, the share of those marriages that are recorded as ending in divorce. Tracks how openly the tree records dissolutions over time rather than the underlying historical rate.'),
-            'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/LineChart', [
-                'identifier' => 'divorce-cohort-line',
-                'data'       => [
-                    'categories' => $cohortCategories,
-                    'series'     => [['name' => I18N::translate('Divorce rate'), 'values' => $cohortValues, 'tooltips' => $cohortTooltips]],
-                ],
-                'ariaLabel' => I18N::translate('Divorce rate per marriage cohort'),
-            ]),
-        ]); ?>
+        'module'       => $module,
+        'title'        => I18N::translate('Divorce rate per marriage cohort'),
+        'sub'          => I18N::translate('Share of marriages per decade that ended in divorce'),
+        'eyebrow'      => I18N::translate('Evolution'),
+        'accent'       => 'var(--wine)',
+        'illustration' => 'brokenHeart',
+        'span'         => 12,
+        'info'         => I18N::translate('For each marriage decade, the share of those marriages that are recorded as ending in divorce. Tracks how openly the tree records dissolutions over time rather than the underlying historical rate.'),
+        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/LineChart', [
+            'identifier' => 'divorce-cohort-line',
+            'data'       => [
+                'categories' => $cohortCategories,
+                'series'     => [['name' => I18N::translate('Divorce rate'), 'values' => $cohortValues, 'tooltips' => $cohortTooltips]],
+            ],
+            'ariaLabel' => I18N::translate('Divorce rate per marriage cohort'),
+        ]),
+    ]); ?>
     <?php } ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
-        'module'       => $module,
-        'title'        => I18N::translate('Divorces by month'),
-        'sub'          => I18N::plural('%s divorce with a recorded month', '%s divorces with a recorded month', $totalDivMonth, I18N::number($totalDivMonth)),
-        'eyebrow'      => I18N::translate('Month clock'),
-        'accent'       => 'var(--deceased)',
-        'illustration' => 'brokenHeart',
-        'span'         => 4,
-        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/MonthRadial', ['data' => $divorcesByMonth, 'accent' => 'var(--deceased)', 'centerLabel' => I18N::translate('peak month')]),
-    ]); ?>
+    'module'       => $module,
+    'title'        => I18N::translate('Divorces by month'),
+    'sub'          => I18N::plural('%s divorce with a recorded month', '%s divorces with a recorded month', $totalDivMonth, I18N::number($totalDivMonth)),
+    'eyebrow'      => I18N::translate('Month clock'),
+    'accent'       => 'var(--deceased)',
+    'illustration' => 'brokenHeart',
+    'span'         => 4,
+    'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/MonthRadial', ['data' => $divorcesByMonth, 'accent' => 'var(--deceased)', 'centerLabel' => I18N::translate('peak month')]),
+]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
-        'module'       => $module,
-        'title'        => I18N::translate('Divorces by century'),
-        'sub'          => I18N::plural('%s recorded divorce', '%s recorded divorces', $totalDivCentury, I18N::number($totalDivCentury)),
-        'eyebrow'      => I18N::translate('Timeline'),
-        'accent'       => 'var(--deceased)',
-        'illustration' => 'brokenHeart',
-        'span'         => 4,
-        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/BarChart', [
-            'identifier' => 'divorces-century-bars',
-            'data'       => $divorcesByCenturyBars,
-            'ariaLabel'  => I18N::translate('Divorces by century'),
-        ]),
-    ]); ?>
+    'module'       => $module,
+    'title'        => I18N::translate('Divorces by century'),
+    'sub'          => I18N::plural('%s recorded divorce', '%s recorded divorces', $totalDivCentury, I18N::number($totalDivCentury)),
+    'eyebrow'      => I18N::translate('Timeline'),
+    'accent'       => 'var(--deceased)',
+    'illustration' => 'brokenHeart',
+    'span'         => 4,
+    'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/BarChart', [
+        'identifier' => 'divorces-century-bars',
+        'data'       => $divorcesByCenturyBars,
+        'ariaLabel'  => I18N::translate('Divorces by century'),
+    ]),
+]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
-        'module'       => $module,
-        'title'        => I18N::translate('Divorces by age band'),
-        'sub'          => I18N::translate('Life-stage at divorce — men vs. women'),
-        'eyebrow'      => I18N::translate('Age'),
-        'accent'       => 'var(--deceased)',
-        'illustration' => 'brokenHeart',
-        'span'         => 4,
-        'info'         => I18N::translate('Age of each spouse at the recorded divorce date. Mirrored so men and women share the same age bands and can be compared side by side. Empty bands stay visible so cohort gaps are not hidden.'),
-        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/MirrorHistogram', [
-            'top'         => $divorceAgeMRows,
-            'bottom'      => $divorceAgeFRows,
-            'topLabel'    => I18N::translate('Men'),
-            'bottomLabel' => I18N::translate('Women'),
-        ]),
-    ]); ?>
+    'module'       => $module,
+    'title'        => I18N::translate('Divorces by age band'),
+    'sub'          => I18N::translate('Life-stage at divorce — men vs. women'),
+    'eyebrow'      => I18N::translate('Age'),
+    'accent'       => 'var(--deceased)',
+    'illustration' => 'brokenHeart',
+    'span'         => 4,
+    'info'         => I18N::translate('Age of each spouse at the recorded divorce date. Mirrored so men and women share the same age bands and can be compared side by side. Empty bands stay visible so cohort gaps are not hidden.'),
+    'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/MirrorHistogram', [
+        'top'         => $divorceAgeMRows,
+        'bottom'      => $divorceAgeFRows,
+        'topLabel'    => I18N::translate('Men'),
+        'bottomLabel' => I18N::translate('Women'),
+    ]),
+]); ?>
 
     <?php /* The STRUCTURE section (known ancestors, pedigree
               completeness, max generation depth, generation depth
