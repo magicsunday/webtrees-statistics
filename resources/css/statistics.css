@@ -1713,7 +1713,11 @@
 }
 
 .wt-statistics-chart .wt-stat-scale-label {
-    margin:         0 0 12px;
+    /* Bottom margin tall enough that the marker number (sitting
+       20 px above the track) doesn't overlap the label glyphs.
+       12 px collided with the mono chip on the Generation-length
+       card; 24 px clears any value-position. */
+    margin:         0 0 24px;
     font-family:    var(--sans);
     font-size:      10px;
     font-weight:    500;
