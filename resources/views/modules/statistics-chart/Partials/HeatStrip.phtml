@@ -22,6 +22,15 @@ use Fisharebest\Webtrees\I18N;
  *
  * @var array<int, array{label: string, value: int, total: int}> $rows
  */
+
+// I18N::number($x, 1) strips a trailing ".0" — percentages land
+// as "51%" next to "13.5%" and the column reads ragged. Probe
+// the locale's decimal separator once via a fractional sample,
+// then force every row through `%.1f` and swap the separator so
+// every cell renders "x,d%" / "x.d%" with identical column
+// width.
+$localeDecimalSample    = I18N::number(1.5, 1);
+$localeDecimalSeparator = (strpos($localeDecimalSample, ',') !== false) ? ',' : '.';
 ?>
 <div class="wt-stat-heatstrip">
     <?php foreach ($rows as $row) { ?>
@@ -30,6 +39,7 @@ use Fisharebest\Webtrees\I18N;
         $total      = max(1, (int) $row['total']);
         $pct        = ($missing / $total) * 100;
         $pctClamped = max(0.0, min(100.0, $pct));
+        $pctLabel   = str_replace('.', $localeDecimalSeparator, sprintf('%.1f', $pct));
         ?>
         <div class="wt-stat-heatstrip-row">
             <div class="wt-stat-heatstrip-label"><?php echo e((string) $row['label']); ?></div>
@@ -41,7 +51,7 @@ use Fisharebest\Webtrees\I18N;
                 <span class="wt-stat-heatstrip-missing wt-stat-mono"><?php echo e(I18N::number($missing)); ?></span>
                 <span class="wt-stat-heatstrip-slash">/</span>
                 <span class="wt-stat-heatstrip-total wt-stat-mono"><?php echo e(I18N::number($total)); ?></span>
-                <span class="wt-stat-heatstrip-pct wt-stat-mono"><?php echo e(I18N::number($pct, 1)); ?>%</span>
+                <span class="wt-stat-heatstrip-pct wt-stat-mono"><?php echo e($pctLabel); ?>%</span>
             </div>
         </div>
     <?php } ?>
