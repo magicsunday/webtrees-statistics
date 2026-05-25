@@ -152,12 +152,16 @@ $endogamyExplanation = I18N::translate(
         'centered'     => true,
         'showFooter'   => true,
         'bodyRenderer' => static function () use ($module, $generation): void {
-            $hasData      = $generation !== null;
-            $generationInt = $hasData ? (int) round($generation) : 0;
+            $hasData          = $generation !== null;
+            $generationRound  = $hasData ? round($generation, 1) : 0.0;
 
             echo view($module . '::modules/statistics-chart/Partials/Scalar', [
+                // One decimal place so the user reads the actual
+                // measurement instead of a rounded integer — "31,8"
+                // instead of "32" makes it clear when a tree sits
+                // just below the typical band.
                 'value' => $hasData
-                    ? I18N::number($generationInt)
+                    ? I18N::number($generationRound, 1)
                     : I18N::translate('no data'),
                 'unit'    => $hasData ? I18N::translate('years') : null,
                 'caption' => $hasData
@@ -173,7 +177,7 @@ $endogamyExplanation = I18N::translate(
                         'label'   => I18N::translate('Typical range'),
                         'min'     => 20.0,
                         'max'     => 40.0,
-                        'current' => $generationInt,
+                        'current' => $generationRound,
                         'ticks'   => ['20', '25', '30', '35', I18N::translate('40 yr')],
                     ]
                     : null,
