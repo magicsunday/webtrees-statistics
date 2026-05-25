@@ -1137,8 +1137,13 @@
 }
 
 .wt-statistics-chart .wt-stat-gauge-host {
+    /* viewBox is 200×124 — cap the rendered width at 200 px so the
+       value text sits at its native 56 px font-size and stays in
+       the upper half of the arc. Above 200 the SVG scales up via
+       preserveAspectRatio, blowing the text size + pushing it
+       toward the arc baseline. */
     width:     100%;
-    max-width: 240px;
+    max-width: 200px;
 }
 
 .wt-statistics-chart svg.wt-stat-gauge {
