@@ -1071,11 +1071,25 @@
 
 /* Narrow viewports collapse the horizontal donut+legend layout to
    stacked, mirroring the mockup's `@media` rule. */
-@media (max-width: 720px) {
+@media (max-width: 760px) {
     .wt-statistics-chart .wt-stat-donut {
         grid-template-columns: 1fr;
         justify-items:         center;
         text-align:            center;
+    }
+
+    /* Once the donut + legend collapse into a single column, the
+       default `width: 100%` makes the legend rows stretch the
+       full card width and leaves a fat gap between the label and
+       the value column. Hugging the row to its own content keeps
+       label, value and percent on top of each other vertically
+       (legend container becomes as wide as its widest row,
+       capped at the card width via `max-width: 100%`). Mirrors
+       the existing rule on the donut-v variant where the legend
+       sat below the donut from the start. */
+    .wt-statistics-chart .wt-stat-donut .wt-stat-legend {
+        width:     max-content;
+        max-width: 100%;
     }
 }
 
@@ -1401,16 +1415,36 @@
         padding: 0 12px;
     }
 
+    /* Switch the six-tab strip to two-row wrap below 760 px —
+       even at 414 px the labels overflow the available room
+       (webtrees-core's `.studio-surface` already eats ~35 px on
+       each side), and a horizontal-scroll affordance on a small
+       screen is easy to miss. Wrapping keeps every tab reachable
+       in a single sweep of the eyes. */
+    .wt-statistics-chart .wt-stat-nav-tabs.nav.nav-tabs {
+        flex-wrap:  wrap;
+        overflow-x: visible;
+        gap:        4px;
+    }
+
+    .wt-statistics-chart .wt-stat-nav-tabs > .nav-item {
+        flex: 1 1 auto;
+    }
+
     /* Matches the Bootstrap-anchored base selector
        `.wt-stat-nav-btn.nav-link` so the mobile padding override
        wins the cascade — the base rule includes the `.nav-link`
        class, which would otherwise out-specify a plain
        `.wt-stat-nav-btn` selector. */
     .wt-statistics-chart .wt-stat-nav-btn.nav-link {
-        padding:   14px 12px;
-        font-size: 12px;
+        padding:         12px 10px;
+        font-size:       12px;
+        justify-content: center;
+        text-align:      center;
+        width:           100%;
     }
 }
+
 
 /* ----------------------------------------------------------------------
    Card layout primitives
@@ -2597,7 +2631,7 @@
     align-items:           start;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 760px) {
     .wt-statistics-chart .wt-stat-places-panel.is-active {
         grid-template-columns: 1fr;
     }
