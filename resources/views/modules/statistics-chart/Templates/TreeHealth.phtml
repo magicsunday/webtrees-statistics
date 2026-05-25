@@ -152,8 +152,8 @@ $endogamyExplanation = I18N::translate(
         'centered'     => true,
         'showFooter'   => true,
         'bodyRenderer' => static function () use ($module, $generation): void {
-            $hasData          = $generation !== null;
-            $generationRound  = $hasData ? round($generation, 1) : 0.0;
+            $hasData         = $generation !== null;
+            $generationRound = $hasData ? round($generation, 1) : 0.0;
 
             echo view($module . '::modules/statistics-chart/Partials/Scalar', [
                 // One decimal place so the user reads the actual

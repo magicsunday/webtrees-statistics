@@ -152,9 +152,11 @@ final readonly class TreeHealthRepository
         foreach ($famsLinks as $link) {
             $individualId = RowCast::string($link, 'individual');
             $familyId     = RowCast::string($link, 'family');
+
             if ($individualId === '') {
                 continue;
             }
+
             if ($familyId === '') {
                 continue;
             }
@@ -190,6 +192,7 @@ final readonly class TreeHealthRepository
 
             if (!$anyHasMarr) {
                 ++$spousesMissingMarrEvent;
+
                 // "MARR place" is only meaningful when MARR exists.
                 // Spouses without MARR at all aren't counted as
                 // "missing place" — the event-missing row already

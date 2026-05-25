@@ -98,7 +98,7 @@ $titleText = I18N::translateContext('hero title', 'Statistics');
     </div>
 
     <svg class="wt-stat-hero-ornament" viewBox="0 0 600 600" aria-hidden="true" focusable="false">
-        <?php // 24 concentric circles, each one tier fainter — fades from 0.5 → ≈0.16. ?>
+        <?php // 24 concentric circles, each one tier fainter — fades from 0.5 → ≈0.16.?>
         <?php for ($i = 0; $i < 24; ++$i) { ?>
             <circle cx="300" cy="300"
                     r="<?php echo 20 + ($i * 12); ?>"
@@ -107,7 +107,7 @@ $titleText = I18N::translateContext('hero title', 'Statistics');
                     stroke-width="0.5"
                     opacity="<?php echo number_format(0.5 - ($i * 0.015), 3, '.', ''); ?>"></circle>
         <?php } ?>
-        <?php // 12 radial sun-rays at uniform 30° spacing. ?>
+        <?php // 12 radial sun-rays at uniform 30° spacing.?>
         <?php for ($i = 0; $i < 12; ++$i) {
             $angle = ($i / 12) * 2 * M_PI;
             ?>

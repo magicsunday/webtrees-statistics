@@ -21,9 +21,9 @@ use Fisharebest\Webtrees\I18N;
  * Server-side renders all three panels eagerly so the swap is purely
  * a class-toggle on the client — no AJAX round-trip per view.
  *
- * @var string $module                 Module slug (passed through to sub-partials)
+ * @var string                                                                                                                                                                              $module                 Module slug (passed through to sub-partials)
  * @var array<int, array{view:string,label:string,accent:string,total:int,list:array<string,int>,raw:array<int, array<string,int|string|float>>,progressClass:string,mapIdentifier:string}> $views
- *                                    Pre-built view descriptors, rendered in supplied order; first one is the default.
+ *                                                                                                                                                                                          Pre-built view descriptors, rendered in supplied order; first one is the default.
  */
 $activeView = $views[0]['view'] ?? '';
 ?>

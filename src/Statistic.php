@@ -158,11 +158,11 @@ final readonly class Statistic
         // decade integers (1490, 1500, …). Decade-from / decade-to feed
         // the hero eyebrow as a "1490s – 2020s" tag, and the rounded
         // delta drives the spelled-out "over X centuries" deck copy.
-        $decades       = $this->getBirthsByDecade();
-        $decadeKeys    = array_keys($decades);
-        $decadeFrom    = ($decadeKeys !== []) ? min($decadeKeys) : null;
-        $decadeTo      = ($decadeKeys !== []) ? max($decadeKeys) : null;
-        $centurySpan   = ($decadeFrom !== null && $decadeTo !== null)
+        $decades     = $this->getBirthsByDecade();
+        $decadeKeys  = array_keys($decades);
+        $decadeFrom  = ($decadeKeys !== []) ? min($decadeKeys) : null;
+        $decadeTo    = ($decadeKeys !== []) ? max($decadeKeys) : null;
+        $centurySpan = ($decadeFrom !== null && $decadeTo !== null)
             ? max(1, (int) ceil(($decadeTo + 9 - $decadeFrom) / 100))
             : 0;
 

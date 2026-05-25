@@ -16,12 +16,12 @@ declare(strict_types=1);
  * a marker at the value's position, mirroring design2's `gs-scale`
  * block.
  *
- * @var string      $value     Pre-formatted primary value (e.g. "28 years")
- * @var string      $caption   Short caption shown beneath the value
- * @var string|null $unit      Optional unit appended to the value (kept null when the value is already formatted)
+ * @var string                                                                                       $value     Pre-formatted primary value (e.g. "28 years")
+ * @var string                                                                                       $caption   Short caption shown beneath the value
+ * @var string|null                                                                                  $unit      Optional unit appended to the value (kept null when the value is already formatted)
  * @var array{label: string, min: float, max: float, current: float, ticks: array<int, string>}|null $scale
- *                             Optional scale block — label above the track, current marker positioned by `current`
- *                             relative to [min, max], tick labels rendered evenly under the track.
+ *                                                                                                   Optional scale block — label above the track, current marker positioned by `current`
+ *                                                                                                   relative to [min, max], tick labels rendered evenly under the track.
  */
 $unit  ??= null;
 $scale ??= null;
