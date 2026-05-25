@@ -150,14 +150,31 @@ $endogamyExplanation = I18N::translate(
         'span'         => 4,
         'centered'     => true,
         'bodyRenderer' => static function () use ($module, $generation): void {
+            $hasData      = $generation !== null;
+            $generationInt = $hasData ? (int) round($generation) : 0;
+
             echo view($module . '::modules/statistics-chart/Partials/Scalar', [
-                'value' => ($generation !== null)
-                    ? I18N::number((int) round($generation))
+                'value' => $hasData
+                    ? I18N::number($generationInt)
                     : I18N::translate('no data'),
-                'unit'    => ($generation !== null) ? I18N::translate('years') : null,
-                'caption' => ($generation !== null)
+                'unit'    => $hasData ? I18N::translate('years') : null,
+                'caption' => $hasData
                     ? I18N::translate('Averaged across every parent-child pair with parseable birth dates.')
                     : I18N::translate('At least one parent-child pair with parseable birth dates is required.'),
+                // Scale-track 20-40 years matches the design2 reference
+                // (typical range for human reproductive generations).
+                // The marker collapses into the rail when the value sits
+                // outside the displayed band — the per-tree value is
+                // still shown in full above the track.
+                'scale' => $hasData
+                    ? [
+                        'label'   => I18N::translate('Typical range'),
+                        'min'     => 20.0,
+                        'max'     => 40.0,
+                        'current' => $generationInt,
+                        'ticks'   => ['20', '25', '30', '35', I18N::translate('40 yr')],
+                    ]
+                    : null,
             ]);
         },
     ]); ?>
