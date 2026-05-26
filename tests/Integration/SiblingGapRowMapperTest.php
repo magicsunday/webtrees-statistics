@@ -11,12 +11,12 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
-use MagicSunday\Webtrees\Statistic\Support\SiblingGapRowMapper;
+use MagicSunday\Webtrees\Statistic\Support\Aggregator\SiblingGapRowMapper;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
- * Verifies the bucket-label-to-AreaDensity-row conversion behind
- * the Family-tab sibling-age-gap density chart. The mapper has to
+ * Verifies the bucket-label-to-LineChart-payload conversion behind
+ * the Family-tab sibling-age-gap line chart. The mapper has to
  * survive any `SIBLING_GAP_MAX` value the repository ships, so the
  * tests deliberately mix labels with different overflow caps.
  *

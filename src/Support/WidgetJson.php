@@ -14,6 +14,7 @@ namespace MagicSunday\Webtrees\Statistic\Support;
 use JsonException;
 use JsonSerializable;
 
+use function e;
 use function json_encode;
 
 use const JSON_INVALID_UTF8_SUBSTITUTE;
@@ -44,10 +45,14 @@ final readonly class WidgetJson
     }
 
     /**
-     * Encode `$value` for embedding in a chart-widget `data-*`
-     * attribute. Throws on encoding failure; substitutes malformed
-     * UTF-8 with U+FFFD. Accepts either a raw `array` (widget
-     * options) or a `JsonSerializable` DTO (widget payload).
+     * Encode `$value` to the raw JSON string. Throws on encoding
+     * failure; substitutes malformed UTF-8 with U+FFFD. Accepts
+     * either a raw `array` (widget options) or a `JsonSerializable`
+     * DTO (widget payload).
+     *
+     * Most callers want {@see encodeAttribute()} which additionally
+     * HTML-escapes the result for direct embedding in a `data-*`
+     * attribute.
      *
      * @param array<array-key, mixed>|JsonSerializable $value
      *
@@ -56,5 +61,21 @@ final readonly class WidgetJson
     public static function encode(array|JsonSerializable $value): string
     {
         return json_encode($value, JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE);
+    }
+
+    /**
+     * Encode `$value` to the HTML-attribute-safe JSON string used by
+     * the chart-widget `data-payload` / `data-options` attributes.
+     * Combines {@see encode()} with webtrees' `e()` helper so widget
+     * partials read as a single call instead of the more error-
+     * prone `e(WidgetJson::encode(...))` nesting at every site.
+     *
+     * @param array<array-key, mixed>|JsonSerializable $value
+     *
+     * @throws JsonException
+     */
+    public static function encodeAttribute(array|JsonSerializable $value): string
+    {
+        return e(self::encode($value));
     }
 }

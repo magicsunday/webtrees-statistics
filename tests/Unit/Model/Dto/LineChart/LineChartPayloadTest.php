@@ -17,7 +17,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Verifies the {@see LineChartPayload::singleSeries()} factory used
- * by every Templates/*.phtml LineChart card. Each test pins one
+ * by every tabs/*.phtml LineChart card. Each test pins one
  * documented branch: empty-map → empty series, integer-keyed map,
  * string-keyed map, float counts, and the positional alignment of
  * the projector return keys against the four parallel arrays.

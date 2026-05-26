@@ -1,0 +1,134 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+namespace MagicSunday\Webtrees\Statistic\Support\Aggregator;
+
+use Fisharebest\Webtrees\I18N;
+use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
+
+/**
+ * Folds a `[century => count]` map into the row shape the chart-lib
+ * `BarChart` widget consumes — `[label, value, tooltipLabel,
+ * tooltip]`. Every tab that renders a `births`-, `deaths`-,
+ * `weddings`- or `divorces`-by-century histogram runs the same loop
+ * with the only difference being the noun pluralised in the tooltip
+ * footer. Named factory methods keep the `I18N::plural(...)` calls
+ * literal for xgettext.
+ *
+ * @author  Rico Sonntag <mail@ricosonntag.de>
+ * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
+ * @link    https://github.com/magicsunday/webtrees-statistics/
+ */
+final readonly class CenturyBarRowMapper
+{
+    /**
+     * Static-only utility; not constructible.
+     */
+    private function __construct()
+    {
+    }
+
+    /**
+     * Century-histogram rows for a births distribution. `tooltip`
+     * pluralises "birth / births".
+     *
+     * @param array<int|string, int> $byCentury Century → count map
+     *
+     * @return list<array{label: string, value: int, tooltipLabel: string, tooltip: string}>
+     */
+    public static function births(array $byCentury): array
+    {
+        $rows = [];
+
+        foreach ($byCentury as $century => $count) {
+            $rows[] = [
+                'label'        => (string) $century,
+                'value'        => $count,
+                'tooltipLabel' => CenturyName::longLabel((string) $century),
+                'tooltip'      => I18N::plural('%s birth', '%s births', $count, I18N::number($count)),
+            ];
+        }
+
+        return $rows;
+    }
+
+    /**
+     * Century-histogram rows for a deaths distribution. `tooltip`
+     * pluralises "death / deaths".
+     *
+     * @param array<int|string, int> $byCentury
+     *
+     * @return list<array{label: string, value: int, tooltipLabel: string, tooltip: string}>
+     */
+    public static function deaths(array $byCentury): array
+    {
+        $rows = [];
+
+        foreach ($byCentury as $century => $count) {
+            $rows[] = [
+                'label'        => (string) $century,
+                'value'        => $count,
+                'tooltipLabel' => CenturyName::longLabel((string) $century),
+                'tooltip'      => I18N::plural('%s death', '%s deaths', $count, I18N::number($count)),
+            ];
+        }
+
+        return $rows;
+    }
+
+    /**
+     * Century-histogram rows for a marriages distribution. `tooltip`
+     * pluralises "marriage / marriages".
+     *
+     * @param array<int|string, int> $byCentury
+     *
+     * @return list<array{label: string, value: int, tooltipLabel: string, tooltip: string}>
+     */
+    public static function marriages(array $byCentury): array
+    {
+        $rows = [];
+
+        foreach ($byCentury as $century => $count) {
+            $rows[] = [
+                'label'        => (string) $century,
+                'value'        => $count,
+                'tooltipLabel' => CenturyName::longLabel((string) $century),
+                'tooltip'      => I18N::plural('%s marriage', '%s marriages', $count, I18N::number($count)),
+            ];
+        }
+
+        return $rows;
+    }
+
+    /**
+     * Century-histogram rows for a divorces distribution. `tooltip`
+     * pluralises "divorce / divorces".
+     *
+     * @param array<int|string, int> $byCentury
+     *
+     * @return list<array{label: string, value: int, tooltipLabel: string, tooltip: string}>
+     */
+    public static function divorces(array $byCentury): array
+    {
+        $rows = [];
+
+        foreach ($byCentury as $century => $count) {
+            $rows[] = [
+                'label'        => (string) $century,
+                'value'        => $count,
+                'tooltipLabel' => CenturyName::longLabel((string) $century),
+                'tooltip'      => I18N::plural('%s divorce', '%s divorces', $count, I18N::number($count)),
+            ];
+        }
+
+        return $rows;
+    }
+}
