@@ -78,6 +78,12 @@ jobs:
                 run: |
                     composer ci:test:js:format
 
+            # TODO(js-typecheck): re-enable once the ~55 outstanding
+            # TS / JSDoc errors in resources/js/modules/index.js are
+            # resolved. `composer ci:test:js:typecheck` runs locally
+            # but is not gated in CI yet to avoid breaking the
+            # release pipeline.
+
             -   id: phpstan
                 name: PHPStan
                 if: ${{ always() && steps.install.conclusion == 'success' }}
@@ -113,3 +119,14 @@ jobs:
                 if: ${{ always() && steps.install.conclusion == 'success' }}
                 run: |
                     composer ci:cgl -- --dry-run
+
+            # Runs LAST: 'make dist' invokes 'composer install --no-dev'
+            # which strips dev packages (php-cs-fixer, phpstan, ...) from
+            # .build/vendor. Any later composer-driven step would fail.
+            -   id: dist-smoke
+                name: Release zip smoke test
+                if: ${{ success() }}
+                run: |
+                    make dist
+                    make dist-smoke
+                    rm -f *.zip
