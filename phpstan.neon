@@ -24,6 +24,18 @@ parameters:
     excludePaths:
         - %currentWorkingDirectory%/.build/
 
+    # JetBrains' PHP stub for ext-calendar still spells gregoriantojd
+    # as PascalCase (`GregorianToJD`), while the official PHP manual
+    # at https://www.php.net/manual/en/function.gregoriantojd.php has
+    # been canonical lowercase for years. PHPStan inherits the stale
+    # PascalCase from the stub and raises `function.nameCase` for
+    # every call that uses the manual-canonical lowercase form.
+    # Suppress just this one mismatch until JetBrains fixes the stub.
+    ignoreErrors:
+        -
+            identifier: function.nameCase
+            path: src/Repository/LifeSpanRepository.php
+
     phpat:
         show_rule_names: true
 

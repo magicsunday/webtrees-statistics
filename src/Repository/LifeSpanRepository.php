@@ -35,7 +35,7 @@ use function array_fill_keys;
 use function array_key_last;
 use function array_map;
 use function getdate;
-use function GregorianToJD;
+use function gregoriantojd;
 use function intdiv;
 use function is_numeric;
 use function ksort;
@@ -302,7 +302,7 @@ final readonly class LifeSpanRepository
         // — the query has no DEAT date to compute age from, so we
         // derive age from today minus BIRT julianday ourselves.
         $today          = getdate();
-        $todayJulianDay = GregorianToJD($today['mon'], $today['mday'], $today['year']);
+        $todayJulianDay = gregoriantojd($today['mon'], $today['mday'], $today['year']);
         $out            = [];
 
         foreach ($this->data->topTenOldestAliveQuery('ALL', $limit) as $individual) {
@@ -371,7 +371,7 @@ final readonly class LifeSpanRepository
     public function oldestLivingRecord(): ?IndividualAgeRecord
     {
         $today          = getdate();
-        $todayJulianDay = GregorianToJD($today['mon'], $today['mday'], $today['year']);
+        $todayJulianDay = gregoriantojd($today['mon'], $today['mday'], $today['year']);
         $maxAge         = $this->maxPlausibleAge();
 
         // Same walk-until-plausible loop as oldestDeceasedRecord —
