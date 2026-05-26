@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 use Fisharebest\Webtrees\I18N;
 use MagicSunday\Webtrees\Statistic\Statistic;
+use MagicSunday\Webtrees\Statistic\Support\EmptyStatePlaceholder;
+use MagicSunday\Webtrees\Statistic\Support\HistogramBucketAggregator;
 
 /**
  * @var string    $module    The name of the module
@@ -32,15 +34,31 @@ $totalAncestorsRows   = array_sum($ancestorDistribution);
 // ProgressList to BarChart to match. tooltipLabel + tooltipBody are
 // pre-built with literal I18N::plural calls so xgettext picks the
 // strings up.
+//
+// Trees with very deep descent chains (royal / mythical-genealogy
+// trees) produce 50+ depth buckets. Collapse adjacent depths into
+// power-of-five bands ("0–4", "5–9", …) when the raw bucket count
+// would not fit the card width without overlapping x-axis ticks.
+// `compressByFives` is a no-op for trees that already fit the cap.
+$generationDepthDistribution = HistogramBucketAggregator::compressByFives(
+    $generationDepth->distribution,
+    HistogramBucketAggregator::DEFAULT_MAX_BARS,
+);
 $generationDepthBars = [];
 
-foreach ($generationDepth->distribution as $gen => $count) {
+foreach ($generationDepthDistribution as $bandLabel => $count) {
+    // PHP auto-casts numeric-string array keys to int — `$bandLabel`
+    // comes back as int when the helper returned plain depth labels
+    // ("0", "1", …) and as string for the compressed bands ("0–4").
+    $bandLabel             = (string) $bandLabel;
     $bucketCount           = (int) $count;
     $generationDepthBars[] = [
-        'label'        => (string) $gen,
+        'label'        => $bandLabel,
         'value'        => $bucketCount,
-        'tooltipLabel' => I18N::plural('%s generation deep', '%s generations deep', (int) $gen, I18N::number((int) $gen)),
-        'tooltip'      => I18N::plural('%s individual', '%s individuals', $bucketCount, I18N::number($bucketCount)),
+        'tooltipLabel' => str_contains($bandLabel, '–')
+            ? I18N::translate('%s generations', $bandLabel)
+            : I18N::plural('%s generation deep', '%s generations deep', (int) $bandLabel, I18N::number((int) $bandLabel)),
+        'tooltip' => I18N::plural('%s individual', '%s individuals', $bucketCount, I18N::number($bucketCount)),
     ];
 }
 
@@ -152,35 +170,29 @@ $endogamyExplanation = I18N::translate(
         'centered'     => true,
         'showFooter'   => true,
         'bodyRenderer' => static function () use ($module, $generation): void {
-            $hasData         = $generation !== null;
-            $generationRound = $hasData ? round($generation, 1) : 0.0;
+            if ($generation === null) {
+                echo EmptyStatePlaceholder::render();
+
+                return;
+            }
+
+            $generationRound = round($generation, 1);
 
             echo view($module . '::modules/statistics-chart/Partials/Scalar', [
                 // One decimal place so the user reads the actual
                 // measurement instead of a rounded integer — "31,8"
                 // instead of "32" makes it clear when a tree sits
                 // just below the typical band.
-                'value' => $hasData
-                    ? I18N::number($generationRound, 1)
-                    : I18N::translate('no data'),
-                'unit'    => $hasData ? I18N::translate('years') : null,
-                'caption' => $hasData
-                    ? I18N::translate('Averaged across every parent-child pair with parseable birth dates.')
-                    : I18N::translate('At least one parent-child pair with parseable birth dates is required.'),
-                // Scale-track 20-40 years matches the design2 reference
-                // (typical range for human reproductive generations).
-                // The marker collapses into the rail when the value sits
-                // outside the displayed band — the per-tree value is
-                // still shown in full above the track.
-                'scale' => $hasData
-                    ? [
-                        'label'   => I18N::translate('Typical range'),
-                        'min'     => 20.0,
-                        'max'     => 40.0,
-                        'current' => $generationRound,
-                        'ticks'   => ['20', '25', '30', '35', I18N::translate('40 yr')],
-                    ]
-                    : null,
+                'value'   => I18N::number($generationRound, 1),
+                'unit'    => I18N::translate('years'),
+                'caption' => I18N::translate('Averaged across every parent-child pair with parseable birth dates.'),
+                'scale'   => [
+                    'label'   => I18N::translate('Typical range'),
+                    'min'     => 20.0,
+                    'max'     => 40.0,
+                    'current' => $generationRound,
+                    'ticks'   => ['20', '25', '30', '35', I18N::translate('40 yr')],
+                ],
             ]);
         },
     ]); ?>
@@ -224,7 +236,7 @@ $endogamyExplanation = I18N::translate(
             'value'   => I18N::number($generationDepth->maxDepth),
             'unit'    => I18N::translate('generations'),
             'caption' => $generationDepth->capped
-                ? I18N::translate('Walk reached the safety cap (40 generations) — check the tree for cyclic FAMC/FAMS edits.')
+                ? I18N::translate('Walk reached the safety cap (100 generations) — check the tree for cyclic FAMC/FAMS edits.')
                 : I18N::translate('Each step is one parent–child link upward.'),
         ]),
     ]); ?>
@@ -260,18 +272,24 @@ $endogamyExplanation = I18N::translate(
         ]),
     ]); ?>
 
-    <?php if ($endogamy !== null) { ?>
-        <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
-            'module'       => $module,
-            'title'        => I18N::translate('Endogamy rate'),
-            'sub'          => I18N::translate('Share of marriages within 4 generations'),
-            'eyebrow'      => I18N::translate('Kinship'),
-            'accent'       => 'var(--wine)',
-            'illustration' => 'knot',
-            'info'         => $endogamyExplanation,
-            'span'         => 4,
-            'centered'     => true,
-            'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/Scalar', [
+    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+        'module'       => $module,
+        'title'        => I18N::translate('Endogamy rate'),
+        'sub'          => I18N::translate('Share of marriages within 4 generations'),
+        'eyebrow'      => I18N::translate('Kinship'),
+        'accent'       => 'var(--wine)',
+        'illustration' => 'knot',
+        'info'         => $endogamyExplanation,
+        'span'         => 4,
+        'centered'     => true,
+        'bodyRenderer' => static function () use ($module, $endogamy): void {
+            if ($endogamy === null) {
+                echo EmptyStatePlaceholder::render();
+
+                return;
+            }
+
+            echo view($module . '::modules/statistics-chart/Partials/Scalar', [
                 'value'   => I18N::number($endogamy->rate, 1),
                 'unit'    => '%',
                 'caption' => I18N::plural(
@@ -281,8 +299,8 @@ $endogamyExplanation = I18N::translate(
                     I18N::number($endogamy->endogamous),
                     I18N::number($endogamy->total),
                 ),
-            ]),
-        ]); ?>
-    <?php } ?>
+            ]);
+        },
+    ]); ?>
 
 </div>

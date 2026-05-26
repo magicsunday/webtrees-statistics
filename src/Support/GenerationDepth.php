@@ -40,13 +40,13 @@ use function sort;
 final readonly class GenerationDepth
 {
     /**
-     * Cap on the downward walk. Deep nobility-style trees can
-     * legitimately trace 30+ generations of recorded descendants
-     * from a medieval root; the cap stays well above that band
-     * so the guard only fires on cyclic FAMC/FAMS edits, not on
-     * real long descent lines.
+     * Cap on the downward walk. Set deliberately high — the only
+     * real purpose is to guarantee the walk terminates on a
+     * cyclic FAMC/FAMS edit, not to bound legitimate long
+     * descent lines (which can run very deep on royal /
+     * mythical-genealogy trees that trace back to antiquity).
      */
-    public const int MAX_DEPTH = 40;
+    public const int MAX_DEPTH = 100;
 
     /**
      * Prevent instantiation — static-only utility.
