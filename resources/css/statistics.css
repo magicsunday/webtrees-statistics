@@ -777,6 +777,20 @@
     justify-content: flex-start;
 }
 
+/* chart-lib's `renderEmptyState()` appends a bare
+   `<div class="chart-empty-state">…</div>` whenever a widget receives
+   an empty / all-zero dataset. Style it to match the PHTML-level
+   `<p class="text-muted text-center mb-0">` placeholder so a server-
+   rendered empty card and a client-rendered empty card look the same. */
+.wt-statistics-chart .chart-empty-state {
+    margin:      0;
+    padding:     0;
+    text-align:  center;
+    font-family: var(--sans);
+    font-size:   14px;
+    color:       var(--ink-3);
+}
+
 /* Card footer — every card carries one, even when no info button is
    rendered. The dashed separator gives every card a consistent
    bottom rhythm regardless of whether the card opted in to the
@@ -948,9 +962,21 @@
 
 .wt-statistics-chart .wt-stat-hbar-row {
     display:               grid;
-    grid-template-columns: auto 1fr 2fr auto;
+    /* Two-row grid:
+         row 1: rank + label + value (label gets the full 1fr,
+                so long country names like "Vereinigtes
+                Königreich" sit on one line without ellipsis)
+         row 2: the track spans the full row width.
+       The previous `auto 1fr 2fr auto` ran rank/label/track/
+       value side-by-side, which squeezed the label down to a
+       few characters and broke labels longer than the column. */
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas:
+        "rank label value"
+        "track track track";
+    column-gap:            14px;
+    row-gap:               4px;
     align-items:           center;
-    gap:                   14px;
     padding:               8px 0;
     border-bottom:         1px solid var(--border-soft);
     font-size:             13px;
@@ -961,20 +987,24 @@
 }
 
 .wt-statistics-chart .wt-stat-hbar-rank {
+    grid-area: rank;
     width:     18px;
     font-size: 10px;
     color:     var(--ink-3);
 }
 
 .wt-statistics-chart .wt-stat-hbar-label {
+    grid-area:     label;
     color:         var(--ink);
     min-width:     0;
-    overflow:      hidden;
-    text-overflow: ellipsis;
-    white-space:   nowrap;
+    /* Long names like "Vereinigtes Königreich" stay on one
+       line — the label now owns the full row-1 width and only
+       wraps to a second line if even that isn't enough. */
+    overflow-wrap: anywhere;
 }
 
 .wt-statistics-chart .wt-stat-hbar-track {
+    grid-area:     track;
     height:        6px;
     background:    var(--border-soft);
     border-radius: 3px;
@@ -988,6 +1018,7 @@
 }
 
 .wt-statistics-chart .wt-stat-hbar-val {
+    grid-area:  value;
     font-size:  13px;
     text-align: right;
     color:      var(--ink);
@@ -1744,19 +1775,6 @@
     --bs-progress-label-gradient-end:   var(--slate);
 }
 
-.wt-statistics-chart .wt-records-table th {
-    width:        14rem;
-    font-weight:  600;
-    color:        var(--ink-2);
-}
-
-.wt-statistics-chart .wt-records-table td:nth-child(2) {
-    width:        8rem;
-    white-space:  nowrap;
-    text-align:   right;
-    font-variant: tabular-nums;
-}
-
 .wt-statistics-chart .wt-generation-chain-list {
     display:          flex;
     flex-wrap:        wrap;
@@ -2481,15 +2499,6 @@
 
 .wt-statistics-chart svg.wt-line-chart .x-axis .tick line {
     stroke: var(--border);
-}
-
-/* ----------------------------------------------------------------------
-   Surname tag-cloud
-   -------------------------------------------------------------------- */
-
-.wt-statistics-chart .wt-surnames-tag-cloud span.tag:hover {
-    text-decoration: underline;
-    cursor:          pointer;
 }
 
 /* ----------------------------------------------------------------------

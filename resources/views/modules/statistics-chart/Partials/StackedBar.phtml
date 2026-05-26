@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 use Fisharebest\Webtrees\I18N;
 use MagicSunday\Webtrees\Statistic\Model\Dto\StackedBar\StackedBarPayload;
+use MagicSunday\Webtrees\Statistic\Support\EmptyStatePlaceholder;
 use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
 
 /**
@@ -22,6 +23,28 @@ use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
  * @var string|null       $ariaLabel  Accessible label on the host svg
  */
 $height ??= 280;
+
+// Treat an empty / all-zero payload as no data — categories empty,
+// or every value in every series is zero. Avoids rendering an axis
+// with twelve invisible stacks on a tree where the metric never
+// fired.
+$seriesEmpty = static function () use ($data): bool {
+    foreach ($data->series as $series) {
+        foreach ($series->data as $value) {
+            if ($value > 0) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+};
+
+if (($data->categories === []) || $seriesEmpty()) {
+    echo EmptyStatePlaceholder::render();
+
+    return;
+}
 
 // chart-lib stacked-bar reads `options.i18n.totalInCategoryPattern`
 // to localise the tooltip's per-category footer. Curly-brace {count}
@@ -43,6 +66,6 @@ $stackedBarI18n = [
              'ariaLabel'  => $ariaLabel ?? null,
              'i18n'       => $stackedBarI18n,
          ])); ?>"
-         data-empty-message="<?php echo e(I18N::translate('No data recorded for this metric.')); ?>"
+         data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"
     ></div>
 </div>

@@ -9,7 +9,7 @@ declare(strict_types=1);
  * LICENSE file that was distributed with this source code.
  */
 
-use Fisharebest\Webtrees\I18N;
+use MagicSunday\Webtrees\Statistic\Support\EmptyStatePlaceholder;
 use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
 
 /**
@@ -21,6 +21,12 @@ use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
  */
 $leftCap  ??= null;
 $rightCap ??= null;
+
+if (($data === []) || (array_sum(array_map(static fn (array $row): int => abs($row['value']), $data)) <= 0)) {
+    echo EmptyStatePlaceholder::render();
+
+    return;
+}
 ?>
 <div class="wt-diverging-bar-container">
     <div id="<?php echo e($identifier); ?>"
@@ -30,7 +36,7 @@ $rightCap ??= null;
          data-options="<?php echo e(WidgetJson::encode([
              'ariaLabel' => $ariaLabel ?? null,
          ])); ?>"
-         data-empty-message="<?php echo e(I18N::translate('No data recorded for this metric.')); ?>"
+         data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"
     ></div>
     <?php if (($leftCap !== null && $leftCap !== '') || ($rightCap !== null && $rightCap !== '')) { ?>
         <div class="wt-stat-diverging-cap" aria-hidden="true">

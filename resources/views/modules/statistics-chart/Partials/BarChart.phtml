@@ -9,7 +9,7 @@ declare(strict_types=1);
  * LICENSE file that was distributed with this source code.
  */
 
-use Fisharebest\Webtrees\I18N;
+use MagicSunday\Webtrees\Statistic\Support\EmptyStatePlaceholder;
 use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
 
 /**
@@ -23,6 +23,17 @@ use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
 $height      ??= 240;
 $orientation ??= 'vertical';
 $brush       ??= false;
+
+// Treat an all-zero payload as empty — callers regularly pre-build
+// every band with `value => 0` (e.g. distinct-places-per-individual
+// buckets, divorce-by-decade groups) and the chart-lib widget would
+// otherwise render a row of invisible bars instead of the standard
+// placeholder.
+if (($data === []) || (array_sum(array_column($data, 'value')) <= 0)) {
+    echo EmptyStatePlaceholder::render();
+
+    return;
+}
 ?>
 <div class="wt-bar-chart-container">
     <div id="<?php echo e($identifier); ?>"
@@ -35,6 +46,6 @@ $brush       ??= false;
              'brush'       => $brush,
              'ariaLabel'   => $ariaLabel ?? null,
          ])); ?>"
-         data-empty-message="<?php echo e(I18N::translate('No data recorded for this metric.')); ?>"
+         data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"
     ></div>
 </div>

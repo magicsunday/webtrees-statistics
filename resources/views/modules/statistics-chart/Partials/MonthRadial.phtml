@@ -10,6 +10,7 @@ declare(strict_types=1);
  */
 
 use Fisharebest\Webtrees\I18N;
+use MagicSunday\Webtrees\Statistic\Support\EmptyStatePlaceholder;
 use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
 
 /**
@@ -21,8 +22,12 @@ use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
  * @var string                   $accent      CSS color literal for slice fill
  * @var string|null              $centerLabel Caption shown under the peak value
  */
-if ($data === []) {
-    echo '<p class="text-muted text-center mb-0">' . e(I18N::translate('No data recorded for this metric.')) . '</p>';
+// An all-zero `month → 0` payload also counts as empty — core's
+// `countEventsByMonth` can return the twelve months stubbed at
+// 0 even when no events landed, and the clockface would
+// otherwise render with twelve invisible slices.
+if (($data === []) || (array_sum($data) <= 0)) {
+    echo EmptyStatePlaceholder::render();
 
     return;
 }
@@ -41,4 +46,5 @@ $options = [
 <div class="wt-stat-radial-host"
      data-widget="month-radial"
      data-payload="<?php echo e(WidgetJson::encode($payload)); ?>"
-     data-options="<?php echo e(WidgetJson::encode($options)); ?>"></div>
+     data-options="<?php echo e(WidgetJson::encode($options)); ?>"
+     data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"></div>

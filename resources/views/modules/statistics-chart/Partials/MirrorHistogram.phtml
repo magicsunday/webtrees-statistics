@@ -9,7 +9,7 @@ declare(strict_types=1);
  * LICENSE file distributed with this source code.
  */
 
-use Fisharebest\Webtrees\I18N;
+use MagicSunday\Webtrees\Statistic\Support\EmptyStatePlaceholder;
 use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
 
 /**
@@ -28,8 +28,14 @@ use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
  * @var string                                                                                          $topLabel    Caption rendered on the top axis
  * @var string                                                                                          $bottomLabel Caption rendered on the bottom axis
  */
-if ($top === [] && $bottom === []) {
-    echo '<p class="text-muted text-center mb-0">' . e(I18N::translate('No data recorded for this metric.')) . '</p>';
+// Callers can hand us pre-built band lists with every value at 0
+// (e.g. divorces-by-age-band on a tree without divorces). Treat
+// an all-zero histogram as empty so the placeholder shows
+// instead of an axis with twelve invisible bars.
+$rowSum = static fn (array $rows): int|float => array_sum(array_column($rows, 'value'));
+
+if ((($top === []) || ($rowSum($top) <= 0)) && (($bottom === []) || ($rowSum($bottom) <= 0))) {
+    echo EmptyStatePlaceholder::render();
 
     return;
 }
@@ -43,4 +49,5 @@ $options = [
 <div class="wt-stat-mirror-host"
      data-widget="mirror-histogram"
      data-payload="<?php echo e(WidgetJson::encode($payload)); ?>"
-     data-options="<?php echo e(WidgetJson::encode($options)); ?>"></div>
+     data-options="<?php echo e(WidgetJson::encode($options)); ?>"
+     data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"></div>

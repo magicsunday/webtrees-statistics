@@ -106,24 +106,20 @@ $surnameMarriageMatrixExplanation = I18N::translate(
         },
     ]); ?>
 
-    <?php if ($surnameMarriageMatrix->labels !== []) { ?>
-        <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
-            'module'       => $module,
-            'title'        => I18N::translate('Surname × surname marriage matrix'),
-            'sub'          => I18N::translate('Chord diagram: arcs = surnames, ribbons = marriages between them, loops = endogamy'),
-            'eyebrow'      => I18N::translate('Alliances'),
-            'accent'       => 'var(--wine)',
-            'illustration' => 'knot',
-            'info'         => $surnameMarriageMatrixExplanation,
-            'span'         => 12,
-            'bodyRenderer' => static function () use ($module, $surnameMarriageMatrix): void {
-                echo view($module . '::modules/statistics-chart/Partials/ChordDiagram', [
-                    'identifier' => 'surname-marriage-chord',
-                    'data'       => $surnameMarriageMatrix,
-                    'ariaLabel'  => I18N::translate('Surname × surname marriage matrix'),
-                ]);
-            },
-        ]); ?>
-    <?php } ?>
+    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+        'module'       => $module,
+        'title'        => I18N::translate('Surname × surname marriage matrix'),
+        'sub'          => I18N::translate('Chord diagram: arcs = surnames, ribbons = marriages between them, loops = endogamy'),
+        'eyebrow'      => I18N::translate('Alliances'),
+        'accent'       => 'var(--wine)',
+        'illustration' => 'knot',
+        'info'         => $surnameMarriageMatrixExplanation,
+        'span'         => 12,
+        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/ChordDiagram', [
+            'identifier' => 'surname-marriage-chord',
+            'data'       => $surnameMarriageMatrix,
+            'ariaLabel'  => I18N::translate('Surname × surname marriage matrix'),
+        ]),
+    ]); ?>
 
 </div>

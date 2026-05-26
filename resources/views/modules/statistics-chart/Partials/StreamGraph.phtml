@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 use Fisharebest\Webtrees\I18N;
 use MagicSunday\Webtrees\Statistic\Model\Dto\StreamGraph\GivenNameTrendsPayload;
+use MagicSunday\Webtrees\Statistic\Support\EmptyStatePlaceholder;
 use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
 
 /**
@@ -19,6 +20,15 @@ use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
  * @var int|null               $height     Optional viewport height (defaults to 320)
  */
 $height ??= 320;
+
+// Stream graphs need at least two decades on the x-axis to draw a
+// meaningful flow — a single column collapses into a vertical hair
+// and renders as a blank card with one axis tick.
+if ((count($data->decades) < 2) || ($data->names === []) || ($data->series === [])) {
+    echo EmptyStatePlaceholder::render();
+
+    return;
+}
 
 // chart-lib stream-graph reads `options.i18n` for the locale-
 // dependent strings it would otherwise render in English. Curly-
@@ -46,6 +56,6 @@ $streamGraphI18n = [
          data-widget="stream-graph"
          data-payload="<?php echo e(WidgetJson::encode($data)); ?>"
          data-options="<?php echo e(WidgetJson::encode(['height' => $height, 'i18n' => $streamGraphI18n])); ?>"
-         data-empty-message="<?php echo e(I18N::translate('No data recorded for this metric.')); ?>"
+         data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"
     ></div>
 </div>

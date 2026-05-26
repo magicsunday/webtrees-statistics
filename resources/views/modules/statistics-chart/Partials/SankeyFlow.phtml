@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 use Fisharebest\Webtrees\I18N;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\MigrationFlowsPayload;
+use MagicSunday\Webtrees\Statistic\Support\EmptyStatePlaceholder;
 use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
 
 /**
@@ -19,6 +20,12 @@ use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
  * @var int|null              $height     Optional viewport height (defaults to 360)
  */
 $height ??= 360;
+
+if (($data->nodes === []) || ($data->links === [])) {
+    echo EmptyStatePlaceholder::render();
+
+    return;
+}
 
 // chart-lib sankey-flow reads `options.i18n.totalSingular / totalPlural`
 // to localise the per-link tooltip count ("3 individuals" → "3 Personen").
@@ -35,6 +42,6 @@ $sankeyI18n = [
          data-widget="sankey-flow"
          data-payload="<?php echo e(WidgetJson::encode($data)); ?>"
          data-options="<?php echo e(WidgetJson::encode(['height' => $height, 'i18n' => $sankeyI18n])); ?>"
-         data-empty-message="<?php echo e(I18N::translate('No country-to-country movements recorded yet.')); ?>"
+         data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"
     ></div>
 </div>

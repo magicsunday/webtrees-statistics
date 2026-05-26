@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 use Fisharebest\Webtrees\I18N;
 use MagicSunday\Webtrees\Statistic\Statistic;
+use MagicSunday\Webtrees\Statistic\Support\EmptyStatePlaceholder;
 
 /**
  * @var string    $module    The name of the module
@@ -165,24 +166,30 @@ $placesPanel = static function (string $title, string $progressClass, string $ma
         'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/SankeyFlow', ['identifier' => 'migration-sankey', 'data' => $migrationFlows]),
     ]); ?>
 
-    <?php if ($placeDispersion->sampled > 0) { ?>
-        <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
-            'kicker' => I18N::translate('Mobility'),
-            'title'  => I18N::translate('How far they roamed'),
-            'sub'    => I18N::translate('Number of distinct places per individual — sedentary vs. migrating populations'),
-        ]); ?>
+    <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
+        'kicker' => I18N::translate('Mobility'),
+        'title'  => I18N::translate('How far they roamed'),
+        'sub'    => I18N::translate('Number of distinct places per individual — sedentary vs. migrating populations'),
+    ]); ?>
 
-        <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
-            'module'       => $module,
-            'title'        => I18N::translate('Geographic dispersion'),
-            'sub'          => I18N::translate('Average distinct places per individual'),
-            'eyebrow'      => I18N::translate('Mobility'),
-            'accent'       => 'var(--sage)',
-            'illustration' => 'globe',
-            'info'         => $placeDispersionExplanation,
-            'span'         => 5,
-            'centered'     => true,
-            'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/Scalar', [
+    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+        'module'       => $module,
+        'title'        => I18N::translate('Geographic dispersion'),
+        'sub'          => I18N::translate('Average distinct places per individual'),
+        'eyebrow'      => I18N::translate('Mobility'),
+        'accent'       => 'var(--sage)',
+        'illustration' => 'globe',
+        'info'         => $placeDispersionExplanation,
+        'span'         => 5,
+        'centered'     => true,
+        'bodyRenderer' => static function () use ($module, $placeDispersion, $dispersionInterpretation): void {
+            if ($placeDispersion->sampled <= 0) {
+                echo EmptyStatePlaceholder::render();
+
+                return;
+            }
+
+            echo view($module . '::modules/statistics-chart/Partials/Scalar', [
                 'value'   => I18N::number($placeDispersion->average, 2),
                 'unit'    => I18N::translate('places'),
                 'caption' => I18N::plural(
@@ -191,23 +198,23 @@ $placesPanel = static function (string $title, string $progressClass, string $ma
                     $placeDispersion->sampled,
                     I18N::number($placeDispersion->sampled),
                 ) . ' ' . $dispersionInterpretation,
-            ]),
-        ]); ?>
+            ]);
+        },
+    ]); ?>
 
-        <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
-            'module'       => $module,
-            'title'        => I18N::translate('Distinct places per individual'),
-            'sub'          => I18N::translate('Distribution in buckets'),
-            'eyebrow'      => I18N::translate('Mobility'),
-            'accent'       => 'var(--slate)',
-            'illustration' => 'globe',
-            'span'         => 7,
-            'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/BarChart', [
-                'identifier' => 'place-dispersion-bars',
-                'data'       => $placeDispersionBars,
-                'ariaLabel'  => I18N::translate('Distinct places per individual'),
-            ]),
-        ]); ?>
-    <?php } ?>
+    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+        'module'       => $module,
+        'title'        => I18N::translate('Distinct places per individual'),
+        'sub'          => I18N::translate('Distribution in buckets'),
+        'eyebrow'      => I18N::translate('Mobility'),
+        'accent'       => 'var(--slate)',
+        'illustration' => 'globe',
+        'span'         => 7,
+        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/BarChart', [
+            'identifier' => 'place-dispersion-bars',
+            'data'       => $placeDispersionBars,
+            'ariaLabel'  => I18N::translate('Distinct places per individual'),
+        ]),
+    ]); ?>
 
 </div>

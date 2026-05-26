@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 use Fisharebest\Webtrees\I18N;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Chord\ChordMatrixPayload;
+use MagicSunday\Webtrees\Statistic\Support\EmptyStatePlaceholder;
 use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
 
 /**
@@ -20,6 +21,12 @@ use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
  * @var string|null        $ariaLabel  Accessible label on the host svg
  */
 $height ??= 600;
+
+if ($data->labels === []) {
+    echo EmptyStatePlaceholder::render();
+
+    return;
+}
 
 // chart-lib chord-diagram reads `options.i18n.tooltipValueSingular`
 // and `tooltipValuePlural` for the ribbon-hover tooltip body. Curly-
@@ -42,6 +49,6 @@ $chordI18n ??= [
              'ariaLabel' => $ariaLabel ?? null,
              'i18n'      => $chordI18n,
          ])); ?>"
-         data-empty-message="<?php echo e(I18N::translate('No data recorded for this metric.')); ?>"
+         data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"
     ></div>
 </div>

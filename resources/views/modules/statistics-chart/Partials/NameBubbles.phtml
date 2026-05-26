@@ -9,7 +9,7 @@ declare(strict_types=1);
  * LICENSE file distributed with this source code.
  */
 
-use Fisharebest\Webtrees\I18N;
+use MagicSunday\Webtrees\Statistic\Support\EmptyStatePlaceholder;
 use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
 
 /**
@@ -29,7 +29,7 @@ foreach ($data as $row) {
 }
 
 if ($payload === []) {
-    echo '<p class="text-muted text-center mb-0">' . e(I18N::translate('No names recorded yet.')) . '</p>';
+    echo EmptyStatePlaceholder::render();
 
     return;
 }
@@ -39,4 +39,5 @@ $options = ['accent' => (string) $accent];
 <div class="wt-stat-bubble-host"
      data-widget="name-bubbles"
      data-payload="<?php echo e(WidgetJson::encode($payload)); ?>"
-     data-options="<?php echo e(WidgetJson::encode($options)); ?>"></div>
+     data-options="<?php echo e(WidgetJson::encode($options)); ?>"
+     data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"></div>

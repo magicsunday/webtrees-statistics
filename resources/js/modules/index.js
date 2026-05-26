@@ -156,6 +156,20 @@ export function renderWidgets(root) {
 
         const data = parseJsonAttribute(node.dataset.payload, null);
         const options = parseJsonAttribute(node.dataset.options, {});
+
+        // The chart partials emit the translated empty-state copy as
+        // a `data-empty-message` attribute alongside the widget
+        // marker. Hoist it into options so widgets pick up the
+        // localised string instead of the built-in English fallback
+        // ("No data available").
+        if (
+            typeof node.dataset.emptyMessage === "string" &&
+            node.dataset.emptyMessage !== "" &&
+            options.emptyMessage === undefined
+        ) {
+            options.emptyMessage = node.dataset.emptyMessage;
+        }
+
         const instance = widget(node, data, options);
 
         // Async widgets (world-map) return a Promise instead of the

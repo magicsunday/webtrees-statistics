@@ -13,6 +13,7 @@ use Fisharebest\Webtrees\I18N;
 use MagicSunday\Webtrees\Statistic\Model\Dto\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Statistic;
 use MagicSunday\Webtrees\Statistic\Support\CenturyName;
+use MagicSunday\Webtrees\Statistic\Support\EmptyStatePlaceholder;
 
 /**
  * @var string    $module    The name of the module
@@ -114,7 +115,7 @@ $childMortalityExplanation = I18N::translate(
 $childMortalityPeak = null;
 
 foreach ($childMortalityByCentury as $entry) {
-    if ($childMortalityPeak === null || (float) $entry['rate'] > (float) $childMortalityPeak['rate']) {
+    if (($childMortalityPeak === null) || ((float) $entry['rate'] > (float) $childMortalityPeak['rate'])) {
         $childMortalityPeak = $entry;
     }
 }
@@ -203,25 +204,21 @@ foreach ($deathsByCentury as $century => $count) {
         },
     ]); ?>
 
-    <?php if ($lifespanBySexCentury->categories !== []) { ?>
-        <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
-            'module'       => $module,
-            'title'        => I18N::translate('Average lifespan by sex × century'),
-            'sub'          => I18N::translate('Age at death per birth century, split by sex'),
-            'eyebrow'      => I18N::translate('Timeline'),
-            'accent'       => 'var(--ochre)',
-            'illustration' => 'hourglass',
-            'span'         => 12,
-            'bodyRenderer' => static function () use ($module, $lifespanBySexCentury): void {
-                echo view($module . '::modules/statistics-chart/Partials/LineChart', [
-                    'identifier' => 'lifespan-by-sex-century',
-                    'data'       => $lifespanBySexCentury,
-                    'height'     => 280,
-                    'ariaLabel'  => I18N::translate('Average lifespan by sex and century'),
-                ]);
-            },
-        ]); ?>
-    <?php } ?>
+    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+        'module'       => $module,
+        'title'        => I18N::translate('Average lifespan by sex × century'),
+        'sub'          => I18N::translate('Age at death per birth century, split by sex'),
+        'eyebrow'      => I18N::translate('Timeline'),
+        'accent'       => 'var(--ochre)',
+        'illustration' => 'hourglass',
+        'span'         => 12,
+        'bodyHtml'     => view($module . '::modules/statistics-chart/Partials/LineChart', [
+            'identifier' => 'lifespan-by-sex-century',
+            'data'       => $lifespanBySexCentury,
+            'height'     => 280,
+            'ariaLabel'  => I18N::translate('Average lifespan by sex and century'),
+        ]),
+    ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
         'module'       => $module,
@@ -279,52 +276,58 @@ foreach ($deathsByCentury as $century => $count) {
         },
     ]); ?>
 
-    <?php if ($childMortality !== null) { ?>
-        <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
-            'module'       => $module,
-            'title'        => I18N::translate('Child mortality (under 5)'),
-            'sub'          => I18N::translate('Mortality rate per birth century'),
-            'eyebrow'      => I18N::translate('Mortality'),
-            'accent'       => 'var(--wine)',
-            'illustration' => 'child',
-            'info'         => $childMortalityExplanation,
-            'span'         => 8,
-            'bodyRenderer' => static function () use ($module, $childMortalityPayload): void {
-                if ($childMortalityPayload->categories !== []) {
-                    echo view($module . '::modules/statistics-chart/Partials/LineChart', [
-                        'identifier' => 'child-mortality-century-line',
-                        'data'       => $childMortalityPayload,
-                    ]);
-                } else {
-                    echo '<p class="text-muted text-center mb-0">' . I18N::translate('No birth century has enough recorded children to plot a reliable rate.') . '</p>';
-                }
-            },
-        ]); ?>
+    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+        'module'       => $module,
+        'title'        => I18N::translate('Child mortality (under 5)'),
+        'sub'          => I18N::translate('Mortality rate per birth century'),
+        'eyebrow'      => I18N::translate('Mortality'),
+        'accent'       => 'var(--wine)',
+        'illustration' => 'child',
+        'info'         => $childMortalityExplanation,
+        'span'         => 8,
+        'bodyRenderer' => static function () use ($module, $childMortality, $childMortalityPayload): void {
+            if (($childMortality === null) || ($childMortalityPayload->categories === [])) {
+                echo EmptyStatePlaceholder::render();
 
-        <?php if ($childMortalityPeak !== null) { ?>
-            <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
-                'module'       => $module,
-                'title'        => I18N::translate('Peak value'),
-                'sub'          => I18N::translate('Child mortality %s century', CenturyName::for((int) $childMortalityPeak['century'])),
-                'eyebrow'      => I18N::translate('Extreme'),
-                'accent'       => 'var(--wine)',
-                'illustration' => 'candle',
-                'span'         => 4,
-                'centered'     => true,
-                'bodyRenderer' => static function () use ($module, $childMortalityPeak): void {
-                    echo view($module . '::modules/statistics-chart/Partials/Scalar', [
-                        'value'   => I18N::number((float) $childMortalityPeak['rate'], 1),
-                        'unit'    => '%',
-                        'caption' => I18N::translate(
-                            '%1$s of %2$s children died before age 5 — the darkest cohort in the tree.',
-                            I18N::number((int) $childMortalityPeak['died']),
-                            I18N::number((int) $childMortalityPeak['total']),
-                        ),
-                    ]);
-                },
-            ]); ?>
-        <?php } ?>
-    <?php } ?>
+                return;
+            }
+
+            echo view($module . '::modules/statistics-chart/Partials/LineChart', [
+                'identifier' => 'child-mortality-century-line',
+                'data'       => $childMortalityPayload,
+            ]);
+        },
+    ]); ?>
+
+    <?php echo view($module . '::modules/statistics-chart/Partials/Card', [
+        'module' => $module,
+        'title'  => I18N::translate('Peak value'),
+        'sub'    => $childMortalityPeak !== null
+            ? I18N::translate('Child mortality %s century', CenturyName::for((int) $childMortalityPeak['century']))
+            : null,
+        'eyebrow'      => I18N::translate('Extreme'),
+        'accent'       => 'var(--wine)',
+        'illustration' => 'candle',
+        'span'         => 4,
+        'centered'     => true,
+        'bodyRenderer' => static function () use ($module, $childMortalityPeak): void {
+            if ($childMortalityPeak === null) {
+                echo EmptyStatePlaceholder::render();
+
+                return;
+            }
+
+            echo view($module . '::modules/statistics-chart/Partials/Scalar', [
+                'value'   => I18N::number((float) $childMortalityPeak['rate'], 1),
+                'unit'    => '%',
+                'caption' => I18N::translate(
+                    '%1$s of %2$s children died before age 5 — the darkest cohort in the tree.',
+                    I18N::number((int) $childMortalityPeak['died']),
+                    I18N::number((int) $childMortalityPeak['total']),
+                ),
+            ]);
+        },
+    ]); ?>
 
     <?php echo view($module . '::modules/statistics-chart/Partials/Section', [
         'kicker' => I18N::translate('Births'),
@@ -475,11 +478,7 @@ foreach ($deathsByCentury as $century => $count) {
                     'caption' => $caption,
                 ]);
             } else {
-                echo view($module . '::modules/statistics-chart/Partials/Scalar', [
-                    'value'   => I18N::translate('no data'),
-                    'unit'    => null,
-                    'caption' => I18N::translate('At least 12 dated deaths are required for a meaningful score.'),
-                ]);
+                echo EmptyStatePlaceholder::render();
             }
         },
     ]); ?>

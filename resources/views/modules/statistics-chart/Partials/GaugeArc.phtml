@@ -9,6 +9,7 @@ declare(strict_types=1);
  * LICENSE file distributed with this source code.
  */
 
+use MagicSunday\Webtrees\Statistic\Support\EmptyStatePlaceholder;
 use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
 
 /**
@@ -36,7 +37,8 @@ $caption ??= null;
     <div class="wt-stat-gauge-host"
          data-widget="gauge-arc"
          data-payload="<?php echo e(WidgetJson::encode($payload)); ?>"
-         data-options="<?php echo e(WidgetJson::encode($options)); ?>"></div>
+         data-options="<?php echo e(WidgetJson::encode($options)); ?>"
+         data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"></div>
     <?php if ($label !== null && $label !== '') { ?>
         <div class="wt-stat-gauge-label"><?php echo e((string) $label); ?></div>
     <?php } ?>

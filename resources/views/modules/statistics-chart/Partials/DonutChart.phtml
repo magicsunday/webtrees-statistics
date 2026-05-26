@@ -10,6 +10,7 @@
 declare(strict_types=1);
 
 use Fisharebest\Webtrees\I18N;
+use MagicSunday\Webtrees\Statistic\Support\EmptyStatePlaceholder;
 use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
 
 /**
@@ -19,14 +20,14 @@ use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
  * @var string|null                                                                 $emptyMessage   Optional override for the "no data" placeholder
  * @var string|null                                                                 $legendPosition "right" (default) places the legend next to the donut; "bottom" stacks it underneath
  */
-$emptyMessage   ??= I18N::translate('No data recorded for this metric.');
+$emptyMessage   ??= EmptyStatePlaceholder::defaultMessage();
 $centerLabel    ??= null;
 $legendPosition ??= 'right';
 
 $total = array_sum(array_column($data, 'value'));
 
 if ($total === 0) {
-    echo '<p class="text-muted text-center mb-0">' . e($emptyMessage) . '</p>';
+    echo EmptyStatePlaceholder::render($emptyMessage);
 
     return;
 }
@@ -48,6 +49,7 @@ if ($centerLabel !== null && $centerLabel !== '') {
          data-widget="donut"
          data-payload="<?php echo e(WidgetJson::encode($data)); ?>"
          data-options="<?php echo e(WidgetJson::encode($options)); ?>"
+         data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"
     ></div>
 
     <div class="wt-stat-legend">

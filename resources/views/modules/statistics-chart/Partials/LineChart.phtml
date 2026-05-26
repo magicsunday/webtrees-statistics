@@ -9,20 +9,35 @@ declare(strict_types=1);
  * LICENSE file that was distributed with this source code.
  */
 
-use Fisharebest\Webtrees\I18N;
 use MagicSunday\Webtrees\Statistic\Model\Dto\LineChart\LineChartPayload;
+use MagicSunday\Webtrees\Statistic\Support\EmptyStatePlaceholder;
 use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
 
 /**
- * @var string           $identifier  Host element id
- * @var LineChartPayload $data        Chart payload: x-axis labels + N series
- * @var int|null         $height      Optional viewport height (defaults to 240)
- * @var int|null         $xLabelEvery Show every Nth x-axis label (default 1)
- * @var bool|null        $showArea    Default true for single-series, ignored otherwise
- * @var string|null      $ariaLabel   Accessible label on the host svg
+ * @var string                                                                        $identifier  Host element id
+ * @var LineChartPayload|array{categories?: list<string>, series?: array<int, mixed>} $data        Chart payload: x-axis labels + N series. Accepts either the value-object or its raw-array form (latter used by call-sites that build the payload inline).
+ * @var int|null                                                                      $height      Optional viewport height (defaults to 240)
+ * @var int|null                                                                      $xLabelEvery Show every Nth x-axis label (default 1)
+ * @var bool|null                                                                     $showArea    Default true for single-series, ignored otherwise
+ * @var string|null                                                                   $ariaLabel   Accessible label on the host svg
  */
 $height      ??= 240;
 $xLabelEvery ??= 1;
+
+// Some call-sites pass a `LineChartPayload` value object, others
+// hand in a plain `['categories' => [...], 'series' => [...]]`
+// array — accept both shapes when checking for emptiness. An
+// all-zero series is intentionally NOT treated as empty: a flat
+// 0-line ("no divorces across every recorded cohort") is the
+// signal the card exists to communicate.
+$dataAsArray = is_object($data) ? get_object_vars($data) : $data;
+$categories  = $dataAsArray['categories'] ?? [];
+
+if ($categories === []) {
+    echo EmptyStatePlaceholder::render();
+
+    return;
+}
 ?>
 <div class="wt-line-chart-container">
     <div id="<?php echo e($identifier); ?>"
@@ -35,6 +50,6 @@ $xLabelEvery ??= 1;
              'showArea'    => $showArea ?? null,
              'ariaLabel'   => $ariaLabel ?? null,
          ])); ?>"
-         data-empty-message="<?php echo e(I18N::translate('No data recorded for this metric.')); ?>"
+         data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"
     ></div>
 </div>
