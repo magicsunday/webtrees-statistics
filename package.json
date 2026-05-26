@@ -27,11 +27,11 @@
         "typecheck": "tsc --noEmit -p jsconfig.json"
     },
     "dependencies": {
-        "@magicsunday/webtrees-chart-lib": "github:magicsunday/webtrees-chart-lib#v1.6.0",
+        "@magicsunday/webtrees-chart-lib": "github:magicsunday/webtrees-chart-lib#1.7.0",
         "d3-array": "^3.2",
         "d3-axis": "^3.0",
-        "d3-fetch": "^3.0",
         "d3-ease": "^3.0",
+        "d3-fetch": "^3.0",
         "d3-geo": "^3.1",
         "d3-interpolate": "^3.0",
         "d3-sankey": "^0.12.3",
@@ -57,6 +57,7 @@
         "jest-environment-jsdom": "^30.0",
         "jscpd": "^4.2.2",
         "rollup": "^4.0",
+        "rollup-plugin-license": "^3.7.1",
         "typescript": "^6.0.3"
     }
 }

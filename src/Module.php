@@ -172,7 +172,7 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
                 'title'      => $this->title(),
                 'tree'       => $tree,
                 'hero'       => $statistic->getHeroStats(),
-                'javascript' => $this->assetUrl('js/webtrees-statistics.min.js'),
+                'javascript' => $this->assetUrl('js/statistics-' . self::CUSTOM_VERSION . '.min.js'),
                 'stylesheet' => $this->assetUrl('css/statistics.css'),
                 'fontUrls'   => [
                     'instrumentSerifRegularLatin'    => $this->assetUrl('fonts/InstrumentSerif-Regular-latin.woff2'),

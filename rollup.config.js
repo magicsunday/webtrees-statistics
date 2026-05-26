@@ -1,19 +1,31 @@
-import resolve from '@rollup/plugin-node-resolve';
+import pkg from "./package.json" with {type: "json"};
+import resolve from "@rollup/plugin-node-resolve";
 import terser from "@rollup/plugin-terser";
+import license from "rollup-plugin-license";
 
 export default [
-    // statistics.js
+    // statistics.js (UMD for window.WebtreesStatistic global consumed by the
+    // Bootstrap tab-show callback in page.phtml)
     {
         input: "resources/js/modules/index.js",
         output: [
             {
                 name: "WebtreesStatistic",
-                file: "resources/js/webtrees-statistics.js",
+                file: "resources/js/statistics-" + pkg.version + ".js",
                 format: "umd"
             }
         ],
         plugins: [
-            resolve()
+            resolve(),
+            license({
+                banner: `
+This file is part of the package magicsunday/<%= pkg.name %>.
+
+For the full copyright and license information, please read the
+LICENSE file that was distributed with this source code.
+
+Version: <%= pkg.version %>`
+            })
         ]
     },
     {
@@ -21,7 +33,7 @@ export default [
         output: [
             {
                 name: "WebtreesStatistic",
-                file: "resources/js/webtrees-statistics.min.js",
+                file: "resources/js/statistics-" + pkg.version + ".min.js",
                 format: "umd"
             }
         ],
@@ -34,6 +46,15 @@ export default [
                 output: {
                     comments: false
                 }
+            }),
+            license({
+                banner: `
+This file is part of the package magicsunday/<%= pkg.name %>.
+
+For the full copyright and license information, please read the
+LICENSE file that was distributed with this source code.
+
+Version: <%= pkg.version %>`
             })
         ]
     }
