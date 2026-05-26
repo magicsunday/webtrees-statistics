@@ -79,12 +79,6 @@ class StackedBar {
 class DivergingBar {
     draw() {}
 }
-class AreaDensity {
-    draw() {}
-}
-class BoxPlot {
-    draw() {}
-}
 class ChordDiagram {
     draw() {}
 }
@@ -110,8 +104,6 @@ jest.unstable_mockModule("@magicsunday/webtrees-chart-lib", () => ({
     BarChart,
     StackedBar,
     DivergingBar,
-    AreaDensity,
-    BoxPlot,
     ChordDiagram,
     MonthRadial,
     NameBubbles,

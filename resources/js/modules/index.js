@@ -9,9 +9,7 @@ import { json } from "d3-fetch";
 import { geoMercator } from "d3-geo";
 
 import {
-    AreaDensity,
     BarChart,
-    BoxPlot,
     ChordDiagram,
     DivergingBar,
     DonutChart,
@@ -119,8 +117,6 @@ const WIDGETS = {
     "bar-chart": fromChartLib(BarChart),
     "stacked-bar": fromChartLib(StackedBar),
     "diverging-bar": fromChartLib(DivergingBar),
-    "area-density": fromChartLib(AreaDensity),
-    "box-plot": fromChartLib(BoxPlot),
     "chord-diagram": fromChartLib(ChordDiagram),
     "name-bubbles": fromChartLib(NameBubbles),
     "month-radial": fromChartLib(MonthRadial),
