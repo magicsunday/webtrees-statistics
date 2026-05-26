@@ -15,7 +15,7 @@ body:
     attributes:
       label: Description of the problem
       description: Describe what happened and how the error manifests itself.
-      placeholder: "After opening the Births tab the page shows a blank area instead of the charts."
+      placeholder: "After opening the Life span tab the page shows a blank area instead of the charts."
     validations:
       required: true
 
@@ -24,7 +24,7 @@ body:
     attributes:
       label: Expected behavior
       description: Explain what you expected to happen.
-      placeholder: "The tab should render donuts and progress lists for births by month, zodiac sign and century."
+      placeholder: "The tab should render the age-at-death histogram, the living life-stage donut and the lifespan-by-century line chart."
     validations:
       required: true
 
@@ -35,7 +35,7 @@ body:
       description: List all steps necessary to reproduce the error.
       placeholder: |
         1. Open the Statistics chart for any tree
-        2. Click on the "Births" tab
+        2. Click on the "Life span" tab
         3. Observe the blank area
     validations:
       required: true
