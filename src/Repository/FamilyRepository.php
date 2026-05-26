@@ -18,7 +18,7 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Model\FamilyRow;
 use MagicSunday\Webtrees\Statistic\Model\MaritalBucket;
-use MagicSunday\Webtrees\Statistic\Support\GedcomScanner;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 
 use function array_key_exists;
 use function array_unique;

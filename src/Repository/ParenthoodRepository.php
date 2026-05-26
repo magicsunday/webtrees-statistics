@@ -17,12 +17,12 @@ use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Record\IndividualAgeRecord;
 use MagicSunday\Webtrees\Statistic\Sex;
-use MagicSunday\Webtrees\Statistic\Support\AgeBuckets;
-use MagicSunday\Webtrees\Statistic\Support\AgePairExtremum;
-use MagicSunday\Webtrees\Statistic\Support\DateJoin;
-use MagicSunday\Webtrees\Statistic\Support\IndividualAgeRecordResolver;
-use MagicSunday\Webtrees\Statistic\Support\RowCast;
-use MagicSunday\Webtrees\Statistic\Support\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Calc\AgeBuckets;
+use MagicSunday\Webtrees\Statistic\Support\Calc\AgePairExtremum;
+use MagicSunday\Webtrees\Statistic\Support\Calc\IndividualAgeRecordResolver;
+use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
+use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 
 use function intdiv;
 

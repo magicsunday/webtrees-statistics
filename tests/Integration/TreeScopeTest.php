@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use InvalidArgumentException;
-use MagicSunday\Webtrees\Statistic\Support\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use PHPUnit\Framework\Attributes\Test;
 
 /**

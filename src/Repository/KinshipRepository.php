@@ -12,8 +12,8 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
-use MagicSunday\Webtrees\Statistic\Support\RowCast;
-use MagicSunday\Webtrees\Statistic\Support\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 
 use function array_fill_keys;
 use function array_keys;

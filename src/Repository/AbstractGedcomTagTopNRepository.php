@@ -12,8 +12,8 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
-use MagicSunday\Webtrees\Statistic\Support\TopNAggregator;
-use MagicSunday\Webtrees\Statistic\Support\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Aggregator\TopNAggregator;
+use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 
 use function array_slice;
 use function count;

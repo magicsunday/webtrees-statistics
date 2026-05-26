@@ -14,7 +14,7 @@ namespace MagicSunday\Webtrees\Statistic\Test;
 use MagicSunday\Webtrees\Statistic\Model\FamilyRow;
 use MagicSunday\Webtrees\Statistic\Model\MaritalBucket;
 use MagicSunday\Webtrees\Statistic\Repository\FamilyRepository;
-use MagicSunday\Webtrees\Statistic\Support\GedcomScanner;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

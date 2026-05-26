@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
-use MagicSunday\Webtrees\Statistic\Support\GedcomScanner;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 
 /**
  * Top-N aggregation over the religion / confession affiliations

@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
-use MagicSunday\Webtrees\Statistic\Support\IndividualAgeRecordResolver;
+use MagicSunday\Webtrees\Statistic\Support\Calc\IndividualAgeRecordResolver;
 use PHPUnit\Framework\Attributes\Test;
 
 /**

@@ -16,8 +16,8 @@ use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Model\Dto\StreamGraph\GivenNameTrendsPayload;
-use MagicSunday\Webtrees\Statistic\Support\GedcomScanner;
-use MagicSunday\Webtrees\Statistic\Support\RowCast;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 
 use function array_keys;
 use function array_slice;

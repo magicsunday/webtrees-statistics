@@ -17,9 +17,9 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\RateCount;
-use MagicSunday\Webtrees\Statistic\Support\GedcomScanner;
-use MagicSunday\Webtrees\Statistic\Support\RowCast;
-use MagicSunday\Webtrees\Statistic\Support\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 
 use function array_sum;
 use function count;

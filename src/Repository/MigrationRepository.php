@@ -15,9 +15,9 @@ use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\MigrationFlowsPayload;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\SankeyLink;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\SankeySample;
-use MagicSunday\Webtrees\Statistic\Support\GedcomScanner;
-use MagicSunday\Webtrees\Statistic\Support\RowCast;
-use MagicSunday\Webtrees\Statistic\Support\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 
 use function array_slice;
 use function count;

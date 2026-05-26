@@ -26,10 +26,10 @@ use MagicSunday\Webtrees\Statistic\Model\Dto\Record\FamilyCountRecord;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Record\IndividualCountRecord;
 use MagicSunday\Webtrees\Statistic\Model\Dto\StackedBar\StackedBarPayload;
 use MagicSunday\Webtrees\Statistic\Model\Dto\StackedBar\StackedBarSeries;
-use MagicSunday\Webtrees\Statistic\Support\CenturyName;
-use MagicSunday\Webtrees\Statistic\Support\DateJoin;
-use MagicSunday\Webtrees\Statistic\Support\RowCast;
-use MagicSunday\Webtrees\Statistic\Support\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
+use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
+use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
 
 use function array_combine;
 use function array_fill_keys;

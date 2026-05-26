@@ -13,10 +13,10 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Query\JoinClause;
-use MagicSunday\Webtrees\Statistic\Support\GedcomScanner;
-use MagicSunday\Webtrees\Statistic\Support\IsoCountryMap;
-use MagicSunday\Webtrees\Statistic\Support\RowCast;
-use MagicSunday\Webtrees\Statistic\Support\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
+use MagicSunday\Webtrees\Statistic\Support\Locale\IsoCountryMap;
 
 use function arsort;
 use function str_ends_with;

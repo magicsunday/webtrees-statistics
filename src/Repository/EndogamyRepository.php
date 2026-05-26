@@ -13,8 +13,8 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\EndogamyRate;
-use MagicSunday\Webtrees\Statistic\Support\Endogamy;
-use MagicSunday\Webtrees\Statistic\Support\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Calc\Endogamy;
+use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 
 use function is_string;
 use function round;

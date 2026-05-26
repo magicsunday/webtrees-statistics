@@ -13,9 +13,9 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\ChildMortalitySummary;
-use MagicSunday\Webtrees\Statistic\Support\BirthDeathPairsQuery;
-use MagicSunday\Webtrees\Statistic\Support\CenturyName;
-use MagicSunday\Webtrees\Statistic\Support\RowCast;
+use MagicSunday\Webtrees\Statistic\Support\Database\BirthDeathPairsQuery;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
+use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
 
 use function ksort;
 use function round;

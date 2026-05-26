@@ -16,7 +16,7 @@ use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Chord\ChordMatrixPayload;
-use MagicSunday\Webtrees\Statistic\Support\RowCast;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 
 use function array_flip;
 use function array_keys;

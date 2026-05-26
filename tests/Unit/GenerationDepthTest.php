@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Unit;
 
-use MagicSunday\Webtrees\Statistic\Support\GenerationDepth;
+use MagicSunday\Webtrees\Statistic\Support\Calc\GenerationDepth;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
