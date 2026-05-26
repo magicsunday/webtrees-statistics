@@ -19,10 +19,11 @@ node_modules/
 .phpunit.cache
 
 # Custom
-resources/js/webtrees-statistics.js
+resources/js/statistics-*.js
 # Allow minified file
-!resources/js/webtrees-statistics.min.js
-webtrees-statistic.zip
+!resources/js/statistics-*.min.js
+webtrees-statistics.zip
+RELEASE_NOTES.md
 
 # Playwright
 .playwright-mcp/
