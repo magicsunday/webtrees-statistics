@@ -46,8 +46,8 @@ final readonly class TreeHealthRepository
 
     /**
      * Fraction of individuals with at least one SOUR citation, expressed
-     * as `{value, total}` so the RateList partial can derive both the
-     * percentage and the absolute counts.
+     * as `{value, total}` so consumers can derive both the percentage
+     * and the absolute counts from the same DTO.
      */
     public function sourceCitationCoverage(): RateCount
     {

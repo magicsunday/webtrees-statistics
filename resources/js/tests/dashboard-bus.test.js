@@ -61,7 +61,7 @@ describe("DashboardBus", () => {
             bus.onSelectionChanged(sub);
         }
 
-        bus.emit({ source: "tag-cloud.surnames", predicate: { surname: "Miller" } });
+        bus.emit({ source: "name-bubbles.surnames", predicate: { surname: "Miller" } });
 
         for (const sub of subscribers) {
             expect(sub).toHaveBeenCalledTimes(1);

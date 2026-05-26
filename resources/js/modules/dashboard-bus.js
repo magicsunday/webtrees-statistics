@@ -20,7 +20,7 @@ import { dispatch } from "d3-dispatch";
  * ignores it).
  *
  * @typedef {object} DashboardSelection
- * @property {string} source     Stable identifier of the widget that emitted the event (`"donut.births-century"`, `"tag-cloud.top-surnames"`, ...). Subscribers use this to ignore their own emissions.
+ * @property {string} source     Stable identifier of the widget that emitted the event (`"donut.births-century"`, `"name-bubbles.top-surnames"`, ...). Subscribers use this to ignore their own emissions.
  * @property {unknown} predicate Filter payload — shape is widget-specific. `null` means "clear filter".
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
