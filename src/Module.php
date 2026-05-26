@@ -46,7 +46,7 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
 
     public const string CUSTOM_AUTHOR = 'Rico Sonntag';
 
-    public const string CUSTOM_VERSION = '1.0.0-dev';
+    public const string CUSTOM_VERSION = '1.0.0';
 
     public const string CUSTOM_SUPPORT_URL = 'https://github.com/' . self::GITHUB_REPO . '/issues';
 
