@@ -1,0 +1,152 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+use Fisharebest\Webtrees\I18N;
+use MagicSunday\Webtrees\Statistic\Statistic;
+use MagicSunday\Webtrees\Statistic\View\Accent;
+use MagicSunday\Webtrees\Statistic\View\Card;
+use MagicSunday\Webtrees\Statistic\View\Component;
+use MagicSunday\Webtrees\Statistic\View\Illustration;
+use MagicSunday\Webtrees\Statistic\View\Section;
+use MagicSunday\Webtrees\Statistic\View\Widget;
+
+/**
+ * @var string    $module    The name of the module
+ * @var Statistic $statistic
+ */
+$totalIndividuals = $statistic->getTotalIndividuals();
+$totalOccupations = $statistic->getTotalOccupations();
+$totalReligions   = $statistic->getTotalReligions();
+$topOccupations   = $statistic->getTopOccupations(15);
+$topReligions     = $statistic->getTopReligions(15);
+$treeRecords      = $statistic->getTreeRecords();
+
+$livingDeceased = $statistic->getTotalLivingDeceasedData();
+$livingCount    = $livingDeceased[0]['value'] ?? 0;
+$deceasedCount  = $livingDeceased[1]['value'] ?? 0;
+$maritalData    = $statistic->getFamilyStatusData();
+?>
+<div class="wt-stat-grid">
+<?php
+echo Section::create(I18N::translate('Who is recorded?'))
+    ->withKicker(I18N::translate('Demographics'))
+    ->withSub(I18N::translate('Sex, status, marital state'))
+    ->render();
+
+echo Card::for($module, I18N::translate('Sex'))
+    ->withSub(I18N::plural('%s individual', '%s individuals', $totalIndividuals, I18N::number($totalIndividuals)))
+    ->withEyebrow(I18N::translate('Distribution'))
+    ->withAccent(Accent::Slate)
+    ->withIllustration(Illustration::People)
+    ->withSpan(4)
+    ->withoutFooter()
+    ->withBodyHtml(
+        Widget::donutChart($module, 'gender-donut-chart')
+            ->withData($statistic->getTotalIndividualsData())
+            ->with('centerLabel', I18N::translate('individuals'))
+            ->render()
+    )
+    ->render();
+
+echo Card::for($module, I18N::translate('Living or deceased'))
+    ->withSub(I18N::plural('%s individual', '%s individuals', $totalIndividuals, I18N::number($totalIndividuals)))
+    ->withEyebrow(I18N::translate('Status'))
+    ->withAccent(Accent::Sage)
+    ->withIllustration(Illustration::Candle)
+    ->withSpan(4)
+    ->withoutFooter()
+    ->withBodyHtml(
+        Component::liveDeadCard($module)
+            ->with('living', $livingCount)
+            ->with('deceased', $deceasedCount)
+            ->render()
+    )
+    ->render();
+
+echo Card::for($module, I18N::translate('Marital status'))
+    ->withSub(I18N::translate('living individuals'))
+    ->withEyebrow(I18N::translate('Status'))
+    ->withAccent(Accent::Wine)
+    ->withIllustration(Illustration::Rings)
+    ->withSpan(4)
+    ->withoutFooter()
+    ->withBodyHtml(
+        Component::maritalCard($module)
+            ->withData($maritalData)
+            ->render()
+    )
+    ->render();
+
+echo Section::create(I18N::translate('The extremes of the tree'))
+    ->withKicker(I18N::translate('Chronicle'))
+    ->withSub(I18N::translate('Oldest, longest marriages, largest families — records that anchor the dataset'))
+    ->render();
+
+echo Card::for($module, I18N::translate('Tree records'))
+    ->withSub(I18N::translate('Hall of fame across the whole tree'))
+    ->withEyebrow(I18N::translate('Records'))
+    ->withAccent(Accent::Ochre)
+    ->withIllustration(Illustration::Laurel)
+    ->withSpan(12)
+    ->withoutFooter()
+    ->withBodyHtml(
+        Component::recordsGrid($module)
+            ->with('treeRecords', $treeRecords)
+            ->render()
+    )
+    ->render();
+
+echo Section::create(I18N::translate('Occupation and confession'))
+    ->withKicker(I18N::translate('Socio-economics'))
+    ->withSub(I18N::translate('Occupational and religious affiliation of the recorded individuals'))
+    ->render();
+
+echo Card::for($module, I18N::translate('Common occupations'))
+    ->withSub(
+        $totalOccupations > 15
+            ? I18N::translate('%s distinct occupations (top 15)', I18N::number($totalOccupations))
+            : I18N::plural('%s distinct occupation', '%s distinct occupations', $totalOccupations, I18N::number($totalOccupations))
+    )
+    ->withEyebrow(I18N::translate('Demographics'))
+    ->withAccent(Accent::Wine)
+    ->withIllustration(Illustration::Craft)
+    ->withSpan(6)
+    ->withoutFooter()
+    ->withBodyHtml(
+        Component::progressList($module)
+            ->with('class', 'progress-occupations')
+            ->withData($topOccupations)
+            ->render()
+    )
+    ->render();
+
+echo Card::for($module, I18N::translate('Common religions'))
+    ->withSub(
+        $totalReligions > 15
+            ? I18N::translate('%s distinct religions (top 15)', I18N::number($totalReligions))
+            : I18N::plural('%s distinct religion', '%s distinct religions', $totalReligions, I18N::number($totalReligions))
+    )
+    ->withEyebrow(
+        I18N::translate('Demographics')
+    )
+    ->withAccent(Accent::Slate)
+    ->withIllustration(Illustration::Chapel)
+    ->withSpan(6)
+    ->withoutFooter()
+    ->withBodyHtml(
+        Component::progressList($module)
+        ->with('class', 'progress-religions')
+        ->withData($topReligions)
+        ->render()
+    )
+    ->render();
+?>
+</div>

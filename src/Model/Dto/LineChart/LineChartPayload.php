@@ -48,7 +48,7 @@ final readonly class LineChartPayload implements JsonSerializable
      *   - `$tooltipBody`:   tooltip body string (pluralised count text)
      *   - `$tooltipLabel`:  tooltip header override (longer-form category label).
      *
-     * Used by every Templates/*.phtml LineChart card that turns a
+     * Used by every tabs/*.phtml LineChart card that turns a
      * `array<int|string, int>` repository return into a chart-lib
      * line-chart payload — births / deaths / weddings / divorces /
      * mortality / decade growth all share the same fold.

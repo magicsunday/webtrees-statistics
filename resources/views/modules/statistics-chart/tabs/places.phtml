@@ -1,0 +1,208 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+use Fisharebest\Webtrees\I18N;
+use MagicSunday\Webtrees\Statistic\Statistic;
+use MagicSunday\Webtrees\Statistic\View\Accent;
+use MagicSunday\Webtrees\Statistic\View\Card;
+use MagicSunday\Webtrees\Statistic\View\Component;
+use MagicSunday\Webtrees\Statistic\View\EmptyStatePlaceholder;
+use MagicSunday\Webtrees\Statistic\View\Illustration;
+use MagicSunday\Webtrees\Statistic\View\Section;
+use MagicSunday\Webtrees\Statistic\View\Widget;
+
+/**
+ * @var string    $module    The name of the module
+ * @var Statistic $statistic
+ */
+$birthsByCountry     = $statistic->getBirthsByCountry();
+$residencesByCountry = $statistic->getResidencesByCountry();
+$deathsByCountry     = $statistic->getDeathsByCountry();
+$migrationFlows      = $statistic->getMigrationFlows(20);
+$placeDispersion     = $statistic->getPlaceDispersionSummary();
+
+$totalBirths     = array_sum(array_column($birthsByCountry, 'count'));
+$totalResidences = array_sum(array_column($residencesByCountry, 'count'));
+$totalDeaths     = array_sum(array_column($deathsByCountry, 'count'));
+
+$birthsList     = [];
+$residencesList = [];
+$deathsList     = [];
+
+foreach ($birthsByCountry as $values) {
+    $birthsList[$values['label']] = $values['count'];
+}
+
+foreach ($residencesByCountry as $values) {
+    $residencesList[$values['label']] = $values['count'];
+}
+
+foreach ($deathsByCountry as $values) {
+    $deathsList[$values['label']] = $values['count'];
+}
+
+$sankeyExplanation = I18N::translate(
+    'Each flow shows individuals who were born in one country and died in another. The flow\'s thickness encodes the count: thicker bands mean more migrations along that path. Same-country trajectories are excluded — they\'re not migration. Hover any band to see the exact source → destination and individual count.'
+);
+
+$placeDispersionExplanation = I18N::translate(
+    'For every individual the widget collects every distinct PLAC value that appears on any of their level-1 events (BIRT, DEAT, BAPM, BURI, RESI, …) and counts the unique places. Duplicates within the same individual (e.g. BIRT and DEAT both in Hamburg) collapse to one place, so the count reflects geographic mobility rather than how many events are recorded. The average is across every individual with at least one PLAC sample; individuals with no place data at all are excluded. The distribution on the right shows how those counts split across 1 / 2 / 3 / 4 / 5+ distinct places per person — a high tail signals migrant ancestors, a heavy bar at "1" signals a sedentary or sparsely-documented population.'
+);
+
+// Interpret the average distinct-places-per-individual into a
+// one-line characterisation of the population — sedentary,
+// moderately mobile, or strongly mobile. Thresholds picked from
+// observation of real genealogical datasets: below 1.5 ≈ village
+// communities where most individuals never moved; 1.5-2.5 ≈ rural
+// populations with regional migration; 2.5-4 ≈ urbanised cohorts;
+// above 4 ≈ migrant ancestors (settlers, emigrants, traders).
+$dispersionInterpretation = match (true) {
+    $placeDispersion->average < 1.5 => I18N::translate('A sedentary population — most lived and died in the same place.'),
+    $placeDispersion->average < 2.5 => I18N::translate('Moderate mobility — many stayed in their region, some moved.'),
+    $placeDispersion->average < 4.0 => I18N::translate('Mobile population — migration and relocation were common.'),
+    default                         => I18N::translate('High mobility — strongly migrating ancestors.'),
+};
+
+// BarChart rows for the distinct-places-per-individual histogram —
+// matches design2 `Histogram rows={D.placesPerPerson}`. tooltipLabel
+// + tooltip use literal I18N calls so xgettext picks them up.
+$placeDispersionBars = [];
+
+foreach ($placeDispersion->distribution as $bucket => $count) {
+    $bucketCount           = (int) $count;
+    $placeDispersionBars[] = [
+        'label'        => (string) $bucket,
+        'value'        => $bucketCount,
+        'tooltipLabel' => I18N::translate('%s distinct places', (string) $bucket),
+        'tooltip'      => I18N::plural('%s individual', '%s individuals', $bucketCount, I18N::number($bucketCount)),
+    ];
+}
+
+$placesPanelHtml = Component::placesPanel($module)
+    ->with(
+        'views',
+        [
+            [
+                'view'          => 'birth',
+                'label'         => I18N::translate('Places of birth'),
+                'accent'        => Accent::Sage,
+                'total'         => $totalBirths,
+                'list'          => $birthsList,
+                'raw'           => $birthsByCountry,
+                'progressClass' => 'progress-births-country',
+                'mapIdentifier' => 'living-geo-map',
+            ],
+            [
+                'view'          => 'residence',
+                'label'         => I18N::translate('Recorded residences'),
+                'accent'        => Accent::Slate,
+                'total'         => $totalResidences,
+                'list'          => $residencesList,
+                'raw'           => $residencesByCountry,
+                'progressClass' => 'progress-residences-country',
+                'mapIdentifier' => 'residences-geo-map',
+            ],
+            [
+                'view'          => 'death',
+                'label'         => I18N::translate('Places of death'),
+                'accent'        => Accent::Wine,
+                'total'         => $totalDeaths,
+                'list'          => $deathsList,
+                'raw'           => $deathsByCountry,
+                'progressClass' => 'progress-deaths-country',
+                'mapIdentifier' => 'deaths-geo-map',
+            ],
+        ]
+    )
+    ->render();
+?>
+<div class="wt-stat-grid">
+<?php
+echo Section::create(I18N::translate('Where they lived and died'))
+    ->withKicker(I18N::translate('Origin & fate'))
+    ->withSub(I18N::translate('Births, residences and deaths by country — the geographic spread of the tree'))
+    ->render();
+
+echo Card::for($module, I18N::translate('Geographic origin & fate'))
+    ->withSub(I18N::translate('Three views of every individual — birth, residence, death'))
+    ->withEyebrow(I18N::translate('Geography'))
+    ->withAccent(Accent::Slate)
+    ->withIllustration(Illustration::Globe)
+    ->withSpan(12)
+    ->withBodyHtml($placesPanelHtml)
+    ->render();
+
+echo Section::create(I18N::translate('Movements'))
+    ->withKicker(I18N::translate('Migration'))
+    ->withSub(I18N::translate('Individuals born in one country and recorded as having died in another'))
+    ->render();
+
+echo Card::for($module, I18N::translate('Migrations between birth and death country'))
+    ->withSub(I18N::translate('Paths of individuals born in one country and recorded as having died in another'))
+    ->withEyebrow(I18N::translate('Movement'))
+    ->withAccent(Accent::Wine)
+    ->withIllustration(Illustration::Boat)
+    ->withInfo($sankeyExplanation, I18N::translate('About this chart'), I18N::translate('About this chart'))
+    ->withSpan(12)
+    ->withBodyHtml(
+        Widget::sankeyFlow($module, 'migration-sankey')
+            ->withData($migrationFlows)
+            ->render()
+    )
+    ->render();
+
+echo Section::create(I18N::translate('How far they roamed'))
+    ->withKicker(I18N::translate('Mobility'))
+    ->withSub(I18N::translate('Number of distinct places per individual — sedentary vs. migrating populations'))
+    ->render();
+
+echo Card::for($module, I18N::translate('Geographic dispersion'))
+    ->withSub(I18N::translate('Average distinct places per individual'))
+    ->withEyebrow(I18N::translate('Mobility'))
+    ->withAccent(Accent::Sage)
+    ->withIllustration(Illustration::Globe)
+    ->withInfo($placeDispersionExplanation, I18N::translate('About this chart'), I18N::translate('About this chart'))
+    ->withSpan(5)
+    ->centered()
+    ->withBodyHtml(
+        ($placeDispersion->sampled <= 0)
+            ? EmptyStatePlaceholder::render()
+            : Component::scalar($module)
+                 ->with('value', I18N::number($placeDispersion->average, 2))
+                 ->with('unit', I18N::translate('places'))
+                ->with(
+                    'caption',
+                    I18N::plural(
+                        'Across %s individual with at least one recorded place.',
+                        'Across %s individuals with at least one recorded place.',
+                        $placeDispersion->sampled,
+                        I18N::number($placeDispersion->sampled),
+                    ) . ' ' . $dispersionInterpretation
+                )
+                ->render()
+    )
+    ->render();
+
+echo Card::for($module, I18N::translate('Distinct places per individual'))
+    ->withSub(I18N::translate('Distribution in buckets'))
+    ->withEyebrow(I18N::translate('Mobility'))
+    ->withAccent(Accent::Slate)
+    ->withIllustration(Illustration::Globe)
+    ->withSpan(7)
+    ->withBodyHtml(
+        Widget::barChart($module, 'place-dispersion-bars')
+            ->withData($placeDispersionBars)
+            ->withAriaLabel(I18N::translate('Distinct places per individual'))
+            ->render()
+    )
+    ->render();
+?>
+</div>

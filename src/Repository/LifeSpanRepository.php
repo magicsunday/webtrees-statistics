@@ -24,12 +24,12 @@ use MagicSunday\Webtrees\Statistic\Model\Dto\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Model\Dto\LineChart\LineChartSeries;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Metric\WinterPeakScore;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Record\IndividualAgeRecord;
-use MagicSunday\Webtrees\Statistic\Support\BirthDeathPairsQuery;
-use MagicSunday\Webtrees\Statistic\Support\CenturyName;
-use MagicSunday\Webtrees\Statistic\Support\DateJoin;
-use MagicSunday\Webtrees\Statistic\Support\HistogramTrim;
-use MagicSunday\Webtrees\Statistic\Support\RowCast;
-use MagicSunday\Webtrees\Statistic\Support\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Calc\HistogramTrim;
+use MagicSunday\Webtrees\Statistic\Support\Database\BirthDeathPairsQuery;
+use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
+use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
+use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
 
 use function array_fill_keys;
 use function array_key_last;
@@ -46,7 +46,7 @@ use function round;
  * Life-span aggregations for the LifeSpan tab. Wraps the public
  * accessors core's {@see StatisticsData} exposes (statsAgeQuery,
  * topTenOldestQuery, topTenOldestAliveQuery) into the widget-ready
- * shapes the Templates/LifeSpan.phtml partials consume.
+ * shapes the tabs/life-span.phtml partials consume.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0

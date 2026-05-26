@@ -1,0 +1,53 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
+use MagicSunday\Webtrees\Statistic\View\EmptyStatePlaceholder;
+
+/**
+ * Mirror-histogram widget shell. Emits a `data-widget="mirror-histogram"`
+ * marker carrying the top + bottom row buckets as a JSON payload. Bar
+ * colours and side-label colours come from CSS — `.wt-stat-mirror-bar-top`,
+ * `-bot`, `.wt-stat-mirror-axislabel-top`, `-bot` — not from PHP options.
+ *
+ * Caller is responsible for pre-building each row's tooltip strings
+ * with literal calls to `I18N::translate` / `I18N::plural`, so xgettext
+ * can extract them. Passing nouns as variables through this partial
+ * was tried and rejected — the strings stayed out of the POT.
+ *
+ * @var array<int, array{label: string, value: int|float, tooltipLabel?: string, tooltipBody?: string}> $top         Pre-built top-side rows
+ * @var array<int, array{label: string, value: int|float, tooltipLabel?: string, tooltipBody?: string}> $bottom      Pre-built bottom-side rows
+ * @var string                                                                                          $topLabel    Caption rendered on the top axis
+ * @var string                                                                                          $bottomLabel Caption rendered on the bottom axis
+ */
+// Callers can hand us pre-built band lists with every value at 0
+// (e.g. divorces-by-age-band on a tree without divorces). Treat
+// an all-zero histogram as empty so the placeholder shows
+// instead of an axis with twelve invisible bars.
+$rowSum = static fn (array $rows): int|float => array_sum(array_column($rows, 'value'));
+
+if ((($top === []) || ($rowSum($top) <= 0)) && (($bottom === []) || ($rowSum($bottom) <= 0))) {
+    echo EmptyStatePlaceholder::render();
+
+    return;
+}
+
+$payload = ['top' => $top, 'bottom' => $bottom];
+$options = [
+    'topLabel'    => (string) ($topLabel ?? ''),
+    'bottomLabel' => (string) ($bottomLabel ?? ''),
+];
+?>
+<div class="wt-stat-mirror-host"
+     data-widget="mirror-histogram"
+     data-payload="<?php echo WidgetJson::encodeAttribute($payload); ?>"
+     data-options="<?php echo WidgetJson::encodeAttribute($options); ?>"
+     data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"></div>

@@ -23,12 +23,12 @@ use MagicSunday\Webtrees\Statistic\Model\Dto\Record\FamilyDurationYearsRecord;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Record\IndividualAgeRecord;
 use MagicSunday\Webtrees\Statistic\Model\Dto\Record\IndividualCountRecord;
 use MagicSunday\Webtrees\Statistic\Sex;
-use MagicSunday\Webtrees\Statistic\Support\AgeBuckets;
-use MagicSunday\Webtrees\Statistic\Support\AgePairExtremum;
-use MagicSunday\Webtrees\Statistic\Support\DateJoin;
-use MagicSunday\Webtrees\Statistic\Support\IndividualAgeRecordResolver;
-use MagicSunday\Webtrees\Statistic\Support\RowCast;
-use MagicSunday\Webtrees\Statistic\Support\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Calc\AgeBuckets;
+use MagicSunday\Webtrees\Statistic\Support\Calc\AgePairExtremum;
+use MagicSunday\Webtrees\Statistic\Support\Calc\IndividualAgeRecordResolver;
+use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
+use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 
 use function abs;
 use function intdiv;
@@ -465,8 +465,9 @@ final class MarriageRepository
     /**
      * Couple age-gap distribution. Husband's birth year minus
      * wife's birth year, bucketed into symmetric 5-year bands
-     * centred on zero. Negative buckets read "wife older than
-     * husband".
+     * centred on zero. Negative buckets read "husband older than
+     * wife" (smaller julian day → husband born first); positive
+     * buckets read "wife older than husband".
      *
      * @return array<string, int>
      */

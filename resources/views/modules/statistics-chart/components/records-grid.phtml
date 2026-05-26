@@ -1,0 +1,56 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+use Fisharebest\Webtrees\I18N;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Tree\TreeRecordsReport;
+use MagicSunday\Webtrees\Statistic\Support\Aggregator\RecordRowMapper;
+use MagicSunday\Webtrees\Statistic\View\RecordCategory;
+
+/**
+ * Hall-of-fame card body. Renders the recorded extremes as a
+ * 5-column grid of mini-cards, each carrying a category-coloured
+ * dot, the label, the serif headline value, and the person /
+ * family responsible for the record. Categories: life (sage),
+ * marriage (wine), family (ochre) — colour mirrors the mockup's
+ * `.gs-record-cat` rule.
+ *
+ * @var TreeRecordsReport $treeRecords Aggregated record-holders across the tree
+ */
+$rows = array_values(array_filter([
+    RecordRowMapper::years(RecordCategory::Life, I18N::translate('Oldest deceased'), $treeRecords->oldestDeceased),
+    RecordRowMapper::years(RecordCategory::Life, I18N::translate('Oldest living'), $treeRecords->oldestLiving),
+    RecordRowMapper::familyYears(RecordCategory::Marriage, I18N::translate('Longest marriage'), $treeRecords->longestMarriage),
+    RecordRowMapper::familyDays(RecordCategory::Marriage, I18N::translate('Shortest marriage'), $treeRecords->shortestMarriage),
+    RecordRowMapper::years(RecordCategory::Marriage, I18N::translate('Youngest husband'), $treeRecords->youngestHusband),
+    RecordRowMapper::years(RecordCategory::Marriage, I18N::translate('Youngest wife'), $treeRecords->youngestWife),
+    RecordRowMapper::years(RecordCategory::Marriage, I18N::translate('Oldest husband'), $treeRecords->oldestHusband),
+    RecordRowMapper::years(RecordCategory::Marriage, I18N::translate('Oldest wife'), $treeRecords->oldestWife),
+    RecordRowMapper::marriages(RecordCategory::Marriage, I18N::translate('Most spouses'), $treeRecords->mostSpouses),
+    RecordRowMapper::familyChildren(RecordCategory::Family, I18N::translate('Largest family'), $treeRecords->largestFamily),
+    RecordRowMapper::children(RecordCategory::Family, I18N::translate('Most children'), $treeRecords->mostChildrenPerPerson),
+    RecordRowMapper::years(RecordCategory::Family, I18N::translate('Youngest father'), $treeRecords->youngestFatherAtFirstChild),
+    RecordRowMapper::years(RecordCategory::Family, I18N::translate('Youngest mother'), $treeRecords->youngestMotherAtFirstChild),
+    RecordRowMapper::years(RecordCategory::Family, I18N::translate('Oldest father'), $treeRecords->oldestFatherAtFirstChild),
+    RecordRowMapper::years(RecordCategory::Family, I18N::translate('Oldest mother'), $treeRecords->oldestMotherAtFirstChild),
+]));
+?>
+<div class="wt-stat-records">
+    <?php foreach ($rows as $r) { ?>
+        <div class="wt-stat-record wt-stat-record-<?php echo e($r['cat']); ?>">
+            <div class="wt-stat-record-head">
+                <span class="wt-stat-record-cat" aria-hidden="true"></span>
+                <span class="wt-stat-record-label"><?php echo e($r['label']); ?></span>
+            </div>
+            <div class="wt-stat-record-val wt-stat-serif"><?php echo e($r['value']); ?></div>
+            <a class="wt-stat-record-who" href="<?php echo e($r['url']); ?>"><?php echo $r['who']; ?></a>
+        </div>
+    <?php } ?>
+</div>

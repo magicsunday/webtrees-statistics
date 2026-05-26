@@ -1,0 +1,54 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+use Fisharebest\Webtrees\I18N;
+use MagicSunday\Webtrees\Statistic\Model\Dto\Chord\ChordMatrixPayload;
+use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
+use MagicSunday\Webtrees\Statistic\View\EmptyStatePlaceholder;
+
+/**
+ * @var string             $identifier Host element id
+ * @var ChordMatrixPayload $data       Chord payload — labels per arc + symmetric N×N connection matrix (serialises to JSON via JsonSerializable)
+ * @var int|null           $height     Optional viewport height (defaults to 600)
+ * @var string|null        $ariaLabel  Accessible label on the host svg
+ */
+$height ??= 600;
+
+if ($data->labels === []) {
+    echo EmptyStatePlaceholder::render();
+
+    return;
+}
+
+// chart-lib chord-diagram reads `options.i18n.tooltipValueSingular`
+// and `tooltipValuePlural` for the ribbon-hover tooltip body. Curly-
+// brace {count} placeholder instead of sprintf %s — see the
+// StreamGraph partial for the rationale. Callers that don't pass
+// an i18n object get the bare numeric default ("11" instead of
+// "11 marriages") so the widget stays generic across consumers.
+$chordI18n ??= [
+    'tooltipValueSingular' => I18N::translate('{count} marriage'),
+    'tooltipValuePlural'   => I18N::translate('{count} marriages'),
+];
+?>
+<div class="wt-chord-diagram-container">
+    <div id="<?php echo e($identifier); ?>"
+         class="wt-chord-diagram-host"
+         data-widget="chord-diagram"
+         data-payload="<?php echo WidgetJson::encodeAttribute($data); ?>"
+         data-options="<?php echo WidgetJson::encodeAttribute([
+             'height'    => $height,
+             'ariaLabel' => $ariaLabel ?? null,
+             'i18n'      => $chordI18n,
+         ]); ?>"
+         data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"
+    ></div>
+</div>

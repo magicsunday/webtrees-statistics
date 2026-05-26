@@ -1,0 +1,60 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+use Fisharebest\Webtrees\I18N;
+use MagicSunday\Webtrees\Statistic\Support\Aggregator\ProgressBarRowMapper;
+use MagicSunday\Webtrees\Statistic\View\EmptyStatePlaceholder;
+use MagicSunday\Webtrees\Statistic\View\ProgressBarAccent;
+
+/**
+ * Top-N horizontal-bar list — one row per entry as
+ * `[rank] | label | track [bar] | value`. The list reads top-down,
+ * largest bar first; the `class` parameter picks the accent colour
+ * via the {@see ProgressBarAccent} map so a single partial drives
+ * every Top-N surface in the module (Occupations / Religions /
+ * Death causes / Ages / Months / etc.).
+ *
+ * @var array<string, int|float> $data         Label → count map
+ * @var string                   $class        Legacy accent-key (e.g. `progress-occupations`); mapped to a CSS accent var below
+ * @var string                   $suffix       Optional unit appended to every value (e.g. "%")
+ * @var string                   $emptyMessage Optional override for the "no data" placeholder
+ * @var bool                     $showRank     Show the 01/02/03 rank prefix column. Defaults to true.
+ */
+$suffix       ??= '';
+$emptyMessage ??= EmptyStatePlaceholder::defaultMessage();
+$showRank     ??= true;
+$class        ??= '';
+
+$rows = ProgressBarRowMapper::toRows($data);
+
+if ($rows === []) {
+    echo EmptyStatePlaceholder::render($emptyMessage);
+
+    return;
+}
+
+$accent = ProgressBarAccent::for($class)->value;
+$fill   = 'linear-gradient(90deg, ' . $accent . ', color-mix(in srgb, ' . $accent . ' 75%, transparent))';
+?>
+<div class="wt-stat-hbars">
+    <?php foreach ($rows as $row) { ?>
+        <div class="wt-stat-hbar-row">
+            <?php if ($showRank) { ?>
+                <span class="wt-stat-hbar-rank wt-stat-mono"><?php echo e($row['rank']); ?></span>
+            <?php } ?>
+            <span class="wt-stat-hbar-label"><?php echo e($row['label']); ?></span>
+            <span class="wt-stat-hbar-track">
+                <span class="wt-stat-hbar-fill" style="width: <?php echo $row['percentage']; ?>%; background: <?php echo e($fill); ?>;"></span>
+            </span>
+            <span class="wt-stat-hbar-val wt-stat-mono"><?php echo e(I18N::number($row['value']) . $suffix); ?></span>
+        </div>
+    <?php } ?>
+</div>

@@ -1,0 +1,407 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+use Fisharebest\Webtrees\I18N;
+use MagicSunday\Webtrees\Statistic\Statistic;
+use MagicSunday\Webtrees\Statistic\Support\Aggregator\CenturyBarRowMapper;
+use MagicSunday\Webtrees\Statistic\Support\Aggregator\CoupleAgeGapRowMapper;
+use MagicSunday\Webtrees\Statistic\Support\Aggregator\DivorceCohortRowMapper;
+use MagicSunday\Webtrees\Statistic\Support\Aggregator\MirrorBandRowMapper;
+use MagicSunday\Webtrees\Statistic\Support\Aggregator\SiblingGapRowMapper;
+use MagicSunday\Webtrees\Statistic\View\Accent;
+use MagicSunday\Webtrees\Statistic\View\Card;
+use MagicSunday\Webtrees\Statistic\View\Component;
+use MagicSunday\Webtrees\Statistic\View\Illustration;
+use MagicSunday\Webtrees\Statistic\View\LegendPosition;
+use MagicSunday\Webtrees\Statistic\View\Section;
+use MagicSunday\Webtrees\Statistic\View\Widget;
+
+/**
+ * @var string    $module    The name of the module
+ * @var Statistic $statistic
+ */
+[$ageAtMarriageM, $ageAtMarriageF]     = $statistic->getTrimmedAgeAtMarriageDistributions();
+[$ageAtFirstChildM, $ageAtFirstChildF] = $statistic->getTrimmedAgeAtFirstChildDistributions();
+[$divorceAgeM, $divorceAgeF]           = $statistic->getTrimmedAgeAtDivorceDistributions();
+
+$duration  = $statistic->getMarriageDurationDistribution();
+$ageGap    = $statistic->getCoupleAgeGapDistribution();
+$byCentury = $statistic->getWeddingsByCentury();
+$byMonth   = $statistic->getWeddingsByMonth();
+
+$divorcesByCentury = $statistic->getDivorcesByCentury();
+$divorcesByMonth   = $statistic->getDivorcesByMonth();
+$cohortRates       = $statistic->getDivorceRateByMarriageCohort();
+
+$avgChildren             = $statistic->getAverageChildrenPerFamily();
+$childrenHistogram       = $statistic->getChildrenPerFamilyDistribution();
+$familySizeStackedDecade = $statistic->getFamilySizeStackedByDecade();
+$averageFamilySizeLine   = $statistic->getAverageFamilySizeByCentury();
+$siblingGaps             = $statistic->getSiblingAgeGapDistribution();
+$largestFamilies         = $statistic->getTopLargestFamilies(10);
+$childlessBreakdown      = $statistic->getChildlessFamiliesDistribution();
+$firstChildMonth         = $statistic->getFirstChildrenByMonth();
+
+$totalAgeM             = array_sum($ageAtMarriageM);
+$totalAgeF             = array_sum($ageAtMarriageF);
+$totalDur              = array_sum($duration);
+$totalAgeGap           = array_sum($ageGap);
+$totalCentury          = array_sum($byCentury);
+$totalMonth            = array_sum($byMonth);
+$totalDivCentury       = array_sum($divorcesByCentury);
+$totalDivMonth         = array_sum($divorcesByMonth);
+$totalDivAgeM          = array_sum($divorceAgeM);
+$totalDivAgeF          = array_sum($divorceAgeF);
+$totalChildrenFamilies = array_sum($childrenHistogram);
+$totalSiblingPairs     = array_sum($siblingGaps);
+$totalFirstChildMonth  = array_sum($firstChildMonth);
+$totalFirstChildM      = array_sum($ageAtFirstChildM);
+$totalFirstChildF      = array_sum($ageAtFirstChildF);
+
+$weddingsByCenturyBars = CenturyBarRowMapper::marriages($byCentury);
+$divorcesByCenturyBars = CenturyBarRowMapper::divorces($divorcesByCentury);
+
+// Pre-built MirrorHistogram rows — the named factory methods keep
+// the `I18N::plural(...)` calls literal so xgettext picks the
+// husband / wife / father / mother / man / woman msgids up.
+$ageAtMarriageMRows   = MirrorBandRowMapper::husbands($ageAtMarriageM);
+$ageAtMarriageFRows   = MirrorBandRowMapper::wives($ageAtMarriageF);
+$ageAtFirstChildMRows = MirrorBandRowMapper::fathers($ageAtFirstChildM);
+$ageAtFirstChildFRows = MirrorBandRowMapper::mothers($ageAtFirstChildF);
+$divorceAgeMRows      = MirrorBandRowMapper::men($divorceAgeM);
+$divorceAgeFRows      = MirrorBandRowMapper::women($divorceAgeF);
+
+$divorceCohortSeries = DivorceCohortRowMapper::toLineSeries($cohortRates);
+$cohortCategories    = $divorceCohortSeries['categories'];
+$cohortValues        = $divorceCohortSeries['values'];
+$cohortTooltips      = $divorceCohortSeries['tooltips'];
+
+$durationRows = [];
+
+foreach ($duration as $label => $count) {
+    $durationRows[] = [
+        'label'        => $label,
+        'value'        => (int) $count,
+        'tooltipLabel' => I18N::translate('%s years', $label),
+        'tooltip'      => I18N::plural('%s marriage', '%s marriages', $count, I18N::number($count)),
+    ];
+}
+
+$ageGapRows = CoupleAgeGapRowMapper::toRows($ageGap);
+
+$childrenPerFamilyBars = [];
+
+foreach ($childrenHistogram as $bucket => $count) {
+    $bucketCount             = (int) $count;
+    $childrenPerFamilyBars[] = [
+        'label'        => (string) $bucket,
+        'value'        => $bucketCount,
+        'tooltipLabel' => I18N::translate('%s children', (string) $bucket),
+        'tooltip'      => I18N::plural('%s family', '%s families', $bucketCount, I18N::number($bucketCount)),
+    ];
+}
+
+$aboutThisChart = I18N::translate('About this chart');
+?>
+<div class="wt-stat-grid">
+<?php
+echo Section::create(I18N::translate('When and whom they married'))
+    ->withKicker(I18N::translate('Marriage'))
+    ->withSub(I18N::translate('Age at marriage, duration and the age gap between the spouses'))
+    ->render();
+
+echo Card::for($module, I18N::translate('Age at marriage'))
+    ->withSub(I18N::translate('%1$s husbands and %2$s wives with a known marriage age', I18N::number($totalAgeM), I18N::number($totalAgeF)))
+    ->withEyebrow(I18N::translate('Life event'))
+    ->withAccent(Accent::Wine)
+    ->withIllustration(Illustration::Rings)
+    ->withInfo(I18N::translate('Age at first marriage, mirrored: husbands on top, wives below. Both sides share the same age bands so the two distributions can be compared at a glance.'), $aboutThisChart, $aboutThisChart)
+    ->withSpan(12)
+    ->withBodyHtml(
+        Widget::mirrorHistogram($module)
+            ->with('top', $ageAtMarriageMRows)
+            ->with('bottom', $ageAtMarriageFRows)
+            ->with('topLabel', I18N::translate('Men'))
+            ->with('bottomLabel', I18N::translate('Women'))
+            ->render()
+    )
+    ->render();
+
+echo Card::for($module, I18N::translate('Marriage duration'))
+    ->withSub(I18N::plural('%s couple with a measurable duration', '%s couples with a measurable duration', $totalDur, I18N::number($totalDur)))
+    ->withEyebrow(I18N::translate('Marriage'))
+    ->withAccent(Accent::Wine)
+    ->withIllustration(Illustration::Rings)
+    ->withInfo(I18N::translate('Distribution of marriage durations grouped into bands, computed from couples with both marriage and dissolution (divorce or spouse death) dates recorded.'), $aboutThisChart, $aboutThisChart)
+    ->withSpan(6)
+    ->withBodyHtml(
+        Widget::barChart($module, 'marriage-duration-bar')
+            ->withData($durationRows)
+            ->withAriaLabel(I18N::translate('Marriage duration'))
+            ->render()
+    )
+    ->render();
+
+echo Card::for($module, I18N::translate('Couple age gap'))
+    ->withSub(I18N::plural('%s couple with both birth dates', '%s couples with both birth dates', $totalAgeGap, I18N::number($totalAgeGap))
+        . ' · '
+        . I18N::translate('husband left, wife right'))
+    ->withEyebrow(I18N::translate('Marriage'))
+    ->withAccent(Accent::Slate)
+    ->withIllustration(Illustration::Rings)
+    ->withInfo(I18N::translate('Age difference between spouses at marriage. Negative values (left, slate) mean the husband is older; positive values (right, rose) mean the wife is older. Bars are bucketed in 5-year bands; 30+ collapses everything above 29 years.'), $aboutThisChart, $aboutThisChart)
+    ->withSpan(6)
+    ->withBodyHtml(
+        Widget::divergingBar($module, 'couple-age-gap-diverging')
+            ->withData($ageGapRows)
+            ->withAriaLabel(I18N::translate('Couple age gap'))
+            ->with('leftCap', I18N::translate('Husband older'))
+            ->with('rightCap', I18N::translate('Wife older'))
+            ->render()
+    )
+    ->render();
+
+echo Card::for($module, I18N::translate('Weddings by month'))
+    ->withSub(I18N::plural('%s marriage with a recorded month', '%s marriages with a recorded month', $totalMonth, I18N::number($totalMonth)))
+    ->withEyebrow(I18N::translate('Month clock'))
+    ->withAccent(Accent::Wine)
+    ->withIllustration(Illustration::Bell)
+    ->withSpan(6)
+    ->withBodyHtml(
+        Widget::monthRadial($module)
+            ->withData($byMonth)
+            ->withAccent(Accent::Wine)
+            ->with('centerLabel', I18N::translate('peak month'))
+            ->render()
+    )
+    ->render();
+
+echo Card::for($module, I18N::translate('Weddings by century'))
+    ->withSub(I18N::plural('%s recorded marriage', '%s recorded marriages', $totalCentury, I18N::number($totalCentury)))
+    ->withEyebrow(I18N::translate('Timeline'))
+    ->withAccent(Accent::Ochre)
+    ->withIllustration(Illustration::Bell)
+    ->withSpan(6)
+    ->withBodyHtml(
+        Widget::barChart($module, 'weddings-century-bars')
+            ->withData($weddingsByCenturyBars)
+            ->withAriaLabel(I18N::translate('Weddings by century'))
+            ->render()
+    )
+    ->render();
+
+echo Section::create(I18N::translate('When they had children'))
+    ->withKicker(I18N::translate('Parenthood'))
+    ->withSub(I18N::translate('Age at first child and seasonal patterns of birth'))
+    ->render();
+
+echo Card::for($module, I18N::translate('Age at first child'))
+    ->withSub(I18N::translate('%1$s fathers and %2$s mothers with a dated first child', I18N::number($totalFirstChildM), I18N::number($totalFirstChildF)))
+    ->withEyebrow(I18N::translate('Parenthood'))
+    ->withAccent(Accent::Ochre)
+    ->withIllustration(Illustration::Child)
+    ->withInfo(I18N::translate('Age of each parent at the birth of their first child. Top side shows fathers, bottom shows mothers — both share the same age bands so the two distributions can be compared at a glance.'), $aboutThisChart, $aboutThisChart)
+    ->withSpan(8)
+    ->withBodyHtml(
+        Widget::mirrorHistogram($module)
+            ->with('top', $ageAtFirstChildMRows)
+            ->with('bottom', $ageAtFirstChildFRows)
+            ->with('topLabel', I18N::translate('Fathers'))
+            ->with('bottomLabel', I18N::translate('Mothers'))
+            ->render()
+    )
+    ->render();
+
+echo Card::for($module, I18N::translate('First children by month'))
+    ->withSub(I18N::plural('%s first-born child', '%s first-born children', $totalFirstChildMonth, I18N::number($totalFirstChildMonth)))
+    ->withEyebrow(I18N::translate('Month clock'))
+    ->withAccent(Accent::Ochre)
+    ->withIllustration(Illustration::Child)
+    ->withSpan(4)
+    ->withBodyHtml(
+        Widget::monthRadial($module)
+            ->withData($firstChildMonth)
+            ->withAccent(Accent::Ochre)
+            ->with('centerLabel', I18N::translate('peak month'))
+            ->render()
+    )
+    ->render();
+
+echo Section::create(I18N::translate('How large were the families?'))
+    ->withKicker(I18N::translate('Family size'))
+    ->withSub(I18N::translate('Number of children, sibling spacing and the shift toward smaller families'))
+    ->render();
+
+echo Card::for($module, I18N::translate('Children per family'))
+    ->withSub(I18N::translate('Average: %s', I18N::number($avgChildren, 1)) . ' · ' . I18N::plural('%s family', '%s families', $totalChildrenFamilies, I18N::number($totalChildrenFamilies)))
+    ->withEyebrow(I18N::translate('Family size'))
+    ->withAccent(Accent::Ochre)
+    ->withIllustration(Illustration::Child)
+    ->withInfo(I18N::translate('Distribution of children counts across families with at least one recorded child. Hover a bar for the number of families landing on that exact child count.'), $aboutThisChart, $aboutThisChart)
+    ->withSpan(6)
+    ->withBodyHtml(
+        Widget::barChart($module, 'children-per-family-bars')
+            ->withData($childrenPerFamilyBars)
+            ->withAriaLabel(I18N::translate('Children per family'))
+            ->render()
+    )
+    ->render();
+
+echo Card::for($module, I18N::translate('Sibling age gap'))
+    ->withSub(I18N::plural('%s consecutive-sibling pair', '%s consecutive-sibling pairs', $totalSiblingPairs, I18N::number($totalSiblingPairs)))
+    ->withEyebrow(I18N::translate('Family'))
+    ->withAccent(Accent::Sage)
+    ->withIllustration(Illustration::Child)
+    ->withInfo(I18N::translate('Age difference between consecutive siblings in the same family. Very small gaps (< 1 year) often signal twins or close-spaced births; very large gaps (10+ years) typically reflect second marriages or long intervals.'), $aboutThisChart, $aboutThisChart)
+    ->withSpan(6)
+    ->withBodyHtml(
+        Widget::lineChart($module, 'sibling-age-gap-line')
+            ->withData(SiblingGapRowMapper::toLineChartPayload($siblingGaps))
+            ->withAriaLabel(I18N::translate('Sibling age gap'))
+            ->render()
+    )
+    ->render();
+
+echo Card::for($module, I18N::translate('Family size composition share by decade'))
+    ->withSub(I18N::translate('Normalised to 100 %% — shift from large to small families'))
+    ->withEyebrow(I18N::translate('Shift'))
+    ->withAccent(Accent::Wine)
+    ->withIllustration(Illustration::Family)
+    ->withInfo(I18N::translate('Per marriage decade, the bar splits into bands by child count (0, 1, 2 … 10+) and is normalised to 100 %% so cohorts of very different size can be compared. The cream → wine ramp tracks family size, from childless on the left to large families on the right.'), $aboutThisChart, $aboutThisChart)
+    ->withSpan(12)
+    ->withBodyHtml(
+        Widget::stackedBar($module, 'family-size-stacked-percent-by-decade')
+            ->withData($familySizeStackedDecade)
+            ->with('percentage', true)
+            ->withAriaLabel(I18N::translate('Family size composition share by decade'))
+            ->render()
+    )
+    ->render();
+
+echo Card::for($module, I18N::translate('Average family size by century'))
+    ->withSub(I18N::translate('Children per dated family'))
+    ->withEyebrow(I18N::translate('Timeline'))
+    ->withAccent(Accent::Sage)
+    ->withIllustration(Illustration::Family)
+    ->withSpan(6)
+    ->withBodyHtml(
+        Widget::lineChart($module, 'average-family-size-line')
+            ->withData($averageFamilySizeLine)
+            ->withAriaLabel(I18N::translate('Average family size by century'))
+            ->render()
+    )
+    ->render();
+
+echo Card::for($module, I18N::translate('Families with vs without children'))
+    ->withEyebrow(I18N::translate('Structure'))
+    ->withAccent(Accent::Sage)
+    ->withIllustration(Illustration::Family)
+    ->withSpan(6)
+    ->withBodyHtml(
+        Widget::donutChart($module, 'childless-families-donut')
+            ->withData($childlessBreakdown)
+            ->with('centerLabel', I18N::translate('families'))
+            ->withLegendPosition(LegendPosition::Bottom)
+            ->render()
+    )
+    ->render();
+
+echo Card::for($module, I18N::translate('Top 10 largest families'))
+    ->withSub(I18N::translate('By recorded child count'))
+    ->withEyebrow(I18N::translate('Extremes'))
+    ->withAccent(Accent::Wine)
+    ->withIllustration(Illustration::Family)
+    ->withSpan(12)
+    ->withBodyHtml(
+        Component::podium($module)
+            ->with('class', 'progress-largest-families')
+            ->withData($largestFamilies)
+            ->with('suffix', I18N::translate('kids'))
+            ->render()
+    )
+    ->render();
+
+echo Section::create(I18N::translate('When marriages ended'))
+    ->withKicker(I18N::translate('Divorce'))
+    ->withSub(I18N::translate('Divorce rate, season and life-stage of the divorced — a rare category in the tree'))
+    ->render();
+
+echo Card::for($module, I18N::translate('Divorce rate per marriage cohort'))
+    ->withSub(I18N::translate('Share of marriages per decade that ended in divorce'))
+    ->withEyebrow(I18N::translate('Evolution'))
+    ->withAccent(Accent::Wine)
+    ->withIllustration(Illustration::BrokenHeart)
+    ->withInfo(I18N::translate('For each marriage decade, the share of those marriages that are recorded as ending in divorce. Tracks how openly the tree records dissolutions over time rather than the underlying historical rate.'), $aboutThisChart, $aboutThisChart)
+    ->withSpan(12)
+    ->withBodyHtml(
+        Widget::lineChart($module, 'divorce-cohort-line')
+            ->withData([
+                'categories' => $cohortCategories,
+                'series'     => [
+                    [
+                        'name'     => I18N::translate('Divorce rate'),
+                        'values'   => $cohortValues,
+                        'tooltips' => $cohortTooltips,
+                    ],
+                ],
+            ])
+            ->withAriaLabel(I18N::translate('Divorce rate per marriage cohort'))
+            ->render()
+    )
+    ->render();
+
+echo Card::for($module, I18N::translate('Divorces by month'))
+    ->withSub(I18N::plural('%s divorce with a recorded month', '%s divorces with a recorded month', $totalDivMonth, I18N::number($totalDivMonth)))
+    ->withEyebrow(I18N::translate('Month clock'))
+    ->withAccent(Accent::Deceased)
+    ->withIllustration(Illustration::BrokenHeart)
+    ->withSpan(4)
+    ->withBodyHtml(
+        Widget::monthRadial($module)
+            ->withData($divorcesByMonth)
+            ->withAccent(Accent::Deceased)
+            ->with('centerLabel', I18N::translate('peak month'))
+            ->render()
+    )
+    ->render();
+
+echo Card::for($module, I18N::translate('Divorces by century'))
+    ->withSub(I18N::plural('%s recorded divorce', '%s recorded divorces', $totalDivCentury, I18N::number($totalDivCentury)))
+    ->withEyebrow(I18N::translate('Timeline'))
+    ->withAccent(Accent::Deceased)
+    ->withIllustration(Illustration::BrokenHeart)
+    ->withSpan(4)
+    ->withBodyHtml(
+        Widget::barChart($module, 'divorces-century-bars')
+            ->withData($divorcesByCenturyBars)
+            ->withAriaLabel(I18N::translate('Divorces by century'))
+            ->render()
+    )
+    ->render();
+
+echo Card::for($module, I18N::translate('Divorces by age band'))
+    ->withSub(I18N::translate('Life-stage at divorce — men vs. women'))
+    ->withEyebrow(I18N::translate('Age'))
+    ->withAccent(Accent::Deceased)
+    ->withIllustration(Illustration::BrokenHeart)
+    ->withInfo(I18N::translate('Age of each spouse at the recorded divorce date. Mirrored so men and women share the same age bands and can be compared side by side. Empty bands stay visible so cohort gaps are not hidden.'), $aboutThisChart, $aboutThisChart)
+    ->withSpan(4)
+    ->withBodyHtml(
+        Widget::mirrorHistogram($module)
+            ->with('top', $divorceAgeMRows)
+            ->with('bottom', $divorceAgeFRows)
+            ->with('topLabel', I18N::translate('Men'))
+            ->with('bottomLabel', I18N::translate('Women'))
+            ->render()
+    )
+    ->render();
+?>
+</div>

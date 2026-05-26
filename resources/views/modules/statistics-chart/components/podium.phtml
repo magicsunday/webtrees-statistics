@@ -1,0 +1,68 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+use Fisharebest\Webtrees\I18N;
+use MagicSunday\Webtrees\Statistic\Support\Aggregator\ProgressBarRowMapper;
+use MagicSunday\Webtrees\Statistic\View\EmptyStatePlaceholder;
+use MagicSunday\Webtrees\Statistic\View\ProgressBarAccent;
+
+/**
+ * Top-N podium list — one row per entry as
+ * `[rank] | name | track [bar] | <serif-big> value <sans-small> suffix`.
+ * Reads top-down with the largest entry first; the `class` parameter
+ * picks the accent colour via the {@see ProgressBarAccent} map.
+ * Unlike `progress-list.phtml` the value column renders the number
+ * itself in the editorial Serif at 22 px with the unit suffix
+ * detached in a small sans label — the layout the mockup uses for
+ * Longevity and Largest families.
+ *
+ * @var array<string, int|float> $data         Label → value map (largest first)
+ * @var string                   $class        Accent-key (e.g. `progress-oldest-deceased`)
+ * @var string                   $suffix       Unit appended to every value in the small sans column (e.g. "yr" / "J.")
+ * @var string                   $emptyMessage Optional override for the "no data" placeholder
+ */
+$suffix       ??= '';
+$emptyMessage ??= EmptyStatePlaceholder::defaultMessage();
+$class        ??= '';
+
+$rows = ProgressBarRowMapper::toRows($data);
+
+if ($rows === []) {
+    echo EmptyStatePlaceholder::render($emptyMessage);
+
+    return;
+}
+
+$accent = ProgressBarAccent::for($class)->value;
+?>
+<div class="wt-stat-podium">
+    <?php foreach ($rows as $row) { ?>
+        <?php
+            $value    = $row['value'];
+        $displayValue = $value === (float) (int) $value
+            ? I18N::number((int) $value)
+            : I18N::number($value, 1);
+        ?>
+        <div class="wt-stat-podium-row">
+            <span class="wt-stat-podium-rank wt-stat-mono"><?php echo e($row['rank']); ?></span>
+            <span class="wt-stat-podium-name"><?php echo e($row['label']); ?></span>
+            <span class="wt-stat-podium-bar">
+                <span class="wt-stat-podium-fill" style="width: <?php echo $row['percentage']; ?>%; background: <?php echo e($accent); ?>;"></span>
+            </span>
+            <span class="wt-stat-podium-val wt-stat-serif">
+                <span class="wt-stat-podium-num"><?php echo e($displayValue); ?></span>
+                <?php if ($suffix !== '') { ?>
+                    <span class="wt-stat-podium-suf"><?php echo e($suffix); ?></span>
+                <?php } ?>
+            </span>
+        </div>
+    <?php } ?>
+</div>

@@ -48,8 +48,8 @@ use MagicSunday\Webtrees\Statistic\Repository\ParenthoodRepository;
 use MagicSunday\Webtrees\Statistic\Repository\PlaceDispersionRepository;
 use MagicSunday\Webtrees\Statistic\Repository\ReligionRepository;
 use MagicSunday\Webtrees\Statistic\Repository\TreeHealthRepository;
-use MagicSunday\Webtrees\Statistic\Support\HistogramTrim;
-use MagicSunday\Webtrees\Statistic\Support\ZodiacLabels;
+use MagicSunday\Webtrees\Statistic\Support\Calc\HistogramTrim;
+use MagicSunday\Webtrees\Statistic\Support\Locale\ZodiacLabels;
 
 use function array_sum;
 use function array_values;
@@ -578,7 +578,8 @@ final readonly class Statistic
 
     /**
      * Couple age-gap histogram (symmetric 5-year bands centred on
-     * zero). Negative buckets mean wife older than husband.
+     * zero). Negative buckets mean husband older than wife
+     * (`husbandBirthJd < wifeBirthJd` → husband born first).
      *
      * @return array<string, int>
      */

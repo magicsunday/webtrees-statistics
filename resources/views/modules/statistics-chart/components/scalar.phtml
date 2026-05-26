@@ -1,0 +1,59 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+/**
+ * Renders a single big-number readout — used by data-quality cards that
+ * surface one tree-wide metric (e.g. average generation length). When
+ * `$scale` is supplied the readout grows a labelled scale-track with
+ * a marker at the value's position, mirroring design2's `gs-scale`
+ * block.
+ *
+ * @var string                                                                                       $value     Pre-formatted primary value (e.g. "28 years")
+ * @var string                                                                                       $caption   Short caption shown beneath the value
+ * @var string|null                                                                                  $unit      Optional unit appended to the value (kept null when the value is already formatted)
+ * @var array{label: string, min: float, max: float, current: float, ticks: array<int, string>}|null $scale
+ *                                                                                                   Optional scale block — label above the track, current marker positioned by `current`
+ *                                                                                                   relative to [min, max], tick labels rendered evenly under the track.
+ */
+$unit  ??= null;
+$scale ??= null;
+
+if ($scale !== null) {
+    $scaleSpan        = max(0.0001, ((float) $scale['max']) - ((float) $scale['min']));
+    $markerPercentRaw = ((((float) $scale['current']) - ((float) $scale['min'])) / $scaleSpan) * 100;
+    $markerPercent    = max(0.0, min(100.0, $markerPercentRaw));
+}
+?>
+<div class="wt-stat-scalar text-center">
+    <div class="wt-stat-scalar-value">
+        <?php echo e($value); ?>
+        <?php if (($unit !== null) && ($unit !== '')) { ?>
+            <span class="wt-stat-scalar-unit"><?php echo e($unit); ?></span>
+        <?php } ?>
+    </div>
+    <small class="wt-stat-scalar-caption text-muted"><?php echo e($caption); ?></small>
+
+    <?php if ($scale !== null) { ?>
+        <div class="wt-stat-scale">
+            <div class="wt-stat-scale-label"><?php echo e((string) $scale['label']); ?></div>
+            <div class="wt-stat-scale-track">
+                <div class="wt-stat-scale-marker" style="left: <?php echo e((string) $markerPercent); ?>%;">
+                    <span class="wt-stat-scale-marker-num"><?php echo e((string) $scale['current']); ?></span>
+                </div>
+            </div>
+            <div class="wt-stat-scale-axis">
+                <?php foreach ((array) $scale['ticks'] as $tick) { ?>
+                    <span><?php echo e((string) $tick); ?></span>
+                <?php } ?>
+            </div>
+        </div>
+    <?php } ?>
+</div>

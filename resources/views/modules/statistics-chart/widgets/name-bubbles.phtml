@@ -1,0 +1,43 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
+use MagicSunday\Webtrees\Statistic\View\EmptyStatePlaceholder;
+
+/**
+ * Name-bubble widget shell. Emits a `data-widget="name-bubbles"`
+ * marker carrying the payload as JSON; the dispatcher
+ * (`renderWidgets` in `resources/js/modules/index.js`) hands it off
+ * to the `name-bubbles` client-side renderer which computes the
+ * circle-pack layout and inserts the SVG.
+ *
+ * @var array<int, array{label: string, value: int}> $data   Top-N name → count rows
+ * @var string                                       $accent CSS color literal or `var(--...)` reference for bubble fill base
+ */
+$payload = [];
+
+foreach ($data as $row) {
+    $payload[] = ['label' => (string) ($row['label'] ?? ''), 'value' => (int) ($row['value'] ?? 0)];
+}
+
+if ($payload === []) {
+    echo EmptyStatePlaceholder::render();
+
+    return;
+}
+
+$options = ['accent' => (string) $accent];
+?>
+<div class="wt-stat-bubble-host"
+     data-widget="name-bubbles"
+     data-payload="<?php echo WidgetJson::encodeAttribute($payload); ?>"
+     data-options="<?php echo WidgetJson::encodeAttribute($options); ?>"
+     data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"></div>

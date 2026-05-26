@@ -1,0 +1,61 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+use Fisharebest\Webtrees\I18N;
+use MagicSunday\Webtrees\Statistic\Model\Dto\StreamGraph\GivenNameTrendsPayload;
+use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
+use MagicSunday\Webtrees\Statistic\View\EmptyStatePlaceholder;
+
+/**
+ * @var string                 $identifier Host element id
+ * @var GivenNameTrendsPayload $data       Series payload built by Statistic::getGivenNameTrends() — serialises to JSON via JsonSerializable
+ * @var int|null               $height     Optional viewport height (defaults to 320)
+ */
+$height ??= 320;
+
+// Stream graphs need at least two decades on the x-axis to draw a
+// meaningful flow — a single column collapses into a vertical hair
+// and renders as a blank card with one axis tick.
+if ((count($data->decades) < 2) || ($data->names === []) || ($data->series === [])) {
+    echo EmptyStatePlaceholder::render();
+
+    return;
+}
+
+// chart-lib stream-graph reads `options.i18n` for the locale-
+// dependent strings it would otherwise render in English. Curly-
+// brace placeholders ({count}, {decade}, {name}/{total}/{peak})
+// are used instead of sprintf %s tokens because webtrees-core
+// pipes every msgid through sprintf, which would mangle a bare
+// %s when the call does not supply a positional argument.
+//   - decadeSuffix: appended to every x-axis tick (1900 → 1900er).
+//     Context-qualified so the bare letter "s" doesn't collide with
+//     any other single-character msgid in the catalogue.
+//   - totalSingular / totalPlural: tooltip line ("3 Personen").
+//   - peakInPattern: the "peak in the …" tooltip / aria suffix.
+//   - ariaBandPattern: the full <name>: <total>, <peak> aria-label.
+$streamGraphI18n = [
+    'decadeSuffix'    => I18N::translateContext('decade-suffix', 's'),
+    'totalSingular'   => I18N::translate('{count} individual'),
+    'totalPlural'     => I18N::translate('{count} individuals'),
+    'peakInPattern'   => I18N::translate('peak in the {decade}'),
+    'ariaBandPattern' => I18N::translate('{name}: {total}, {peak}'),
+];
+?>
+<div class="wt-stream-graph-container">
+    <div id="<?php echo e($identifier); ?>"
+         class="wt-stream-graph-host"
+         data-widget="stream-graph"
+         data-payload="<?php echo WidgetJson::encodeAttribute($data); ?>"
+         data-options="<?php echo WidgetJson::encodeAttribute(['height' => $height, 'i18n' => $streamGraphI18n]); ?>"
+         data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"
+    ></div>
+</div>

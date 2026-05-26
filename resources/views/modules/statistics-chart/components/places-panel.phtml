@@ -1,0 +1,74 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+use Fisharebest\Webtrees\I18N;
+use MagicSunday\Webtrees\Statistic\View\Accent;
+use MagicSunday\Webtrees\Statistic\View\Component;
+use MagicSunday\Webtrees\Statistic\View\Widget;
+
+/**
+ * Three-view geographic panel — one card replaces the previous trio
+ * of Place-of-birth / Recorded-residences / Place-of-death cards.
+ * The user toggles the active view via the inline button strip; CSS
+ * + a tiny JS click handler swap the per-view accent (sage / slate /
+ * wine) and reveal the matching list + map.
+ *
+ * Server-side renders all three panels eagerly so the swap is purely
+ * a class-toggle on the client — no AJAX round-trip per view.
+ *
+ * @var string                                                                                                                                                                              $module                 Module slug (passed through to sub-partials)
+ * @var array<int, array{view:string,label:string,accent:Accent,total:int,list:array<string,int>,raw:array<int, array<string,int|string|float>>,progressClass:string,mapIdentifier:string}> $views
+ *                                                                                                                                                                                          Pre-built view descriptors, rendered in supplied order; first one is the default.
+ */
+$activeView = $views[0]['view'] ?? '';
+?>
+<div class="wt-stat-places"
+     data-wt-stat-places
+     data-view="<?php echo e($activeView); ?>">
+
+    <div class="wt-stat-places-tabs" role="tablist" aria-label="<?php echo e(I18N::translate('Geographic view')); ?>">
+        <?php foreach ($views as $view) { ?>
+            <button type="button"
+                    class="wt-stat-places-tab<?php echo ($view['view'] === $activeView) ? ' is-active' : ''; ?>"
+                    role="tab"
+                    aria-selected="<?php echo ($view['view'] === $activeView) ? 'true' : 'false'; ?>"
+                    data-view="<?php echo e($view['view']); ?>">
+                <span class="wt-stat-places-tab-lab"><?php echo e($view['label']); ?></span>
+                <span class="wt-stat-places-tab-num wt-stat-mono"><?php echo e(I18N::number($view['total'])); ?></span>
+            </button>
+        <?php } ?>
+    </div>
+
+    <div class="wt-stat-places-body">
+        <?php foreach ($views as $view) { ?>
+            <?php
+            $progress = Component::progressList($module)
+                ->with('class', $view['progressClass'])
+                ->withData(array_slice($view['list'], 0, 10))
+                ->render();
+            $map = Widget::geoMap($module, $view['mapIdentifier'])
+                ->withData($view['raw'])
+                ->withAccent($view['accent'] ?? null)
+                ->render();
+            ?>
+            <div class="wt-stat-places-panel<?php echo ($view['view'] === $activeView) ? ' is-active' : ''; ?>"
+                 role="tabpanel"
+                 data-view="<?php echo e($view['view']); ?>">
+                <div class="wt-stat-places-list">
+                    <?php echo $progress; ?>
+                </div>
+                <div class="wt-stat-places-map">
+                    <?php echo $map; ?>
+                </div>
+            </div>
+        <?php } ?>
+    </div>
+</div>

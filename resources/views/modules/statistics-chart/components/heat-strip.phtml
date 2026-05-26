@@ -1,0 +1,53 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+use Fisharebest\Webtrees\I18N;
+
+/**
+ * Heat-strip rendering — one row per metric showing a horizontal
+ * sage→ochre→wine gradient bar covered from the right by the
+ * "non-missing" share, with a vertical marker at the gap boundary.
+ *
+ * Pure HTML/CSS (no client-side widget) — the gradient + cover
+ * encode the same value visually that the trailing mono cell
+ * spells out numerically. Mirrors design2 `<HeatStrip>`.
+ *
+ * @var array<int, array{label: string, value: int, total: int}> $rows
+ */
+?>
+<div class="wt-stat-heatstrip">
+    <?php foreach ($rows as $row) { ?>
+        <?php
+        $missing    = (int) $row['value'];
+        $total      = max(1, (int) $row['total']);
+        $pct        = ($missing / $total) * 100;
+        $pctClamped = max(0.0, min(100.0, $pct));
+        // Whole-number percentages — the row's headline number
+        // is the share of MISSING records, where the difference
+        // between 49.2 % and 49 % isn't actionable. Keeping it on
+        // integers also gives every cell the same column width.
+        $pctLabel = I18N::number((int) round($pct));
+        ?>
+        <div class="wt-stat-heatstrip-row">
+            <div class="wt-stat-heatstrip-label"><?php echo e((string) $row['label']); ?></div>
+            <div class="wt-stat-heatstrip-track" aria-hidden="true">
+                <div class="wt-stat-heatstrip-cover" style="left: <?php echo e((string) $pctClamped); ?>%;"></div>
+                <div class="wt-stat-heatstrip-marker" style="left: calc(<?php echo e((string) $pctClamped); ?>% - 1px);"></div>
+            </div>
+            <div class="wt-stat-heatstrip-val">
+                <span class="wt-stat-heatstrip-missing wt-stat-mono"><?php echo e(I18N::number($missing)); ?></span>
+                <span class="wt-stat-heatstrip-slash">/</span>
+                <span class="wt-stat-heatstrip-total wt-stat-mono"><?php echo e(I18N::number($total)); ?></span>
+                <span class="wt-stat-heatstrip-pct wt-stat-mono"><?php echo e($pctLabel); ?>%</span>
+            </div>
+        </div>
+    <?php } ?>
+</div>

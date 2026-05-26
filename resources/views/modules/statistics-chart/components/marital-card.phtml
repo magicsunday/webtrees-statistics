@@ -1,0 +1,42 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+/**
+ * Marital-status card body — four rows (married / single / widowed /
+ * divorced) rendered as `dot + label + bar + count`, mirroring the
+ * mockup's `.gs-marital` layout. Each row's bar fills proportionally
+ * to the total of all four buckets so the relative magnitudes read
+ * at a glance.
+ *
+ * @var array<int, array{label: string, value: int, class: string}> $data
+ *                                                                  Bucket rows from `Statistic::getFamilyStatusData()`. Class
+ *                                                                  drives the per-row accent via the `--wmstats-married` / -single
+ *                                                                  / -widowed / -divorced CSS variables.
+ */
+$total = 0;
+
+foreach ($data as $row) {
+    $total += (int) $row['value'];
+}
+?>
+<div class="wt-stat-marital">
+    <?php foreach ($data as $row) { ?>
+        <?php $pct = ($total > 0) ? ((int) $row['value'] / $total) * 100 : 0; ?>
+        <div class="wt-stat-marital-row">
+            <span class="wt-stat-marital-dot wt-stat-marital-dot-<?php echo e($row['class']); ?>" aria-hidden="true"></span>
+            <span class="wt-stat-marital-lab"><?php echo e($row['label']); ?></span>
+            <span class="wt-stat-marital-bar">
+                <span class="wt-stat-marital-fill wt-stat-marital-fill-<?php echo e($row['class']); ?>" style="width: <?php echo (float) $pct; ?>%;"></span>
+            </span>
+            <span class="wt-stat-marital-val"><?php echo (int) $row['value']; ?></span>
+        </div>
+    <?php } ?>
+</div>

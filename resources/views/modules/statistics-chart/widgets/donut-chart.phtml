@@ -1,0 +1,68 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+use Fisharebest\Webtrees\I18N;
+use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
+use MagicSunday\Webtrees\Statistic\View\EmptyStatePlaceholder;
+
+/**
+ * @var string                                                                      $identifier     Host element id
+ * @var array<int, array{label: string, value: int, class?: string, fill?: string}> $data           Slice payload
+ * @var string|null                                                                 $centerLabel    Optional caption rendered under the centre value (e.g. "Individuals")
+ * @var string|null                                                                 $emptyMessage   Optional override for the "no data" placeholder
+ * @var string|null                                                                 $legendPosition "right" (default) places the legend next to the donut; "bottom" stacks it underneath
+ */
+$emptyMessage   ??= EmptyStatePlaceholder::defaultMessage();
+$centerLabel    ??= null;
+$legendPosition ??= 'right';
+
+$total = array_sum(array_column($data, 'value'));
+
+if ($total === 0) {
+    echo EmptyStatePlaceholder::render($emptyMessage);
+
+    return;
+}
+
+$options = [
+    'holeSize'    => 61,
+    'width'       => 170,
+    'height'      => 170,
+    'centerValue' => I18N::number($total),
+];
+
+if (($centerLabel !== null) && ($centerLabel !== '')) {
+    $options['centerLabel'] = $centerLabel;
+}
+?>
+<div class="wt-stat-donut<?php echo ($legendPosition === 'bottom') ? ' wt-stat-donut-v' : ''; ?>">
+    <div id="<?php echo e($identifier); ?>"
+         class="donut-chart"
+         data-widget="donut"
+         data-payload="<?php echo WidgetJson::encodeAttribute($data); ?>"
+         data-options="<?php echo WidgetJson::encodeAttribute($options); ?>"
+         data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"
+    ></div>
+
+    <div class="wt-stat-legend">
+        <?php foreach ($data as $entry) { ?>
+            <?php $pct = ($total > 0) ? ((int) $entry['value'] / $total) * 100 : 0; ?>
+            <div class="wt-stat-legend-row">
+                <span class="wt-stat-legend-dot<?php echo isset($entry['class']) ? (' ' . e($entry['class'])) : ''; ?>"
+                    <?php echo isset($entry['fill']) ? (' style="background-color: ' . e($entry['fill']) . ';"') : ''; ?>
+                ></span>
+                <span class="wt-stat-legend-lab"><?php echo e($entry['label']); ?></span>
+                <span class="wt-stat-legend-val wt-stat-mono"><?php echo e(I18N::number((int) $entry['value'])); ?></span>
+                <span class="wt-stat-legend-pct wt-stat-mono"><?php echo e(I18N::number($pct, 1)); ?>%</span>
+            </div>
+        <?php } ?>
+    </div>
+</div>
