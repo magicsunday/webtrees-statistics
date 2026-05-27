@@ -51,6 +51,12 @@ final readonly class NameRepository
      * `_MARNM` entries plus empty / `NOMEN_NESCIO` values, then
      * count distinct surname tokens whose occurrence ≥ `$threshold`.
      *
+     * Splits into two query shapes so the result stays valid under
+     * MySQL's `ONLY_FULL_GROUP_BY` mode (default on MySQL 5.7+ and
+     * MariaDB 10.5+), where `SELECT *` combined with `GROUP BY n_surn`
+     * is rejected because the non-aggregated columns are not
+     * functionally dependent on the grouping key.
+     *
      * @param int $threshold Lower bound on the occurrences a surname must have
      */
     public function countDistinctSurnames(int $threshold = 1): int
@@ -58,16 +64,24 @@ final readonly class NameRepository
         $query = DB::table('name')
             ->where('n_file', '=', $this->tree->id())
             ->where('n_type', '<>', '_MARNM')
-            ->whereNotIn('n_surn', ['', Individual::NOMEN_NESCIO])
-            ->groupBy('n_surn');
+            ->whereNotIn('n_surn', ['', Individual::NOMEN_NESCIO]);
 
-        if ($threshold > 1) {
-            $query->having(new Expression('COUNT(n_surn)'), '>=', $threshold);
+        // Fast path — no occurrence filter, so a plain DISTINCT count
+        // is enough and avoids the per-surname GROUP BY scan.
+        if ($threshold <= 1) {
+            return $query->distinct()->count('n_surn');
         }
 
-        // After the GROUP BY each row is one distinct surname; the
-        // count of those rows is exactly the headline number.
-        return $query->get()->count();
+        // Threshold > 1: keep only surnames whose occurrence reaches
+        // the floor, then count the surviving groups. Selecting just
+        // the grouping column keeps the statement ONLY_FULL_GROUP_BY
+        // compliant on every supported engine.
+        return $query
+            ->select(['n_surn'])
+            ->groupBy('n_surn')
+            ->having(new Expression('COUNT(n_surn)'), '>=', $threshold)
+            ->get()
+            ->count();
     }
 
     /**

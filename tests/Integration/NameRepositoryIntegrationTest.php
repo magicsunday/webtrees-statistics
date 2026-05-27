@@ -17,8 +17,9 @@ use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Integration test for {@see NameRepository}. Uses the existing
- * `name-trends.ged` fixture (eleven dated individuals with five
- * distinct given names + one common surname "Test").
+ * `name-trends.ged` fixture: twelve individuals total (eleven dated +
+ * one undated), five distinct given names and one common surname
+ * "Test" that appears on every individual.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -43,6 +44,27 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
         $result = $this->repository($tree)->countDistinctSurnames();
 
         self::assertSame(1, $result);
+    }
+
+    /**
+     * Exercises the threshold > 1 branch separately so the GROUP BY
+     * + HAVING path also gets test coverage. The single surname
+     * "Test" appears on all twelve individuals, so the cardinality
+     * cliff sits at the population size: threshold ≤ 12 returns 1,
+     * threshold ≥ 13 returns 0. Pinning both sides of the boundary
+     * catches an off-by-one regression in the HAVING comparator
+     * (≥ vs >). The branch split was introduced to keep the query
+     * valid under MySQL's `ONLY_FULL_GROUP_BY` mode.
+     */
+    #[Test]
+    public function countDistinctSurnamesWithThresholdAboveOne(): void
+    {
+        $tree = $this->importFixtureTree('name-trends.ged');
+        $repo = $this->repository($tree);
+
+        self::assertSame(1, $repo->countDistinctSurnames(2));
+        self::assertSame(1, $repo->countDistinctSurnames(12));
+        self::assertSame(0, $repo->countDistinctSurnames(13));
     }
 
     /**
