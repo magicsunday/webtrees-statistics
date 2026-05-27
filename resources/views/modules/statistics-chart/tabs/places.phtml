@@ -54,7 +54,11 @@ $sankeyExplanation = I18N::translate(
 );
 
 $placeDispersionExplanation = I18N::translate(
-    'For every individual the widget collects every distinct PLAC value that appears on any of their level-1 events (BIRT, DEAT, BAPM, BURI, RESI, …) and counts the unique places. Duplicates within the same individual (e.g. BIRT and DEAT both in Hamburg) collapse to one place, so the count reflects geographic mobility rather than how many events are recorded. The average is across every individual with at least one PLAC sample; individuals with no place data at all are excluded. The distribution on the right shows how those counts split across 1 / 2 / 3 / 4 / 5+ distinct places per person — a high tail signals migrant ancestors, a heavy bar at "1" signals a sedentary or sparsely-documented population.'
+    'For every individual the widget collects every distinct PLAC value that appears on any of their level-1 events (BIRT, DEAT, BAPM, BURI, RESI, …) and counts the unique places. Duplicates within the same individual (e.g. BIRT and DEAT both in Hamburg) collapse to one place, so the count reflects geographic mobility rather than how many events are recorded. The average is across every individual with at least one PLAC sample; individuals with no place data at all are excluded.'
+);
+
+$distinctPlacesDistributionExplanation = I18N::translate(
+    'Bucketed view of the per-individual place count: how many individuals have exactly 1, 2, 3, 4, or 5+ distinct recorded places. A high tail signals migrant ancestors, a heavy bar at "1" signals a sedentary or sparsely-documented population. Same source data as the geographic-dispersion average — duplicates within the same individual collapse to one place, individuals with no place data are excluded.'
 );
 
 // Interpret the average distinct-places-per-individual into a
@@ -196,6 +200,7 @@ echo Card::for($module, I18N::translate('Distinct places per individual'))
     ->withEyebrow(I18N::translate('Mobility'))
     ->withAccent(Accent::Slate)
     ->withIllustration(Illustration::Globe)
+    ->withInfo($distinctPlacesDistributionExplanation, I18N::translate('About this chart'), I18N::translate('About this chart'))
     ->withSpan(7)
     ->withBodyHtml(
         Widget::barChart($module, 'place-dispersion-bars')

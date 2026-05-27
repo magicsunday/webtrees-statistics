@@ -142,7 +142,11 @@ $childMortalityPayload = LineChartPayload::singleSeries(
 );
 
 $childMortalityExplanation = I18N::translate(
-    'For every individual with both BIRT and DEAT julian-days the widget computes the number of days lived; a death within five years (1826 days) of birth counts as under-5 mortality. The tree-wide percentage is the share of such children across the whole tree, and the LineChart on the right groups them by their birth century so the historical decline becomes visible (typical 1700s value 30-40 percent, modern below 2 percent). Individuals with only BIRT or only DEAT are silently excluded — we cannot determine survival without both anchors, and including them would skew the rate. Per-century cohorts below 5 children are suppressed because a single dead child would spike the line by more than 10 percentage points.'
+    'For every individual with both BIRT and DEAT julian-days the widget computes the number of days lived; a death within five years (1826 days) of birth counts as under-5 mortality. The line groups those children by their birth century so the historical decline becomes visible (typical 1700s value 30-40 percent, modern below 2 percent). Individuals with only BIRT or only DEAT are silently excluded — we cannot determine survival without both anchors, and including them would skew the rate. Per-century cohorts below 5 children are suppressed because a single dead child would spike the line by more than 10 percentage points.'
+);
+
+$childMortalityPeakExplanation = I18N::translate(
+    'The single birth century with the highest under-5 mortality rate across the tree. Computed from the same per-individual BIRT+DEAT pairs as the per-century breakdown; cohorts below 5 children are suppressed so a single tragedy does not pin the peak.'
 );
 
 // Cohort with the highest under-5 mortality rate — feeds the
@@ -342,6 +346,7 @@ echo Card::for($module, I18N::translate('Peak value'))
     ->withEyebrow(I18N::translate('Extreme'))
     ->withAccent(Accent::Wine)
     ->withIllustration(Illustration::Candle)
+    ->withInfo($childMortalityPeakExplanation, $aboutThisChart, $aboutThisChart)
     ->withSpan(4)
     ->centered()
     ->withBodyHtml(
