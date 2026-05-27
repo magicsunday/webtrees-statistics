@@ -33,13 +33,22 @@ use MagicSunday\Webtrees\Statistic\Model\Tree\HeroStats;
  * statistics.css) so that the woff2 URLs route through the
  * webtrees `?route=…&asset=…` asset endpoint via
  * `Module::assetUrl()`.
+ *
+ * The URLs are echoed RAW (no `e()` wrapper) on purpose: CSS does
+ * not decode HTML entities inside `url(...)`, so an `&amp;`-escaped
+ * URL reaches the server literally and `Validator::queryParams()`
+ * then rejects the missing `asset` parameter with HTTP 400 (Firefox
+ * surfaces this as `NS_ERROR_CORRUPTED_CONTENT`, Chromium-based
+ * browsers tolerate it). The input is safe — `assetUrl()` builds the
+ * URL from server-controlled paths plus a `filemtime` integer hash,
+ * no user input is in scope.
  */
 @font-face {
     font-family:  'Instrument Serif';
     font-style:   normal;
     font-weight:  400;
     font-display: swap;
-    src:          url('<?php echo e($fontUrls['instrumentSerifRegularLatin']); ?>') format('woff2');
+    src:          url('<?php echo $fontUrls['instrumentSerifRegularLatin']; ?>') format('woff2');
     unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
                    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
                    U+2212, U+2215, U+FEFF, U+FFFD;
@@ -49,7 +58,7 @@ use MagicSunday\Webtrees\Statistic\Model\Tree\HeroStats;
     font-style:   normal;
     font-weight:  400;
     font-display: swap;
-    src:          url('<?php echo e($fontUrls['instrumentSerifRegularLatinExt']); ?>') format('woff2');
+    src:          url('<?php echo $fontUrls['instrumentSerifRegularLatinExt']; ?>') format('woff2');
     unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304,
                    U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB,
                    U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
@@ -59,7 +68,7 @@ use MagicSunday\Webtrees\Statistic\Model\Tree\HeroStats;
     font-style:   italic;
     font-weight:  400;
     font-display: swap;
-    src:          url('<?php echo e($fontUrls['instrumentSerifItalicLatin']); ?>') format('woff2');
+    src:          url('<?php echo $fontUrls['instrumentSerifItalicLatin']; ?>') format('woff2');
     unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
                    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
                    U+2212, U+2215, U+FEFF, U+FFFD;
@@ -69,7 +78,7 @@ use MagicSunday\Webtrees\Statistic\Model\Tree\HeroStats;
     font-style:   italic;
     font-weight:  400;
     font-display: swap;
-    src:          url('<?php echo e($fontUrls['instrumentSerifItalicLatinExt']); ?>') format('woff2');
+    src:          url('<?php echo $fontUrls['instrumentSerifItalicLatinExt']; ?>') format('woff2');
     unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304,
                    U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB,
                    U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
@@ -79,7 +88,7 @@ use MagicSunday\Webtrees\Statistic\Model\Tree\HeroStats;
     font-style:   normal;
     font-weight:  100 900;
     font-display: swap;
-    src:          url('<?php echo e($fontUrls['geistLatin']); ?>') format('woff2');
+    src:          url('<?php echo $fontUrls['geistLatin']; ?>') format('woff2');
     unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
                    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
                    U+2212, U+2215, U+FEFF, U+FFFD;
@@ -89,7 +98,7 @@ use MagicSunday\Webtrees\Statistic\Model\Tree\HeroStats;
     font-style:   normal;
     font-weight:  100 900;
     font-display: swap;
-    src:          url('<?php echo e($fontUrls['geistLatinExt']); ?>') format('woff2');
+    src:          url('<?php echo $fontUrls['geistLatinExt']; ?>') format('woff2');
     unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304,
                    U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB,
                    U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
