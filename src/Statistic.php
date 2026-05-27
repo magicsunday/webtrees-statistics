@@ -13,9 +13,9 @@ namespace MagicSunday\Webtrees\Statistic;
 
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\StatisticsData;
+use MagicSunday\Webtrees\Statistic\Enum\MaritalBucket;
 use MagicSunday\Webtrees\Statistic\Model\Chord\ChordMatrixPayload;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
-use MagicSunday\Webtrees\Statistic\Model\MaritalBucket;
 use MagicSunday\Webtrees\Statistic\Model\Metric\ChildMortalitySummary;
 use MagicSunday\Webtrees\Statistic\Model\Metric\EndogamyRate;
 use MagicSunday\Webtrees\Statistic\Model\Metric\PlaceDispersionSummary;

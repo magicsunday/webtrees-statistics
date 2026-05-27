@@ -9,7 +9,7 @@
 
 declare(strict_types=1);
 
-namespace MagicSunday\Webtrees\Statistic;
+namespace MagicSunday\Webtrees\Statistic\Enum;
 
 /**
  * GEDCOM sex token used as a binary spouse / parent selector inside

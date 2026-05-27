@@ -9,7 +9,7 @@
 
 declare(strict_types=1);
 
-namespace MagicSunday\Webtrees\Statistic\Support\Calc;
+namespace MagicSunday\Webtrees\Statistic\Enum;
 
 /**
  * Picks the lowest- or highest-`years` row out of a

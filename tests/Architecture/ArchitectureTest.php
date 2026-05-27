@@ -33,7 +33,8 @@ use function array_map;
  *   - Statistic            (facade exposing widget-shaped getters to views)
  *   - Repository           (DB queries + GEDCOM scans, one per metric domain)
  *   - Model\<Widget>       (immutable wire-shape value objects returned by repositories)
- *   - Model (root)         (cross-cutting enums + value objects: Sex, MaritalBucket, FamilyRow…)
+ *   - Model (root)         (cross-cutting value objects: FamilyRow…)
+ *   - Enum                 (cross-cutting domain enums: Sex, MaritalBucket, AgePairExtremum)
  *   - Support              (pure helpers: bucketing, GedcomScanner, ParentMap…)
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
@@ -47,9 +48,9 @@ final class ArchitectureTest
     /**
      * Per-widget DTO sub-namespaces under `Model\`. Listed explicitly so
      * the DTO architecture rules below select exactly the wire-shape
-     * value objects and not the root-level enums (`Sex`, `MaritalBucket`)
-     * or value objects (`FamilyRow`) which live alongside them. Add an
-     * entry here whenever a new widget shape ships its own DTOs.
+     * value objects and not the root-level value objects (`FamilyRow`)
+     * which live alongside them. Add an entry here whenever a new widget
+     * shape ships its own DTOs.
      *
      * @var list<string>
      */
@@ -272,16 +273,15 @@ final class ArchitectureTest
     }
 
     /**
-     * The root of the `Model` namespace holds cross-cutting domain
-     * enums and value objects that classify webtrees data without
-     * carrying behaviour (`Sex`, `MaritalBucket`, `FamilyRow`). The
-     * same leaf-layer invariant as for the per-widget DTOs applies:
-     * they must not reach into repositories, the facade, the
-     * composition root, or Support helpers — they ARE the vocabulary
-     * those layers speak, not the other way around. The per-widget
-     * DTO sub-namespaces are excluded here because they already have
-     * their own stricter `dtoDoesNotDependOnAnyOtherProductionLayer`
-     * rule above.
+     * The root of the `Model` namespace holds cross-cutting value
+     * objects that classify webtrees data without carrying behaviour
+     * (currently `FamilyRow`). The same leaf-layer invariant as for
+     * the per-widget DTOs applies: they must not reach into
+     * repositories, the facade, the composition root, or Support
+     * helpers — they ARE the vocabulary those layers speak, not the
+     * other way around. The per-widget DTO sub-namespaces are
+     * excluded here because they already have their own stricter
+     * `dtoDoesNotDependOnAnyOtherProductionLayer` rule above.
      */
     #[TestRule]
     public function modelDoesNotDependOnAnyOtherProductionLayer(): Rule
@@ -303,6 +303,30 @@ final class ArchitectureTest
                 Selector::classname(self::NAMESPACE_ROOT . '\\Statistic'),
                 Selector::classname(self::NAMESPACE_ROOT . '\\Module'),
             )
-            ->because('Model enums and value objects are the vocabulary the rest of the module speaks; they cannot depend back into repositories, the facade, the composition root, or Support helpers');
+            ->because('Model value objects are the vocabulary the rest of the module speaks; they cannot depend back into repositories, the facade, the composition root, or Support helpers');
+    }
+
+    /**
+     * Cross-cutting domain enums live under `Enum\` and follow the
+     * same leaf-layer invariant as the Model value objects: they
+     * define the vocabulary (`Sex`, `MaritalBucket`, `AgePairExtremum`)
+     * that repositories, the facade and the View builders consume.
+     * An enum that pulled in a Repository or the Statistic facade
+     * would turn into a service in disguise and break the dependency
+     * direction this module relies on.
+     */
+    #[TestRule]
+    public function enumDoesNotDependOnAnyOtherProductionLayer(): Rule
+    {
+        return PHPat::rule()
+            ->classes(Selector::inNamespace(self::NAMESPACE_ROOT . '\\Enum'))
+            ->shouldNot()->dependOn()
+            ->classes(
+                Selector::inNamespace(self::NAMESPACE_ROOT . '\\Repository'),
+                Selector::inNamespace(self::NAMESPACE_ROOT . '\\Support'),
+                Selector::classname(self::NAMESPACE_ROOT . '\\Statistic'),
+                Selector::classname(self::NAMESPACE_ROOT . '\\Module'),
+            )
+            ->because('Enums are the vocabulary the rest of the module speaks; they cannot depend back into the layers that consume them');
     }
 }

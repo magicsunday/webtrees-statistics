@@ -9,7 +9,7 @@
 
 declare(strict_types=1);
 
-namespace MagicSunday\Webtrees\Statistic\Model;
+namespace MagicSunday\Webtrees\Statistic\Enum;
 
 /**
  * One of four mutually-exclusive marital states that every living individual

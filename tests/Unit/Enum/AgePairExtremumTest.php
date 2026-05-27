@@ -9,9 +9,9 @@
 
 declare(strict_types=1);
 
-namespace MagicSunday\Webtrees\Statistic\Test\Unit\Support;
+namespace MagicSunday\Webtrees\Statistic\Test\Unit\Enum;
 
-use MagicSunday\Webtrees\Statistic\Support\Calc\AgePairExtremum;
+use MagicSunday\Webtrees\Statistic\Enum\AgePairExtremum;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
