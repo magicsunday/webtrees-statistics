@@ -66,6 +66,10 @@ The `Statistic` aggregator service is resolved via the webtrees DI container (`R
 - **`Model/FamilyRow.php`** — DTO for the raw FAM row carried through the marital-classification pipeline.
 - **`Model/Dto/`** — Wire-format DTOs grouped by chart-lib widget shape (`LineChart/`, `StackedBar/`, `Sankey/`, `Chord/`, `StreamGraph/`, `Tree/`, `Record/`, `Metric/`). Each implements `JsonSerializable` so the partial layer just JSON-encodes the value.
 
+### Traits (`src/Traits/`)
+- **`ModuleCustomTrait`** — Wires `ModuleCustomInterface` to the class-level `CUSTOM_AUTHOR` / `CUSTOM_VERSION` / `CUSTOM_SUPPORT_URL` / `CUSTOM_LATEST_VERSION` constants on `Module.php`, loads the compiled MO catalogue via `customTranslations()`, and proxies the latest-version check through `VersionInformation` (module-base). Also overrides `getAssetAction()` so the per-module asset route can publish web fonts with the correct `font/woff2` / `font/woff` MIME types — core's `Mime::TYPES` has no font entries, and Firefox refuses to load fonts served as `application/octet-stream` with `NS_ERROR_CORRUPTED_CONTENT`. The MIME-overlay table lives as `Module::ASSET_MIME_TYPES` on the class (not on the trait) so a future core trait that ever declares the same constant cannot trigger a fatal trait-constant composition conflict.
+- **`ModuleChartTrait`** — Re-asserts `chartMenuClass()` so the Statistics entry in the Charts dropdown keeps its icon (webtrees core's chart trait resets the class to the empty string). Carved out as a separate trait so any future chart-menu / chart-URL / chart-title overrides land in one predictable place rather than scattered across `Module.php`.
+
 ### Repositories (`src/Repository/`)
 | Repository | Responsibility |
 |---|---|
