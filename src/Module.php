@@ -11,27 +11,31 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic;
 
-use Fisharebest\Localization\Translation;
 use Fisharebest\Webtrees\Auth;
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Module\ModuleChartInterface;
-use Fisharebest\Webtrees\Module\ModuleChartTrait;
 use Fisharebest\Webtrees\Module\ModuleCustomInterface;
-use Fisharebest\Webtrees\Module\ModuleCustomTrait;
 use Fisharebest\Webtrees\Module\StatisticsChartModule;
 use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Validator;
 use Fisharebest\Webtrees\View;
 use MagicSunday\Webtrees\ModuleBase\Contract\ModuleAssetUrlInterface;
+use MagicSunday\Webtrees\Statistic\Traits\ModuleChartTrait;
+use MagicSunday\Webtrees\Statistic\Traits\ModuleCustomTrait;
 use Override;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-use function is_file;
+use function assert;
 use function realpath;
 
 /**
- * Statistics chart module.
+ * Entry point for the webtrees Statistics chart module. Renders the six-tab
+ * navigation page (Overview / Names / LifeSpan / Family / Places / Tree health)
+ * over the {@see StatisticsChartModule} chart route. Each tab is served as a
+ * separate AJAX action and renders its own template under `tabs/`; the
+ * top-level page wires the AJAX URLs, hero stats, stylesheet, JavaScript
+ * bundle and the web-font asset URLs that the front-end consumes.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -48,12 +52,42 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
 
     public const string CUSTOM_VERSION = '1.0.1-dev';
 
-    public const string CUSTOM_SUPPORT_URL = 'https://github.com/' . self::GITHUB_REPO . '/issues';
+    /**
+     * Webtrees renders this URL as the "For more information, see …" link
+     * inside the "An upgrade is available" notice on the admin home and on
+     * the Modules admin pages. Pointed at the GitHub `/releases/latest`
+     * page so admins who notice an available update land directly on the
+     * release notes — including the "Manual / FTP installation" banner
+     * and the install-ready asset zip.
+     */
+    public const string CUSTOM_SUPPORT_URL = 'https://github.com/' . self::GITHUB_REPO . '/releases/latest';
 
     public const string CUSTOM_LATEST_VERSION = 'https://api.github.com/repos/' . self::GITHUB_REPO . '/releases/latest';
 
     /**
-     * Initialization.
+     * Module-specific MIME-type entries that supplement the core
+     * {@see \Fisharebest\Webtrees\Mime::TYPES} map. Lookup order in
+     * {@see ModuleCustomTrait::getAssetAction()} is class-level →
+     * core → default — so this table can both add missing types
+     * (WOFF / WOFF2 are absent from core, which would otherwise serve
+     * web fonts as `application/octet-stream`) and override the core
+     * defaults if ever needed.
+     *
+     * Placed on the class instead of on the trait so a future webtrees
+     * core release that adds an identically-named constant to its own
+     * `ModuleCustomTrait` cannot trigger a fatal trait-constant
+     * composition conflict at class-load.
+     *
+     * @var array<string, string>
+     */
+    public const array ASSET_MIME_TYPES = [
+        'WOFF'  => 'font/woff',
+        'WOFF2' => 'font/woff2',
+    ];
+
+    /**
+     * Registers the module's view namespace so AJAX-loaded tab templates
+     * can be resolved by their fully-qualified `<module>::path` names.
      */
     public function boot(): void
     {
@@ -64,7 +98,7 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
     }
 
     /**
-     * How should this module be identified in the control panel, etc.?
+     * Returns the module title shown in the control panel and the chart menu entry.
      *
      * @return string
      */
@@ -75,7 +109,7 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
     }
 
     /**
-     * A sentence describing what this module does.
+     * Returns a short description shown in the module list in the control panel.
      *
      * @return string
      */
@@ -86,7 +120,7 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
     }
 
     /**
-     * Where does this module store its resources?
+     * Returns the absolute path to this module's resources directory.
      *
      * @return string
      */
@@ -97,44 +131,11 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
     }
 
     /**
-     * CSS class for the chart-menu entry. The {@see ModuleChartTrait}
-     * we `use` resets this to the empty string and would otherwise
-     * leave our menu item without the icon every other Statistics
-     * chart in the Charts dropdown carries; re-apply core's value
-     * so the icon renders consistently.
-     */
-    #[Override]
-    public function chartMenuClass(): string
-    {
-        return 'menu-chart-statistics';
-    }
-
-    /**
-     * Load the compiled gettext catalogue for the requested locale
-     * so I18N::translate() returns the module's own translations
-     * rather than falling back to the English msgid. Returns an
-     * empty array when no MO file ships for the language (webtrees
-     * core then keeps the English baseline).
-     *
-     * @return array<string, string>
-     */
-    #[Override]
-    public function customTranslations(string $language): array
-    {
-        $catalogue = $this->resourcesFolder() . 'lang/' . $language . '/messages.mo';
-
-        if (!is_file($catalogue)) {
-            return [];
-        }
-
-        /** @var array<string, string> $translations */
-        $translations = (new Translation($catalogue))->asArray();
-
-        return $translations;
-    }
-
-    /**
-     * Renders the top-level page with the six-tab navigation skeleton.
+     * Renders the top-level page that hosts the six-tab navigation skeleton.
+     * Builds the action → AJAX-URL map for the nav strip, fetches the hero
+     * aggregate (tree-wide headline numbers), and exposes the bundle / stylesheet /
+     * web-font asset URLs the front-end consumes. The tabs themselves are
+     * lazy-loaded by the JavaScript bundle once the user activates them.
      *
      * @param ServerRequestInterface $request Incoming HTTP request
      *
@@ -148,6 +149,10 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
 
         Auth::checkComponentAccess($this, ModuleChartInterface::class, $tree, $user);
 
+        // One entry per tab — translated label → AJAX URL the front-end
+        // calls when the user activates the tab. Keeping the catalog
+        // server-side keeps the page shell static and lets the
+        // ModuleTest lock the routing surface in place.
         $tabs = [];
 
         foreach ($this->tabCatalog() as $action => $label) {
@@ -174,7 +179,12 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
                 'hero'       => $statistic->getHeroStats(),
                 'javascript' => $this->assetUrl('js/statistics-' . self::CUSTOM_VERSION . '.min.js'),
                 'stylesheet' => $this->assetUrl('css/statistics.css'),
-                'fontUrls'   => [
+                // Pre-resolved asset URLs for the two web-font families
+                // (latin + latin-ext subsets each). The `<link rel="preload">`
+                // tags in `page.phtml` need the final URLs at server-render
+                // time, so we expose them in the view payload rather than
+                // letting the front-end compute them.
+                'fontUrls' => [
                     'instrumentSerifRegularLatin'    => $this->assetUrl('fonts/InstrumentSerif-Regular-latin.woff2'),
                     'instrumentSerifRegularLatinExt' => $this->assetUrl('fonts/InstrumentSerif-Regular-latin-ext.woff2'),
                     'instrumentSerifItalicLatin'     => $this->assetUrl('fonts/InstrumentSerif-Italic-latin.woff2'),

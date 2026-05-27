@@ -11,7 +11,10 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test;
 
+use Fisharebest\Webtrees\Http\Exceptions\HttpAccessDeniedException;
+use Fisharebest\Webtrees\Http\Exceptions\HttpNotFoundException;
 use MagicSunday\Webtrees\Statistic\Module;
+use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -127,5 +130,75 @@ final class ModuleTest extends TestCase
             array_keys($catalog),
             'tabCatalog() must expose exactly the documented action keys in declaration order.',
         );
+    }
+
+    /**
+     * Issue #47: the module previously advertised empty strings for the
+     * four custom-module getters because it used webtrees core's
+     * `ModuleCustomTrait` directly, whose default implementations return
+     * ''. Each accessor must now hand back a non-empty value so admin
+     * tooling and update managers have an upgrade marker to anchor on.
+     */
+    #[Test]
+    public function customModuleGettersReturnNonEmptyMetadata(): void
+    {
+        $module = new Module();
+
+        self::assertNotSame('', $module->customModuleAuthorName());
+        self::assertMatchesRegularExpression('/^\d+\.\d+\.\d+/', $module->customModuleVersion());
+        self::assertStringStartsWith('https://github.com/', $module->customModuleSupportUrl());
+        self::assertStringStartsWith('https://api.github.com/repos/', $module->customModuleLatestVersionUrl());
+    }
+
+    /**
+     * Drives the asset handler with a real .woff2 file from the module's
+     * resources/ directory and asserts the response header carries the
+     * `font/woff2` MIME type. The core Mime::TYPES map has no entry for
+     * web fonts; without the local override the asset would ship as
+     * `application/octet-stream`, which Firefox rejects with
+     * `NS_ERROR_CORRUPTED_CONTENT`.
+     */
+    #[Test]
+    public function getAssetActionServesWoff2WithFontMimeType(): void
+    {
+        $module  = new Module();
+        $request = (new ServerRequest('GET', '/'))
+            ->withQueryParams(['asset' => 'fonts/Geist-latin.woff2']);
+
+        $response = $module->getAssetAction($request);
+
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame('font/woff2', $response->getHeaderLine('content-type'));
+        self::assertGreaterThan(0, $response->getBody()->getSize());
+    }
+
+    /**
+     * A directory-traversal attempt in the `asset` query parameter must
+     * be rejected before any file read happens.
+     */
+    #[Test]
+    public function getAssetActionRejectsPathTraversal(): void
+    {
+        $module  = new Module();
+        $request = (new ServerRequest('GET', '/'))
+            ->withQueryParams(['asset' => '../../../etc/passwd']);
+
+        $this->expectException(HttpAccessDeniedException::class);
+        $module->getAssetAction($request);
+    }
+
+    /**
+     * A request for an asset that does not exist on disk must surface as
+     * a clean 404 rather than a TypeError from response().
+     */
+    #[Test]
+    public function getAssetActionThrowsNotFoundForMissingAsset(): void
+    {
+        $module  = new Module();
+        $request = (new ServerRequest('GET', '/'))
+            ->withQueryParams(['asset' => 'fonts/does-not-exist.woff2']);
+
+        $this->expectException(HttpNotFoundException::class);
+        $module->getAssetAction($request);
     }
 }
