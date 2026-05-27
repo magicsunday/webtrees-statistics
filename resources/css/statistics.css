@@ -1604,17 +1604,15 @@
 }
 
 /*
- * Hover and selection share one visual: the focused slice gets
- * an ink-coloured stroke and lifts up via a subtle drop-shadow;
- * every other slice stays at its default fill. Mirrors the
- * stream-graph / bar-chart / sankey hover treatment so click and
- * hover read the same across the dashboard.
+ * Hover and selection share one visual: the focused slice
+ * brightens slightly (no border, no shape change) while every
+ * other slice stays at its default fill. Mirrors the bar-chart /
+ * stream-graph / sankey hover treatment so click and hover read
+ * the same across the dashboard.
  */
 .wt-statistics-chart svg.donut-chart path.slice:hover,
 .wt-statistics-chart svg.donut-chart path.slice.is-selected {
-    stroke:       var(--ink);
-    stroke-width: 2;
-    filter:       drop-shadow(0 1px 2px rgb(0 0 0 / 0.25));
+    filter: brightness(1.12) saturate(1.15);
 }
 
 .wt-statistics-chart .donut-chart-container .donut-chart {
@@ -2274,16 +2272,12 @@
 }
 
 /*
- * Hover / selection highlight: the focused band gets an
- * ink-coloured outline and a subtle drop-shadow so it lifts out
- * of the stack without dimming the surrounding bands. Mirrors
- * the donut / bar-chart / sankey hover treatment.
+ * Hover / selection highlight: the focused band brightens; the
+ * surrounding bands stay at their default fill.
  */
 .wt-statistics-chart svg.wt-stream-graph path.band:hover,
 .wt-statistics-chart svg.wt-stream-graph path.band.is-selected {
-    stroke:       var(--ink);
-    stroke-width: 1.5;
-    filter:       drop-shadow(0 1px 2px rgb(0 0 0 / 0.25));
+    filter: brightness(1.12) saturate(1.15);
 }
 
 .wt-statistics-chart svg.wt-stream-graph .x-axis line,
@@ -2367,13 +2361,12 @@
 
 /*
  * Hover / selection highlight: the focused flow bumps to full
- * opacity + a darker stroke; surrounding flows stay at their
- * default visibility so the chart context survives the focus.
+ * opacity; surrounding flows stay at their default visibility so
+ * the chart context survives the focus.
  */
 .wt-statistics-chart svg.wt-sankey path.link:hover,
 .wt-statistics-chart svg.wt-sankey path.link.is-selected {
-    stroke-opacity: 0.95;
-    stroke:         var(--ink);
+    stroke-opacity: 0.9;
 }
 
 .wt-statistics-chart svg.wt-sankey .nodes rect {
@@ -2522,9 +2515,7 @@
 .wt-statistics-chart svg.wt-bar-chart rect.bar.is-selected,
 .wt-statistics-chart svg.wt-bar-chart path.bar:hover,
 .wt-statistics-chart svg.wt-bar-chart path.bar.is-selected {
-    stroke:       var(--ink);
-    stroke-width: 2;
-    filter:       drop-shadow(0 1px 2px rgb(0 0 0 / 0.25));
+    filter: brightness(1.12) saturate(1.15);
 }
 
 /* ----------------------------------------------------------------------
@@ -2612,14 +2603,11 @@
     opacity: 0.6;
 }
 
-/* Hover / selection highlight: the focused cohort's box gets an
-   ink outline and a subtle drop-shadow; surrounding cohorts stay
-   at their default styling so the chart context survives. */
+/* Hover / selection highlight: the focused cohort's box brightens
+   slightly; surrounding cohorts stay at their default styling. */
 .wt-statistics-chart svg.wt-box-plot g.cohort:hover rect.box,
 .wt-statistics-chart svg.wt-box-plot g.cohort.is-selected rect.box {
-    stroke:       var(--ink);
-    stroke-width: 2;
-    filter:       drop-shadow(0 1px 2px rgb(0 0 0 / 0.25));
+    filter: brightness(1.12) saturate(1.15);
 }
 
 /* ----------------------------------------------------------------------
@@ -2968,9 +2956,7 @@
  */
 .wt-statistics-chart svg.wt-stacked-bar rect.bar:hover,
 .wt-statistics-chart svg.wt-stacked-bar rect.bar.is-selected {
-    stroke:       var(--ink);
-    stroke-width: 2;
-    filter:       drop-shadow(0 1px 2px rgb(0 0 0 / 0.25));
+    filter: brightness(1.12) saturate(1.15);
 }
 
 /*
