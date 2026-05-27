@@ -10,6 +10,7 @@
 declare(strict_types=1);
 
 use Fisharebest\Webtrees\I18N;
+use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Statistic;
 use MagicSunday\Webtrees\Statistic\View\Accent;
 use MagicSunday\Webtrees\Statistic\View\Card;
@@ -33,6 +34,25 @@ $livingDeceased = $statistic->getTotalLivingDeceasedData();
 $livingCount    = $livingDeceased[0]['value'] ?? 0;
 $deceasedCount  = $livingDeceased[1]['value'] ?? 0;
 $maritalData    = $statistic->getFamilyStatusData();
+
+$cumulativeBirthsByDecade = $statistic->getCumulativeBirthsByDecade();
+// The cumulative series is monotonically non-decreasing; its
+// last entry is the running total at the latest visible decade,
+// which equals array_sum(getBirthsByDecade()) by construction.
+// Use it directly so the sub-headline can never drift from the
+// chart, and to avoid a second identical SQL round-trip.
+$cumulativeBirthsTotal = $cumulativeBirthsByDecade === [] ? 0 : end($cumulativeBirthsByDecade);
+reset($cumulativeBirthsByDecade);
+$cumulativeBirthsPayload = LineChartPayload::singleSeries(
+    seriesName: I18N::translate('Cumulative population'),
+    countsByCategory: $cumulativeBirthsByDecade,
+    project: static fn (int|string $decade, int|float $count): array => [
+        'categoryLabel' => I18N::translate('%ss', (string) $decade),
+        'tooltipBody'   => I18N::plural('%s individual recorded', '%s individuals recorded', (int) $count, I18N::number($count)),
+        'tooltipLabel'  => I18N::translate('Up to the %ss', (string) $decade),
+    ],
+);
+$cumulativeBirthsXLabelEvery = max(1, (int) ceil(count($cumulativeBirthsPayload->categories) / 12));
 ?>
 <div class="wt-stat-grid">
 <?php
@@ -146,6 +166,28 @@ echo Card::for($module, I18N::translate('Common religions'))
         ->with('class', 'progress-religions')
         ->withData($topReligions)
         ->render()
+    )
+    ->render();
+
+echo Section::create(I18N::translate('How the tree grew'))
+    ->withKicker(I18N::translate('Population'))
+    ->withSub(I18N::translate('Cumulative number of recorded individuals across the documented birth window'))
+    ->render();
+
+echo Card::for($module, I18N::translate('Tree growth over time'))
+    ->withSub(I18N::plural('%s individual with a recorded birth year', '%s individuals with a recorded birth year', $cumulativeBirthsTotal, I18N::number($cumulativeBirthsTotal)))
+    ->withEyebrow(I18N::translate('Growth'))
+    ->withAccent(Accent::Sage)
+    ->withIllustration(Illustration::Tree)
+    ->withSpan(12)
+    ->withoutFooter()
+    ->withBodyHtml(
+        Widget::lineChart($module, 'cumulative-births-line')
+            ->withData($cumulativeBirthsPayload)
+            ->withHeight(260)
+            ->with('xLabelEvery', $cumulativeBirthsXLabelEvery)
+            ->with('showArea', true)
+            ->render()
     )
     ->render();
 ?>

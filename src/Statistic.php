@@ -440,6 +440,19 @@ final readonly class Statistic
     }
 
     /**
+     * Running cumulative population by decade — for each decade in
+     * the visible birth window the total number of individuals
+     * born up to and including that decade. Layers a running sum
+     * on top of {@see getBirthsByDecade()}.
+     *
+     * @return array<int, int>
+     */
+    public function getCumulativeBirthsByDecade(): array
+    {
+        return $this->lifeSpanRepository->cumulativeBirthsByDecade();
+    }
+
+    /**
      * Winter-peak indicator for deaths (Dec+Jan+Feb vs. baseline).
      * Returns null when fewer than 12 dated deaths are recorded.
      */

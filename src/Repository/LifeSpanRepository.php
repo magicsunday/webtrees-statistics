@@ -228,6 +228,39 @@ final readonly class LifeSpanRepository
     }
 
     /**
+     * Running cumulative population: for each decade in the visible
+     * birth window, the total number of individuals born up to and
+     * including that decade. Layers a running sum on top of the
+     * existing {@see birthsByDecade()} payload — same decade keys,
+     * same trimmed window, monotonically non-decreasing values.
+     *
+     * Empty when no dated birth exists.
+     *
+     * Decade keys are integer starts (e.g. `1900` for the 1900s);
+     * the display layer renders them through `I18N::translate('%ss', $decade)`.
+     *
+     * @return array<int, int>
+     */
+    public function cumulativeBirthsByDecade(): array
+    {
+        $byDecade = $this->birthsByDecade();
+
+        if ($byDecade === []) {
+            return [];
+        }
+
+        $running    = 0;
+        $cumulative = [];
+
+        foreach ($byDecade as $decade => $count) {
+            $running += $count;
+            $cumulative[$decade] = $running;
+        }
+
+        return $cumulative;
+    }
+
+    /**
      * Winter-peak indicator for deaths — relative density of
      * December + January + February death events compared to a
      * perfectly-even 12-month baseline. Returns null when fewer

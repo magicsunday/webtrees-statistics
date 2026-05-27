@@ -19,6 +19,7 @@ use function array_keys;
 use function array_sum;
 use function array_values;
 use function count;
+use function sprintf;
 
 /**
  * End-to-end test of {@see LifeSpanRepository} against a fixture
@@ -175,6 +176,65 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
         // fails the assertion at the boundary rather than at an
         // opaque bucket-count mismatch.
         self::assertSame(range(1700, 1950, 10), array_keys($result));
+    }
+
+    /**
+     * cumulativeBirthsByDecade layers a running sum on top of the
+     * birthsByDecade() payload. The life-span.ged fixture has one
+     * birth each at decade starts 1700, 1850, 1880, 1900, 1920,
+     * 1950, with zero-filled inner decades. The cumulative series
+     * therefore steps up monotonically: 1 at 1700, holds at 1 across
+     * the long 1710..1840 gap, then 2 at 1850, 3 at 1880, 4 at 1900,
+     * 5 at 1920, and 6 at 1950. Visible window and decade keys
+     * match birthsByDecade() exactly.
+     */
+    #[Test]
+    public function cumulativeBirthsByDecadeStepsUpMonotonically(): void
+    {
+        $tree   = $this->importFixtureTree('life-span.ged');
+        $result = $this->repository($tree)->cumulativeBirthsByDecade();
+
+        // Same visible window as birthsByDecade().
+        self::assertSame(range(1700, 1950, 10), array_keys($result));
+
+        // Cumulative steps at each active decade.
+        self::assertSame(1, $result[1700]);
+        self::assertSame(2, $result[1850]);
+        self::assertSame(3, $result[1880]);
+        self::assertSame(4, $result[1900]);
+        self::assertSame(5, $result[1920]);
+        self::assertSame(6, $result[1950]);
+
+        // Inner zero-decades hold the running total — no decrease,
+        // no reset across the long 1710..1840 silent stretch.
+        self::assertSame(1, $result[1710]);
+        self::assertSame(1, $result[1840]);
+        self::assertSame(2, $result[1870]);
+        self::assertSame(5, $result[1930]);
+
+        // Strictly non-decreasing across the whole window.
+        $previous = 0;
+
+        foreach ($result as $decade => $value) {
+            self::assertGreaterThanOrEqual($previous, $value, sprintf('Decade %d decreased', $decade));
+            $previous = $value;
+        }
+    }
+
+    /**
+     * Single-birth tree collapses to a one-entry cumulative series:
+     * one decade key, one running-total of 1. Locks the lower-bound
+     * behaviour of the aggregator so a future "drop singleton series"
+     * tweak fails the test instead of silently regressing the
+     * minimum-data display.
+     */
+    #[Test]
+    public function cumulativeBirthsByDecadeForSingleBirthHasOneStep(): void
+    {
+        $tree   = $this->importFixtureTree('empty-marriages.ged');
+        $result = $this->repository($tree)->cumulativeBirthsByDecade();
+
+        self::assertSame([1900 => 1], $result);
     }
 
     /**

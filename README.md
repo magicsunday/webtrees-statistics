@@ -98,7 +98,7 @@ The module renders six tabs that aggregate tree-wide data into widget cards:
 
 | Tab         | What it shows |
 |-------------|---------------|
-| **Overview**    | Demographics (sex / living / marital donuts), tree-records hall-of-fame, top occupations and religions |
+| **Overview**    | Demographics (sex / living / marital donuts), tree-records hall-of-fame, top occupations and religions, cumulative tree growth over time |
 | **Names**       | Surname / male / female name bubbles, given-name popularity stream graph, surname × surname marriage chord matrix |
 | **Tree health** | Source-citation coverage, average generation length, missing-event gaps, tree-growth line chart |
 | **Life span**   | Age-at-death histogram, living life-stages, lifespan by sex × century, top-10 oldest deceased and living, death causes, child mortality, births and deaths by century / month / zodiac, winter-peak score |
