@@ -185,9 +185,21 @@ final readonly class Statistic
     public function getTotalIndividualsData(): array
     {
         return [
-            ['label' => I18N::translate('Male'), 'value' => $this->data->countIndividualsBySex('M'), 'class' => 'male'],
-            ['label' => I18N::translate('Female'), 'value' => $this->data->countIndividualsBySex('F'), 'class' => 'female'],
-            ['label' => I18N::translate('Unknown'), 'value' => $this->data->countIndividualsBySex('U'), 'class' => 'unknown'],
+            [
+                'label' => I18N::translate('Male'),
+                'value' => $this->data->countIndividualsBySex('M'),
+                'class' => 'male',
+            ],
+            [
+                'label' => I18N::translate('Female'),
+                'value' => $this->data->countIndividualsBySex('F'),
+                'class' => 'female',
+            ],
+            [
+                'label' => I18N::translate('Unknown'),
+                'value' => $this->data->countIndividualsBySex('U'),
+                'class' => 'unknown',
+            ],
         ];
     }
 
@@ -197,8 +209,16 @@ final readonly class Statistic
     public function getTotalLivingDeceasedData(): array
     {
         return [
-            ['label' => I18N::translate('Living'), 'value' => $this->data->countIndividualsLiving(), 'class' => 'living'],
-            ['label' => I18N::translate('Deceased'), 'value' => $this->data->countIndividualsDeceased(), 'class' => 'deceased'],
+            [
+                'label' => I18N::translate('Living'),
+                'value' => $this->data->countIndividualsLiving(),
+                'class' => 'living',
+            ],
+            [
+                'label' => I18N::translate('Deceased'),
+                'value' => $this->data->countIndividualsDeceased(),
+                'class' => 'deceased',
+            ],
         ];
     }
 
@@ -215,10 +235,26 @@ final readonly class Statistic
         $buckets = $this->familyRepository->classifyLivingIndividuals();
 
         return [
-            ['label' => I18N::translate('Married'), 'value' => $buckets[MaritalBucket::Current->value], 'class' => 'married'],
-            ['label' => I18N::translate('Single'), 'value' => $buckets[MaritalBucket::Single->value], 'class' => 'single'],
-            ['label' => I18N::translate('Widowed'), 'value' => $buckets[MaritalBucket::Widowed->value], 'class' => 'widowed'],
-            ['label' => I18N::translate('Divorced'), 'value' => $buckets[MaritalBucket::Divorced->value], 'class' => 'divorced'],
+            [
+                'label' => I18N::translate('Married'),
+                'value' => $buckets[MaritalBucket::Current->value],
+                'class' => 'married',
+            ],
+            [
+                'label' => I18N::translate('Single'),
+                'value' => $buckets[MaritalBucket::Single->value],
+                'class' => 'single',
+            ],
+            [
+                'label' => I18N::translate('Widowed'),
+                'value' => $buckets[MaritalBucket::Widowed->value],
+                'class' => 'widowed',
+            ],
+            [
+                'label' => I18N::translate('Divorced'),
+                'value' => $buckets[MaritalBucket::Divorced->value],
+                'class' => 'divorced',
+            ],
         ];
     }
 
