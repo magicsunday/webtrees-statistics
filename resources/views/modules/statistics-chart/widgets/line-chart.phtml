@@ -17,12 +17,11 @@ use MagicSunday\Webtrees\Statistic\View\EmptyStatePlaceholder;
  * @var string                                                                        $identifier  Host element id
  * @var LineChartPayload|array{categories?: list<string>, series?: array<int, mixed>} $data        Chart payload: x-axis labels + N series. Accepts either the value-object or its raw-array form (latter used by call-sites that build the payload inline).
  * @var int|null                                                                      $height      Optional viewport height (defaults to 240)
- * @var int|null                                                                      $xLabelEvery Show every Nth x-axis label (default 1)
+ * @var int|null                                                                      $xLabelEvery Show every Nth x-axis label (default: auto, capped at ~12 visible labels)
  * @var bool|null                                                                     $showArea    Default true for single-series, ignored otherwise
  * @var string|null                                                                   $ariaLabel   Accessible label on the host svg
  */
-$height      ??= 240;
-$xLabelEvery ??= 1;
+$height ??= 240;
 
 // Some call-sites pass a `LineChartPayload` value object, others
 // hand in a plain `['categories' => [...], 'series' => [...]]`
@@ -38,6 +37,14 @@ if ($categories === []) {
 
     return;
 }
+
+// Default xLabelEvery scales with the category count so the x-axis
+// caps at ~12 visible labels regardless of input density. Callers
+// can still pin a specific stride explicitly; only the implicit
+// default goes through the cap. 12 matches the card width of a
+// 12-col grid host (~700 px) at the chart-lib font size before
+// adjacent labels start to overlap.
+$xLabelEvery ??= max(1, (int) ceil(count($categories) / 12));
 ?>
 <div class="wt-line-chart-container">
     <div id="<?php echo e($identifier); ?>"

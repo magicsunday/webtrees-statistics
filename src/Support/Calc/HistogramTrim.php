@@ -13,6 +13,8 @@ namespace MagicSunday\Webtrees\Statistic\Support\Calc;
 
 use function array_keys;
 use function array_slice;
+use function count;
+use function max;
 
 /**
  * Histogram-display helpers used by the chart view layer to suppress
@@ -61,6 +63,90 @@ final readonly class HistogramTrim
 
         foreach ($keys as $index => $key) {
             if (($series[$key] ?? 0) === 0) {
+                continue;
+            }
+
+            $first ??= $index;
+            $last = $index;
+        }
+
+        if (($first === null) || ($last === null)) {
+            return $series;
+        }
+
+        return array_slice($series, $first, ($last - $first) + 1, true);
+    }
+
+    /**
+     * Walks an escalating threshold ladder until the trimmed series
+     * fits `$maxBars`, then returns it. Each rung calls
+     * {@see dropLowOutlierEnds()} with a higher fraction-of-max
+     * ratio (1 % → 2 % → 5 % → 10 % → 20 %); the first rung whose
+     * trimmed output fits the cap wins. Falls back to the most
+     * aggressive trim when even 20 % still overshoots, so the cap is
+     * a soft ceiling, not a hard guarantee.
+     *
+     * @template TKey of array-key
+     *
+     * @param array<TKey, int> $series  Bucketed series in display order
+     * @param int              $maxBars Soft ceiling on the returned bucket count
+     *
+     * @return array<TKey, int>
+     */
+    public static function capByOutlierTrim(array $series, int $maxBars): array
+    {
+        $trimmed = $series;
+
+        foreach ([0.01, 0.02, 0.05, 0.10, 0.20] as $ratio) {
+            $trimmed = self::dropLowOutlierEnds($series, $ratio);
+
+            if (count($trimmed) <= $maxBars) {
+                return $trimmed;
+            }
+        }
+
+        return $trimmed;
+    }
+
+    /**
+     * Drop leading and trailing buckets whose value is below
+     * `$ratio * max($series)`. Inner low-but-non-zero buckets are
+     * preserved so gaps between non-trimmed buckets still show up.
+     *
+     * The first kept bucket has value ≥ `$ratio * max`. `$ratio = 0`
+     * falls back to {@see dropZeroEnds()} semantics; `$ratio = 1.0`
+     * keeps only the maximum bucket.
+     *
+     * Returned with the same key shape; no-op if every bucket is
+     * either at or above the ratio threshold.
+     *
+     * @template TKey of array-key
+     *
+     * @param array<TKey, int> $series Bucketed series in display order
+     * @param float            $ratio  Fractional threshold (0..1) of the max value
+     *
+     * @return array<TKey, int>
+     */
+    public static function dropLowOutlierEnds(array $series, float $ratio): array
+    {
+        if ($series === []) {
+            return $series;
+        }
+
+        if ($ratio === 0.0) {
+            return self::dropZeroEnds($series);
+        }
+
+        $threshold = max($series) * $ratio;
+
+        $keys  = array_keys($series);
+        $first = null;
+        $last  = null;
+
+        foreach ($keys as $index => $key) {
+            $value = $series[$key] ?? 0;
+
+            if ($value < $threshold) {
                 continue;
             }
 

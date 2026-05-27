@@ -13,6 +13,8 @@ use Fisharebest\Webtrees\I18N;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Statistic;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\CenturyBarRowMapper;
+use MagicSunday\Webtrees\Statistic\Support\Aggregator\DecadeBinCollapser;
+use MagicSunday\Webtrees\Statistic\Support\Calc\HistogramTrim;
 use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
 use MagicSunday\Webtrees\Statistic\View\Accent;
 use MagicSunday\Webtrees\Statistic\View\Card;
@@ -70,17 +72,43 @@ $livingByAgeBand = array_map(
     $livingByAgeBand,
 );
 
+$birthsByDecadeBinSize = DecadeBinCollapser::pickBinSize(count($birthsByDecade));
+$birthsByDecadePlot    = DecadeBinCollapser::collapseCounts($birthsByDecade);
+
+$birthsByDecadeCardTitle = match ($birthsByDecadeBinSize) {
+    1       => I18N::translate('Births by decade'),
+    5       => I18N::translate('Births per half-century'),
+    10      => I18N::translate('Births per century'),
+    50      => I18N::translate('Births per half-millennium'),
+    100     => I18N::translate('Births per millennium'),
+    default => I18N::translate('Births per %s-decade period', I18N::number($birthsByDecadeBinSize)),
+};
+$birthsByDecadeCardSub = I18N::plural('%s recorded birth date', '%s recorded birth dates', $totalBirthsByDecade, I18N::number($totalBirthsByDecade));
+
+if ($birthsByDecadeBinSize > 1) {
+    $birthsByDecadeCardSub .= ' — ' . I18N::translate(
+        'aggregated into %s-decade bins for readability',
+        I18N::number($birthsByDecadeBinSize),
+    );
+}
+
 $birthsByDecadePayload = LineChartPayload::singleSeries(
     seriesName: I18N::translate('Births'),
-    countsByCategory: $birthsByDecade,
-    project: static fn (int|string $decade, int|float $count): array => [
-        'categoryLabel' => I18N::translate('%ss', (string) $decade),
-        'tooltipBody'   => I18N::plural('%s birth', '%s births', (int) $count, I18N::number($count)),
-        'tooltipLabel'  => I18N::translate('%ss', (string) $decade),
-    ],
-);
+    countsByCategory: $birthsByDecadePlot,
+    project: static function (int|string $decade, int|float $count) use ($birthsByDecadeBinSize): array {
+        $startDecade = (int) $decade;
+        $endDecade   = $startDecade + ($birthsByDecadeBinSize - 1) * 10;
+        $rangeLabel  = ($birthsByDecadeBinSize === 1)
+            ? I18N::translate('%ss', (string) $startDecade)
+            : I18N::translate('%1$ss – %2$ss', (string) $startDecade, (string) $endDecade);
 
-$birthsByDecadeXLabelEvery = max(1, (int) ceil(count($birthsByDecadePayload->categories) / 12));
+        return [
+            'categoryLabel' => I18N::translate('%ss', (string) $startDecade),
+            'tooltipBody'   => I18N::plural('%s birth', '%s births', (int) $count, I18N::number($count)),
+            'tooltipLabel'  => $rangeLabel,
+        ];
+    },
+);
 
 $mortalityByCentury = [];
 $mortalityTooltips  = [];
@@ -143,9 +171,20 @@ foreach ($ageAtDeath as $bandLabel => $count) {
     ];
 }
 
-// Births / deaths per century — bar chart payload mirrors the
-// histogram look in the mockup (one bar per century, ordered
-// chronologically, full century name as tooltip header).
+// Cap the rendered bar count so labels and value-overlays stay
+// readable. The card hosts the histogram in a 4-col grid slot
+// (~230 px wide); ~14 bars is the densest layout where axis ticks
+// and value labels do not overlap. Inner buckets stay even when
+// trimmed centuries fall away. Track the pre/post counts so the
+// card body can disclose how many low-outlier centuries were
+// dropped from the visible range.
+$birthsByCenturyFullCount = count($birthsByCentury);
+$deathsByCenturyFullCount = count($deathsByCentury);
+$birthsByCentury          = HistogramTrim::capByOutlierTrim($birthsByCentury, 14);
+$deathsByCentury          = HistogramTrim::capByOutlierTrim($deathsByCentury, 14);
+$birthsByCenturyDropped   = $birthsByCenturyFullCount - count($birthsByCentury);
+$deathsByCenturyDropped   = $deathsByCenturyFullCount - count($deathsByCentury);
+
 $birthsByCenturyBars = CenturyBarRowMapper::births($birthsByCentury);
 
 $deathsByCenturyBars = CenturyBarRowMapper::deaths($deathsByCentury);
@@ -325,8 +364,8 @@ echo Section::create(I18N::translate('When were they born?'))
     ->withSub(I18N::translate('Time-distribution of births'))
     ->render();
 
-echo Card::for($module, I18N::translate('Births by decade'))
-    ->withSub(I18N::plural('%s recorded birth date — tree growth across decades', '%s recorded birth dates — tree growth across decades', $totalBirthsByDecade, I18N::number($totalBirthsByDecade)))
+echo Card::for($module, $birthsByDecadeCardTitle)
+    ->withSub($birthsByDecadeCardSub)
     ->withEyebrow(I18N::translate('Timeline'))
     ->withAccent(Accent::Ochre)
     ->withIllustration(Illustration::Sunrise)
@@ -335,14 +374,24 @@ echo Card::for($module, I18N::translate('Births by decade'))
         Widget::lineChart($module, 'births-decade-line')
             ->withData($birthsByDecadePayload)
             ->withHeight(240)
-            ->with('xLabelEvery', $birthsByDecadeXLabelEvery)
             ->with('showArea', true)
             ->render()
     )
     ->render();
 
+$birthsByCenturySub = I18N::plural('%s individual with a recorded birth year', '%s individuals with a recorded birth year', $totalBirthsByCentury, I18N::number($totalBirthsByCentury));
+
+if ($birthsByCenturyDropped > 0) {
+    $birthsByCenturySub .= ' — ' . I18N::plural(
+        '%s outlier century not shown',
+        '%s outlier centuries not shown',
+        $birthsByCenturyDropped,
+        I18N::number($birthsByCenturyDropped),
+    );
+}
+
 echo Card::for($module, I18N::translate('Births by century'))
-    ->withSub(I18N::plural('%s individual with a recorded birth year', '%s individuals with a recorded birth year', $totalBirthsByCentury, I18N::number($totalBirthsByCentury)))
+    ->withSub($birthsByCenturySub)
     ->withEyebrow(I18N::translate('Timeline'))
     ->withAccent(Accent::Ochre)
     ->withIllustration(Illustration::Sunrise)
@@ -391,8 +440,19 @@ echo Section::create(I18N::translate('When did they die?'))
     ->withSub(I18N::translate('Season and century of recorded deaths'))
     ->render();
 
+$deathsByCenturySub = I18N::plural('%s individual with a recorded death year', '%s individuals with a recorded death year', $totalDeathsByCentury, I18N::number($totalDeathsByCentury));
+
+if ($deathsByCenturyDropped > 0) {
+    $deathsByCenturySub .= ' — ' . I18N::plural(
+        '%s outlier century not shown',
+        '%s outlier centuries not shown',
+        $deathsByCenturyDropped,
+        I18N::number($deathsByCenturyDropped),
+    );
+}
+
 echo Card::for($module, I18N::translate('Deaths by century'))
-    ->withSub(I18N::plural('%s individual with a recorded death year', '%s individuals with a recorded death year', $totalDeathsByCentury, I18N::number($totalDeathsByCentury)))
+    ->withSub($deathsByCenturySub)
     ->withEyebrow(I18N::translate('Timeline'))
     ->withAccent(Accent::Wine)
     ->withIllustration(Illustration::Moon)

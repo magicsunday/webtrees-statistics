@@ -12,6 +12,7 @@ declare(strict_types=1);
 use Fisharebest\Webtrees\I18N;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Statistic;
+use MagicSunday\Webtrees\Statistic\Support\Aggregator\DecadeBinCollapser;
 use MagicSunday\Webtrees\Statistic\View\Accent;
 use MagicSunday\Webtrees\Statistic\View\Card;
 use MagicSunday\Webtrees\Statistic\View\Component;
@@ -43,16 +44,41 @@ $cumulativeBirthsByDecade = $statistic->getCumulativeBirthsByDecade();
 // chart, and to avoid a second identical SQL round-trip.
 $cumulativeBirthsTotal = $cumulativeBirthsByDecade === [] ? 0 : end($cumulativeBirthsByDecade);
 reset($cumulativeBirthsByDecade);
+
+$cumulativeBirthsBinSize = DecadeBinCollapser::pickBinSize(count($cumulativeBirthsByDecade));
+$cumulativeBirthsPlot    = DecadeBinCollapser::collapseCumulative($cumulativeBirthsByDecade);
+
+$cumulativeBirthsCardSub = I18N::plural(
+    '%s individual with a recorded birth year',
+    '%s individuals with a recorded birth year',
+    $cumulativeBirthsTotal,
+    I18N::number($cumulativeBirthsTotal),
+);
+
+if ($cumulativeBirthsBinSize > 1) {
+    $cumulativeBirthsCardSub .= ' — ' . I18N::translate(
+        'aggregated into %s-decade bins for readability',
+        I18N::number($cumulativeBirthsBinSize),
+    );
+}
+
 $cumulativeBirthsPayload = LineChartPayload::singleSeries(
     seriesName: I18N::translate('Cumulative population'),
-    countsByCategory: $cumulativeBirthsByDecade,
-    project: static fn (int|string $decade, int|float $count): array => [
-        'categoryLabel' => I18N::translate('%ss', (string) $decade),
-        'tooltipBody'   => I18N::plural('%s individual recorded', '%s individuals recorded', (int) $count, I18N::number($count)),
-        'tooltipLabel'  => I18N::translate('Up to the %ss', (string) $decade),
-    ],
+    countsByCategory: $cumulativeBirthsPlot,
+    project: static function (int|string $decade, int|float $count) use ($cumulativeBirthsBinSize): array {
+        $startDecade  = (int) $decade;
+        $endDecade    = $startDecade + ($cumulativeBirthsBinSize - 1) * 10;
+        $tooltipLabel = ($cumulativeBirthsBinSize === 1)
+            ? I18N::translate('Up to the %ss', (string) $startDecade)
+            : I18N::translate('Up to the end of the %ss', (string) $endDecade);
+
+        return [
+            'categoryLabel' => I18N::translate('%ss', (string) $startDecade),
+            'tooltipBody'   => I18N::plural('%s individual recorded', '%s individuals recorded', (int) $count, I18N::number($count)),
+            'tooltipLabel'  => $tooltipLabel,
+        ];
+    },
 );
-$cumulativeBirthsXLabelEvery = max(1, (int) ceil(count($cumulativeBirthsPayload->categories) / 12));
 ?>
 <div class="wt-stat-grid">
 <?php
@@ -175,7 +201,7 @@ echo Section::create(I18N::translate('How the tree grew'))
     ->render();
 
 echo Card::for($module, I18N::translate('Tree growth over time'))
-    ->withSub(I18N::plural('%s individual with a recorded birth year', '%s individuals with a recorded birth year', $cumulativeBirthsTotal, I18N::number($cumulativeBirthsTotal)))
+    ->withSub($cumulativeBirthsCardSub)
     ->withEyebrow(I18N::translate('Growth'))
     ->withAccent(Accent::Sage)
     ->withIllustration(Illustration::Tree)
@@ -185,7 +211,6 @@ echo Card::for($module, I18N::translate('Tree growth over time'))
         Widget::lineChart($module, 'cumulative-births-line')
             ->withData($cumulativeBirthsPayload)
             ->withHeight(260)
-            ->with('xLabelEvery', $cumulativeBirthsXLabelEvery)
             ->with('showArea', true)
             ->render()
     )

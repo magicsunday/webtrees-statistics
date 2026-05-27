@@ -15,7 +15,10 @@ use MagicSunday\Webtrees\Statistic\Support\Calc\HistogramTrim;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
+use function array_fill;
 use function array_keys;
+use function array_values;
+use function count;
 
 /**
  * Verifies the co-zero trim used by the age-at-marriage and
@@ -161,5 +164,92 @@ final class HistogramTrimTest extends TestCase
         $series = ['a' => 0, 'b' => 0, 'c' => 0];
 
         self::assertSame($series, HistogramTrim::dropZeroEnds($series));
+    }
+
+    /**
+     * `dropLowOutlierEnds()` drops leading and trailing buckets
+     * below `$ratio * max`. Inner low-value buckets between two
+     * above-threshold edges survive so a sub-peak gap stays visible.
+     */
+    #[Test]
+    public function dropLowOutlierEndsKeepsInnerSubThresholdBuckets(): void
+    {
+        $series = ['a' => 5, 'b' => 60, 'c' => 8, 'd' => 100, 'e' => 4];
+
+        $result = HistogramTrim::dropLowOutlierEnds($series, 0.10);
+
+        self::assertSame(['b' => 60, 'c' => 8, 'd' => 100], $result);
+    }
+
+    /**
+     * `$ratio = 0` falls back to {@see HistogramTrim::dropZeroEnds()}
+     * semantics — only literal zero edges are stripped.
+     */
+    #[Test]
+    public function dropLowOutlierEndsWithZeroRatioStripsZeroEnds(): void
+    {
+        $series = ['a' => 0, 'b' => 1, 'c' => 5, 'd' => 0];
+
+        self::assertSame(['b' => 1, 'c' => 5], HistogramTrim::dropLowOutlierEnds($series, 0.0));
+    }
+
+    /**
+     * Empty input passes through unchanged.
+     */
+    #[Test]
+    public function dropLowOutlierEndsHandlesEmptyInput(): void
+    {
+        self::assertSame([], HistogramTrim::dropLowOutlierEnds([], 0.5));
+    }
+
+    /**
+     * `capByOutlierTrim()` escalates the trim ratio until the bar
+     * count fits the cap. A series with one peak and 19 tail-noise
+     * entries collapses to the peak once the 2 %-of-max ratio kicks
+     * in (tail values 1 < 100 * 0.02 = 2).
+     */
+    #[Test]
+    public function capByOutlierTrimEscalatesRatioUntilFits(): void
+    {
+        $series = [];
+
+        for ($i = 0; $i < 20; ++$i) {
+            $series[$i] = ($i === 10) ? 100 : 1;
+        }
+
+        $result = HistogramTrim::capByOutlierTrim($series, 5);
+
+        self::assertCount(1, $result);
+        self::assertSame(100, $result[10]);
+    }
+
+    /**
+     * A series already at or under the cap passes through under the
+     * gentlest 1 % rung — the cap is a ceiling, not a floor.
+     */
+    #[Test]
+    public function capByOutlierTrimNoOpForShortSeries(): void
+    {
+        $series = ['16th' => 25, '17th' => 67, '18th' => 401, '19th' => 537, '20th' => 301];
+
+        self::assertSame($series, HistogramTrim::capByOutlierTrim($series, 14));
+    }
+
+    /**
+     * Flat-plateau input (every bucket equals max) — no ratio rung
+     * up to 20 % can drop a single bucket since `$value < $value *
+     * 0.20` is always false. The helper falls through and returns
+     * the unchanged series even when the cap is exceeded; the
+     * documented soft-ceiling contract permits this.
+     */
+    #[Test]
+    public function capByOutlierTrimReturnsUnchangedWhenLadderCannotConverge(): void
+    {
+        $series = array_fill(0, 10, 100);
+
+        $result = HistogramTrim::capByOutlierTrim($series, 3);
+
+        self::assertSame($series, $result);
+        self::assertGreaterThan(3, count($result), 'soft ceiling: identical-value plateau exceeds cap');
     }
 }
