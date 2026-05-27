@@ -238,6 +238,35 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
+     * life-span.ged carries five deceased individuals — Anna 75y in
+     * 19th c., Berta 95y in 20th c., Carl 120y in 18th c., Doris 3y
+     * in 20th c., Emil 53y in 19th c. The 18th-century cohort is a
+     * single individual and stays below MIN_COHORT_SIZE; the 19th
+     * and 20th each have two and are also below the threshold. The
+     * fixture is therefore expected to drop every cohort.
+     */
+    #[Test]
+    public function deathAgeDistributionByCenturyDropsSubThresholdCohorts(): void
+    {
+        $tree = $this->importFixtureTree('life-span.ged');
+
+        self::assertSame([], $this->repository($tree)->deathAgeDistributionByCentury());
+    }
+
+    /**
+     * empty-marriages.ged has one dated BIRT but no DEAT, so no
+     * BirthDeathPair survives the join. Locks the empty-result
+     * short-circuit for trees without computable lifespans.
+     */
+    #[Test]
+    public function deathAgeDistributionByCenturyIsEmptyWithoutDeathDates(): void
+    {
+        $tree = $this->importFixtureTree('empty-marriages.ged');
+
+        self::assertSame([], $this->repository($tree)->deathAgeDistributionByCentury());
+    }
+
+    /**
      * Sub-threshold sample (life-span.ged only carries 5 dated
      * deaths, the threshold is 12) returns null because the
      * winter / baseline ratio derived from too few samples is too

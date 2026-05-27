@@ -10,6 +10,7 @@ import { geoMercator } from "d3-geo";
 
 import {
     BarChart,
+    BoxPlot,
     ChordDiagram,
     DivergingBar,
     DonutChart,
@@ -122,6 +123,7 @@ const WIDGETS = {
     "month-radial": fromChartLib(MonthRadial),
     "gauge-arc": fromChartLib(GaugeArc),
     "mirror-histogram": fromChartLib(MirrorHistogram),
+    "box-plot": fromChartLib(BoxPlot),
 };
 
 /**

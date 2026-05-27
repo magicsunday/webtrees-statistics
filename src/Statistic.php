@@ -453,6 +453,19 @@ final readonly class Statistic
     }
 
     /**
+     * Raw age-at-death samples grouped by birth century. Each row
+     * carries the year-precision integer ages for one cohort plus
+     * the sample size; downstream consumers (chart-lib BoxPlot)
+     * compute quartiles and whiskers themselves.
+     *
+     * @return list<array{century: int, values: list<int>, n: int}>
+     */
+    public function getDeathAgeDistributionByCentury(): array
+    {
+        return $this->lifeSpanRepository->deathAgeDistributionByCentury();
+    }
+
+    /**
      * Winter-peak indicator for deaths (Dec+Jan+Feb vs. baseline).
      * Returns null when fewer than 12 dated deaths are recorded.
      */

@@ -34,6 +34,7 @@ use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
 use function array_fill_keys;
 use function array_key_last;
 use function array_map;
+use function count;
 use function getdate;
 use function gregoriantojd;
 use function intdiv;
@@ -225,6 +226,91 @@ final readonly class LifeSpanRepository
         }
 
         return HistogramTrim::dropZeroEnds($dense);
+    }
+
+    /**
+     * Age-at-death samples grouped by birth century. Each entry
+     * carries the raw integer ages so the consumer (typically the
+     * chart-lib BoxPlot widget) can compute quartiles, whiskers and
+     * outliers itself. Sub-day fractions are dropped via
+     * `intdiv(deathJd − birthJd, 365)`; non-positive ages, ages
+     * above the tree's plausible-age cap, and BCE birth years are
+     * filtered out.
+     *
+     * Cohorts below {@see self::MIN_COHORT_SIZE} samples are skipped
+     * — a five-number summary on a 1-person cohort is noise.
+     *
+     * @return list<array{century: int, values: list<int>, n: int}>
+     */
+    public function deathAgeDistributionByCentury(): array
+    {
+        $maxAge = $this->maxPlausibleAge();
+
+        $rows = BirthDeathPairsQuery::for($this->tree)
+            ->select([
+                'birth.d_year AS birth_year',
+                'birth.d_julianday1 AS birth_jd',
+                'death.d_julianday1 AS death_jd',
+            ])
+            ->get();
+
+        /** @var array<int, list<int>> $cohorts */
+        $cohorts = [];
+
+        foreach ($rows as $row) {
+            $year = RowCast::int($row, 'birth_year');
+
+            if ($year <= 0) {
+                continue;
+            }
+
+            $birthJd = RowCast::int($row, 'birth_jd');
+            $deathJd = RowCast::int($row, 'death_jd');
+
+            if ($birthJd <= 0) {
+                continue;
+            }
+
+            if ($deathJd <= $birthJd) {
+                continue;
+            }
+
+            $years = intdiv($deathJd - $birthJd, 365);
+
+            if ($years <= 0) {
+                continue;
+            }
+
+            if ($years > $maxAge) {
+                continue;
+            }
+
+            $century             = CenturyName::fromYear($year);
+            $cohorts[$century][] = $years;
+        }
+
+        if ($cohorts === []) {
+            return [];
+        }
+
+        ksort($cohorts);
+        $out = [];
+
+        foreach ($cohorts as $century => $ages) {
+            $n = count($ages);
+
+            if ($n < self::MIN_COHORT_SIZE) {
+                continue;
+            }
+
+            $out[] = [
+                'century' => $century,
+                'values'  => $ages,
+                'n'       => $n,
+            ];
+        }
+
+        return $out;
     }
 
     /**

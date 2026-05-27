@@ -94,6 +94,9 @@ class GaugeArc {
 class MirrorHistogram {
     draw() {}
 }
+class BoxPlot {
+    draw() {}
+}
 
 jest.unstable_mockModule("@magicsunday/webtrees-chart-lib", () => ({
     DonutChart,
@@ -109,6 +112,7 @@ jest.unstable_mockModule("@magicsunday/webtrees-chart-lib", () => ({
     NameBubbles,
     GaugeArc,
     MirrorHistogram,
+    BoxPlot,
 }));
 
 // world-map dispatch is async (geojson fetch); mock d3-fetch + d3-geo

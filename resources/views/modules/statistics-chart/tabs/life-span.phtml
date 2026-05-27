@@ -46,6 +46,7 @@ $winterPeakScore         = $statistic->getDeathWinterPeakScore();
 $childMortality          = $statistic->getChildMortalitySummary();
 $childMortalityByCentury = $statistic->getChildMortalityByBirthCentury();
 $lifespanBySexCentury    = $statistic->getAverageLifespanBySexAndCentury();
+$ageDistByCentury        = $statistic->getDeathAgeDistributionByCentury();
 
 $totalBirthsByMonth   = array_sum($birthsByMonth);
 $totalBirthsByZodiac  = array_sum($birthsByZodiacSign);
@@ -193,6 +194,17 @@ $birthsByCenturyBars = CenturyBarRowMapper::births($birthsByCentury);
 
 $deathsByCenturyBars = CenturyBarRowMapper::deaths($deathsByCentury);
 
+// Boxplot rows: one entry per surviving cohort, raw integer ages
+// per individual. Chart-lib computes quartiles + whiskers itself.
+$ageDistBoxes = [];
+
+foreach ($ageDistByCentury as $entry) {
+    $ageDistBoxes[] = [
+        'category' => CenturyName::for($entry['century']),
+        'values'   => $entry['values'],
+    ];
+}
+
 $aboutThisChart = I18N::translate('About this chart');
 
 if ($winterPeakScore === null) {
@@ -255,6 +267,26 @@ echo Card::for($module, I18N::translate('Life-stage (living)'))
             ->withData($livingByAgeBand)
             ->with('centerLabel', I18N::translate('living'))
             ->withLegendPosition(LegendPosition::Bottom)
+            ->render()
+    )
+    ->render();
+
+echo Card::for($module, I18N::translate('Age-at-death distribution by century'))
+    ->withSub(I18N::translate('Median, inter-quartile range and whiskers per birth century'))
+    ->withEyebrow(I18N::translate('Distribution'))
+    ->withAccent(Accent::Wine)
+    ->withIllustration(Illustration::Hourglass)
+    ->withInfo(
+        I18N::translate('For every individual with a parseable BIRT + DEAT date the widget computes the age at death and groups the cohort by the birth century. Each box shows the median (centre line), the inter-quartile range (the box itself spanning Q1 to Q3), and the whiskers (the highest and lowest sample within 1.5 × IQR of the box). Samples outside the whiskers render as outlier dots. Cohorts below 5 individuals are dropped because a five-number summary on a 1-person cohort is noise.'),
+        $aboutThisChart,
+        $aboutThisChart,
+    )
+    ->withSpan(12)
+    ->withBodyHtml(
+        Widget::boxPlot($module, 'age-at-death-boxplot')
+            ->withData($ageDistBoxes)
+            ->withHeight(300)
+            ->withAriaLabel(I18N::translate('Age-at-death distribution by century'))
             ->render()
     )
     ->render();

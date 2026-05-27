@@ -1,0 +1,43 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
+use MagicSunday\Webtrees\Statistic\View\EmptyStatePlaceholder;
+
+/**
+ * @var string                                                                 $identifier   Host element id
+ * @var array<int, array{category: string, values: list<int>, class?: string}> $data    One row per category with the raw sample list — the widget sorts and quartiles internally.
+ * @var int|null                                                               $height       Optional viewport height (defaults to 280)
+ * @var string|null                                                            $orientation  "vertical" (default) or "horizontal"
+ * @var string|null                                                            $ariaLabel    Accessible label on the host svg
+ */
+$height      ??= 280;
+$orientation ??= 'vertical';
+
+if ($data === []) {
+    echo EmptyStatePlaceholder::render();
+
+    return;
+}
+?>
+<div class="wt-box-plot-container">
+    <div id="<?php echo e($identifier); ?>"
+         class="wt-box-plot-host"
+         data-widget="box-plot"
+         data-payload="<?php echo WidgetJson::encodeAttribute($data); ?>"
+         data-options="<?php echo WidgetJson::encodeAttribute([
+             'height'      => $height,
+             'orientation' => $orientation,
+             'ariaLabel'   => $ariaLabel ?? null,
+         ]); ?>"
+         data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"
+    ></div>
+</div>

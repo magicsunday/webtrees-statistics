@@ -95,6 +95,23 @@ final readonly class Widget
     }
 
     /**
+     * Start a new box-plot widget host. The widget computes
+     * quartiles + whiskers internally — callers ship the raw sample
+     * arrays per category via `->withData([['category' => …,
+     * 'values' => [int, …]], …])`.
+     */
+    public static function boxPlot(string $module, string $identifier): self
+    {
+        return new self(
+            $module,
+            'box-plot',
+            [
+                'identifier' => $identifier,
+            ]
+        );
+    }
+
+    /**
      * Start a new donut-chart widget host.
      */
     public static function donutChart(string $module, string $identifier): self
