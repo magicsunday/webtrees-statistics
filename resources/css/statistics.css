@@ -2582,21 +2582,17 @@
     fill:         none;
 }
 
-/* Median value label centred on the median line. `paint-order` +
-   a fat stroke in the card surface colour break the line visually
-   around each glyph, removing the need to position the label
-   above or below the median. Bold + tabular-nums keep the digits
-   compact and reading-anchored. */
+/* Median value label centred on the median line. The line is
+   split into two segments around the text in JS, so the digits
+   render as a plain ink-coloured number. `central` keeps the
+   glyph mid-height pinned to the y-position rather than the
+   alphabetic baseline. */
 .wt-statistics-chart svg.wt-box-plot text.median-value {
     fill:                 var(--ink);
     font-family:          var(--serif, var(--sans));
-    font-size:            12px;
-    font-weight:          700;
+    font-size:            13px;
     font-variant-numeric: tabular-nums;
-    paint-order:          stroke fill;
-    stroke:               var(--card);
-    stroke-width:         5px;
-    stroke-linejoin:      round;
+    dominant-baseline:    central;
     pointer-events:       none;
 }
 

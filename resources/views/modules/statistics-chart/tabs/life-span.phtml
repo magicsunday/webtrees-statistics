@@ -279,7 +279,7 @@ echo Card::for($module, I18N::translate('Age-at-death distribution by century'))
     ->withAccent(Accent::Wine)
     ->withIllustration(Illustration::Hourglass)
     ->withInfo(
-        I18N::translate('One box per birth century, summarising how old people lived to be. The dark line in the middle is the typical age at death (the median). The box itself covers the middle 50 %% of the cohort — its lower edge is the age below which a quarter died (P25), its upper edge the age below which three quarters died (P75). The thin lines extending up and down (the "whiskers") reach the youngest and oldest typical case; individual dots beyond the whiskers are rare extreme cases — very young child deaths at the bottom, centenarians at the top. Cohorts smaller than five individuals are hidden because a single life cannot represent a century.'),
+        I18N::translate('One box per birth century, summarising how old people lived to be. The dark line in the middle is the typical age at death (the median). The box itself covers the middle 50 %% of the cohort — its lower edge is the age below which a quarter died (P25), its upper edge the age below which three quarters died (P75). The thin lines extending up and down (the "whiskers") reach roughly to the youngest and oldest case still close to the box — formally the most extreme age within 1.5 box-heights of the edge. Individual dots beyond the whiskers are rare extreme cases — very young child deaths at the bottom, centenarians at the top. Cohorts smaller than five individuals are hidden because a single life cannot represent a century.'),
         $aboutThisChart,
         $aboutThisChart,
     )
