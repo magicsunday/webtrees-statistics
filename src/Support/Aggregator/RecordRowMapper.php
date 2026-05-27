@@ -12,11 +12,11 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Support\Aggregator;
 
 use Fisharebest\Webtrees\I18N;
-use MagicSunday\Webtrees\Statistic\Model\Dto\Record\FamilyCountRecord;
-use MagicSunday\Webtrees\Statistic\Model\Dto\Record\FamilyDurationDaysRecord;
-use MagicSunday\Webtrees\Statistic\Model\Dto\Record\FamilyDurationYearsRecord;
-use MagicSunday\Webtrees\Statistic\Model\Dto\Record\IndividualAgeRecord;
-use MagicSunday\Webtrees\Statistic\Model\Dto\Record\IndividualCountRecord;
+use MagicSunday\Webtrees\Statistic\Model\Record\FamilyCountRecord;
+use MagicSunday\Webtrees\Statistic\Model\Record\FamilyDurationDaysRecord;
+use MagicSunday\Webtrees\Statistic\Model\Record\FamilyDurationYearsRecord;
+use MagicSunday\Webtrees\Statistic\Model\Record\IndividualAgeRecord;
+use MagicSunday\Webtrees\Statistic\Model\Record\IndividualCountRecord;
 use MagicSunday\Webtrees\Statistic\View\RecordCategory;
 
 /**

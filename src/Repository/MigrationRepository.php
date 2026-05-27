@@ -12,9 +12,9 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
-use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\MigrationFlowsPayload;
-use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\SankeyLink;
-use MagicSunday\Webtrees\Statistic\Model\Dto\Sankey\SankeySample;
+use MagicSunday\Webtrees\Statistic\Model\Sankey\MigrationFlowsPayload;
+use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyLink;
+use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeySample;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;

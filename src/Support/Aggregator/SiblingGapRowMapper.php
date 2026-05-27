@@ -12,8 +12,8 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Support\Aggregator;
 
 use Fisharebest\Webtrees\I18N;
-use MagicSunday\Webtrees\Statistic\Model\Dto\LineChart\LineChartPayload;
-use MagicSunday\Webtrees\Statistic\Model\Dto\LineChart\LineChartSeries;
+use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
+use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
 
 use function array_keys;
 use function array_values;

@@ -14,9 +14,12 @@ namespace MagicSunday\Webtrees\Statistic\Test\Architecture;
 use Illuminate\Database\Capsule\Manager;
 use JsonSerializable;
 use PHPat\Selector\Selector;
+use PHPat\Selector\SelectorInterface;
 use PHPat\Test\Attributes\TestRule;
 use PHPat\Test\Builder\Rule;
 use PHPat\Test\PHPat;
+
+use function array_map;
 
 /**
  * Architecture rules executed by phpat through PHPStan. Each
@@ -26,11 +29,12 @@ use PHPat\Test\PHPat;
  *
  * Pyramid in this module (top = depends on layers below):
  *
- *   - Module        (composition root; wires Statistic → Repositories)
- *   - Statistic     (facade exposing widget-shaped getters to views)
- *   - Repository    (DB queries + GEDCOM scans, one per metric domain)
- *   - Model\Dto     (immutable wire-shape value objects returned by repositories)
- *   - Support       (pure helpers: bucketing, GedcomScanner, ParentMap…)
+ *   - Module               (composition root; wires Statistic → Repositories)
+ *   - Statistic            (facade exposing widget-shaped getters to views)
+ *   - Repository           (DB queries + GEDCOM scans, one per metric domain)
+ *   - Model\<Widget>       (immutable wire-shape value objects returned by repositories)
+ *   - Model (root)         (cross-cutting enums + value objects: Sex, MaritalBucket, FamilyRow…)
+ *   - Support              (pure helpers: bucketing, GedcomScanner, ParentMap…)
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -39,6 +43,41 @@ use PHPat\Test\PHPat;
 final class ArchitectureTest
 {
     private const string NAMESPACE_ROOT = 'MagicSunday\\Webtrees\\Statistic';
+
+    /**
+     * Per-widget DTO sub-namespaces under `Model\`. Listed explicitly so
+     * the DTO architecture rules below select exactly the wire-shape
+     * value objects and not the root-level enums (`Sex`, `MaritalBucket`)
+     * or value objects (`FamilyRow`) which live alongside them. Add an
+     * entry here whenever a new widget shape ships its own DTOs.
+     *
+     * @var list<string>
+     */
+    private const array DTO_SUB_NAMESPACES = [
+        'Chord',
+        'LineChart',
+        'Metric',
+        'Record',
+        'Sankey',
+        'StackedBar',
+        'StreamGraph',
+        'Tree',
+    ];
+
+    /**
+     * Builds one `Selector::inNamespace` per DTO sub-namespace so the
+     * resulting list can be splat into `->classes(...)` (which takes a
+     * varargs disjunction) or wrapped in `Selector::AnyOf(...)`.
+     *
+     * @return list<SelectorInterface>
+     */
+    private function dtoSelectors(): array
+    {
+        return array_map(
+            static fn (string $subNamespace): SelectorInterface => Selector::inNamespace(self::NAMESPACE_ROOT . '\\Model\\' . $subNamespace),
+            self::DTO_SUB_NAMESPACES,
+        );
+    }
 
     /**
      * Every helper in `Support\` must be `final` so its contract
@@ -185,15 +224,15 @@ final class ArchitectureTest
     public function dtoClassesAreFinal(): Rule
     {
         return PHPat::rule()
-            ->classes(Selector::inNamespace(self::NAMESPACE_ROOT . '\\Model\\Dto'))
+            ->classes(...$this->dtoSelectors())
             ->should()->beFinal()
             ->because('DTOs must be final so the wire shape can never be subverted by a subclass');
     }
 
     /**
-     * Every DTO must implement `JsonSerializable`. The whole
-     * Model\Dto layer exists to be serialised to JSON for the
-     * chart-lib widgets via `json_encode`; a DTO without
+     * Every DTO must implement `JsonSerializable`. The per-widget DTO
+     * sub-namespaces under `Model\` exist to be serialised to JSON for
+     * the chart-lib widgets via `json_encode`; a DTO without
      * `jsonSerialize` would silently fall back to PHP's default
      * object-serialisation (mangled property names) and break the
      * widget contract on the wire.
@@ -202,7 +241,7 @@ final class ArchitectureTest
     public function dtoClassesAreJsonSerializable(): Rule
     {
         return PHPat::rule()
-            ->classes(Selector::inNamespace(self::NAMESPACE_ROOT . '\\Model\\Dto'))
+            ->classes(...$this->dtoSelectors())
             ->should()->implement()
             ->classes(Selector::classname(JsonSerializable::class))
             ->because('DTOs ship to the wire via json_encode; without JsonSerializable the JSON shape would drift away from PHPDoc');
@@ -221,7 +260,7 @@ final class ArchitectureTest
     public function dtoDoesNotDependOnAnyOtherProductionLayer(): Rule
     {
         return PHPat::rule()
-            ->classes(Selector::inNamespace(self::NAMESPACE_ROOT . '\\Model\\Dto'))
+            ->classes(...$this->dtoSelectors())
             ->shouldNot()->dependOn()
             ->classes(
                 Selector::inNamespace(self::NAMESPACE_ROOT . '\\Repository'),
@@ -233,12 +272,16 @@ final class ArchitectureTest
     }
 
     /**
-     * The `Model` namespace (sibling of `Model\Dto`) holds domain
+     * The root of the `Model` namespace holds cross-cutting domain
      * enums and value objects that classify webtrees data without
-     * carrying behaviour. The same layering invariant applies:
-     * enums must not reach into repositories, the facade, the
-     * composition root, or Support helpers — they ARE the
-     * vocabulary repositories speak, not the other way around.
+     * carrying behaviour (`Sex`, `MaritalBucket`, `FamilyRow`). The
+     * same leaf-layer invariant as for the per-widget DTOs applies:
+     * they must not reach into repositories, the facade, the
+     * composition root, or Support helpers — they ARE the vocabulary
+     * those layers speak, not the other way around. The per-widget
+     * DTO sub-namespaces are excluded here because they already have
+     * their own stricter `dtoDoesNotDependOnAnyOtherProductionLayer`
+     * rule above.
      */
     #[TestRule]
     public function modelDoesNotDependOnAnyOtherProductionLayer(): Rule
@@ -247,7 +290,10 @@ final class ArchitectureTest
             ->classes(
                 Selector::AllOf(
                     Selector::inNamespace(self::NAMESPACE_ROOT . '\\Model'),
-                    Selector::Not(Selector::inNamespace(self::NAMESPACE_ROOT . '\\Model\\Dto')),
+                    ...array_map(
+                        Selector::Not(...),
+                        $this->dtoSelectors(),
+                    ),
                 ),
             )
             ->shouldNot()->dependOn()

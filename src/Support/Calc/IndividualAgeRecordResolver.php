@@ -14,7 +14,7 @@ namespace MagicSunday\Webtrees\Statistic\Support\Calc;
 use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Tree;
-use MagicSunday\Webtrees\Statistic\Model\Dto\Record\IndividualAgeRecord;
+use MagicSunday\Webtrees\Statistic\Model\Record\IndividualAgeRecord;
 
 /**
  * Resolves a `{xref, ageYears}` candidate picked by a Hall-of-Fame
