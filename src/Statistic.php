@@ -824,6 +824,22 @@ final readonly class Statistic
     }
 
     /**
+     * Source-citation coverage broken down by birth century — the
+     * per-century companion to {@see getSourceCitationCoverage()}.
+     * Surfaces which historical eras carry their share of
+     * source-backed documentation and which rely on family lore.
+     * Centuries below the repository's minimum-sample threshold are
+     * dropped from the breakdown to keep the bar from spiking on a
+     * single sourced ancestor; BCE birth years are excluded entirely.
+     *
+     * @return list<array{century: int, total: int, sourced: int, percentage: float}>
+     */
+    public function getSourceCitationCoverageByCentury(): array
+    {
+        return $this->treeHealthRepository->sourceCitationCoverageByCentury();
+    }
+
+    /**
      * Missing-event gap rates for BIRT / DEAT, each split into "event
      * missing" and "place missing" rows. Returned as `{event, kind,
      * value, total}` tuples so the consumer can render its own label

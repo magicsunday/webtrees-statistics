@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 use Fisharebest\Webtrees\I18N;
 use MagicSunday\Webtrees\Statistic\Statistic;
+use MagicSunday\Webtrees\Statistic\Support\Aggregator\CenturyBarRowMapper;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\HistogramBucketAggregator;
 use MagicSunday\Webtrees\Statistic\View\Accent;
 use MagicSunday\Webtrees\Statistic\View\Card;
@@ -24,9 +25,10 @@ use MagicSunday\Webtrees\Statistic\View\Widget;
  * @var string    $module    The name of the module
  * @var Statistic $statistic
  */
-$sourceCoverage = $statistic->getSourceCitationCoverage();
-$gaps           = $statistic->getMissingEventGaps();
-$generation     = $statistic->getAverageGenerationLength();
+$sourceCoverage          = $statistic->getSourceCitationCoverage();
+$sourceCoverageByCentury = $statistic->getSourceCitationCoverageByCentury();
+$gaps                    = $statistic->getMissingEventGaps();
+$generation              = $statistic->getAverageGenerationLength();
 
 $ancestorDistribution = $statistic->getAncestorCountDistribution();
 $avgPedigree          = $statistic->getAveragePedigreeCompleteness();
@@ -121,6 +123,8 @@ $endogamyExplanation = I18N::translate(
 
 $aboutThisChart = I18N::translate('About this chart');
 
+$sourceCoverageByCenturyBars = CenturyBarRowMapper::sourceCoverage($sourceCoverageByCentury);
+
 if ($generation === null) {
     $generationCardBody = EmptyStatePlaceholder::render();
 } else {
@@ -196,6 +200,21 @@ echo Card::for($module, I18N::translate('Generation length'))
     ->centered()
     ->withFooter()
     ->withBodyHtml($generationCardBody)
+    ->render();
+
+echo Card::for($module, I18N::translate('Source coverage by century'))
+    ->withSub(I18N::translate('Share of individuals with at least one source citation, per birth century'))
+    ->withEyebrow(I18N::translate('Documentation'))
+    ->withAccent(Accent::Sage)
+    ->withIllustration(Illustration::Book)
+    ->withSpan(12)
+    ->withBodyHtml(
+        Widget::barChart($module, 'source-coverage-by-century-bars')
+            ->withData($sourceCoverageByCenturyBars)
+            ->withHeight(220)
+            ->withAriaLabel(I18N::translate('Source coverage by century'))
+            ->render()
+    )
     ->render();
 
 echo Section::create(I18N::translate('What is missing?'))

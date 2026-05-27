@@ -14,6 +14,8 @@ namespace MagicSunday\Webtrees\Statistic\Support\Aggregator;
 use Fisharebest\Webtrees\I18N;
 use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
 
+use function round;
+
 /**
  * Folds a `[century => count]` map into the row shape the chart-lib
  * `BarChart` widget consumes — `[label, value, tooltipLabel,
@@ -126,6 +128,48 @@ final readonly class CenturyBarRowMapper
                 'value'        => $count,
                 'tooltipLabel' => CenturyName::longLabel((string) $century),
                 'tooltip'      => I18N::plural('%s divorce', '%s divorces', $count, I18N::number($count)),
+            ];
+        }
+
+        return $rows;
+    }
+
+    /**
+     * Century-histogram rows for the per-century source-citation
+     * coverage breakdown. Each input entry carries the raw counts
+     * (`total`, `sourced`) plus the pre-computed `percentage`; the
+     * bar's `value` is the rounded percentage so the y-axis reads as
+     * a 0..100 scale without decimals, and the tooltip carries the
+     * full "X% — N of M individuals sourced" prose for context.
+     *
+     * Unlike the events-by-century mappers above, the source-coverage
+     * repository returns the raw 1-based integer century rather than
+     * the localised ordinal string core's `countEventsByCentury()`
+     * already produces. The label conversion via {@see CenturyName::for()}
+     * happens here so the rendered bar matches the "19th" / "20th"
+     * tick format used by every sibling per-century chart.
+     *
+     * @param list<array{century: int, total: int, sourced: int, percentage: float}> $perCentury Repository output
+     *
+     * @return list<array{label: string, value: int, tooltipLabel: string, tooltip: string}>
+     */
+    public static function sourceCoverage(array $perCentury): array
+    {
+        $rows = [];
+
+        foreach ($perCentury as $entry) {
+            $centuryLabel      = CenturyName::for($entry['century']);
+            $percentageRounded = (int) round($entry['percentage']);
+            $rows[]            = [
+                'label'        => $centuryLabel,
+                'value'        => $percentageRounded,
+                'tooltipLabel' => CenturyName::longLabel($centuryLabel),
+                'tooltip'      => I18N::translate(
+                    '%1$s%% — %2$s of %3$s individuals sourced',
+                    I18N::number($percentageRounded),
+                    I18N::number($entry['sourced']),
+                    I18N::number($entry['total']),
+                ),
             ];
         }
 

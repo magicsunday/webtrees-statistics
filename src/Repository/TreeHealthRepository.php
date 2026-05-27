@@ -20,9 +20,11 @@ use MagicSunday\Webtrees\Statistic\Model\Metric\RateCount;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
+use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
 
 use function array_sum;
 use function count;
+use function ksort;
 
 /**
  * Tree-wide data-quality metrics: source-citation coverage, missing-event
@@ -36,6 +38,14 @@ use function count;
  */
 final readonly class TreeHealthRepository
 {
+    /**
+     * Minimum per-century sample below which the sourced percentage
+     * is dropped from the breakdown. Five recorded births is the
+     * smallest cohort at which a single sourced ancestor doesn't
+     * skew the bar by ≥ 20 percentage points.
+     */
+    private const int MIN_CENTURY_SAMPLE = 5;
+
     /**
      * @param Tree $tree The tree the statistics are computed for
      */
@@ -69,6 +79,112 @@ final readonly class TreeHealthRepository
             ->count('i_id');
 
         return new RateCount(value: $withSources, total: $total);
+    }
+
+    /**
+     * Source-citation coverage broken down by birth century. Surfaces
+     * which historical eras carry their share of source-backed
+     * documentation and which rely on family lore. Per-century
+     * companion to {@see sourceCitationCoverage()}.
+     *
+     * Two queries feed the breakdown: one collects the earliest
+     * gregorian / julian birth year per individual ({@see MIN()} +
+     * `GROUP BY d_gid` so multi-row pairs persisted by webtrees'
+     * minimum/maximum date storage do not double-count), the other
+     * collects the set of individual ids that have at least one SOUR
+     * citation. The view-side intersection happens in PHP rather
+     * than as an EXISTS subquery so the planner can hit each table's
+     * indices independently. The SOUR-link query joins to
+     * `individuals` so polymorphic `l_from` values pointing at
+     * families / media / notes are filtered out — the breakdown is
+     * about individuals, not records-with-citations.
+     *
+     * BCE / B.C. years are excluded (`d_year > 0` rather than `<> 0`).
+     * {@see CenturyName::fromYear()} truncates toward zero for
+     * negative input, which collapses 100 BCE..1 CE into century 0
+     * and renders the bar with an unlabelled ordinal — better to
+     * keep ancient ancestors off the chart than to silently
+     * misbucket them.
+     *
+     * Centuries with fewer than {@see self::MIN_CENTURY_SAMPLE} dated
+     * births are dropped: a single sourced ancestor would otherwise
+     * pin the bar to 0 % or 100 % on a cohort too small to read as
+     * data quality.
+     *
+     * @return list<array{century: int, total: int, sourced: int, percentage: float}>
+     */
+    public function sourceCitationCoverageByCentury(): array
+    {
+        $birthRows = TreeScope::table($this->tree, 'dates')
+            ->where('d_fact', '=', 'BIRT')
+            ->whereIn('d_type', ['@#DGREGORIAN@', '@#DJULIAN@'])
+            ->where('d_year', '>', 0)
+            ->select(['d_gid', new Expression('MIN(d_year) AS year')])
+            ->groupBy('d_gid')
+            ->get();
+
+        // SOUR links anchored at individuals only — join filters out
+        // l_from values that reference families, media, notes, or
+        // repositories so the breakdown stays in lockstep with
+        // sourceCitationCoverage()'s individuals-only definition.
+        $sourceLinks = TreeScope::table($this->tree, 'individuals')
+            ->join('link', static function (JoinClause $join): void {
+                $join
+                    ->on('link.l_file', '=', 'individuals.i_file')
+                    ->on('link.l_from', '=', 'individuals.i_id')
+                    ->where('link.l_type', '=', 'SOUR');
+            })
+            ->select(['individuals.i_id AS individual'])
+            ->distinct()
+            ->get();
+
+        $sourcedIndividualSet = [];
+
+        foreach ($sourceLinks as $linkRow) {
+            $individualId                        = RowCast::string($linkRow, 'individual');
+            $sourcedIndividualSet[$individualId] = true;
+        }
+
+        $perCentury = [];
+
+        foreach ($birthRows as $birthRow) {
+            $birthYear = RowCast::int($birthRow, 'year');
+
+            if ($birthYear <= 0) {
+                continue;
+            }
+
+            $individualId = RowCast::string($birthRow, 'd_gid');
+            $century      = CenturyName::fromYear($birthYear);
+
+            if (!isset($perCentury[$century])) {
+                $perCentury[$century] = ['total' => 0, 'sourced' => 0];
+            }
+
+            ++$perCentury[$century]['total'];
+
+            if (isset($sourcedIndividualSet[$individualId])) {
+                ++$perCentury[$century]['sourced'];
+            }
+        }
+
+        ksort($perCentury);
+        $out = [];
+
+        foreach ($perCentury as $century => $counts) {
+            if ($counts['total'] < self::MIN_CENTURY_SAMPLE) {
+                continue;
+            }
+
+            $out[] = [
+                'century'    => $century,
+                'total'      => $counts['total'],
+                'sourced'    => $counts['sourced'],
+                'percentage' => ($counts['sourced'] / $counts['total']) * 100,
+            ];
+        }
+
+        return $out;
     }
 
     /**

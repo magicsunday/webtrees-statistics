@@ -100,7 +100,7 @@ The module renders six tabs that aggregate tree-wide data into widget cards:
 |-------------|---------------|
 | **Overview**    | Demographics (sex / living / marital donuts), tree-records hall-of-fame, top occupations and religions, cumulative tree growth over time |
 | **Names**       | Surname / male / female name bubbles, given-name popularity stream graph, surname × surname marriage chord matrix |
-| **Tree health** | Source-citation coverage, average generation length, missing-event gaps, tree-growth line chart |
+| **Tree health** | Source-citation coverage (tree-wide + per birth century), pedigree completeness, average generation length, missing-event gaps, generation-depth distribution, known-ancestors distribution, endogamy rate |
 | **Life span**   | Age-at-death histogram, living life-stages, lifespan by sex × century, top-10 oldest deceased and living, death causes, child mortality, births and deaths by century / month / zodiac, winter-peak score |
 | **Family**      | Age at marriage M+F, marriage duration, couple age gap, weddings by century and month, age at first child, first children by month, children per family, sibling age gap, family-size distribution by decade, average family size, top-10 largest families, divorce cohort rate, divorces by century / month, age at divorce M+F |
 | **Places**      | Birth / residence / death countries with top-10 list and choropleth world map, birth → death migration sankey, geographic dispersion and distinct-places-per-individual metrics |
