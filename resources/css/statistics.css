@@ -1604,16 +1604,17 @@
 }
 
 /*
- * Hover and selection share one visual: dim every OTHER slice
- * to 0.35 while the focused slice stays opaque. Mirror the
- * stream-graph / sankey rules so a click and a hover read the
- * same — `:has() / :not()` lets the cascade fight stay won by
- * the more specific selector without needing a second rule
- * for the focused element.
+ * Hover and selection share one visual: the focused slice gets
+ * an ink-coloured stroke and lifts up via a subtle drop-shadow;
+ * every other slice stays at its default fill. Mirrors the
+ * stream-graph / bar-chart / sankey hover treatment so click and
+ * hover read the same across the dashboard.
  */
-.wt-statistics-chart svg.donut-chart:has(path.slice:hover) path.slice:not(:hover),
-.wt-statistics-chart svg.donut-chart:has(path.slice.is-selected) path.slice:not(.is-selected) {
-    opacity: 0.35;
+.wt-statistics-chart svg.donut-chart path.slice:hover,
+.wt-statistics-chart svg.donut-chart path.slice.is-selected {
+    stroke:       var(--ink);
+    stroke-width: 2;
+    filter:       drop-shadow(0 1px 2px rgb(0 0 0 / 0.25));
 }
 
 .wt-statistics-chart .donut-chart-container .donut-chart {
@@ -2273,23 +2274,16 @@
 }
 
 /*
- * Dim only the bands that are NOT being hovered when one band is
- * actually under the cursor. The parent :has() guard prevents the
- * dim from triggering on empty space inside the SVG box, and the
- * :not(:hover) keeps the focused band fully opaque without needing
- * a second override rule (which would have a lower specificity than
- * the :has() selector and lose the cascade fight).
+ * Hover / selection highlight: the focused band gets an
+ * ink-coloured outline and a subtle drop-shadow so it lifts out
+ * of the stack without dimming the surrounding bands. Mirrors
+ * the donut / bar-chart / sankey hover treatment.
  */
-.wt-statistics-chart svg.wt-stream-graph:has(path.band:hover) path.band:not(:hover) {
-    opacity: 0.35;
-}
-
-/*
- * Selection-driven dim mirrors the hover-dim rule so a click +
- * subsequent hover produce the same visual.
- */
-.wt-statistics-chart svg.wt-stream-graph:has(path.band.is-selected) path.band:not(.is-selected) {
-    opacity: 0.35;
+.wt-statistics-chart svg.wt-stream-graph path.band:hover,
+.wt-statistics-chart svg.wt-stream-graph path.band.is-selected {
+    stroke:       var(--ink);
+    stroke-width: 1.5;
+    filter:       drop-shadow(0 1px 2px rgb(0 0 0 / 0.25));
 }
 
 .wt-statistics-chart svg.wt-stream-graph .x-axis line,
@@ -2372,29 +2366,14 @@
 }
 
 /*
- * Same hover-dim treatment as the stream graph: only dim the other
- * links when the cursor is actually on a link, and keep the focused
- * link at full opacity by excluding it from the dim selector.
+ * Hover / selection highlight: the focused flow bumps to full
+ * opacity + a darker stroke; surrounding flows stay at their
+ * default visibility so the chart context survives the focus.
  */
-.wt-statistics-chart svg.wt-sankey:has(path.link:hover) path.link:not(:hover) {
-    stroke-opacity: 0.15;
-}
-
-.wt-statistics-chart svg.wt-sankey path.link:hover {
-    stroke-opacity: 0.8;
-}
-
-/*
- * Selection mirrors the hover-dim pattern: dim non-selected links
- * to 0.15 and bring the selected link to 0.8, matching the
- * `:has(.link:hover)` rule above so click + hover look the same.
- */
-.wt-statistics-chart svg.wt-sankey:has(path.link.is-selected) path.link:not(.is-selected) {
-    stroke-opacity: 0.15;
-}
-
+.wt-statistics-chart svg.wt-sankey path.link:hover,
 .wt-statistics-chart svg.wt-sankey path.link.is-selected {
-    stroke-opacity: 0.8;
+    stroke-opacity: 0.95;
+    stroke:         var(--ink);
 }
 
 .wt-statistics-chart svg.wt-sankey .nodes rect {
@@ -2539,11 +2518,13 @@
  * donut / stream-graph / sankey rules so click + hover read the
  * same across the dashboard.
  */
-.wt-statistics-chart svg.wt-bar-chart:has(rect.bar:hover) rect.bar:not(:hover),
-.wt-statistics-chart svg.wt-bar-chart:has(rect.bar.is-selected) rect.bar:not(.is-selected),
-.wt-statistics-chart svg.wt-bar-chart:has(path.bar:hover) path.bar:not(:hover),
-.wt-statistics-chart svg.wt-bar-chart:has(path.bar.is-selected) path.bar:not(.is-selected) {
-    opacity: 0.35;
+.wt-statistics-chart svg.wt-bar-chart rect.bar:hover,
+.wt-statistics-chart svg.wt-bar-chart rect.bar.is-selected,
+.wt-statistics-chart svg.wt-bar-chart path.bar:hover,
+.wt-statistics-chart svg.wt-bar-chart path.bar.is-selected {
+    stroke:       var(--ink);
+    stroke-width: 2;
+    filter:       drop-shadow(0 1px 2px rgb(0 0 0 / 0.25));
 }
 
 /* ----------------------------------------------------------------------
@@ -2631,11 +2612,14 @@
     opacity: 0.6;
 }
 
-/* Hover dimming: focused cohort stays opaque, the rest fade to
-   0.35 — mirrors bar-chart / donut hover state. */
-.wt-statistics-chart svg.wt-box-plot:has(g.cohort:hover) g.cohort:not(:hover),
-.wt-statistics-chart svg.wt-box-plot:has(g.cohort.is-selected) g.cohort:not(.is-selected) {
-    opacity: 0.35;
+/* Hover / selection highlight: the focused cohort's box gets an
+   ink outline and a subtle drop-shadow; surrounding cohorts stay
+   at their default styling so the chart context survives. */
+.wt-statistics-chart svg.wt-box-plot g.cohort:hover rect.box,
+.wt-statistics-chart svg.wt-box-plot g.cohort.is-selected rect.box {
+    stroke:       var(--ink);
+    stroke-width: 2;
+    filter:       drop-shadow(0 1px 2px rgb(0 0 0 / 0.25));
 }
 
 /* ----------------------------------------------------------------------
@@ -2982,9 +2966,11 @@
  * Hover dim mirrors the BarChart / DivergingBar pattern so a
  * focused segment reads against a softened backdrop.
  */
-.wt-statistics-chart svg.wt-stacked-bar:has(rect.bar:hover) rect.bar:not(:hover),
-.wt-statistics-chart svg.wt-stacked-bar:has(rect.bar.is-selected) rect.bar:not(.is-selected) {
-    opacity: 0.35;
+.wt-statistics-chart svg.wt-stacked-bar rect.bar:hover,
+.wt-statistics-chart svg.wt-stacked-bar rect.bar.is-selected {
+    stroke:       var(--ink);
+    stroke-width: 2;
+    filter:       drop-shadow(0 1px 2px rgb(0 0 0 / 0.25));
 }
 
 /*

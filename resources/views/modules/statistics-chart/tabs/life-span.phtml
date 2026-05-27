@@ -199,9 +199,11 @@ $deathsByCenturyBars = CenturyBarRowMapper::deaths($deathsByCentury);
 $ageDistBoxes = [];
 
 foreach ($ageDistByCentury as $entry) {
+    $centuryLabel    = CenturyName::for($entry['century']);
     $ageDistBoxes[] = [
-        'category' => CenturyName::for($entry['century']),
-        'values'   => $entry['values'],
+        'category'     => $centuryLabel,
+        'tooltipLabel' => CenturyName::longLabel($centuryLabel),
+        'values'       => $entry['values'],
     ];
 }
 
