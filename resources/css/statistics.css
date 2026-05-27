@@ -2517,15 +2517,10 @@
     font-size:   11px;
 }
 
-/* Mockup look: chart-lib drops the axis baseline (path.domain) at
-   render-time; the per-tick stub lines are hidden here. Only the
-   dedicated x-axis-rule remains as a faint horizontal hairline
-   rendered below the tick labels. */
-.wt-statistics-chart svg.wt-bar-chart .x-axis g.tick line,
-.wt-statistics-chart svg.wt-bar-chart .y-axis g.tick line {
-    display: none;
-}
-
+/* chart-lib drops both the axis baseline (path.domain) and the
+   per-tick stub lines at render-time. Only the dedicated
+   x-axis-rule remains as a faint horizontal hairline rendered
+   below the tick labels. */
 .wt-statistics-chart svg.wt-bar-chart .x-axis line.x-axis-rule {
     stroke: var(--border-soft);
 }
@@ -2548,6 +2543,84 @@
 .wt-statistics-chart svg.wt-bar-chart:has(rect.bar.is-selected) rect.bar:not(.is-selected),
 .wt-statistics-chart svg.wt-bar-chart:has(path.bar:hover) path.bar:not(:hover),
 .wt-statistics-chart svg.wt-bar-chart:has(path.bar.is-selected) path.bar:not(.is-selected) {
+    opacity: 0.35;
+}
+
+/* ----------------------------------------------------------------------
+   Box plot (chart-lib BoxPlot)
+   -------------------------------------------------------------------- */
+
+.wt-statistics-chart svg.wt-box-plot .x-axis text,
+.wt-statistics-chart svg.wt-box-plot .y-axis text {
+    fill:        var(--ink-2);
+    font-family: var(--sans);
+    font-size:   11px;
+}
+
+/* Value axis renders as a gridline strip via tickSize(-innerWidth);
+   category-axis tick stubs are removed at chart-lib render-time. */
+.wt-statistics-chart svg.wt-box-plot .y-axis--grid .tick line,
+.wt-statistics-chart svg.wt-box-plot .x-axis--grid .tick line {
+    stroke:           var(--border-soft);
+    stroke-dasharray: 2 3;
+}
+
+/* Whiskers + caps share the card accent at a hairline weight so
+   the IQR box stays the eye's primary anchor. */
+.wt-statistics-chart svg.wt-box-plot .whisker,
+.wt-statistics-chart svg.wt-box-plot .whisker-cap {
+    stroke:       var(--wt-stat-card-accent, var(--wine));
+    stroke-width: 1.5;
+    fill:         none;
+}
+
+/* IQR rectangle: outlined in the accent, filled with the same
+   colour mixed 22 % into the card surface so the box reads as a
+   semi-transparent band. */
+.wt-statistics-chart svg.wt-box-plot rect.box {
+    fill:         color-mix(in srgb, var(--wt-stat-card-accent, var(--wine)) 22%, var(--card));
+    stroke:       var(--wt-stat-card-accent, var(--wine));
+    stroke-width: 1.5;
+}
+
+/* Median line in the card accent at 3 px so it dominates the box
+   visually. */
+.wt-statistics-chart svg.wt-box-plot line.median {
+    stroke:       var(--wt-stat-card-accent, var(--wine));
+    stroke-width: 3;
+    fill:         none;
+}
+
+/* Median value label above each box — small serif numeral pinned
+   to ink for legibility regardless of the box accent. */
+.wt-statistics-chart svg.wt-box-plot text.median-value {
+    fill:                 var(--ink);
+    font-family:          var(--serif, var(--sans));
+    font-size:            12px;
+    font-variant-numeric: tabular-nums;
+    pointer-events:       none;
+}
+
+/* Sample size label below the category tick. */
+.wt-statistics-chart svg.wt-box-plot text.sample-size {
+    fill:                 var(--ink-3);
+    font-family:          var(--sans);
+    font-size:            10px;
+    font-variant-numeric: tabular-nums;
+    pointer-events:       none;
+}
+
+/* Outlier dots in the accent at 0.6 opacity — visible without
+   competing with the box itself. */
+.wt-statistics-chart svg.wt-box-plot circle.outlier {
+    fill:    var(--wt-stat-card-accent, var(--wine));
+    opacity: 0.6;
+}
+
+/* Hover dimming: focused cohort stays opaque, the rest fade to
+   0.35 — mirrors bar-chart / donut hover state. */
+.wt-statistics-chart svg.wt-box-plot:has(g.cohort:hover) g.cohort:not(:hover),
+.wt-statistics-chart svg.wt-box-plot:has(g.cohort.is-selected) g.cohort:not(.is-selected) {
     opacity: 0.35;
 }
 
