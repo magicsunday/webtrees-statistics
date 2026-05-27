@@ -9,7 +9,7 @@
 
 declare(strict_types=1);
 
-namespace MagicSunday\Webtrees\Statistic\Support\Calc;
+namespace MagicSunday\Webtrees\Statistic\Support\Aggregator;
 
 use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Registry;
