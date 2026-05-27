@@ -207,7 +207,7 @@ echo Card::for($module, I18N::translate('Source coverage by century'))
     ->withEyebrow(I18N::translate('Documentation'))
     ->withAccent(Accent::Sage)
     ->withIllustration(Illustration::Book)
-    ->withSpan(12)
+    ->withSpan(6)
     ->withBodyHtml(
         Widget::barChart($module, 'source-coverage-by-century-bars')
             ->withData($sourceCoverageByCenturyBars)

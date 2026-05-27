@@ -283,7 +283,7 @@ echo Card::for($module, I18N::translate('Age-at-death distribution by century'))
         $aboutThisChart,
         $aboutThisChart,
     )
-    ->withSpan(12)
+    ->withSpan(8)
     ->withBodyHtml(
         Widget::boxPlot($module, 'age-at-death-boxplot')
             ->withData($ageDistBoxes)

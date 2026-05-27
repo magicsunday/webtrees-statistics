@@ -1375,6 +1375,19 @@
     text-transform: uppercase;
 }
 
+/* Hover / selection highlight: the focused slice brightens
+   slightly; surrounding slices stay at their default fill.
+   Mirrors the donut / bar-chart / box-plot hover treatment. */
+.wt-statistics-chart svg.wt-stat-radial-svg path.wt-stat-radial-slice {
+    transition: filter 200ms ease-out;
+}
+
+.wt-statistics-chart svg.wt-stat-radial-svg path.wt-stat-radial-slice:hover,
+.wt-statistics-chart svg.wt-stat-radial-svg path.wt-stat-radial-slice.is-selected {
+    opacity: 0.75;
+    cursor: pointer;
+}
+
 /* ----------------------------------------------------------------------
    Name bubbles (Names tab — circle-pack visualisation rendered by the
    chart-lib `NameBubbles` widget).
@@ -1612,7 +1625,7 @@
  */
 .wt-statistics-chart svg.donut-chart path.slice:hover,
 .wt-statistics-chart svg.donut-chart path.slice.is-selected {
-    filter: brightness(1.12) saturate(1.15);
+    opacity: 0.75;
 }
 
 .wt-statistics-chart .donut-chart-container .donut-chart {
@@ -2277,7 +2290,7 @@
  */
 .wt-statistics-chart svg.wt-stream-graph path.band:hover,
 .wt-statistics-chart svg.wt-stream-graph path.band.is-selected {
-    filter: brightness(1.12) saturate(1.15);
+    opacity: 0.75;
 }
 
 .wt-statistics-chart svg.wt-stream-graph .x-axis line,
@@ -2366,7 +2379,7 @@
  */
 .wt-statistics-chart svg.wt-sankey path.link:hover,
 .wt-statistics-chart svg.wt-sankey path.link.is-selected {
-    stroke-opacity: 0.9;
+    opacity: 0.75;
 }
 
 .wt-statistics-chart svg.wt-sankey .nodes rect {
@@ -2515,7 +2528,7 @@
 .wt-statistics-chart svg.wt-bar-chart rect.bar.is-selected,
 .wt-statistics-chart svg.wt-bar-chart path.bar:hover,
 .wt-statistics-chart svg.wt-bar-chart path.bar.is-selected {
-    filter: brightness(1.12) saturate(1.15);
+    opacity: 0.75;
 }
 
 /* ----------------------------------------------------------------------
@@ -2603,11 +2616,43 @@
     opacity: 0.6;
 }
 
-/* Hover / selection highlight: the focused cohort's box brightens
-   slightly; surrounding cohorts stay at their default styling. */
+/* Per-cohort P25 / P75 guides — two horizontal dashed lines that
+   stretch across the plot at the box's bottom + top edge. Hidden
+   at rest; revealed only when the parent cohort is hovered or
+   selected so the reader can read P25 / P75 straight off the
+   y-axis without the chart being noisy. */
+.wt-statistics-chart svg.wt-box-plot line.box-guide {
+    stroke:           var(--ink-2);
+    stroke-width:     1;
+    stroke-dasharray: 3 3;
+    opacity:          0;
+    pointer-events:   none;
+    transition:       opacity 150ms ease-out;
+}
+
+.wt-statistics-chart svg.wt-box-plot g.cohort:hover line.box-guide,
+.wt-statistics-chart svg.wt-box-plot g.cohort.is-selected line.box-guide {
+    opacity: 0.7;
+}
+
+/* Hover / selection highlight: the focused cohort's box gets a
+   denser accent tint so it shifts visually without becoming
+   transparent (semi-transparent fill would let the grid show
+   through). Whiskers / caps / outliers reuse the opacity shift
+   used elsewhere — they are already opaque so transparency is
+   safe there. */
 .wt-statistics-chart svg.wt-box-plot g.cohort:hover rect.box,
 .wt-statistics-chart svg.wt-box-plot g.cohort.is-selected rect.box {
-    filter: brightness(1.12) saturate(1.15);
+    fill: color-mix(in srgb, var(--wt-stat-card-accent, var(--wine)) 45%, var(--card));
+}
+
+.wt-statistics-chart svg.wt-box-plot g.cohort:hover .whisker,
+.wt-statistics-chart svg.wt-box-plot g.cohort:hover .whisker-cap,
+.wt-statistics-chart svg.wt-box-plot g.cohort:hover .outlier,
+.wt-statistics-chart svg.wt-box-plot g.cohort.is-selected .whisker,
+.wt-statistics-chart svg.wt-box-plot g.cohort.is-selected .whisker-cap,
+.wt-statistics-chart svg.wt-box-plot g.cohort.is-selected .outlier {
+    opacity: 0.75;
 }
 
 /* ----------------------------------------------------------------------
@@ -2956,7 +3001,7 @@
  */
 .wt-statistics-chart svg.wt-stacked-bar rect.bar:hover,
 .wt-statistics-chart svg.wt-stacked-bar rect.bar.is-selected {
-    filter: brightness(1.12) saturate(1.15);
+    opacity: 0.75;
 }
 
 /*
