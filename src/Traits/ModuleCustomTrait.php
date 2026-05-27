@@ -12,19 +12,17 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Traits;
 
 use Fig\Http\Message\StatusCodeInterface;
-use Fisharebest\Localization\Translation;
 use Fisharebest\Webtrees\Http\Exceptions\HttpAccessDeniedException;
 use Fisharebest\Webtrees\Http\Exceptions\HttpNotFoundException;
 use Fisharebest\Webtrees\Mime;
 use Fisharebest\Webtrees\Validator;
-use MagicSunday\Webtrees\ModuleBase\Module\VersionInformation;
+use MagicSunday\Webtrees\ModuleBase\Traits\ModuleCustomTrait as BaseModuleCustomTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 use function e;
 use function file_exists;
 use function file_get_contents;
-use function is_file;
 use function pathinfo;
 use function response;
 use function str_contains;
@@ -33,12 +31,11 @@ use function strtoupper;
 use const PATHINFO_EXTENSION;
 
 /**
- * Supplies ModuleCustomInterface metadata (author, version, support URL,
- * latest-version check) and loads compiled MO translation files for the
- * module's supported languages. Also overrides the core asset handler so
- * web fonts are served with their proper MIME type — without this Firefox
- * rejects WOFF2 assets returned as `application/octet-stream` (the core
- * MIME map has no WOFF / WOFF2 entry).
+ * Wraps the shared module-base ModuleCustomTrait with a statistics-specific
+ * `getAssetAction()` that adds WOFF / WOFF2 MIME-type entries — without this
+ * override Firefox rejects the web fonts shipped under `resources/fonts/`
+ * with `NS_ERROR_CORRUPTED_CONTENT` because the core MIME map has no entry
+ * for those extensions.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -46,72 +43,7 @@ use const PATHINFO_EXTENSION;
  */
 trait ModuleCustomTrait
 {
-    use \Fisharebest\Webtrees\Module\ModuleCustomTrait;
-
-    /**
-     * Returns the module author's name.
-     */
-    public function customModuleAuthorName(): string
-    {
-        return self::CUSTOM_AUTHOR;
-    }
-
-    /**
-     * Returns the currently installed module version string.
-     */
-    public function customModuleVersion(): string
-    {
-        return self::CUSTOM_VERSION;
-    }
-
-    /**
-     * Returns the GitHub API URL used to check for newer releases.
-     */
-    public function customModuleLatestVersionUrl(): string
-    {
-        return self::CUSTOM_LATEST_VERSION;
-    }
-
-    /**
-     * Fetches the latest published release version from GitHub, with a 24-hour file cache.
-     * Falls back to the installed version when the API is unreachable.
-     */
-    public function customModuleLatestVersion(): string
-    {
-        return (new VersionInformation($this))->fetchLatestVersion();
-    }
-
-    /**
-     * Returns the URL admins follow from the "An upgrade is available" notice
-     * on the control panel and module-admin pages. Pointed at the GitHub
-     * `/releases/latest` page so admins land directly on the release notes
-     * and install-ready asset zip, rather than the bare issue tracker.
-     */
-    public function customModuleSupportUrl(): string
-    {
-        return self::CUSTOM_SUPPORT_URL;
-    }
-
-    /**
-     * Loads translations from a compiled MO file for the requested language.
-     * Returns an empty array when no translation file ships for the locale,
-     * which lets webtrees core fall back to the English msgid baseline.
-     *
-     * @return array<string, string>
-     */
-    public function customTranslations(string $language): array
-    {
-        $catalogue = $this->resourcesFolder() . 'lang/' . $language . '/messages.mo';
-
-        if (!is_file($catalogue)) {
-            return [];
-        }
-
-        /** @var array<string, string> $translations */
-        $translations = (new Translation($catalogue))->asArray();
-
-        return $translations;
-    }
+    use BaseModuleCustomTrait;
 
     /**
      * Serves a static asset from the module's `resources/` directory with the
