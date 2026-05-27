@@ -2485,13 +2485,9 @@
     font-size: 0.7rem;
 }
 
-/* Y-axis as gridline strip — hide the axis baseline ("domain") and
-   render each tick mark as a faint dashed cross-bar. */
-.wt-statistics-chart svg.wt-line-chart .y-axis path.domain,
-.wt-statistics-chart svg.wt-line-chart .x-axis path.domain {
-    display: none;
-}
-
+/* Y-axis as gridline strip — chart-lib drops the axis baseline
+   ("domain") at render-time; each tick mark renders as a faint
+   dashed cross-bar. */
 .wt-statistics-chart svg.wt-line-chart .y-axis .tick line {
     stroke:           var(--border-soft);
     stroke-dasharray: 2 3;
@@ -2521,11 +2517,10 @@
     font-size:   11px;
 }
 
-/* Mockup look: the D3 baseline (path.domain) and the per-tick stub
-   lines disappear entirely. Only the dedicated x-axis-rule remains
-   as a faint horizontal hairline rendered below the tick labels. */
-.wt-statistics-chart svg.wt-bar-chart .x-axis path.domain,
-.wt-statistics-chart svg.wt-bar-chart .y-axis path.domain,
+/* Mockup look: chart-lib drops the axis baseline (path.domain) at
+   render-time; the per-tick stub lines are hidden here. Only the
+   dedicated x-axis-rule remains as a faint horizontal hairline
+   rendered below the tick labels. */
 .wt-statistics-chart svg.wt-bar-chart .x-axis g.tick line,
 .wt-statistics-chart svg.wt-bar-chart .y-axis g.tick line {
     display: none;
