@@ -888,7 +888,7 @@ msgid ""
 "documented population. Same source data as the geographic-dispersion average "
 "— duplicates within the same individual collapse to one place, individuals "
 "with no place data are excluded."
-msgstr ""
+msgstr "Pohled na počet míst na osobu rozdělený do skupin: kolik osob má přesně 1, 2, 3, 4 nebo 5+ různých zaznamenaných míst. Vysoký ocas signalizuje migrující předky, vysoký sloupec u \"1\" sedavou nebo řídce dokumentovanou populaci. Stejná zdrojová data jako průměr geografického rozptylu — duplikáty u stejné osoby se slučují do jednoho místa, osoby bez údajů o místech jsou vyloučeny."
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:318
 msgid "By recorded child count"
@@ -986,7 +986,7 @@ msgstr "Couple age gap"
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:200
 msgid ""
 "Cumulative number of recorded individuals across the documented birth window"
-msgstr ""
+msgstr "Kumulativní počet zaznamenaných osob v dokumentovaném okně narození"
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:66
 msgid "Cumulative population"
@@ -1761,7 +1761,7 @@ msgid ""
 "whiskers are rare extreme cases — very young child deaths at the bottom, "
 "centenarians at the top. Cohorts smaller than five individuals are hidden "
 "because a single life cannot represent a century."
-msgstr ""
+msgstr "Jeden box na století narození shrnuje, kolika let se lidé dožívali. Tmavá čára uprostřed je typický věk úmrtí (medián). Samotný box pokrývá prostřední 50 % kohorty — jeho dolní okraj je věk, pod nímž zemřela čtvrtina (P25), jeho horní okraj věk, pod nímž zemřely tři čtvrtiny (P75). Tenké čáry nahoru a dolů (\"whiskery\") dosahují k nejmladšímu a nejstaršímu typickému případu; jednotlivé tečky za whiskery jsou vzácné extrémní případy — velmi raná dětská úmrtí dole, století lidé nahoře. Kohorty menší než pět osob jsou skryté, protože jediný život nemůže reprezentovat století."
 
 #: resources/views/modules/statistics-chart/tabs/places.phtml:134
 msgid "Origin & fate"
@@ -1978,7 +1978,7 @@ msgid ""
 "tree. Computed from the same per-individual BIRT+DEAT pairs as the per-"
 "century breakdown; cohorts below 5 children are suppressed so a single "
 "tragedy does not pin the peak."
-msgstr ""
+msgstr "Jediné století narození s nejvyšší úmrtností do 5 let v rámci stromu. Vypočítáno ze stejných párů BIRT+DEAT na osobu jako rozpis po stoletích; kohorty pod 5 dětí jsou potlačeny, aby jediná tragédie neurčovala vrchol."
 
 #: resources/views/modules/statistics-chart/tabs/places.phtml:139
 msgid "Three views of every individual — birth, residence, death"

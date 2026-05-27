@@ -858,7 +858,7 @@ msgid ""
 "documented population. Same source data as the geographic-dispersion average "
 "— duplicates within the same individual collapse to one place, individuals "
 "with no place data are excluded."
-msgstr ""
+msgstr "Bucket-visning af antal steder pr. person: hvor mange personer har præcis 1, 2, 3, 4 eller 5+ forskellige registrerede steder. En høj hale signalerer migrerende forfædre, en tung bjælke ved \"1\" en sederitær eller sparsomt dokumenteret befolkning. Samme kildedata som det geografiske spredningsgennemsnit — dubletter inden for samme person samles til ét sted, personer uden stedoplysninger udelukkes."
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:318
 msgid "By recorded child count"
@@ -956,7 +956,7 @@ msgstr "Aldersforskel par"
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:200
 msgid ""
 "Cumulative number of recorded individuals across the documented birth window"
-msgstr ""
+msgstr "Kumulativt antal registrerede personer på tværs af det dokumenterede fødselsvindue"
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:66
 msgid "Cumulative population"
@@ -1731,7 +1731,7 @@ msgid ""
 "whiskers are rare extreme cases — very young child deaths at the bottom, "
 "centenarians at the top. Cohorts smaller than five individuals are hidden "
 "because a single life cannot represent a century."
-msgstr ""
+msgstr "Én boks pr. fødselsårhundrede, der opsummerer, hvor gamle folk blev. Den mørke linje i midten er den typiske dødsalder (medianen). Selve boksen dækker de midterste 50 % af kohorten — dens nedre kant er alderen, hvorunder en fjerdedel døde (P25), dens øvre kant alderen, hvorunder tre fjerdedele døde (P75). De tynde linjer op og ned (\"whiskers\") når den yngste og ældste typiske case; enkelte prikker uden for whiskers er sjældne ekstreme tilfælde — meget tidlige børnedødsfald i bunden, hundredårige i toppen. Kohorter mindre end fem personer er skjult, fordi et enkelt liv ikke kan repræsentere et århundrede."
 
 #: resources/views/modules/statistics-chart/tabs/places.phtml:134
 msgid "Origin & fate"
@@ -1948,7 +1948,7 @@ msgid ""
 "tree. Computed from the same per-individual BIRT+DEAT pairs as the per-"
 "century breakdown; cohorts below 5 children are suppressed so a single "
 "tragedy does not pin the peak."
-msgstr ""
+msgstr "Det enkelte fødselsårhundrede med den højeste dødelighed under 5 år på tværs af træet. Beregnet ud fra de samme BIRT+DEAT-par pr. person som opdelingen pr. århundrede; kohorter under 5 børn undertrykkes, så en enkelt tragedie ikke fastsætter toppen."
 
 #: resources/views/modules/statistics-chart/tabs/places.phtml:139
 msgid "Three views of every individual — birth, residence, death"

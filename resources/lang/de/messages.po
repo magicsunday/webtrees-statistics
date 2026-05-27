@@ -740,7 +740,7 @@ msgstr ""
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:274
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:289
 msgid "Age-at-death distribution by century"
-msgstr "Sterbealter-Verteilung pro Jahrhundert"
+msgstr "Verteilung Sterbealter pro Jahrhundert"
 
 #: resources/views/modules/statistics-chart/tabs/names.phtml:116
 msgid "Alliances"
@@ -855,7 +855,7 @@ msgid ""
 "documented population. Same source data as the geographic-dispersion average "
 "— duplicates within the same individual collapse to one place, individuals "
 "with no place data are excluded."
-msgstr ""
+msgstr "Verteilung der Orte pro Person: wie viele Personen genau 1, 2, 3, 4 oder 5+ unterschiedliche erfasste Orte haben. Ein langer Tail signalisiert wandernde Vorfahren, ein hoher Balken bei \"1\" eine sesshafte oder spärlich dokumentierte Bevölkerung. Gleiche Datenquelle wie der Mittelwert der geografischen Streuung — Duplikate innerhalb derselben Person werden zu einem Ort zusammengefasst, Personen ohne Ortsdaten werden ausgeschlossen."
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:318
 msgid "By recorded child count"
@@ -953,7 +953,7 @@ msgstr "Altersabstand des Paares"
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:200
 msgid ""
 "Cumulative number of recorded individuals across the documented birth window"
-msgstr ""
+msgstr "Kumulative Zahl der erfassten Personen über das dokumentierte Geburtsfenster"
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:66
 msgid "Cumulative population"
@@ -1720,7 +1720,7 @@ msgid ""
 "whiskers are rare extreme cases — very young child deaths at the bottom, "
 "centenarians at the top. Cohorts smaller than five individuals are hidden "
 "because a single life cannot represent a century."
-msgstr ""
+msgstr "Eine Box pro Geburtsjahrhundert, die zusammenfasst, wie alt die Menschen wurden. Die dunkle Linie in der Mitte ist das typische Sterbealter (der Median). Die Box selbst umfasst die mittleren 50 % der Kohorte — die untere Kante ist das Alter, unter dem ein Viertel starb (P25), die obere Kante das Alter, unter dem drei Viertel starben (P75). Die dünnen Linien nach oben und unten (die \"Whisker\") reichen bis zu den jüngsten und ältesten typischen Fällen; einzelne Punkte außerhalb der Whisker sind seltene Extremfälle — sehr frühe Kindersterbefälle unten, Hundertjährige oben. Kohorten kleiner als fünf Personen sind ausgeblendet, weil ein einzelnes Leben kein Jahrhundert repräsentieren kann."
 
 #: resources/views/modules/statistics-chart/tabs/places.phtml:134
 msgid "Origin & fate"
@@ -1937,7 +1937,7 @@ msgid ""
 "tree. Computed from the same per-individual BIRT+DEAT pairs as the per-"
 "century breakdown; cohorts below 5 children are suppressed so a single "
 "tragedy does not pin the peak."
-msgstr ""
+msgstr "Das einzelne Geburtsjahrhundert mit der höchsten Sterblichkeit unter 5 Jahren im gesamten Baum. Berechnet aus denselben BIRT+DEAT-Paaren pro Person wie die Aufschlüsselung pro Jahrhundert; Kohorten unter 5 Kindern werden unterdrückt, damit eine einzelne Tragödie nicht den Höchstwert prägt."
 
 #: resources/views/modules/statistics-chart/tabs/places.phtml:139
 msgid "Three views of every individual — birth, residence, death"
@@ -1985,7 +1985,7 @@ msgstr "Top 10 Älteste (lebend)"
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:203
 msgid "Tree growth over time"
-msgstr "Stammbaum-Wachstum über die Zeit"
+msgstr "Stammbaumwachstum über die Zeit"
 
 #: src/Module.php:274
 msgid "Tree health"

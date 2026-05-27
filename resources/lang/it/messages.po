@@ -859,7 +859,7 @@ msgid ""
 "documented population. Same source data as the geographic-dispersion average "
 "— duplicates within the same individual collapse to one place, individuals "
 "with no place data are excluded."
-msgstr ""
+msgstr "Vista bucket del conteggio dei luoghi per individuo: quanti individui hanno esattamente 1, 2, 3, 4 o 5+ luoghi distinti registrati. Una coda lunga segnala antenati migranti, una barra pesante a \"1\" una popolazione sedentaria o scarsamente documentata. Stessi dati di origine della media della dispersione geografica — i duplicati all'interno dello stesso individuo collassano in un luogo, gli individui senza dati di luogo sono esclusi."
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:318
 msgid "By recorded child count"
@@ -957,7 +957,7 @@ msgstr "Differenza di età della coppia"
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:200
 msgid ""
 "Cumulative number of recorded individuals across the documented birth window"
-msgstr ""
+msgstr "Numero cumulativo di individui registrati nella finestra di nascita documentata"
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:66
 msgid "Cumulative population"
@@ -1733,7 +1733,7 @@ msgid ""
 "whiskers are rare extreme cases — very young child deaths at the bottom, "
 "centenarians at the top. Cohorts smaller than five individuals are hidden "
 "because a single life cannot represent a century."
-msgstr ""
+msgstr "Una scatola per secolo di nascita, riassumendo a che età le persone sono vissute. La linea scura al centro è l'età tipica alla morte (la mediana). La scatola stessa copre il 50 % centrale della coorte — il suo bordo inferiore è l'età sotto cui un quarto è morto (P25), il suo bordo superiore l'età sotto cui tre quarti sono morti (P75). Le linee sottili verso l'alto e il basso (i \"baffi\") raggiungono i casi tipici più giovani e più anziani; i punti individuali oltre i baffi sono casi estremi rari — decessi infantili molto precoci in basso, centenari in alto. Le coorti più piccole di cinque individui sono nascoste perché una singola vita non può rappresentare un secolo."
 
 #: resources/views/modules/statistics-chart/tabs/places.phtml:134
 msgid "Origin & fate"
@@ -1949,7 +1949,7 @@ msgid ""
 "tree. Computed from the same per-individual BIRT+DEAT pairs as the per-"
 "century breakdown; cohorts below 5 children are suppressed so a single "
 "tragedy does not pin the peak."
-msgstr ""
+msgstr "L'unico secolo di nascita con il tasso di mortalità sotto i 5 anni più alto dell'albero. Calcolato dalle stesse coppie BIRT+DEAT per individuo della suddivisione per secolo; le coorti sotto 5 bambini vengono soppresse in modo che una singola tragedia non determini il picco."
 
 #: resources/views/modules/statistics-chart/tabs/places.phtml:139
 msgid "Three views of every individual — birth, residence, death"

@@ -858,7 +858,7 @@ msgid ""
 "documented population. Same source data as the geographic-dispersion average "
 "— duplicates within the same individual collapse to one place, individuals "
 "with no place data are excluded."
-msgstr ""
+msgstr "按个人地点数分桶查看:有多少人有正好 1、2、3、4 或 5+ 个不同的已记录地点。长尾表示移居祖先,\"1\" 处的高条表示定居或稀疏记录的人口。与地理分散平均值相同的源数据 — 同一个人内的重复合并为一个地点,无地点数据的人被排除。"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:318
 msgid "By recorded child count"
@@ -956,7 +956,7 @@ msgstr "Couple age gap"
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:200
 msgid ""
 "Cumulative number of recorded individuals across the documented birth window"
-msgstr ""
+msgstr "已记录人物在已记录出生窗口内的累计数"
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:66
 msgid "Cumulative population"
@@ -1731,7 +1731,7 @@ msgid ""
 "whiskers are rare extreme cases — very young child deaths at the bottom, "
 "centenarians at the top. Cohorts smaller than five individuals are hidden "
 "because a single life cannot represent a century."
-msgstr ""
+msgstr "每个出生世纪一个盒子,概述人们能活到多大年纪。中间的深色线是典型的死亡年龄(中位数)。盒子本身覆盖队列的中间 50 % — 其下边缘是四分之一的人去世前的年龄(P25),上边缘是四分之三的人去世前的年龄(P75)。向上和向下延伸的细线(\"须线\")到达最年轻和最年长的典型情况;须线之外的单个点是罕见的极端情况 — 底部是非常早的儿童死亡,顶部是百岁老人。少于五人的队列被隐藏,因为一条生命无法代表一个世纪。"
 
 #: resources/views/modules/statistics-chart/tabs/places.phtml:134
 msgid "Origin & fate"
@@ -1948,7 +1948,7 @@ msgid ""
 "tree. Computed from the same per-individual BIRT+DEAT pairs as the per-"
 "century breakdown; cohorts below 5 children are suppressed so a single "
 "tragedy does not pin the peak."
-msgstr ""
+msgstr "全族谱中 5 岁以下死亡率最高的单一出生世纪。基于与按世纪分组相同的每人 BIRT+DEAT 对计算;少于 5 个孩子的队列被抑制,使单个悲剧不会决定高峰。"
 
 #: resources/views/modules/statistics-chart/tabs/places.phtml:139
 msgid "Three views of every individual — birth, residence, death"

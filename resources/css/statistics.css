@@ -2558,11 +2558,17 @@
 }
 
 /* Value axis renders as a gridline strip via tickSize(-innerWidth);
-   category-axis tick stubs are removed at chart-lib render-time. */
+   category-axis tick stubs render as short hairlines below the
+   labels, mirroring the line-chart x-axis. */
 .wt-statistics-chart svg.wt-box-plot .y-axis--grid .tick line,
 .wt-statistics-chart svg.wt-box-plot .x-axis--grid .tick line {
     stroke:           var(--border-soft);
     stroke-dasharray: 2 3;
+}
+
+.wt-statistics-chart svg.wt-box-plot .x-axis:not(.x-axis--grid) .tick line,
+.wt-statistics-chart svg.wt-box-plot .y-axis:not(.y-axis--grid) .tick line {
+    stroke: var(--border);
 }
 
 /* Whiskers + caps share the card accent at a hairline weight so
@@ -2591,13 +2597,21 @@
     fill:         none;
 }
 
-/* Median value label above each box — small serif numeral pinned
-   to ink for legibility regardless of the box accent. */
+/* Median value label centred on the median line. `paint-order` +
+   a fat stroke in the card surface colour break the line visually
+   around each glyph, removing the need to position the label
+   above or below the median. Bold + tabular-nums keep the digits
+   compact and reading-anchored. */
 .wt-statistics-chart svg.wt-box-plot text.median-value {
     fill:                 var(--ink);
     font-family:          var(--serif, var(--sans));
     font-size:            12px;
+    font-weight:          700;
     font-variant-numeric: tabular-nums;
+    paint-order:          stroke fill;
+    stroke:               var(--card);
+    stroke-width:         5px;
+    stroke-linejoin:      round;
     pointer-events:       none;
 }
 

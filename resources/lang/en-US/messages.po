@@ -862,7 +862,7 @@ msgid ""
 "documented population. Same source data as the geographic-dispersion average "
 "— duplicates within the same individual collapse to one place, individuals "
 "with no place data are excluded."
-msgstr ""
+msgstr "Bucketed view of the per-individual place count: how many individuals have exactly 1, 2, 3, 4, or 5+ distinct recorded places. A high tail signals migrant ancestors, a heavy bar at \"1\" signals a sedentary or sparsely-documented population. Same source data as the geographic-dispersion average — duplicates within the same individual collapse to one place, individuals with no place data are excluded."
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:318
 msgid "By recorded child count"
@@ -960,7 +960,7 @@ msgstr "Couple age gap"
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:200
 msgid ""
 "Cumulative number of recorded individuals across the documented birth window"
-msgstr ""
+msgstr "Cumulative number of recorded individuals across the documented birth window"
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:66
 msgid "Cumulative population"
@@ -1740,7 +1740,7 @@ msgid ""
 "whiskers are rare extreme cases — very young child deaths at the bottom, "
 "centenarians at the top. Cohorts smaller than five individuals are hidden "
 "because a single life cannot represent a century."
-msgstr ""
+msgstr "One box per birth century, summarising how old people lived to be. The dark line in the middle is the typical age at death (the median). The box itself covers the middle 50 %% of the cohort — its lower edge is the age below which a quarter died (P25), its upper edge the age below which three quarters died (P75). The thin lines extending up and down (the \"whiskers\") reach the youngest and oldest typical case; individual dots beyond the whiskers are rare extreme cases — very young child deaths at the bottom, centenarians at the top. Cohorts smaller than five individuals are hidden because a single life cannot represent a century."
 
 #: resources/views/modules/statistics-chart/tabs/places.phtml:134
 msgid "Origin & fate"
@@ -1957,7 +1957,7 @@ msgid ""
 "tree. Computed from the same per-individual BIRT+DEAT pairs as the per-"
 "century breakdown; cohorts below 5 children are suppressed so a single "
 "tragedy does not pin the peak."
-msgstr ""
+msgstr "The single birth century with the highest under-5 mortality rate across the tree. Computed from the same per-individual BIRT+DEAT pairs as the per-century breakdown; cohorts below 5 children are suppressed so a single tragedy does not pin the peak."
 
 #: resources/views/modules/statistics-chart/tabs/places.phtml:139
 msgid "Three views of every individual — birth, residence, death"

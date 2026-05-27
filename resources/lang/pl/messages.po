@@ -890,7 +890,7 @@ msgid ""
 "documented population. Same source data as the geographic-dispersion average "
 "— duplicates within the same individual collapse to one place, individuals "
 "with no place data are excluded."
-msgstr ""
+msgstr "Widok kubełkowy liczby miejsc na osobę: ile osób ma dokładnie 1, 2, 3, 4 lub 5+ różnych zarejestrowanych miejsc. Długi ogon sygnalizuje migrujących przodków, ciężki słupek przy \"1\" siedzącą lub słabo udokumentowaną populację. Te same dane źródłowe co średnia rozproszenia geograficznego — duplikaty w obrębie tej samej osoby łączą się w jedno miejsce, osoby bez danych o miejscach są wykluczone."
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:318
 msgid "By recorded child count"
@@ -988,7 +988,7 @@ msgstr "Couple age gap"
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:200
 msgid ""
 "Cumulative number of recorded individuals across the documented birth window"
-msgstr ""
+msgstr "Skumulowana liczba zarejestrowanych osób w udokumentowanym oknie urodzenia"
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:66
 msgid "Cumulative population"
@@ -1763,7 +1763,7 @@ msgid ""
 "whiskers are rare extreme cases — very young child deaths at the bottom, "
 "centenarians at the top. Cohorts smaller than five individuals are hidden "
 "because a single life cannot represent a century."
-msgstr ""
+msgstr "Jedno pudełko na stulecie urodzenia, podsumowujące do jakiego wieku ludzie żyli. Ciemna linia w środku to typowy wiek zgonu (mediana). Samo pudełko obejmuje środkowe 50 % kohorty — jego dolna krawędź to wiek, poniżej którego umarła jedna czwarta (P25), górna krawędź wiek, poniżej którego umarły trzy czwarte (P75). Cienkie linie w górę i w dół (\"wąsy\") sięgają do najmłodszych i najstarszych typowych przypadków; pojedyncze kropki poza wąsami to rzadkie skrajne przypadki — bardzo wczesne zgony dzieci na dole, stulatkowie na górze. Kohorty mniejsze niż pięć osób są ukryte, ponieważ jedno życie nie może reprezentować stulecia."
 
 #: resources/views/modules/statistics-chart/tabs/places.phtml:134
 msgid "Origin & fate"
@@ -1980,7 +1980,7 @@ msgid ""
 "tree. Computed from the same per-individual BIRT+DEAT pairs as the per-"
 "century breakdown; cohorts below 5 children are suppressed so a single "
 "tragedy does not pin the peak."
-msgstr ""
+msgstr "Jedyne stulecie urodzenia z najwyższym wskaźnikiem śmiertelności poniżej 5 lat w drzewie. Obliczone z tych samych par BIRT+DEAT na osobę co podział na stulecia; kohorty poniżej 5 dzieci są tłumione, aby pojedyncza tragedia nie określała szczytu."
 
 #: resources/views/modules/statistics-chart/tabs/places.phtml:139
 msgid "Three views of every individual — birth, residence, death"
