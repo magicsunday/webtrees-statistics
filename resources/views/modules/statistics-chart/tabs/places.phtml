@@ -132,11 +132,11 @@ $placesPanelHtml = Component::placesPanel($module)
 <?php
 echo Section::create(I18N::translate('Where they lived and died'))
     ->withKicker(I18N::translate('Origin & fate'))
-    ->withSub(I18N::translate('Births, residences and deaths by country — the geographic spread of the tree'))
+    ->withSub(I18N::translate('Births, residences and deaths by country · the geographic spread of the tree'))
     ->render();
 
 echo Card::for($module, I18N::translate('Geographic origin & fate'))
-    ->withSub(I18N::translate('Three views of every individual — birth, residence, death'))
+    ->withSub(I18N::translate('Three views of every individual · birth, residence, death'))
     ->withEyebrow(I18N::translate('Geography'))
     ->withAccent(Accent::Slate)
     ->withIllustration(Illustration::Globe)
@@ -165,7 +165,7 @@ echo Card::for($module, I18N::translate('Migrations between birth and death coun
 
 echo Section::create(I18N::translate('How far they roamed'))
     ->withKicker(I18N::translate('Mobility'))
-    ->withSub(I18N::translate('Number of distinct places per individual — sedentary vs. migrating populations'))
+    ->withSub(I18N::translate('Number of distinct places per individual · sedentary vs. migrating populations'))
     ->render();
 
 echo Card::for($module, I18N::translate('Geographic dispersion'))

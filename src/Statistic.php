@@ -539,6 +539,18 @@ final readonly class Statistic
     }
 
     /**
+     * Per-decade trend of the mean parental age at first child, with
+     * one series each for fathers and mothers. Lets the family-tab
+     * reader see the historical drift — the secular rise in parental
+     * age across the 20th century in particular — that the
+     * aggregate 5-year-band histogram hides.
+     */
+    public function getAgeAtFirstChildMeanByDecade(): LineChartPayload
+    {
+        return $this->parenthoodRepository->ageAtFirstChildMeanByDecade();
+    }
+
+    /**
      * Endogamy summary: testable-couple count, count sharing ≥1
      * common ancestor within the default depth, the resulting
      * percentage, and the depth used. Null when no testable couple

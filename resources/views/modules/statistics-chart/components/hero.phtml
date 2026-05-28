@@ -12,6 +12,7 @@ declare(strict_types=1);
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Model\Tree\HeroStats;
+use MagicSunday\Webtrees\Statistic\Support\Locale\DecadeName;
 use MagicSunday\Webtrees\Statistic\Support\Locale\SpelledNumber;
 
 /**
@@ -31,14 +32,13 @@ $deckText    = ($hero->centurySpan > 0)
 
 // Eyebrow tag: tree title + earliest/latest birth decade range when
 // both endpoints are known, mirroring the mockup's "Stammbaum X ·
-// 1490er – 2020er" header. The decade-suffix is locale-specific —
-// I18N::translate('%ss') resolves to "1490s" in English and "1490er"
-// in German.
+// 1490er – 2020er" header. The decade-suffix is locale-specific via
+// the DecadeName::for helper ("1490s" in English, "1490er" in German).
 $eyebrow = $tree->title();
 
 if (($hero->decadeFrom !== null) && ($hero->decadeTo !== null)) {
-    $eyebrow .= ' · ' . I18N::translate('%ss', (string) $hero->decadeFrom)
-        . ' – ' . I18N::translate('%ss', (string) $hero->decadeTo);
+    $eyebrow .= ' · ' . DecadeName::for($hero->decadeFrom)
+        . ' – ' . DecadeName::for($hero->decadeTo);
 }
 
 // Dedicated translation context so the hero title can stay short

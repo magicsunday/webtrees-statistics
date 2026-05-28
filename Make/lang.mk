@@ -4,7 +4,7 @@
 
 #### Language & Translations
 
-.PHONY: lang lang-extract lang-merge lang-compile
+.PHONY: lang lang-extract lang-merge lang-resolve-fuzzy lang-compile setup-hooks
 
 # Locales the module ships translations for. Add a new entry here +
 # `make lang` once to seed the locale's messages.po from the POT.
@@ -19,8 +19,9 @@ PO_FILES  := $(foreach loc,$(LOCALES),resources/lang/$(loc)/messages.po)
 MO_FILES  := $(PO_FILES:.po=.mo)
 
 # Full pipeline: extract POT → merge into existing PO files (or seed
-# missing ones from the POT) → compile every PO to a MO.
-lang: .logo lang-extract lang-merge lang-compile ## Extract POT, merge PO, compile MO (full i18n pipeline).
+# missing ones from the POT) → auto-resolve fuzzy entries that only
+# differ in punctuation → compile every PO to a MO.
+lang: .logo lang-extract lang-merge lang-resolve-fuzzy lang-compile ## Extract POT, merge PO, auto-resolve fuzzy, compile MO (full i18n pipeline).
 	@echo "  ✔ Translations up to date for: $(LOCALES)"
 
 lang-extract: $(POT_FILE) ## Extract translatable strings from src/ + resources/ into the POT.
@@ -55,10 +56,29 @@ lang-merge: $(POT_FILE) ## Update each locale's PO from the latest POT (seeds mi
 				msginit --no-translator --locale="$$loc" --input=$(POT_FILE) --output-file="$$po" >/dev/null 2>&1 && \
 					echo "  + Seeded $$po from POT"; \
 			else \
-				msgmerge --quiet --update --backup=none "$$po" $(POT_FILE) && \
+				msgmerge --quiet --previous --update --backup=none "$$po" $(POT_FILE) && \
 					echo "  ↻ Merged $$po"; \
 			fi; \
 		done'
+
+# Heuristic resolver for entries msgmerge marked as fuzzy due to
+# trivial punctuation drift (em-dash ↔ middle dot, en-dash ↔ middle
+# dot, comma/period swap, whitespace, "Dekade" ↔ "Jahrzehnt" in DE).
+# Walks every fuzzy entry, compares the previous msgid (#| msgid
+# stub written by msgmerge --previous) against the current msgid,
+# and when the diff falls under the trivial-punctuation rule set,
+# rewrites the msgstr with the same swap applied and drops the
+# fuzzy flag. Non-trivial diffs stay fuzzy and surface as a list at
+# the end so a human picks them up. Idempotent: a clean PO is a
+# no-op.
+lang-resolve-fuzzy: ## Auto-resolve fuzzy entries with trivial punctuation diffs in the new msgid.
+	@python3 dev/fuzzy-resolver.py
+
+# Point this clone's git at .githooks so the pre-commit gate runs on
+# every `git commit`. Idempotent — a fresh clone has to call it once.
+setup-hooks: ## Activate the tracked .githooks/ directory for this clone.
+	@git config core.hooksPath .githooks && \
+		echo "  ✔ core.hooksPath = .githooks (pre-commit gate active)"
 
 lang-compile: ## Compile every messages.po to its sibling messages.mo.
 	@$(COMPOSE_RUN) sh -c 'apk add --no-cache gettext >/dev/null 2>&1; \

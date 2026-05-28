@@ -30,6 +30,7 @@ use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
+use MagicSunday\Webtrees\Statistic\Support\Locale\DecadeName;
 
 use function array_combine;
 use function array_fill_keys;
@@ -247,9 +248,8 @@ final readonly class ChildrenRepository
         $perDecadeBuckets = [];
 
         foreach ($perDecade as $decade => $childCounts) {
-            $label           = I18N::translate('%ss', (string) $decade);
-            $categories[]    = $label;
-            $tooltipLabels[] = $label;
+            $categories[]    = DecadeName::for($decade);
+            $tooltipLabels[] = DecadeName::longLabel($decade);
 
             $b1 = 0;
             $b2 = 0;

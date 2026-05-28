@@ -118,7 +118,7 @@ $generationDepthDistributionExplanation = I18N::translate(
 );
 
 $endogamyExplanation = I18N::translate(
-    'For every couple where both spouses have at least one parent recorded, the widget walks each spouse\'s ancestor tree up to four generations and intersects the two sets. A non-empty intersection means the couple share at least one common ancestor — the classic signature of cousin marriage and pedigree collapse.'
+    "For every couple where both spouses have at least one parent recorded, the widget walks each spouse's ancestor tree up to four generations and intersects the two sets. A non-empty intersection means the couple share at least one common ancestor. That is the classic signature of cousin marriage and pedigree collapse."
 );
 
 $aboutThisChart = I18N::translate('About this chart');
@@ -173,7 +173,7 @@ echo Card::for($module, I18N::translate('Source-citation coverage'))
     ->render();
 
 echo Card::for($module, I18N::translate('Pedigree completeness'))
-    ->withSub(I18N::translate('Lacy index — average share of known ancestors up to the 4th generation'))
+    ->withSub(I18N::translate('Lacy index · average share of known ancestors up to the 4th generation'))
     ->withEyebrow(I18N::translate('Completeness'))
     ->withAccent(Accent::Wine)
     ->withIllustration(Illustration::Magnifier)
@@ -219,7 +219,7 @@ echo Card::for($module, I18N::translate('Source coverage by century'))
 
 echo Section::create(I18N::translate('What is missing?'))
     ->withKicker(I18N::translate('Gaps'))
-    ->withSub(I18N::translate('Where the tree has gaps — events and places not recorded'))
+    ->withSub(I18N::translate('Where the tree has gaps · events and places not recorded'))
     ->render();
 
 echo Card::for($module, I18N::translate('Missing-event gaps'))

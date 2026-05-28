@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Support\Aggregator;
 
 use Fisharebest\Webtrees\I18N;
+use MagicSunday\Webtrees\Statistic\Support\Locale\DecadeName;
 
 use function round;
 
@@ -40,25 +41,29 @@ final readonly class DivorceCohortRowMapper
     /**
      * @param array<int|string, float> $cohortRates Cohort → divorce-rate (0..1)
      *
-     * @return array{categories: list<string>, values: list<int>, tooltips: list<string>}
+     * @return array{categories: list<string>, values: list<int>, tooltips: list<string>, tooltipLabels: list<string>}
      */
     public static function toLineSeries(array $cohortRates): array
     {
-        $categories = [];
-        $values     = [];
-        $tooltips   = [];
+        $categories    = [];
+        $values        = [];
+        $tooltips      = [];
+        $tooltipLabels = [];
 
         foreach ($cohortRates as $cohort => $rate) {
-            $percent      = (int) round($rate * 100);
-            $categories[] = I18N::translate('%ss', (string) $cohort);
-            $values[]     = $percent;
-            $tooltips[]   = I18N::translate('%s%% divorced', I18N::number($percent));
+            $decadeStart     = (int) $cohort;
+            $percent         = (int) round($rate * 100);
+            $categories[]    = DecadeName::for($decadeStart);
+            $values[]        = $percent;
+            $tooltips[]      = I18N::translate('%s%% divorced', I18N::number($percent));
+            $tooltipLabels[] = DecadeName::longLabel($decadeStart);
         }
 
         return [
-            'categories' => $categories,
-            'values'     => $values,
-            'tooltips'   => $tooltips,
+            'categories'    => $categories,
+            'values'        => $values,
+            'tooltips'      => $tooltips,
+            'tooltipLabels' => $tooltipLabels,
         ];
     }
 }

@@ -11,20 +11,26 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
+use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Enum\AgePairExtremum;
 use MagicSunday\Webtrees\Statistic\Enum\Sex;
+use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
+use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
 use MagicSunday\Webtrees\Statistic\Model\Record\IndividualAgeRecord;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\IndividualAgeRecordResolver;
 use MagicSunday\Webtrees\Statistic\Support\Calc\AgeBuckets;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
+use MagicSunday\Webtrees\Statistic\Support\Locale\DecadeName;
 
 use function intdiv;
+use function ksort;
+use function round;
 
 /**
  * Age-at-first-child distributions for the Family tab. For every
@@ -78,12 +84,26 @@ final class ParenthoodRepository
     private const int BUCKET_WIDTH = 5;
 
     /**
+     * Per-decade × sex sample floor for {@see ageAtFirstChildMeanByDecade}.
+     * Decade cohorts below this size are suppressed independently per
+     * sex so a single outlier cannot dominate the line and the
+     * resulting trend remains statistically defensible. Set to match
+     * {@see LifeSpanRepository::MIN_COHORT_SIZE};
+     * the smaller decade bucket tolerates the same floor because the
+     * trend reader compares neighbouring decades and the per-sex
+     * independent drop keeps the surviving series readable when a
+     * single decade × sex falls just short.
+     */
+    private const int MIN_DECADE_COHORT_SIZE = 5;
+
+    /**
      * Per-instance cache for `ageAtFirstChildPairs`, keyed by sex.
-     * The Overview tab triggers four calls (young/old × M/F);
-     * memoising per sex collapses them into two SELECTs instead
-     * of four.
+     * The Overview tab triggers four calls (young/old × M/F) and the
+     * Family tab additionally consumes the per-decade aggregate;
+     * memoising per sex collapses them into two SELECTs total
+     * instead of one per consumer.
      *
-     * @var array<string, array<int, array{xref: string, years: int}>>
+     * @var array<string, array<int, array{xref: string, years: int, childBirthYear: int}>>
      */
     private array $ageAtFirstChildPairsCache = [];
 
@@ -147,14 +167,19 @@ final class ParenthoodRepository
 
     /**
      * Iterate every parent (one sex) and yield their age at their
-     * earliest dated child across all FAMS they appear in. Groups
-     * by the parent xref so a man married three times yields one
-     * row referencing whichever family produced his first child.
-     * Ages outside the plausibility band are dropped at source.
+     * earliest dated child across all FAMS they appear in plus the
+     * child's birth year (the trend X-anchor for the per-decade
+     * aggregate). Groups by the parent xref so a man married three
+     * times yields one row referencing whichever family produced
+     * his first child. Ages outside the plausibility band are
+     * dropped at source. `MIN(d_year)` is monotone-equivalent to
+     * the year-of `MIN(d_julianday1)` within the same parent's
+     * children, so the two MIN aggregates always describe the same
+     * birth event.
      *
      * @param string $sex 'M' for fathers, 'F' for mothers
      *
-     * @return array<int, array{xref: string, years: int}>
+     * @return array<int, array{xref: string, years: int, childBirthYear: int}>
      */
     private function ageAtFirstChildPairs(string $sex): array
     {
@@ -178,20 +203,30 @@ final class ParenthoodRepository
             ->join('dates AS child_birth', static function (JoinClause $join): void {
                 DateJoin::on($join, 'child_birth', 'famc.l_file', 'famc.l_from', 'BIRT', DateJoin::JD_GREATER_THAN_ZERO);
             })
+            // Enforce d_year populated alongside d_julianday1 so the two
+            // MIN aggregates below describe the same row. Without this
+            // guard a child whose import path wrote a positive julian-day
+            // but a zero d_year would let MIN(d_year) collapse to 0 while
+            // MIN(d_julianday1) returned a real JD from a different
+            // sibling, and the downstream `if ($childYear <= 0)` filter
+            // would drop the whole parent row.
+            ->where('child_birth.d_year', '<>', 0)
             ->groupBy('fam.' . $parentColumn, 'parent_birth.d_julianday1')
             ->select([
                 'fam.' . $parentColumn . ' AS parent_xref',
                 'parent_birth.d_julianday1 AS parent_birth_jd',
                 new Expression('MIN(' . $tablePrefix . 'child_birth.d_julianday1) AS first_child_jd'),
+                new Expression('MIN(' . $tablePrefix . 'child_birth.d_year) AS first_child_year'),
             ])
             ->get();
 
         $out = [];
 
         foreach ($rows as $row) {
-            $xref     = RowCast::string($row, 'parent_xref');
-            $parentJd = RowCast::int($row, 'parent_birth_jd');
-            $childJd  = RowCast::int($row, 'first_child_jd');
+            $xref      = RowCast::string($row, 'parent_xref');
+            $parentJd  = RowCast::int($row, 'parent_birth_jd');
+            $childJd   = RowCast::int($row, 'first_child_jd');
+            $childYear = RowCast::int($row, 'first_child_year');
 
             if ($xref === '') {
                 continue;
@@ -205,6 +240,10 @@ final class ParenthoodRepository
                 continue;
             }
 
+            if ($childYear <= 0) {
+                continue;
+            }
+
             $years = intdiv($childJd - $parentJd, 365);
 
             if ($years < self::MIN_PLAUSIBLE_AGE) {
@@ -215,11 +254,123 @@ final class ParenthoodRepository
                 continue;
             }
 
-            $out[] = ['xref' => $xref, 'years' => $years];
+            $out[] = ['xref' => $xref, 'years' => $years, 'childBirthYear' => $childYear];
         }
 
         $this->ageAtFirstChildPairsCache[$sex] = $out;
 
         return $out;
+    }
+
+    /**
+     * Mean parental age at first child grouped by the decade of the
+     * child's birth, with one series per parent sex. The X axis is
+     * the decade-start year (1850, 1860, …); each series carries
+     * the per-decade mean parental age in full years. Decade × sex
+     * cohorts below {@see MIN_DECADE_COHORT_SIZE} samples are
+     * suppressed independently per sex — empty decades therefore
+     * surface as a zero value on the suppressed series only, while
+     * the other sex keeps its trend line continuous. Pure aggregate
+     * over the same pair iterator the histogram and the
+     * Hall-of-Fame records read from, so the new view stays in
+     * lockstep with the existing parenthood numbers.
+     */
+    public function ageAtFirstChildMeanByDecade(): LineChartPayload
+    {
+        /** @var array<int, array{M: array{sum: int, n: int}, F: array{sum: int, n: int}}> $decades */
+        $decades = [];
+
+        foreach (['M', 'F'] as $sex) {
+            foreach ($this->ageAtFirstChildPairs($sex) as $pair) {
+                $decade = intdiv($pair['childBirthYear'], 10) * 10;
+                $decades[$decade] ??= ['M' => ['sum' => 0, 'n' => 0], 'F' => ['sum' => 0, 'n' => 0]];
+                $decades[$decade][$sex]['sum'] += $pair['years'];
+                ++$decades[$decade][$sex]['n'];
+            }
+        }
+
+        if ($decades === []) {
+            return new LineChartPayload(categories: [], series: []);
+        }
+
+        ksort($decades);
+
+        $categories          = [];
+        $fatherValues        = [];
+        $motherValues        = [];
+        $fatherTooltips      = [];
+        $motherTooltips      = [];
+        $fatherTooltipLabels = [];
+        $motherTooltipLabels = [];
+
+        foreach ($decades as $decade => $perSex) {
+            // Drop decades where neither sex meets the cohort floor —
+            // they carry no statistically defensible mean and would
+            // pad the X-axis with empty leading / trailing entries.
+            if (
+                ($perSex['M']['n'] < self::MIN_DECADE_COHORT_SIZE)
+                && ($perSex['F']['n'] < self::MIN_DECADE_COHORT_SIZE)
+            ) {
+                continue;
+            }
+
+            $categories[] = DecadeName::for($decade);
+            $longLabel    = DecadeName::longLabel($decade);
+
+            $fatherAverage = ($perSex['M']['n'] >= self::MIN_DECADE_COHORT_SIZE)
+                ? round($perSex['M']['sum'] / $perSex['M']['n'], 1)
+                : 0;
+            $motherAverage = ($perSex['F']['n'] >= self::MIN_DECADE_COHORT_SIZE)
+                ? round($perSex['F']['sum'] / $perSex['F']['n'], 1)
+                : 0;
+            $fatherValues[] = $fatherAverage;
+            $motherValues[] = $motherAverage;
+
+            $fatherTooltips[] = ($perSex['M']['n'] >= self::MIN_DECADE_COHORT_SIZE)
+                ? I18N::translate(
+                    '%1$s years (n = %2$s)',
+                    I18N::number($fatherAverage, 1),
+                    I18N::number($perSex['M']['n']),
+                )
+                : I18N::translate('no data (n < %s)', I18N::number(self::MIN_DECADE_COHORT_SIZE));
+            $motherTooltips[] = ($perSex['F']['n'] >= self::MIN_DECADE_COHORT_SIZE)
+                ? I18N::translate(
+                    '%1$s years (n = %2$s)',
+                    I18N::number($motherAverage, 1),
+                    I18N::number($perSex['F']['n']),
+                )
+                : I18N::translate('no data (n < %s)', I18N::number(self::MIN_DECADE_COHORT_SIZE));
+
+            $fatherTooltipLabels[] = $longLabel;
+            $motherTooltipLabels[] = $longLabel;
+        }
+
+        // Every decade was dropped by the cohort floor — return a
+        // bare empty payload rather than two name-only series so
+        // the view's `EmptyStatePlaceholder` short-circuits instead
+        // of rendering an empty legend strip.
+        if ($categories === []) {
+            return new LineChartPayload(categories: [], series: []);
+        }
+
+        return new LineChartPayload(
+            categories: $categories,
+            series: [
+                new LineChartSeries(
+                    name: I18N::translate('Fathers'),
+                    values: $fatherValues,
+                    tooltips: $fatherTooltips,
+                    tooltipLabels: $fatherTooltipLabels,
+                    class: 'male',
+                ),
+                new LineChartSeries(
+                    name: I18N::translate('Mothers'),
+                    values: $motherValues,
+                    tooltips: $motherTooltips,
+                    tooltipLabels: $motherTooltipLabels,
+                    class: 'female',
+                ),
+            ],
+        );
     }
 }

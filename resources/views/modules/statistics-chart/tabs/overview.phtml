@@ -13,6 +13,7 @@ use Fisharebest\Webtrees\I18N;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Statistic;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\DecadeBinCollapser;
+use MagicSunday\Webtrees\Statistic\Support\Locale\DecadeName;
 use MagicSunday\Webtrees\Statistic\View\Accent;
 use MagicSunday\Webtrees\Statistic\View\Card;
 use MagicSunday\Webtrees\Statistic\View\Component;
@@ -69,11 +70,11 @@ $cumulativeBirthsPayload = LineChartPayload::singleSeries(
         $startDecade  = (int) $decade;
         $endDecade    = $startDecade + ($cumulativeBirthsBinSize - 1) * 10;
         $tooltipLabel = ($cumulativeBirthsBinSize === 1)
-            ? I18N::translate('Up to the %ss', (string) $startDecade)
-            : I18N::translate('Up to the end of the %ss', (string) $endDecade);
+            ? I18N::translate('Up to the %s', DecadeName::for($startDecade))
+            : I18N::translate('Up to the end of the %s', DecadeName::for($endDecade));
 
         return [
-            'categoryLabel' => I18N::translate('%ss', (string) $startDecade),
+            'categoryLabel' => DecadeName::for($startDecade),
             'tooltipBody'   => I18N::plural('%s individual recorded', '%s individuals recorded', (int) $count, I18N::number($count)),
             'tooltipLabel'  => $tooltipLabel,
         ];
@@ -133,7 +134,7 @@ echo Card::for($module, I18N::translate('Marital status'))
 
 echo Section::create(I18N::translate('The extremes of the tree'))
     ->withKicker(I18N::translate('Chronicle'))
-    ->withSub(I18N::translate('Oldest, longest marriages, largest families — records that anchor the dataset'))
+    ->withSub(I18N::translate('Oldest, longest marriages, largest families · records that anchor the dataset'))
     ->render();
 
 echo Card::for($module, I18N::translate('Tree records'))
