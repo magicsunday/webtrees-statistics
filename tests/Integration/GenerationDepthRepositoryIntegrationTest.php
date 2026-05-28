@@ -53,4 +53,53 @@ final class GenerationDepthRepositoryIntegrationTest extends IntegrationTestCase
             $result->distribution,
         );
     }
+
+    /**
+     * Top-N ancestors podium: the grandparent (I1) carries two
+     * transitive descendants (the parent I2 plus the child I3),
+     * the parent itself one. The child I3 sits at zero descendants
+     * and the isolated individual I4 has no parentage links at
+     * all — both are excluded because zero-descendant entries do
+     * not belong on a "structural roots" podium. So the ranking
+     * is exactly two rows: Grandparent first with 2, Parent
+     * second with 1, in descending order of descendant count.
+     */
+    #[Test]
+    public function topAncestorsByDescendantCountRanksGrandparentFirst(): void
+    {
+        $tree   = $this->importFixtureTree('generation-depth.ged');
+        $result = (new GenerationDepthRepository($tree, new ParentMapRepository($tree)))
+            ->topAncestorsByDescendantCount(10);
+
+        self::assertCount(2, $result, 'Only the two individuals with descendants land on the podium');
+
+        // arsort preserves keys; convert to ordered pairs for assertion.
+        $ordered = [];
+
+        foreach ($result as $label => $count) {
+            $ordered[] = [$label, $count];
+        }
+
+        self::assertSame(2, $ordered[0][1], 'Grandparent leads with two descendants (parent + grandchild)');
+        self::assertStringContainsString('Grandparent', $ordered[0][0]);
+
+        self::assertSame(1, $ordered[1][1], 'Parent follows with one descendant (the child)');
+        self::assertStringContainsString('Parent', $ordered[1][0]);
+    }
+
+    /**
+     * Edge: when the requested top-N exceeds the number of
+     * individuals with at least one descendant, the result simply
+     * stops at the available rows — no zero-padding, no overflow.
+     * Locks the implicit "no leaves on the podium" contract.
+     */
+    #[Test]
+    public function topAncestorsLimitClampsToAvailableRanks(): void
+    {
+        $tree   = $this->importFixtureTree('generation-depth.ged');
+        $result = (new GenerationDepthRepository($tree, new ParentMapRepository($tree)))
+            ->topAncestorsByDescendantCount(50);
+
+        self::assertCount(2, $result, 'Asking for 50 rows on a 2-row tree still yields 2 rows');
+    }
 }

@@ -523,6 +523,22 @@ final readonly class Statistic
     }
 
     /**
+     * Top-N ancestors ranked by total transitive descendant count.
+     * Surfaces the structural roots of the tree — the individuals
+     * whose branches actually carry the rest of the recorded
+     * lineage. Each entry is a `displayName → descendantCount`
+     * pair so the Podium component renders it directly.
+     *
+     * @param int $limit Maximum number of rows to return
+     *
+     * @return array<string, int>
+     */
+    public function getTopAncestorsByDescendantCount(int $limit): array
+    {
+        return $this->generationDepthRepository->topAncestorsByDescendantCount($limit);
+    }
+
+    /**
      * Co-trimmed `{father, mother}` age-at-first-child distributions
      * — both 5-year-band maps with leading and trailing all-zero
      * buckets dropped symmetrically. Index 0 is fathers, index 1 is

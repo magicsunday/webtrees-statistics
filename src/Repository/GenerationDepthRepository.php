@@ -19,10 +19,14 @@ use MagicSunday\Webtrees\Statistic\Support\Calc\GenerationDepth;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 
+use function array_filter;
 use function array_keys;
+use function array_pop;
 use function array_slice;
+use function arsort;
 use function count;
 use function max;
+use function strip_tags;
 use function uksort;
 
 /**
@@ -169,6 +173,126 @@ final readonly class GenerationDepthRepository
         }
 
         return $byLeaf;
+    }
+
+    /**
+     * Top-N ancestors ranked by their total documented descendant
+     * count (transitive: children + grandchildren + great-grandchildren
+     * + …). Surfaces the structural "roots" of the tree — the
+     * individuals whose branches actually carry the rest of the
+     * recorded lineage.
+     *
+     * Walks the inverted parent map once with per-individual
+     * memoisation, so a descendant reached through two different
+     * grandparents is still counted once per ancestor. The walk is
+     * iterative (no recursion-depth limit) and the cache survives
+     * across the foreach so deep trees stay linear in the
+     * cardinality of the graph.
+     *
+     * Privacy: individuals whose webtrees access check denies the
+     * current user are excluded; their xref leaves the descendant
+     * count of every ancestor untouched (so concealing one entry
+     * does not reshuffle the ranking).
+     *
+     * @param int $topN Maximum number of rows to return (default 10)
+     *
+     * @return array<string, int> Display label → descendant count, descending
+     */
+    public function topAncestorsByDescendantCount(int $topN = 10): array
+    {
+        $parentOf   = $this->parentMapRepository->build();
+        $childrenOf = GenerationDepth::childrenMap($parentOf);
+
+        // Two passes:
+        //   1. Build a complete xref list. parentOf carries every
+        //      individual that has at least one recorded parent;
+        //      childrenOf carries every individual that has at least
+        //      one recorded child. Their union covers everyone who
+        //      appears in any parent-child link.
+        //   2. For each xref, walk descendants iteratively with a
+        //      shared visited set to deduplicate diamond merges and
+        //      with the count cache to skip re-computation.
+        $allIds = $parentOf;
+
+        foreach (array_keys($childrenOf) as $id) {
+            $allIds[$id] ??= [null, null];
+        }
+
+        /** @var array<string, int> $descendantCount */
+        $descendantCount = [];
+
+        foreach (array_keys($allIds) as $id) {
+            $descendantCount[$id] = $this->countDescendantsTransitive($childrenOf, $id);
+        }
+
+        // Drop leaves: an individual with zero descendants is not a
+        // "root" of the tree and would only clutter the podium below
+        // the genuine roots.
+        $descendantCount = array_filter($descendantCount, static fn (int $n): bool => $n > 0);
+
+        arsort($descendantCount);
+
+        $out = [];
+
+        foreach ($descendantCount as $xref => $count) {
+            if (count($out) >= $topN) {
+                break;
+            }
+
+            $individual = Registry::individualFactory()->make($xref, $this->tree);
+
+            if (!$individual instanceof Individual) {
+                continue;
+            }
+
+            if (!$individual->canShow()) {
+                continue;
+            }
+
+            $out[strip_tags($individual->fullName())] = $count;
+        }
+
+        return $out;
+    }
+
+    /**
+     * Iterative BFS over the children map starting at `$startId`,
+     * collecting the set of transitive descendants and returning
+     * its size. The visited set is local to the call so diamond
+     * merges (two parent chains meeting at the same descendant)
+     * collapse to one count. The visited set seed includes
+     * `$startId` itself, which the final size subtracts so the
+     * result is "descendants exclusive of self" as the issue
+     * specifies.
+     *
+     * Linear in the size of the reachable subtree; the foreach in
+     * {@see topAncestorsByDescendantCount} runs this once per id,
+     * so the overall complexity is bounded by O(N · D) where N is
+     * the number of individuals and D is the average descendant
+     * count.
+     *
+     * @param array<string, list<string>> $childrenOf Children-of map
+     * @param string                      $startId    Ancestor xref to count from
+     */
+    private function countDescendantsTransitive(array $childrenOf, string $startId): int
+    {
+        $visited = [$startId => true];
+        $queue   = [$startId];
+
+        while ($queue !== []) {
+            $current = array_pop($queue);
+
+            foreach ($childrenOf[$current] ?? [] as $child) {
+                if (isset($visited[$child])) {
+                    continue;
+                }
+
+                $visited[$child] = true;
+                $queue[]         = $child;
+            }
+        }
+
+        return count($visited) - 1;
     }
 
     /**

@@ -34,6 +34,7 @@ $ancestorDistribution = $statistic->getAncestorCountDistribution();
 $avgPedigree          = $statistic->getAveragePedigreeCompleteness();
 $generationDepth      = $statistic->getGenerationDepthSummary();
 $endogamy             = $statistic->getEndogamySummary();
+$topAncestors         = $statistic->getTopAncestorsByDescendantCount(10);
 $totalIndividuals     = $statistic->getTotalIndividuals();
 $totalAncestorsRows   = array_sum($ancestorDistribution);
 
@@ -287,6 +288,22 @@ echo Card::for($module, I18N::translate('Known ancestors per individual'))
         Widget::barChart($module, 'ancestor-count-bars')
             ->withData($ancestorDistributionBars)
             ->withAriaLabel(I18N::translate('Known ancestors per individual'))
+            ->render()
+    )
+    ->render();
+
+echo Card::for($module, I18N::translate('Top 10 most-influential ancestors'))
+    ->withSub(I18N::translate('Individuals with the most documented descendants · the structural roots of the tree'))
+    ->withEyebrow(I18N::translate('Reach'))
+    ->withAccent(Accent::Ochre)
+    ->withIllustration(Illustration::Tree)
+    ->withInfo(I18N::translate('For every individual in the tree the widget counts how many descendants are recorded below them across all generations. A descendant reached through two different grandparents is counted once per ancestor. Living individuals whose webtrees record is access-restricted for the current user are excluded from the podium. The ranking surfaces the people whose branches actually carry the rest of the recorded lineage.'), $aboutThisChart, $aboutThisChart)
+    ->withSpan(6)
+    ->withBodyHtml(
+        Component::podium($module)
+            ->with('class', 'progress-top-ancestors')
+            ->withData($topAncestors)
+            ->with('suffix', I18N::translate('desc.'))
             ->render()
     )
     ->render();
