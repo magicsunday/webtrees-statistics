@@ -256,4 +256,86 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
         // F2's MARR is in JUN.
         self::assertSame(1, $repo->weddingsByMonth()['JUN'] ?? null);
     }
+
+    /**
+     * Webtrees writes TWO rows into the `dates` table for every
+     * BET..AND / FROM..TO date range. The age-gap query joins
+     * `families` to two `dates` aliases (`hb` for husband BIRT,
+     * `wb` for wife BIRT); without `GROUP BY families.f_id` a
+     * single ranged BIRT row would surface as two entries in the
+     * histogram, both contributing slightly different gaps from
+     * the same family.
+     *
+     * Fixture `marriage-edge-cases.ged` carries four families:
+     *
+     * * F1 — both spouses full-date BIRT (~3 year gap),
+     * * F2 — both spouses full-date BIRT (~5 year gap),
+     * * F3 — husband `BET 1870 AND 1873` BIRT, wife full-date BIRT
+     *        (~2 year gap once the BET..AND is aggregated to its
+     *        lower bound),
+     * * F4 — both spouses full-date BIRT (~1 year gap; the FROM..TO
+     *        DEAT on the husband is irrelevant to this histogram).
+     *
+     * Post-dedup the histogram carries exactly four entries. Without
+     * the GROUP BY F3 would surface twice (one row per BIRT range
+     * bound), pushing the sum to 5.
+     */
+    #[Test]
+    public function ageGapDistributionDedupsRangedBirthRows(): void
+    {
+        $tree   = $this->importFixtureTree('marriage-edge-cases.ged');
+        $result = $this->repository($tree)->ageGapDistribution();
+
+        self::assertSame(
+            4,
+            array_sum($result),
+            'F1 + F2 + F3 + F4 = 4 entries; without dedup F3 would contribute 2 (one per BET..AND bound) and the sum would climb to 5',
+        );
+
+        // Bucket-specific lock so a future MIN -> MAX flip on
+        // `hb.d_julianday1` would surface: with MIN (lower bound)
+        // F3's husband BIRT anchors at 01.01.1870 and the gap to wife
+        // (05.03.1872) is ~-2 years → bucket "-5 to -1". With MAX
+        // (upper bound) the anchor would slide to 01.01.1873 and the
+        // gap would flip sign to ~+0 years → bucket "0–4", landing
+        // outside this assertion.
+        self::assertSame(4, $result['-5 to -1'] ?? 0, 'F1..F4 all land in the husband-older-by-1-to-5-years band post-MIN-aggregate');
+        self::assertSame(0, $result['0–4'] ?? 0, 'no family is husband-younger-by-0-to-4-years; a MIN -> MAX swap on F3 BIRT would push 1 entry here');
+    }
+
+    /**
+     * Same doubling pathology on the DEAT side: a FROM..TO / BET..AND
+     * DEAT produces two rows in the `dates` table, and the widowhood
+     * query joins twice on `dates` (husband DEAT, wife DEAT). The
+     * fixture's F4 carries husband DEAT `FROM 1945 TO 1947` plus a
+     * full-date wife DEAT — without `GROUP BY families.f_id` F4 would
+     * yield two entries with different widowhood years (one per
+     * husband-DEAT bound). All four families have both DEAT dates,
+     * so the post-dedup histogram totals four; without dedup it
+     * totals five.
+     */
+    #[Test]
+    public function widowhoodYearsDistributionDedupsRangedDeathRows(): void
+    {
+        $tree   = $this->importFixtureTree('marriage-edge-cases.ged');
+        $result = $this->repository($tree)->widowhoodYearsDistribution();
+
+        self::assertSame(
+            4,
+            array_sum($result),
+            'F1 + F2 + F3 + F4 = 4 entries; without dedup F4 would contribute 2 (one per FROM..TO DEAT bound) and the sum would climb to 5',
+        );
+
+        // Bucket-specific lock for the MAX(d_julianday2) aggregate.
+        // F1 husb=1920 / wife=1915 → widowhood ~4y → "0–4".
+        // F3 husb=1935 / wife=1942 → widowhood ~6y → "5–9".
+        // F4 husb FROM 1945 TO 1947 / wife 1955 → with MAX(d_julianday2)
+        // the husband-DEAT anchor lands at 31.12.1947 → widowhood ~7y
+        // → "5–9". A MAX -> MIN swap would slide F4's husband DEAT to
+        // 01.01.1945, pushing the widowhood to ~10y → "10–14" and
+        // shifting the assertions below.
+        self::assertSame(1, $result['0–4'] ?? 0, 'F1 widowhood ~4 years');
+        self::assertSame(2, $result['5–9'] ?? 0, 'F3 + F4 widowhood lands in 5-9 with MAX(d_julianday2); a swap to MIN(d_julianday1) would peel F4 off into the 10-14 bucket');
+        self::assertSame(1, $result['10–14'] ?? 0, 'F2 widowhood ~10 years; a MAX -> MIN swap on F4 would inflate this bucket to 2');
+    }
 }

@@ -16,6 +16,7 @@ use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\StatisticsData;
 use Fisharebest\Webtrees\Tree;
+use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Enum\AgePairExtremum;
@@ -484,6 +485,15 @@ final class MarriageRepository
      */
     public function ageGapDistribution(): array
     {
+        $prefix = DB::connection()->getTablePrefix();
+
+        // Webtrees writes TWO rows into the `dates` table for every
+        // BET..AND / FROM..TO date — one per range bound — so a JOIN
+        // without grouping would surface the same FAM twice per
+        // ranged BIRT. Grouping by `f_id` and aggregating each
+        // spouse's BIRT with `MIN(d_julianday1)` collapses ranged
+        // rows into the lower-bound julian day, yielding one entry
+        // per family.
         $rows = TreeScope::table($this->tree, 'families')
             ->join('dates AS hb', static function (JoinClause $join): void {
                 DateJoin::on($join, 'hb', 'f_file', 'f_husb', 'BIRT', DateJoin::JD_NOT_EQUAL_ZERO);
@@ -492,9 +502,10 @@ final class MarriageRepository
                 DateJoin::on($join, 'wb', 'f_file', 'f_wife', 'BIRT', DateJoin::JD_NOT_EQUAL_ZERO);
             })
             ->select([
-                'hb.d_julianday1 AS hb_jd',
-                'wb.d_julianday1 AS wb_jd',
+                new Expression('MIN(' . $prefix . 'hb.d_julianday1) AS hb_jd'),
+                new Expression('MIN(' . $prefix . 'wb.d_julianday1) AS wb_jd'),
             ])
+            ->groupBy('families.f_id')
             ->get();
 
         $buckets                                                      = [];
@@ -551,6 +562,15 @@ final class MarriageRepository
      */
     public function widowhoodYearsDistribution(): array
     {
+        $prefix = DB::connection()->getTablePrefix();
+
+        // Ranged DEAT dates (BET..AND / FROM..TO) produce two `dates`
+        // rows per spouse — without grouping by `f_id` a single
+        // FAM with one ranged DEAT would surface twice with different
+        // widowhood values. Aggregating each DEAT with the upper-
+        // bound `MAX(d_julianday2)` matches the webtrees-core
+        // "maximum-possible-lifespan" idiom and keeps the histogram
+        // bucket at one entry per family.
         $rows = TreeScope::table($this->tree, 'families')
             ->join('dates AS husb_d', static function (JoinClause $join): void {
                 DateJoin::on($join, 'husb_d', 'f_file', 'f_husb', 'DEAT', DateJoin::JD_NOT_EQUAL_ZERO);
@@ -559,9 +579,10 @@ final class MarriageRepository
                 DateJoin::on($join, 'wife_d', 'f_file', 'f_wife', 'DEAT', DateJoin::JD_NOT_EQUAL_ZERO);
             })
             ->select([
-                'husb_d.d_julianday1 AS husb_jd',
-                'wife_d.d_julianday1 AS wife_jd',
+                new Expression('MAX(' . $prefix . 'husb_d.d_julianday2) AS husb_jd'),
+                new Expression('MAX(' . $prefix . 'wife_d.d_julianday2) AS wife_jd'),
             ])
+            ->groupBy('families.f_id')
             ->get();
 
         $buckets = AgeBuckets::init(0, self::WIDOWHOOD_MAX, self::WIDOWHOOD_BUCKET);
