@@ -28,18 +28,24 @@ use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarPayload;
 use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarSeries;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
 use MagicSunday\Webtrees\Statistic\Support\Locale\DecadeName;
 
+use function abs;
 use function array_combine;
 use function array_fill_keys;
+use function array_keys;
+use function array_unique;
+use function array_values;
 use function count;
 use function html_entity_decode;
 use function intdiv;
 use function ksort;
 use function max;
 use function min;
+use function round;
 use function sort;
 use function strip_tags;
 use function substr;
@@ -74,6 +80,31 @@ final readonly class ChildrenRepository
      * the typical curve.
      */
     private const int SIBLING_GAP_MAX = 10;
+
+    /**
+     * Minimum per-century sample size for the multiple-birth rate.
+     * The biological baseline sits at ~1 % of births so 200 children
+     * per century is the cohort floor below which a single missing
+     * twin set would swing the rate by 0.5 percentage points or more.
+     */
+    private const int MIN_COHORT_MULTIPLE_BIRTH = 200;
+
+    /**
+     * Multiplicity cap for the per-century breakdown — twin / triplet
+     * / quadruplet sets each get their own series, sets of five and
+     * above collapse onto a single "quintuplet+" bucket so the chart
+     * stays readable even on a tree with a heroic outlier.
+     */
+    private const int MULTIPLE_BIRTH_CAP = 5;
+
+    /**
+     * Maximum BIRT julian-day difference between two INDI:ASSO-linked
+     * individuals for the link to count as a multi-birth signal. One
+     * day accommodates cross-midnight twins while excluding ASSO
+     * links to friends / godparents / mentors whose dates are
+     * unrelated.
+     */
+    private const int MULTI_BIRTH_ASSO_MAX_DAY_DIFF = 1;
 
     /**
      * @param Tree           $tree The tree the statistics are computed for
@@ -374,6 +405,388 @@ final readonly class ChildrenRepository
                 ),
             ],
         );
+    }
+
+    /**
+     * Multiple-birth rate per century, one series per multiplicity
+     * that actually occurs in the tree (twins, triplets, quadruplets,
+     * quintuplet+). Each series carries the per-century share of
+     * children that landed in a set of that size, so the chart-lib
+     * `multiSeriesArea: true` consumer draws a stacked-style area
+     * fill where the twin band dwarfs the triplet / quadruplet bands
+     * by an order of magnitude — the demographic signal worth
+     * surfacing.
+     *
+     * Detection: same-day BIRT inside a FAM picks up genuine twin /
+     * triplet sets. INDI:ASSO with a RELA tag matching a
+     * multi-birth keyword merges across the date heuristic's
+     * blind spots (cross-midnight twins) when the tree author
+     * recorded the link explicitly. Centuries below
+     * {@see MIN_COHORT_MULTIPLE_BIRTH} dated births are dropped to
+     * keep the curve from spiking on small denominators.
+     */
+    public function multipleBirthRateByCentury(): LineChartPayload
+    {
+        $rows = TreeScope::table($this->tree, 'link')
+            ->where('l_type', '=', 'FAMC')
+            ->join('dates AS birth', static function (JoinClause $join): void {
+                DateJoin::on($join, 'birth', 'l_file', 'l_from', 'BIRT', DateJoin::JD_NOT_EQUAL_ZERO);
+            })
+            // d_day = 0 / d_mon = 0 = year-only BIRT — webtrees still
+            // produces a julian-day (defaulted to the year anchor) for
+            // those rows, which would turn every "0 0 1829" sibling
+            // group into a phantom multi-birth set. Require both the
+            // day and month columns to be set so the same-day group
+            // detection only fires on truly dated siblings.
+            ->where('birth.d_day', '>', 0)
+            ->where('birth.d_mon', '>', 0)
+            ->select([
+                'l_from AS child_id',
+                'l_to AS family_id',
+                'birth.d_year AS birth_year',
+                'birth.d_julianday1 AS birth_jd',
+            ])
+            ->get();
+
+        /** @var array<string, int> $yearByChild */
+        $yearByChild = [];
+
+        /** @var array<string, int> $jdByChild */
+        $jdByChild = [];
+
+        /** @var array<string, array<int, list<string>>> $perFamilyByDay */
+        $perFamilyByDay = [];
+
+        foreach ($rows as $row) {
+            $childId = RowCast::string($row, 'child_id');
+            $famId   = RowCast::string($row, 'family_id');
+            $year    = RowCast::int($row, 'birth_year');
+            $birthJd = RowCast::int($row, 'birth_jd');
+
+            if ($childId === '') {
+                continue;
+            }
+
+            if ($famId === '') {
+                continue;
+            }
+
+            if ($year <= 0) {
+                continue;
+            }
+
+            if ($birthJd <= 0) {
+                continue;
+            }
+
+            $yearByChild[$childId]              = $year;
+            $jdByChild[$childId]                = $birthJd;
+            $perFamilyByDay[$famId][$birthJd][] = $childId;
+        }
+
+        $assoGroups = $this->multiBirthLinksFromAsso($jdByChild);
+
+        /** @var array<int, int> $totalsByCentury */
+        $totalsByCentury = [];
+
+        foreach ($yearByChild as $year) {
+            $century                   = CenturyName::fromYear($year);
+            $totalsByCentury[$century] = ($totalsByCentury[$century] ?? 0) + 1;
+        }
+
+        /** @var array<int, array<int, int>> $multiplicityCountsByCentury */
+        $multiplicityCountsByCentury = [];
+
+        /** @var array<int, array<int, int>> $multiplicitySetsByCentury */
+        $multiplicitySetsByCentury = [];
+
+        foreach ($perFamilyByDay as $byDay) {
+            // Local union-find per FAM: every same-day group starts
+            // as its own set, then ASSO partners merge sets across
+            // days when both children sit in this FAM.
+            $childToSet = [];
+            $sets       = [];
+
+            foreach ($byDay as $childIds) {
+                $setKey        = count($sets);
+                $sets[$setKey] = $childIds;
+
+                foreach ($childIds as $childId) {
+                    $childToSet[$childId] = $setKey;
+                }
+            }
+
+            foreach ($byDay as $childIds) {
+                foreach ($childIds as $childId) {
+                    foreach ($assoGroups[$childId] ?? [] as $partnerId) {
+                        if (!isset($childToSet[$partnerId])) {
+                            continue;
+                        }
+
+                        $a = $childToSet[$childId];
+                        $b = $childToSet[$partnerId];
+
+                        if ($a === $b) {
+                            continue;
+                        }
+
+                        foreach ($sets[$b] as $movedId) {
+                            $sets[$a][]           = $movedId;
+                            $childToSet[$movedId] = $a;
+                        }
+
+                        $sets[$b] = [];
+                    }
+                }
+            }
+
+            foreach ($sets as $setChildren) {
+                $size = count($setChildren);
+
+                if ($size < 2) {
+                    continue;
+                }
+
+                $multiplicityKey = $size >= self::MULTIPLE_BIRTH_CAP ? self::MULTIPLE_BIRTH_CAP : $size;
+                $primaryChild    = $setChildren[0];
+                $primaryYear     = $yearByChild[$primaryChild] ?? 0;
+
+                if ($primaryYear <= 0) {
+                    continue;
+                }
+
+                $primaryCentury = CenturyName::fromYear($primaryYear);
+                $multiplicityCountsByCentury[$primaryCentury][$multiplicityKey]
+                    = ($multiplicityCountsByCentury[$primaryCentury][$multiplicityKey] ?? 0) + $size;
+                $multiplicitySetsByCentury[$primaryCentury][$multiplicityKey]
+                    = ($multiplicitySetsByCentury[$primaryCentury][$multiplicityKey] ?? 0) + 1;
+            }
+        }
+
+        if ($totalsByCentury === []) {
+            return new LineChartPayload(categories: [], series: []);
+        }
+
+        ksort($totalsByCentury);
+
+        // Only emit series for multiplicities that actually occur.
+        $multiplicitiesPresent = [];
+
+        foreach ($multiplicityCountsByCentury as $byMultiplicity) {
+            foreach (array_keys($byMultiplicity) as $multiplicity) {
+                $multiplicitiesPresent[$multiplicity] = true;
+            }
+        }
+
+        if ($multiplicitiesPresent === []) {
+            return new LineChartPayload(categories: [], series: []);
+        }
+
+        ksort($multiplicitiesPresent);
+        $multiplicities = array_keys($multiplicitiesPresent);
+
+        $categories             = [];
+        $qualifyingCenturyOrder = [];
+
+        foreach ($totalsByCentury as $century => $total) {
+            if ($total < self::MIN_COHORT_MULTIPLE_BIRTH) {
+                continue;
+            }
+
+            $qualifyingCenturyOrder[] = $century;
+            $categories[]             = CenturyName::compactLabel(CenturyName::for($century));
+        }
+
+        if ($categories === []) {
+            return new LineChartPayload(categories: [], series: []);
+        }
+
+        $series = [];
+
+        foreach ($multiplicities as $multiplicity) {
+            $values        = [];
+            $tooltips      = [];
+            $tooltipLabels = [];
+
+            foreach ($qualifyingCenturyOrder as $century) {
+                $total    = $totalsByCentury[$century];
+                $count    = $multiplicityCountsByCentury[$century][$multiplicity] ?? 0;
+                $setCount = $multiplicitySetsByCentury[$century][$multiplicity] ?? 0;
+                $rate     = round(($count / $total) * 100, 2);
+
+                $values[]        = $rate;
+                $tooltipLabels[] = CenturyName::longLabel(CenturyName::for($century));
+                $tooltips[]      = $this->multipleBirthTooltip($multiplicity, $count, $setCount, $total, $rate);
+            }
+
+            $series[] = new LineChartSeries(
+                name: $this->multiplicitySeriesName($multiplicity),
+                values: $values,
+                tooltips: $tooltips,
+                tooltipLabels: $tooltipLabels,
+                class: $this->multiplicitySeriesClass($multiplicity),
+            );
+        }
+
+        return new LineChartPayload(
+            categories: $categories,
+            series: $series,
+        );
+    }
+
+    /**
+     * Resolve INDI:ASSO associations that look like multi-birth
+     * links across the supplied individuals. Two children are
+     * unioned when both carry an ASSO pointing at the other AND
+     * their recorded BIRT julian-days sit within
+     * {@see MULTI_BIRTH_ASSO_MAX_DAY_DIFF} of each other — that
+     * picks up cross-midnight twins (which the same-day-BIRT
+     * heuristic misses) without dragging in unrelated ASSO
+     * relationships such as godparents or mentors. The RELA token
+     * is intentionally not consulted: trees use widely different
+     * RELA prose ("twin" / "Zwilling" / "jumeau" / "I3 born minutes
+     * later" / "") and the date proximity itself is the cleaner
+     * signal.
+     *
+     * @param array<string, int> $jdByChild Map of child xref → BIRT julian-day (for proximity check)
+     *
+     * @return array<string, list<string>>
+     */
+    private function multiBirthLinksFromAsso(array $jdByChild): array
+    {
+        if ($jdByChild === []) {
+            return [];
+        }
+
+        $rows = TreeScope::table($this->tree, 'individuals')
+            ->whereIn('i_id', array_keys($jdByChild))
+            ->select(['i_id AS xref', 'i_gedcom AS gedcom'])
+            ->get();
+
+        /** @var array<string, list<string>> $links */
+        $links = [];
+
+        foreach ($rows as $row) {
+            $xref   = RowCast::string($row, 'xref');
+            $gedcom = RowCast::string($row, 'gedcom');
+
+            if ($xref === '') {
+                continue;
+            }
+
+            if ($gedcom === '') {
+                continue;
+            }
+
+            $xrefJd = $jdByChild[$xref] ?? 0;
+
+            if ($xrefJd <= 0) {
+                continue;
+            }
+
+            foreach (GedcomScanner::extractAssociations($gedcom) as $partnerId) {
+                $partnerJd = $jdByChild[$partnerId] ?? 0;
+
+                if ($partnerJd <= 0) {
+                    continue;
+                }
+
+                if (abs($xrefJd - $partnerJd) > self::MULTI_BIRTH_ASSO_MAX_DAY_DIFF) {
+                    continue;
+                }
+
+                $links[$xref][]      = $partnerId;
+                $links[$partnerId][] = $xref;
+            }
+        }
+
+        foreach ($links as $key => $partners) {
+            $links[$key] = array_values(array_unique($partners));
+        }
+
+        return $links;
+    }
+
+    /**
+     * Display name for a per-multiplicity LineChart series. Caps at
+     * "Quintuplets and above" so sextuplets and beyond collapse
+     * onto a single readable label.
+     */
+    private function multiplicitySeriesName(int $multiplicity): string
+    {
+        if ($multiplicity >= self::MULTIPLE_BIRTH_CAP) {
+            return I18N::translate('Quintuplets and above');
+        }
+
+        return match ($multiplicity) {
+            2       => I18N::translate('Twins'),
+            3       => I18N::translate('Triplets'),
+            4       => I18N::translate('Quadruplets'),
+            default => I18N::translate('Multiple births'),
+        };
+    }
+
+    /**
+     * Stable CSS class hook so the host stylesheet can pin each
+     * multiplicity series to a fixed colour token.
+     */
+    private function multiplicitySeriesClass(int $multiplicity): string
+    {
+        if ($multiplicity >= self::MULTIPLE_BIRTH_CAP) {
+            return 'multiple-birth-quintuplet-plus';
+        }
+
+        return match ($multiplicity) {
+            2       => 'multiple-birth-twin',
+            3       => 'multiple-birth-triplet',
+            4       => 'multiple-birth-quadruplet',
+            default => 'multiple-birth-other',
+        };
+    }
+
+    /**
+     * Compose a per-point tooltip body: "N children of M (X.XX %)
+     * — Y twin / triplet / quadruplet sets". Multiplicity drives
+     * the narrative noun so the reader sees what kind of set the
+     * count represents. `$setCount` is the actual number of sets
+     * collected (not derived from `$count / $multiplicity`, which
+     * would drift in the cap bucket when heterogeneous-size sets
+     * pool together).
+     */
+    private function multipleBirthTooltip(int $multiplicity, int $count, int $setCount, int $total, float $rate): string
+    {
+        $head = I18N::translate(
+            '%1$s of %2$s children (%3$s %%)',
+            I18N::number($count),
+            I18N::number($total),
+            I18N::number($rate, 2),
+        );
+
+        if ($count === 0) {
+            return $head;
+        }
+
+        if ($multiplicity >= self::MULTIPLE_BIRTH_CAP) {
+            return $head . ' — ' . I18N::plural(
+                '%s quintuplet+ set',
+                '%s quintuplet+ sets',
+                $setCount,
+                I18N::number($setCount),
+            );
+        }
+
+        $setProse = match ($multiplicity) {
+            2       => I18N::plural('%s twin set', '%s twin sets', $setCount, I18N::number($setCount)),
+            3       => I18N::plural('%s triplet set', '%s triplet sets', $setCount, I18N::number($setCount)),
+            4       => I18N::plural('%s quadruplet set', '%s quadruplet sets', $setCount, I18N::number($setCount)),
+            default => '',
+        };
+
+        if ($setProse === '') {
+            return $head;
+        }
+
+        return $head . ' — ' . $setProse;
     }
 
     /**

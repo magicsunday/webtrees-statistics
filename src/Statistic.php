@@ -839,6 +839,21 @@ final readonly class Statistic
     }
 
     /**
+     * Multiple-birth rate per century — one LineChart series per
+     * multiplicity that actually occurs in the tree (twins,
+     * triplets, quadruplets, quintuplets and above). Each series
+     * carries that multiplicity's per-century share of dated
+     * births. Detection unions same-day BIRT siblings with mutual
+     * INDI:ASSO partners whose BIRT dates sit within one day, so
+     * cross-midnight twins still count when the tree author
+     * recorded the association explicitly.
+     */
+    public function getMultipleBirthRateByCentury(): LineChartPayload
+    {
+        return $this->childrenRepository->multipleBirthRateByCentury();
+    }
+
+    /**
      * Top-N largest families by child count.
      *
      * @param int $limit Maximum number of rows.

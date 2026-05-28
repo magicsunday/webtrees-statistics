@@ -2474,6 +2474,74 @@
     fill: var(--wine);
 }
 
+/* Multiple-birth rate card: one series per multiplicity (twins,
+   triplets, quadruplets, quintuplet+). Each series pins to its
+   own colour token so the layered area fills read as distinct
+   contributions at a glance. */
+.wt-statistics-chart svg.wt-line-chart .series.multiple-birth-twin .line {
+    stroke: var(--ochre);
+}
+
+.wt-statistics-chart svg.wt-line-chart .series.multiple-birth-twin .point {
+    fill: var(--ochre);
+}
+
+.wt-statistics-chart svg.wt-line-chart .series.multiple-birth-twin .area {
+    fill: var(--ochre);
+}
+
+.wt-statistics-chart svg.wt-line-chart .legend-swatch.multiple-birth-twin {
+    fill: var(--ochre);
+}
+
+.wt-statistics-chart svg.wt-line-chart .series.multiple-birth-triplet .line {
+    stroke: var(--wine);
+}
+
+.wt-statistics-chart svg.wt-line-chart .series.multiple-birth-triplet .point {
+    fill: var(--wine);
+}
+
+.wt-statistics-chart svg.wt-line-chart .series.multiple-birth-triplet .area {
+    fill: var(--wine);
+}
+
+.wt-statistics-chart svg.wt-line-chart .legend-swatch.multiple-birth-triplet {
+    fill: var(--wine);
+}
+
+.wt-statistics-chart svg.wt-line-chart .series.multiple-birth-quadruplet .line {
+    stroke: var(--slate);
+}
+
+.wt-statistics-chart svg.wt-line-chart .series.multiple-birth-quadruplet .point {
+    fill: var(--slate);
+}
+
+.wt-statistics-chart svg.wt-line-chart .series.multiple-birth-quadruplet .area {
+    fill: var(--slate);
+}
+
+.wt-statistics-chart svg.wt-line-chart .legend-swatch.multiple-birth-quadruplet {
+    fill: var(--slate);
+}
+
+.wt-statistics-chart svg.wt-line-chart .series.multiple-birth-quintuplet-plus .line {
+    stroke: var(--sage);
+}
+
+.wt-statistics-chart svg.wt-line-chart .series.multiple-birth-quintuplet-plus .point {
+    fill: var(--sage);
+}
+
+.wt-statistics-chart svg.wt-line-chart .series.multiple-birth-quintuplet-plus .area {
+    fill: var(--sage);
+}
+
+.wt-statistics-chart svg.wt-line-chart .legend-swatch.multiple-birth-quintuplet-plus {
+    fill: var(--sage);
+}
+
 /* Axis tick numbers match the design mockup's `.gs-axis-text` —
    monospaced so digits line up across rows + columns. The legend
    carries prose (series names), so it stays on the card's sans

@@ -45,6 +45,7 @@ $avgChildren             = $statistic->getAverageChildrenPerFamily();
 $childrenHistogram       = $statistic->getChildrenPerFamilyDistribution();
 $familySizeStackedDecade = $statistic->getFamilySizeStackedByDecade();
 $averageFamilySizeLine   = $statistic->getAverageFamilySizeByCentury();
+$multipleBirthRate       = $statistic->getMultipleBirthRateByCentury();
 $siblingGaps             = $statistic->getSiblingAgeGapDistribution();
 $largestFamilies         = $statistic->getTopLargestFamilies(10);
 $childlessBreakdown      = $statistic->getChildlessFamiliesDistribution();
@@ -378,6 +379,29 @@ echo Card::for($module, I18N::translate('Average family size by century'))
         Widget::lineChart($module, 'average-family-size-line')
             ->withData($averageFamilySizeLine)
             ->withAriaLabel(I18N::translate('Average family size by century'))
+            ->render()
+    )
+    ->render();
+
+echo Card::for($module, I18N::translate('Multiple-birth rate by century'))
+    ->withSub(I18N::translate('Share of children born on the same day as a sibling in the same family'))
+    ->withEyebrow(I18N::translate('Demographics'))
+    ->withAccent(Accent::Ochre)
+    ->withIllustration(Illustration::Child)
+    ->withInfo(
+        I18N::translate(
+            'For every fully-dated child in the tree (BIRT carrying both a day and a month) the widget checks whether at least one sibling in the same FAM shares the BIRT julian-day. Same-day siblings are counted as a multiple-birth set; INDI:ASSO links between two children of the same FAM whose BIRT dates sit within one day of each other also merge into a set, so cross-midnight twins still count when the tree author recorded the association explicitly. The chart draws one series per multiplicity that actually occurs in the tree (twins, triplets, quadruplets, quintuplets and above) — each series shows that multiplicity\'s per-century share of all dated births. Year-only BIRT records (day and month both blank) are intentionally excluded — they would turn every "0 0 1829" sibling group into a phantom multi-birth set. Centuries below 200 fully-dated children are dropped to keep the curve from spiking on small denominators.'
+        ),
+        $aboutThisChart,
+        $aboutThisChart
+    )
+    ->withSpan(12)
+    ->withBodyHtml(
+        Widget::lineChart($module, 'multiple-birth-rate-line')
+            ->withData($multipleBirthRate)
+            ->with('yUnit', ' %')
+            ->with('multiSeriesArea', true)
+            ->withAriaLabel(I18N::translate('Multiple-birth rate by century'))
             ->render()
     )
     ->render();
