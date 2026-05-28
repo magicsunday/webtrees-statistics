@@ -122,7 +122,7 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('father-son-name-passdown.ged');
         $result = $this->repository($tree)->sameSexNamePassdownByCentury();
 
-        self::assertSame(['18th', '19th', '20th'], $result->categories, 'All three centuries appear chronologically');
+        self::assertSame(['18th cent.', '19th cent.', '20th cent.'], $result->categories, 'All three centuries appear chronologically');
         self::assertCount(2, $result->series, 'Two series: father → son and mother → daughter');
 
         $fatherSon = $result->series[0];
@@ -179,7 +179,7 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
 
         // Fixture: 10 father-son pairs in the 1800s, 7 share at
         // least one token, no mother-daughter pairs.
-        self::assertSame(['19th'], $result->categories);
+        self::assertSame(['19th cent.'], $result->categories);
         self::assertCount(2, $result->series);
 
         $fatherSon = $result->series[0];

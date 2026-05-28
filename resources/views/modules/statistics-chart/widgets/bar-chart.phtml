@@ -18,6 +18,8 @@ use MagicSunday\Webtrees\Statistic\View\EmptyStatePlaceholder;
  * @var int|null                                                                                              $height       Optional viewport height (defaults to 240)
  * @var string|null                                                                                           $orientation  "vertical" (default) or "horizontal"
  * @var bool|null                                                                                             $brush        Enable d3-brush selection (default false)
+ * @var string|null                                                                                           $xLabel       Optional centred caption below the x-axis rule (e.g. "Generations", "Years"). Vertical orientation only.
+ * @var string|null                                                                                           $yLabel       Optional rotated caption beside the y-axis. Horizontal orientation only.
  * @var string|null                                                                                           $ariaLabel    Accessible label on the host svg
  */
 $height      ??= 240;
@@ -44,6 +46,8 @@ if (($data === []) || (array_sum(array_column($data, 'value')) <= 0)) {
              'height'      => $height,
              'orientation' => $orientation,
              'brush'       => $brush,
+             'xLabel'      => $xLabel ?? null,
+             'yLabel'      => $yLabel ?? null,
              'ariaLabel'   => $ariaLabel ?? null,
          ]); ?>"
          data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"

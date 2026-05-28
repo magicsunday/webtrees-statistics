@@ -179,7 +179,7 @@ final readonly class NameRepository
             $label     = CenturyName::for($century);
             $longLabel = CenturyName::longLabel($label);
 
-            $categories[] = $label;
+            $categories[] = CenturyName::compactLabel($label);
 
             [$sonValues[], $sonTooltips[]]           = $this->seriesRow($fatherSon[$century] ?? null, 'son');
             $sonTooltipLabels[]                      = $longLabel;

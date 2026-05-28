@@ -611,7 +611,7 @@ final readonly class LifeSpanRepository
             }
 
             $label        = CenturyName::for($century);
-            $categories[] = $label;
+            $categories[] = CenturyName::compactLabel($label);
 
             $maleAverage = $perSex['M']['n'] >= self::MIN_COHORT_SIZE
                 ? round($perSex['M']['sum'] / $perSex['M']['n'], 1)
@@ -746,7 +746,7 @@ final readonly class LifeSpanRepository
             }
 
             $series[] = new LineChartSeries(
-                name: CenturyName::for($century),
+                name: CenturyName::compactLabel(CenturyName::for($century)),
                 values: $values,
                 tooltips: $tooltips,
                 tooltipLabels: $tooltipLabels,

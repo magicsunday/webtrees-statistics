@@ -20,6 +20,9 @@ use MagicSunday\Webtrees\Statistic\View\EmptyStatePlaceholder;
  * @var int|null                                                                      $xLabelEvery     Show every Nth x-axis label (default: auto, capped at ~12 visible labels)
  * @var bool|null                                                                     $showArea        Default true. Single-series draws the area fill; multi-series suppresses it unless `multiSeriesArea` is also set.
  * @var bool|null                                                                     $multiSeriesArea Default false. Opt in to per-series area fill in multi-series mode; layered fills get 0.14 opacity so the lower band still reads through. Use for side-by-side comparison charts (e.g. father → son vs. mother → daughter).
+ * @var bool|null                                                                     $perPointTooltip Default false. In multi-series mode, replace the aggregated multi-row tooltip with a single-row tooltip naming only the hovered series. Use for cohort-style charts where the cross-series comparison happens visually via the line shapes, not in the tooltip prose.
+ * @var string|null                                                                   $xLabel          Optional centred caption below the x-axis (e.g. "Age", "Year").
+ * @var string|null                                                                   $yLabel          Optional rotated caption beside the y-axis (e.g. "Years", "Persons").
  * @var string|null                                                                   $yUnit           Default empty. Suffix appended to bare numeric tooltip values (e.g. " %", " yr") when a series has no per-point tooltip override.
  * @var string|null                                                                   $ariaLabel       Accessible label on the host svg
  */
@@ -58,6 +61,9 @@ $xLabelEvery ??= max(1, (int) ceil(count($categories) / 12));
              'xLabelEvery'     => $xLabelEvery,
              'showArea'        => $showArea ?? null,
              'multiSeriesArea' => $multiSeriesArea ?? null,
+             'perPointTooltip' => $perPointTooltip ?? null,
+             'xLabel'          => $xLabel ?? null,
+             'yLabel'          => $yLabel ?? null,
              'yUnit'           => $yUnit ?? null,
              'ariaLabel'       => $ariaLabel ?? null,
          ]); ?>"

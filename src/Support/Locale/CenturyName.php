@@ -101,4 +101,15 @@ final readonly class CenturyName
     {
         return $short . ' ' . I18N::translate('Century');
     }
+
+    /**
+     * Compact-form label for tight legend / axis tick contexts —
+     * "20th cent." in English, "20. Jh." in German. Accepts the
+     * same already-formatted short label as {@see longLabel()};
+     * the translator owns the abbreviated suffix per locale.
+     */
+    public static function compactLabel(string $short): string
+    {
+        return I18N::translate('%s cent.', $short);
+    }
 }

@@ -52,7 +52,7 @@ final readonly class CenturyBarRowMapper
 
         foreach ($byCentury as $century => $count) {
             $rows[] = [
-                'label'        => (string) $century,
+                'label'        => CenturyName::compactLabel((string) $century),
                 'value'        => $count,
                 'tooltipLabel' => CenturyName::longLabel((string) $century),
                 'tooltip'      => I18N::plural('%s birth', '%s births', $count, I18N::number($count)),
@@ -76,7 +76,7 @@ final readonly class CenturyBarRowMapper
 
         foreach ($byCentury as $century => $count) {
             $rows[] = [
-                'label'        => (string) $century,
+                'label'        => CenturyName::compactLabel((string) $century),
                 'value'        => $count,
                 'tooltipLabel' => CenturyName::longLabel((string) $century),
                 'tooltip'      => I18N::plural('%s death', '%s deaths', $count, I18N::number($count)),
@@ -100,7 +100,7 @@ final readonly class CenturyBarRowMapper
 
         foreach ($byCentury as $century => $count) {
             $rows[] = [
-                'label'        => (string) $century,
+                'label'        => CenturyName::compactLabel((string) $century),
                 'value'        => $count,
                 'tooltipLabel' => CenturyName::longLabel((string) $century),
                 'tooltip'      => I18N::plural('%s marriage', '%s marriages', $count, I18N::number($count)),
@@ -124,7 +124,7 @@ final readonly class CenturyBarRowMapper
 
         foreach ($byCentury as $century => $count) {
             $rows[] = [
-                'label'        => (string) $century,
+                'label'        => CenturyName::compactLabel((string) $century),
                 'value'        => $count,
                 'tooltipLabel' => CenturyName::longLabel((string) $century),
                 'tooltip'      => I18N::plural('%s divorce', '%s divorces', $count, I18N::number($count)),
@@ -161,7 +161,7 @@ final readonly class CenturyBarRowMapper
             $centuryLabel      = CenturyName::for($entry['century']);
             $percentageRounded = (int) round($entry['percentage']);
             $rows[]            = [
-                'label'        => $centuryLabel,
+                'label'        => CenturyName::compactLabel($centuryLabel),
                 'value'        => $percentageRounded,
                 'tooltipLabel' => CenturyName::longLabel($centuryLabel),
                 'tooltip'      => I18N::translate(

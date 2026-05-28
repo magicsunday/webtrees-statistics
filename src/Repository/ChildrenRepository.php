@@ -353,7 +353,7 @@ final readonly class ChildrenRepository
             }
 
             $average      = $familyCount > 0 ? $totalKids / $familyCount : 0.0;
-            $categories[] = $short;
+            $categories[] = CenturyName::compactLabel($short);
             $values[]     = $average;
             $tooltips[]   = I18N::translate(
                 '%1$s children per family (n = %2$s)',

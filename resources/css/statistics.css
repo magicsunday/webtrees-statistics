@@ -1052,7 +1052,7 @@
 
 .wt-statistics-chart .wt-stat-podium-rank {
     font-family: var(--mono);
-    font-size:   11px;
+    font-size:   12px;
     color:       var(--ink-3);
 }
 
@@ -1061,6 +1061,7 @@
    so widgets that compose multiple text helpers stay consistent. */
 .wt-statistics-chart .wt-stat-mono {
     font-family:          var(--mono);
+    font-size:            12px;
     font-variant-numeric: tabular-nums;
 }
 
@@ -1260,7 +1261,7 @@
 .wt-statistics-chart .wt-stat-legend-pct {
     color:                var(--ink-3);
     font-family:          var(--mono);
-    font-size:            10px;
+    font-size:            12px;
     text-align:           right;
     font-variant-numeric: tabular-nums;
     justify-self:         end;
@@ -2299,8 +2300,9 @@
 }
 
 .wt-statistics-chart svg.wt-stream-graph .x-axis text {
-    fill:        var(--wmstats-card-muted);
-    font-size:   0.75rem;
+    fill:                 var(--wmstats-card-muted);
+    font-family:          var(--mono);
+    font-size:            12px;
     font-variant-numeric: tabular-nums;
 }
 
@@ -2472,10 +2474,34 @@
     fill: var(--wine);
 }
 
+/* Axis tick numbers match the design mockup's `.gs-axis-text` —
+   monospaced so digits line up across rows + columns. The legend
+   carries prose (series names), so it stays on the card's sans
+   stack. Without these explicit rules, the legend <text> falls
+   back to the browser default 16 px while only the axis-tick
+   inline-rules sat at 0.7 rem, visibly mixing two scales inside
+   the same widget. */
 .wt-statistics-chart svg.wt-line-chart .x-axis text,
 .wt-statistics-chart svg.wt-line-chart .y-axis text {
-    fill:      var(--ink-2);
-    font-size: 0.7rem;
+    fill:                 var(--ink-2);
+    font-family:          var(--mono);
+    font-size:            12px;
+    font-variant-numeric: tabular-nums;
+}
+
+.wt-statistics-chart svg.wt-line-chart .line-legend text {
+    fill:        var(--ink-2);
+    font-family: var(--sans);
+    font-size:   12px;
+}
+
+.wt-statistics-chart svg.wt-line-chart .axis-label {
+    fill:           var(--ink-3);
+    font-family:    var(--sans);
+    font-size:      0.7rem;
+    font-weight:    500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
 }
 
 /* Y-axis as gridline strip — chart-lib drops the axis baseline
@@ -2505,9 +2531,10 @@
    editorial mockup's double-line histogram footer. */
 .wt-statistics-chart svg.wt-bar-chart .x-axis text,
 .wt-statistics-chart svg.wt-bar-chart .y-axis text {
-    fill:        var(--ink-2);
-    font-family: var(--sans);
-    font-size:   11px;
+    fill:                 var(--ink-2);
+    font-family:          var(--mono);
+    font-size:            12px;
+    font-variant-numeric: tabular-nums;
 }
 
 /* chart-lib drops both the axis baseline (path.domain) and the
@@ -2518,10 +2545,19 @@
     stroke: var(--border-soft);
 }
 
+.wt-statistics-chart svg.wt-bar-chart .axis-label {
+    fill:           var(--ink-3);
+    font-family:    var(--sans);
+    font-size:      0.7rem;
+    font-weight:    500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
 .wt-statistics-chart svg.wt-bar-chart text.bar-value {
     fill:                 var(--ink-2);
     font-family:          var(--mono);
-    font-size:            10px;
+    font-size:            12px;
     font-variant-numeric: tabular-nums;
     pointer-events:       none;
 }
@@ -2545,9 +2581,10 @@
 
 .wt-statistics-chart svg.wt-box-plot .x-axis text,
 .wt-statistics-chart svg.wt-box-plot .y-axis text {
-    fill:        var(--ink-2);
-    font-family: var(--sans);
-    font-size:   11px;
+    fill:                 var(--ink-2);
+    font-family:          var(--mono);
+    font-size:            12px;
+    font-variant-numeric: tabular-nums;
 }
 
 /* Value axis renders as a gridline strip via tickSize(-innerWidth);
@@ -2604,10 +2641,11 @@
     pointer-events:       none;
 }
 
-/* Sample size label below the category tick. */
+/* Sample size label below the category tick. Numeric data, so it
+   sits on the same monospaced system as the axis ticks. */
 .wt-statistics-chart svg.wt-box-plot text.sample-size {
     fill:                 var(--ink-3);
-    font-family:          var(--sans);
+    font-family:          var(--mono);
     font-size:            10px;
     font-variant-numeric: tabular-nums;
     pointer-events:       none;
@@ -2706,11 +2744,34 @@
 }
 
 .wt-statistics-chart svg.wt-stat-mirror text.wt-stat-mirror-axislabel-top {
-    fill: var(--slate);
+    fill:        var(--slate);
+    font-family: var(--sans);
+    font-size:   12px;
 }
 
 .wt-statistics-chart svg.wt-stat-mirror text.wt-stat-mirror-axislabel-bot {
-    fill: var(--rose);
+    fill:        var(--rose);
+    font-family: var(--sans);
+    font-size:   12px;
+}
+
+/* Category labels are numeric age-band ranges ("15-19", "60+"), so
+   they sit on the same monospaced 12 px system as the bar-chart and
+   line-chart axis ticks. */
+.wt-statistics-chart svg.wt-stat-mirror text.wt-stat-mirror-cat {
+    fill:                 var(--ink-2);
+    font-family:          var(--mono);
+    font-size:            12px;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Per-bar value labels carry numeric counts — same mono 12 px
+   treatment as the category bands so they align typographically. */
+.wt-statistics-chart svg.wt-stat-mirror text.wt-stat-mirror-val-top,
+.wt-statistics-chart svg.wt-stat-mirror text.wt-stat-mirror-val-bot {
+    font-family:          var(--mono);
+    font-size:            12px;
+    font-variant-numeric: tabular-nums;
 }
 
 /* ----------------------------------------------------------------------
@@ -2973,8 +3034,10 @@
 
 .wt-statistics-chart svg.wt-stacked-bar .x-axis text,
 .wt-statistics-chart svg.wt-stacked-bar .y-axis text {
-    fill:      var(--ink-2);
-    font-size: 0.7rem;
+    fill:                 var(--ink-2);
+    font-family:          var(--mono);
+    font-size:            12px;
+    font-variant-numeric: tabular-nums;
 }
 
 .wt-statistics-chart svg.wt-stacked-bar .x-axis path,
@@ -2995,8 +3058,9 @@
 }
 
 .wt-statistics-chart svg.wt-stacked-bar .stack-legend .legend-label {
-    fill:      var(--ink-2);
-    font-size: 0.7rem;
+    fill:        var(--ink-2);
+    font-family: var(--sans);
+    font-size:   12px;
 }
 
 /*
@@ -3042,3 +3106,95 @@
 .wt-statistics-chart svg.wt-stacked-bar .legend-swatch.family-size-8   { fill: var(--wmstats-family-size-7); }
 .wt-statistics-chart svg.wt-stacked-bar .legend-swatch.family-size-9   { fill: var(--wmstats-family-size-7); }
 .wt-statistics-chart svg.wt-stacked-bar .legend-swatch.family-size-max { fill: var(--wmstats-family-size-7); }
+
+/* ----------------------------------------------------------------------
+   Chart-lib widget typography contract
+   ----------------------------------------------------------------------
+
+   chart-lib widgets used to set font-family / font-size / colour /
+   weight inline via D3 `.style()` — easy default rendering for
+   consumers without CSS, but the inline-attribute specificity beat
+   any host stylesheet override. This block now owns the typography
+   for every chart-lib class that previously carried inline styles,
+   so a future theme swap touches only this file.
+
+   Convention (mirrors the line-chart / bar-chart / box-plot
+   established earlier in this file):
+
+     numeric ticks / values / per-row labels → mono 12 px tabular-nums
+     prose legend labels / axis captions     → sans 12 px
+     display values (donut centre, gauge)    → serif large
+     uppercase eyebrows / SECTION-style      → sans small, letter-
+                                              spacing 0.14em, uppercase
+   -------------------------------------------------------------------- */
+
+/* Donut centre value (large display number) + caption strip. */
+.wt-statistics-chart svg .donut-center-value {
+    fill:        var(--ink);
+    font-family: var(--serif);
+    font-size:   30px;
+}
+
+.wt-statistics-chart svg .donut-center-label {
+    fill:           var(--ink-2);
+    font-family:    var(--sans);
+    font-size:      10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+/* Diverging-bar row label + per-side value caption — numeric data,
+   monospaced 12 px to match the bar / line chart tick system. */
+.wt-statistics-chart svg .wt-diverging-label {
+    fill:                 var(--ink-2);
+    font-family:          var(--mono);
+    font-size:            12px;
+    font-variant-numeric: tabular-nums;
+}
+
+.wt-statistics-chart svg .wt-diverging-val-left,
+.wt-statistics-chart svg .wt-diverging-val-right {
+    fill:                 var(--ink);
+    font-family:          var(--mono);
+    font-size:            12px;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Gauge-arc centre value (display) + percent suffix (italic accent). */
+.wt-statistics-chart svg .wt-stat-gauge-val {
+    fill:           var(--ink);
+    font-family:    var(--serif);
+    font-size:      56px;
+    letter-spacing: -0.02em;
+}
+
+.wt-statistics-chart svg .wt-stat-gauge-suf {
+    fill:        var(--ink-2);
+    font-family: var(--serif);
+    font-size:   24px;
+    font-style:  italic;
+}
+
+/* Mirror-histogram top / bottom side labels ("MEN" / "WOMEN" eyebrow
+   strip). The axis-label colour token is owned by the per-side rule
+   higher up in this file; only the typographic system lives here. */
+.wt-statistics-chart svg.wt-stat-mirror text.wt-stat-mirror-axislabel-top,
+.wt-statistics-chart svg.wt-stat-mirror text.wt-stat-mirror-axislabel-bot {
+    font-family:    var(--sans);
+    font-size:      12px;
+    font-weight:    600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+/* Name-bubbles labels — the font-SIZE is a per-bubble function of
+   the radius (computed in JS) and stays inline; the family + weight
+   are constant and live here. */
+.wt-statistics-chart svg .wt-stat-bubbles-name-text {
+    font-family: var(--serif);
+}
+
+.wt-statistics-chart svg .wt-stat-bubbles-count-text {
+    font-family: var(--mono);
+    font-weight: 500;
+}

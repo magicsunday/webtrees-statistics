@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Statistics\n"
 "Report-Msgid-Bugs-To: https://github.com/magicsunday/webtrees-statistics/"
 "issues\n"
-"POT-Creation-Date: 2026-05-28 11:19+0000\n"
+"POT-Creation-Date: 2026-05-28 12:48+0000\n"
 "PO-Revision-Date: 2026-05-22 07:04+0000\n"
 "Last-Translator: Rico Sonntag <mail@ricosonntag.de>\n"
 "Language-Team: \n"
@@ -32,7 +32,7 @@ msgstr "%1$s %% (%2$s of %3$s individuals reached this age)"
 msgid "%1$s children per family (n = %2$s)"
 msgstr "%1$s children per family (n = %2$s)"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:209
+#: resources/views/modules/statistics-chart/tabs/family.phtml:211
 #, php-format
 msgid "%1$s fathers and %2$s mothers with a dated first child"
 msgstr "%1$s fathers and %2$s mothers with a dated first child"
@@ -47,14 +47,14 @@ msgstr "%1$s husbands and %2$s wives with a known marriage age"
 msgid "%1$s of %2$s"
 msgstr "%1$s of %2$s"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:411
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:413
 #, php-format
 msgid ""
 "%1$s of %2$s children died before age 5 — the darkest cohort in the tree."
 msgstr ""
 "%1$s of %2$s children died before age 5 — the darkest cohort in the tree."
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:328
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:331
 #, php-format
 msgid ""
 "%1$s of %2$s couple where both spouses had at least one recorded parent "
@@ -113,6 +113,7 @@ msgstr[0] "%s birth"
 msgstr[1] "%s births"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:136
+#: src/Support/Locale/CenturyName.php:113
 #, php-format
 msgid "%s cent."
 msgstr "%s cent."
@@ -138,7 +139,7 @@ msgstr[1] "%s children"
 msgid "%s children"
 msgstr "%s children"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:276
+#: resources/views/modules/statistics-chart/tabs/family.phtml:279
 #, php-format
 msgid "%s consecutive-sibling pair"
 msgid_plural "%s consecutive-sibling pairs"
@@ -159,7 +160,7 @@ msgid_plural "%s couples with a measurable duration"
 msgstr[0] "%s couple with a measurable duration"
 msgstr[1] "%s couples with a measurable duration"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:156
+#: resources/views/modules/statistics-chart/tabs/family.phtml:157
 #, php-format
 msgid "%s couple with both birth dates"
 msgid_plural "%s couples with both birth dates"
@@ -180,7 +181,7 @@ msgid_plural "%s deaths"
 msgstr[0] "%s death"
 msgstr[1] "%s deaths"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:365
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:367
 #, php-format
 msgid "%s distinct causes (top 15)"
 msgstr "%s distinct causes (top 15)"
@@ -232,7 +233,7 @@ msgid_plural "%s divorces"
 msgstr[0] "%s divorce"
 msgstr[1] "%s divorces"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:380
+#: resources/views/modules/statistics-chart/tabs/family.phtml:383
 #, php-format
 msgid "%s divorce with a recorded month"
 msgid_plural "%s divorces with a recorded month"
@@ -240,7 +241,7 @@ msgstr[0] "%s divorce with a recorded month"
 msgstr[1] "%s divorces with a recorded month"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:110
-#: resources/views/modules/statistics-chart/tabs/family.phtml:261
+#: resources/views/modules/statistics-chart/tabs/family.phtml:263
 #, php-format
 msgid "%s family"
 msgid_plural "%s families"
@@ -254,7 +255,7 @@ msgid_plural "%s fathers"
 msgstr[0] "%s father"
 msgstr[1] "%s fathers"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:226
+#: resources/views/modules/statistics-chart/tabs/family.phtml:228
 #, php-format
 msgid "%s first-born child"
 msgid_plural "%s first-born children"
@@ -305,21 +306,21 @@ msgid_plural "%s individuals sampled"
 msgstr[0] "%s individual sampled"
 msgstr[1] "%s individuals sampled"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:481
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:483
 #, php-format
 msgid "%s individual with a known zodiac sign"
 msgid_plural "%s individuals with a known zodiac sign"
 msgstr[0] "%s individual with a known zodiac sign"
 msgstr[1] "%s individuals with a known zodiac sign"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:466
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:468
 #, php-format
 msgid "%s individual with a recorded birth month"
 msgid_plural "%s individuals with a recorded birth month"
 msgstr[0] "%s individual with a recorded birth month"
 msgstr[1] "%s individuals with a recorded birth month"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:439
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:441
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:53
 #, php-format
 msgid "%s individual with a recorded birth year"
@@ -327,14 +328,14 @@ msgid_plural "%s individuals with a recorded birth year"
 msgstr[0] "%s individual with a recorded birth year"
 msgstr[1] "%s individuals with a recorded birth year"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:527
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:529
 #, php-format
 msgid "%s individual with a recorded death month"
 msgid_plural "%s individuals with a recorded death month"
 msgstr[0] "%s individual with a recorded death month"
 msgstr[1] "%s individuals with a recorded death month"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:500
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:502
 #, php-format
 msgid "%s individual with a recorded death year"
 msgid_plural "%s individuals with a recorded death year"
@@ -376,7 +377,7 @@ msgid_plural "%s marriages"
 msgstr[0] "%s marriage"
 msgstr[1] "%s marriages"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:175
+#: resources/views/modules/statistics-chart/tabs/family.phtml:176
 #, php-format
 msgid "%s marriage with a recorded month"
 msgid_plural "%s marriages with a recorded month"
@@ -400,8 +401,8 @@ msgstr "%s or more children"
 msgid "%s or more years"
 msgstr "%s or more years"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:443
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:504
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:445
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:506
 #, php-format
 msgid "%s outlier century not shown"
 msgid_plural "%s outlier centuries not shown"
@@ -430,14 +431,14 @@ msgid_plural "%s recorded birth dates"
 msgstr[0] "%s recorded birth date"
 msgstr[1] "%s recorded birth dates"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:395
+#: resources/views/modules/statistics-chart/tabs/family.phtml:398
 #, php-format
 msgid "%s recorded divorce"
 msgid_plural "%s recorded divorces"
 msgstr[0] "%s recorded divorce"
 msgstr[1] "%s recorded divorces"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:190
+#: resources/views/modules/statistics-chart/tabs/family.phtml:191
 #, php-format
 msgid "%s recorded marriage"
 msgid_plural "%s recorded marriages"
@@ -659,7 +660,8 @@ msgid_plural "Across %s individuals with at least one recorded place."
 msgstr[0] "Across %s individual with at least one recorded place."
 msgstr[1] "Across %s individuals with at least one recorded place."
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:410
+#: resources/views/modules/statistics-chart/tabs/family.phtml:414
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:325
 msgid "Age"
 msgstr "Age"
 
@@ -684,11 +686,11 @@ msgstr "Age at death per birth century, split by sex"
 msgid "Age at death, longevity and life-stage of the living"
 msgstr "Age at death, longevity and life-stage of the living"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:208
+#: resources/views/modules/statistics-chart/tabs/family.phtml:210
 msgid "Age at first child"
 msgstr "Age at first child"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:205
+#: resources/views/modules/statistics-chart/tabs/family.phtml:207
 msgid "Age at first child and seasonal patterns of birth"
 msgstr "Age at first child and seasonal patterns of birth"
 
@@ -710,7 +712,7 @@ msgstr "Age at marriage"
 msgid "Age at marriage, duration and the age gap between the spouses"
 msgstr "Age at marriage, duration and the age gap between the spouses"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:280
+#: resources/views/modules/statistics-chart/tabs/family.phtml:283
 msgid ""
 "Age difference between consecutive siblings in the same family. Very small "
 "gaps (< 1 year) often signal twins or close-spaced births; very large gaps "
@@ -720,7 +722,7 @@ msgstr ""
 "gaps (< 1 year) often signal twins or close-spaced births; very large gaps "
 "(10+ years) typically reflect second marriages or long intervals."
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:162
+#: resources/views/modules/statistics-chart/tabs/family.phtml:163
 msgid ""
 "Age difference between spouses at marriage. Negative values mark couples "
 "where the husband was the older partner. Positive values mark couples where "
@@ -732,11 +734,11 @@ msgstr ""
 "the wife was older. Each bar covers a 5-year range. The band labelled 30+ "
 "collects every gap of 30 years or more."
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:330
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:332
 msgid "Age in years at death, longest-lived first"
 msgstr "Age in years at death, longest-lived first"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:213
+#: resources/views/modules/statistics-chart/tabs/family.phtml:215
 msgid ""
 "Age of each parent at the birth of their first child. The mirror axis "
 "separates fathers and mothers, as shown by the labels at each side. Both "
@@ -748,7 +750,7 @@ msgstr ""
 "sides share the same age bands, so the two distributions can be compared at "
 "a glance."
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:413
+#: resources/views/modules/statistics-chart/tabs/family.phtml:417
 msgid ""
 "Age of each spouse at the recorded divorce date. The mirror axis separates "
 "men and women, as shown by the labels at each side. Both sides share the "
@@ -769,7 +771,8 @@ msgstr "Age-at-death distribution by century"
 msgid "Alliances"
 msgstr "Alliances"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:283
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:285
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:292
 msgid "Ancestors"
 msgstr "Ancestors"
 
@@ -799,8 +802,8 @@ msgstr "Average birth-year gap parent → child"
 msgid "Average distinct places per individual"
 msgstr "Average distinct places per individual"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:306
-#: resources/views/modules/statistics-chart/tabs/family.phtml:315
+#: resources/views/modules/statistics-chart/tabs/family.phtml:309
+#: resources/views/modules/statistics-chart/tabs/family.phtml:318
 msgid "Average family size by century"
 msgstr "Average family size by century"
 
@@ -812,7 +815,7 @@ msgstr "Average lifespan by sex and century"
 msgid "Average lifespan by sex × century"
 msgstr "Average lifespan by sex × century"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:261
+#: resources/views/modules/statistics-chart/tabs/family.phtml:263
 #, php-format
 msgid "Average: %s"
 msgstr "Average: %s"
@@ -826,11 +829,11 @@ msgid "Avg. generation length"
 msgstr "Avg. generation length"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:99
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:420
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:422
 msgid "Births"
 msgstr "Births"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:450
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:452
 msgid "Births by century"
 msgstr "Births by century"
 
@@ -838,7 +841,7 @@ msgstr "Births by century"
 msgid "Births by decade"
 msgstr "Births by decade"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:465
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:467
 msgid "Births by month"
 msgstr "Births by month"
 
@@ -848,7 +851,7 @@ msgid "Births per %s-decade period"
 msgstr "Births per %s-decade period"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:84
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:460
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:462
 msgid "Births per century"
 msgstr "Births per century"
 
@@ -886,7 +889,7 @@ msgstr ""
 "— duplicates within the same individual collapse to one place, individuals "
 "with no place data are excluded."
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:335
+#: resources/views/modules/statistics-chart/tabs/family.phtml:338
 msgid "By recorded child count"
 msgstr "By recorded child count"
 
@@ -898,33 +901,40 @@ msgstr "Cancer"
 msgid "Capricornus"
 msgstr "Capricornus"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:366
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:368
 msgid "Causes"
 msgstr "Causes"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:359
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:361
 msgid "Causes of death and infant mortality"
 msgstr "Causes of death and infant mortality"
 
+#: resources/views/modules/statistics-chart/tabs/family.phtml:199
+#: resources/views/modules/statistics-chart/tabs/family.phtml:406
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:216
 #: src/Support/Locale/CenturyName.php:102
 msgid "Century"
 msgstr "Century"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:396
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:398
 #, php-format
 msgid "Child mortality %s century"
 msgstr "Child mortality %s century"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:378
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:380
 msgid "Child mortality (under 5)"
 msgstr "Child mortality (under 5)"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:307
+#: resources/views/modules/statistics-chart/tabs/family.phtml:272
+msgid "Children"
+msgstr "Children"
+
+#: resources/views/modules/statistics-chart/tabs/family.phtml:310
 msgid "Children per dated family"
 msgstr "Children per dated family"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:260
-#: resources/views/modules/statistics-chart/tabs/family.phtml:270
+#: resources/views/modules/statistics-chart/tabs/family.phtml:262
+#: resources/views/modules/statistics-chart/tabs/family.phtml:273
 #: src/Repository/ChildrenRepository.php:370
 msgid "Children per family"
 msgstr "Children per family"
@@ -941,7 +951,7 @@ msgstr ""
 msgid "Chronicle"
 msgstr "Chronicle"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:364
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:366
 msgid "Common causes of death"
 msgstr "Common causes of death"
 
@@ -974,8 +984,8 @@ msgstr "Completeness"
 msgid "Consecutive-sibling pairs"
 msgstr "Consecutive-sibling pairs"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:155
-#: resources/views/modules/statistics-chart/tabs/family.phtml:167
+#: resources/views/modules/statistics-chart/tabs/family.phtml:156
+#: resources/views/modules/statistics-chart/tabs/family.phtml:168
 msgid "Couple age gap"
 msgstr "Couple age gap"
 
@@ -989,11 +999,11 @@ msgstr ""
 msgid "Cumulative population"
 msgstr "Cumulative population"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:345
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:347
 msgid "Current age, oldest first"
 msgstr "Current age, oldest first"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:496
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:498
 msgid "Deaths"
 msgstr "Deaths"
 
@@ -1001,19 +1011,19 @@ msgstr "Deaths"
 msgid "Deaths are evenly spread across the year."
 msgstr "Deaths are evenly spread across the year."
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:511
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:513
 msgid "Deaths by century"
 msgstr "Deaths by century"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:526
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:528
 msgid "Deaths by month"
 msgstr "Deaths by month"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:521
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:523
 msgid "Deaths per century"
 msgstr "Deaths per century"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:542
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:544
 msgid "Dec – Feb vs. baseline"
 msgstr "Dec – Feb vs. baseline"
 
@@ -1033,16 +1043,16 @@ msgstr "December"
 msgid "Demographics"
 msgstr "Demographics"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:246
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:247
 msgid "Depth"
 msgstr "Depth"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:282
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:284
 msgid "Distinct ancestors up to 4 generations (max. 30)"
 msgstr "Distinct ancestors up to 4 generations (max. 30)"
 
 #: resources/views/modules/statistics-chart/tabs/places.phtml:198
-#: resources/views/modules/statistics-chart/tabs/places.phtml:208
+#: resources/views/modules/statistics-chart/tabs/places.phtml:209
 msgid "Distinct places per individual"
 msgstr "Distinct places per individual"
 
@@ -1056,7 +1066,7 @@ msgstr "Distribution"
 msgid "Distribution in buckets"
 msgstr "Distribution in buckets"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:265
+#: resources/views/modules/statistics-chart/tabs/family.phtml:267
 msgid ""
 "Distribution of children counts across families with at least one recorded "
 "child. Hover a bar for the number of families landing on that exact child "
@@ -1074,20 +1084,20 @@ msgstr ""
 "Distribution of marriage durations grouped into bands, computed from couples "
 "with both marriage and dissolution (divorce or spouse death) dates recorded."
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:350
+#: resources/views/modules/statistics-chart/tabs/family.phtml:353
 msgid "Divorce"
 msgstr "Divorce"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:367
+#: resources/views/modules/statistics-chart/tabs/family.phtml:370
 msgid "Divorce rate"
 msgstr "Divorce rate"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:354
-#: resources/views/modules/statistics-chart/tabs/family.phtml:374
+#: resources/views/modules/statistics-chart/tabs/family.phtml:357
+#: resources/views/modules/statistics-chart/tabs/family.phtml:377
 msgid "Divorce rate per marriage cohort"
 msgstr "Divorce rate per marriage cohort"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:351
+#: resources/views/modules/statistics-chart/tabs/family.phtml:354
 msgid ""
 "Divorce rate, season and life-stage of the divorced · a rare category in the "
 "tree"
@@ -1099,16 +1109,16 @@ msgstr ""
 msgid "Divorced"
 msgstr "Divorced"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:408
+#: resources/views/modules/statistics-chart/tabs/family.phtml:412
 msgid "Divorces by age band"
 msgstr "Divorces by age band"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:394
-#: resources/views/modules/statistics-chart/tabs/family.phtml:403
+#: resources/views/modules/statistics-chart/tabs/family.phtml:397
+#: resources/views/modules/statistics-chart/tabs/family.phtml:407
 msgid "Divorces by century"
 msgstr "Divorces by century"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:379
+#: resources/views/modules/statistics-chart/tabs/family.phtml:382
 msgid "Divorces by month"
 msgstr "Divorces by month"
 
@@ -1176,7 +1186,7 @@ msgstr ""
 "fraction of those 30 slots that are actually documented for that individual. "
 "The number shown here is the average across every individual in the tree."
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:245
+#: resources/views/modules/statistics-chart/tabs/family.phtml:247
 msgid ""
 "Each point shows the average parental age in full years. The two lines are "
 "computed separately for fathers and mothers, as shown by the legend. A "
@@ -1194,25 +1204,25 @@ msgstr ""
 "uninterrupted. Hover any point to see how many parents the average is based "
 "on."
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:260
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:261
 msgid "Each step is one parent–child link upward."
 msgstr "Each step is one parent–child link upward."
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:311
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:314
 msgid "Endogamy rate"
 msgstr "Endogamy rate"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:242
-#: resources/views/modules/statistics-chart/tabs/family.phtml:356
+#: resources/views/modules/statistics-chart/tabs/family.phtml:244
+#: resources/views/modules/statistics-chart/tabs/family.phtml:359
 #: resources/views/modules/statistics-chart/tabs/names.phtml:97
 msgid "Evolution"
 msgstr "Evolution"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:398
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:400
 msgid "Extreme"
 msgstr "Extreme"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:336
+#: resources/views/modules/statistics-chart/tabs/family.phtml:339
 msgid "Extremes"
 msgstr "Extremes"
 
@@ -1220,11 +1230,11 @@ msgstr "Extremes"
 msgid "Families"
 msgstr "Families"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:320
+#: resources/views/modules/statistics-chart/tabs/family.phtml:323
 msgid "Families with vs without children"
 msgstr "Families with vs without children"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:277
+#: resources/views/modules/statistics-chart/tabs/family.phtml:280
 #: src/Module.php:272
 msgid "Family"
 msgstr "Family"
@@ -1233,13 +1243,13 @@ msgstr "Family"
 msgid "Family names and given names by frequency across the tree"
 msgstr "Family names and given names by frequency across the tree"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:256
-#: resources/views/modules/statistics-chart/tabs/family.phtml:262
+#: resources/views/modules/statistics-chart/tabs/family.phtml:258
+#: resources/views/modules/statistics-chart/tabs/family.phtml:264
 msgid "Family size"
 msgstr "Family size"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:290
-#: resources/views/modules/statistics-chart/tabs/family.phtml:301
+#: resources/views/modules/statistics-chart/tabs/family.phtml:293
+#: resources/views/modules/statistics-chart/tabs/family.phtml:304
 msgid "Family size composition share by decade"
 msgstr "Family size composition share by decade"
 
@@ -1247,12 +1257,12 @@ msgstr "Family size composition share by decade"
 msgid "Father → son"
 msgstr "Father → son"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:219
+#: resources/views/modules/statistics-chart/tabs/family.phtml:221
 #: src/Repository/ParenthoodRepository.php:360
 msgid "Fathers"
 msgstr "Fathers"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:241
+#: resources/views/modules/statistics-chart/tabs/family.phtml:243
 msgid "Fathers and mothers · decade of the first child's birth"
 msgstr "Fathers and mothers · decade of the first child's birth"
 
@@ -1265,11 +1275,11 @@ msgstr "February"
 msgid "Female"
 msgstr "Female"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:225
+#: resources/views/modules/statistics-chart/tabs/family.phtml:227
 msgid "First children by month"
 msgstr "First children by month"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:359
+#: resources/views/modules/statistics-chart/tabs/family.phtml:362
 msgid ""
 "For each marriage decade, the share of those marriages that are recorded as "
 "ending in divorce. Tracks how openly the tree records dissolutions over time "
@@ -1293,7 +1303,7 @@ msgstr ""
 "least one common ancestor. That is the classic signature of cousin marriage "
 "and pedigree collapse."
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:300
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:303
 msgid ""
 "For every individual in the tree the widget counts how many descendants are "
 "recorded below them across all generations. A descendant reached through two "
@@ -1371,7 +1381,7 @@ msgstr ""
 "bucket N = an individual whose deepest verified descendant is N generations "
 "younger."
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:295
+#: resources/views/modules/statistics-chart/tabs/family.phtml:298
 #, php-format
 msgid ""
 "For every marriage decade the bar is split into segments by the number of "
@@ -1398,8 +1408,8 @@ msgstr ""
 msgid "Frequencies"
 msgstr "Frequencies"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:222
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:228
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:223
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:229
 msgid "Gaps"
 msgstr "Gaps"
 
@@ -1407,12 +1417,12 @@ msgstr "Gaps"
 msgid "Gemini"
 msgstr "Gemini"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:266
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:276
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:267
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:278
 msgid "Generation depth distribution"
 msgstr "Generation depth distribution"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:241
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:242
 msgid "Generation depth, ancestor distribution and kin marriages"
 msgstr "Generation depth, ancestor distribution and kin marriages"
 
@@ -1421,6 +1431,7 @@ msgid "Generation length"
 msgstr "Generation length"
 
 #: resources/views/modules/statistics-chart/components/hero.phtml:70
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:277
 msgid "Generations"
 msgstr "Generations"
 
@@ -1465,7 +1476,7 @@ msgstr "High mobility — strongly migrating ancestors."
 msgid "Higher = more thorough research"
 msgstr "Higher = more thorough research"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:239
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:240
 msgid "How deep and branched is the tree?"
 msgstr "How deep and branched is the tree?"
 
@@ -1473,7 +1484,7 @@ msgstr "How deep and branched is the tree?"
 msgid "How far they roamed"
 msgstr "How far they roamed"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:255
+#: resources/views/modules/statistics-chart/tabs/family.phtml:257
 msgid "How large were the families?"
 msgstr "How large were the families?"
 
@@ -1493,7 +1504,7 @@ msgstr "How the tree grew"
 msgid "How well is the tree documented?"
 msgstr "How well is the tree documented?"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:168
+#: resources/views/modules/statistics-chart/tabs/family.phtml:169
 msgid "Husband older"
 msgstr "Husband older"
 
@@ -1506,7 +1517,7 @@ msgstr "Husband older by %s years"
 msgid "Individuals"
 msgstr "Individuals"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:267
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:268
 msgid "Individuals N generations above their deepest descendant"
 msgstr "Individuals N generations above their deepest descendant"
 
@@ -1518,7 +1529,7 @@ msgstr "Individuals born in one country and recorded as having died in another"
 msgid "Individuals with at least one source"
 msgstr "Individuals with at least one source"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:296
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:299
 msgid ""
 "Individuals with the most documented descendants · the structural roots of "
 "the tree"
@@ -1543,12 +1554,12 @@ msgctxt "NOMINATIVE"
 msgid "June"
 msgstr "June"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:313
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:316
 msgid "Kinship"
 msgstr "Kinship"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:281
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:290
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:283
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:293
 msgid "Known ancestors per individual"
 msgstr "Known ancestors per individual"
 
@@ -1584,7 +1595,7 @@ msgstr "Life span"
 msgid "Life-stage (living)"
 msgstr "Life-stage (living)"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:409
+#: resources/views/modules/statistics-chart/tabs/family.phtml:413
 msgid "Life-stage at divorce · men vs. women"
 msgstr "Life-stage at divorce · men vs. women"
 
@@ -1604,7 +1615,7 @@ msgstr "Living or deceased"
 msgid "Living vs deceased proportion"
 msgstr "Living vs deceased proportion"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:245
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:246
 msgid "Longest line in the tree, leaf to oldest ancestor"
 msgstr "Longest line in the tree, leaf to oldest ancestor"
 
@@ -1612,8 +1623,8 @@ msgstr "Longest line in the tree, leaf to oldest ancestor"
 msgid "Longest marriage"
 msgstr "Longest marriage"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:331
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:346
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:333
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:348
 msgid "Longevity"
 msgstr "Longevity"
 
@@ -1632,12 +1643,12 @@ msgstr "Marital status"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:119
 #: resources/views/modules/statistics-chart/tabs/family.phtml:142
-#: resources/views/modules/statistics-chart/tabs/family.phtml:159
+#: resources/views/modules/statistics-chart/tabs/family.phtml:160
 msgid "Marriage"
 msgstr "Marriage"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:140
-#: resources/views/modules/statistics-chart/tabs/family.phtml:150
+#: resources/views/modules/statistics-chart/tabs/family.phtml:151
 msgid "Marriage duration"
 msgstr "Marriage duration"
 
@@ -1645,7 +1656,7 @@ msgstr "Marriage duration"
 msgid "Married"
 msgstr "Married"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:244
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:245
 msgid "Maximum generation depth"
 msgstr "Maximum generation depth"
 
@@ -1654,8 +1665,8 @@ msgctxt "NOMINATIVE"
 msgid "May"
 msgstr "May"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:240
-#: resources/views/modules/statistics-chart/tabs/family.phtml:250
+#: resources/views/modules/statistics-chart/tabs/family.phtml:242
+#: resources/views/modules/statistics-chart/tabs/family.phtml:252
 msgid "Mean age at first child by decade"
 msgstr "Mean age at first child by decade"
 
@@ -1664,7 +1675,7 @@ msgid "Median, inter-quartile range and whiskers per birth century"
 msgstr "Median, inter-quartile range and whiskers per birth century"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:134
-#: resources/views/modules/statistics-chart/tabs/family.phtml:419
+#: resources/views/modules/statistics-chart/tabs/family.phtml:423
 msgid "Men"
 msgstr "Men"
 
@@ -1700,7 +1711,7 @@ msgstr "Missing marriage event"
 msgid "Missing marriage place"
 msgstr "Missing marriage place"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:226
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:227
 msgid "Missing-event gaps"
 msgstr "Missing-event gaps"
 
@@ -1718,16 +1729,16 @@ msgstr "Mobility"
 msgid "Moderate mobility — many stayed in their region, some moved."
 msgstr "Moderate mobility — many stayed in their region, some moved."
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:176
-#: resources/views/modules/statistics-chart/tabs/family.phtml:227
-#: resources/views/modules/statistics-chart/tabs/family.phtml:381
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:467
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:528
+#: resources/views/modules/statistics-chart/tabs/family.phtml:177
+#: resources/views/modules/statistics-chart/tabs/family.phtml:229
+#: resources/views/modules/statistics-chart/tabs/family.phtml:384
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:469
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:530
 msgid "Month clock"
 msgstr "Month clock"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:360
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:380
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:362
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:382
 msgid "Mortality"
 msgstr "Mortality"
 
@@ -1735,7 +1746,7 @@ msgstr "Mortality"
 msgid "Mortality rate"
 msgstr "Mortality rate"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:379
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:381
 msgid "Mortality rate per birth century"
 msgstr "Mortality rate per birth century"
 
@@ -1751,7 +1762,7 @@ msgstr "Most spouses"
 msgid "Mother → daughter"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:220
+#: resources/views/modules/statistics-chart/tabs/family.phtml:222
 #: src/Repository/ParenthoodRepository.php:367
 msgid "Mothers"
 msgstr "Mothers"
@@ -1772,7 +1783,7 @@ msgstr "Names"
 msgid "No data recorded for this metric."
 msgstr "No data recorded for this metric."
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:291
+#: resources/views/modules/statistics-chart/tabs/family.phtml:294
 #, php-format
 msgid "Normalised to 100 %% · shift from large to small families"
 msgstr "Normalised to 100 %% · shift from large to small families"
@@ -1782,7 +1793,7 @@ msgctxt "NOMINATIVE"
 msgid "November"
 msgstr "November"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:257
+#: resources/views/modules/statistics-chart/tabs/family.phtml:259
 msgid ""
 "Number of children, sibling spacing and the shift toward smaller families"
 msgstr ""
@@ -1872,8 +1883,8 @@ msgstr "Origin & fate"
 msgid "Overview"
 msgstr "Overview"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:204
-#: resources/views/modules/statistics-chart/tabs/family.phtml:210
+#: resources/views/modules/statistics-chart/tabs/family.phtml:206
+#: resources/views/modules/statistics-chart/tabs/family.phtml:212
 msgid "Parenthood"
 msgstr "Parenthood"
 
@@ -1889,7 +1900,7 @@ msgstr ""
 msgid "Peak"
 msgstr "Peak"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:394
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:396
 msgid "Peak value"
 msgstr "Peak value"
 
@@ -1906,6 +1917,7 @@ msgstr "Period: %1$s–%2$s"
 msgid "Pisces"
 msgstr "Pisces"
 
+#: resources/views/modules/statistics-chart/tabs/places.phtml:208
 #: src/Module.php:273
 msgid "Places"
 msgstr "Places"
@@ -1926,7 +1938,7 @@ msgstr "Popularity over decades and marriage alliances between families"
 msgid "Population"
 msgstr "Population"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:297
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:300
 msgid "Reach"
 msgstr ""
 
@@ -1951,11 +1963,11 @@ msgstr ""
 msgid "Scorpio"
 msgstr "Scorpio"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:543
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:545
 msgid "Season"
 msgstr "Season"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:497
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:499
 msgid "Season and century of recorded deaths"
 msgstr "Season and century of recorded deaths"
 
@@ -1987,19 +1999,19 @@ msgid ""
 msgstr ""
 "Share of individuals with at least one source citation, per birth century"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:227
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:228
 msgid "Share of individuals without a recorded birth, death or marriage event"
 msgstr "Share of individuals without a recorded birth, death or marriage event"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:355
+#: resources/views/modules/statistics-chart/tabs/family.phtml:358
 msgid "Share of marriages per decade that ended in divorce"
 msgstr "Share of marriages per decade that ended in divorce"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:312
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:315
 msgid "Share of marriages within 4 generations"
 msgstr "Share of marriages within 4 generations"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:292
+#: resources/views/modules/statistics-chart/tabs/family.phtml:295
 msgid "Shift"
 msgstr "Shift"
 
@@ -2007,8 +2019,8 @@ msgstr "Shift"
 msgid "Shortest marriage"
 msgstr "Shortest marriage"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:275
-#: resources/views/modules/statistics-chart/tabs/family.phtml:285
+#: resources/views/modules/statistics-chart/tabs/family.phtml:278
+#: resources/views/modules/statistics-chart/tabs/family.phtml:288
 msgid "Sibling age gap"
 msgstr "Sibling age gap"
 
@@ -2021,7 +2033,7 @@ msgid "Socio-economics"
 msgstr "Socio-economics"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:206
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:216
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:217
 msgid "Source coverage by century"
 msgstr "Source coverage by century"
 
@@ -2051,9 +2063,9 @@ msgstr "Statistics"
 msgid "Status"
 msgstr "Status"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:321
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:240
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:268
+#: resources/views/modules/statistics-chart/tabs/family.phtml:324
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:241
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:269
 msgid "Structure"
 msgstr "Structure"
 
@@ -2070,7 +2082,7 @@ msgstr "Surnames"
 msgid "Survival curve"
 msgstr "Survival curve"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:324
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:326
 msgid "Survival curve per birth century"
 msgstr "Survival curve per birth century"
 
@@ -2112,17 +2124,17 @@ msgstr "Three views of every individual · birth, residence, death"
 msgid "Time"
 msgstr "Time"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:421
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:423
 msgid "Time-distribution of births"
 msgstr "Time-distribution of births"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:191
-#: resources/views/modules/statistics-chart/tabs/family.phtml:308
-#: resources/views/modules/statistics-chart/tabs/family.phtml:396
+#: resources/views/modules/statistics-chart/tabs/family.phtml:192
+#: resources/views/modules/statistics-chart/tabs/family.phtml:311
+#: resources/views/modules/statistics-chart/tabs/family.phtml:399
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:296
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:426
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:452
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:513
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:428
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:454
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:515
 #: resources/views/modules/statistics-chart/tabs/names.phtml:103
 msgid "Timeline"
 msgstr "Timeline"
@@ -2136,19 +2148,19 @@ msgstr "Today living"
 msgid "Top %s given names, stacked · band thickness = share per decade"
 msgstr "Top %s given names, stacked · band thickness = share per decade"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:334
+#: resources/views/modules/statistics-chart/tabs/family.phtml:337
 msgid "Top 10 largest families"
 msgstr "Top 10 largest families"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:295
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:298
 msgid "Top 10 most-influential ancestors"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:329
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:331
 msgid "Top 10 oldest (deceased)"
 msgstr "Top 10 oldest (deceased)"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:344
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:346
 msgid "Top 10 oldest (living)"
 msgstr "Top 10 oldest (living)"
 
@@ -2194,7 +2206,7 @@ msgstr "Various statistics charts."
 msgid "Virgo"
 msgstr "Virgo"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:259
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:260
 msgid ""
 "Walk reached the safety cap (100 generations) — check the tree for cyclic "
 "FAMC/FAMS edits."
@@ -2202,20 +2214,20 @@ msgstr ""
 "Walk reached the safety cap (20 generations) — check the tree for cyclic "
 "FAMC/FAMS edits."
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:189
-#: resources/views/modules/statistics-chart/tabs/family.phtml:198
+#: resources/views/modules/statistics-chart/tabs/family.phtml:190
+#: resources/views/modules/statistics-chart/tabs/family.phtml:200
 msgid "Weddings by century"
 msgstr "Weddings by century"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:174
+#: resources/views/modules/statistics-chart/tabs/family.phtml:175
 msgid "Weddings by month"
 msgstr "Weddings by month"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:221
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:222
 msgid "What is missing?"
 msgstr "What is missing?"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:361
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:363
 msgid "What the recorded individuals died of"
 msgstr "What the recorded individuals died of"
 
@@ -2223,23 +2235,23 @@ msgstr "What the recorded individuals died of"
 msgid "When and whom they married"
 msgstr "When and whom they married"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:495
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:497
 msgid "When did they die?"
 msgstr "When did they die?"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:349
+#: resources/views/modules/statistics-chart/tabs/family.phtml:352
 msgid "When marriages ended"
 msgstr "When marriages ended"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:203
+#: resources/views/modules/statistics-chart/tabs/family.phtml:205
 msgid "When they had children"
 msgstr "When they had children"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:419
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:421
 msgid "When were they born?"
 msgstr "When were they born?"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:223
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:224
 msgid "Where the tree has gaps · events and places not recorded"
 msgstr "Where the tree has gaps · events and places not recorded"
 
@@ -2259,7 +2271,7 @@ msgstr "Who is recorded?"
 msgid "Widowed"
 msgstr "Widowed"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:169
+#: resources/views/modules/statistics-chart/tabs/family.phtml:170
 msgid "Wife older"
 msgstr "Wife older"
 
@@ -2282,7 +2294,7 @@ msgid ""
 msgstr ""
 "Winter months show a %s%% lower mortality density than the annual average."
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:541
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:543
 msgid "Winter-peak score"
 msgstr "Winter-peak score"
 
@@ -2295,9 +2307,13 @@ msgid "Without children"
 msgstr "Without children"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:135
-#: resources/views/modules/statistics-chart/tabs/family.phtml:420
+#: resources/views/modules/statistics-chart/tabs/family.phtml:424
 msgid "Women"
 msgstr "Women"
+
+#: resources/views/modules/statistics-chart/tabs/family.phtml:150
+msgid "Years"
+msgstr "Years"
 
 #: resources/views/modules/statistics-chart/components/records-grid.phtml:39
 msgid "Youngest father"
@@ -2315,11 +2331,11 @@ msgstr "Youngest mother"
 msgid "Youngest wife"
 msgstr "Youngest wife"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:482
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:484
 msgid "Zodiac"
 msgstr "Zodiac"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:480
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:482
 msgid "Zodiac signs"
 msgstr "Zodiac signs"
 
@@ -2333,7 +2349,7 @@ msgstr "aggregated into %s-decade bins for readability"
 msgid "deceased"
 msgstr "deceased"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:306
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:309
 msgid "desc."
 msgstr ""
 
@@ -2351,7 +2367,7 @@ msgctxt "count word"
 msgid "eleven"
 msgstr "eleven"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:328
+#: resources/views/modules/statistics-chart/tabs/family.phtml:331
 msgid "families"
 msgstr "families"
 
@@ -2365,11 +2381,11 @@ msgctxt "count word"
 msgid "four"
 msgstr "four"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:255
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:256
 msgid "generations"
 msgstr "generations"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:158
+#: resources/views/modules/statistics-chart/tabs/family.phtml:159
 msgid "husband left, wife right"
 msgstr "husband left, wife right"
 
@@ -2377,7 +2393,7 @@ msgstr "husband left, wife right"
 msgid "individuals"
 msgstr "individuals"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:344
+#: resources/views/modules/statistics-chart/tabs/family.phtml:347
 msgid "kids"
 msgstr "kids"
 
@@ -2416,15 +2432,15 @@ msgstr "one"
 msgid "peak in the {decade}"
 msgstr "peak in the {decade}"
 
-#: resources/views/modules/statistics-chart/tabs/family.phtml:184
-#: resources/views/modules/statistics-chart/tabs/family.phtml:235
-#: resources/views/modules/statistics-chart/tabs/family.phtml:389
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:475
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:536
+#: resources/views/modules/statistics-chart/tabs/family.phtml:185
+#: resources/views/modules/statistics-chart/tabs/family.phtml:237
+#: resources/views/modules/statistics-chart/tabs/family.phtml:392
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:477
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:538
 msgid "peak month"
 msgstr "peak month"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:490
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:492
 msgid "peak sign"
 msgstr "peak sign"
 
@@ -2472,8 +2488,8 @@ msgid "years"
 msgstr "years"
 
 #: resources/views/modules/statistics-chart/components/hero.phtml:76
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:339
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:354
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:341
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:356
 msgid "yr"
 msgstr "yr"
 

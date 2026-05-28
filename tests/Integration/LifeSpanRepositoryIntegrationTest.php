@@ -372,9 +372,9 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
 
         // Lock the chronological sort order so the positional reads
         // below are guarded against a future re-sort of $cohorts.
-        self::assertSame(['19th', '20th'], $seriesNames, 'qualifying cohorts ordered chronologically');
-        self::assertNotContains('17th', $seriesNames, '29-INDI 17th cohort sits one below the floor and must be dropped');
-        self::assertNotContains('18th', $seriesNames, '5-INDI 18th cohort is far below the floor and must be dropped');
+        self::assertSame(['19th cent.', '20th cent.'], $seriesNames, 'qualifying cohorts ordered chronologically');
+        self::assertNotContains('17th cent.', $seriesNames, '29-INDI 17th cohort sits one below the floor and must be dropped');
+        self::assertNotContains('18th cent.', $seriesNames, '5-INDI 18th cohort is far below the floor and must be dropped');
 
         // 19th century cohort: 5 die at 5y, 5 at 25y, 10 at 65y, 10 at 80y.
         $nineteenth = $result->series[0];

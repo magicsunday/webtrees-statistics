@@ -109,6 +109,85 @@ final class LineChartOptionsPublishTest extends TestCase
     }
 
     /**
+     * Per-point tooltip swaps the aggregated multi-row tooltip for a
+     * single-row tooltip showing only the hovered series. Locking the
+     * publish path keeps the option reaching chart-lib instead of
+     * being silently dropped from the rendered data-options JSON.
+     */
+    #[Test]
+    public function lineChartPartialPublishesPerPointTooltipOption(): void
+    {
+        $partial = $this->loadLineChartPartial();
+
+        self::assertSame(
+            1,
+            preg_match(
+                "/'perPointTooltip'\\s*=>\\s*\\\$perPointTooltip\\s*\\?\\?\\s*null/",
+                $partial,
+            ),
+            'line-chart.phtml must emit perPointTooltip into the data-options array',
+        );
+    }
+
+    /**
+     * Optional x/y axis captions. The line-chart partial must emit
+     * both keys so chart-lib's caption-band logic can render them in
+     * their own slots without overlapping the legend.
+     */
+    #[Test]
+    public function lineChartPartialPublishesAxisCaptionOptions(): void
+    {
+        $partial = $this->loadLineChartPartial();
+
+        self::assertSame(
+            1,
+            preg_match(
+                "/'xLabel'\\s*=>\\s*\\\$xLabel\\s*\\?\\?\\s*null/",
+                $partial,
+            ),
+            'line-chart.phtml must emit xLabel into the data-options array',
+        );
+
+        self::assertSame(
+            1,
+            preg_match(
+                "/'yLabel'\\s*=>\\s*\\\$yLabel\\s*\\?\\?\\s*null/",
+                $partial,
+            ),
+            'line-chart.phtml must emit yLabel into the data-options array',
+        );
+    }
+
+    /**
+     * The survival-curve card on the Life-span tab is the first
+     * consumer of the cohort-style tooltip + caption combo. Both
+     * `with()` calls must stay wired through the Widget builder.
+     */
+    #[Test]
+    public function survivalCurveCardSetsPerPointTooltipAndAxisCaption(): void
+    {
+        $lifeSpan = $this->loadLifeSpanTab();
+
+        self::assertSame(
+            1,
+            preg_match(
+                "/->with\\('perPointTooltip',\\s*true\\)/",
+                $lifeSpan,
+            ),
+            'life-span.phtml must enable perPointTooltip on the survival-curve card',
+        );
+
+        self::assertSame(
+            1,
+            preg_match(
+                "/->with\\('xLabel',\\s*I18N::translate\\('Age'\\)\\)/",
+                $lifeSpan,
+            ),
+            "life-span.phtml must set xLabel to I18N::translate('Age') on the survival-curve card",
+        );
+    }
+
+    /**
      * Helper that loads the line-chart widget partial as a string for
      * static assertion. Fails fast if the path drifts.
      */
@@ -136,6 +215,22 @@ final class LineChartOptionsPublishTest extends TestCase
         $contents = file_get_contents($path);
 
         self::assertNotFalse($contents, 'names.phtml tab template must be readable');
+
+        return $contents;
+    }
+
+    /**
+     * Helper that loads the life-span tab template as a string for
+     * static assertion. Fails fast if the path drifts.
+     */
+    private function loadLifeSpanTab(): string
+    {
+        $path = dirname(__DIR__, 3)
+            . '/resources/views/modules/statistics-chart/tabs/life-span.phtml';
+
+        $contents = file_get_contents($path);
+
+        self::assertNotFalse($contents, 'life-span.phtml tab template must be readable');
 
         return $contents;
     }

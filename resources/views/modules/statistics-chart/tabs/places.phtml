@@ -205,6 +205,7 @@ echo Card::for($module, I18N::translate('Distinct places per individual'))
     ->withBodyHtml(
         Widget::barChart($module, 'place-dispersion-bars')
             ->withData($placeDispersionBars)
+            ->with('xLabel', I18N::translate('Places'))
             ->withAriaLabel(I18N::translate('Distinct places per individual'))
             ->render()
     )
