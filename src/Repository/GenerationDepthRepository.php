@@ -189,10 +189,14 @@ final readonly class GenerationDepthRepository
      * across the foreach so deep trees stay linear in the
      * cardinality of the graph.
      *
-     * Privacy: individuals whose webtrees access check denies the
-     * current user are excluded; their xref leaves the descendant
-     * count of every ancestor untouched (so concealing one entry
-     * does not reshuffle the ranking).
+     * Privacy: follows the webtrees convention used by
+     * {@see ChildrenRepository::topLargestFamilies()}
+     * and core's `StatisticsData::familiesWithTheMostChildren()` — the
+     * podium row stays in place for every ancestor, and
+     * `Individual::fullName()` substitutes the "Private" placeholder
+     * when the current user lacks access. Filtering by `canShow()`
+     * would shift downstream ranks and surface a smaller-than-N
+     * podium, which the module does not do anywhere else.
      *
      * @param int $topN Maximum number of rows to return (default 10)
      *
@@ -242,10 +246,6 @@ final readonly class GenerationDepthRepository
             $individual = Registry::individualFactory()->make($xref, $this->tree);
 
             if (!$individual instanceof Individual) {
-                continue;
-            }
-
-            if (!$individual->canShow()) {
                 continue;
             }
 
