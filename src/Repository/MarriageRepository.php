@@ -416,6 +416,18 @@ final class MarriageRepository
             return $this->marriageDurationPairsCache;
         }
 
+        $prefix = DB::connection()->getTablePrefix();
+
+        // Ranged MARR / DIV / DEAT dates (BET..AND / FROM..TO) each
+        // produce two `dates` rows, so the four-way JOIN can return
+        // up to 2^4 = 16 rows per FAM if every anchor is ranged.
+        // Grouping by `f_id` and aggregating each anchor with
+        // `MIN(d_julianday1)` collapses the duplicates onto the
+        // lower-bound julian day — MARR at its earliest possible
+        // start, the marriage-ending events (DIV / husband DEAT /
+        // wife DEAT) at their earliest possible occurrence so
+        // {@see earliestPositive()} downstream still picks the
+        // first terminating event.
         $rows = TreeScope::table($this->tree, 'families')
             ->join('dates AS marr', static function (JoinClause $join): void {
                 DateJoin::on($join, 'marr', 'f_file', 'f_id', 'MARR');
@@ -431,11 +443,12 @@ final class MarriageRepository
             })
             ->select([
                 'f_id AS xref',
-                'marr.d_julianday1 AS marr_jd',
-                'divr.d_julianday1 AS div_jd',
-                'husb_d.d_julianday1 AS husb_jd',
-                'wife_d.d_julianday1 AS wife_jd',
+                new Expression('MIN(' . $prefix . 'marr.d_julianday1) AS marr_jd'),
+                new Expression('MIN(' . $prefix . 'divr.d_julianday1) AS div_jd'),
+                new Expression('MIN(' . $prefix . 'husb_d.d_julianday1) AS husb_jd'),
+                new Expression('MIN(' . $prefix . 'wife_d.d_julianday1) AS wife_jd'),
             ])
+            ->groupBy('families.f_id')
             ->get();
 
         $out = [];

@@ -338,4 +338,45 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame(2, $result['5–9'] ?? 0, 'F3 + F4 widowhood lands in 5-9 with MAX(d_julianday2); a swap to MIN(d_julianday1) would peel F4 off into the 10-14 bucket');
         self::assertSame(1, $result['10–14'] ?? 0, 'F2 widowhood ~10 years; a MAX -> MIN swap on F4 would inflate this bucket to 2');
     }
+
+    /**
+     * The marriage-duration distribution rides on the private
+     * `marriageDurationPairs()` accessor, which joins families to four
+     * date aliases (MARR + DIV + 2× DEAT). A ranged BIRT / MARR / DIV
+     * / DEAT would surface the same family more than once and skew
+     * the histogram. The marriage-edge-cases.ged fixture exercises
+     * this via F4 whose husband DEAT is FROM 1945 TO 1947 — two rows
+     * in the dates table, two distinct end-julian-days, two duration
+     * histogram entries without the aggregate.
+     *
+     * Post-dedup the histogram totals 4 (one per FAM). All four
+     * families terminate via DEAT (no DIV in the fixture) so the
+     * MARR → earliest-DEAT span is:
+     *
+     * * F1 (1880 → wife 1915) ≈ 35y → `30–39`,
+     * * F2 (1885 → husband 1930) ≈ 44y → `40–49`,
+     * * F3 (1895 → husband 1935) ≈ 39y → `30–39`,
+     * * F4 (1905 → MIN(husband d_julianday1) = 1945-01-01)
+     *   ≈ 39y → `30–39`.
+     *
+     * The bucket-specific assertion locks the MIN(d_julianday1)
+     * aggregate for the end-of-marriage anchor: a MIN -> MAX swap
+     * on F4 husband DEAT would slide the duration to ≈ 41y and
+     * push F4 into the `40–49` bucket, peeling the `30–39` count
+     * from 3 to 2.
+     */
+    #[Test]
+    public function durationDistributionDedupsRangedTerminusRows(): void
+    {
+        $tree   = $this->importFixtureTree('marriage-edge-cases.ged');
+        $result = $this->repository($tree)->durationDistribution();
+
+        self::assertSame(
+            4,
+            array_sum($result),
+            'F1 + F2 + F3 + F4 = 4 entries; without the GROUP BY F4 contributes 2 (one per FROM..TO DEAT bound) and the sum climbs to 5',
+        );
+        self::assertSame(3, $result['30–39'] ?? 0, 'F1 + F3 + F4 land in 30-39 with MIN(husb_d.d_julianday1); a swap on F4 would peel one entry off');
+        self::assertSame(1, $result['40–49'] ?? 0, 'F2 ~44y; a MIN -> MAX swap on F4 husband DEAT would inflate this bucket to 2');
+    }
 }
