@@ -2448,6 +2448,10 @@
     fill: var(--slate);
 }
 
+.wt-statistics-chart svg.wt-line-chart .series.male .area {
+    fill: var(--slate);
+}
+
 .wt-statistics-chart svg.wt-line-chart .legend-swatch.male {
     fill: var(--slate);
 }
@@ -2457,6 +2461,10 @@
 }
 
 .wt-statistics-chart svg.wt-line-chart .series.female .point {
+    fill: var(--wine);
+}
+
+.wt-statistics-chart svg.wt-line-chart .series.female .area {
     fill: var(--wine);
 }
 

@@ -14,12 +14,14 @@ use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
 use MagicSunday\Webtrees\Statistic\View\EmptyStatePlaceholder;
 
 /**
- * @var string                                                                        $identifier  Host element id
- * @var LineChartPayload|array{categories?: list<string>, series?: array<int, mixed>} $data        Chart payload: x-axis labels + N series. Accepts either the value-object or its raw-array form (latter used by call-sites that build the payload inline).
- * @var int|null                                                                      $height      Optional viewport height (defaults to 240)
- * @var int|null                                                                      $xLabelEvery Show every Nth x-axis label (default: auto, capped at ~12 visible labels)
- * @var bool|null                                                                     $showArea    Default true for single-series, ignored otherwise
- * @var string|null                                                                   $ariaLabel   Accessible label on the host svg
+ * @var string                                                                        $identifier      Host element id
+ * @var LineChartPayload|array{categories?: list<string>, series?: array<int, mixed>} $data            Chart payload: x-axis labels + N series. Accepts either the value-object or its raw-array form (latter used by call-sites that build the payload inline).
+ * @var int|null                                                                      $height          Optional viewport height (defaults to 240)
+ * @var int|null                                                                      $xLabelEvery     Show every Nth x-axis label (default: auto, capped at ~12 visible labels)
+ * @var bool|null                                                                     $showArea        Default true. Single-series draws the area fill; multi-series suppresses it unless `multiSeriesArea` is also set.
+ * @var bool|null                                                                     $multiSeriesArea Default false. Opt in to per-series area fill in multi-series mode; layered fills get 0.14 opacity so the lower band still reads through. Use for side-by-side comparison charts (e.g. father → son vs. mother → daughter).
+ * @var string|null                                                                   $yUnit           Default empty. Suffix appended to bare numeric tooltip values (e.g. " %", " yr") when a series has no per-point tooltip override.
+ * @var string|null                                                                   $ariaLabel       Accessible label on the host svg
  */
 $height ??= 240;
 
@@ -52,10 +54,12 @@ $xLabelEvery ??= max(1, (int) ceil(count($categories) / 12));
          data-widget="line-chart"
          data-payload="<?php echo WidgetJson::encodeAttribute($data); ?>"
          data-options="<?php echo WidgetJson::encodeAttribute([
-             'height'      => $height,
-             'xLabelEvery' => $xLabelEvery,
-             'showArea'    => $showArea ?? null,
-             'ariaLabel'   => $ariaLabel ?? null,
+             'height'          => $height,
+             'xLabelEvery'     => $xLabelEvery,
+             'showArea'        => $showArea ?? null,
+             'multiSeriesArea' => $multiSeriesArea ?? null,
+             'yUnit'           => $yUnit ?? null,
+             'ariaLabel'       => $ariaLabel ?? null,
          ]); ?>"
          data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"
     ></div>
