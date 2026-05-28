@@ -14,6 +14,8 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\StatisticsData;
 use Fisharebest\Webtrees\Tree;
+use Illuminate\Database\Capsule\Manager as DB;
+use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Enum\Sex;
 use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarPayload;
@@ -131,7 +133,14 @@ final readonly class DivorceRepository
     public function ageAtDivorceDistribution(string $sex): array
     {
         $spouseColumn = Sex::from($sex)->spouseColumn();
+        $prefix       = DB::connection()->getTablePrefix();
 
+        // Ranged DIV / BIRT dates produce two `dates` rows per anchor,
+        // so a FAM with a ranged DIV or a ranged spouse BIRT would
+        // surface multiple times with slightly different julian-day
+        // pairs. Grouping by `families.f_id` and aggregating each
+        // anchor with `MIN(d_julianday1)` collapses the duplicates
+        // onto the lower-bound julian day; one row per FAM.
         $rows = TreeScope::table($this->tree, 'families')
             ->join('dates AS divr', static function (JoinClause $join): void {
                 DateJoin::on($join, 'divr', 'f_file', 'f_id', 'DIV');
@@ -140,9 +149,10 @@ final readonly class DivorceRepository
                 DateJoin::on($join, 'birth', 'f_file', $spouseColumn, 'BIRT', DateJoin::JD_NOT_EQUAL_ZERO);
             })
             ->select([
-                'divr.d_julianday1 AS div_jd',
-                'birth.d_julianday1 AS birth_jd',
+                new Expression('MIN(' . $prefix . 'divr.d_julianday1) AS div_jd'),
+                new Expression('MIN(' . $prefix . 'birth.d_julianday1) AS birth_jd'),
             ])
+            ->groupBy('families.f_id')
             ->get();
 
         $buckets = AgeBuckets::init(0, self::AGE_AT_DIVORCE_MAX, self::AGE_AT_DIVORCE_BUCKET);
@@ -201,6 +211,15 @@ final readonly class DivorceRepository
         // resolvable julian day (year-only DATEs). Such rows can't
         // contribute an age but they still count in the line chart,
         // so the Unknown catch-all keeps the totals aligned.
+        $prefix = DB::connection()->getTablePrefix();
+
+        // Ranged DIV / BIRT dates produce two `dates` rows per anchor,
+        // so a FAM with ranged anchors on all three columns could
+        // produce up to 2^3 = 8 rows in the JOIN. Grouping by
+        // `families.f_id` and aggregating each anchor with
+        // `MIN(d_julianday1)` collapses the duplicates onto the
+        // lower-bound julian day. `MIN(divr.d_year)` keeps the
+        // century classification aligned with the picked DIV anchor.
         $rows = TreeScope::table($this->tree, 'families')
             ->join('dates AS divr', static function (JoinClause $join): void {
                 DateJoin::on($join, 'divr', 'f_file', 'f_id', 'DIV');
@@ -212,11 +231,12 @@ final readonly class DivorceRepository
                 DateJoin::on($join, 'wb', 'f_file', 'f_wife', 'BIRT', DateJoin::JD_GREATER_THAN_ZERO);
             })
             ->select([
-                'divr.d_year AS div_year',
-                'divr.d_julianday1 AS div_jd',
-                'hb.d_julianday1 AS hb_jd',
-                'wb.d_julianday1 AS wb_jd',
+                new Expression('MIN(' . $prefix . 'divr.d_year) AS div_year'),
+                new Expression('MIN(' . $prefix . 'divr.d_julianday1) AS div_jd'),
+                new Expression('MIN(' . $prefix . 'hb.d_julianday1) AS hb_jd'),
+                new Expression('MIN(' . $prefix . 'wb.d_julianday1) AS wb_jd'),
             ])
+            ->groupBy('families.f_id')
             ->get();
 
         $unknownBandIndex = array_key_last(self::DIVORCE_AGE_BANDS);
@@ -340,6 +360,15 @@ final readonly class DivorceRepository
      */
     public function divorceRateByMarriageCohort(): array
     {
+        $prefix = DB::connection()->getTablePrefix();
+
+        // Ranged MARR / DIV dates produce two `dates` rows per anchor,
+        // so a FAM with a ranged MARR or DIV would surface multiple
+        // times and inflate both `total` and `divorced` within the
+        // affected cohort. Grouping by `families.f_id` and
+        // aggregating each year with `MIN(d_year)` collapses the
+        // duplicates onto the lower-bound year so each FAM
+        // contributes exactly one tick to its decade cohort.
         $rows = TreeScope::table($this->tree, 'families')
             ->join('dates AS marr', static function (JoinClause $join): void {
                 DateJoin::on($join, 'marr', 'f_file', 'f_id', 'MARR');
@@ -351,7 +380,11 @@ final readonly class DivorceRepository
                     ->on('divr.d_gid', '=', 'f_id')
                     ->where('divr.d_fact', '=', 'DIV');
             })
-            ->select(['marr.d_year AS marr_year', 'divr.d_year AS div_year'])
+            ->select([
+                new Expression('MIN(' . $prefix . 'marr.d_year) AS marr_year'),
+                new Expression('MIN(' . $prefix . 'divr.d_year) AS div_year'),
+            ])
+            ->groupBy('families.f_id')
             ->get();
 
         $perCohort = [];

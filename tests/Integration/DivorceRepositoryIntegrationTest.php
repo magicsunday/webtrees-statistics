@@ -290,4 +290,118 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame(0, array_sum($repo->divorcesByMonth()));
         self::assertSame([], $repo->divorceRateByMarriageCohort());
     }
+
+    /**
+     * Webtrees writes TWO rows into the `dates` table for every
+     * BET..AND / FROM..TO date range. Every Divorce query joins
+     * `families` to at least two `dates` aliases (DIV plus BIRT
+     * / MARR), so a single ranged DIV or BIRT would surface the
+     * same family more than once and skew every histogram.
+     *
+     * Fixture `divorce-edge-cases.ged` carries three families:
+     *
+     * * F1 — full-date BIRT for both spouses + full-date MARR + DIV
+     *   (control); husband age at divorce 45 → bucket `40–49`,
+     *   wife age 40 → `40–49` (BIRT 22.9.1865 → DIV 14.9.1905 is
+     *   8 days short of 40 calendar years but the integer-year
+     *   bucket math via `intdiv(days, 365)` and the 9 leap days
+     *   between the dates land it at exactly 40);
+     * * F2 — full-date BIRT + MARR, DIV `BET 1925 AND 1928` — the
+     *   DIV ranges drives the dedup on the divorce side. Post-MIN
+     *   anchor: 01.01.1925, husband age 54 → `50–59`, wife age 52
+     *   → `50–59`;
+     * * F3 — husband BIRT `BET 1880 AND 1883`, full-date MARR + DIV
+     *   — the BIRT range drives the dedup on the spouse side.
+     *   Post-MIN anchor: 01.01.1880, husband age 45 → `40–49`,
+     *   wife age 43 → `40–49`.
+     *
+     * Without the GROUP BY F2 and F3 each contribute two rows for
+     * the husband side (sum climbs from 3 to 5) and F2 doubles on
+     * the wife side as well (sum climbs from 3 to 4; F3 wife BIRT
+     * is full-date so she stays unaffected by the BIRT-doubling).
+     */
+    #[Test]
+    public function ageAtDivorceDistributionDedupsRangedDivAndBirthRows(): void
+    {
+        $tree = $this->importFixtureTree('divorce-edge-cases.ged');
+        $repo = $this->repository($tree);
+
+        $husbands = $repo->ageAtDivorceDistribution('M');
+        $wives    = $repo->ageAtDivorceDistribution('F');
+
+        self::assertSame(3, array_sum($husbands), 'F1 + F2 + F3 = 3 men; without dedup F2+F3 contribute 2 each and the sum climbs to 5');
+        self::assertSame(2, $husbands['40–49'] ?? 0, 'F1 (45) + F3 (45 via MIN BIRT) — a MIN -> MAX swap on F3 husband BIRT would drop the entry into 40–49 still, but the row count via husbands sum would surface the missing GROUP BY');
+        self::assertSame(1, $husbands['50–59'] ?? 0, 'F2 husband (54 via MIN DIV) — a MIN -> MAX swap would push F2 to 57 (still in 50–59 here)');
+
+        self::assertSame(3, array_sum($wives), 'F1 + F2 + F3 = 3 women; without dedup F2 doubles and the sum climbs to 4');
+        self::assertSame(2, $wives['40–49'] ?? 0, 'F1 wife (40) + F3 wife (43)');
+        self::assertSame(1, $wives['50–59'] ?? 0, 'F2 wife (52 via MIN DIV)');
+    }
+
+    /**
+     * The cross-tabulated divorces-by-century-and-age-band stack
+     * counts one tick per FAM. The same ranged-row doubling that
+     * skews the simple age histograms also inflates the per-century
+     * stack totals, so the GROUP BY must propagate here too.
+     *
+     * All three fixture families divorce in the 20th century (F1
+     * 1905, F2 1925-1928, F3 1925). Per-century totals must equal
+     * the number of distinct FAMs (3) — not 5 with two doubled rows.
+     */
+    #[Test]
+    public function divorcesByCenturyAndAgeBandDedupsRangedRows(): void
+    {
+        $tree   = $this->importFixtureTree('divorce-edge-cases.ged');
+        $result = $this->repository($tree)->divorcesByCenturyAndAgeBand();
+
+        self::assertCount(1, $result->categories, 'all three divorces land in the 20th-century column');
+
+        $total = 0;
+
+        foreach ($result->series as $series) {
+            foreach ($series->data as $value) {
+                $total += $value;
+            }
+        }
+
+        self::assertSame(3, $total, 'F1 + F2 + F3 = 3 divorces in the 20th century; without dedup F2+F3 contribute 2 each and the total climbs to 5');
+    }
+
+    /**
+     * `divorceRateByMarriageCohort` joins families to MARR + DIV
+     * (leftJoin). A ranged DIV with full-date MARR produces two
+     * rows: both share the same `marr_year` (single anchor) but
+     * each carries a different `div_year`, so a FAM gets counted
+     * twice in `total` AND `divorced` of the same cohort. The
+     * resulting cohort rate drifts away from the true distinct-FAM
+     * count.
+     *
+     * To make the dedup observable through the public API, the
+     * fixture pads the 1890s decade with two extra `MarrOnly`
+     * families (F4 MARR 1893 + F5 MARR 1898, neither with a DIV)
+     * so the 1890 cohort clears the adaptive sample threshold
+     * (`max(3, intdiv(totalMarriages, 100)) = 3`). The 1880 and 1900
+     * cohorts stay below the floor and drop out of the visible
+     * window, leaving the 1890 cohort as the only visible decade.
+     *
+     * Post-dedup: 1890 cohort total = 3 (F2 + F4 + F5), divorced = 1
+     * (F2) → rate = round(1 / 3, 4) = 0.3333.
+     *
+     * Without the GROUP BY F2's ranged DIV doubles the cohort: total
+     * = 4, divorced = 2 → rate = 0.5. A regression that drops the
+     * `MIN(divr.d_year)` aggregate would surface as a flipped rate
+     * here.
+     */
+    #[Test]
+    public function divorceRateByMarriageCohortDedupsRangedDivRows(): void
+    {
+        $tree   = $this->importFixtureTree('divorce-edge-cases.ged');
+        $result = $this->repository($tree)->divorceRateByMarriageCohort();
+
+        self::assertSame(
+            [1890 => 0.3333],
+            $result,
+            'post-dedup the 1890 cohort carries total = 3 (F2 + F4 + F5) and divorced = 1 (F2); without the GROUP BY the rate climbs to 0.5',
+        );
+    }
 }
