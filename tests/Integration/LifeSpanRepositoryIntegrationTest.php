@@ -412,4 +412,107 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame([], $result->categories);
         self::assertSame([], $result->series);
     }
+
+    /**
+     * Webtrees writes TWO rows into the `dates` table for every
+     * BET..AND / FROM..TO date — one for the lower bound, one for
+     * the upper. A JOIN that fetches `dates AS birth` and
+     * `dates AS death` without grouping by individual would
+     * therefore see the same person twice (with two different JDs
+     * each side), inflating cohort counts and skewing every per-
+     * century aggregation.
+     *
+     * The dedicated fixture `life-span-edge-cases.ged` carries:
+     *
+     * * I1-I30 — 30 19th-century full-date controls, all born in
+     *   1850 (spread day/month) and dying exactly 50 years later;
+     * * I31 — a BET..AND BIRT individual (`BET 1851 AND 1853`,
+     *   full-date DEAT 15 JUN 1902) which webtrees writes as two
+     *   BIRT rows;
+     * * I32 — a FROM..TO DEAT individual (full-date BIRT 10 APR
+     *   1855, `FROM 1903 TO 1905`) which webtrees writes as two
+     *   DEAT rows.
+     *
+     * The cohort therefore contains 32 distinct individuals. A
+     * non-deduplicating JOIN would yield 34 rows (30 controls +
+     * 2 for BET..AND + 2 for FROM..TO), and 34 would surface here
+     * via `n`. The assertion locks the post-aggregation count so a
+     * regression that drops the GROUP BY surfaces immediately.
+     */
+    #[Test]
+    public function deathAgeDistributionByCenturyDedupsBetweenAndFromToDoubleRows(): void
+    {
+        $tree   = $this->importFixtureTree('life-span-edge-cases.ged');
+        $result = $this->repository($tree)->deathAgeDistributionByCentury();
+
+        self::assertCount(1, $result, 'only the 19th-century cohort qualifies');
+        self::assertSame(19, $result[0]['century']);
+        self::assertSame(
+            32,
+            $result[0]['n'],
+            '30 controls + 1 BET..AND BIRT + 1 FROM..TO DEAT = 32 unique individuals; without dedup the count climbs to 34',
+        );
+    }
+
+    /**
+     * `averageLifespanBySexAndCentury` runs the same BirthDeath
+     * pairs through a per-sex aggregation, so the same BET..AND /
+     * FROM..TO doubling pathology would inflate either the male or
+     * female cohort count. The fixture splits sexes alternately
+     * across the 30 controls (15 male + 15 female) and adds one
+     * male BET..AND BIRT plus one female FROM..TO DEAT, so each
+     * sex cohort must land at exactly 16. The tooltip carries the
+     * cohort size in its `n = …` suffix — we assert it directly
+     * to surface a regression at the per-sex layer.
+     */
+    #[Test]
+    public function averageLifespanBySexAndCenturyDedupsBetweenAndFromToDoubleRows(): void
+    {
+        $tree   = $this->importFixtureTree('life-span-edge-cases.ged');
+        $result = $this->repository($tree)->averageLifespanBySexAndCentury();
+
+        self::assertCount(1, $result->categories, 'only the 19th-century cohort qualifies');
+        self::assertSame('19th cent.', $result->categories[0]);
+
+        self::assertStringContainsString(
+            'n = 16',
+            $result->series[0]->tooltips[0],
+            '15 male controls + 1 BET..AND male = 16 unique men',
+        );
+        self::assertStringContainsString(
+            'n = 16',
+            $result->series[1]->tooltips[0],
+            '15 female controls + 1 FROM..TO female = 16 unique women',
+        );
+    }
+
+    /**
+     * `survivalFunctionByCentury` is the third cohort method that
+     * rides on `aggregatedPairColumns()`; without a dedup-specific
+     * test the GROUP BY on this path could silently regress while
+     * the other two assertions stay green. The 19th-century cohort
+     * post-aggregation has 32 individuals (= 30 controls + 1
+     * BET..AND BIRT + 1 FROM..TO DEAT) and clears the
+     * `MIN_COHORT_SIZE_SURVIVAL = 30` floor, so the series is
+     * emitted. The tooltip text embeds the cohort denominator
+     * (`of %s individuals reached this age`) and is the only
+     * public surface that exposes the cohort size — we assert
+     * `of 32 individuals` to lock the dedup on this third call
+     * site.
+     */
+    #[Test]
+    public function survivalFunctionByCenturyDedupsBetweenAndFromToDoubleRows(): void
+    {
+        $tree   = $this->importFixtureTree('life-span-edge-cases.ged');
+        $result = $this->repository($tree)->survivalFunctionByCentury();
+
+        self::assertCount(1, $result->series, 'only the 19th-century cohort clears MIN_COHORT_SIZE_SURVIVAL = 30');
+        self::assertSame('19th cent.', $result->series[0]->name);
+
+        self::assertStringContainsString(
+            'of 32 individuals',
+            $result->series[0]->tooltips[0],
+            '30 controls + 1 BET..AND + 1 FROM..TO = 32 unique individuals; without dedup the cohort climbs to 34',
+        );
+    }
 }

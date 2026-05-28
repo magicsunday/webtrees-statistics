@@ -266,11 +266,8 @@ final readonly class LifeSpanRepository
         $maxAge = $this->maxPlausibleAge();
 
         $rows = BirthDeathPairsQuery::for($this->tree)
-            ->select([
-                'birth.d_year AS birth_year',
-                'birth.d_julianday1 AS birth_jd',
-                'death.d_julianday1 AS death_jd',
-            ])
+            ->select($this->aggregatedPairColumns())
+            ->groupBy('individuals.i_id')
             ->get();
 
         /** @var array<int, list<int>> $cohorts */
@@ -552,10 +549,9 @@ final readonly class LifeSpanRepository
             ->whereIn('i_sex', ['M', 'F'])
             ->select([
                 'i_sex AS sex',
-                'birth.d_year AS birth_year',
-                'birth.d_julianday1 AS birth_jd',
-                'death.d_julianday1 AS death_jd',
+                ...$this->aggregatedPairColumns(),
             ])
+            ->groupBy('individuals.i_id', 'individuals.i_sex')
             ->get();
 
         /** @var array<int, array{M: array{sum: int, n: int}, F: array{sum: int, n: int}}> $cohorts */
@@ -681,11 +677,8 @@ final readonly class LifeSpanRepository
         $maxAge = $this->maxPlausibleAge();
 
         $rows = BirthDeathPairsQuery::for($this->tree)
-            ->select([
-                'birth.d_year AS birth_year',
-                'birth.d_julianday1 AS birth_jd',
-                'death.d_julianday1 AS death_jd',
-            ])
+            ->select($this->aggregatedPairColumns())
+            ->groupBy('individuals.i_id')
             ->get();
 
         /** @var array<int, array{size: int, ages: list<int>}> $cohorts */
@@ -761,6 +754,39 @@ final readonly class LifeSpanRepository
             categories: $categories,
             series: $series,
         );
+    }
+
+    /**
+     * Column set every cohort query selects on top of
+     * {@see BirthDeathPairsQuery} so the per-individual aggregation
+     * stays consistent across `deathAgeDistributionByCentury`,
+     * `averageLifespanBySexAndCentury` and `survivalFunctionByCentury`.
+     *
+     * Webtrees writes TWO rows into the `dates` table for every
+     * BET..AND / FROM..TO date (one per range bound), so a JOIN
+     * without `GROUP BY individuals.i_id` would see the same
+     * individual twice and double-count them. Aggregating the
+     * earliest BIRT julian-day with `MIN(birth.d_julianday1)` and
+     * the latest DEAT julian-day with `MAX(death.d_julianday2)`
+     * collapses the doubled rows into a single per-individual
+     * lifespan; the convention also matches webtrees core's
+     * `death.d_julianday2 - birth.d_julianday1` idiom (see
+     * `StatisticsData::averageLifespan*` queries) which produces
+     * the maximum-possible lifespan for year-only / modifier rows
+     * instead of the lower-bound figure the inline `d_julianday1`
+     * pair returned previously.
+     *
+     * @return list<Expression<non-falsy-string>>
+     */
+    private function aggregatedPairColumns(): array
+    {
+        $prefix = DB::connection()->getTablePrefix();
+
+        return [
+            new Expression('MIN(' . $prefix . 'birth.d_year) AS birth_year'),
+            new Expression('MIN(' . $prefix . 'birth.d_julianday1) AS birth_jd'),
+            new Expression('MAX(' . $prefix . 'death.d_julianday2) AS death_jd'),
+        ];
     }
 
     /**
