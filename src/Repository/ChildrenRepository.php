@@ -430,16 +430,8 @@ final readonly class ChildrenRepository
         $rows = TreeScope::table($this->tree, 'link')
             ->where('l_type', '=', 'FAMC')
             ->join('dates AS birth', static function (JoinClause $join): void {
-                DateJoin::on($join, 'birth', 'l_file', 'l_from', 'BIRT', DateJoin::JD_NOT_EQUAL_ZERO);
+                DateJoin::on($join, 'birth', 'l_file', 'l_from', 'BIRT', DateJoin::JD_NOT_EQUAL_ZERO, true);
             })
-            // d_day = 0 / d_mon = 0 = year-only BIRT — webtrees still
-            // produces a julian-day (defaulted to the year anchor) for
-            // those rows, which would turn every "0 0 1829" sibling
-            // group into a phantom multi-birth set. Require both the
-            // day and month columns to be set so the same-day group
-            // detection only fires on truly dated siblings.
-            ->where('birth.d_day', '>', 0)
-            ->where('birth.d_mon', '>', 0)
             ->select([
                 'l_from AS child_id',
                 'l_to AS family_id',
@@ -796,6 +788,18 @@ final readonly class ChildrenRepository
      * positive gap each. Families with < 2 dated children
      * contribute nothing.
      *
+     * Children whose BIRT is year-only or carries a `BEF` / `AFT` /
+     * `ABT` / `BET..AND` / `FROM..TO` modifier are skipped: webtrees
+     * still synthesises a default julian-day for those rows (usually
+     * 01.01.YYYY) so two year-only siblings of the same year would
+     * collide at JD = same → phantom 0-year bucket entry, and a
+     * `BET..AND` child shows up as two rows in the JOIN → JD-sorted
+     * run produces a phantom self-gap with the same `i_id` on both
+     * sides. Filtering on `d_day > 0 AND d_mon > 0` cuts both
+     * pathologies in one stroke. Mixed families (some full-date,
+     * some not) still contribute the surviving pairs — those overshoot
+     * the real consecutive distance, which is the documented trade-off.
+     *
      * @return array<string, int>
      */
     public function siblingAgeGapDistribution(): array
@@ -803,7 +807,7 @@ final readonly class ChildrenRepository
         $rows = TreeScope::table($this->tree, 'link')
             ->where('l_type', '=', 'FAMC')
             ->join('dates AS birth', static function (JoinClause $join): void {
-                DateJoin::on($join, 'birth', 'l_file', 'l_from', 'BIRT', DateJoin::JD_NOT_EQUAL_ZERO);
+                DateJoin::on($join, 'birth', 'l_file', 'l_from', 'BIRT', DateJoin::JD_NOT_EQUAL_ZERO, true);
             })
             ->select(['l_to AS family_id', 'birth.d_julianday1 AS birth_jd'])
             ->orderBy('l_to')

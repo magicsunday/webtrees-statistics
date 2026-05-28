@@ -103,4 +103,70 @@ final class DateJoinTest extends TestCase
         self::assertStringContainsString('"wt_birth"."d_julianday1" <> ?', $sql);
         self::assertSame(['BIRT', '@#DGREGORIAN@', '@#DJULIAN@', 0], $join->getBindings());
     }
+
+    /**
+     * Passing `requireFullDate = true` appends the `d_day > 0` and
+     * `d_mon > 0` predicates that the day-precision consumers
+     * (multi-birth same-day match, sibling-age-gap distribution)
+     * rely on to filter year-only records, month-only records, and
+     * the BEF / AFT / ABT / BET..AND / FROM..TO modifier rows that
+     * webtrees writes with `d_day = 0` plus a synthesised default
+     * julian-day. Both predicates must appear in the generated SQL,
+     * each with its own `0` binding alongside the existing
+     * julian-day binding so a regression that drops one half stays
+     * detectable at the SQL-shape level instead of only surfacing
+     * via downstream histogram drift.
+     */
+    #[Test]
+    public function onAppendsFullDateGateWhenRequireFullDateIsTrue(): void
+    {
+        $join = new JoinClause($this->capsule->getConnection()->query(), 'inner', 'dates AS birth');
+
+        DateJoin::on(
+            $join,
+            'birth',
+            'l_file',
+            'l_from',
+            'BIRT',
+            DateJoin::JD_NOT_EQUAL_ZERO,
+            true,
+        );
+
+        $sql = $join->toSql();
+
+        self::assertStringContainsString('"wt_birth"."d_julianday1" <> ?', $sql);
+        self::assertStringContainsString('"wt_birth"."d_day" > ?', $sql);
+        self::assertStringContainsString('"wt_birth"."d_mon" > ?', $sql);
+        self::assertSame(['BIRT', '@#DGREGORIAN@', '@#DJULIAN@', 0, 0, 0], $join->getBindings());
+    }
+
+    /**
+     * `requireFullDate = true` may also stand on its own without a
+     * julian-day operator — covers consumers that want the
+     * day-precision gate but skip the `d_julianday1` constraint. The
+     * default julian-day path must remain absent while both
+     * `d_day > 0` and `d_mon > 0` are emitted.
+     */
+    #[Test]
+    public function onAppendsFullDateGateAloneWithoutJulianDayOperator(): void
+    {
+        $join = new JoinClause($this->capsule->getConnection()->query(), 'inner', 'dates AS birth');
+
+        DateJoin::on(
+            $join,
+            'birth',
+            'i_file',
+            'i_id',
+            'BIRT',
+            null,
+            true,
+        );
+
+        $sql = $join->toSql();
+
+        self::assertStringNotContainsString('d_julianday1', $sql);
+        self::assertStringContainsString('"wt_birth"."d_day" > ?', $sql);
+        self::assertStringContainsString('"wt_birth"."d_mon" > ?', $sql);
+        self::assertSame(['BIRT', '@#DGREGORIAN@', '@#DJULIAN@', 0, 0], $join->getBindings());
+    }
 }

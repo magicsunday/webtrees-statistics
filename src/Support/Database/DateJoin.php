@@ -64,6 +64,17 @@ final readonly class DateJoin
      * `d_julianday1` column constrained — use {@see JD_GREATER_THAN_ZERO}
      * to require a fully resolvable date, or {@see JD_NOT_EQUAL_ZERO}
      * to filter only the literal-zero sentinel.
+     *
+     * Pass `$requireFullDate = true` when the consumer evaluates the
+     * julian-day diff day-precisely (same-day match, sub-year diffs,
+     * JD-sort within the same year). Year-only records (`d_day = 0`),
+     * month-only records (`d_day = 0, d_mon > 0`) AND modifier-affected
+     * rows (BEF / AFT / ABT / BET..AND / FROM..TO — webtrees writes them
+     * with `d_day = 0` and synthesises a default julian-day = 01.01.YYYY
+     * which would otherwise leak into the JD comparison) all fall away
+     * in one stroke. Equivalent to manually emitting
+     * `->where($alias.'.d_day', '>', 0)->where($alias.'.d_mon', '>', 0)`
+     * at every call site.
      */
     public static function on(
         JoinClause $join,
@@ -72,6 +83,7 @@ final readonly class DateJoin
         string $gidCol,
         string $fact,
         ?string $jdOperator = null,
+        bool $requireFullDate = false,
     ): void {
         $join
             ->on($alias . '.d_file', '=', $fileCol)
@@ -81,6 +93,12 @@ final readonly class DateJoin
 
         if ($jdOperator !== null) {
             $join->where($alias . '.d_julianday1', $jdOperator, 0);
+        }
+
+        if ($requireFullDate) {
+            $join
+                ->where($alias . '.d_day', '>', 0)
+                ->where($alias . '.d_mon', '>', 0);
         }
     }
 }

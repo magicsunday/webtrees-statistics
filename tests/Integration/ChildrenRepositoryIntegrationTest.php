@@ -22,10 +22,13 @@ use function array_sum;
 use function array_values;
 
 /**
- * Integration test for {@see ChildrenRepository}. The fixture has
- * two families: F1 with three children born 1900, 1902, 1905 (so
- * two consecutive-sibling pairs at 2-year and 3-year gaps) and F2
- * with zero children.
+ * Integration tests for {@see ChildrenRepository} backed by several
+ * curated GEDCOM fixtures — see each test's docblock for the family
+ * layout the assertions ride on. The shared lookups (children-per-
+ * family, sibling-age-gap, childless distribution, first child by
+ * month, average per family, top-N families) ride on `children.ged`;
+ * the multi-birth, sibling-modifier-edge-case, and ASSO cross-day
+ * paths bring their own dedicated fixtures.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -70,6 +73,74 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame(1, $result['2y'] ?? null, '1900 → 1902 is a 2-year gap');
         self::assertSame(1, $result['3y'] ?? null, '1902 → 1905 is a 3-year gap');
         self::assertSame(2, array_sum($result));
+    }
+
+    /**
+     * Year-only BIRT records, BEF/AFT/ABT modifiers, and BET..AND /
+     * FROM..TO ranges all land in the `dates` table with `d_day = 0`
+     * and `d_mon = 0`, and webtrees still synthesises a default
+     * julian-day (typically 01.01.YYYY) so the row passes the
+     * `d_julianday1 <> 0` sentinel filter. Without explicitly
+     * gating on `d_day > 0 AND d_mon > 0` the distribution picks up
+     * three pathologies:
+     *
+     * * two year-only siblings of the same year collide in the `0y`
+     *   bucket (phantom twins) — the distribution must NOT confuse
+     *   them with real same-day siblings;
+     * * a `BET..AND` child shows up as two rows in the JOIN, so the
+     *   JD-sorted run produces a self-gap with the same `i_id` on
+     *   both sides;
+     * * `BEF` and `ABT` collapse onto their bare year, then compete
+     *   with neighbouring full-date siblings via a default-JD anchor
+     *   that ignores the actual GEDCOM modifier.
+     *
+     * The fixture carries:
+     *
+     * * F1 — three full-date children (15 MAR 1900, 10 AUG 1902,
+     *   22 JUN 1905) → two ~2-year gaps;
+     * * F2 — six children, ALL with modifiers (Year-only, BEF, ABT,
+     *   BET..AND, AFT, FROM..TO) → must contribute zero gaps;
+     * * F3 — mixed: three full-date siblings (20 MAR 1850, 10 AUG
+     *   1853, 5 JUL 1859) PLUS a year-only sibling 1856 → the
+     *   year-only child drops out, leaving the two surviving gaps
+     *   1850→1853 (3y) and 1853→1859 (5y). The 5y overshoot is the
+     *   documented trade-off: filtering the year-only sibling shifts
+     *   the consecutive-pair calculation onto the next full-date
+     *   sibling;
+     * * F4 — two children with IDENTICAL full-date BIRT (14 FEB 1910)
+     *   → real same-day twins that the filter must NOT remove;
+     *   exercises the positive side of the `0y` bucket;
+     * * F5 — BEF discriminator: 15 JAN 1820, BEF 1822, 15 JUN 1827 →
+     *   BEF child dropped, surviving pair gaps 1820→1827 ≈ 7.4 years
+     *   into `7y`;
+     * * F6 — ABT discriminator: 10 MAR 1830, ABT 1832, 5 DEC 1838 →
+     *   ABT child dropped, surviving pair gaps 1830→1838 ≈ 8.74 years
+     *   into `8y`;
+     * * F7 — BET..AND discriminator: 20 APR 1840, BET 1843 AND 1845
+     *   (writes TWO rows!), 10 DEC 1849 → BET..AND child dropped
+     *   (both rows), surviving pair gaps 1840→1849 ≈ 9.64 years into
+     *   `9y`. Without the filter the BET..AND child would also
+     *   produce a phantom self-gap with itself.
+     *
+     * The per-modifier buckets (7y / 8y / 9y) are intentionally
+     * distinct so a regression that lets one modifier slip through
+     * the filter flips exactly one assertion — pinpointing the
+     * defective modifier rather than masking it in a shared bucket.
+     */
+    #[Test]
+    public function siblingAgeGapDistributionExcludesYearOnlyAndModifierSiblings(): void
+    {
+        $tree   = $this->importFixtureTree('sibling-age-gap-edge-cases.ged');
+        $result = $this->repository($tree)->siblingAgeGapDistribution();
+
+        self::assertSame(1, $result['0y'] ?? 0, 'F4: real twins (identical full-date BIRT) stay in 0y');
+        self::assertSame(2, $result['2y'] ?? 0, 'F1: 1900→1902 and 1902→1905 are both 2-year gaps');
+        self::assertSame(1, $result['3y'] ?? 0, 'F3: 1850→1853 survives, year-only 1856 dropped');
+        self::assertSame(1, $result['5y'] ?? 0, 'F3: 1853→1859 is the next surviving consecutive pair');
+        self::assertSame(1, $result['7y'] ?? 0, 'F5: BEF 1822 dropped, 15 JAN 1820 → 15 JUN 1827 ≈ 7y overshoot');
+        self::assertSame(1, $result['8y'] ?? 0, 'F6: ABT 1832 dropped, 10 MAR 1830 → 5 DEC 1838 ≈ 8y overshoot');
+        self::assertSame(1, $result['9y'] ?? 0, 'F7: BET..AND 1843-1845 dropped (both rows), 20 APR 1840 → 10 DEC 1849 ≈ 9y overshoot');
+        self::assertSame(8, array_sum($result), 'F2 modifier-only contributes 0; F1=2 + F3=2 + F4=1 + F5=1 + F6=1 + F7=1 = 8');
     }
 
     /**
