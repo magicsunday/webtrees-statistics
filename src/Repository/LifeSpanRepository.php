@@ -26,6 +26,7 @@ use MagicSunday\Webtrees\Statistic\Model\Metric\WinterPeakScore;
 use MagicSunday\Webtrees\Statistic\Model\Record\IndividualAgeRecord;
 use MagicSunday\Webtrees\Statistic\Support\Calc\HistogramTrim;
 use MagicSunday\Webtrees\Statistic\Support\Database\BirthDeathPairsQuery;
+use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
@@ -780,12 +781,10 @@ final readonly class LifeSpanRepository
      */
     private function aggregatedPairColumns(): array
     {
-        $prefix = DB::connection()->getTablePrefix();
-
         return [
-            new Expression('MIN(' . $prefix . 'birth.d_year) AS birth_year'),
-            new Expression('MIN(' . $prefix . 'birth.d_julianday1) AS birth_jd'),
-            new Expression('MAX(' . $prefix . 'death.d_julianday2) AS death_jd'),
+            DateAggregate::min('birth', 'd_year', 'birth_year'),
+            DateAggregate::min('birth', 'd_julianday1', 'birth_jd'),
+            DateAggregate::max('death', 'd_julianday2', 'death_jd'),
         ];
     }
 

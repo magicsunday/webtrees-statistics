@@ -13,8 +13,6 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Tree;
-use Illuminate\Database\Capsule\Manager as DB;
-use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Enum\AgePairExtremum;
 use MagicSunday\Webtrees\Statistic\Enum\Sex;
@@ -23,6 +21,7 @@ use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
 use MagicSunday\Webtrees\Statistic\Model\Record\IndividualAgeRecord;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\IndividualAgeRecordResolver;
 use MagicSunday\Webtrees\Statistic\Support\Calc\AgeBuckets;
+use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
@@ -188,7 +187,6 @@ final class ParenthoodRepository
         }
 
         $parentColumn = Sex::from($sex)->spouseColumn();
-        $tablePrefix  = DB::connection()->getTablePrefix();
 
         $rows = TreeScope::table($this->tree, 'families', 'fam')
             ->join('dates AS parent_birth', static function (JoinClause $join) use ($parentColumn): void {
@@ -215,8 +213,8 @@ final class ParenthoodRepository
             ->select([
                 'fam.' . $parentColumn . ' AS parent_xref',
                 'parent_birth.d_julianday1 AS parent_birth_jd',
-                new Expression('MIN(' . $tablePrefix . 'child_birth.d_julianday1) AS first_child_jd'),
-                new Expression('MIN(' . $tablePrefix . 'child_birth.d_year) AS first_child_year'),
+                DateAggregate::min('child_birth', 'd_julianday1', 'first_child_jd'),
+                DateAggregate::min('child_birth', 'd_year', 'first_child_year'),
             ])
             ->get();
 

@@ -16,7 +16,6 @@ use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\StatisticsData;
 use Fisharebest\Webtrees\Tree;
-use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Enum\AgePairExtremum;
@@ -27,6 +26,7 @@ use MagicSunday\Webtrees\Statistic\Model\Record\IndividualAgeRecord;
 use MagicSunday\Webtrees\Statistic\Model\Record\IndividualCountRecord;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\IndividualAgeRecordResolver;
 use MagicSunday\Webtrees\Statistic\Support\Calc\AgeBuckets;
+use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
@@ -416,8 +416,6 @@ final class MarriageRepository
             return $this->marriageDurationPairsCache;
         }
 
-        $prefix = DB::connection()->getTablePrefix();
-
         // Ranged MARR / DIV / DEAT dates (BET..AND / FROM..TO) each
         // produce two `dates` rows, so the four-way JOIN can return
         // up to 2^4 = 16 rows per FAM if every anchor is ranged.
@@ -428,6 +426,13 @@ final class MarriageRepository
         // wife DEAT) at their earliest possible occurrence so
         // {@see earliestPositive()} downstream still picks the
         // first terminating event.
+        //
+        // `families.f_id AS xref` carries the full alias because
+        // strict `ONLY_FULL_GROUP_BY` MySQL parsers (e.g. issue #46
+        // on Strato) demand the GROUP BY column and the SELECT
+        // reference name the same qualified identifier; an
+        // unprefixed `f_id` would be rejected even though both
+        // resolve to the same primary-key column.
         $rows = TreeScope::table($this->tree, 'families')
             ->join('dates AS marr', static function (JoinClause $join): void {
                 DateJoin::on($join, 'marr', 'f_file', 'f_id', 'MARR');
@@ -442,11 +447,11 @@ final class MarriageRepository
                 DateJoin::on($join, 'wife_d', 'f_file', 'f_wife', 'DEAT');
             })
             ->select([
-                'f_id AS xref',
-                new Expression('MIN(' . $prefix . 'marr.d_julianday1) AS marr_jd'),
-                new Expression('MIN(' . $prefix . 'divr.d_julianday1) AS div_jd'),
-                new Expression('MIN(' . $prefix . 'husb_d.d_julianday1) AS husb_jd'),
-                new Expression('MIN(' . $prefix . 'wife_d.d_julianday1) AS wife_jd'),
+                'families.f_id AS xref',
+                DateAggregate::min('marr', 'd_julianday1', 'marr_jd'),
+                DateAggregate::min('divr', 'd_julianday1', 'div_jd'),
+                DateAggregate::min('husb_d', 'd_julianday1', 'husb_jd'),
+                DateAggregate::min('wife_d', 'd_julianday1', 'wife_jd'),
             ])
             ->groupBy('families.f_id')
             ->get();
@@ -498,8 +503,6 @@ final class MarriageRepository
      */
     public function ageGapDistribution(): array
     {
-        $prefix = DB::connection()->getTablePrefix();
-
         // Webtrees writes TWO rows into the `dates` table for every
         // BET..AND / FROM..TO date — one per range bound — so a JOIN
         // without grouping would surface the same FAM twice per
@@ -515,8 +518,8 @@ final class MarriageRepository
                 DateJoin::on($join, 'wb', 'f_file', 'f_wife', 'BIRT', DateJoin::JD_NOT_EQUAL_ZERO);
             })
             ->select([
-                new Expression('MIN(' . $prefix . 'hb.d_julianday1) AS hb_jd'),
-                new Expression('MIN(' . $prefix . 'wb.d_julianday1) AS wb_jd'),
+                DateAggregate::min('hb', 'd_julianday1', 'hb_jd'),
+                DateAggregate::min('wb', 'd_julianday1', 'wb_jd'),
             ])
             ->groupBy('families.f_id')
             ->get();
@@ -575,8 +578,6 @@ final class MarriageRepository
      */
     public function widowhoodYearsDistribution(): array
     {
-        $prefix = DB::connection()->getTablePrefix();
-
         // Ranged DEAT dates (BET..AND / FROM..TO) produce two `dates`
         // rows per spouse — without grouping by `f_id` a single
         // FAM with one ranged DEAT would surface twice with different
@@ -592,8 +593,8 @@ final class MarriageRepository
                 DateJoin::on($join, 'wife_d', 'f_file', 'f_wife', 'DEAT', DateJoin::JD_NOT_EQUAL_ZERO);
             })
             ->select([
-                new Expression('MAX(' . $prefix . 'husb_d.d_julianday2) AS husb_jd'),
-                new Expression('MAX(' . $prefix . 'wife_d.d_julianday2) AS wife_jd'),
+                DateAggregate::max('husb_d', 'd_julianday2', 'husb_jd'),
+                DateAggregate::max('wife_d', 'd_julianday2', 'wife_jd'),
             ])
             ->groupBy('families.f_id')
             ->get();

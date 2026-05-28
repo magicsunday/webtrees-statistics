@@ -14,13 +14,12 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\StatisticsData;
 use Fisharebest\Webtrees\Tree;
-use Illuminate\Database\Capsule\Manager as DB;
-use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Enum\Sex;
 use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarPayload;
 use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarSeries;
 use MagicSunday\Webtrees\Statistic\Support\Calc\AgeBuckets;
+use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
@@ -133,7 +132,6 @@ final readonly class DivorceRepository
     public function ageAtDivorceDistribution(string $sex): array
     {
         $spouseColumn = Sex::from($sex)->spouseColumn();
-        $prefix       = DB::connection()->getTablePrefix();
 
         // Ranged DIV / BIRT dates produce two `dates` rows per anchor,
         // so a FAM with a ranged DIV or a ranged spouse BIRT would
@@ -149,8 +147,8 @@ final readonly class DivorceRepository
                 DateJoin::on($join, 'birth', 'f_file', $spouseColumn, 'BIRT', DateJoin::JD_NOT_EQUAL_ZERO);
             })
             ->select([
-                new Expression('MIN(' . $prefix . 'divr.d_julianday1) AS div_jd'),
-                new Expression('MIN(' . $prefix . 'birth.d_julianday1) AS birth_jd'),
+                DateAggregate::min('divr', 'd_julianday1', 'div_jd'),
+                DateAggregate::min('birth', 'd_julianday1', 'birth_jd'),
             ])
             ->groupBy('families.f_id')
             ->get();
@@ -211,8 +209,6 @@ final readonly class DivorceRepository
         // resolvable julian day (year-only DATEs). Such rows can't
         // contribute an age but they still count in the line chart,
         // so the Unknown catch-all keeps the totals aligned.
-        $prefix = DB::connection()->getTablePrefix();
-
         // Ranged DIV / BIRT dates produce two `dates` rows per anchor,
         // so a FAM with ranged anchors on all three columns could
         // produce up to 2^3 = 8 rows in the JOIN. Grouping by
@@ -231,10 +227,10 @@ final readonly class DivorceRepository
                 DateJoin::on($join, 'wb', 'f_file', 'f_wife', 'BIRT', DateJoin::JD_GREATER_THAN_ZERO);
             })
             ->select([
-                new Expression('MIN(' . $prefix . 'divr.d_year) AS div_year'),
-                new Expression('MIN(' . $prefix . 'divr.d_julianday1) AS div_jd'),
-                new Expression('MIN(' . $prefix . 'hb.d_julianday1) AS hb_jd'),
-                new Expression('MIN(' . $prefix . 'wb.d_julianday1) AS wb_jd'),
+                DateAggregate::min('divr', 'd_year', 'div_year'),
+                DateAggregate::min('divr', 'd_julianday1', 'div_jd'),
+                DateAggregate::min('hb', 'd_julianday1', 'hb_jd'),
+                DateAggregate::min('wb', 'd_julianday1', 'wb_jd'),
             ])
             ->groupBy('families.f_id')
             ->get();
@@ -360,8 +356,6 @@ final readonly class DivorceRepository
      */
     public function divorceRateByMarriageCohort(): array
     {
-        $prefix = DB::connection()->getTablePrefix();
-
         // Ranged MARR / DIV dates produce two `dates` rows per anchor,
         // so a FAM with a ranged MARR or DIV would surface multiple
         // times and inflate both `total` and `divorced` within the
@@ -381,8 +375,8 @@ final readonly class DivorceRepository
                     ->where('divr.d_fact', '=', 'DIV');
             })
             ->select([
-                new Expression('MIN(' . $prefix . 'marr.d_year) AS marr_year'),
-                new Expression('MIN(' . $prefix . 'divr.d_year) AS div_year'),
+                DateAggregate::min('marr', 'd_year', 'marr_year'),
+                DateAggregate::min('divr', 'd_year', 'div_year'),
             ])
             ->groupBy('families.f_id')
             ->get();
