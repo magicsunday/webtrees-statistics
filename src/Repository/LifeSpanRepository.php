@@ -81,6 +81,25 @@ final readonly class LifeSpanRepository
     private const int MIN_COHORT_SIZE = 5;
 
     /**
+     * Minimum per-cohort sample size for the survival-function
+     * chart. A century with fewer recorded BIRT+DEAT pairs is
+     * dropped from the chart entirely — a 20-person cohort already
+     * lets a single death move the survival rate by 5 percentage
+     * points, and below that the curve reads as noise.
+     */
+    private const int MIN_COHORT_SIZE_SURVIVAL = 30;
+
+    /**
+     * Age thresholds (in years) at which the survival fraction is
+     * sampled. 0 is included so every cohort starts at 100 %; 100
+     * caps the centenarian tail at one anchor regardless of the
+     * documented extremes in the underlying data.
+     *
+     * @var list<int>
+     */
+    private const array SURVIVAL_AGE_THRESHOLDS = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+
+    /**
      * Minimum recorded-deaths sample below which the
      * {@see deathWinterPeakScore()} returns null because the
      * baseline-to-season ratio is too noisy to be meaningful at
@@ -258,35 +277,22 @@ final readonly class LifeSpanRepository
         $cohorts = [];
 
         foreach ($rows as $row) {
-            $year = RowCast::int($row, 'birth_year');
+            $cohort = $this->birthDeathCohortOrNull($row, $maxAge);
 
-            if ($year <= 0) {
+            if ($cohort === null) {
                 continue;
             }
 
-            $birthJd = RowCast::int($row, 'birth_jd');
-            $deathJd = RowCast::int($row, 'death_jd');
-
-            if ($birthJd <= 0) {
+            // Box-plot summary excludes zero-year lifespans for the
+            // same reason as the mean-lifespan sibling — a five-number
+            // summary built on a same-year-as-birth row would carry
+            // no information. Survival-curve keeps these rows since
+            // they anchor the age-0 denominator.
+            if ($cohort['years'] === 0) {
                 continue;
             }
 
-            if ($deathJd <= $birthJd) {
-                continue;
-            }
-
-            $years = intdiv($deathJd - $birthJd, 365);
-
-            if ($years <= 0) {
-                continue;
-            }
-
-            if ($years > $maxAge) {
-                continue;
-            }
-
-            $century             = CenturyName::fromYear($year);
-            $cohorts[$century][] = $years;
+            $cohorts[$cohort['century']][] = $cohort['years'];
         }
 
         if ($cohorts === []) {
@@ -556,42 +562,26 @@ final readonly class LifeSpanRepository
         $cohorts = [];
 
         foreach ($rows as $row) {
-            $year = RowCast::int($row, 'birth_year');
+            $cohort = $this->birthDeathCohortOrNull($row, $maxAge);
 
-            if ($year <= 0) {
+            if ($cohort === null) {
                 continue;
             }
 
-            $sex     = $row->sex === 'F' ? 'F' : 'M';
-            $birthJd = RowCast::int($row, 'birth_jd');
-            $deathJd = RowCast::int($row, 'death_jd');
-
-            if ($birthJd <= 0) {
+            // Mean-lifespan excludes rows that round to zero years
+            // (any lifespan under 365 days) because their `years`
+            // contribution would drag the numerator without adding
+            // to the lived-years total. The survival-curve sibling
+            // keeps these rows since they count at the age-0 anchor.
+            if ($cohort['years'] === 0) {
                 continue;
             }
 
-            if ($deathJd <= $birthJd) {
-                continue;
-            }
+            $sex = $row->sex === 'F' ? 'F' : 'M';
 
-            $years = intdiv($deathJd - $birthJd, 365);
-
-            if ($years <= 0) {
-                continue;
-            }
-
-            if ($years > $maxAge) {
-                continue;
-            }
-
-            // $year is already > 0 (guarded earlier), so the
-            // century derivation cannot be non-positive — no
-            // second guard needed.
-            $century = CenturyName::fromYear($year);
-
-            $cohorts[$century] ??= ['M' => ['sum' => 0, 'n' => 0], 'F' => ['sum' => 0, 'n' => 0]];
-            $cohorts[$century][$sex]['sum'] += $years;
-            ++$cohorts[$century][$sex]['n'];
+            $cohorts[$cohort['century']] ??= ['M' => ['sum' => 0, 'n' => 0], 'F' => ['sum' => 0, 'n' => 0]];
+            $cohorts[$cohort['century']][$sex]['sum'] += $cohort['years'];
+            ++$cohorts[$cohort['century']][$sex]['n'];
         }
 
         if ($cohorts === []) {
@@ -671,6 +661,153 @@ final readonly class LifeSpanRepository
                 ),
             ],
         );
+    }
+
+    /**
+     * Survival curve per birth century. For every individual with a
+     * recorded BIRT+DEAT pair, derives the lifespan in whole years
+     * and counts at each {@see SURVIVAL_AGE_THRESHOLDS} threshold
+     * how many cohort members reached at least that age. The
+     * fraction is rendered as a percentage relative to the cohort
+     * size at age 0 (the full count of individuals with both
+     * events recorded), so every series starts at 100 % and falls
+     * monotonically. Centuries below
+     * {@see MIN_COHORT_SIZE_SURVIVAL} are dropped entirely — a
+     * 20-person cohort already lets one death shift a threshold by
+     * 5 percentage points.
+     */
+    public function survivalFunctionByCentury(): LineChartPayload
+    {
+        $maxAge = $this->maxPlausibleAge();
+
+        $rows = BirthDeathPairsQuery::for($this->tree)
+            ->select([
+                'birth.d_year AS birth_year',
+                'birth.d_julianday1 AS birth_jd',
+                'death.d_julianday1 AS death_jd',
+            ])
+            ->get();
+
+        /** @var array<int, array{size: int, ages: list<int>}> $cohorts */
+        $cohorts = [];
+
+        foreach ($rows as $row) {
+            $cohort = $this->birthDeathCohortOrNull($row, $maxAge);
+
+            if ($cohort === null) {
+                continue;
+            }
+
+            $cohorts[$cohort['century']] ??= ['size' => 0, 'ages' => []];
+            ++$cohorts[$cohort['century']]['size'];
+            $cohorts[$cohort['century']]['ages'][] = $cohort['years'];
+        }
+
+        if ($cohorts === []) {
+            return new LineChartPayload(categories: [], series: []);
+        }
+
+        ksort($cohorts);
+
+        $categories = array_map(
+            static fn (int $age): string => (string) $age,
+            self::SURVIVAL_AGE_THRESHOLDS,
+        );
+
+        $series = [];
+
+        foreach ($cohorts as $century => $cohort) {
+            if ($cohort['size'] < self::MIN_COHORT_SIZE_SURVIVAL) {
+                continue;
+            }
+
+            $values        = [];
+            $tooltips      = [];
+            $tooltipLabels = [];
+
+            foreach (self::SURVIVAL_AGE_THRESHOLDS as $threshold) {
+                $survivors = 0;
+
+                foreach ($cohort['ages'] as $age) {
+                    if ($age >= $threshold) {
+                        ++$survivors;
+                    }
+                }
+
+                $share           = round(($survivors / $cohort['size']) * 100, 1);
+                $values[]        = $share;
+                $tooltipLabels[] = I18N::translate('Age %s', I18N::number($threshold));
+                $tooltips[]      = I18N::translate(
+                    '%1$s %% (%2$s of %3$s individuals reached this age)',
+                    I18N::number($share, 1),
+                    I18N::number($survivors),
+                    I18N::number($cohort['size']),
+                );
+            }
+
+            $series[] = new LineChartSeries(
+                name: CenturyName::for($century),
+                values: $values,
+                tooltips: $tooltips,
+                tooltipLabels: $tooltipLabels,
+            );
+        }
+
+        if ($series === []) {
+            return new LineChartPayload(categories: [], series: []);
+        }
+
+        return new LineChartPayload(
+            categories: $categories,
+            series: $series,
+        );
+    }
+
+    /**
+     * Decode one row from {@see BirthDeathPairsQuery} into a
+     * `[century, years]` tuple, applying every date-validity guard
+     * that every cohort metric on this repository shares. Returns
+     * null when the row should be skipped — non-positive birth
+     * year, missing julian-day anchors, death-before-birth, or a
+     * lifespan above the plausibility ceiling. Caller-side filters
+     * (e.g. drop zero-day lifespans for cohort means) sit on top
+     * of the tuple value.
+     *
+     * @return array{century: int, years: int}|null
+     */
+    private function birthDeathCohortOrNull(object $row, int $maxAge): ?array
+    {
+        $year = RowCast::int($row, 'birth_year');
+
+        if ($year <= 0) {
+            return null;
+        }
+
+        $birthJd = RowCast::int($row, 'birth_jd');
+        $deathJd = RowCast::int($row, 'death_jd');
+
+        if ($birthJd <= 0) {
+            return null;
+        }
+
+        if ($deathJd <= $birthJd) {
+            return null;
+        }
+
+        $years = intdiv($deathJd - $birthJd, 365);
+
+        if ($years < 0) {
+            return null;
+        }
+
+        if ($years > $maxAge) {
+            return null;
+        }
+
+        return [
+            'century' => CenturyName::fromYear($year),
+            'years'   => $years,
+        ];
     }
 
     /**

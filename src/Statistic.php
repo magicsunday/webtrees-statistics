@@ -438,6 +438,16 @@ final readonly class Statistic
     }
 
     /**
+     * Survival curve per birth century — for each cohort the share
+     * of individuals still alive at age 0, 10, 20, …, 100. Feeds the
+     * multi-series LineChart in the LifeSpan tab.
+     */
+    public function getSurvivalCurveByCentury(): LineChartPayload
+    {
+        return $this->lifeSpanRepository->survivalFunctionByCentury();
+    }
+
+    /**
      * Births grouped by decade — the tree-growth indicator on the
      * TreeHealth tab. Leading / trailing zero-decades are trimmed;
      * inner zero-decades stay so historical gaps remain visible.

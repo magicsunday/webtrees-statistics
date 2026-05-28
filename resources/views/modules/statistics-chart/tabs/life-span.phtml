@@ -47,6 +47,7 @@ $winterPeakScore         = $statistic->getDeathWinterPeakScore();
 $childMortality          = $statistic->getChildMortalitySummary();
 $childMortalityByCentury = $statistic->getChildMortalityByBirthCentury();
 $lifespanBySexCentury    = $statistic->getAverageLifespanBySexAndCentury();
+$survivalByCentury       = $statistic->getSurvivalCurveByCentury();
 $ageDistByCentury        = $statistic->getDeathAgeDistributionByCentury();
 
 $totalBirthsByMonth   = array_sum($birthsByMonth);
@@ -301,6 +302,26 @@ echo Card::for($module, I18N::translate('Average lifespan by sex × century'))
             ->withData($lifespanBySexCentury)
             ->withHeight(280)
             ->withAriaLabel(I18N::translate('Average lifespan by sex and century'))
+            ->render()
+    )
+    ->render();
+
+echo Card::for($module, I18N::translate('Survival curve'))
+    ->withSub(I18N::translate('Share of a birth cohort still alive at each age threshold'))
+    ->withEyebrow(I18N::translate('Demographics'))
+    ->withAccent(Accent::Slate)
+    ->withIllustration(Illustration::Hourglass)
+    ->withInfo(
+        I18N::translate('For every individual with both a birth and a death date recorded, the lifespan in whole years is derived. Each birth century forms one cohort and is sampled at ages 0, 10, 20, up to 100 — the value at age N is the share of the cohort that lived at least N years. Cohorts below 30 recorded individuals are dropped because a single death would shift the curve by more than three percentage points.'),
+        $aboutThisChart,
+        $aboutThisChart,
+    )
+    ->withSpan(12)
+    ->withBodyHtml(
+        Widget::lineChart($module, 'survival-curve')
+            ->withData($survivalByCentury)
+            ->with('yUnit', ' %')
+            ->withAriaLabel(I18N::translate('Survival curve per birth century'))
             ->render()
     )
     ->render();

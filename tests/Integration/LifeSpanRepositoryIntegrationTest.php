@@ -12,10 +12,12 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use Fisharebest\Webtrees\Tree;
+use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
 use MagicSunday\Webtrees\Statistic\Repository\LifeSpanRepository;
 use PHPUnit\Framework\Attributes\Test;
 
 use function array_keys;
+use function array_map;
 use function array_sum;
 use function array_values;
 use function count;
@@ -332,5 +334,82 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
         self::assertLessThan(1.0, $result->score);
         self::assertSame(1, $result->seasonCount);
         self::assertSame(12, $result->total);
+    }
+
+    /**
+     * Survival curve emits one series per qualifying birth century
+     * with monotonically falling values from 100 % at age 0 down
+     * to the post-100 floor. The fixture carries:
+     * * 19th + 20th century cohorts (30 individuals each, both qualify)
+     * * 18th-century cohort with 5 individuals (well below floor)
+     * * 17th-century cohort with 29 individuals — exactly one short
+     *   of the {@see MIN_COHORT_SIZE_SURVIVAL} floor, locking the
+     *   strict-less-than boundary against off-by-one regressions.
+     *
+     * Categories are always the 11 age anchors regardless of which
+     * cohorts pass the floor.
+     */
+    #[Test]
+    public function survivalFunctionByCenturyEmitsOneSeriesPerQualifyingCohort(): void
+    {
+        $tree   = $this->importFixtureTree('survival-curve-cohorts.ged');
+        $result = $this->repository($tree)->survivalFunctionByCentury();
+
+        self::assertSame(
+            ['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100'],
+            $result->categories,
+        );
+
+        // Only the 19th and 20th cohorts qualify. The 17th (29 INDI)
+        // and 18th (5 INDI) cohorts both sit below
+        // MIN_COHORT_SIZE_SURVIVAL=30 and are dropped from the output.
+        self::assertCount(2, $result->series, 'only the 19th + 20th cohorts clear MIN_COHORT_SIZE_SURVIVAL=30');
+
+        $seriesNames = array_map(
+            static fn (LineChartSeries $s): string => $s->name,
+            $result->series,
+        );
+
+        // Lock the chronological sort order so the positional reads
+        // below are guarded against a future re-sort of $cohorts.
+        self::assertSame(['19th', '20th'], $seriesNames, 'qualifying cohorts ordered chronologically');
+        self::assertNotContains('17th', $seriesNames, '29-INDI 17th cohort sits one below the floor and must be dropped');
+        self::assertNotContains('18th', $seriesNames, '5-INDI 18th cohort is far below the floor and must be dropped');
+
+        // 19th century cohort: 5 die at 5y, 5 at 25y, 10 at 65y, 10 at 80y.
+        $nineteenth = $result->series[0];
+        self::assertSame(100.0, $nineteenth->values[0], 'all 30 individuals are alive at age 0');
+        self::assertEqualsWithDelta(83.3, $nineteenth->values[1], 0.1, 'age 10: 25 of 30 reached');
+        self::assertEqualsWithDelta(66.7, $nineteenth->values[3], 0.1, 'age 30: 20 of 30 reached');
+        self::assertEqualsWithDelta(33.3, $nineteenth->values[7], 0.1, 'age 70: 10 of 30 reached');
+        self::assertEqualsWithDelta(33.3, $nineteenth->values[8], 0.1, 'age 80: 10 of 30 reached');
+        self::assertSame(0.0, $nineteenth->values[9], 'age 90: nobody from this cohort');
+
+        // 20th century cohort: 5 die at 50y, 15 at 80y, 10 at 95y.
+        $twentieth = $result->series[1];
+        self::assertSame(100.0, $twentieth->values[0]);
+        self::assertSame(100.0, $twentieth->values[5], 'age 50: those dying at 50 still count');
+        self::assertEqualsWithDelta(83.3, $twentieth->values[6], 0.1, 'age 60: 25 of 30 reached');
+        self::assertEqualsWithDelta(83.3, $twentieth->values[8], 0.1, 'age 80: 25 of 30 reached');
+        self::assertEqualsWithDelta(33.3, $twentieth->values[9], 0.1, 'age 90: 10 of 30 reached');
+        self::assertSame(0.0, $twentieth->values[10], 'age 100: nobody reached the centenarian anchor');
+    }
+
+    /**
+     * A tree with no recorded BIRT+DEAT pairs at all returns an
+     * empty payload (no categories, no series) so the widget
+     * surfaces the EmptyStatePlaceholder instead of an axis
+     * scaffold with zero lines. empty-marriages.ged carries one
+     * BIRT without a DEAT — exactly the case where every cohort
+     * stays empty.
+     */
+    #[Test]
+    public function survivalFunctionByCenturyReturnsEmptyPayloadWithoutRecordedDeaths(): void
+    {
+        $tree   = $this->importFixtureTree('empty-marriages.ged');
+        $result = $this->repository($tree)->survivalFunctionByCentury();
+
+        self::assertSame([], $result->categories);
+        self::assertSame([], $result->series);
     }
 }
