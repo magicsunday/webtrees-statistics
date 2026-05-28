@@ -136,6 +136,18 @@ final readonly class Statistic
     }
 
     /**
+     * Same-sex given-name passdown rate per child's birth century,
+     * two series on the same X axis: father → son and mother →
+     * daughter. Each series shows the share of children whose
+     * given names overlap with the same-sex parent's by at least
+     * one token, expressed as a 0..100 percentage.
+     */
+    public function getSameSexNamePassdownByCentury(): LineChartPayload
+    {
+        return $this->nameRepository->sameSexNamePassdownByCentury();
+    }
+
+    /**
      * Total individuals in the tree (every status, including the
      * unknown-sex and the deceased).
      */

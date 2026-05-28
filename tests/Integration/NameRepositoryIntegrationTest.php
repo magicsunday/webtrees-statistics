@@ -102,4 +102,93 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
 
         self::assertGreaterThan($threeOnly, $unbounded);
     }
+
+    /**
+     * Father → son name-passdown fixture carries three cohorts:
+     * 1700s with three pairs (below MIN_COHORT_SIZE=10, suppressed),
+     * 1800s with ten pairs and three matches (30 %% rate),
+     * 1900s with ten pairs and five matches (50 %% rate).
+     * Every father is named "Johann"; sons either repeat the
+     * father's name or carry a distinct "Different{n}" name.
+     *
+     * Locks the per-century rate computation, the cohort-floor
+     * suppression policy (the 1700s century still takes an X-axis
+     * slot but its value drops to zero with a "no data" tooltip),
+     * and the token comparison.
+     */
+    #[Test]
+    public function sameSexNamePassdownByCenturyComputesFatherSonRateAcrossCenturies(): void
+    {
+        $tree   = $this->importFixtureTree('father-son-name-passdown.ged');
+        $result = $this->repository($tree)->sameSexNamePassdownByCentury();
+
+        self::assertSame(['18th', '19th', '20th'], $result->categories, 'All three centuries appear chronologically');
+        self::assertCount(2, $result->series, 'Two series: father → son and mother → daughter');
+
+        $fatherSon = $result->series[0];
+        self::assertSame('Father → son', $fatherSon->name);
+
+        // 18th century: 3 pairs, sub-threshold → suppressed to 0.
+        self::assertSame(0, $fatherSon->values[0], '1700s falls below MIN_COHORT_SIZE and reads zero');
+
+        // 19th century: 10 pairs, 3 matches → 30 %.
+        self::assertEqualsWithDelta(30.0, $fatherSon->values[1], 0.05, '1800s sits at 30 % match rate');
+
+        // 20th century: 10 pairs, 5 matches → 50 %.
+        self::assertEqualsWithDelta(50.0, $fatherSon->values[2], 0.05, '1900s sits at 50 % match rate');
+
+        // Sub-threshold tooltip carries the "no data" caption so the
+        // hover explains why the line dips to zero without leaving a
+        // misleading 0 % suggestion.
+        self::assertStringContainsString('no data', $fatherSon->tooltips[0]);
+
+        // The fixture has no daughters at all so the mother → daughter
+        // series is suppressed across every century.
+        $motherDaughter = $result->series[1];
+        self::assertSame('Mother → daughter', $motherDaughter->name);
+        self::assertSame([0, 0, 0], $motherDaughter->values);
+    }
+
+    /**
+     * The existing `name-trends.ged` fixture carries no FAMC links,
+     * so the per-century passdown query yields zero parent-child
+     * pairs of either sex pairing and the method short-circuits to
+     * an empty payload.
+     */
+    #[Test]
+    public function sameSexNamePassdownByCenturyIsEmptyWithoutParentChildLinks(): void
+    {
+        $tree   = $this->importFixtureTree('name-trends.ged');
+        $result = $this->repository($tree)->sameSexNamePassdownByCentury();
+
+        self::assertSame([], $result->categories);
+        self::assertSame([], $result->series);
+    }
+
+    /**
+     * Multi-token match: a father named "Johann Friedrich" matches
+     * a son named "Wilhelm Friedrich" because "Friedrich" appears
+     * in both names. Pins the set-intersection semantics so a
+     * strict first-token regression would fail this test.
+     */
+    #[Test]
+    public function sameSexNamePassdownByCenturyMatchesAnyOverlappingToken(): void
+    {
+        $tree   = $this->importFixtureTree('father-son-name-passdown-multi-token.ged');
+        $result = $this->repository($tree)->sameSexNamePassdownByCentury();
+
+        // Fixture: 10 father-son pairs in the 1800s, 7 share at
+        // least one token, no mother-daughter pairs.
+        self::assertSame(['19th'], $result->categories);
+        self::assertCount(2, $result->series);
+
+        $fatherSon = $result->series[0];
+        self::assertSame('Father → son', $fatherSon->name);
+        self::assertEqualsWithDelta(70.0, $fatherSon->values[0], 0.05);
+
+        // Mother → daughter has zero pairs in this fixture.
+        $motherDaughter = $result->series[1];
+        self::assertSame(0, $motherDaughter->values[0]);
+        self::assertStringContainsString('no data', $motherDaughter->tooltips[0]);
+    }
 }
