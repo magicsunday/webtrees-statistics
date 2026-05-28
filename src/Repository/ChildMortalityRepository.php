@@ -194,7 +194,7 @@ final readonly class ChildMortalityRepository
      */
     private function fetchBirthDeathPairs(): array
     {
-        $rows = BirthDeathPairsQuery::for($this->tree)
+        $rows = BirthDeathPairsQuery::for($this->tree, true)
             ->select([
                 'birth.d_julianday1 AS birth_jd',
                 'birth.d_year AS birth_year',

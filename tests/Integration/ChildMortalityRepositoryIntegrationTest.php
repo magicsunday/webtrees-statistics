@@ -99,4 +99,81 @@ final class ChildMortalityRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame(0, $byCentury[20]['died']);
         self::assertSame(0.0, $byCentury[20]['rate']);
     }
+
+    /**
+     * Year-only BIRT records, BEF / AFT / ABT modifiers, and
+     * BET..AND / FROM..TO ranges all land in the `dates` table with
+     * `d_day = 0` and `d_mon = 0`, and webtrees still synthesises a
+     * default julian-day (typically 01.01.YYYY). The under-5
+     * threshold (`UNDER_FIVE_THRESHOLD_DAYS = 5 * 365 = 1825 days`)
+     * is day-precise, so a year-only BIRT 1872 + full-date DEAT
+     * 10 JUN 1875 would be misread as a ~3-year-old death — a
+     * phantom under-5 entry. BET..AND and FROM..TO additionally
+     * write TWO rows per single GEDCOM date, double-counting the
+     * individual in the JOIN.
+     *
+     * The dedicated fixture `child-mortality-edge-cases.ged` carries:
+     *
+     * * I1-I5: 19th-century full-date control — three under-5
+     *   (1850→1852, 1855→1858, 1860→1863) and two long-lived
+     *   (1865→1892, 1870→1955) → 5 pairs, 3 died, 60 %;
+     * * I6-I10: 19th-century modifier individuals — Year-only BIRT,
+     *   BEF BIRT, ABT DEAT, BET..AND BIRT (writes two BIRT rows),
+     *   FROM..TO DEAT (writes two DEAT rows) → must all be filtered
+     *   out before the rate count;
+     * * I11-I15: 20th-century full-date control — 5 long-lived
+     *   individuals, none under 5 → 0 % rate;
+     * * I16: 16th-century full-date singleton — under-5 death, but
+     *   below the `MIN_COHORT_SIZE = 5` floor → dropped from the
+     *   per-century breakdown, still in the tree-wide summary.
+     *
+     * Tree-wide summary post-filter: 5 + 5 + 1 = 11 valid pairs,
+     * 3 + 0 + 1 = 4 died → 4 / 11 ≈ 36.4 %. Without the filter the
+     * modifier-only individuals would flip every assertion: phantom
+     * under-5 counts from the year-only / BEF / ABT diffs, doubled
+     * BET..AND and FROM..TO rows inflating both `total` and `died`.
+     */
+    #[Test]
+    public function summaryExcludesYearOnlyAndModifierAffectedBirthDeathPairs(): void
+    {
+        $tree   = $this->importFixtureTree('child-mortality-edge-cases.ged');
+        $result = (new ChildMortalityRepository($tree))->summary();
+
+        self::assertNotNull($result);
+        self::assertSame(11, $result->total, '5 (19th control) + 5 (20th control) + 1 (16th singleton); modifier rows excluded');
+        self::assertSame(4, $result->died, '3 (19th under-5) + 0 (20th survived) + 1 (16th under-5)');
+        self::assertSame(36.4, $result->rate);
+    }
+
+    /**
+     * The per-century breakdown filters modifier-affected rows
+     * BEFORE the cohort-size gate. With the modifier rows still in,
+     * the 19th-century cohort would carry 10 individuals plus the
+     * BET..AND / FROM..TO doubles; with them out, the count locks
+     * back at the control's 5 individuals (3 died → 60 %). The 16th
+     * century stays below the `MIN_COHORT_SIZE = 5` floor and is
+     * dropped from the breakdown.
+     */
+    #[Test]
+    public function perCenturyBreakdownExcludesModifierAffectedPairsBeforeCohortGate(): void
+    {
+        $tree   = $this->importFixtureTree('child-mortality-edge-cases.ged');
+        $result = (new ChildMortalityRepository($tree))->byBirthCentury();
+
+        $byCentury = [];
+
+        foreach ($result as $entry) {
+            $byCentury[$entry['century']] = $entry;
+        }
+
+        self::assertArrayNotHasKey(16, $byCentury, '16th-century singleton stays below MIN_COHORT_SIZE');
+
+        self::assertSame(5, $byCentury[19]['total'], '19th-century cohort drops back to the 5 full-date controls');
+        self::assertSame(3, $byCentury[19]['died']);
+        self::assertSame(60.0, $byCentury[19]['rate']);
+
+        self::assertSame(5, $byCentury[20]['total']);
+        self::assertSame(0, $byCentury[20]['died']);
+        self::assertSame(0.0, $byCentury[20]['rate']);
+    }
 }

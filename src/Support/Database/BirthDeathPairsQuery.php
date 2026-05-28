@@ -48,15 +48,44 @@ final readonly class BirthDeathPairsQuery
      * Build an `individuals` query joined to dated BIRT (`birth`
      * alias) and DEAT (`death` alias) rows, restricted to the
      * given tree.
+     *
+     * Pass `$requireFullDate = true` when the consumer evaluates the
+     * BIRT-to-DEAT diff day-precisely (e.g. the child-mortality
+     * under-5 threshold). The flag drops year-only / month-only
+     * records and the BEF / AFT / ABT / BET..AND / FROM..TO modifier
+     * rows that webtrees writes with `d_day = 0` plus a synthesised
+     * default julian-day — the modifier rows would otherwise produce
+     * phantom under-5 entries from the 01.01.YYYY anchor, and
+     * BET..AND / FROM..TO would additionally double-count the same
+     * individual via their two-row encoding. Year-granularity
+     * consumers (mean lifespan, age distribution) leave the flag at
+     * its `false` default so their cohorts keep the historical-era
+     * modifier rows.
      */
-    public static function for(Tree $tree): Builder
+    public static function for(Tree $tree, bool $requireFullDate = false): Builder
     {
         return TreeScope::table($tree, 'individuals')
-            ->join('dates AS birth', static function (JoinClause $join): void {
-                DateJoin::on($join, 'birth', 'i_file', 'i_id', 'BIRT', DateJoin::JD_GREATER_THAN_ZERO);
+            ->join('dates AS birth', static function (JoinClause $join) use ($requireFullDate): void {
+                DateJoin::on(
+                    $join,
+                    'birth',
+                    'i_file',
+                    'i_id',
+                    'BIRT',
+                    DateJoin::JD_GREATER_THAN_ZERO,
+                    $requireFullDate,
+                );
             })
-            ->join('dates AS death', static function (JoinClause $join): void {
-                DateJoin::on($join, 'death', 'i_file', 'i_id', 'DEAT', DateJoin::JD_GREATER_THAN_ZERO);
+            ->join('dates AS death', static function (JoinClause $join) use ($requireFullDate): void {
+                DateJoin::on(
+                    $join,
+                    'death',
+                    'i_file',
+                    'i_id',
+                    'DEAT',
+                    DateJoin::JD_GREATER_THAN_ZERO,
+                    $requireFullDate,
+                );
             });
     }
 }
