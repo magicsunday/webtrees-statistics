@@ -112,6 +112,43 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
+     * Widowhood histogram only counts FAMs where BOTH spouses have a
+     * recorded DEAT. In the fixture, only F1 qualifies: Anton died
+     * 1925, Berta died 1920 — a 5-year widowhood for Anton. F2 has
+     * an undated wife DEAT (Doris), F3 has neither spouse dated, so
+     * neither contributes. The single qualifying pair lands in the
+     * 5–9 band.
+     */
+    #[Test]
+    public function widowhoodYearsDistributionCountsOnlyFamsWithBothDeats(): void
+    {
+        $tree   = $this->importFixtureTree('marriage.ged');
+        $result = $this->repository($tree)->widowhoodYearsDistribution();
+
+        self::assertSame(1, $result['5–9'] ?? null, 'F1: Anton outlived Berta by 5 years');
+        self::assertSame(1, array_sum($result), 'F2 + F3 contribute nothing (missing DEAT)');
+    }
+
+    /**
+     * The histogram always returns the full 11-band scaffold
+     * (0–4, 5–9, ..., 45–49, 50+) so the BarChart consumer renders
+     * a continuous axis even on a tree with zero qualifying
+     * couples. The empty-marriages fixture carries one INDI with
+     * a BIRT but no FAM, so no row qualifies.
+     */
+    #[Test]
+    public function widowhoodYearsDistributionExposesAllBandsEvenWhenEmpty(): void
+    {
+        $tree   = $this->importFixtureTree('empty-marriages.ged');
+        $result = $this->repository($tree)->widowhoodYearsDistribution();
+
+        self::assertCount(11, $result, 'Always returns 11 bands (0-4 through 50+)');
+        self::assertSame(0, array_sum($result));
+        self::assertArrayHasKey('0–4', $result);
+        self::assertArrayHasKey('50+', $result);
+    }
+
+    /**
      * `weddingsByMonth` returns the GEDCOM month-keyed counts
      * directly: JUN ×2 (F1 + F3), SEP ×1 (F2).
      */

@@ -117,7 +117,13 @@ echo Card::for($module, I18N::translate('Same-sex name passdown'))
     ->withEyebrow(I18N::translate('Tradition'))
     ->withAccent(Accent::Ochre)
     ->withIllustration(Illustration::Tree)
-    ->withInfo(I18N::translate('For every parent-child pair of the same sex (father / son and mother / daughter) where both individuals carry a recorded given name, the widget tokenises each name and counts the pair as a match when at least one token appears on both sides. Order and position do not matter. The chart carries one series per sex pairing on a shared X axis, so the two traditions can be compared at a glance. Centuries with fewer than 10 recorded pairs are suppressed independently per series because a single match would swing the rate by more than 10 percentage points.'), $aboutThisChart, $aboutThisChart)
+    ->withInfo(
+        I18N::translate(
+            'For every parent-child pair of the same sex (father / son and mother / daughter) where both individuals carry a recorded given name, the widget tokenises each name and counts the pair as a match when at least one token appears on both sides. Order and position do not matter. The chart carries one series per sex pairing on a shared X axis, so the two traditions can be compared at a glance. Centuries with fewer than 10 recorded pairs are suppressed independently per series because a single match would swing the rate by more than 10 percentage points.'
+        ),
+        $aboutThisChart,
+        $aboutThisChart
+    )
     ->withSpan(12)
     ->withBodyHtml(
         Widget::lineChart($module, 'same-sex-name-passdown-line')

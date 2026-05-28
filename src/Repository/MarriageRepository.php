@@ -74,6 +74,17 @@ final class MarriageRepository
     private const int AGE_GAP_LIMIT_HI = 30;
 
     /**
+     * Widowhood / widower interval histogram is 5-year wide and
+     * runs up to a 50+ overflow band. 50 years matches the lifespan
+     * ceiling beyond which the survivor's own death is most likely
+     * a stale data import rather than a real long widowhood; the
+     * overflow band still anchors the long tail.
+     */
+    private const int WIDOWHOOD_BUCKET = 5;
+
+    private const int WIDOWHOOD_MAX = 50;
+
+    /**
      * Plausibility band for the spouse-at-marriage and longest-marriage
      * records. Anything below this minimum is most likely a data-entry
      * error (BIRT and MARR swapped); anything above is either a
@@ -516,6 +527,63 @@ final class MarriageRepository
                 $label = $this->signedBucketLabel($edge + self::AGE_GAP_BUCKET);
             }
 
+            $buckets[$label] = ($buckets[$label] ?? 0) + 1;
+        }
+
+        return $buckets;
+    }
+
+    /**
+     * Widowhood / widower-interval histogram: for every FAM where
+     * both spouses carry a recorded DEAT date, computes the number
+     * of full years the survivor outlived the first-deceased partner
+     * and groups the results into 5-year bands up to a 50+ overflow.
+     * Couples where both spouses died on the same julian day land in
+     * the 0–4 band; rows where neither spouse outlived the other
+     * (impossible by construction once both DEAT exist) are still
+     * tolerated and skipped silently.
+     *
+     * The repository keeps the result in `[bucketLabel => count]`
+     * shape so the consumer mirrors the existing duration / age-gap
+     * histograms instead of carrying a new payload contract.
+     *
+     * @return array<string, int>
+     */
+    public function widowhoodYearsDistribution(): array
+    {
+        $rows = TreeScope::table($this->tree, 'families')
+            ->join('dates AS husb_d', static function (JoinClause $join): void {
+                DateJoin::on($join, 'husb_d', 'f_file', 'f_husb', 'DEAT', DateJoin::JD_NOT_EQUAL_ZERO);
+            })
+            ->join('dates AS wife_d', static function (JoinClause $join): void {
+                DateJoin::on($join, 'wife_d', 'f_file', 'f_wife', 'DEAT', DateJoin::JD_NOT_EQUAL_ZERO);
+            })
+            ->select([
+                'husb_d.d_julianday1 AS husb_jd',
+                'wife_d.d_julianday1 AS wife_jd',
+            ])
+            ->get();
+
+        $buckets = AgeBuckets::init(0, self::WIDOWHOOD_MAX, self::WIDOWHOOD_BUCKET);
+
+        foreach ($rows as $row) {
+            $husbJd = RowCast::int($row, 'husb_jd');
+            $wifeJd = RowCast::int($row, 'wife_jd');
+
+            if ($husbJd <= 0) {
+                continue;
+            }
+
+            if ($wifeJd <= 0) {
+                continue;
+            }
+
+            // abs() so the band reads as widowhood length regardless
+            // of which spouse outlived the other — the histogram is
+            // about the gap, not the sex of the survivor.
+            $years = intdiv(abs($husbJd - $wifeJd), 365);
+
+            $label           = AgeBuckets::label($years, self::WIDOWHOOD_MAX, self::WIDOWHOOD_BUCKET);
             $buckets[$label] = ($buckets[$label] ?? 0) + 1;
         }
 

@@ -97,6 +97,20 @@ foreach ($duration as $label => $count) {
     ];
 }
 
+$widowhoodDistribution = $statistic->getWidowhoodYearsDistribution();
+$totalWidowhood        = array_sum($widowhoodDistribution);
+
+$widowhoodRows = [];
+
+foreach ($widowhoodDistribution as $label => $count) {
+    $widowhoodRows[] = [
+        'label'        => $label,
+        'value'        => (int) $count,
+        'tooltipLabel' => I18N::translate('%s years', $label),
+        'tooltip'      => I18N::plural('%s couple', '%s couples', $count, I18N::number($count)),
+    ];
+}
+
 $ageGapRows = CoupleAgeGapRowMapper::toRows($ageGap);
 
 $childrenPerFamilyBars = [];
@@ -125,7 +139,13 @@ echo Card::for($module, I18N::translate('Age at marriage'))
     ->withEyebrow(I18N::translate('Life event'))
     ->withAccent(Accent::Wine)
     ->withIllustration(Illustration::Rings)
-    ->withInfo(I18N::translate('Age at first marriage. The mirror axis separates husbands and wives, as shown by the labels at each side. Both sides share the same age bands, so the two distributions can be compared at a glance.'), $aboutThisChart, $aboutThisChart)
+    ->withInfo(
+        I18N::translate(
+            'Age at first marriage. The mirror axis separates husbands and wives, as shown by the labels at each side. Both sides share the same age bands, so the two distributions can be compared at a glance.'
+        ),
+        $aboutThisChart,
+        $aboutThisChart
+    )
     ->withSpan(12)
     ->withBodyHtml(
         Widget::mirrorHistogram($module)
@@ -142,7 +162,13 @@ echo Card::for($module, I18N::translate('Marriage duration'))
     ->withEyebrow(I18N::translate('Marriage'))
     ->withAccent(Accent::Wine)
     ->withIllustration(Illustration::Rings)
-    ->withInfo(I18N::translate('Distribution of marriage durations grouped into bands, computed from couples with both marriage and dissolution (divorce or spouse death) dates recorded.'), $aboutThisChart, $aboutThisChart)
+    ->withInfo(
+        I18N::translate(
+            'Distribution of marriage durations grouped into bands, computed from couples with both marriage and dissolution (divorce or spouse death) dates recorded.'
+        ),
+        $aboutThisChart,
+        $aboutThisChart
+    )
     ->withSpan(6)
     ->withBodyHtml(
         Widget::barChart($module, 'marriage-duration-bar')
@@ -160,7 +186,13 @@ echo Card::for($module, I18N::translate('Couple age gap'))
     ->withEyebrow(I18N::translate('Marriage'))
     ->withAccent(Accent::Slate)
     ->withIllustration(Illustration::Rings)
-    ->withInfo(I18N::translate('Age difference between spouses at marriage. Negative values mark couples where the husband was the older partner. Positive values mark couples where the wife was older. Each bar covers a 5-year range. The band labelled 30+ collects every gap of 30 years or more.'), $aboutThisChart, $aboutThisChart)
+    ->withInfo(
+        I18N::translate(
+            'Age difference between spouses at marriage. Negative values mark couples where the husband was the older partner. Positive values mark couples where the wife was older. Each bar covers a 5-year range. The band labelled 30+ collects every gap of 30 years or more.'
+        ),
+        $aboutThisChart,
+        $aboutThisChart
+    )
     ->withSpan(6)
     ->withBodyHtml(
         Widget::divergingBar($module, 'couple-age-gap-diverging')
@@ -212,7 +244,13 @@ echo Card::for($module, I18N::translate('Age at first child'))
     ->withEyebrow(I18N::translate('Parenthood'))
     ->withAccent(Accent::Ochre)
     ->withIllustration(Illustration::Child)
-    ->withInfo(I18N::translate('Age of each parent at the birth of their first child. The mirror axis separates fathers and mothers, as shown by the labels at each side. Both sides share the same age bands, so the two distributions can be compared at a glance.'), $aboutThisChart, $aboutThisChart)
+    ->withInfo(
+        I18N::translate(
+            'Age of each parent at the birth of their first child. The mirror axis separates fathers and mothers, as shown by the labels at each side. Both sides share the same age bands, so the two distributions can be compared at a glance.'
+        ),
+        $aboutThisChart,
+        $aboutThisChart
+    )
     ->withSpan(8)
     ->withBodyHtml(
         Widget::mirrorHistogram($module)
@@ -244,7 +282,13 @@ echo Card::for($module, I18N::translate('Mean age at first child by decade'))
     ->withEyebrow(I18N::translate('Evolution'))
     ->withAccent(Accent::Sage)
     ->withIllustration(Illustration::Child)
-    ->withInfo(I18N::translate('Each point shows the average parental age in full years. The two lines are computed separately for fathers and mothers, as shown by the legend. A decade is only drawn for a given parent if at least five parents of that sex appear in it. Decades with fewer samples are dropped from that line, so a single outlier cannot distort the trend. The other line continues uninterrupted. Hover any point to see how many parents the average is based on.'), $aboutThisChart, $aboutThisChart)
+    ->withInfo(
+        I18N::translate(
+            'Each point shows the average parental age in full years. The two lines are computed separately for fathers and mothers, as shown by the legend. A decade is only drawn for a given parent if at least five parents of that sex appear in it. Decades with fewer samples are dropped from that line, so a single outlier cannot distort the trend. The other line continues uninterrupted. Hover any point to see how many parents the average is based on.'
+        ),
+        $aboutThisChart,
+        $aboutThisChart
+    )
     ->withSpan(12)
     ->withBodyHtml(
         Widget::lineChart($module, 'age-at-first-child-by-decade-line')
@@ -264,7 +308,13 @@ echo Card::for($module, I18N::translate('Children per family'))
     ->withEyebrow(I18N::translate('Family size'))
     ->withAccent(Accent::Ochre)
     ->withIllustration(Illustration::Child)
-    ->withInfo(I18N::translate('Distribution of children counts across families with at least one recorded child. Hover a bar for the number of families landing on that exact child count.'), $aboutThisChart, $aboutThisChart)
+    ->withInfo(
+        I18N::translate(
+            'Distribution of children counts across families with at least one recorded child. Hover a bar for the number of families landing on that exact child count.'
+        ),
+        $aboutThisChart,
+        $aboutThisChart
+    )
     ->withSpan(6)
     ->withBodyHtml(
         Widget::barChart($module, 'children-per-family-bars')
@@ -280,7 +330,13 @@ echo Card::for($module, I18N::translate('Sibling age gap'))
     ->withEyebrow(I18N::translate('Family'))
     ->withAccent(Accent::Sage)
     ->withIllustration(Illustration::Child)
-    ->withInfo(I18N::translate('Age difference between consecutive siblings in the same family. Very small gaps (< 1 year) often signal twins or close-spaced births; very large gaps (10+ years) typically reflect second marriages or long intervals.'), $aboutThisChart, $aboutThisChart)
+    ->withInfo(
+        I18N::translate(
+            'Age difference between consecutive siblings in the same family. Very small gaps (< 1 year) often signal twins or close-spaced births; very large gaps (10+ years) typically reflect second marriages or long intervals.'
+        ),
+        $aboutThisChart,
+        $aboutThisChart
+    )
     ->withSpan(6)
     ->withBodyHtml(
         Widget::lineChart($module, 'sibling-age-gap-line')
@@ -295,7 +351,13 @@ echo Card::for($module, I18N::translate('Family size composition share by decade
     ->withEyebrow(I18N::translate('Shift'))
     ->withAccent(Accent::Wine)
     ->withIllustration(Illustration::Family)
-    ->withInfo(I18N::translate('For every marriage decade the bar is split into segments by the number of children (0, 1, 2 … 10+). Each bar is normalised to 100 %%, so decades with very different family counts can be compared side by side.'), $aboutThisChart, $aboutThisChart)
+    ->withInfo(
+        I18N::translate(
+            'For every marriage decade the bar is split into segments by the number of children (0, 1, 2 … 10+). Each bar is normalised to 100 %%, so decades with very different family counts can be compared side by side.'
+        ),
+        $aboutThisChart,
+        $aboutThisChart
+    )
     ->withSpan(12)
     ->withBodyHtml(
         Widget::stackedBar($module, 'family-size-stacked-percent-by-decade')
@@ -359,7 +421,13 @@ echo Card::for($module, I18N::translate('Divorce rate per marriage cohort'))
     ->withEyebrow(I18N::translate('Evolution'))
     ->withAccent(Accent::Wine)
     ->withIllustration(Illustration::BrokenHeart)
-    ->withInfo(I18N::translate('For each marriage decade, the share of those marriages that are recorded as ending in divorce. Tracks how openly the tree records dissolutions over time rather than the underlying historical rate.'), $aboutThisChart, $aboutThisChart)
+    ->withInfo(
+        I18N::translate(
+            'For each marriage decade, the share of those marriages that are recorded as ending in divorce. Tracks how openly the tree records dissolutions over time rather than the underlying historical rate.'
+        ),
+        $aboutThisChart,
+        $aboutThisChart
+    )
     ->withSpan(12)
     ->withBodyHtml(
         Widget::lineChart($module, 'divorce-cohort-line')
@@ -414,7 +482,13 @@ echo Card::for($module, I18N::translate('Divorces by age band'))
     ->withEyebrow(I18N::translate('Age'))
     ->withAccent(Accent::Deceased)
     ->withIllustration(Illustration::BrokenHeart)
-    ->withInfo(I18N::translate('Age of each spouse at the recorded divorce date. The mirror axis separates men and women, as shown by the labels at each side. Both sides share the same age bands, so the two distributions can be compared side by side. Empty bands stay visible, so cohort gaps are not hidden.'), $aboutThisChart, $aboutThisChart)
+    ->withInfo(
+        I18N::translate(
+            'Age of each spouse at the recorded divorce date. The mirror axis separates men and women, as shown by the labels at each side. Both sides share the same age bands, so the two distributions can be compared side by side. Empty bands stay visible, so cohort gaps are not hidden.'
+        ),
+        $aboutThisChart,
+        $aboutThisChart
+    )
     ->withSpan(4)
     ->withBodyHtml(
         Widget::mirrorHistogram($module)
@@ -422,6 +496,33 @@ echo Card::for($module, I18N::translate('Divorces by age band'))
             ->with('bottom', $divorceAgeFRows)
             ->with('topLabel', I18N::translate('Men'))
             ->with('bottomLabel', I18N::translate('Women'))
+            ->render()
+    )
+    ->render();
+
+echo Section::create(I18N::translate("After the partner's death"))
+    ->withKicker(I18N::translate('Widowhood'))
+    ->withSub(I18N::translate('How long the surviving spouse outlived the first-deceased partner'))
+    ->render();
+
+echo Card::for($module, I18N::translate('Widowhood interval'))
+    ->withSub(I18N::plural("%s couple with both partners' death dates recorded", "%s couples with both partners' death dates recorded", $totalWidowhood, I18N::number($totalWidowhood)))
+    ->withEyebrow(I18N::translate('Life span'))
+    ->withAccent(Accent::Deceased)
+    ->withIllustration(Illustration::Candle)
+    ->withInfo(
+        I18N::translate(
+            'For every couple where both spouses carry a recorded date of death, the gap in whole years between the two death dates lands the couple in a 5-year band. The 50+ band captures the long tail. Couples where neither spouse has a recorded death date are excluded — the interval is undefined without both anchors.'
+        ),
+        $aboutThisChart,
+        $aboutThisChart
+    )
+    ->withSpan(6)
+    ->withBodyHtml(
+        Widget::barChart($module, 'widowhood-interval-bars')
+            ->withData($widowhoodRows)
+            ->with('xLabel', I18N::translate('Years'))
+            ->withAriaLabel(I18N::translate('Widowhood interval'))
             ->render()
     )
     ->render();

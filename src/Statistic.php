@@ -689,6 +689,19 @@ final readonly class Statistic
     }
 
     /**
+     * Widowhood / widower-interval histogram (5-year bands up to
+     * 50+) — for FAMs where both spouses carry a recorded DEAT,
+     * the number of years the survivor outlived the first-deceased
+     * partner.
+     *
+     * @return array<string, int>
+     */
+    public function getWidowhoodYearsDistribution(): array
+    {
+        return $this->marriageRepository->widowhoodYearsDistribution();
+    }
+
+    /**
      * Couple age-gap histogram (symmetric 5-year bands centred on
      * zero). Negative buckets mean husband older than wife
      * (`husbandBirthJd < wifeBirthJd` → husband born first).

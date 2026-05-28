@@ -299,7 +299,13 @@ echo Card::for($module, I18N::translate('Top 10 most-influential ancestors'))
     ->withEyebrow(I18N::translate('Reach'))
     ->withAccent(Accent::Ochre)
     ->withIllustration(Illustration::Tree)
-    ->withInfo(I18N::translate('For every individual in the tree the widget counts how many descendants are recorded below them across all generations. A descendant reached through two different grandparents is counted once per ancestor. The ranking surfaces the people whose branches actually carry the rest of the recorded lineage.'), $aboutThisChart, $aboutThisChart)
+    ->withInfo(
+        I18N::translate(
+            'For every individual in the tree the widget counts how many descendants are recorded below them across all generations. A descendant reached through two different grandparents is counted once per ancestor. The ranking surfaces the people whose branches actually carry the rest of the recorded lineage.'
+        ),
+        $aboutThisChart,
+        $aboutThisChart
+    )
     ->withSpan(6)
     ->withBodyHtml(
         Component::podium($module)
