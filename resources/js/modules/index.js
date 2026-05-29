@@ -156,6 +156,10 @@ export function renderWidgets(root) {
         window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const revealOnScroll = reduceMotion === false && typeof IntersectionObserver !== "undefined";
     const instanceByNode = revealOnScroll ? new WeakMap() : null;
+    // Collected during the draw pass and revealed in a second pass, so the
+    // getBoundingClientRect reads batch into a single layout flush instead of
+    // forcing a reflow after every widget's draw.
+    const pendingReveals = revealOnScroll ? [] : null;
 
     /**
      * Play a widget's held entrance if it exposes one. Idempotent — BaseWidget
@@ -259,6 +263,8 @@ export function renderWidgets(root) {
         // instance is known before it is observed (no unobserve-before-resolve
         // race).
         if (instance instanceof Promise) {
+            // Async widgets resolve in their own microtask, after the draw pass
+            // has flushed layout, so they can reveal directly.
             instance.then((resolved) => {
                 connectToBus(resolved, bus, widgets);
                 if (revealOnScroll) {
@@ -267,15 +273,24 @@ export function renderWidgets(root) {
             });
         } else {
             connectToBus(instance, bus, widgets);
-            if (revealOnScroll) {
-                revealWhenSeen(node, instance);
+            if (pendingReveals !== null) {
+                pendingReveals.push({ node, instance });
             }
         }
     };
 
+    // Pass 1: draw every widget (layout-affecting writes batch together).
     nodes.forEach((node) => {
         renderNode(node);
     });
+
+    // Pass 2: arm the reveals. All draws are done, so the getBoundingClientRect
+    // reads here trigger a single layout flush rather than one per widget.
+    if (pendingReveals !== null) {
+        pendingReveals.forEach(({ node, instance }) => {
+            revealWhenSeen(node, instance);
+        });
+    }
 
     initPopovers(root);
     initPlacesPanelTabs(root);
