@@ -1,0 +1,57 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+use MagicSunday\Webtrees\Statistic\Model\Pyramid\PopulationPyramidPayload;
+use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
+use MagicSunday\Webtrees\Statistic\View\EmptyStatePlaceholder;
+
+/**
+ * Population-pyramid widget shell. Emits a `data-widget="population-pyramid"`
+ * marker carrying the `{centuries, bands, data}` payload. Bar and picker
+ * colours come from CSS (`.wt-stat-pyramid-bar-m`, `-f`, `.wt-stat-pyramid-century`)
+ * — not from PHP options. The century labels in the payload are already
+ * localised, so the widget renders them verbatim. The male/female captions are
+ * passed in pre-translated by the caller so xgettext extracts them at the
+ * tab call-site rather than inside this shared partial.
+ *
+ * @var string                   $identifier  Host element id
+ * @var PopulationPyramidPayload $data        Century × age-band × sex payload
+ * @var int|null                 $height      Optional viewport height (defaults to 460)
+ * @var string|null              $ariaLabel   Accessible label on the host svg
+ * @var string|null              $maleLabel   Pre-translated caption for the male column
+ * @var string|null              $femaleLabel Pre-translated caption for the female column
+ * @var string|null              $source      Crossfilter source id for the shared selection bus
+ */
+$height ??= 460;
+
+if ($data->centuries === []) {
+    echo EmptyStatePlaceholder::render();
+
+    return;
+}
+
+$options = [
+    'height'      => $height,
+    'ariaLabel'   => $ariaLabel ?? null,
+    'maleLabel'   => $maleLabel ?? null,
+    'femaleLabel' => $femaleLabel ?? null,
+];
+
+if (isset($source) && ($source !== '')) {
+    $options['source'] = $source;
+}
+?>
+<div class="wt-stat-pyramid-host"
+     id="<?php echo e($identifier); ?>"
+     data-widget="population-pyramid"
+     data-payload="<?php echo WidgetJson::encodeAttribute($data); ?>"
+     data-options="<?php echo WidgetJson::encodeAttribute($options); ?>"
+     data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"></div>

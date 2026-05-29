@@ -22,6 +22,7 @@ const sankeyFlowDrawSpy = jest.fn();
 const worldMapDrawSpy = jest.fn();
 const worldMapPlayEntrySpy = jest.fn();
 const lineChartDrawSpy = jest.fn();
+const populationPyramidDrawSpy = jest.fn();
 
 class DonutChart {
     constructor(node, options) {
@@ -105,6 +106,15 @@ class MirrorHistogram {
 class BoxPlot {
     draw() {}
 }
+class PopulationPyramid {
+    constructor(node, options) {
+        this.node = node;
+        this.options = options;
+    }
+    draw(data) {
+        populationPyramidDrawSpy(this.node, data, this.options);
+    }
+}
 
 jest.unstable_mockModule("@magicsunday/webtrees-chart-lib", () => ({
     DonutChart,
@@ -121,6 +131,7 @@ jest.unstable_mockModule("@magicsunday/webtrees-chart-lib", () => ({
     GaugeArc,
     MirrorHistogram,
     BoxPlot,
+    PopulationPyramid,
 }));
 
 // world-map dispatch is async (geojson fetch); mock d3-fetch + d3-geo
@@ -143,6 +154,7 @@ describe("renderWidgets", () => {
         streamGraphDrawSpy.mockClear();
         sankeyFlowDrawSpy.mockClear();
         lineChartDrawSpy.mockClear();
+        populationPyramidDrawSpy.mockClear();
         document.body.innerHTML = "";
     });
 
@@ -183,6 +195,28 @@ describe("renderWidgets", () => {
         expect(streamGraphDrawSpy).toHaveBeenCalledTimes(1);
         const [, , options] = streamGraphDrawSpy.mock.calls[0];
         expect(options).toEqual({ height: 280 });
+    });
+
+    test("dispatches a population-pyramid widget when data-widget=population-pyramid", () => {
+        document.body.innerHTML = `
+            <div id="p1"
+                 data-widget="population-pyramid"
+                 data-payload='{"centuries":["19th cent."],"bands":["0–9"],"data":[[{"m":2,"f":1}]]}'
+                 data-options='{"height":460,"maleLabel":"Male","femaleLabel":"Female"}'></div>
+        `;
+
+        renderWidgets(document.body);
+
+        expect(populationPyramidDrawSpy).toHaveBeenCalledTimes(1);
+        const [node, data, options] = populationPyramidDrawSpy.mock.calls[0];
+        expect(node.id).toBe("p1");
+        expect(data).toEqual({
+            centuries: ["19th cent."],
+            bands: ["0–9"],
+            data: [[{ m: 2, f: 1 }]],
+        });
+        expect(options.maleLabel).toBe("Male");
+        expect(options.femaleLabel).toBe("Female");
     });
 
     test("ignores nodes without data-widget attribute", () => {

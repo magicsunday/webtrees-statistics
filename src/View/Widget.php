@@ -206,6 +206,22 @@ final readonly class Widget
     }
 
     /**
+     * Start a new population-pyramid widget host. Pass the
+     * `{centuries, bands, data}` payload via `withData(...)`; the male/female
+     * captions and crossfilter source flow through `with(...)`.
+     */
+    public static function populationPyramid(string $module, string $identifier): self
+    {
+        return new self(
+            $module,
+            'population-pyramid',
+            [
+                'identifier' => $identifier,
+            ]
+        );
+    }
+
+    /**
      * Start a new sankey-flow widget host.
      */
     public static function sankeyFlow(string $module, string $identifier): self

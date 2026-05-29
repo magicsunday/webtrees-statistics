@@ -23,6 +23,7 @@ use MagicSunday\Webtrees\ModuleBase\Processor\NameProcessor;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
 use MagicSunday\Webtrees\Statistic\Model\Metric\WinterPeakScore;
+use MagicSunday\Webtrees\Statistic\Model\Pyramid\PopulationPyramidPayload;
 use MagicSunday\Webtrees\Statistic\Model\Ranking\RankingEntry;
 use MagicSunday\Webtrees\Statistic\Model\Record\IndividualAgeRecord;
 use MagicSunday\Webtrees\Statistic\Support\Calc\HistogramTrim;
@@ -749,6 +750,98 @@ final readonly class LifeSpanRepository
     }
 
     /**
+     * Age-at-death distribution split by sex, faceted by birth century — the
+     * payload behind the population-pyramid widget. Reuses the exact cohort
+     * definition the box-plot sibling ({@see deathAgeDistributionByCentury()})
+     * applies: one BIRT+DEAT pair per individual, birth-century classification,
+     * age in whole years capped at the tree's plausibility ceiling. Unlike the
+     * cohort-mean and box-plot metrics, zero-year lifespans are KEPT — an infant
+     * death belongs in the youngest band and carries real demographic signal in
+     * a pyramid.
+     *
+     * Bands are emitted oldest-first (100+ at the top) so the chart reads as a
+     * conventional pyramid with the youngest cohort at the base. Centuries with
+     * no qualifying death never enter the output, so the picker only ever lists
+     * populated columns. An empty tree yields empty axes, which the widget
+     * renders as its empty state.
+     */
+    public function deathsByCenturyAgeBandSex(): PopulationPyramidPayload
+    {
+        $maxAge = $this->maxPlausibleAge();
+
+        $rows = BirthDeathPairsQuery::for($this->tree)
+            ->whereIn('i_sex', ['M', 'F'])
+            ->select([
+                'i_sex AS sex',
+                ...$this->aggregatedPairColumns(),
+            ])
+            ->groupBy('individuals.i_id', 'individuals.i_sex')
+            ->get();
+
+        $bands = $this->ageBandLabels();
+
+        // Two flat `[century][band] => count` tallies kept separate per sex.
+        // Building the `{m, f}` cells as literals at the end (rather than
+        // mutating a pre-filled map through a dynamic band key) keeps the
+        // static array{m: int, f: int} shape the payload constructor expects.
+        /** @var array<int, array<string, int>> $male */
+        $male = [];
+        /** @var array<int, array<string, int>> $female */
+        $female = [];
+        /** @var array<int, bool> $seenCenturies */
+        $seenCenturies = [];
+
+        foreach ($rows as $row) {
+            $cohort = $this->birthDeathCohortOrNull($row, $maxAge);
+
+            if ($cohort === null) {
+                continue;
+            }
+
+            $century = $cohort['century'];
+            $band    = $this->ageBandLabel($cohort['years']);
+
+            $seenCenturies[$century] = true;
+
+            if ($row->sex === 'F') {
+                $female[$century][$band] = ($female[$century][$band] ?? 0) + 1;
+            } else {
+                $male[$century][$band] = ($male[$century][$band] ?? 0) + 1;
+            }
+        }
+
+        if ($seenCenturies === []) {
+            return new PopulationPyramidPayload(centuries: [], bands: [], data: []);
+        }
+
+        ksort($seenCenturies);
+
+        $centuries = [];
+        $data      = [];
+
+        foreach ($seenCenturies as $century => $_present) {
+            $centuries[] = CenturyName::compactLabel(CenturyName::for($century));
+
+            $column = [];
+
+            foreach ($bands as $band) {
+                $column[] = [
+                    'm' => $male[$century][$band] ?? 0,
+                    'f' => $female[$century][$band] ?? 0,
+                ];
+            }
+
+            $data[] = $column;
+        }
+
+        return new PopulationPyramidPayload(
+            centuries: $centuries,
+            bands: $bands,
+            data: $data,
+        );
+    }
+
+    /**
      * Column set every cohort query selects on top of {@see
      * BirthDeathPairsQuery} so the per-individual aggregation stays consistent
      * across `deathAgeDistributionByCentury`, `averageLifespanBySexAndCentury`
@@ -957,6 +1050,39 @@ final readonly class LifeSpanRepository
     private function bucketLabel(int $lowerAge): string
     {
         return $lowerAge . '–' . ($lowerAge + self::BUCKET_WIDTH - 1);
+    }
+
+    /**
+     * The full age-at-death band axis in oldest-first order — "100+", "90–99",
+     * …, "0–9" — so the population pyramid stacks the oldest cohort at the top
+     * and the youngest at the base. Mirrors the bucketing of {@see
+     * ageAtDeathDistribution()} so the two LifeSpan widgets bin identically.
+     *
+     * @return list<string>
+     */
+    private function ageBandLabels(): array
+    {
+        $labels = [$this->overflowLabel()];
+
+        for ($age = self::MAX_BUCKET - self::BUCKET_WIDTH; $age >= 0; $age -= self::BUCKET_WIDTH) {
+            $labels[] = $this->bucketLabel($age);
+        }
+
+        return $labels;
+    }
+
+    /**
+     * Map a whole-year age at death onto its {@see ageBandLabels()} band,
+     * collapsing everything at or beyond {@see MAX_BUCKET} onto the "100+"
+     * overflow band.
+     */
+    private function ageBandLabel(int $years): string
+    {
+        if ($years >= self::MAX_BUCKET) {
+            return $this->overflowLabel();
+        }
+
+        return $this->bucketLabel(intdiv($years, self::BUCKET_WIDTH) * self::BUCKET_WIDTH);
     }
 
     /**

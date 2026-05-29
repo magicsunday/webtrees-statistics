@@ -21,6 +21,7 @@ use MagicSunday\Webtrees\Statistic\Model\Metric\EndogamyRate;
 use MagicSunday\Webtrees\Statistic\Model\Metric\PlaceDispersionSummary;
 use MagicSunday\Webtrees\Statistic\Model\Metric\RateCount;
 use MagicSunday\Webtrees\Statistic\Model\Metric\WinterPeakScore;
+use MagicSunday\Webtrees\Statistic\Model\Pyramid\PopulationPyramidPayload;
 use MagicSunday\Webtrees\Statistic\Model\Ranking\RankingEntry;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyFlowsPayload;
 use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarPayload;
@@ -481,6 +482,17 @@ final readonly class Statistic
     public function getDeathAgeDistributionByCentury(): array
     {
         return $this->lifeSpanRepository->deathAgeDistributionByCentury();
+    }
+
+    /**
+     * Age-at-death distribution split by sex and faceted by birth century —
+     * feeds the population-pyramid widget on the LifeSpan tab. Same cohort
+     * definition as {@see getDeathAgeDistributionByCentury()}, binned into
+     * 10-year age bands per sex.
+     */
+    public function getDeathsByCenturyAgeBandSex(): PopulationPyramidPayload
+    {
+        return $this->lifeSpanRepository->deathsByCenturyAgeBandSex();
     }
 
     /**

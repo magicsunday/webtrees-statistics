@@ -2868,6 +2868,99 @@
 }
 
 /* ----------------------------------------------------------------------
+   Population pyramid — horizontal mirrored bars of one age-band count
+   series per sex, with a century picker above the chart. Male bars grow
+   left from the centre gutter, female bars grow right; the band labels
+   print once in the gutter. Bar tones reuse the shared sex tokens
+   (`--wmstats-sex-male` / `--wmstats-sex-female`), so the dark-mode
+   palette adapts without a per-rule override. The picker echoes the
+   card's sage eyebrow via `--pyramid-accent`.
+   -------------------------------------------------------------------- */
+.wt-statistics-chart .wt-stat-pyramid {
+    --pyramid-accent: var(--sage);
+}
+
+.wt-statistics-chart .wt-stat-pyramid-picker {
+    display:        flex;
+    flex-wrap:      wrap;
+    gap:            8px;
+    margin-bottom:  18px;
+    padding-bottom: 12px;
+    border-bottom:  1px solid var(--border-soft);
+}
+
+.wt-statistics-chart .wt-stat-pyramid-century {
+    padding:              6px 12px;
+    border:               1px solid var(--border);
+    border-radius:        4px;
+    background:           transparent;
+    font-family:          var(--sans);
+    font-size:            13px;
+    font-variant-numeric: tabular-nums;
+    color:                var(--ink-2);
+    cursor:               pointer;
+    transition:           border-color 160ms, color 160ms, background-color 160ms;
+}
+
+.wt-statistics-chart .wt-stat-pyramid-century:hover {
+    border-color: var(--ink-3);
+    color:        var(--ink);
+}
+
+.wt-statistics-chart .wt-stat-pyramid-century[aria-pressed="true"] {
+    border-color: var(--pyramid-accent);
+    color:        var(--ink);
+    background:   color-mix(in srgb, var(--pyramid-accent) 8%, transparent);
+}
+
+.wt-statistics-chart svg.wt-stat-pyramid-svg {
+    width:  100%;
+    height: auto;
+}
+
+.wt-statistics-chart svg.wt-stat-pyramid-svg rect.wt-stat-pyramid-bar-m {
+    fill:       var(--wmstats-sex-male);
+    transition: opacity 160ms;
+}
+
+.wt-statistics-chart svg.wt-stat-pyramid-svg rect.wt-stat-pyramid-bar-f {
+    fill:       var(--wmstats-sex-female);
+    transition: opacity 160ms;
+}
+
+.wt-statistics-chart svg.wt-stat-pyramid-svg rect.wt-stat-pyramid-bar-m:hover,
+.wt-statistics-chart svg.wt-stat-pyramid-svg rect.wt-stat-pyramid-bar-f:hover {
+    opacity: 0.82;
+}
+
+/* Centre-gutter age-band labels are numeric ranges ("60–69", "100+"),
+   so they share the monospaced tabular system of the other axis ticks. */
+.wt-statistics-chart svg.wt-stat-pyramid-svg text.wt-stat-pyramid-band {
+    fill:                 var(--ink-2);
+    font-family:          var(--mono);
+    font-size:            12px;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Per-column sex captions sit above each side as an uppercase eyebrow,
+   colour-matched to the bars they head. */
+.wt-statistics-chart svg.wt-stat-pyramid-svg text.wt-stat-pyramid-sidelabel {
+    font-family:    var(--sans);
+    font-size:      12px;
+    font-weight:    600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.wt-statistics-chart svg.wt-stat-pyramid-svg text.wt-stat-pyramid-sidelabel-m {
+    fill: var(--wmstats-sex-male);
+}
+
+.wt-statistics-chart svg.wt-stat-pyramid-svg text.wt-stat-pyramid-sidelabel-f {
+    fill: var(--wmstats-sex-female);
+}
+
+/* ----------------------------------------------------------------------
    Places panel — single card holding the three geographic views
    (place of birth / recorded residences / place of death) behind
    an inline tab strip. The active tab swaps the panel below + the

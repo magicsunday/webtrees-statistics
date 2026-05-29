@@ -19,6 +19,7 @@ import {
     MirrorHistogram,
     MonthRadial,
     NameBubbles,
+    PopulationPyramid,
     SankeyFlow,
     StackedBar,
     StreamGraph,
@@ -142,6 +143,7 @@ const WIDGETS = {
     "gauge-arc": fromChartLib(GaugeArc),
     "mirror-histogram": fromChartLib(MirrorHistogram),
     "box-plot": fromChartLib(BoxPlot),
+    "population-pyramid": fromChartLib(PopulationPyramid),
 };
 
 /**
