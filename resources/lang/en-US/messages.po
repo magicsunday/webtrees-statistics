@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Statistics\n"
 "Report-Msgid-Bugs-To: https://github.com/magicsunday/webtrees-statistics/"
 "issues\n"
-"POT-Creation-Date: 2026-05-28 14:48+0000\n"
+"POT-Creation-Date: 2026-05-29 14:08+0000\n"
 "PO-Revision-Date: 2026-05-22 07:04+0000\n"
 "Last-Translator: Rico Sonntag <mail@ricosonntag.de>\n"
 "Language-Team: \n"
@@ -22,12 +22,12 @@ msgstr ""
 "X-Poedit-SearchPath-0: src\n"
 "X-Poedit-SearchPath-1: resources/views\n"
 
-#: src/Repository/LifeSpanRepository.php:741
+#: src/Repository/LifeSpanRepository.php:726
 #, php-format
 msgid "%1$s %% (%2$s of %3$s individuals reached this age)"
 msgstr "%1$s %% (%2$s of %3$s individuals reached this age)"
 
-#: src/Repository/ChildrenRepository.php:381
+#: src/Repository/ChildrenRepository.php:383
 #, php-format
 msgid "%1$s children per family (n = %2$s)"
 msgstr "%1$s children per family (n = %2$s)"
@@ -47,7 +47,7 @@ msgstr "%1$s husbands and %2$s wives with a known marriage age"
 msgid "%1$s of %2$s"
 msgstr "%1$s of %2$s"
 
-#: src/Repository/ChildrenRepository.php:761
+#: src/Repository/ChildrenRepository.php:658
 #, php-format
 msgid "%1$s of %2$s children (%3$s %%)"
 msgstr "%1$s of %2$s children (%3$s %%)"
@@ -74,10 +74,10 @@ msgstr[1] ""
 "%1$s of %2$s couples where both spouses had at least one recorded parent "
 "share a common ancestor."
 
-#: src/Repository/LifeSpanRepository.php:627
-#: src/Repository/LifeSpanRepository.php:634
-#: src/Repository/ParenthoodRepository.php:331
-#: src/Repository/ParenthoodRepository.php:338
+#: src/Repository/LifeSpanRepository.php:617
+#: src/Repository/LifeSpanRepository.php:624
+#: src/Repository/ParenthoodRepository.php:318
+#: src/Repository/ParenthoodRepository.php:325
 #, php-format
 msgid "%1$s years (n = %2$s)"
 msgstr "%1$s years (n = %2$s)"
@@ -87,30 +87,30 @@ msgstr "%1$s years (n = %2$s)"
 msgid "%1$s%% — %2$s of %3$s children died before age 5"
 msgstr "%1$s%% — %2$s of %3$s children died before age 5"
 
-#: src/Repository/NameRepository.php:330
+#: src/Repository/NameRepository.php:323
 #, php-format
 msgid ""
 "%1$s%% — %2$s of %3$s daughters share at least one given name with the mother"
 msgstr ""
 
-#: src/Support/Aggregator/CenturyBarRowMapper.php:168
+#: src/Support/Aggregator/CenturyBarRowMapper.php:167
 #, php-format
 msgid "%1$s%% — %2$s of %3$s individuals sourced"
 msgstr "%1$s%% — %2$s of %3$s individuals sourced"
 
-#: src/Repository/NameRepository.php:324
+#: src/Repository/NameRepository.php:317
 #, php-format
 msgid ""
 "%1$s%% — %2$s of %3$s sons share at least one given name with the father"
 msgstr ""
 
-#: src/Support/Locale/CenturyName.php:63
+#: src/Support/Locale/CenturyName.php:61
 #, php-format
 msgid "%s BCE"
 msgstr "%s BCE"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:106
-#: src/Support/Aggregator/CenturyBarRowMapper.php:58
+#: src/Support/Aggregator/CenturyBarRowMapper.php:57
 #, php-format
 msgid "%s birth"
 msgid_plural "%s births"
@@ -118,21 +118,21 @@ msgstr[0] "%s birth"
 msgstr[1] "%s births"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:136
-#: src/Support/Locale/CenturyName.php:113
+#: src/Support/Locale/CenturyName.php:110
 #, php-format
 msgid "%s cent."
 msgstr "%s cent."
 
-#: src/Support/Locale/CenturyName.php:88
+#: src/Support/Locale/CenturyName.php:86
 #, php-format
 msgid "%s century"
 msgstr "%s century"
 
-#: src/Repository/ChildrenRepository.php:302
-#: src/Repository/ChildrenRepository.php:307
-#: src/Repository/ChildrenRepository.php:312
-#: src/Support/Aggregator/RecordRowMapper.php:148
-#: src/Support/Aggregator/RecordRowMapper.php:168
+#: src/Repository/ChildrenRepository.php:304
+#: src/Repository/ChildrenRepository.php:309
+#: src/Repository/ChildrenRepository.php:314
+#: src/Support/Aggregator/RecordRowMapper.php:144
+#: src/Support/Aggregator/RecordRowMapper.php:164
 #, php-format
 msgid "%s child"
 msgid_plural "%s children"
@@ -152,7 +152,7 @@ msgstr[0] "%s consecutive-sibling pair"
 msgstr[1] "%s consecutive-sibling pairs"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:111
-#: src/Support/Aggregator/CoupleAgeGapRowMapper.php:76
+#: src/Support/Aggregator/CoupleAgeGapRowMapper.php:74
 #, php-format
 msgid "%s couple"
 msgid_plural "%s couples"
@@ -180,14 +180,14 @@ msgid_plural "%s couples with both partners' death dates recorded"
 msgstr[0] "%s couple with both partners' death dates recorded"
 msgstr[1] "%s couples with both partners' death dates recorded"
 
-#: src/Support/Aggregator/RecordRowMapper.php:108
+#: src/Support/Aggregator/RecordRowMapper.php:104
 #, php-format
 msgid "%s day"
 msgid_plural "%s days"
 msgstr[0] "%s day"
 msgstr[1] "%s days"
 
-#: src/Support/Aggregator/CenturyBarRowMapper.php:82
+#: src/Support/Aggregator/CenturyBarRowMapper.php:81
 #, php-format
 msgid "%s death"
 msgid_plural "%s deaths"
@@ -239,7 +239,7 @@ msgstr "%s distinct religions (top 15)"
 msgid "%s distinct surnames (top 15)"
 msgstr "%s distinct surnames (top 15)"
 
-#: src/Support/Aggregator/CenturyBarRowMapper.php:130
+#: src/Support/Aggregator/CenturyBarRowMapper.php:129
 #, php-format
 msgid "%s divorce"
 msgid_plural "%s divorces"
@@ -261,7 +261,7 @@ msgid_plural "%s families"
 msgstr[0] "%s family"
 msgstr[1] "%s families"
 
-#: src/Support/Aggregator/MirrorBandRowMapper.php:105
+#: src/Support/Aggregator/MirrorBandRowMapper.php:104
 #, php-format
 msgid "%s father"
 msgid_plural "%s fathers"
@@ -287,7 +287,7 @@ msgstr[1] "%s generations deep"
 msgid "%s generations"
 msgstr "generations"
 
-#: src/Support/Aggregator/MirrorBandRowMapper.php:57
+#: src/Support/Aggregator/MirrorBandRowMapper.php:56
 #, php-format
 msgid "%s husband"
 msgid_plural "%s husbands"
@@ -374,7 +374,7 @@ msgid_plural "%s living individuals with a birth date"
 msgstr[0] "%s living individual with a birth date"
 msgstr[1] "%s living individuals with a birth date"
 
-#: src/Support/Aggregator/MirrorBandRowMapper.php:153
+#: src/Support/Aggregator/MirrorBandRowMapper.php:152
 #, php-format
 msgid "%s man"
 msgid_plural "%s men"
@@ -382,8 +382,8 @@ msgstr[0] "%s man"
 msgstr[1] "%s men"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:97
-#: src/Support/Aggregator/CenturyBarRowMapper.php:106
-#: src/Support/Aggregator/RecordRowMapper.php:128
+#: src/Support/Aggregator/CenturyBarRowMapper.php:105
+#: src/Support/Aggregator/RecordRowMapper.php:124
 #, php-format
 msgid "%s marriage"
 msgid_plural "%s marriages"
@@ -397,19 +397,19 @@ msgid_plural "%s marriages with a recorded month"
 msgstr[0] "%s marriage with a recorded month"
 msgstr[1] "%s marriages with a recorded month"
 
-#: src/Support/Aggregator/MirrorBandRowMapper.php:129
+#: src/Support/Aggregator/MirrorBandRowMapper.php:128
 #, php-format
 msgid "%s mother"
 msgid_plural "%s mothers"
 msgstr[0] "%s mother"
 msgstr[1] "%s mothers"
 
-#: src/Repository/ChildrenRepository.php:317
+#: src/Repository/ChildrenRepository.php:319
 #, php-format
 msgid "%s or more children"
 msgstr "%s or more children"
 
-#: src/Support/Aggregator/SiblingGapRowMapper.php:75
+#: src/Support/Aggregator/SiblingGapRowMapper.php:72
 #, php-format
 msgid "%s or more years"
 msgstr "%s or more years"
@@ -422,7 +422,7 @@ msgid_plural "%s outlier centuries not shown"
 msgstr[0] "%s outlier century not shown"
 msgstr[1] "%s outlier centuries not shown"
 
-#: src/Support/Aggregator/SiblingGapRowMapper.php:73
+#: src/Support/Aggregator/SiblingGapRowMapper.php:70
 #, php-format
 msgid "%s pair"
 msgid_plural "%s pairs"
@@ -437,14 +437,14 @@ msgid_plural "%s persons"
 msgstr[0] "%s person"
 msgstr[1] "%s persons"
 
-#: src/Repository/ChildrenRepository.php:783
+#: src/Repository/ChildrenRepository.php:680
 #, php-format
 msgid "%s quadruplet set"
 msgid_plural "%s quadruplet sets"
 msgstr[0] "%s quadruplet set"
 msgstr[1] "%s quadruplet sets"
 
-#: src/Repository/ChildrenRepository.php:773
+#: src/Repository/ChildrenRepository.php:670
 #, php-format
 msgid "%s quintuplet+ set"
 msgid_plural "%s quintuplet+ sets"
@@ -472,36 +472,36 @@ msgid_plural "%s recorded marriages"
 msgstr[0] "%s recorded marriage"
 msgstr[1] "%s recorded marriages"
 
-#: src/Repository/ChildrenRepository.php:782
+#: src/Repository/ChildrenRepository.php:679
 #, php-format
 msgid "%s triplet set"
 msgid_plural "%s triplet sets"
 msgstr[0] "%s triplet set"
 msgstr[1] "%s triplet sets"
 
-#: src/Repository/ChildrenRepository.php:781
+#: src/Repository/ChildrenRepository.php:678
 #, php-format
 msgid "%s twin set"
 msgid_plural "%s twin sets"
 msgstr[0] "%s twin set"
 msgstr[1] "%s twin sets"
 
-#: src/Support/Aggregator/MirrorBandRowMapper.php:81
+#: src/Support/Aggregator/MirrorBandRowMapper.php:80
 #, php-format
 msgid "%s wife"
 msgid_plural "%s wives"
 msgstr[0] "%s wife"
 msgstr[1] "%s wives"
 
-#: src/Support/Aggregator/MirrorBandRowMapper.php:177
+#: src/Support/Aggregator/MirrorBandRowMapper.php:176
 #, php-format
 msgid "%s woman"
 msgid_plural "%s women"
 msgstr[0] "%s woman"
 msgstr[1] "%s women"
 
-#: src/Support/Aggregator/RecordRowMapper.php:66
-#: src/Support/Aggregator/RecordRowMapper.php:87
+#: src/Support/Aggregator/RecordRowMapper.php:64
+#: src/Support/Aggregator/RecordRowMapper.php:84
 #, php-format
 msgid "%s year"
 msgid_plural "%s years"
@@ -512,114 +512,114 @@ msgstr[1] "%s years"
 #: resources/views/modules/statistics-chart/tabs/family.phtml:110
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:71
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:172
-#: src/Support/Aggregator/MirrorBandRowMapper.php:56
-#: src/Support/Aggregator/MirrorBandRowMapper.php:80
-#: src/Support/Aggregator/MirrorBandRowMapper.php:104
-#: src/Support/Aggregator/MirrorBandRowMapper.php:128
-#: src/Support/Aggregator/MirrorBandRowMapper.php:152
-#: src/Support/Aggregator/MirrorBandRowMapper.php:176
+#: src/Support/Aggregator/MirrorBandRowMapper.php:55
+#: src/Support/Aggregator/MirrorBandRowMapper.php:79
+#: src/Support/Aggregator/MirrorBandRowMapper.php:103
+#: src/Support/Aggregator/MirrorBandRowMapper.php:127
+#: src/Support/Aggregator/MirrorBandRowMapper.php:151
+#: src/Support/Aggregator/MirrorBandRowMapper.php:175
 #, php-format
 msgid "%s years"
 msgstr "%s years"
 
-#: src/Support/Aggregator/DivorceCohortRowMapper.php:58
+#: src/Support/Aggregator/DivorceCohortRowMapper.php:57
 #, php-format
 msgid "%s%% divorced"
 msgstr "%s%% divorced"
 
-#: src/Support/Aggregator/SiblingGapRowMapper.php:76
+#: src/Support/Aggregator/SiblingGapRowMapper.php:73
 #, php-format
 msgid "%s-year gap"
 msgid_plural "%s-year gaps"
 msgstr[0] "%s-year gap"
 msgstr[1] "%s-year gaps"
 
-#: src/Support/Locale/DecadeName.php:49
+#: src/Support/Locale/DecadeName.php:46
 #, php-format
 msgid "%ss"
 msgstr "%ss"
 
-#: src/Support/Aggregator/SiblingGapRowMapper.php:72
+#: src/Support/Aggregator/SiblingGapRowMapper.php:69
 #, php-format
 msgid "%sy"
 msgstr "%sy"
 
-#: src/Support/Aggregator/SiblingGapRowMapper.php:71
+#: src/Support/Aggregator/SiblingGapRowMapper.php:68
 #, php-format
 msgid "%sy+"
 msgstr "%sy+"
 
-#: src/Support/Locale/CenturyName.php:78
+#: src/Support/Locale/CenturyName.php:76
 msgctxt "CENTURY"
 msgid "10th"
 msgstr "10th"
 
-#: src/Support/Locale/CenturyName.php:77
+#: src/Support/Locale/CenturyName.php:75
 msgctxt "CENTURY"
 msgid "11th"
 msgstr "11th"
 
-#: src/Support/Locale/CenturyName.php:76
+#: src/Support/Locale/CenturyName.php:74
 msgctxt "CENTURY"
 msgid "12th"
 msgstr "12th"
 
-#: src/Support/Locale/CenturyName.php:75
+#: src/Support/Locale/CenturyName.php:73
 msgctxt "CENTURY"
 msgid "13th"
 msgstr "13th"
 
-#: src/Support/Locale/CenturyName.php:74
+#: src/Support/Locale/CenturyName.php:72
 msgctxt "CENTURY"
 msgid "14th"
 msgstr "14th"
 
-#: src/Support/Locale/CenturyName.php:73
+#: src/Support/Locale/CenturyName.php:71
 msgctxt "CENTURY"
 msgid "15th"
 msgstr "15th"
 
-#: src/Support/Locale/CenturyName.php:72
+#: src/Support/Locale/CenturyName.php:70
 msgctxt "CENTURY"
 msgid "16th"
 msgstr "16th"
 
-#: src/Support/Locale/CenturyName.php:71
+#: src/Support/Locale/CenturyName.php:69
 msgctxt "CENTURY"
 msgid "17th"
 msgstr "17th"
 
-#: src/Support/Locale/CenturyName.php:70
+#: src/Support/Locale/CenturyName.php:68
 msgctxt "CENTURY"
 msgid "18th"
 msgstr "18th"
 
-#: src/Support/Locale/CenturyName.php:69
+#: src/Support/Locale/CenturyName.php:67
 msgctxt "CENTURY"
 msgid "19th"
 msgstr "19th"
 
-#: src/Support/Locale/CenturyName.php:87
+#: src/Support/Locale/CenturyName.php:85
 msgctxt "CENTURY"
 msgid "1st"
 msgstr "1st"
 
-#: src/Support/Locale/CenturyName.php:68
+#: src/Support/Locale/CenturyName.php:66
 msgctxt "CENTURY"
 msgid "20th"
 msgstr "20th"
 
-#: src/Support/Locale/CenturyName.php:67
+#: src/Support/Locale/CenturyName.php:65
 msgctxt "CENTURY"
 msgid "21st"
 msgstr "21st"
 
-#: src/Support/Locale/CenturyName.php:86
+#: src/Support/Locale/CenturyName.php:84
 msgctxt "CENTURY"
 msgid "2nd"
 msgstr "2nd"
 
-#: src/Support/Locale/CenturyName.php:85
+#: src/Support/Locale/CenturyName.php:83
 msgctxt "CENTURY"
 msgid "3rd"
 msgstr "3rd"
@@ -628,32 +628,32 @@ msgstr "3rd"
 msgid "40 yr"
 msgstr "40 yr"
 
-#: src/Support/Locale/CenturyName.php:84
+#: src/Support/Locale/CenturyName.php:82
 msgctxt "CENTURY"
 msgid "4th"
 msgstr "4th"
 
-#: src/Support/Locale/CenturyName.php:83
+#: src/Support/Locale/CenturyName.php:81
 msgctxt "CENTURY"
 msgid "5th"
 msgstr "5th"
 
-#: src/Support/Locale/CenturyName.php:82
+#: src/Support/Locale/CenturyName.php:80
 msgctxt "CENTURY"
 msgid "6th"
 msgstr "6th"
 
-#: src/Support/Locale/CenturyName.php:81
+#: src/Support/Locale/CenturyName.php:79
 msgctxt "CENTURY"
 msgid "7th"
 msgstr "7th"
 
-#: src/Support/Locale/CenturyName.php:80
+#: src/Support/Locale/CenturyName.php:78
 msgctxt "CENTURY"
 msgid "8th"
 msgstr "8th"
 
-#: src/Support/Locale/CenturyName.php:79
+#: src/Support/Locale/CenturyName.php:77
 msgctxt "CENTURY"
 msgid "9th"
 msgstr "9th"
@@ -711,7 +711,7 @@ msgstr "After the partner's death"
 msgid "Age"
 msgstr "Age"
 
-#: src/Repository/LifeSpanRepository.php:739
+#: src/Repository/LifeSpanRepository.php:724
 #, php-format
 msgid "Age %s"
 msgstr "Age %s"
@@ -822,20 +822,20 @@ msgstr "Alliances"
 msgid "Ancestors"
 msgstr "Ancestors"
 
-#: src/Statistic.php:1107
+#: src/Statistic.php:1093
 msgctxt "NOMINATIVE"
 msgid "April"
 msgstr "April"
 
-#: src/Support/Locale/ZodiacLabels.php:56
+#: src/Support/Locale/ZodiacLabels.php:55
 msgid "Aquarius"
 msgstr "Aquarius"
 
-#: src/Support/Locale/ZodiacLabels.php:46
+#: src/Support/Locale/ZodiacLabels.php:45
 msgid "Aries"
 msgstr "Aries"
 
-#: src/Statistic.php:1111
+#: src/Statistic.php:1097
 msgctxt "NOMINATIVE"
 msgid "August"
 msgstr "August"
@@ -939,11 +939,11 @@ msgstr ""
 msgid "By recorded child count"
 msgstr "By recorded child count"
 
-#: src/Support/Locale/ZodiacLabels.php:49
+#: src/Support/Locale/ZodiacLabels.php:48
 msgid "Cancer"
 msgstr "Cancer"
 
-#: src/Support/Locale/ZodiacLabels.php:55
+#: src/Support/Locale/ZodiacLabels.php:54
 msgid "Capricornus"
 msgstr "Capricornus"
 
@@ -957,7 +957,7 @@ msgstr "Causes of death and infant mortality"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:232
 #: resources/views/modules/statistics-chart/tabs/family.phtml:498
-#: src/Support/Locale/CenturyName.php:102
+#: src/Support/Locale/CenturyName.php:99
 msgid "Century"
 msgstr "Century"
 
@@ -980,7 +980,7 @@ msgstr "Children per dated family"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:307
 #: resources/views/modules/statistics-chart/tabs/family.phtml:324
-#: src/Repository/ChildrenRepository.php:392
+#: src/Repository/ChildrenRepository.php:394
 msgid "Children per family"
 msgstr "Children per family"
 
@@ -1025,7 +1025,7 @@ msgstr "Common surnames"
 msgid "Completeness"
 msgstr "Completeness"
 
-#: src/Support/Aggregator/SiblingGapRowMapper.php:83
+#: src/Support/Aggregator/SiblingGapRowMapper.php:80
 msgid "Consecutive-sibling pairs"
 msgstr "Consecutive-sibling pairs"
 
@@ -1076,7 +1076,7 @@ msgstr "Dec – Feb vs. baseline"
 msgid "Deceased"
 msgstr "Deceased"
 
-#: src/Statistic.php:1115
+#: src/Statistic.php:1101
 msgctxt "NOMINATIVE"
 msgid "December"
 msgstr "December"
@@ -1281,7 +1281,7 @@ msgid "Families with vs without children"
 msgstr "Families with vs without children"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:331
-#: src/Module.php:272
+#: src/Module.php:274
 msgid "Family"
 msgstr "Family"
 
@@ -1299,12 +1299,12 @@ msgstr "Family size"
 msgid "Family size composition share by decade"
 msgstr "Family size composition share by decade"
 
-#: src/Repository/NameRepository.php:194
+#: src/Repository/NameRepository.php:189
 msgid "Father → son"
 msgstr "Father → son"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:260
-#: src/Repository/ParenthoodRepository.php:360
+#: src/Repository/ParenthoodRepository.php:347
 msgid "Fathers"
 msgstr "Fathers"
 
@@ -1312,12 +1312,12 @@ msgstr "Fathers"
 msgid "Fathers and mothers · decade of the first child's birth"
 msgstr "Fathers and mothers · decade of the first child's birth"
 
-#: src/Statistic.php:1105
+#: src/Statistic.php:1091
 msgctxt "NOMINATIVE"
 msgid "February"
 msgstr "February"
 
-#: src/Repository/LifeSpanRepository.php:656 src/Statistic.php:206
+#: src/Repository/LifeSpanRepository.php:646 src/Statistic.php:206
 msgid "Female"
 msgstr "Female"
 
@@ -1503,7 +1503,7 @@ msgstr "Frequencies"
 msgid "Gaps"
 msgstr "Gaps"
 
-#: src/Support/Locale/ZodiacLabels.php:48
+#: src/Support/Locale/ZodiacLabels.php:47
 msgid "Gemini"
 msgstr "Gemini"
 
@@ -1602,7 +1602,7 @@ msgstr "How well is the tree documented?"
 msgid "Husband older"
 msgstr "Husband older"
 
-#: src/Support/Aggregator/CoupleAgeGapRowMapper.php:74
+#: src/Support/Aggregator/CoupleAgeGapRowMapper.php:72
 #, php-format
 msgid "Husband older by %s years"
 msgstr "Husband older by %s years"
@@ -1633,17 +1633,17 @@ msgstr ""
 msgid "Individuals with ≥ 1 source citation"
 msgstr "Individuals with ≥ 1 source citation"
 
-#: src/Statistic.php:1104
+#: src/Statistic.php:1090
 msgctxt "NOMINATIVE"
 msgid "January"
 msgstr "January"
 
-#: src/Statistic.php:1110
+#: src/Statistic.php:1096
 msgctxt "NOMINATIVE"
 msgid "July"
 msgstr "July"
 
-#: src/Statistic.php:1109
+#: src/Statistic.php:1095
 msgctxt "NOMINATIVE"
 msgid "June"
 msgstr "June"
@@ -1669,11 +1669,11 @@ msgstr "Lacy index · average share of known ancestors up to the 4th generation"
 msgid "Largest family"
 msgstr "Largest family"
 
-#: src/Support/Locale/ZodiacLabels.php:50
+#: src/Support/Locale/ZodiacLabels.php:49
 msgid "Leo"
 msgstr "Leo"
 
-#: src/Support/Locale/ZodiacLabels.php:52
+#: src/Support/Locale/ZodiacLabels.php:51
 msgid "Libra"
 msgstr "Libra"
 
@@ -1682,7 +1682,7 @@ msgid "Life event"
 msgstr "Life event"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:534
-#: src/Module.php:271
+#: src/Module.php:273
 msgid "Life span"
 msgstr "Life span"
 
@@ -1723,11 +1723,11 @@ msgstr "Longest marriage"
 msgid "Longevity"
 msgstr "Longevity"
 
-#: src/Repository/LifeSpanRepository.php:649 src/Statistic.php:201
+#: src/Repository/LifeSpanRepository.php:639 src/Statistic.php:201
 msgid "Male"
 msgstr "Male"
 
-#: src/Statistic.php:1106
+#: src/Statistic.php:1092
 msgctxt "NOMINATIVE"
 msgid "March"
 msgstr "March"
@@ -1755,7 +1755,7 @@ msgstr "Married"
 msgid "Maximum generation depth"
 msgstr "Maximum generation depth"
 
-#: src/Statistic.php:1108
+#: src/Statistic.php:1094
 msgctxt "NOMINATIVE"
 msgid "May"
 msgstr "May"
@@ -1853,12 +1853,12 @@ msgstr "Most children"
 msgid "Most spouses"
 msgstr "Most spouses"
 
-#: src/Repository/NameRepository.php:201
+#: src/Repository/NameRepository.php:196
 msgid "Mother → daughter"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:261
-#: src/Repository/ParenthoodRepository.php:367
+#: src/Repository/ParenthoodRepository.php:354
 msgid "Mothers"
 msgstr "Mothers"
 
@@ -1870,7 +1870,7 @@ msgstr "Movement"
 msgid "Movements"
 msgstr "Movements"
 
-#: src/Repository/ChildrenRepository.php:727
+#: src/Repository/ChildrenRepository.php:625
 msgid "Multiple births"
 msgstr "Multiple births"
 
@@ -1879,7 +1879,7 @@ msgstr "Multiple births"
 msgid "Multiple-birth rate by century"
 msgstr "Multiple-birth rate by century"
 
-#: src/Module.php:270
+#: src/Module.php:272
 msgid "Names"
 msgstr "Names"
 
@@ -1892,7 +1892,7 @@ msgstr "No data recorded for this metric."
 msgid "Normalised to 100 %% · shift from large to small families"
 msgstr "Normalised to 100 %% · shift from large to small families"
 
-#: src/Statistic.php:1114
+#: src/Statistic.php:1100
 msgctxt "NOMINATIVE"
 msgid "November"
 msgstr "November"
@@ -1919,7 +1919,7 @@ msgstr "Occupation and confession"
 msgid "Occupational and religious affiliation of the recorded individuals"
 msgstr "Occupational and religious affiliation of the recorded individuals"
 
-#: src/Statistic.php:1113
+#: src/Statistic.php:1099
 msgctxt "NOMINATIVE"
 msgid "October"
 msgstr "October"
@@ -1983,7 +1983,7 @@ msgstr ""
 msgid "Origin & fate"
 msgstr "Origin & fate"
 
-#: src/Module.php:269
+#: src/Module.php:271
 msgid "Overview"
 msgstr "Overview"
 
@@ -2012,17 +2012,17 @@ msgstr "Peak value"
 msgid "Pedigree completeness"
 msgstr "Pedigree completeness"
 
-#: src/Support/Locale/DecadeName.php:71
+#: src/Support/Locale/DecadeName.php:66
 #, php-format
 msgid "Period: %1$s–%2$s"
 msgstr "Period: %1$s–%2$s"
 
-#: src/Support/Locale/ZodiacLabels.php:57
+#: src/Support/Locale/ZodiacLabels.php:56
 msgid "Pisces"
 msgstr "Pisces"
 
 #: resources/views/modules/statistics-chart/tabs/places.phtml:208
-#: src/Module.php:273
+#: src/Module.php:275
 msgid "Places"
 msgstr "Places"
 
@@ -2042,11 +2042,11 @@ msgstr "Popularity over decades and marriage alliances between families"
 msgid "Population"
 msgstr "Population"
 
-#: src/Repository/ChildrenRepository.php:726
+#: src/Repository/ChildrenRepository.php:624
 msgid "Quadruplets"
 msgstr "Quadruplets"
 
-#: src/Repository/ChildrenRepository.php:720
+#: src/Repository/ChildrenRepository.php:618
 msgid "Quintuplets and above"
 msgstr "Quintuplets and above"
 
@@ -2062,7 +2062,7 @@ msgstr "Recorded residences"
 msgid "Records"
 msgstr "Records"
 
-#: src/Support/Locale/ZodiacLabels.php:54
+#: src/Support/Locale/ZodiacLabels.php:53
 msgid "Sagittarius"
 msgstr "Sagittarius"
 
@@ -2071,7 +2071,7 @@ msgstr "Sagittarius"
 msgid "Same-sex name passdown"
 msgstr ""
 
-#: src/Support/Locale/ZodiacLabels.php:53
+#: src/Support/Locale/ZodiacLabels.php:52
 msgid "Scorpio"
 msgstr "Scorpio"
 
@@ -2083,7 +2083,7 @@ msgstr "Season"
 msgid "Season and century of recorded deaths"
 msgstr "Season and century of recorded deaths"
 
-#: src/Statistic.php:1112
+#: src/Statistic.php:1098
 msgctxt "NOMINATIVE"
 msgid "September"
 msgstr "September"
@@ -2202,13 +2202,17 @@ msgstr "Survival curve"
 msgid "Survival curve per birth century"
 msgstr "Survival curve per birth century"
 
-#: src/Support/Locale/ZodiacLabels.php:47
+#: src/Support/Locale/ZodiacLabels.php:46
 msgid "Taurus"
 msgstr "Taurus"
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:135
 msgid "The extremes of the tree"
 msgstr "The extremes of the tree"
+
+#: resources/views/modules/statistics-chart/widgets/geo-map.phtml:35
+msgid "The map could not be loaded."
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:114
 msgid ""
@@ -2288,7 +2292,7 @@ msgstr "Migration"
 msgid "Tree growth over time"
 msgstr "Tree growth over time"
 
-#: src/Module.php:274
+#: src/Module.php:276
 msgid "Tree health"
 msgstr "Tree health"
 
@@ -2296,11 +2300,11 @@ msgstr "Tree health"
 msgid "Tree records"
 msgstr "Tree records"
 
-#: src/Repository/ChildrenRepository.php:725
+#: src/Repository/ChildrenRepository.php:623
 msgid "Triplets"
 msgstr "Triplets"
 
-#: src/Repository/ChildrenRepository.php:724
+#: src/Repository/ChildrenRepository.php:622
 msgid "Twins"
 msgstr "Twins"
 
@@ -2322,11 +2326,11 @@ msgstr "Up to the %ss"
 msgid "Up to the end of the %s"
 msgstr "Up to the end of the %ss"
 
-#: src/Module.php:119
+#: src/Module.php:120
 msgid "Various statistics charts."
 msgstr "Various statistics charts."
 
-#: src/Support/Locale/ZodiacLabels.php:51
+#: src/Support/Locale/ZodiacLabels.php:50
 msgid "Virgo"
 msgstr "Virgo"
 
@@ -2408,7 +2412,7 @@ msgstr "Widowhood interval"
 msgid "Wife older"
 msgstr "Wife older"
 
-#: src/Support/Aggregator/CoupleAgeGapRowMapper.php:75
+#: src/Support/Aggregator/CoupleAgeGapRowMapper.php:73
 #, php-format
 msgid "Wife older by %s years"
 msgstr "Wife older by %s years"
@@ -2431,11 +2435,11 @@ msgstr ""
 msgid "Winter-peak score"
 msgstr "Winter-peak score"
 
-#: src/Repository/ChildrenRepository.php:976
+#: src/Repository/ChildrenRepository.php:883
 msgid "With children"
 msgstr "With children"
 
-#: src/Repository/ChildrenRepository.php:977
+#: src/Repository/ChildrenRepository.php:884
 msgid "Without children"
 msgstr "Without children"
 
@@ -2548,11 +2552,11 @@ msgctxt "count word"
 msgid "nine"
 msgstr "nine"
 
-#: src/Repository/LifeSpanRepository.php:631
-#: src/Repository/LifeSpanRepository.php:638
-#: src/Repository/NameRepository.php:313 src/Repository/NameRepository.php:317
-#: src/Repository/ParenthoodRepository.php:335
-#: src/Repository/ParenthoodRepository.php:342
+#: src/Repository/LifeSpanRepository.php:621
+#: src/Repository/LifeSpanRepository.php:628
+#: src/Repository/NameRepository.php:306 src/Repository/NameRepository.php:310
+#: src/Repository/ParenthoodRepository.php:322
+#: src/Repository/ParenthoodRepository.php:329
 #, php-format
 msgid "no data (n < %s)"
 msgstr "no data (n < %s)"

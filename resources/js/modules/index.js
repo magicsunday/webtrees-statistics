@@ -102,8 +102,11 @@ async function drawWorldMap(node, data, options) {
         console.error("renderWidgets: world-map geojson failed to load", error);
         const placeholder = document.createElement("div");
         placeholder.className = "chart-empty-state";
+        // A load failure is distinct from "no data": prefer the localised
+        // error copy the partial ships, falling back to the empty-state message.
         placeholder.textContent =
-            typeof options.emptyMessage === "string" ? options.emptyMessage : "";
+            node.dataset.errorMessage ||
+            (typeof options.emptyMessage === "string" ? options.emptyMessage : "");
         node.replaceChildren(placeholder);
         return null;
     }

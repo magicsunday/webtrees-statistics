@@ -8,6 +8,8 @@
  */
 
 declare(strict_types=1);
+
+use Fisharebest\Webtrees\I18N;
 use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
 
 /**
@@ -30,5 +32,6 @@ if ($accent !== null) {
          data-widget="world-map"
          data-payload="<?php echo WidgetJson::encodeAttribute($data); ?>"
          data-options="<?php echo WidgetJson::encodeAttribute($options); ?>"
+         data-error-message="<?php echo e(I18N::translate('The map could not be loaded.')); ?>"
     ></div>
 </div>
