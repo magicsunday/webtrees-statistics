@@ -12,19 +12,17 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
-use MagicSunday\Webtrees\Statistic\Model\Sankey\MigrationFlowsPayload;
-use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyLink;
+use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyFlowsPayload;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeySample;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
+use MagicSunday\Webtrees\Statistic\Support\Sankey\BipartiteSankeyAssembler;
 
-use function array_slice;
 use function count;
 use function end;
 use function explode;
 use function trim;
-use function uasort;
 
 /**
  * Aggregates birth → death country movements across the tree's individuals.
@@ -73,7 +71,7 @@ final readonly class MigrationRepository
      *
      * @param int $topLinks Maximum number of distinct flows to retain
      */
-    public function flowsByCountry(int $topLinks): MigrationFlowsPayload
+    public function flowsByCountry(int $topLinks): SankeyFlowsPayload
     {
         // ORDER BY i_id pins iteration to the (lexicographic) xref
         // order so the SAMPLES_PER_FLOW cap always picks the same
@@ -131,65 +129,9 @@ final readonly class MigrationRepository
             }
         }
 
-        if ($linkWeight === []) {
-            return new MigrationFlowsPayload(nodes: [], links: []);
-        }
-
-        // Sort descending by weight, then keep the top-N flows.
-        uasort($linkWeight, static fn (int $left, int $right): int => $right <=> $left);
-
-        $topFlows = array_slice($linkWeight, 0, $topLinks, true);
-
-        // Build SEPARATE node tables for the source and the target
-        // sides so a country appearing on both ends generates two
-        // distinct nodes (one per Sankey column). Source nodes occupy
-        // the lower index range, target nodes the upper one — the
-        // d3-sankey layout reads "source index < target index" as
-        // "left of, right of".
-        $sourceIndex = [];
-        $sourceNodes = [];
-        $targetIndex = [];
-        $targetNodes = [];
-        $rawLinks    = [];
-
-        foreach ($topFlows as $key => $value) {
-            [$origin, $destination] = explode("\0", $key, 2);
-
-            if (!isset($sourceIndex[$origin])) {
-                $sourceIndex[$origin] = count($sourceNodes);
-                $sourceNodes[]        = $origin;
-            }
-
-            if (!isset($targetIndex[$destination])) {
-                $targetIndex[$destination] = count($targetNodes);
-                $targetNodes[]             = $destination;
-            }
-
-            $rawLinks[] = [
-                'source'  => $sourceIndex[$origin],
-                'target'  => $targetIndex[$destination],
-                'value'   => $value,
-                'samples' => $linkSamples[$key],
-            ];
-        }
-
-        // Concatenate the two columns into a single nodes array and
-        // shift every target index by the source-column length so the
-        // bipartite layout reads cleanly without overlap.
-        $sourceColumnSize = count($sourceNodes);
-        $nodes            = [...$sourceNodes, ...$targetNodes];
-        $links            = [];
-
-        foreach ($rawLinks as $link) {
-            $links[] = new SankeyLink(
-                source: $link['source'],
-                target: $sourceColumnSize + $link['target'],
-                value: $link['value'],
-                samples: $link['samples'],
-            );
-        }
-
-        return new MigrationFlowsPayload(nodes: $nodes, links: $links);
+        // The country labels are already display-ready, so the assembler keys
+        // the nodes on the labels themselves (no separate display map).
+        return BipartiteSankeyAssembler::assemble($linkWeight, $linkSamples, $topLinks);
     }
 
     /**

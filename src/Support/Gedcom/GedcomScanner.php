@@ -329,6 +329,21 @@ final readonly class GedcomScanner
     }
 
     /**
+     * Return the FIRST level-1 value for the given tag, or null when the tag is
+     * absent. Used where a record is expected to carry a single primary value
+     * (e.g. `1 SEX`) or where only the first of several occurrences is
+     * meaningful (e.g. a person's primary `1 OCCU` trade). Tag must be
+     * regex-safe; today's callers pass literals only.
+     *
+     * @param string $gedcom Raw GEDCOM record body
+     * @param string $tag    Level-1 tag whose first value to return (e.g. 'SEX', 'OCCU')
+     */
+    public static function extractFirstTagValue(string $gedcom, string $tag): ?string
+    {
+        return self::extractAtLevel(1, $gedcom, $tag)[0] ?? null;
+    }
+
+    /**
      * Return every value found on a `2 <subTag>` line anywhere in the GEDCOM
      * body, regardless of which level-1 event block contains it.
      * Multi-occurrence is preserved as a list. Trimmed; empty values are
@@ -351,10 +366,10 @@ final readonly class GedcomScanner
     }
 
     /**
-     * Shared engine behind {@see extractAllTagValues()} and {@see
-     * extractAllSubTagValues()}: anchor a regex to the given level-prefix, grab
-     * everything after the tag, trim, and drop empty matches. Multi-occurrence
-     * is preserved.
+     * Shared engine behind {@see extractAllTagValues()}, {@see
+     * extractFirstTagValue()} and {@see extractAllSubTagValues()}: anchor a
+     * regex to the given level-prefix, grab everything after the tag, trim, and
+     * drop empty matches. Multi-occurrence is preserved.
      *
      * @param int    $level  GEDCOM nesting level the line must carry (1 or 2)
      * @param string $gedcom Raw GEDCOM record body

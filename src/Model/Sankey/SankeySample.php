@@ -14,10 +14,9 @@ namespace MagicSunday\Webtrees\Statistic\Model\Sankey;
 use JsonSerializable;
 
 /**
- * Representative individual surfaced inside a {@see SankeyLink}. Each link in
- * the migration sankey carries up to N samples so the tooltip can show actual
- * person names + xrefs behind the flow width — the acceptance criterion from
- * #12.
+ * Representative individual surfaced inside a {@see SankeyLink}. Each link
+ * carries up to N samples so the tooltip can show actual person names + xrefs
+ * behind the flow width.
  *
  * Serialises to `{name: string, xref: string}` for the chart-lib sankey-flow
  * widget.

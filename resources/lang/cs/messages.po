@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Statistics\n"
 "Report-Msgid-Bugs-To: https://github.com/magicsunday/webtrees-statistics/"
 "issues\n"
-"POT-Creation-Date: 2026-05-29 14:08+0000\n"
+"POT-Creation-Date: 2026-05-29 14:32+0000\n"
 "PO-Revision-Date: 2026-05-22 07:04+0000\n"
 "Last-Translator: Rico Sonntag <mail@ricosonntag.de>\n"
 "Language-Team: \n"
@@ -215,14 +215,14 @@ msgstr "%s distinct causes (top 15)"
 msgid "%s distinct given names (top 15)"
 msgstr "%s distinct given names (top 15)"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:163
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:165
 #, php-format
 msgid "%s distinct occupation"
 msgid_plural "%s distinct occupations"
 msgstr[0] "%s distinct occupation"
 msgstr[1] "%s distinct occupations"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:162
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:164
 #, php-format
 msgid "%s distinct occupations (top 15)"
 msgstr "%s distinct occupations (top 15)"
@@ -232,14 +232,14 @@ msgstr "%s distinct occupations (top 15)"
 msgid "%s distinct places"
 msgstr "%s distinct places"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:182
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:184
 #, php-format
 msgid "%s distinct religion"
 msgid_plural "%s distinct religions"
 msgstr[0] "%s distinct religion"
 msgstr[1] "%s distinct religions"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:181
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:183
 #, php-format
 msgid "%s distinct religions (top 15)"
 msgstr "%s distinct religions (top 15)"
@@ -307,8 +307,8 @@ msgid_plural "%s husbands"
 msgstr[0] "%s husband"
 msgstr[1] "%s husbands"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:92
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:107
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:94
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:109
 #: resources/views/modules/statistics-chart/tabs/places.phtml:89
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:70
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:82
@@ -319,7 +319,7 @@ msgstr[0] "%s osoba"
 msgstr[1] "%s osoby"
 msgstr[2] ""
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:78
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:80
 #, php-format
 msgid "%s individual recorded"
 msgid_plural "%s individuals recorded"
@@ -352,7 +352,7 @@ msgstr[1] "%s osob s uvedeným měsícem narození"
 msgstr[2] ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:441
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:53
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:55
 #, php-format
 msgid "%s individual with a recorded birth year"
 msgid_plural "%s individuals with a recorded birth year"
@@ -724,6 +724,7 @@ msgstr ""
 #: resources/views/modules/statistics-chart/tabs/family.phtml:129
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:208
 #: resources/views/modules/statistics-chart/tabs/names.phtml:42
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:210
 #: resources/views/modules/statistics-chart/tabs/places.phtml:157
 #: resources/views/modules/statistics-chart/tabs/places.phtml:176
 #: resources/views/modules/statistics-chart/tabs/places.phtml:203
@@ -858,7 +859,7 @@ msgstr "Alliances"
 msgid "Ancestors"
 msgstr "Předci"
 
-#: src/Statistic.php:1093
+#: src/Statistic.php:1109
 msgctxt "NOMINATIVE"
 msgid "April"
 msgstr "Duben"
@@ -871,7 +872,7 @@ msgstr "Vodnář"
 msgid "Aries"
 msgstr "Beran"
 
-#: src/Statistic.php:1097
+#: src/Statistic.php:1113
 msgctxt "NOMINATIVE"
 msgid "August"
 msgstr "Srpen"
@@ -1028,7 +1029,7 @@ msgstr ""
 "Chord diagram: arcs = surnames, ribbons = marriages between them, loops = "
 "endogamy"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:136
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:138
 msgid "Chronicle"
 msgstr "Chronicle"
 
@@ -1044,11 +1045,11 @@ msgstr "Běžná ženská křestní jména"
 msgid "Common given names – male"
 msgstr "Běžná mužská křestní jména"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:159
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:161
 msgid "Common occupations"
 msgstr "Běžná povolání"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:178
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:180
 msgid "Common religions"
 msgstr "Běžná náboženství"
 
@@ -1070,12 +1071,12 @@ msgstr "Aufeinanderfolgende Geschwister-Paare"
 msgid "Couple age gap"
 msgstr "Couple age gap"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:201
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:221
 msgid ""
 "Cumulative number of recorded individuals across the documented birth window"
 msgstr "Kumulativní počet zaznamenaných osob v dokumentovaném okně narození"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:67
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:69
 msgid "Cumulative population"
 msgstr "Kumulativní populace"
 
@@ -1107,20 +1108,20 @@ msgstr "Deaths per century"
 msgid "Dec – Feb vs. baseline"
 msgstr "Dec – Feb vs. baseline"
 
-#: src/Statistic.php:230
+#: src/Statistic.php:233
 msgid "Deceased"
 msgstr "Zemřelí"
 
-#: src/Statistic.php:1101
+#: src/Statistic.php:1117
 msgctxt "NOMINATIVE"
 msgid "December"
 msgstr "Prosinec"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:388
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:311
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:87
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:165
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:185
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:89
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:167
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:187
 msgid "Demographics"
 msgstr "Demografie"
 
@@ -1139,7 +1140,7 @@ msgstr "Různá místa na osobu"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:246
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:276
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:93
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:95
 msgid "Distribution"
 msgstr "Distribution"
 
@@ -1186,7 +1187,7 @@ msgstr ""
 "Divorce rate, season and life-stage of the divorced · a rare category in the "
 "tree"
 
-#: src/Statistic.php:266
+#: src/Statistic.php:269
 msgid "Divorced"
 msgstr "Rozvedený"
 
@@ -1225,6 +1226,15 @@ msgstr ""
 "Sňatek Schmidt × Müller proto přispívá oběma obloukům stejně. Smyčky na "
 "oblouku představují endogamní sňatky, kdy manžel i manželka sdílejí stejné "
 "příjmení."
+
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:202
+msgid ""
+"Each band links a father's occupation to the occupation of one of his sons. "
+"The band's thickness encodes the count: thicker bands mean more sons "
+"recorded in that trade after their father. Only sons whose father also has a "
+"recorded occupation are counted. Hover any band to see the exact father "
+"trade → son trade, the number of sons, and a few of them by name."
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/names.phtml:35
 msgid ""
@@ -1347,12 +1357,12 @@ msgstr "Fathers"
 msgid "Fathers and mothers · decade of the first child's birth"
 msgstr "Otcové a matky · dekáda narození prvního dítěte"
 
-#: src/Statistic.php:1091
+#: src/Statistic.php:1107
 msgctxt "NOMINATIVE"
 msgid "February"
 msgstr "Únor"
 
-#: src/Repository/LifeSpanRepository.php:646 src/Statistic.php:206
+#: src/Repository/LifeSpanRepository.php:646 src/Statistic.php:209
 msgid "Female"
 msgstr "Žena"
 
@@ -1588,13 +1598,17 @@ msgstr "Křestní jména"
 msgid "Given-name popularity across decades"
 msgstr "Oblíbenost křestních jmen v desetiletích"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:206
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:226
 msgid "Growth"
 msgstr "Růst"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:141
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:143
 msgid "Hall of fame across the whole tree"
 msgstr "Hall of fame across the whole tree"
+
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:207
+msgid "Heritage"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/places.phtml:75
 msgid "High mobility — strongly migrating ancestors."
@@ -1628,7 +1642,11 @@ msgstr "How long was the life?"
 msgid "How names came and went over time"
 msgstr "How names came and went over time"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:199
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:206
+msgid "How often a son took up the same trade as his father"
+msgstr ""
+
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:219
 msgid "How the tree grew"
 msgstr "Jak strom rostl"
 
@@ -1671,17 +1689,17 @@ msgstr "Osoby s nejvíce zaznamenanými potomky · strukturální kořeny stromu
 msgid "Individuals with ≥ 1 source citation"
 msgstr "Individuals with ≥ 1 source citation"
 
-#: src/Statistic.php:1090
+#: src/Statistic.php:1106
 msgctxt "NOMINATIVE"
 msgid "January"
 msgstr "Leden"
 
-#: src/Statistic.php:1096
+#: src/Statistic.php:1112
 msgctxt "NOMINATIVE"
 msgid "July"
 msgstr "Červenec"
 
-#: src/Statistic.php:1095
+#: src/Statistic.php:1111
 msgctxt "NOMINATIVE"
 msgid "June"
 msgstr "Červen"
@@ -1736,11 +1754,11 @@ msgstr "Life-stage at divorce · men vs. women"
 msgid "Lifespan"
 msgstr "Délka života"
 
-#: src/Statistic.php:225
+#: src/Statistic.php:228
 msgid "Living"
 msgstr "Žijící"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:106
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:108
 msgid "Living or deceased"
 msgstr "Žijící nebo zemřelí"
 
@@ -1761,16 +1779,16 @@ msgstr "Nejdelší manželství"
 msgid "Longevity"
 msgstr "Longevity"
 
-#: src/Repository/LifeSpanRepository.php:639 src/Statistic.php:201
+#: src/Repository/LifeSpanRepository.php:639 src/Statistic.php:204
 msgid "Male"
 msgstr "Muž"
 
-#: src/Statistic.php:1092
+#: src/Statistic.php:1108
 msgctxt "NOMINATIVE"
 msgid "March"
 msgstr "Březen"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:121
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:123
 msgid "Marital status"
 msgstr "Rodinný stav"
 
@@ -1785,7 +1803,7 @@ msgstr "Sňatek"
 msgid "Marriage duration"
 msgstr "Délka manželství"
 
-#: src/Statistic.php:251
+#: src/Statistic.php:254
 msgid "Married"
 msgstr "Ženatý/Vdaná"
 
@@ -1793,7 +1811,7 @@ msgstr "Ženatý/Vdaná"
 msgid "Maximum generation depth"
 msgstr "Maximální hloubka generací"
 
-#: src/Statistic.php:1094
+#: src/Statistic.php:1110
 msgctxt "NOMINATIVE"
 msgid "May"
 msgstr "Květen"
@@ -1930,7 +1948,7 @@ msgstr "Pro tuto metriku nejsou zaznamenána žádná data."
 msgid "Normalised to 100 %% · shift from large to small families"
 msgstr "Normalised to 100 %% · shift from large to small families"
 
-#: src/Statistic.php:1100
+#: src/Statistic.php:1116
 msgctxt "NOMINATIVE"
 msgid "November"
 msgstr "Listopad"
@@ -1949,15 +1967,19 @@ msgstr ""
 "Number of distinct places per individual · sedentary vs. migrating "
 "populations"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:154
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:156
 msgid "Occupation and confession"
 msgstr "Occupation and confession"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:156
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:205
+msgid "Occupation inheritance from father to son"
+msgstr ""
+
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:158
 msgid "Occupational and religious affiliation of the recorded individuals"
 msgstr "Occupational and religious affiliation of the recorded individuals"
 
-#: src/Statistic.php:1099
+#: src/Statistic.php:1115
 msgctxt "NOMINATIVE"
 msgid "October"
 msgstr "Říjen"
@@ -1986,7 +2008,7 @@ msgstr "Nejstarší matka"
 msgid "Oldest wife"
 msgstr "Oldest wife"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:137
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:139
 msgid ""
 "Oldest, longest marriages, largest families · records that anchor the dataset"
 msgstr ""
@@ -2076,7 +2098,7 @@ msgstr "Places of death"
 msgid "Popularity over decades and marriage alliances between families"
 msgstr "Popularity over decades and marriage alliances between families"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:200
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:220
 msgid "Population"
 msgstr "Populace"
 
@@ -2096,7 +2118,7 @@ msgstr "Dosah"
 msgid "Recorded residences"
 msgstr "Zaznamenané rezidence"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:142
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:144
 msgid "Records"
 msgstr "Záznamy"
 
@@ -2121,16 +2143,16 @@ msgstr "Season"
 msgid "Season and century of recorded deaths"
 msgstr "Season and century of recorded deaths"
 
-#: src/Statistic.php:1098
+#: src/Statistic.php:1114
 msgctxt "NOMINATIVE"
 msgid "September"
 msgstr "Září"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:91
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:93
 msgid "Sex"
 msgstr "Pohlaví"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:88
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:90
 msgid "Sex, status, marital state"
 msgstr "Sex, status, marital state"
 
@@ -2178,11 +2200,11 @@ msgstr "Nejkratší manželství"
 msgid "Sibling age gap"
 msgstr "Věkový rozdíl sourozenců"
 
-#: src/Statistic.php:256
+#: src/Statistic.php:259
 msgid "Single"
 msgstr "Svobodný"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:155
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:157
 msgid "Socio-economics"
 msgstr "Socio-economics"
 
@@ -2212,8 +2234,8 @@ msgctxt "hero title"
 msgid "Statistics"
 msgstr "Statistika"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:108
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:123
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:110
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:125
 msgid "Status"
 msgstr "Stav"
 
@@ -2244,7 +2266,7 @@ msgstr "Křivka přežití podle století narození"
 msgid "Taurus"
 msgstr "Býk"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:135
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:137
 msgid "The extremes of the tree"
 msgstr "The extremes of the tree"
 
@@ -2325,7 +2347,7 @@ msgstr "Top 10 nejstarších (žijící)"
 msgid "Tradition"
 msgstr "Tradice"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:204
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:224
 msgid "Tree growth over time"
 msgstr "Růst stromu v čase"
 
@@ -2333,7 +2355,7 @@ msgstr "Růst stromu v čase"
 msgid "Tree health"
 msgstr "Stav stromu"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:140
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:142
 msgid "Tree records"
 msgstr "Záznamy stromu"
 
@@ -2349,16 +2371,16 @@ msgstr "Dvojčata"
 msgid "Typical range"
 msgstr "Typical range"
 
-#: src/Statistic.php:211
+#: src/Statistic.php:214
 msgid "Unknown"
 msgstr "Neznámé"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:73
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:75
 #, php-format
 msgid "Up to the %s"
 msgstr "Do %s. let"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:74
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:76
 #, php-format
 msgid "Up to the end of the %s"
 msgstr "Do konce %s. let"
@@ -2428,11 +2450,11 @@ msgstr "Where they lived and died"
 msgid "Which names return?"
 msgstr "Which names return?"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:86
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:88
 msgid "Who is recorded?"
 msgstr "Who is recorded?"
 
-#: src/Statistic.php:261
+#: src/Statistic.php:264
 msgid "Widowed"
 msgstr "Ovdovělý"
 
@@ -2515,7 +2537,7 @@ msgid "Zodiac signs"
 msgstr "Zodiac signs"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:93
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:61
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:63
 #, php-format
 msgid "aggregated into %s-decade bins for readability"
 msgstr "agregováno do %sletých skupin pro lepší čitelnost"
@@ -2564,7 +2586,7 @@ msgstr "generace"
 msgid "husband left, wife right"
 msgstr "husband left, wife right"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:101
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:103
 msgid "individuals"
 msgstr "individuals"
 
@@ -2576,7 +2598,7 @@ msgstr "kids"
 msgid "living"
 msgstr "living"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:122
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:124
 msgid "living individuals"
 msgstr "living individuals"
 

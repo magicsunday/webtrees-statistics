@@ -251,7 +251,7 @@ final readonly class Widget
      * Attach the payload data. Shape depends on the widget partial (`@var
      * header) $data` — bar-chart accepts an array of rows, line-chart accepts a
      * `LineChartPayload` or its array form, sankey-flow accepts a
-     * `MigrationFlowsPayload`, etc.
+     * `SankeyFlowsPayload`, etc.
      */
     public function withData(mixed $data): self
     {

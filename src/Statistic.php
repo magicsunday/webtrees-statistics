@@ -22,7 +22,7 @@ use MagicSunday\Webtrees\Statistic\Model\Metric\PlaceDispersionSummary;
 use MagicSunday\Webtrees\Statistic\Model\Metric\RateCount;
 use MagicSunday\Webtrees\Statistic\Model\Metric\WinterPeakScore;
 use MagicSunday\Webtrees\Statistic\Model\Ranking\RankingEntry;
-use MagicSunday\Webtrees\Statistic\Model\Sankey\MigrationFlowsPayload;
+use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyFlowsPayload;
 use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarPayload;
 use MagicSunday\Webtrees\Statistic\Model\StreamGraph\GivenNameTrendsPayload;
 use MagicSunday\Webtrees\Statistic\Model\Tree\GenerationDepthReport;
@@ -44,6 +44,7 @@ use MagicSunday\Webtrees\Statistic\Repository\MarriageMatrixRepository;
 use MagicSunday\Webtrees\Statistic\Repository\MarriageRepository;
 use MagicSunday\Webtrees\Statistic\Repository\MigrationRepository;
 use MagicSunday\Webtrees\Statistic\Repository\NameRepository;
+use MagicSunday\Webtrees\Statistic\Repository\OccupationInheritanceRepository;
 use MagicSunday\Webtrees\Statistic\Repository\OccupationRepository;
 use MagicSunday\Webtrees\Statistic\Repository\ParenthoodRepository;
 use MagicSunday\Webtrees\Statistic\Repository\PlaceDispersionRepository;
@@ -75,28 +76,29 @@ final readonly class Statistic
     private const int NAME_FREQUENCY_THRESHOLD = 1;
 
     /**
-     * @param StatisticsData            $data                      Core data accessor for individual, family and event counts
-     * @param FamilyRepository          $familyRepository          Census-style marital classification not exposed by core
-     * @param EventRepository           $eventRepository           Zodiac-sign grouping not exposed by core
-     * @param NameRepository            $nameRepository            Distinct primary-name counts (direct COUNT(DISTINCT) to avoid the N+1 query storm hidden in commonSurnames(PHP_INT_MAX))
-     * @param TreeHealthRepository      $treeHealthRepository      Data-quality metrics: source coverage, missing-event gaps, generation length
-     * @param GivenNameTrendsRepository $givenNameTrendsRepository Per-decade frequency of the top-N given names for the stream graph
-     * @param MigrationRepository       $migrationRepository       Birth → death country flows for the Places-tab Sankey diagram
-     * @param CountryRepository         $countryRepository         BIRT / DEAT counts aggregated to ISO-3166-1 alpha-2 country codes
-     * @param LifeSpanRepository        $lifeSpanRepository        Age-at-death distribution + top-N oldest individuals + living-age-band buckets
-     * @param MarriageRepository        $marriageRepository        Age-at-marriage / duration / couple-age-gap aggregations for the Family tab
-     * @param DivorceRepository         $divorceRepository         Divorce century / month / age / cohort-rate aggregations for the Family tab
-     * @param ChildrenRepository        $childrenRepository        Children-per-family + sibling-age-gap + top-N largest families aggregations
-     * @param ChildMortalityRepository  $childMortalityRepository  Under-5 child mortality summary + per-birth-century breakdown
-     * @param KinshipRepository         $kinshipRepository         Ancestor-count distribution + average pedigree-completeness (Lacy 1989)
-     * @param OccupationRepository      $occupationRepository      Top-N occupations (`1 OCCU` facts) across the tree
-     * @param ReligionRepository        $religionRepository        Top-N religions / confessions (`1 RELI` facts) across the tree
-     * @param DeathCauseRepository      $deathCauseRepository      Top-N death causes (`2 CAUS` under `1 DEAT`) across the tree
-     * @param PlaceDispersionRepository $placeDispersionRepository Distinct-PLAC-per-individual dispersion (Places tab)
-     * @param GenerationDepthRepository $generationDepthRepository Max generation depth + descendants-distance distribution (Family tab brick-wall surfacing)
-     * @param ParenthoodRepository      $parenthoodRepository      Age-at-first-child distribution per parent sex (Family tab)
-     * @param EndogamyRepository        $endogamyRepository        Cousin-marriage / shared-ancestor rate within four generations (Family tab)
-     * @param MarriageMatrixRepository  $marriageMatrixRepository  Surname × surname marriage matrix for the chord diagram (Names tab)
+     * @param StatisticsData                  $data                            Core data accessor for individual, family and event counts
+     * @param FamilyRepository                $familyRepository                Census-style marital classification not exposed by core
+     * @param EventRepository                 $eventRepository                 Zodiac-sign grouping not exposed by core
+     * @param NameRepository                  $nameRepository                  Distinct primary-name counts (direct COUNT(DISTINCT) to avoid the N+1 query storm hidden in commonSurnames(PHP_INT_MAX))
+     * @param TreeHealthRepository            $treeHealthRepository            Data-quality metrics: source coverage, missing-event gaps, generation length
+     * @param GivenNameTrendsRepository       $givenNameTrendsRepository       Per-decade frequency of the top-N given names for the stream graph
+     * @param MigrationRepository             $migrationRepository             Birth → death country flows for the Places-tab Sankey diagram
+     * @param CountryRepository               $countryRepository               BIRT / DEAT counts aggregated to ISO-3166-1 alpha-2 country codes
+     * @param LifeSpanRepository              $lifeSpanRepository              Age-at-death distribution + top-N oldest individuals + living-age-band buckets
+     * @param MarriageRepository              $marriageRepository              Age-at-marriage / duration / couple-age-gap aggregations for the Family tab
+     * @param DivorceRepository               $divorceRepository               Divorce century / month / age / cohort-rate aggregations for the Family tab
+     * @param ChildrenRepository              $childrenRepository              Children-per-family + sibling-age-gap + top-N largest families aggregations
+     * @param ChildMortalityRepository        $childMortalityRepository        Under-5 child mortality summary + per-birth-century breakdown
+     * @param KinshipRepository               $kinshipRepository               Ancestor-count distribution + average pedigree-completeness (Lacy 1989)
+     * @param OccupationRepository            $occupationRepository            Top-N occupations (`1 OCCU` facts) across the tree
+     * @param OccupationInheritanceRepository $occupationInheritanceRepository Father → son occupation flows for the Overview-tab Sankey diagram
+     * @param ReligionRepository              $religionRepository              Top-N religions / confessions (`1 RELI` facts) across the tree
+     * @param DeathCauseRepository            $deathCauseRepository            Top-N death causes (`2 CAUS` under `1 DEAT`) across the tree
+     * @param PlaceDispersionRepository       $placeDispersionRepository       Distinct-PLAC-per-individual dispersion (Places tab)
+     * @param GenerationDepthRepository       $generationDepthRepository       Max generation depth + descendants-distance distribution (Family tab brick-wall surfacing)
+     * @param ParenthoodRepository            $parenthoodRepository            Age-at-first-child distribution per parent sex (Family tab)
+     * @param EndogamyRepository              $endogamyRepository              Cousin-marriage / shared-ancestor rate within four generations (Family tab)
+     * @param MarriageMatrixRepository        $marriageMatrixRepository        Surname × surname marriage matrix for the chord diagram (Names tab)
      */
     public function __construct(
         private StatisticsData $data,
@@ -114,6 +116,7 @@ final readonly class Statistic
         private ChildMortalityRepository $childMortalityRepository,
         private KinshipRepository $kinshipRepository,
         private OccupationRepository $occupationRepository,
+        private OccupationInheritanceRepository $occupationInheritanceRepository,
         private ReligionRepository $religionRepository,
         private DeathCauseRepository $deathCauseRepository,
         private PlaceDispersionRepository $placeDispersionRepository,
@@ -1021,9 +1024,22 @@ final readonly class Statistic
      *
      * @param int $topLinks Maximum number of distinct flows to retain
      */
-    public function getMigrationFlows(int $topLinks): MigrationFlowsPayload
+    public function getMigrationFlows(int $topLinks): SankeyFlowsPayload
     {
         return $this->migrationRepository->flowsByCountry($topLinks);
+    }
+
+    /**
+     * Father → son occupation inheritance flows ready for the Overview-tab
+     * Sankey diagram. Each link runs from a father's occupation to a son's;
+     * only sons whose father also has a recorded occupation contribute, and
+     * only the top-N weighted links are returned.
+     *
+     * @param int $topLinks Maximum number of distinct flows to retain
+     */
+    public function getOccupationInheritance(int $topLinks): SankeyFlowsPayload
+    {
+        return $this->occupationInheritanceRepository->occupationInheritance($topLinks);
     }
 
     /**

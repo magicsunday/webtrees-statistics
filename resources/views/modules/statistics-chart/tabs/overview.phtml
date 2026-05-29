@@ -32,6 +32,8 @@ $topOccupations   = $statistic->getTopOccupations(15);
 $topReligions     = $statistic->getTopReligions(15);
 $treeRecords      = $statistic->getTreeRecords();
 
+$occupationInheritance = $statistic->getOccupationInheritance(12);
+
 $livingDeceased = $statistic->getTotalLivingDeceasedData();
 $livingCount    = $livingDeceased[0]['value'] ?? 0;
 $deceasedCount  = $livingDeceased[1]['value'] ?? 0;
@@ -193,6 +195,24 @@ echo Card::for($module, I18N::translate('Common religions'))
         ->with('class', 'progress-religions')
         ->withData($topReligions)
         ->render()
+    )
+    ->render();
+
+$occupationInheritanceExplanation = I18N::translate(
+    'Each band links a father\'s occupation to the occupation of one of his sons. The band\'s thickness encodes the count: thicker bands mean more sons recorded in that trade after their father. Only sons whose father also has a recorded occupation are counted. Hover any band to see the exact father trade → son trade, the number of sons, and a few of them by name.'
+);
+
+echo Card::for($module, I18N::translate('Occupation inheritance from father to son'))
+    ->withSub(I18N::translate('How often a son took up the same trade as his father'))
+    ->withEyebrow(I18N::translate('Heritage'))
+    ->withAccent(Accent::Ochre)
+    ->withIllustration(Illustration::Craft)
+    ->withInfo($occupationInheritanceExplanation, I18N::translate('About this chart'), I18N::translate('About this chart'))
+    ->withSpan(12)
+    ->withBodyHtml(
+        Widget::sankeyFlow($module, 'occupation-inheritance')
+            ->withData($occupationInheritance)
+            ->render()
     )
     ->render();
 

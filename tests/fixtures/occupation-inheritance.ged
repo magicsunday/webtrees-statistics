@@ -1,0 +1,136 @@
+0 HEAD
+1 SOUR webtrees-statistics-fixture
+2 NAME occupation-inheritance
+1 DEST ANSTFILE
+1 CHAR UTF-8
+1 SUBM @SUBM1@
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+0 @SUBM1@ SUBM
+1 NAME Fixture
+0 @I1@ INDI
+1 NAME Hans /Farmer/
+1 SEX M
+1 OCCU Farmer
+1 FAMS @F1@
+0 @I2@ INDI
+1 NAME Anton /Farmer/
+1 SEX M
+1 OCCU Farmer
+1 FAMC @F1@
+0 @I3@ INDI
+1 NAME Bernd /Farmer/
+1 SEX M
+1 OCCU Farmer
+1 FAMC @F1@
+0 @I4@ INDI
+1 NAME Carl /Farmer/
+1 SEX M
+1 OCCU Farmer
+1 FAMC @F1@
+0 @I5@ INDI
+1 NAME Dirk /Farmer/
+1 SEX M
+1 OCCU Farmer
+1 FAMC @F1@
+0 @I6@ INDI
+1 NAME Otto /Lower/
+1 SEX M
+1 OCCU farmer
+1 FAMS @F2@
+0 @I7@ INDI
+1 NAME Emil /Upper/
+1 SEX M
+1 OCCU FARMER
+1 FAMC @F2@
+0 @I8@ INDI
+1 NAME Wilhelm /Smith/
+1 SEX M
+1 OCCU Blacksmith
+1 FAMS @F3@
+0 @I9@ INDI
+1 NAME Franz /Smith/
+1 SEX M
+1 OCCU Farmer
+1 FAMC @F3@
+0 @I10@ INDI
+1 NAME Georg /Craft/
+1 SEX M
+1 OCCU Carpenter
+1 OCCU Mayor
+1 FAMS @F4@
+0 @I11@ INDI
+1 NAME Heinz /Craft/
+1 SEX M
+1 OCCU Carpenter
+1 FAMC @F4@
+0 @I12@ INDI
+1 NAME Klaus /None/
+1 SEX M
+1 FAMS @F5@
+0 @I13@ INDI
+1 NAME Lars /None/
+1 SEX M
+1 OCCU Tailor
+1 FAMC @F5@
+0 @I14@ INDI
+1 NAME Paul /Mill/
+1 SEX M
+1 OCCU Miller
+1 FAMS @F6@
+0 @I15@ INDI
+1 NAME Rolf /Mill/
+1 SEX M
+1 FAMC @F6@
+0 @I16@ INDI
+1 NAME Ernst /Weave/
+1 SEX M
+1 OCCU Weaver
+1 FAMS @F7@
+0 @I17@ INDI
+1 NAME Marie /Weave/
+1 SEX F
+1 OCCU Weaver
+1 FAMC @F7@
+0 @I18@ INDI
+1 NAME Stefan /Bake/
+1 SEX M
+1 OCCU Baker
+0 @I19@ INDI
+1 NAME Greta /Cooper/
+1 SEX F
+1 FAMS @F8@
+0 @I20@ INDI
+1 NAME Udo /Cooper/
+1 SEX M
+1 OCCU Cooper
+1 FAMC @F8@
+0 @F1@ FAM
+1 HUSB @I1@
+1 CHIL @I2@
+1 CHIL @I3@
+1 CHIL @I4@
+1 CHIL @I5@
+0 @F2@ FAM
+1 HUSB @I6@
+1 CHIL @I7@
+0 @F3@ FAM
+1 HUSB @I8@
+1 CHIL @I9@
+0 @F4@ FAM
+1 HUSB @I10@
+1 CHIL @I11@
+0 @F5@ FAM
+1 HUSB @I12@
+1 CHIL @I13@
+0 @F6@ FAM
+1 HUSB @I14@
+1 CHIL @I15@
+0 @F7@ FAM
+1 HUSB @I16@
+1 CHIL @I17@
+0 @F8@ FAM
+1 WIFE @I19@
+1 CHIL @I20@
+0 TRLR

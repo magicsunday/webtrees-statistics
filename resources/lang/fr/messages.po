@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Statistics\n"
 "Report-Msgid-Bugs-To: https://github.com/magicsunday/webtrees-statistics/"
 "issues\n"
-"POT-Creation-Date: 2026-05-29 14:08+0000\n"
+"POT-Creation-Date: 2026-05-29 14:32+0000\n"
 "PO-Revision-Date: 2026-05-22 07:04+0000\n"
 "Last-Translator: Rico Sonntag <mail@ricosonntag.de>\n"
 "Language-Team: \n"
@@ -208,14 +208,14 @@ msgstr "%s causes distinctes (top 15)"
 msgid "%s distinct given names (top 15)"
 msgstr "%s prénoms distincts (top 15)"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:163
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:165
 #, php-format
 msgid "%s distinct occupation"
 msgid_plural "%s distinct occupations"
 msgstr[0] "%s profession distincte"
 msgstr[1] "%s professions distinctes"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:162
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:164
 #, php-format
 msgid "%s distinct occupations (top 15)"
 msgstr "%s professions distinctes (top 15)"
@@ -225,14 +225,14 @@ msgstr "%s professions distinctes (top 15)"
 msgid "%s distinct places"
 msgstr "%s lieux distincts"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:182
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:184
 #, php-format
 msgid "%s distinct religion"
 msgid_plural "%s distinct religions"
 msgstr[0] "%s religion distincte"
 msgstr[1] "%s religions distinctes"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:181
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:183
 #, php-format
 msgid "%s distinct religions (top 15)"
 msgstr "%s religions distinctes (top 15)"
@@ -297,8 +297,8 @@ msgid_plural "%s husbands"
 msgstr[0] "%s mari"
 msgstr[1] "%s maris"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:92
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:107
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:94
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:109
 #: resources/views/modules/statistics-chart/tabs/places.phtml:89
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:70
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:82
@@ -308,7 +308,7 @@ msgid_plural "%s individuals"
 msgstr[0] "%s individu"
 msgstr[1] "%s individus"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:78
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:80
 #, php-format
 msgid "%s individual recorded"
 msgid_plural "%s individuals recorded"
@@ -337,7 +337,7 @@ msgstr[0] "%s personne avec mois de naissance enregistré"
 msgstr[1] "%s personnes avec mois de naissance enregistré"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:441
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:53
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:55
 #, php-format
 msgid "%s individual with a recorded birth year"
 msgid_plural "%s individuals with a recorded birth year"
@@ -693,6 +693,7 @@ msgstr ""
 #: resources/views/modules/statistics-chart/tabs/family.phtml:129
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:208
 #: resources/views/modules/statistics-chart/tabs/names.phtml:42
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:210
 #: resources/views/modules/statistics-chart/tabs/places.phtml:157
 #: resources/views/modules/statistics-chart/tabs/places.phtml:176
 #: resources/views/modules/statistics-chart/tabs/places.phtml:203
@@ -830,7 +831,7 @@ msgstr "Alliances"
 msgid "Ancestors"
 msgstr "Ancêtres"
 
-#: src/Statistic.php:1093
+#: src/Statistic.php:1109
 msgctxt "NOMINATIVE"
 msgid "April"
 msgstr "Avril"
@@ -843,7 +844,7 @@ msgstr "Verseau"
 msgid "Aries"
 msgstr "Bélier"
 
-#: src/Statistic.php:1097
+#: src/Statistic.php:1113
 msgctxt "NOMINATIVE"
 msgid "August"
 msgstr "Août"
@@ -1003,7 +1004,7 @@ msgstr ""
 "Chord diagram: arcs = surnames, ribbons = marriages between them, loops = "
 "endogamy"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:136
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:138
 msgid "Chronicle"
 msgstr "Chronique"
 
@@ -1019,11 +1020,11 @@ msgstr "Prénoms féminins courants"
 msgid "Common given names – male"
 msgstr "Prénoms masculins courants"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:159
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:161
 msgid "Common occupations"
 msgstr "Professions courantes"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:178
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:180
 msgid "Common religions"
 msgstr "Religions courantes"
 
@@ -1045,13 +1046,13 @@ msgstr "Paires de frères/sœurs consécutifs"
 msgid "Couple age gap"
 msgstr "Différence d'âge du couple"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:201
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:221
 msgid ""
 "Cumulative number of recorded individuals across the documented birth window"
 msgstr ""
 "Nombre cumulé d'individus enregistrés sur la fenêtre de naissance documentée"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:67
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:69
 msgid "Cumulative population"
 msgstr "Population cumulée"
 
@@ -1083,20 +1084,20 @@ msgstr "Décès par siècle"
 msgid "Dec – Feb vs. baseline"
 msgstr "Déc. – Fév. vs. référence"
 
-#: src/Statistic.php:230
+#: src/Statistic.php:233
 msgid "Deceased"
 msgstr "Décédés"
 
-#: src/Statistic.php:1101
+#: src/Statistic.php:1117
 msgctxt "NOMINATIVE"
 msgid "December"
 msgstr "Décembre"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:388
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:311
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:87
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:165
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:185
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:89
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:167
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:187
 msgid "Demographics"
 msgstr "Démographie"
 
@@ -1115,7 +1116,7 @@ msgstr "Lieux distincts par individu"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:246
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:276
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:93
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:95
 msgid "Distribution"
 msgstr "Distribution"
 
@@ -1162,7 +1163,7 @@ msgstr ""
 "Divorce rate, season and life-stage of the divorced · a rare category in the "
 "tree"
 
-#: src/Statistic.php:266
+#: src/Statistic.php:269
 msgid "Divorced"
 msgstr "Divorcé(e)"
 
@@ -1202,6 +1203,15 @@ msgstr ""
 "× Müller contribue donc autant aux deux arcs. Les boucles sur un arc "
 "représentent les mariages endogames où le mari et l'épouse partagent le même "
 "nom de famille."
+
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:202
+msgid ""
+"Each band links a father's occupation to the occupation of one of his sons. "
+"The band's thickness encodes the count: thicker bands mean more sons "
+"recorded in that trade after their father. Only sons whose father also has a "
+"recorded occupation are counted. Hover any band to see the exact father "
+"trade → son trade, the number of sons, and a few of them by name."
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/names.phtml:35
 msgid ""
@@ -1326,12 +1336,12 @@ msgstr "Pères"
 msgid "Fathers and mothers · decade of the first child's birth"
 msgstr "Pères et mères · décennie de la naissance du premier enfant"
 
-#: src/Statistic.php:1091
+#: src/Statistic.php:1107
 msgctxt "NOMINATIVE"
 msgid "February"
 msgstr "Février"
 
-#: src/Repository/LifeSpanRepository.php:646 src/Statistic.php:206
+#: src/Repository/LifeSpanRepository.php:646 src/Statistic.php:209
 msgid "Female"
 msgstr "Féminin"
 
@@ -1575,13 +1585,17 @@ msgstr "Prénom(s)"
 msgid "Given-name popularity across decades"
 msgstr "Popularité des prénoms à travers les décennies"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:206
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:226
 msgid "Growth"
 msgstr "Croissance"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:141
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:143
 msgid "Hall of fame across the whole tree"
 msgstr "Tableau d'honneur de tout l'arbre"
+
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:207
+msgid "Heritage"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/places.phtml:75
 msgid "High mobility — strongly migrating ancestors."
@@ -1615,7 +1629,11 @@ msgstr "Quelle durée de vie ?"
 msgid "How names came and went over time"
 msgstr "Comment les noms sont apparus et disparus au fil du temps"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:199
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:206
+msgid "How often a son took up the same trade as his father"
+msgstr ""
+
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:219
 msgid "How the tree grew"
 msgstr "Comment l'arbre a grandi"
 
@@ -1660,17 +1678,17 @@ msgstr ""
 msgid "Individuals with ≥ 1 source citation"
 msgstr "Personnes avec ≥ 1 citation source"
 
-#: src/Statistic.php:1090
+#: src/Statistic.php:1106
 msgctxt "NOMINATIVE"
 msgid "January"
 msgstr "Janvier"
 
-#: src/Statistic.php:1096
+#: src/Statistic.php:1112
 msgctxt "NOMINATIVE"
 msgid "July"
 msgstr "Juillet"
 
-#: src/Statistic.php:1095
+#: src/Statistic.php:1111
 msgctxt "NOMINATIVE"
 msgid "June"
 msgstr "Juin"
@@ -1725,11 +1743,11 @@ msgstr "Étape de vie au divorce · hommes vs. femmes"
 msgid "Lifespan"
 msgstr "Durée de vie"
 
-#: src/Statistic.php:225
+#: src/Statistic.php:228
 msgid "Living"
 msgstr "Vivant(e)"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:106
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:108
 msgid "Living or deceased"
 msgstr "Vivants ou décédés"
 
@@ -1751,16 +1769,16 @@ msgstr "Mariage le plus long"
 msgid "Longevity"
 msgstr "Longévité"
 
-#: src/Repository/LifeSpanRepository.php:639 src/Statistic.php:201
+#: src/Repository/LifeSpanRepository.php:639 src/Statistic.php:204
 msgid "Male"
 msgstr "Masculin"
 
-#: src/Statistic.php:1092
+#: src/Statistic.php:1108
 msgctxt "NOMINATIVE"
 msgid "March"
 msgstr "Mars"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:121
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:123
 msgid "Marital status"
 msgstr "État civil"
 
@@ -1775,7 +1793,7 @@ msgstr "Mariage"
 msgid "Marriage duration"
 msgstr "Durée du mariage"
 
-#: src/Statistic.php:251
+#: src/Statistic.php:254
 msgid "Married"
 msgstr "Marié(e)"
 
@@ -1783,7 +1801,7 @@ msgstr "Marié(e)"
 msgid "Maximum generation depth"
 msgstr "Profondeur maximale de génération"
 
-#: src/Statistic.php:1094
+#: src/Statistic.php:1110
 msgctxt "NOMINATIVE"
 msgid "May"
 msgstr "Mai"
@@ -1922,7 +1940,7 @@ msgstr "Aucune donnée enregistrée pour cette métrique."
 msgid "Normalised to 100 %% · shift from large to small families"
 msgstr "Normalisé à 100 %% · passage des grandes aux petites familles"
 
-#: src/Statistic.php:1100
+#: src/Statistic.php:1116
 msgctxt "NOMINATIVE"
 msgid "November"
 msgstr "Novembre"
@@ -1942,15 +1960,19 @@ msgstr ""
 "Nombre de lieux distincts par individu · populations sédentaires vs. "
 "migrantes"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:154
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:156
 msgid "Occupation and confession"
 msgstr "Profession et confession"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:156
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:205
+msgid "Occupation inheritance from father to son"
+msgstr ""
+
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:158
 msgid "Occupational and religious affiliation of the recorded individuals"
 msgstr "Affiliation professionnelle et religieuse des personnes enregistrées"
 
-#: src/Statistic.php:1099
+#: src/Statistic.php:1115
 msgctxt "NOMINATIVE"
 msgid "October"
 msgstr "Octobre"
@@ -1979,7 +2001,7 @@ msgstr "Mère la plus âgée"
 msgid "Oldest wife"
 msgstr "Épouse la plus âgée"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:137
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:139
 msgid ""
 "Oldest, longest marriages, largest families · records that anchor the dataset"
 msgstr ""
@@ -2073,7 +2095,7 @@ msgid "Popularity over decades and marriage alliances between families"
 msgstr ""
 "Popularité au fil des décennies et alliances matrimoniales entre familles"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:200
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:220
 msgid "Population"
 msgstr "Population"
 
@@ -2093,7 +2115,7 @@ msgstr "Portée"
 msgid "Recorded residences"
 msgstr "Résidences enregistrées"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:142
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:144
 msgid "Records"
 msgstr "Enregistrements"
 
@@ -2118,16 +2140,16 @@ msgstr "Saison"
 msgid "Season and century of recorded deaths"
 msgstr "Saison et siècle des décès enregistrés"
 
-#: src/Statistic.php:1098
+#: src/Statistic.php:1114
 msgctxt "NOMINATIVE"
 msgid "September"
 msgstr "Septembre"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:91
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:93
 msgid "Sex"
 msgstr "Sexe"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:88
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:90
 msgid "Sex, status, marital state"
 msgstr "Sexe, statut, état civil"
 
@@ -2178,11 +2200,11 @@ msgstr "Mariage le plus court"
 msgid "Sibling age gap"
 msgstr "Écart d'âge entre frères et sœurs"
 
-#: src/Statistic.php:256
+#: src/Statistic.php:259
 msgid "Single"
 msgstr "Célibataire"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:155
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:157
 msgid "Socio-economics"
 msgstr "Socio-économie"
 
@@ -2212,8 +2234,8 @@ msgctxt "hero title"
 msgid "Statistics"
 msgstr "Statistiques"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:108
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:123
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:110
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:125
 msgid "Status"
 msgstr "Statut"
 
@@ -2244,7 +2266,7 @@ msgstr "Courbe de survie par siècle de naissance"
 msgid "Taurus"
 msgstr "Taureau"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:135
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:137
 msgid "The extremes of the tree"
 msgstr "Les extrêmes de l'arbre"
 
@@ -2326,7 +2348,7 @@ msgstr "Top 10 des plus âgés (vivants)"
 msgid "Tradition"
 msgstr "Tradition"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:204
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:224
 msgid "Tree growth over time"
 msgstr "Croissance de l'arbre dans le temps"
 
@@ -2334,7 +2356,7 @@ msgstr "Croissance de l'arbre dans le temps"
 msgid "Tree health"
 msgstr "Santé de l'arbre"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:140
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:142
 msgid "Tree records"
 msgstr "Enregistrements de l'arbre"
 
@@ -2350,16 +2372,16 @@ msgstr "Jumeaux"
 msgid "Typical range"
 msgstr "Plage typique"
 
-#: src/Statistic.php:211
+#: src/Statistic.php:214
 msgid "Unknown"
 msgstr "Inconnu"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:73
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:75
 #, php-format
 msgid "Up to the %s"
 msgstr "Jusqu'aux années %s"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:74
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:76
 #, php-format
 msgid "Up to the end of the %s"
 msgstr "Jusqu'à la fin des années %s"
@@ -2429,11 +2451,11 @@ msgstr "Où ils ont vécu et sont morts"
 msgid "Which names return?"
 msgstr "Quels noms reviennent ?"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:86
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:88
 msgid "Who is recorded?"
 msgstr "Qui est enregistré ?"
 
-#: src/Statistic.php:261
+#: src/Statistic.php:264
 msgid "Widowed"
 msgstr "Veuf/Veuve"
 
@@ -2518,7 +2540,7 @@ msgid "Zodiac signs"
 msgstr "Signes du zodiaque"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:93
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:61
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:63
 #, php-format
 msgid "aggregated into %s-decade bins for readability"
 msgstr "agrégé en groupes de %s décennies pour la lisibilité"
@@ -2567,7 +2589,7 @@ msgstr "générations"
 msgid "husband left, wife right"
 msgstr "mari à gauche, épouse à droite"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:101
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:103
 msgid "individuals"
 msgstr "personnes"
 
@@ -2579,7 +2601,7 @@ msgstr "enfants"
 msgid "living"
 msgstr "vivant"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:122
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:124
 msgid "living individuals"
 msgstr "personnes vivantes"
 

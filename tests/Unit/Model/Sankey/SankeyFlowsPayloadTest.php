@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Unit\Model\Sankey;
 
-use MagicSunday\Webtrees\Statistic\Model\Sankey\MigrationFlowsPayload;
+use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyFlowsPayload;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyLink;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeySample;
 use PHPUnit\Framework\Attributes\Test;
@@ -22,7 +22,7 @@ use function json_encode;
 
 /**
  * Behavioural parity test for the migration-flows DTO chain. Asserts that
- * `json_encode` on a fully-populated `MigrationFlowsPayload` still produces the
+ * `json_encode` on a fully-populated `SankeyFlowsPayload` still produces the
  * exact wire shape every chart-lib sankey-flow consumer was built against
  * before the array-shape → DTO refactor. Any drift here would silently break
  * the JSON contract the JS widget reads, so the lock-down is per-key.
@@ -31,7 +31,7 @@ use function json_encode;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-final class MigrationFlowsPayloadTest extends TestCase
+final class SankeyFlowsPayloadTest extends TestCase
 {
     /**
      * A populated payload round-trips through `json_encode` to the exact array
@@ -40,7 +40,7 @@ final class MigrationFlowsPayloadTest extends TestCase
     #[Test]
     public function payloadSerialisesToTheLegacyWireShape(): void
     {
-        $payload = new MigrationFlowsPayload(
+        $payload = new SankeyFlowsPayload(
             nodes: [
                 'Germany',
                 'USA',
@@ -88,7 +88,7 @@ final class MigrationFlowsPayloadTest extends TestCase
     #[Test]
     public function emptyPayloadSerialisesToEmptyArrays(): void
     {
-        $payload = new MigrationFlowsPayload(nodes: [], links: []);
+        $payload = new SankeyFlowsPayload(nodes: [], links: []);
 
         self::assertSame(
             ['nodes' => [], 'links' => []],
