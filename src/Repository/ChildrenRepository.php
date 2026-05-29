@@ -28,17 +28,13 @@ use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarPayload;
 use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarSeries;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
-use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
 use MagicSunday\Webtrees\Statistic\Support\Locale\DecadeName;
 
-use function abs;
 use function array_combine;
 use function array_fill_keys;
 use function array_keys;
-use function array_unique;
-use function array_values;
 use function count;
 use function html_entity_decode;
 use function intdiv;
@@ -49,6 +45,7 @@ use function round;
 use function sort;
 use function strip_tags;
 use function substr;
+use function usort;
 
 use const ENT_HTML5;
 use const ENT_QUOTES;
@@ -98,13 +95,14 @@ final readonly class ChildrenRepository
     private const int MULTIPLE_BIRTH_CAP = 5;
 
     /**
-     * Maximum BIRT julian-day difference between two INDI:ASSO-linked
-     * individuals for the link to count as a multi-birth signal. One
-     * day accommodates cross-midnight twins while excluding ASSO
-     * links to friends / godparents / mentors whose dates are
-     * unrelated.
+     * Maximum BIRT julian-day gap between two consecutively-born
+     * children of the same FAM for them to count as one
+     * multiple-birth set. One day accommodates cross-midnight twins
+     * (e.g. 31 DEC / 1 JAN) without merging genuinely separate births,
+     * which a single mother cannot place within a calendar day of each
+     * other anyway.
      */
-    private const int MULTI_BIRTH_ASSO_MAX_DAY_DIFF = 1;
+    private const int MULTI_BIRTH_MAX_DAY_GAP = 1;
 
     /**
      * @param Tree           $tree The tree the statistics are computed for
@@ -417,13 +415,16 @@ final readonly class ChildrenRepository
      * by an order of magnitude — the demographic signal worth
      * surfacing.
      *
-     * Detection: same-day BIRT inside a FAM picks up genuine twin /
-     * triplet sets. INDI:ASSO with a RELA tag matching a
-     * multi-birth keyword merges across the date heuristic's
-     * blind spots (cross-midnight twins) when the tree author
-     * recorded the link explicitly. Centuries below
-     * {@see MIN_COHORT_MULTIPLE_BIRTH} dated births are dropped to
-     * keep the curve from spiking on small denominators.
+     * Detection: children of the same FAM whose BIRT julian-days sit
+     * within {@see MULTI_BIRTH_MAX_DAY_GAP} of each other form a
+     * multiple-birth set. That subsumes exact same-day twin / triplet
+     * sets and the cross-midnight case (e.g. 31 DEC / 1 JAN) without
+     * needing an explicit INDI:ASSO link — a single mother cannot
+     * place two separate pregnancies a calendar day apart, so the FAM
+     * membership plus date proximity is the signal by itself.
+     * Centuries below {@see MIN_COHORT_MULTIPLE_BIRTH} dated births
+     * are dropped to keep the curve from spiking on small
+     * denominators.
      */
     public function multipleBirthRateByCentury(): LineChartPayload
     {
@@ -443,11 +444,8 @@ final readonly class ChildrenRepository
         /** @var array<string, int> $yearByChild */
         $yearByChild = [];
 
-        /** @var array<string, int> $jdByChild */
-        $jdByChild = [];
-
-        /** @var array<string, array<int, list<string>>> $perFamilyByDay */
-        $perFamilyByDay = [];
+        /** @var array<string, list<array{id: string, jd: int}>> $perFamily */
+        $perFamily = [];
 
         foreach ($rows as $row) {
             $childId = RowCast::string($row, 'child_id');
@@ -471,12 +469,9 @@ final readonly class ChildrenRepository
                 continue;
             }
 
-            $yearByChild[$childId]              = $year;
-            $jdByChild[$childId]                = $birthJd;
-            $perFamilyByDay[$famId][$birthJd][] = $childId;
+            $yearByChild[$childId] = $year;
+            $perFamily[$famId][]   = ['id' => $childId, 'jd' => $birthJd];
         }
-
-        $assoGroups = $this->multiBirthLinksFromAsso($jdByChild);
 
         /** @var array<int, int> $totalsByCentury */
         $totalsByCentury = [];
@@ -492,67 +487,61 @@ final readonly class ChildrenRepository
         /** @var array<int, array<int, int>> $multiplicitySetsByCentury */
         $multiplicitySetsByCentury = [];
 
-        foreach ($perFamilyByDay as $byDay) {
-            // Local union-find per FAM: every same-day group starts
-            // as its own set, then ASSO partners merge sets across
-            // days when both children sit in this FAM.
-            $childToSet = [];
-            $sets       = [];
+        /** @var list<list<string>> $clusters */
+        $clusters = [];
 
-            foreach ($byDay as $childIds) {
-                $setKey        = count($sets);
-                $sets[$setKey] = $childIds;
+        foreach ($perFamily as $children) {
+            // Order this FAM's children by birth julian-day, then a
+            // single forward walk groups every sibling sitting within
+            // MULTI_BIRTH_MAX_DAY_GAP of the cluster's earliest birth
+            // (the anchor). Anchoring on the earliest — rather than
+            // chaining off the previous child — keeps each set inside
+            // a one-day span: a cross-midnight set (two before
+            // midnight, one after → jd, jd, jd+1) still merges, while
+            // a jd, jd+1, jd+2 run does not chain past the window into
+            // a spurious triplet.
+            usort($children, static fn (array $a, array $b): int => $a['jd'] <=> $b['jd']);
 
-                foreach ($childIds as $childId) {
-                    $childToSet[$childId] = $setKey;
-                }
-            }
+            $cluster  = [];
+            $anchorJd = null;
 
-            foreach ($byDay as $childIds) {
-                foreach ($childIds as $childId) {
-                    foreach ($assoGroups[$childId] ?? [] as $partnerId) {
-                        if (!isset($childToSet[$partnerId])) {
-                            continue;
-                        }
-
-                        $a = $childToSet[$childId];
-                        $b = $childToSet[$partnerId];
-
-                        if ($a === $b) {
-                            continue;
-                        }
-
-                        foreach ($sets[$b] as $movedId) {
-                            $sets[$a][]           = $movedId;
-                            $childToSet[$movedId] = $a;
-                        }
-
-                        $sets[$b] = [];
+            foreach ($children as $child) {
+                if (($anchorJd !== null) && (($child['jd'] - $anchorJd) > self::MULTI_BIRTH_MAX_DAY_GAP)) {
+                    if (count($cluster) >= 2) {
+                        $clusters[] = $cluster;
                     }
+
+                    $cluster  = [];
+                    $anchorJd = null;
                 }
+
+                if ($anchorJd === null) {
+                    $anchorJd = $child['jd'];
+                }
+
+                $cluster[] = $child['id'];
             }
 
-            foreach ($sets as $setChildren) {
-                $size = count($setChildren);
-
-                if ($size < 2) {
-                    continue;
-                }
-
-                $multiplicityKey = $size >= self::MULTIPLE_BIRTH_CAP ? self::MULTIPLE_BIRTH_CAP : $size;
-                $primaryChild    = $setChildren[0];
-                $primaryYear     = $yearByChild[$primaryChild] ?? 0;
-
-                if ($primaryYear <= 0) {
-                    continue;
-                }
-
-                $primaryCentury = CenturyName::fromYear($primaryYear);
-                $multiplicityCountsByCentury[$primaryCentury][$multiplicityKey]
-                    = ($multiplicityCountsByCentury[$primaryCentury][$multiplicityKey] ?? 0) + $size;
-                $multiplicitySetsByCentury[$primaryCentury][$multiplicityKey]
-                    = ($multiplicitySetsByCentury[$primaryCentury][$multiplicityKey] ?? 0) + 1;
+            if (count($cluster) >= 2) {
+                $clusters[] = $cluster;
             }
+        }
+
+        foreach ($clusters as $setChildren) {
+            $size            = count($setChildren);
+            $multiplicityKey = $size >= self::MULTIPLE_BIRTH_CAP ? self::MULTIPLE_BIRTH_CAP : $size;
+            $primaryChild    = $setChildren[0];
+            $primaryYear     = $yearByChild[$primaryChild] ?? 0;
+
+            if ($primaryYear <= 0) {
+                continue;
+            }
+
+            $primaryCentury = CenturyName::fromYear($primaryYear);
+            $multiplicityCountsByCentury[$primaryCentury][$multiplicityKey]
+                = ($multiplicityCountsByCentury[$primaryCentury][$multiplicityKey] ?? 0) + $size;
+            $multiplicitySetsByCentury[$primaryCentury][$multiplicityKey]
+                = ($multiplicitySetsByCentury[$primaryCentury][$multiplicityKey] ?? 0) + 1;
         }
 
         if ($totalsByCentury === []) {
@@ -624,79 +613,6 @@ final readonly class ChildrenRepository
             categories: $categories,
             series: $series,
         );
-    }
-
-    /**
-     * Resolve INDI:ASSO associations that look like multi-birth
-     * links across the supplied individuals. Two children are
-     * unioned when both carry an ASSO pointing at the other AND
-     * their recorded BIRT julian-days sit within
-     * {@see MULTI_BIRTH_ASSO_MAX_DAY_DIFF} of each other — that
-     * picks up cross-midnight twins (which the same-day-BIRT
-     * heuristic misses) without dragging in unrelated ASSO
-     * relationships such as godparents or mentors. The RELA token
-     * is intentionally not consulted: trees use widely different
-     * RELA prose ("twin" / "Zwilling" / "jumeau" / "I3 born minutes
-     * later" / "") and the date proximity itself is the cleaner
-     * signal.
-     *
-     * @param array<string, int> $jdByChild Map of child xref → BIRT julian-day (for proximity check)
-     *
-     * @return array<string, list<string>>
-     */
-    private function multiBirthLinksFromAsso(array $jdByChild): array
-    {
-        if ($jdByChild === []) {
-            return [];
-        }
-
-        $rows = TreeScope::table($this->tree, 'individuals')
-            ->whereIn('i_id', array_keys($jdByChild))
-            ->select(['i_id AS xref', 'i_gedcom AS gedcom'])
-            ->get();
-
-        /** @var array<string, list<string>> $links */
-        $links = [];
-
-        foreach ($rows as $row) {
-            $xref   = RowCast::string($row, 'xref');
-            $gedcom = RowCast::string($row, 'gedcom');
-
-            if ($xref === '') {
-                continue;
-            }
-
-            if ($gedcom === '') {
-                continue;
-            }
-
-            $xrefJd = $jdByChild[$xref] ?? 0;
-
-            if ($xrefJd <= 0) {
-                continue;
-            }
-
-            foreach (GedcomScanner::extractAssociations($gedcom) as $partnerId) {
-                $partnerJd = $jdByChild[$partnerId] ?? 0;
-
-                if ($partnerJd <= 0) {
-                    continue;
-                }
-
-                if (abs($xrefJd - $partnerJd) > self::MULTI_BIRTH_ASSO_MAX_DAY_DIFF) {
-                    continue;
-                }
-
-                $links[$xref][]      = $partnerId;
-                $links[$partnerId][] = $xref;
-            }
-        }
-
-        foreach ($links as $key => $partners) {
-            $links[$key] = array_values(array_unique($partners));
-        }
-
-        return $links;
     }
 
     /**

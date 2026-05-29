@@ -27,8 +27,8 @@ use function array_values;
  * layout the assertions ride on. The shared lookups (children-per-
  * family, sibling-age-gap, childless distribution, first child by
  * month, average per family, top-N families) ride on `children.ged`;
- * the multi-birth, sibling-modifier-edge-case, and ASSO cross-day
- * paths bring their own dedicated fixtures.
+ * the multi-birth, sibling-modifier-edge-case, and cross-midnight
+ * proximity paths bring their own dedicated fixtures.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -289,31 +289,40 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * INDI:ASSO partners whose BIRT julian-days sit within one day
-     * of each other (cross-midnight twins) get unioned into a
-     * single multi-birth set, closing the same-day-BIRT heuristic's
-     * blind spot. The fixture carries 252 19th-century children:
-     * 250 singletons in their own FAMs plus
-     * * one cross-midnight twin pair (31 DEC 1850 / 1 JAN 1851)
-     *   mutually linked via ASSO — diff = 1 day → MERGE,
-     * * a negative case (10 JUN 1860 / 20 JUN 1860, also same FAM,
-     *   mutually ASSO-linked) — diff = 10 days → NO merge.
+     * Same-FAM siblings whose BIRT julian-days sit within one
+     * calendar day of the set's earliest birth form a multi-birth
+     * set, with no INDI:ASSO link required — a mother cannot deliver
+     * two separate pregnancies a day apart, so same-FAM proximity is
+     * the signal by itself. Detection anchors each set on its
+     * earliest birth rather than chaining off the previous child, so
+     * a set never grows past a one-day span. The fixture carries 262
+     * 19th-century children: 250 singletons in their own FAMs plus
+     * five hand-placed FAMs that exercise every branch of the rule:
+     * * F350 — 31 DEC 1850 / 1 JAN 1851: span 1 day → MERGE (twin),
+     * * F351 — 10 JUN 1860 / 20 JUN 1860: span 10 days → NO merge,
+     * * F352 — 10 JAN 1862 / 12 JAN 1862: span 2 days → NO merge,
+     *   the boundary case one day past the tolerance,
+     * * F353 — 30 DEC 1864 / 30 DEC 1864 / 31 DEC 1864: span 1 day
+     *   → MERGE (cross-midnight triplet, two before midnight + one
+     *   after),
+     * * F354 — 28 / 29 / 30 DEC 1866: consecutive single-day steps.
+     *   Anchored on the 28th, the 30th is 2 days out and splits off,
+     *   so this yields a twin (28 / 29) plus a singleton — NOT a
+     *   chained triplet.
      *
-     * The RELA token on the ASSO sub-block is not consulted by the
-     * production code; the date-proximity cutoff
-     * ({@see ChildrenRepository::MULTI_BIRTH_ASSO_MAX_DAY_DIFF})
-     * gates the union by itself. Locks both halves of the
-     * contract: a regex typo on the ASSO scan would miss the
-     * cross-midnight twins (rate=0), a missing day-diff cutoff
-     * would pull in the 10-day-apart pair (rate=1.59 %).
+     * Resulting sets: 2 twin sets (F350 + F354's 28/29 pair) = 4
+     * children, 1 triplet set (F353) = 3 children. The chaining bug
+     * this guards against would instead read F354 as a triplet,
+     * flipping the figures to 1 twin set (2 children) + 2 triplet
+     * sets (6 children).
      */
     #[Test]
-    public function multipleBirthRateByCenturyUnionsAssoLinkedSiblingsWithinOneDay(): void
+    public function multipleBirthRateByCenturyUnionsSameFamilySiblingsBornWithinOneDay(): void
     {
-        $tree   = $this->importFixtureTree('multi-birth-asso.ged');
+        $tree   = $this->importFixtureTree('multi-birth-proximity.ged');
         $result = $this->repository($tree)->multipleBirthRateByCentury();
 
-        // Only the 19th century clears the cohort floor (252 dated
+        // Only the 19th century clears the cohort floor (262 dated
         // births).
         self::assertSame(['19th cent.'], $result->categories);
 
@@ -325,12 +334,17 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
             $byName[$series->name] = $series;
         }
 
-        // Only Twins emitted — the 10-days-apart ASSO pair stays as
-        // two singletons, so triplet / quadruplet / quintuplet+
-        // series never enter the payload.
-        self::assertSame(['Twins'], array_keys($byName));
+        // Twins and Triplets only — the 10-day and 2-day pairs stay
+        // as singletons, and the consecutive-day F354 splits rather
+        // than chaining into a quadruplet / quintuplet+.
+        self::assertSame(['Twins', 'Triplets'], array_keys($byName));
 
-        // 2 twin children of 252 ≈ 0.79 %.
-        self::assertEqualsWithDelta(0.79, $byName['Twins']->values[0], 0.01);
+        // 4 twin children of 262 ≈ 1.53 % (F350 + F354's anchored
+        // 28/29 pair). Under the chaining bug this would be 0.76 %.
+        self::assertEqualsWithDelta(1.53, $byName['Twins']->values[0], 0.01);
+
+        // 3 triplet children of 262 ≈ 1.15 % (F353 only). Under the
+        // chaining bug F354 would add a second triplet set → 2.29 %.
+        self::assertEqualsWithDelta(1.15, $byName['Triplets']->values[0], 0.01);
     }
 }

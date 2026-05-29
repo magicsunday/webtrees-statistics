@@ -843,10 +843,9 @@ final readonly class Statistic
      * multiplicity that actually occurs in the tree (twins,
      * triplets, quadruplets, quintuplets and above). Each series
      * carries that multiplicity's per-century share of dated
-     * births. Detection unions same-day BIRT siblings with mutual
-     * INDI:ASSO partners whose BIRT dates sit within one day, so
-     * cross-midnight twins still count when the tree author
-     * recorded the association explicitly.
+     * births. Detection groups same-FAM siblings whose BIRT dates
+     * sit within one day of each other, so cross-midnight twins
+     * count without depending on an explicit INDI:ASSO link.
      */
     public function getMultipleBirthRateByCentury(): LineChartPayload
     {

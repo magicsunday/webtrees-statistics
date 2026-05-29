@@ -455,27 +455,4 @@ final readonly class GedcomScanner
             "%\n1 " . $tag,
         ];
     }
-
-    /**
-     * Extract every `1 ASSO @xref@` association block from a GEDCOM
-     * record body, returning the partner xrefs. Sub-tags such as
-     * `2 NOTE` / `2 SOUR` / `2 RELA` may sit between the level-1
-     * ASSO line and the next level-1 tag and are ignored — the
-     * caller decides how to filter associations (e.g. by date
-     * proximity, by RELA token, …). RELA-less associations are
-     * returned alongside RELA-tagged ones so callers don't depend
-     * on tree authors having recorded a RELA value.
-     *
-     * @param string $gedcom Raw GEDCOM record body
-     *
-     * @return list<string> Partner xrefs in document order
-     */
-    public static function extractAssociations(string $gedcom): array
-    {
-        if (preg_match_all('/\n1 ASSO @([^@\s]+)@/', $gedcom, $matches) === 0) {
-            return [];
-        }
-
-        return $matches[1];
-    }
 }
