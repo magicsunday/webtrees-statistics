@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
+/* jscpd:ignore-start — the import block is identical to the sibling bipartite-Sankey aggregator (OccupationInheritanceRepository); the shared LOGIC lives in BipartiteSankeyAssembler, so this is pure import boilerplate, not a duplicate to extract. */
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyFlowsPayload;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeySample;
@@ -23,6 +24,8 @@ use function count;
 use function end;
 use function explode;
 use function trim;
+
+/* jscpd:ignore-end */
 
 /**
  * Aggregates birth → death country movements across the tree's individuals.
