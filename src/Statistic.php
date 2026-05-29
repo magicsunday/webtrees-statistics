@@ -62,9 +62,9 @@ use function usort;
  * Aggregator service that backs the statistics-chart tab partials.
  *
  * Delegates every count that the core `StatisticsData` accessor exposes
- * directly to it; uses local repositories only for the things core does
- * not provide (marital-status classification by Census semantics, zodiac
- * grouping, primary-name distinct counts).
+ * directly to it; uses local repositories only for the things core does not
+ * provide (marital-status classification by Census semantics, zodiac grouping,
+ * primary-name distinct counts).
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -125,9 +125,9 @@ final readonly class Statistic
     }
 
     /**
-     * Surname × surname marriage matrix for the chord-diagram widget
-     * on the Names tab. Top-N surnames by marriage count; matrix is
-     * symmetric so `[i][j] === [j][i]` for every off-diagonal cell.
+     * Surname × surname marriage matrix for the chord-diagram widget on the
+     * Names tab. Top-N surnames by marriage count; matrix is symmetric so
+     * `[i][j] === [j][i]` for every off-diagonal cell.
      *
      * @param int $topN Cap on the number of arcs.
      */
@@ -137,11 +137,10 @@ final readonly class Statistic
     }
 
     /**
-     * Same-sex given-name passdown rate per child's birth century,
-     * two series on the same X axis: father → son and mother →
-     * daughter. Each series shows the share of children whose
-     * given names overlap with the same-sex parent's by at least
-     * one token, expressed as a 0..100 percentage.
+     * Same-sex given-name passdown rate per child's birth century, two series
+     * on the same X axis: father → son and mother → daughter. Each series shows
+     * the share of children whose given names overlap with the same-sex
+     * parent's by at least one token, expressed as a 0..100 percentage.
      */
     public function getSameSexNamePassdownByCentury(): LineChartPayload
     {
@@ -149,8 +148,8 @@ final readonly class Statistic
     }
 
     /**
-     * Total individuals in the tree (every status, including the
-     * unknown-sex and the deceased).
+     * Total individuals in the tree (every status, including the unknown-sex
+     * and the deceased).
      */
     public function getTotalIndividuals(): int
     {
@@ -158,9 +157,9 @@ final readonly class Statistic
     }
 
     /**
-     * Facade aggregator that returns one DTO carrying every headline
-     * the hero template renders, so the view stays bound to a single
-     * facade call instead of six.
+     * Facade aggregator that returns one DTO carrying every headline the hero
+     * template renders, so the view stays bound to a single facade call instead
+     * of six.
      */
     public function getHeroStats(): HeroStats
     {
@@ -236,10 +235,10 @@ final readonly class Statistic
     }
 
     /**
-     * Marital-status breakdown for the donut chart. Each living individual
-     * is classified into exactly one bucket by the family repository using
-     * precedence current > divorced > widowed > single, so the four
-     * slices sum to the living-individual total without clamping.
+     * Marital-status breakdown for the donut chart. Each living individual is
+     * classified into exactly one bucket by the family repository using
+     * precedence current > divorced > widowed > single, so the four slices sum
+     * to the living-individual total without clamping.
      *
      * @return array<int, array{label: string, value: int, class: string}>
      */
@@ -272,8 +271,8 @@ final readonly class Statistic
     }
 
     /**
-     * Count of distinct primary surnames in the tree, computed from the
-     * same aggregation that feeds the Top-N tag cloud.
+     * Count of distinct primary surnames in the tree, computed from the same
+     * aggregation that feeds the Top-N tag cloud.
      */
     public function getTotalSurnames(): int
     {
@@ -293,8 +292,7 @@ final readonly class Statistic
     }
 
     /**
-     * Count of distinct primary given names recorded on male
-     * individuals.
+     * Count of distinct primary given names recorded on male individuals.
      */
     public function getTotalMaleGivenNames(): int
     {
@@ -314,8 +312,7 @@ final readonly class Statistic
     }
 
     /**
-     * Count of distinct primary given names recorded on female
-     * individuals.
+     * Count of distinct primary given names recorded on female individuals.
      */
     public function getTotalFemaleGivenNames(): int
     {
@@ -351,11 +348,10 @@ final readonly class Statistic
     }
 
     /**
-     * Births grouped by zodiac sign, keyed by the locale-translated
-     * sign label (Aries / Bélier / Widder etc.) — the view renders
-     * the `{label => count}` map directly. Callers needing the
-     * canonical English keys go through
-     * {@see EventRepository::getBirthsByZodiacSign()} instead.
+     * Births grouped by zodiac sign, keyed by the locale-translated sign label
+     * (Aries / Bélier / Widder etc.) — the view renders the `{label => count}`
+     * map directly. Callers needing the canonical English keys go through {@see
+     * EventRepository::getBirthsByZodiacSign()} instead.
      *
      * @return array<string, int>
      */
@@ -365,10 +361,9 @@ final readonly class Statistic
     }
 
     /**
-     * Country grouping for births. Aggregated from the same
-     * `places` + `placelinks` join chain core uses internally,
-     * then re-confirmed against the raw GEDCOM so a person's
-     * BIRT only counts where it actually happened.
+     * Country grouping for births. Aggregated from the same `places` +
+     * `placelinks` join chain core uses internally, then re-confirmed against
+     * the raw GEDCOM so a person's BIRT only counts where it actually happened.
      *
      * @return list<array{countryCode: string, label: string, count: int}>
      */
@@ -394,9 +389,8 @@ final readonly class Statistic
     }
 
     /**
-     * Country grouping for deaths. Same aggregation pipeline as
-     * {@see getBirthsByCountry()}; the event tag is the only
-     * difference.
+     * Country grouping for deaths. Same aggregation pipeline as {@see
+     * getBirthsByCountry()}; the event tag is the only difference.
      *
      * @return list<array{countryCode: string, label: string, count: int}>
      */
@@ -406,10 +400,9 @@ final readonly class Statistic
     }
 
     /**
-     * Country grouping for residences. Each `1 RESI` occurrence on
-     * an individual contributes once — a person with three recorded
-     * residences (e.g. Germany, USA, France) registers in all three
-     * countries.
+     * Country grouping for residences. Each `1 RESI` occurrence on an
+     * individual contributes once — a person with three recorded residences
+     * (e.g. Germany, USA, France) registers in all three countries.
      *
      * @return list<array{countryCode: string, label: string, count: int}>
      */
@@ -419,8 +412,8 @@ final readonly class Statistic
     }
 
     /**
-     * Age-at-death distribution bucketed into 10-year bands, ready
-     * for the histogram-style ProgressList partial.
+     * Age-at-death distribution bucketed into 10-year bands, ready for the
+     * histogram-style ProgressList partial.
      *
      * @return array<string, int>
      */
@@ -430,8 +423,8 @@ final readonly class Statistic
     }
 
     /**
-     * Average lifespan grouped by birth-century × sex — feeds the
-     * multi-series LineChart in the LifeSpan tab.
+     * Average lifespan grouped by birth-century × sex — feeds the multi-series
+     * LineChart in the LifeSpan tab.
      */
     public function getAverageLifespanBySexAndCentury(): LineChartPayload
     {
@@ -439,9 +432,9 @@ final readonly class Statistic
     }
 
     /**
-     * Survival curve per birth century — for each cohort the share
-     * of individuals still alive at age 0, 10, 20, …, 100. Feeds the
-     * multi-series LineChart in the LifeSpan tab.
+     * Survival curve per birth century — for each cohort the share of
+     * individuals still alive at age 0, 10, 20, …, 100. Feeds the multi-series
+     * LineChart in the LifeSpan tab.
      */
     public function getSurvivalCurveByCentury(): LineChartPayload
     {
@@ -449,11 +442,11 @@ final readonly class Statistic
     }
 
     /**
-     * Births grouped by decade — the tree-growth indicator on the
-     * TreeHealth tab. Leading / trailing zero-decades are trimmed;
-     * inner zero-decades stay so historical gaps remain visible.
-     * Keys are integer decade starts (e.g. 1900 for the 1900s);
-     * the view layer formats them via `I18N::translate('%ss', $decade)`.
+     * Births grouped by decade — the tree-growth indicator on the TreeHealth
+     * tab. Leading / trailing zero-decades are trimmed; inner zero-decades stay
+     * so historical gaps remain visible. Keys are integer decade starts (e.g.
+     * 1900 for the 1900s); the view layer formats them via
+     * `I18N::translate('%ss', $decade)`.
      *
      * @return array<int, int>
      */
@@ -463,10 +456,9 @@ final readonly class Statistic
     }
 
     /**
-     * Running cumulative population by decade — for each decade in
-     * the visible birth window the total number of individuals
-     * born up to and including that decade. Layers a running sum
-     * on top of {@see getBirthsByDecade()}.
+     * Running cumulative population by decade — for each decade in the visible
+     * birth window the total number of individuals born up to and including
+     * that decade. Layers a running sum on top of {@see getBirthsByDecade()}.
      *
      * @return array<int, int>
      */
@@ -476,10 +468,10 @@ final readonly class Statistic
     }
 
     /**
-     * Raw age-at-death samples grouped by birth century. Each row
-     * carries the year-precision integer ages for one cohort plus
-     * the sample size; downstream consumers (chart-lib BoxPlot)
-     * compute quartiles and whiskers themselves.
+     * Raw age-at-death samples grouped by birth century. Each row carries the
+     * year-precision integer ages for one cohort plus the sample size;
+     * downstream consumers (chart-lib BoxPlot) compute quartiles and whiskers
+     * themselves.
      *
      * @return list<array{century: int, values: list<int>, n: int}>
      */
@@ -489,8 +481,8 @@ final readonly class Statistic
     }
 
     /**
-     * Winter-peak indicator for deaths (Dec+Jan+Feb vs. baseline).
-     * Returns null when fewer than 12 dated deaths are recorded.
+     * Winter-peak indicator for deaths (Dec+Jan+Feb vs. baseline). Returns null
+     * when fewer than 12 dated deaths are recorded.
      */
     public function getDeathWinterPeakScore(): ?WinterPeakScore
     {
@@ -498,9 +490,9 @@ final readonly class Statistic
     }
 
     /**
-     * Distinct-PLAC dispersion across the tree. Average + sampled
-     * count + distribution shaped for a side-by-side
-     * Scalar + ProgressList visual on the Places tab.
+     * Distinct-PLAC dispersion across the tree. Average + sampled count +
+     * distribution shaped for a side-by-side Scalar + ProgressList visual on
+     * the Places tab.
      */
     public function getPlaceDispersionSummary(): PlaceDispersionSummary
     {
@@ -508,9 +500,9 @@ final readonly class Statistic
     }
 
     /**
-     * Tree-wide under-5 child mortality summary: count of individuals
-     * with both BIRT + DEAT julian-days, count that died before age
-     * five, and the percentage. Null when no BIRT+DEAT pair exists.
+     * Tree-wide under-5 child mortality summary: count of individuals with both
+     * BIRT + DEAT julian-days, count that died before age five, and the
+     * percentage. Null when no BIRT+DEAT pair exists.
      */
     public function getChildMortalitySummary(): ?ChildMortalitySummary
     {
@@ -518,10 +510,9 @@ final readonly class Statistic
     }
 
     /**
-     * Under-5 child mortality per birth century — list of
-     * `{century, total, died, rate}` entries, ordered ascending, with
-     * tiny cohorts (< 5 children) suppressed. View formats the
-     * century label and tooltip prose via I18N.
+     * Under-5 child mortality per birth century — list of `{century, total,
+     * died, rate}` entries, ordered ascending, with tiny cohorts (< 5 children)
+     * suppressed. View formats the century label and tooltip prose via I18N.
      *
      * @return list<array{century: int, total: int, died: int, rate: float}>
      */
@@ -531,14 +522,14 @@ final readonly class Statistic
     }
 
     /**
-     * Generation-depth summary for the Family tab: tree-wide longest
-     * vertical descent, per-individual `[depth → count]` histogram
-     * across the entire parentage graph, a `capped` flag that
-     * trips when the depth-cap guard fired, up to three concrete
-     * chains (each a list of {@see \Fisharebest\Webtrees\Individual} objects, ordered
-     * eldest-ancestor → leaf-descendant) that reach the tree-wide
-     * maximum depth, and the total number of distinct chains so
-     * the view can surface "+N more" when more than three exist.
+     * Generation-depth summary for the Family tab: tree-wide longest vertical
+     * descent, per-individual `[depth → count]` histogram across the entire
+     * parentage graph, a `capped` flag that trips when the depth-cap guard
+     * fired, up to three concrete chains (each a list of {@see
+     * \Fisharebest\Webtrees\Individual} objects, ordered eldest-ancestor →
+     * leaf-descendant) that reach the tree-wide maximum depth, and the total
+     * number of distinct chains so the view can surface "+N more" when more
+     * than three exist.
      */
     public function getGenerationDepthSummary(): GenerationDepthReport
     {
@@ -546,12 +537,11 @@ final readonly class Statistic
     }
 
     /**
-     * Top-N ancestors ranked by total transitive descendant count.
-     * Surfaces the structural roots of the tree — the individuals
-     * whose branches actually carry the rest of the recorded
-     * lineage. Each entry carries the XREF, display label and count
-     * so the Podium component renders it directly without collapsing
-     * same-named ancestors.
+     * Top-N ancestors ranked by total transitive descendant count. Surfaces the
+     * structural roots of the tree — the individuals whose branches actually
+     * carry the rest of the recorded lineage. Each entry carries the XREF,
+     * display label and count so the Podium component renders it directly
+     * without collapsing same-named ancestors.
      *
      * @param int $limit Maximum number of rows to return
      *
@@ -563,10 +553,9 @@ final readonly class Statistic
     }
 
     /**
-     * Co-trimmed `{father, mother}` age-at-first-child distributions
-     * — both 5-year-band maps with leading and trailing all-zero
-     * buckets dropped symmetrically. Index 0 is fathers, index 1 is
-     * mothers.
+     * Co-trimmed `{father, mother}` age-at-first-child distributions — both
+     * 5-year-band maps with leading and trailing all-zero buckets dropped
+     * symmetrically. Index 0 is fathers, index 1 is mothers.
      *
      * @return array{0: array<string, int>, 1: array<string, int>}
      */
@@ -579,11 +568,10 @@ final readonly class Statistic
     }
 
     /**
-     * Per-decade trend of the mean parental age at first child, with
-     * one series each for fathers and mothers. Lets the family-tab
-     * reader see the historical drift — the secular rise in parental
-     * age across the 20th century in particular — that the
-     * aggregate 5-year-band histogram hides.
+     * Per-decade trend of the mean parental age at first child, with one series
+     * each for fathers and mothers. Lets the family-tab reader see the
+     * historical drift — the secular rise in parental age across the 20th
+     * century in particular — that the aggregate 5-year-band histogram hides.
      */
     public function getAgeAtFirstChildMeanByDecade(): LineChartPayload
     {
@@ -591,10 +579,10 @@ final readonly class Statistic
     }
 
     /**
-     * Endogamy summary: testable-couple count, count sharing ≥1
-     * common ancestor within the default depth, the resulting
-     * percentage, and the depth used. Null when no testable couple
-     * exists (a tree with no recorded parentage links anywhere).
+     * Endogamy summary: testable-couple count, count sharing ≥1 common ancestor
+     * within the default depth, the resulting percentage, and the depth used.
+     * Null when no testable couple exists (a tree with no recorded parentage
+     * links anywhere).
      */
     public function getEndogamySummary(): ?EndogamyRate
     {
@@ -602,11 +590,10 @@ final readonly class Statistic
     }
 
     /**
-     * Hall-of-fame style record holders bundled into a typed report
-     * the view can render as a table. Each property is independently
-     * nullable — a fresh tree without enough data may yield zero,
-     * some, or all slots; the view renders each row only when its
-     * slot is populated.
+     * Hall-of-fame style record holders bundled into a typed report the view
+     * can render as a table. Each property is independently nullable — a fresh
+     * tree without enough data may yield zero, some, or all slots; the view
+     * renders each row only when its slot is populated.
      */
     public function getTreeRecords(): TreeRecordsReport
     {
@@ -630,8 +617,8 @@ final readonly class Statistic
     }
 
     /**
-     * Top-N oldest deceased individuals, each carrying the XREF,
-     * display name and age in years.
+     * Top-N oldest deceased individuals, each carrying the XREF, display name
+     * and age in years.
      *
      * @param int $limit Maximum number of rows to return.
      *
@@ -643,8 +630,8 @@ final readonly class Statistic
     }
 
     /**
-     * Top-N oldest living individuals, each carrying the XREF,
-     * display name and age in years.
+     * Top-N oldest living individuals, each carrying the XREF, display name and
+     * age in years.
      *
      * @param int $limit Maximum number of rows to return.
      *
@@ -656,8 +643,8 @@ final readonly class Statistic
     }
 
     /**
-     * Living-individual count grouped by life-stage age-band, ready
-     * for the donut partial.
+     * Living-individual count grouped by life-stage age-band, ready for the
+     * donut partial.
      *
      * @return list<array{label: string, value: int, class: string}>
      */
@@ -667,10 +654,9 @@ final readonly class Statistic
     }
 
     /**
-     * Co-trimmed `{husband, wife}` age-at-marriage distributions —
-     * both 5-year-band maps (incl. 60+ overflow) with leading and
-     * trailing all-zero buckets dropped symmetrically. Index 0 is
-     * husbands, index 1 is wives.
+     * Co-trimmed `{husband, wife}` age-at-marriage distributions — both
+     * 5-year-band maps (incl. 60+ overflow) with leading and trailing all-zero
+     * buckets dropped symmetrically. Index 0 is husbands, index 1 is wives.
      *
      * @return array{0: array<string, int>, 1: array<string, int>}
      */
@@ -693,10 +679,9 @@ final readonly class Statistic
     }
 
     /**
-     * Widowhood / widower-interval histogram (5-year bands up to
-     * 50+) — for FAMs where both spouses carry a recorded DEAT,
-     * the number of years the survivor outlived the first-deceased
-     * partner.
+     * Widowhood / widower-interval histogram (5-year bands up to 50+) — for
+     * FAMs where both spouses carry a recorded DEAT, the number of years the
+     * survivor outlived the first-deceased partner.
      *
      * @return array<string, int>
      */
@@ -706,9 +691,9 @@ final readonly class Statistic
     }
 
     /**
-     * Couple age-gap histogram (symmetric 5-year bands centred on
-     * zero). Negative buckets mean husband older than wife
-     * (`husbandBirthJd < wifeBirthJd` → husband born first).
+     * Couple age-gap histogram (symmetric 5-year bands centred on zero).
+     * Negative buckets mean husband older than wife (`husbandBirthJd <
+     * wifeBirthJd` → husband born first).
      *
      * @return array<string, int>
      */
@@ -728,9 +713,8 @@ final readonly class Statistic
     }
 
     /**
-     * Weddings grouped by month (first MARR per family). Keys are
-     * the localised month names so the rendering matches the
-     * existing births-by-month card.
+     * Weddings grouped by month (first MARR per family). Keys are the localised
+     * month names so the rendering matches the existing births-by-month card.
      *
      * @return array<string, int>
      */
@@ -760,10 +744,9 @@ final readonly class Statistic
     }
 
     /**
-     * Co-trimmed `{husband, wife}` age-at-divorce distributions —
-     * both 5-year-band maps (incl. 80+ overflow) with leading and
-     * trailing all-zero buckets dropped symmetrically. Index 0 is
-     * husbands, index 1 is wives.
+     * Co-trimmed `{husband, wife}` age-at-divorce distributions — both
+     * 5-year-band maps (incl. 80+ overflow) with leading and trailing all-zero
+     * buckets dropped symmetrically. Index 0 is husbands, index 1 is wives.
      *
      * @return array{0: array<string, int>, 1: array<string, int>}
      */
@@ -787,8 +770,8 @@ final readonly class Statistic
     }
 
     /**
-     * Divorces cross-tabulated by divorce century and age-band —
-     * feeds the StackedBar widget on the Family tab.
+     * Divorces cross-tabulated by divorce century and age-band — feeds the
+     * StackedBar widget on the Family tab.
      */
     public function getDivorcesByCenturyAndAgeBand(): StackedBarPayload
     {
@@ -824,9 +807,8 @@ final readonly class Statistic
     }
 
     /**
-     * Family-size composition pivoted into a StackedBar payload —
-     * one bar per decade (1900s, 1910s, …), segments stack
-     * 1/2/3/4+ children.
+     * Family-size composition pivoted into a StackedBar payload — one bar per
+     * decade (1900s, 1910s, …), segments stack 1/2/3/4+ children.
      */
     public function getFamilySizeStackedByDecade(): StackedBarPayload
     {
@@ -834,8 +816,8 @@ final readonly class Statistic
     }
 
     /**
-     * Average children per family by century — single LineChart
-     * series tracking the central tendency over time.
+     * Average children per family by century — single LineChart series tracking
+     * the central tendency over time.
      */
     public function getAverageFamilySizeByCentury(): LineChartPayload
     {
@@ -843,13 +825,12 @@ final readonly class Statistic
     }
 
     /**
-     * Multiple-birth rate per century — one LineChart series per
-     * multiplicity that actually occurs in the tree (twins,
-     * triplets, quadruplets, quintuplets and above). Each series
-     * carries that multiplicity's per-century share of dated
-     * births. Detection groups same-FAM siblings whose BIRT dates
-     * sit within one day of each other, so cross-midnight twins
-     * count without depending on an explicit INDI:ASSO link.
+     * Multiple-birth rate per century — one LineChart series per multiplicity
+     * that actually occurs in the tree (twins, triplets, quadruplets,
+     * quintuplets and above). Each series carries that multiplicity's
+     * per-century share of dated births. Detection groups same-FAM siblings
+     * whose BIRT dates sit within one day of each other, so cross-midnight
+     * twins count without depending on an explicit INDI:ASSO link.
      */
     public function getMultipleBirthRateByCentury(): LineChartPayload
     {
@@ -857,8 +838,8 @@ final readonly class Statistic
     }
 
     /**
-     * Top-N largest families by child count, each carrying the
-     * family XREF, display label and child count.
+     * Top-N largest families by child count, each carrying the family XREF,
+     * display label and child count.
      *
      * @param int $limit Maximum number of rows.
      *
@@ -890,8 +871,8 @@ final readonly class Statistic
     }
 
     /**
-     * Histogram of known-ancestor counts per individual (4-generation
-     * walk, 3-wide buckets).
+     * Histogram of known-ancestor counts per individual (4-generation walk,
+     * 3-wide buckets).
      *
      * @return array<string, int>
      */
@@ -901,8 +882,8 @@ final readonly class Statistic
     }
 
     /**
-     * Mean pedigree-completeness index across every individual
-     * (Lacy 1989, 4-generation depth). Fraction 0.0-1.0.
+     * Mean pedigree-completeness index across every individual (Lacy 1989,
+     * 4-generation depth). Fraction 0.0-1.0.
      */
     public function getAveragePedigreeCompleteness(): float
     {
@@ -910,8 +891,8 @@ final readonly class Statistic
     }
 
     /**
-     * Source-citation coverage as `{value, total}`, ready for the
-     * ProgressList partial to derive the percentage and absolute counts.
+     * Source-citation coverage as `{value, total}`, ready for the ProgressList
+     * partial to derive the percentage and absolute counts.
      */
     public function getSourceCitationCoverage(): RateCount
     {
@@ -919,13 +900,13 @@ final readonly class Statistic
     }
 
     /**
-     * Source-citation coverage broken down by birth century — the
-     * per-century companion to {@see getSourceCitationCoverage()}.
-     * Surfaces which historical eras carry their share of
-     * source-backed documentation and which rely on family lore.
-     * Centuries below the repository's minimum-sample threshold are
-     * dropped from the breakdown to keep the bar from spiking on a
-     * single sourced ancestor; BCE birth years are excluded entirely.
+     * Source-citation coverage broken down by birth century — the per-century
+     * companion to {@see getSourceCitationCoverage()}. Surfaces which
+     * historical eras carry their share of source-backed documentation and
+     * which rely on family lore. Centuries below the repository's
+     * minimum-sample threshold are dropped from the breakdown to keep the bar
+     * from spiking on a single sourced ancestor; BCE birth years are excluded
+     * entirely.
      *
      * @return list<array{century: int, total: int, sourced: int, percentage: float}>
      */
@@ -935,10 +916,10 @@ final readonly class Statistic
     }
 
     /**
-     * Missing-event gap rates for BIRT / DEAT, each split into "event
-     * missing" and "place missing" rows. Returned as `{event, kind,
-     * value, total}` tuples so the consumer can render its own label
-     * (keeping translations next to their consuming markup).
+     * Missing-event gap rates for BIRT / DEAT, each split into "event missing"
+     * and "place missing" rows. Returned as `{event, kind, value, total}`
+     * tuples so the consumer can render its own label (keeping translations
+     * next to their consuming markup).
      *
      * @return array<int, array{event: string, kind: string, value: int, total: int}>
      */
@@ -948,9 +929,9 @@ final readonly class Statistic
     }
 
     /**
-     * Average years between a parent's birth and a child's birth across
-     * every parent-child pair where both ends carry a parseable BIRT
-     * date. Returns null when the tree has no usable pair.
+     * Average years between a parent's birth and a child's birth across every
+     * parent-child pair where both ends carry a parseable BIRT date. Returns
+     * null when the tree has no usable pair.
      */
     public function getAverageGenerationLength(): ?float
     {
@@ -959,8 +940,8 @@ final readonly class Statistic
 
     /**
      * Per-decade frequencies of the top-N given names, ready for the
-     * stream-graph renderer. Each band sums to the individual's count
-     * across the entire decade.
+     * stream-graph renderer. Each band sums to the individual's count across
+     * the entire decade.
      *
      * @param int $topN Maximum number of distinct given names to keep
      */
@@ -971,8 +952,8 @@ final readonly class Statistic
 
     /**
      * Top-N occupations across the tree (`1 OCCU` facts on individuals),
-     * case-folded so spelling variants merge into one bucket. Display
-     * labels carry the first-seen original casing.
+     * case-folded so spelling variants merge into one bucket. Display labels
+     * carry the first-seen original casing.
      *
      * @param int $limit Maximum number of occupations to surface
      *
@@ -993,8 +974,7 @@ final readonly class Statistic
 
     /**
      * Top-N religions / confessions across the tree (`1 RELI` facts on
-     * individuals), case-folded so spelling variants merge into one
-     * bucket.
+     * individuals), case-folded so spelling variants merge into one bucket.
      *
      * @param int $limit Maximum number of religions to surface
      *
@@ -1014,9 +994,8 @@ final readonly class Statistic
     }
 
     /**
-     * Top-N death causes across the tree (`2 CAUS` sub-facts under the
-     * `1 DEAT` block), case-folded so spelling variants merge into one
-     * bucket.
+     * Top-N death causes across the tree (`2 CAUS` sub-facts under the `1 DEAT`
+     * block), case-folded so spelling variants merge into one bucket.
      *
      * @param int $limit Maximum number of causes to surface
      *
@@ -1036,9 +1015,9 @@ final readonly class Statistic
     }
 
     /**
-     * Birth → death country migration flows ready for the Places-tab
-     * Sankey diagram. Same-country trajectories are dropped (no
-     * movement); only the top-N weighted links are returned.
+     * Birth → death country migration flows ready for the Places-tab Sankey
+     * diagram. Same-country trajectories are dropped (no movement); only the
+     * top-N weighted links are returned.
      *
      * @param int $topLinks Maximum number of distinct flows to retain
      */
@@ -1100,7 +1079,8 @@ final readonly class Statistic
     }
 
     /**
-     * Translated NOMINATIVE month names keyed by the GEDCOM 3-letter abbreviation.
+     * Translated NOMINATIVE month names keyed by the GEDCOM 3-letter
+     * abbreviation.
      *
      * @return array<string, string>
      */

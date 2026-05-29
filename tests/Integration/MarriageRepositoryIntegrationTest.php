@@ -19,8 +19,8 @@ use function array_sum;
 use function array_values;
 
 /**
- * End-to-end test of {@see MarriageRepository} against a curated
- * fixture covering the four edge cases that matter:
+ * End-to-end test of {@see MarriageRepository} against a curated fixture
+ * covering the four edge cases that matter:
  *
  *   F1: Anton (1850) × Berta (1853), married 1875 — both eventually
  *       deceased (1925 / 1920), so the duration ends at 1920.
@@ -45,9 +45,9 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Age-at-marriage histogram surfaces each husband in the
-     * expected 5-year bucket. Anton married at 25, Carl at 45, Emil
-     * at 35 — three distinct buckets.
+     * Age-at-marriage histogram surfaces each husband in the expected 5-year
+     * bucket. Anton married at 25, Carl at 45, Emil at 35 — three distinct
+     * buckets.
      */
     #[Test]
     public function ageAtMarriageDistributionBucketsHusbands(): void
@@ -62,9 +62,9 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Duration histogram skips F3 (no end event yet) and buckets the
-     * other two marriages into their decade bands. F1 1875→1920 = 45y,
-     * F2 1925→1950 = 25y.
+     * Duration histogram skips F3 (no end event yet) and buckets the other two
+     * marriages into their decade bands. F1 1875→1920 = 45y, F2 1925→1950 =
+     * 25y.
      */
     #[Test]
     public function durationDistributionExcludesOpenMarriages(): void
@@ -78,10 +78,9 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Couple age-gap histogram uses signed buckets centred on zero.
-     * F1: husband 1850 − wife 1853 = −3y → -5 to -1 bucket
-     * F2: 1880 − 1895 = -15y → -15 to -11
-     * F3: 1920 − 1915 = +5y → 5-9.
+     * Couple age-gap histogram uses signed buckets centred on zero. F1: husband
+     * 1850 − wife 1853 = −3y → -5 to -1 bucket F2: 1880 − 1895 = -15y → -15 to
+     * -11 F3: 1920 − 1915 = +5y → 5-9.
      */
     #[Test]
     public function ageGapDistributionAcceptsSignedBuckets(): void
@@ -112,12 +111,11 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Widowhood histogram only counts FAMs where BOTH spouses have a
-     * recorded DEAT. In the fixture, only F1 qualifies: Anton died
-     * 1925, Berta died 1920 — a 5-year widowhood for Anton. F2 has
-     * an undated wife DEAT (Doris), F3 has neither spouse dated, so
-     * neither contributes. The single qualifying pair lands in the
-     * 5–9 band.
+     * Widowhood histogram only counts FAMs where BOTH spouses have a recorded
+     * DEAT. In the fixture, only F1 qualifies: Anton died 1925, Berta died 1920
+     * — a 5-year widowhood for Anton. F2 has an undated wife DEAT (Doris), F3
+     * has neither spouse dated, so neither contributes. The single qualifying
+     * pair lands in the 5–9 band.
      */
     #[Test]
     public function widowhoodYearsDistributionCountsOnlyFamsWithBothDeats(): void
@@ -130,11 +128,10 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * The histogram always returns the full 11-band scaffold
-     * (0–4, 5–9, ..., 45–49, 50+) so the BarChart consumer renders
-     * a continuous axis even on a tree with zero qualifying
-     * couples. The empty-marriages fixture carries one INDI with
-     * a BIRT but no FAM, so no row qualifies.
+     * The histogram always returns the full 11-band scaffold (0–4, 5–9, ...,
+     * 45–49, 50+) so the BarChart consumer renders a continuous axis even on a
+     * tree with zero qualifying couples. The empty-marriages fixture carries
+     * one INDI with a BIRT but no FAM, so no row qualifies.
      */
     #[Test]
     public function widowhoodYearsDistributionExposesAllBandsEvenWhenEmpty(): void
@@ -149,8 +146,8 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * `weddingsByMonth` returns the GEDCOM month-keyed counts
-     * directly: JUN ×2 (F1 + F3), SEP ×1 (F2).
+     * `weddingsByMonth` returns the GEDCOM month-keyed counts directly: JUN ×2
+     * (F1 + F3), SEP ×1 (F2).
      */
     #[Test]
     public function weddingsByMonthCountsByGedcomMonthCode(): void
@@ -164,12 +161,11 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
 
     /**
      * `weddingsByCentury` returns the per-century count from core's
-     * `countEventsByCentury`. The fixture has three marriages: F1
-     * 1875 (19th), F2 1925 (20th), F3 1955 (20th). The previous
-     * implementation iterated the result with `$k => $v` where $v
-     * was a `[label, count]` tuple, and the `(int) $v` cast on an
-     * array silently collapsed every count to 1 — so a tree with
-     * 300 weddings reported "7 recorded marriages" (the number of
+     * `countEventsByCentury`. The fixture has three marriages: F1 1875 (19th),
+     * F2 1925 (20th), F3 1955 (20th). The previous implementation iterated the
+     * result with `$k => $v` where $v was a `[label, count]` tuple, and the
+     * `(int) $v` cast on an array silently collapsed every count to 1 — so a
+     * tree with 300 weddings reported "7 recorded marriages" (the number of
      * distinct centuries, not the actual total).
      */
     #[Test]
@@ -183,18 +179,16 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Every histogram method must survive a tree with zero
-     * marriages (no families at all) and return its empty / all-
-     * zero shape — neither throwing on `max()` of an empty array
-     * nor leaving partial buckets behind. The acceptance criteria
-     * for issue #4 spell this out explicitly.
+     * Every histogram method must survive a tree with zero marriages (no
+     * families at all) and return its empty / all- zero shape — neither
+     * throwing on `max()` of an empty array nor leaving partial buckets behind.
+     * The acceptance criteria for issue #4 spell this out explicitly.
      *
-     * The repo-owned histograms (ageAtMarriage, duration, ageGap)
-     * keep their bucket scaffolding so the renderer reads the same
-     * keys on an empty tree as on a populated one. The pass-through
-     * accessors (weddingsByCentury / weddingsByMonth) legitimately
-     * return `[]` because they delegate to core — those are
-     * asserted only on `array_sum === 0`.
+     * The repo-owned histograms (ageAtMarriage, duration, ageGap) keep their
+     * bucket scaffolding so the renderer reads the same keys on an empty tree
+     * as on a populated one. The pass-through accessors (weddingsByCentury /
+     * weddingsByMonth) legitimately return `[]` because they delegate to core —
+     * those are asserted only on `array_sum === 0`.
      */
     #[Test]
     public function histogramsRenderEmptyOnZeroMarriages(): void
@@ -211,8 +205,8 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * The "sparse" companion to the zero-marriages test. The fixture
-     * has two FAMs:
+     * The "sparse" companion to the zero-marriages test. The fixture has two
+     * FAMs:
      *
      *  F1 — HUSB + WIFE present, NO MARR tag, NO BIRT dates → must
      *       not contribute to durationDistribution (no marriage to
@@ -224,8 +218,8 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
      *       must drop the wife (no BIRT), but the husband is still
      *       counted.
      *
-     * The skip branches in each repo method are otherwise dead-code
-     * paths the existing fixtures never exercise.
+     * The skip branches in each repo method are otherwise dead-code paths the
+     * existing fixtures never exercise.
      */
     #[Test]
     public function histogramsSkipFamsWithoutMarrOrBirth(): void
@@ -258,13 +252,12 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Webtrees writes TWO rows into the `dates` table for every
-     * BET..AND / FROM..TO date range. The age-gap query joins
-     * `families` to two `dates` aliases (`hb` for husband BIRT,
-     * `wb` for wife BIRT); without `GROUP BY families.f_id` a
-     * single ranged BIRT row would surface as two entries in the
-     * histogram, both contributing slightly different gaps from
-     * the same family.
+     * Webtrees writes TWO rows into the `dates` table for every BET..AND /
+     * FROM..TO date range. The age-gap query joins `families` to two `dates`
+     * aliases (`hb` for husband BIRT, `wb` for wife BIRT); without `GROUP BY
+     * families.f_id` a single ranged BIRT row would surface as two entries in
+     * the histogram, both contributing slightly different gaps from the same
+     * family.
      *
      * Fixture `marriage-edge-cases.ged` carries four families:
      *
@@ -276,9 +269,9 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
      * * F4 — both spouses full-date BIRT (~1 year gap; the FROM..TO
      *        DEAT on the husband is irrelevant to this histogram).
      *
-     * Post-dedup the histogram carries exactly four entries. Without
-     * the GROUP BY F3 would surface twice (one row per BIRT range
-     * bound), pushing the sum to 5.
+     * Post-dedup the histogram carries exactly four entries. Without the GROUP
+     * BY F3 would surface twice (one row per BIRT range bound), pushing the sum
+     * to 5.
      */
     #[Test]
     public function ageGapDistributionDedupsRangedBirthRows(): void
@@ -304,14 +297,13 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Same doubling pathology on the DEAT side: a FROM..TO / BET..AND
-     * DEAT produces two rows in the `dates` table, and the widowhood
-     * query joins twice on `dates` (husband DEAT, wife DEAT). The
-     * fixture's F4 carries husband DEAT `FROM 1945 TO 1947` plus a
-     * full-date wife DEAT — without `GROUP BY families.f_id` F4 would
-     * yield two entries with different widowhood years (one per
-     * husband-DEAT bound). All four families have both DEAT dates,
-     * so the post-dedup histogram totals four; without dedup it
+     * Same doubling pathology on the DEAT side: a FROM..TO / BET..AND DEAT
+     * produces two rows in the `dates` table, and the widowhood query joins
+     * twice on `dates` (husband DEAT, wife DEAT). The fixture's F4 carries
+     * husband DEAT `FROM 1945 TO 1947` plus a full-date wife DEAT — without
+     * `GROUP BY families.f_id` F4 would yield two entries with different
+     * widowhood years (one per husband-DEAT bound). All four families have both
+     * DEAT dates, so the post-dedup histogram totals four; without dedup it
      * totals five.
      */
     #[Test]
@@ -341,17 +333,16 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
 
     /**
      * The marriage-duration distribution rides on the private
-     * `marriageDurationPairs()` accessor, which joins families to four
-     * date aliases (MARR + DIV + 2× DEAT). A ranged BIRT / MARR / DIV
-     * / DEAT would surface the same family more than once and skew
-     * the histogram. The marriage-edge-cases.ged fixture exercises
-     * this via F4 whose husband DEAT is FROM 1945 TO 1947 — two rows
-     * in the dates table, two distinct end-julian-days, two duration
-     * histogram entries without the aggregate.
+     * `marriageDurationPairs()` accessor, which joins families to four date
+     * aliases (MARR + DIV + 2× DEAT). A ranged BIRT / MARR / DIV / DEAT would
+     * surface the same family more than once and skew the histogram. The
+     * marriage-edge-cases.ged fixture exercises this via F4 whose husband DEAT
+     * is FROM 1945 TO 1947 — two rows in the dates table, two distinct
+     * end-julian-days, two duration histogram entries without the aggregate.
      *
-     * Post-dedup the histogram totals 4 (one per FAM). All four
-     * families terminate via DEAT (no DIV in the fixture) so the
-     * MARR → earliest-DEAT span is:
+     * Post-dedup the histogram totals 4 (one per FAM). All four families
+     * terminate via DEAT (no DIV in the fixture) so the MARR → earliest-DEAT
+     * span is:
      *
      * * F1 (1880 → wife 1915) ≈ 35y → `30–39`,
      * * F2 (1885 → husband 1930) ≈ 44y → `40–49`,
@@ -359,11 +350,10 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
      * * F4 (1905 → MIN(husband d_julianday1) = 1945-01-01)
      *   ≈ 39y → `30–39`.
      *
-     * The bucket-specific assertion locks the MIN(d_julianday1)
-     * aggregate for the end-of-marriage anchor: a MIN -> MAX swap
-     * on F4 husband DEAT would slide the duration to ≈ 41y and
-     * push F4 into the `40–49` bucket, peeling the `30–39` count
-     * from 3 to 2.
+     * The bucket-specific assertion locks the MIN(d_julianday1) aggregate for
+     * the end-of-marriage anchor: a MIN -> MAX swap on F4 husband DEAT would
+     * slide the duration to ≈ 41y and push F4 into the `40–49` bucket, peeling
+     * the `30–39` count from 3 to 2.
      */
     #[Test]
     public function durationDistributionDedupsRangedTerminusRows(): void

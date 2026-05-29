@@ -15,12 +15,11 @@ use Fisharebest\Webtrees\Family;
 use JsonSerializable;
 
 /**
- * Hall-of-Fame record carrying one family plus its marriage
- * duration in years. Used for the "longest marriage" record on
- * the Overview tab.
+ * Hall-of-Fame record carrying one family plus its marriage duration in years.
+ * Used for the "longest marriage" record on the Overview tab.
  *
- * Serialises to `{xref, durationYears}`; PHTML consumers reach
- * the live `family` via the public property.
+ * Serialises to `{xref, durationYears}`; PHTML consumers reach the live
+ * `family` via the public property.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0

@@ -26,10 +26,10 @@ use function round;
 /**
  * Aggregate kinship-statistics for the Family tab.
  *
- * The two metrics this repository surfaces both lean on the same
- * in-memory parent-of map (built once per call from one bulk SQL
- * query) so the per-individual ancestor walk runs in linear time
- * even on trees with thousands of individuals:
+ * The two metrics this repository surfaces both lean on the same in-memory
+ * parent-of map (built once per call from one bulk SQL query) so the
+ * per-individual ancestor walk runs in linear time even on trees with thousands
+ * of individuals:
  *
  *   * Ancestor-count distribution — histogram of "how many of an
  *     individual's direct ancestors (up to {@see ANCESTOR_DEPTH}
@@ -39,9 +39,8 @@ use function round;
  *     across every individual, of `known_at_gen / 2^gen` summed
  *     over the {@see ANCESTOR_DEPTH} generations.
  *
- * The depth cap keeps the walk O(N · 2^DEPTH) and the histogram
- * bucket count bounded; deeper analyses belong in a chart module,
- * not an aggregate widget.
+ * The depth cap keeps the walk O(N · 2^DEPTH) and the histogram bucket count
+ * bounded; deeper analyses belong in a chart module, not an aggregate widget.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -50,25 +49,23 @@ use function round;
 final class KinshipRepository
 {
     /**
-     * How many generations of direct ancestors to walk. At depth=4
-     * the maximum theoretical ancestor count is 2+4+8+16 = 30
-     * (parents through great-great-grandparents), which is the
-     * widget's histogram domain.
+     * How many generations of direct ancestors to walk. At depth=4 the maximum
+     * theoretical ancestor count is 2+4+8+16 = 30 (parents through
+     * great-great-grandparents), which is the widget's histogram domain.
      */
     private const int ANCESTOR_DEPTH = 4;
 
     /**
-     * Histogram-bucket width for the known-ancestor count. Buckets
-     * are 0-2, 3-5, 6-8 … so the rendering stays legible.
+     * Histogram-bucket width for the known-ancestor count. Buckets are 0-2,
+     * 3-5, 6-8 … so the rendering stays legible.
      */
     private const int ANCESTOR_BUCKET = 3;
 
     /**
      * Per-instance memo for the per-generation ancestor walk. Both
-     * `ancestorCountDistribution()` and `averagePedigreeCompleteness()`
-     * iterate every individual and ask `countKnownPerGeneration` for
-     * the same walk — caching keeps it at one BFS per individual
-     * instead of two.
+     * `ancestorCountDistribution()` and `averagePedigreeCompleteness()` iterate
+     * every individual and ask `countKnownPerGeneration` for the same walk —
+     * caching keeps it at one BFS per individual instead of two.
      *
      * @var array<array-key, array<int, int>>
      */
@@ -85,10 +82,9 @@ final class KinshipRepository
     }
 
     /**
-     * Histogram of known-ancestor counts per individual, walked up
-     * to {@see ANCESTOR_DEPTH} generations. Buckets are 3-wide so
-     * a population of 1000 individuals doesn't stretch into 30
-     * single-width bars.
+     * Histogram of known-ancestor counts per individual, walked up to {@see
+     * ANCESTOR_DEPTH} generations. Buckets are 3-wide so a population of 1000
+     * individuals doesn't stretch into 30 single-width bars.
      *
      * @return array<string, int>
      */
@@ -126,11 +122,10 @@ final class KinshipRepository
     }
 
     /**
-     * Mean pedigree-completeness index across every individual in
-     * the tree (Lacy 1989: sum over generations of
-     * `known_at_gen / 2^gen`, averaged across the population).
-     * Returns a fraction 0.0–1.0; 1.0 means every individual has
-     * a fully-populated pedigree up to {@see ANCESTOR_DEPTH}
+     * Mean pedigree-completeness index across every individual in the tree
+     * (Lacy 1989: sum over generations of `known_at_gen / 2^gen`, averaged
+     * across the population). Returns a fraction 0.0–1.0; 1.0 means every
+     * individual has a fully-populated pedigree up to {@see ANCESTOR_DEPTH}
      * generations.
      */
     public function averagePedigreeCompleteness(): float
@@ -176,10 +171,9 @@ final class KinshipRepository
     }
 
     /**
-     * Count the distinct known ancestors of `$id` up to
-     * {@see ANCESTOR_DEPTH} generations, deduplicating by ID so a
-     * tree with pedigree collapse (cousin marriage) doesn't
-     * inflate the count.
+     * Count the distinct known ancestors of `$id` up to {@see ANCESTOR_DEPTH}
+     * generations, deduplicating by ID so a tree with pedigree collapse (cousin
+     * marriage) doesn't inflate the count.
      *
      * @param array<array-key, array{0: string|null, 1: string|null}> $parentOf
      */
@@ -191,8 +185,8 @@ final class KinshipRepository
     }
 
     /**
-     * Walk the ancestor tree breadth-first; return a
-     * `[generation => count]` map for the requested depth.
+     * Walk the ancestor tree breadth-first; return a `[generation => count]`
+     * map for the requested depth.
      *
      * @param array<array-key, array{0: string|null, 1: string|null}> $parentOf
      *

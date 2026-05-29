@@ -16,12 +16,11 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Unit coverage of the pure {@see GenerationDepth::compute()}
- * helper — exercises the empty case, a clean 3-generation linear
- * chain (issue acceptance scenario), branching where two parents
- * meet again further up (pedigree collapse must not double-count
- * the shared ancestor's depth), and the cycle guard that protects
- * against accidentally-cyclic GEDCOM input.
+ * Unit coverage of the pure {@see GenerationDepth::compute()} helper —
+ * exercises the empty case, a clean 3-generation linear chain (issue acceptance
+ * scenario), branching where two parents meet again further up (pedigree
+ * collapse must not double-count the shared ancestor's depth), and the cycle
+ * guard that protects against accidentally-cyclic GEDCOM input.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -30,9 +29,9 @@ use PHPUnit\Framework\TestCase;
 final class GenerationDepthTest extends TestCase
 {
     /**
-     * An empty parent-of map describes a tree with no recorded
-     * parent–child links: max depth is zero, the distribution is
-     * empty, and the cap is not tripped.
+     * An empty parent-of map describes a tree with no recorded parent–child
+     * links: max depth is zero, the distribution is empty, and the cap is not
+     * tripped.
      */
     #[Test]
     public function emptyParentMapReturnsZeroDepth(): void
@@ -45,12 +44,11 @@ final class GenerationDepthTest extends TestCase
     }
 
     /**
-     * The issue acceptance scenario: a clean G1 → V → C chain
-     * (grandparent → parent → child). Max depth is 2, and exactly
-     * one individual sits at each of depth 0, 1, 2 below their
-     * deepest descendant. The deepestChain field surfaces the
-     * three IDs in eldest-first order so the view can render
-     * "G1 → V → C".
+     * The issue acceptance scenario: a clean G1 → V → C chain (grandparent →
+     * parent → child). Max depth is 2, and exactly one individual sits at each
+     * of depth 0, 1, 2 below their deepest descendant. The deepestChain field
+     * surfaces the three IDs in eldest-first order so the view can render "G1 →
+     * V → C".
      */
     #[Test]
     public function threeGenerationLinearChainMatchesAcceptance(): void
@@ -72,10 +70,10 @@ final class GenerationDepthTest extends TestCase
     }
 
     /**
-     * When two distinct lines tie at the maximum depth, the chain
-     * picker must produce a deterministic answer — alphabetically
-     * earliest root, alphabetically earliest descendant at each
-     * step — so the rendered chain does not flip between page loads.
+     * When two distinct lines tie at the maximum depth, the chain picker must
+     * produce a deterministic answer — alphabetically earliest root,
+     * alphabetically earliest descendant at each step — so the rendered chain
+     * does not flip between page loads.
      */
     #[Test]
     public function deepestChainIsDeterministicOnTiesAlphabetical(): void
@@ -94,8 +92,8 @@ final class GenerationDepthTest extends TestCase
     }
 
     /**
-     * An empty tree produces an empty chain (there is no longest
-     * descent to name).
+     * An empty tree produces an empty chain (there is no longest descent to
+     * name).
      */
     #[Test]
     public function emptyTreeYieldsEmptyDeepestChain(): void
@@ -106,11 +104,11 @@ final class GenerationDepthTest extends TestCase
     }
 
     /**
-     * When two distinct child lines converge into the same deeper
-     * ancestor (pedigree collapse via cousin marriage), the
-     * ancestor's depth is computed from the LONGEST downward path
-     * — not the sum of both. Verifies the visited-set within a
-     * single DFS prevents a re-entry from doubling the depth.
+     * When two distinct child lines converge into the same deeper ancestor
+     * (pedigree collapse via cousin marriage), the ancestor's depth is computed
+     * from the LONGEST downward path — not the sum of both. Verifies the
+     * visited-set within a single DFS prevents a re-entry from doubling the
+     * depth.
      */
     #[Test]
     public function pedigreeCollapseChoosesLongestDownwardPath(): void
@@ -137,11 +135,10 @@ final class GenerationDepthTest extends TestCase
     }
 
     /**
-     * A cycle (illegal but possible: someone self-edits the parent
-     * map so an ancestor points back to a descendant) must not
-     * loop forever. The visited-set on a per-walk basis breaks the
-     * cycle; depth is bounded but the `capped` flag may or may
-     * not trip depending on chain length.
+     * A cycle (illegal but possible: someone self-edits the parent map so an
+     * ancestor points back to a descendant) must not loop forever. The
+     * visited-set on a per-walk basis breaks the cycle; depth is bounded but
+     * the `capped` flag may or may not trip depending on chain length.
      */
     #[Test]
     public function cyclicParentMapDoesNotLoopForever(): void
@@ -163,15 +160,14 @@ final class GenerationDepthTest extends TestCase
     }
 
     /**
-     * Numeric-only XREFs (e.g. "54", common in trees imported from
-     * software that uses digit-only pointers) become integer array
-     * keys the moment they index a PHP array — `$parentOf["54"]`
-     * stores key int 54. `array_keys()` and `foreach`-over-keys then
-     * yield ints, which crash the `string`-typed walk under
-     * strict_types. This variant of
-     * {@see threeGenerationLinearChainMatchesAcceptance} guards that
-     * the whole compute path tolerates the coercion and still emits a
-     * string-typed eldest-first chain (regression for #71).
+     * Numeric-only XREFs (e.g. "54", common in trees imported from software
+     * that uses digit-only pointers) become integer array keys the moment they
+     * index a PHP array — `$parentOf["54"]` stores key int 54. `array_keys()`
+     * and `foreach`-over-keys then yield ints, which crash the `string`-typed
+     * walk under strict_types. This variant of {@see
+     * threeGenerationLinearChainMatchesAcceptance} guards that the whole
+     * compute path tolerates the coercion and still emits a string-typed
+     * eldest-first chain (regression for #71).
      */
     #[Test]
     public function numericOnlyXrefsLinearChainReturnsStringChain(): void
@@ -198,15 +194,13 @@ final class GenerationDepthTest extends TestCase
     }
 
     /**
-     * Numeric-XREF variant of
-     * {@see deepestChainIsDeterministicOnTiesAlphabetical} with roots
-     * whose lexical and numeric orderings disagree: candidate roots 2
-     * and 10 ("10" sorts before "2" lexically, but 2 before 10
-     * numerically). This pins both that the tie-break runs on the
-     * coerced keys at all and that the picked chain stays
-     * string-typed (regression for #71). The chain "2 → 200" — not
-     * "10 → 100" — confirms PHP's default numeric-string sort decided
-     * the tie.
+     * Numeric-XREF variant of {@see
+     * deepestChainIsDeterministicOnTiesAlphabetical} with roots whose lexical
+     * and numeric orderings disagree: candidate roots 2 and 10 ("10" sorts
+     * before "2" lexically, but 2 before 10 numerically). This pins both that
+     * the tie-break runs on the coerced keys at all and that the picked chain
+     * stays string-typed (regression for #71). The chain "2 → 200" — not "10 →
+     * 100" — confirms PHP's default numeric-string sort decided the tie.
      */
     #[Test]
     public function numericOnlyXrefsDeepestChainIsDeterministic(): void
@@ -223,11 +217,10 @@ final class GenerationDepthTest extends TestCase
     }
 
     /**
-     * Numeric-XREF variant of
-     * {@see pedigreeCollapseChoosesLongestDownwardPath}: 100 has
-     * parents 10 and 20, both children of 1. Confirms the
-     * children-of inversion and depth memoisation survive integer
-     * key coercion (regression for #71).
+     * Numeric-XREF variant of {@see
+     * pedigreeCollapseChoosesLongestDownwardPath}: 100 has parents 10 and 20,
+     * both children of 1. Confirms the children-of inversion and depth
+     * memoisation survive integer key coercion (regression for #71).
      */
     #[Test]
     public function numericOnlyXrefsPedigreeCollapseComputesDepth(): void
@@ -248,12 +241,11 @@ final class GenerationDepthTest extends TestCase
     }
 
     /**
-     * The upward-walk pair {@see GenerationDepth::upDistanceCache()}
-     * and {@see GenerationDepth::walkUpFromLeaf()} mirror the
-     * descendant walk on the parent side and are otherwise only
-     * reached through the repository. This locks them directly
-     * against numeric-only XREFs: the cache must record the leaf's
-     * upward distance and the reconstructed chain must come back
+     * The upward-walk pair {@see GenerationDepth::upDistanceCache()} and {@see
+     * GenerationDepth::walkUpFromLeaf()} mirror the descendant walk on the
+     * parent side and are otherwise only reached through the repository. This
+     * locks them directly against numeric-only XREFs: the cache must record the
+     * leaf's upward distance and the reconstructed chain must come back
      * eldest-first and string-typed (regression for #71).
      */
     #[Test]
@@ -277,12 +269,11 @@ final class GenerationDepthTest extends TestCase
     }
 
     /**
-     * Leading-zero XREFs ("007") are NOT canonical decimal-integer
-     * strings, so PHP does not coerce them to int when they index an
-     * array — they survive as string keys. This guards the boundary
-     * the AGENTS.md "Key patterns" note describes: the chain must
-     * carry "007" verbatim, not a coerced "7", proving the fix
-     * neither over- nor under-normalises (regression for #71).
+     * Leading-zero XREFs ("007") are NOT canonical decimal-integer strings, so
+     * PHP does not coerce them to int when they index an array — they survive
+     * as string keys. This guards the boundary the AGENTS.md "Key patterns"
+     * note describes: the chain must carry "007" verbatim, not a coerced "7",
+     * proving the fix neither over- nor under-normalises (regression for #71).
      */
     #[Test]
     public function leadingZeroXrefsSurviveAsStringKeys(): void

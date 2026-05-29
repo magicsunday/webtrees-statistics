@@ -32,17 +32,16 @@ use function strpos;
 use function substr;
 
 /**
- * Locks the contract that every `progress-*` CSS class string used in
- * a view template is backed by a `.wt-statistics-chart .progress-<x>`
- * rule in `resources/css/statistics.css` that defines BOTH gradient
- * custom properties (`--bs-progress-label-gradient-start` and `-end`).
+ * Locks the contract that every `progress-*` CSS class string used in a view
+ * template is backed by a `.wt-statistics-chart .progress-<x>` rule in
+ * `resources/css/statistics.css` that defines BOTH gradient custom properties
+ * (`--bs-progress-label-gradient-start` and `-end`).
  *
- * The ProgressList partial blends the two custom properties with
- * `color-mix(... ${width}%)`. If only one or neither variable is set
- * the blended colour is `transparent` and the bar renders invisible —
- * the visual regression has shipped multiple times after a new
- * progress-list card was added without its CSS pair, including
- * issues #18 / #20 / #38 in 2026-05.
+ * The ProgressList partial blends the two custom properties with `color-mix(...
+ * ${width}%)`. If only one or neither variable is set the blended colour is
+ * `transparent` and the bar renders invisible — the visual regression has
+ * shipped multiple times after a new progress-list card was added without its
+ * CSS pair, including issues #18 / #20 / #38 in 2026-05.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -51,10 +50,10 @@ use function substr;
 final class ProgressBarCssCoverageTest extends TestCase
 {
     /**
-     * Every `progress-*` class string referenced from any view template
-     * MUST have a corresponding CSS rule that sets both gradient
-     * variables. Surfaces missing classes by name so a future regression
-     * fails with a concrete diff, not "the bars are invisible again".
+     * Every `progress-*` class string referenced from any view template MUST
+     * have a corresponding CSS rule that sets both gradient variables. Surfaces
+     * missing classes by name so a future regression fails with a concrete
+     * diff, not "the bars are invisible again".
      */
     #[Test]
     public function everyProgressClassReferencedInViewsHasItsCssGradientPair(): void
@@ -80,9 +79,8 @@ final class ProgressBarCssCoverageTest extends TestCase
     }
 
     /**
-     * Walks every `.phtml` under `resources/views` and collects each
-     * `'class' => 'progress-<name>'` / `"class" => "progress-<name>"`
-     * literal value.
+     * Walks every `.phtml` under `resources/views` and collects each `'class'
+     * => 'progress-<name>'` / `"class" => "progress-<name>"` literal value.
      *
      * @param string $viewsRoot Absolute path to the views directory
      *
@@ -127,9 +125,9 @@ final class ProgressBarCssCoverageTest extends TestCase
     }
 
     /**
-     * Extract every `.wt-statistics-chart .progress-<name>` selector
-     * that whose rule body assigns BOTH
-     * `--bs-progress-label-gradient-start` and `--bs-progress-label-gradient-end`.
+     * Extract every `.wt-statistics-chart .progress-<name>` selector that whose
+     * rule body assigns BOTH `--bs-progress-label-gradient-start` and
+     * `--bs-progress-label-gradient-end`.
      *
      * @param string $css Full content of `resources/css/statistics.css`
      *

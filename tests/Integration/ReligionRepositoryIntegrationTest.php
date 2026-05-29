@@ -16,10 +16,10 @@ use PHPUnit\Framework\Attributes\Test;
 
 /**
  * End-to-end test of {@see ReligionRepository}. The shared
- * `individual-facts.ged` fixture carries four individuals with
- * RELI facts (Anna, Berta — case variant, Carl, Emil) and three
- * without (Doris, Franz, Gerda). The aggregation must collapse
- * case variants and rank descending by frequency.
+ * `individual-facts.ged` fixture carries four individuals with RELI facts
+ * (Anna, Berta — case variant, Carl, Emil) and three without (Doris, Franz,
+ * Gerda). The aggregation must collapse case variants and rank descending by
+ * frequency.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -28,9 +28,9 @@ use PHPUnit\Framework\Attributes\Test;
 final class ReligionRepositoryIntegrationTest extends IntegrationTestCase
 {
     /**
-     * `Catholic` appears twice (Anna + Berta with lowercase
-     * variant `catholic`), `Protestant` once (Carl), `Jewish` once
-     * (Emil). The lowercase variant merges via case-folded keys.
+     * `Catholic` appears twice (Anna + Berta with lowercase variant
+     * `catholic`), `Protestant` once (Carl), `Jewish` once (Emil). The
+     * lowercase variant merges via case-folded keys.
      */
     #[Test]
     public function topReligionsReturnsCaseFoldedFrequencies(): void
@@ -56,11 +56,10 @@ final class ReligionRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Event-bound `2 RELI` sub-tags under BAPM / CONF / etc. are
-     * picked up alongside top-level `1 RELI` so a tree imported from
-     * church books (where the affiliation lives only on the
-     * baptism / confirmation event, not as a free-standing religion
-     * fact) still surfaces a meaningful Top-N.
+     * Event-bound `2 RELI` sub-tags under BAPM / CONF / etc. are picked up
+     * alongside top-level `1 RELI` so a tree imported from church books (where
+     * the affiliation lives only on the baptism / confirmation event, not as a
+     * free-standing religion fact) still surfaces a meaningful Top-N.
      *
      * Fixture composition:
      *   I1: 1 BAPM / 2 RELI Lutheran                          → +1 sub

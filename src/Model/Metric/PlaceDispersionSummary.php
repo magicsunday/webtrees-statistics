@@ -14,13 +14,13 @@ namespace MagicSunday\Webtrees\Statistic\Model\Metric;
 use JsonSerializable;
 
 /**
- * Distinct-PLAC-per-individual dispersion summary for the Places
- * tab. `average` is the mean count of distinct places per
- * individual that carries at least one PLAC value; `sampled` is
- * the count of contributing individuals; `distribution` is the
- * `count → frequency` map shown next to the average.
+ * Distinct-PLAC-per-individual dispersion summary for the Places tab. `average`
+ * is the mean count of distinct places per individual that carries at least one
+ * PLAC value; `sampled` is the count of contributing individuals;
+ * `distribution` is the `count → frequency` map shown next to the average.
  *
- * Serialises to `{average: float, sampled: int, distribution: array<int|string, int>}`.
+ * Serialises to `{average: float, sampled: int, distribution: array<int|string,
+ * int>}`.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0

@@ -19,8 +19,8 @@ use PHPUnit\Framework\Attributes\Test;
 use function array_sum;
 
 /**
- * Integration test for {@see KinshipRepository}. Fixture has 6
- * individuals across 3 generations:
+ * Integration test for {@see KinshipRepository}. Fixture has 6 individuals
+ * across 3 generations:
  *
  *   Grossvater @G1@ + Grossmutter @G2@ — generation 0 (no parents)
  *   Vater @V@      — son of G1+G2 — generation 1 (2 known ancestors)
@@ -40,10 +40,9 @@ final class KinshipRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Ancestor-count distribution puts the four bottom-of-the-tree
-     * individuals (G1, G2, M, Solo) plus Vater (2 known) into the
-     * 0-2 bucket — five individuals with 0–2 ancestors — and Kind
-     * (4 known) into the 3-5 bucket.
+     * Ancestor-count distribution puts the four bottom-of-the-tree individuals
+     * (G1, G2, M, Solo) plus Vater (2 known) into the 0-2 bucket — five
+     * individuals with 0–2 ancestors — and Kind (4 known) into the 3-5 bucket.
      */
     #[Test]
     public function ancestorCountDistributionBucketsByKnownAncestors(): void
@@ -60,11 +59,10 @@ final class KinshipRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Average pedigree completeness across the six fixture
-     * individuals. Vater contributes 2/2 at gen 1 + 0 elsewhere
-     * = 1/4 = 0.25. Kind contributes 2/2 at gen 1 + 2/4 at gen 2
-     * + 0 elsewhere = 0.25 + 0.125 = 0.375. The other four have
-     * 0.0. Average = (0.25 + 0.375 + 0 + 0 + 0 + 0) / 6 ≈ 0.1042.
+     * Average pedigree completeness across the six fixture individuals. Vater
+     * contributes 2/2 at gen 1 + 0 elsewhere = 1/4 = 0.25. Kind contributes 2/2
+     * at gen 1 + 2/4 at gen 2 + 0 elsewhere = 0.25 + 0.125 = 0.375. The other
+     * four have 0.0. Average = (0.25 + 0.375 + 0 + 0 + 0 + 0) / 6 ≈ 0.1042.
      */
     #[Test]
     public function averagePedigreeCompletenessAggregatesAcrossPopulation(): void

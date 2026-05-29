@@ -46,10 +46,10 @@ use function max;
 use function round;
 
 /**
- * Life-span aggregations for the LifeSpan tab. Wraps the public
- * accessors core's {@see StatisticsData} exposes (statsAgeQuery,
- * topTenOldestQuery, topTenOldestAliveQuery) into the widget-ready
- * shapes the tabs/life-span.phtml partials consume.
+ * Life-span aggregations for the LifeSpan tab. Wraps the public accessors
+ * core's {@see StatisticsData} exposes (statsAgeQuery, topTenOldestQuery,
+ * topTenOldestAliveQuery) into the widget-ready shapes the tabs/life-span.phtml
+ * partials consume.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -58,71 +58,68 @@ use function round;
 final readonly class LifeSpanRepository
 {
     /**
-     * 10-year buckets up to "100+" — caps the histogram so the
-     * long-tail outliers (a documented 110-year-old) don't stretch
-     * the x-axis. Anything ≥ 100 collapses onto the 100+ bucket.
+     * 10-year buckets up to "100+" — caps the histogram so the long-tail
+     * outliers (a documented 110-year-old) don't stretch the x-axis. Anything ≥
+     * 100 collapses onto the 100+ bucket.
      */
     private const int BUCKET_WIDTH = 10;
 
     private const int MAX_BUCKET = 100;
 
     /**
-     * Tree-wide fallback for the per-tree `MAX_ALIVE_AGE` preference
-     * — webtrees defaults to 120 and so do we when the preference
-     * cannot be read or parsed.
+     * Tree-wide fallback for the per-tree `MAX_ALIVE_AGE` preference — webtrees
+     * defaults to 120 and so do we when the preference cannot be read or
+     * parsed.
      */
     private const int DEFAULT_MAX_ALIVE_AGE = 120;
 
     /**
-     * Minimum per-cohort sample size for the
-     * lifespan-by-sex × century LineChart. A century × sex group
-     * with fewer than this many dated deaths gets suppressed
-     * (rendered as zero / "no data" tooltip) so a 1-sample
+     * Minimum per-cohort sample size for the lifespan-by-sex × century
+     * LineChart. A century × sex group with fewer than this many dated deaths
+     * gets suppressed (rendered as zero / "no data" tooltip) so a 1-sample
      * outlier doesn't drag the cohort mean.
      */
     private const int MIN_COHORT_SIZE = 5;
 
     /**
-     * Minimum per-cohort sample size for the survival-function
-     * chart. A century with fewer recorded BIRT+DEAT pairs is
-     * dropped from the chart entirely — a 20-person cohort already
-     * lets a single death move the survival rate by 5 percentage
-     * points, and below that the curve reads as noise.
+     * Minimum per-cohort sample size for the survival-function chart. A century
+     * with fewer recorded BIRT+DEAT pairs is dropped from the chart entirely —
+     * a 20-person cohort already lets a single death move the survival rate by
+     * 5 percentage points, and below that the curve reads as noise.
      */
     private const int MIN_COHORT_SIZE_SURVIVAL = 30;
 
     /**
-     * Age thresholds (in years) at which the survival fraction is
-     * sampled. 0 is included so every cohort starts at 100 %; 100
-     * caps the centenarian tail at one anchor regardless of the
-     * documented extremes in the underlying data.
+     * Age thresholds (in years) at which the survival fraction is sampled. 0 is
+     * included so every cohort starts at 100 %; 100 caps the centenarian tail
+     * at one anchor regardless of the documented extremes in the underlying
+     * data.
      *
      * @var list<int>
      */
     private const array SURVIVAL_AGE_THRESHOLDS = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 
     /**
-     * Minimum recorded-deaths sample below which the
-     * {@see deathWinterPeakScore()} returns null because the
-     * baseline-to-season ratio is too noisy to be meaningful at
-     * lower sample sizes. 12 = at least one death per calendar
-     * month on average.
+     * Minimum recorded-deaths sample below which the {@see
+     * deathWinterPeakScore()} returns null because the baseline-to-season ratio
+     * is too noisy to be meaningful at lower sample sizes. 12 = at least one
+     * death per calendar month on average.
      */
     private const int WINTER_PEAK_MIN_SAMPLE = 12;
 
     /**
-     * Northern-hemisphere winter months as a `[month => true]` hash
-     * for O(1) lookup. Map shape (vs a list) lets the foreach in
-     * {@see deathWinterPeakScore()} test membership via `isset`
-     * without paying for an `in_array` linear scan per iteration.
+     * Northern-hemisphere winter months as a `[month => true]` hash for O(1)
+     * lookup. Map shape (vs a list) lets the foreach in {@see
+     * deathWinterPeakScore()} test membership via `isset` without paying for an
+     * `in_array` linear scan per iteration.
      */
     private const array WINTER_MONTHS = ['DEC' => true, 'JAN' => true, 'FEB' => true];
 
     /**
-     * The twelve valid GEDCOM month codes. Acts as a whitelist when
-     * tallying deaths-by-month rows so individuals without a dated
-     * BIRT/DEAT month (returned by core under an empty string key)
-     * don't inflate the seasonality baseline.
+     * The twelve valid GEDCOM month codes. Acts as a whitelist when tallying
+     * deaths-by-month rows so individuals without a dated BIRT/DEAT month
+     * (returned by core under an empty string key) don't inflate the
+     * seasonality baseline.
      */
     private const array GEDCOM_MONTHS = [
         'JAN' => true, 'FEB' => true, 'MAR' => true, 'APR' => true,
@@ -131,9 +128,9 @@ final readonly class LifeSpanRepository
     ];
 
     /**
-     * Living-individual age-band cut-offs. The buckets are designed
-     * to read as life-stages (minor / young adult / working age /
-     * retired) rather than equal-width decades.
+     * Living-individual age-band cut-offs. The buckets are designed to read as
+     * life-stages (minor / young adult / working age / retired) rather than
+     * equal-width decades.
      *
      * @var list<array{label: string, max: int|null}>
      */
@@ -155,9 +152,9 @@ final readonly class LifeSpanRepository
     }
 
     /**
-     * Age-at-death distribution bucketed into 10-year bands plus a
-     * "100+" overflow. Empty buckets are kept in the output so the
-     * histogram renders a continuous x-axis without gaps.
+     * Age-at-death distribution bucketed into 10-year bands plus a "100+"
+     * overflow. Empty buckets are kept in the output so the histogram renders a
+     * continuous x-axis without gaps.
      *
      * @return array<string, int>
      */
@@ -193,17 +190,16 @@ final readonly class LifeSpanRepository
 
     /**
      * Births grouped by decade across the entire tree — the
-     * "Stammbaum-Wachstum" indicator for the TreeHealth tab. Each
-     * BIRT date contributes one tick to its decade bucket. Leading
-     * and trailing zero-decades are trimmed via
-     * {@see HistogramTrim::dropZeroEnds()} so the visible range
-     * starts at the first decade with a recorded birth and ends at
-     * the last; inner zero-decades stay so a gap in the recorded
-     * history remains visible.
+     * "Stammbaum-Wachstum" indicator for the TreeHealth tab. Each BIRT date
+     * contributes one tick to its decade bucket. Leading and trailing
+     * zero-decades are trimmed via {@see HistogramTrim::dropZeroEnds()} so the
+     * visible range starts at the first decade with a recorded birth and ends
+     * at the last; inner zero-decades stay so a gap in the recorded history
+     * remains visible.
      *
-     * Decade keys are integer starts (e.g. `1900` for the 1900s);
-     * the display layer renders them through `I18N::translate('%ss', $decade)`
-     * so the suffix follows the user's locale ("1900s", "1900er", …).
+     * Decade keys are integer starts (e.g. `1900` for the 1900s); the display
+     * layer renders them through `I18N::translate('%ss', $decade)` so the
+     * suffix follows the user's locale ("1900s", "1900er", …).
      *
      * @return array<int, int>
      */
@@ -250,16 +246,14 @@ final readonly class LifeSpanRepository
     }
 
     /**
-     * Age-at-death samples grouped by birth century. Each entry
-     * carries the raw integer ages so the consumer (typically the
-     * chart-lib BoxPlot widget) can compute quartiles, whiskers and
-     * outliers itself. Sub-day fractions are dropped via
-     * `intdiv(deathJd − birthJd, 365)`; non-positive ages, ages
-     * above the tree's plausible-age cap, and BCE birth years are
-     * filtered out.
+     * Age-at-death samples grouped by birth century. Each entry carries the raw
+     * integer ages so the consumer (typically the chart-lib BoxPlot widget) can
+     * compute quartiles, whiskers and outliers itself. Sub-day fractions are
+     * dropped via `intdiv(deathJd − birthJd, 365)`; non-positive ages, ages
+     * above the tree's plausible-age cap, and BCE birth years are filtered out.
      *
-     * Cohorts below {@see self::MIN_COHORT_SIZE} samples are skipped
-     * — a five-number summary on a 1-person cohort is noise.
+     * Cohorts below {@see self::MIN_COHORT_SIZE} samples are skipped — a
+     * five-number summary on a 1-person cohort is noise.
      *
      * @return list<array{century: int, values: list<int>, n: int}>
      */
@@ -319,16 +313,16 @@ final readonly class LifeSpanRepository
     }
 
     /**
-     * Running cumulative population: for each decade in the visible
-     * birth window, the total number of individuals born up to and
-     * including that decade. Layers a running sum on top of the
-     * existing {@see birthsByDecade()} payload — same decade keys,
-     * same trimmed window, monotonically non-decreasing values.
+     * Running cumulative population: for each decade in the visible birth
+     * window, the total number of individuals born up to and including that
+     * decade. Layers a running sum on top of the existing {@see
+     * birthsByDecade()} payload — same decade keys, same trimmed window,
+     * monotonically non-decreasing values.
      *
      * Empty when no dated birth exists.
      *
-     * Decade keys are integer starts (e.g. `1900` for the 1900s);
-     * the display layer renders them through `I18N::translate('%ss', $decade)`.
+     * Decade keys are integer starts (e.g. `1900` for the 1900s); the display
+     * layer renders them through `I18N::translate('%ss', $decade)`.
      *
      * @return array<int, int>
      */
@@ -352,16 +346,15 @@ final readonly class LifeSpanRepository
     }
 
     /**
-     * Winter-peak indicator for deaths — relative density of
-     * December + January + February death events compared to a
-     * perfectly-even 12-month baseline. Returns null when fewer
-     * than {@see self::WINTER_PEAK_MIN_SAMPLE} dated deaths are
-     * recorded (below that threshold the score is too noisy to
-     * be meaningful).
+     * Winter-peak indicator for deaths — relative density of December + January
+     * + February death events compared to a perfectly-even 12-month baseline.
+     * Returns null when fewer than {@see self::WINTER_PEAK_MIN_SAMPLE} dated
+     * deaths are recorded (below that threshold the score is too noisy to be
+     * meaningful).
      *
-     * Score = (winterDeaths / 3) / (totalDeaths / 12); 1.0 means
-     * the season carries its proportional share, > 1.0 means an
-     * actual winter peak, < 1.0 means winter is under-represented.
+     * Score = (winterDeaths / 3) / (totalDeaths / 12); 1.0 means the season
+     * carries its proportional share, > 1.0 means an actual winter peak, < 1.0
+     * means winter is under-represented.
      */
     public function deathWinterPeakScore(): ?WinterPeakScore
     {
@@ -396,8 +389,9 @@ final readonly class LifeSpanRepository
     }
 
     /**
-     * Top-N oldest deceased individuals across the tree. Each row carries the XREF,
-     * display name and age in years, so two same-named individuals stay distinct.
+     * Top-N oldest deceased individuals across the tree. Each row carries the
+     * XREF, display name and age in years, so two same-named individuals stay
+     * distinct.
      *
      * @param int $limit Maximum number of rows to return.
      *
@@ -411,9 +405,9 @@ final readonly class LifeSpanRepository
     }
 
     /**
-     * Top-N oldest living individuals across the tree. Same shape as
-     * {@see topOldestDeceased()} — age is the difference between today and the
-     * BIRT date.
+     * Top-N oldest living individuals across the tree. Same shape as {@see
+     * topOldestDeceased()} — age is the difference between today and the BIRT
+     * date.
      *
      * @param int $limit Maximum number of rows to return.
      *
@@ -450,10 +444,9 @@ final readonly class LifeSpanRepository
     }
 
     /**
-     * Single oldest-deceased record holder: the individual with the
-     * largest DEAT − BIRT julian-day delta, capped at 120 years so
-     * a single typo cannot win the slot. Used by the Hall-of-Fame
-     * widget on the Overview tab.
+     * Single oldest-deceased record holder: the individual with the largest
+     * DEAT − BIRT julian-day delta, capped at 120 years so a single typo cannot
+     * win the slot. Used by the Hall-of-Fame widget on the Overview tab.
      */
     public function oldestDeceasedRecord(): ?IndividualAgeRecord
     {
@@ -488,9 +481,9 @@ final readonly class LifeSpanRepository
     }
 
     /**
-     * Single oldest-living record holder: the individual without a
-     * recorded DEAT whose BIRT julian-day is earliest in the tree,
-     * capped at 120 years to discard implausible BIRT typos.
+     * Single oldest-living record holder: the individual without a recorded
+     * DEAT whose BIRT julian-day is earliest in the tree, capped at 120 years
+     * to discard implausible BIRT typos.
      */
     public function oldestLivingRecord(): ?IndividualAgeRecord
     {
@@ -530,12 +523,11 @@ final readonly class LifeSpanRepository
     }
 
     /**
-     * Mean lifespan grouped by birth-century × sex. Returns the
-     * standard `{categories, series}` shape so it can feed straight
-     * into the chart-lib LineChart multi-series render path —
-     * categories are the localised century labels in chronological
-     * order, two series (Male / Female). Per-cohort sample counts
-     * below {@see MIN_COHORT_SIZE} are suppressed (replaced with
+     * Mean lifespan grouped by birth-century × sex. Returns the standard
+     * `{categories, series}` shape so it can feed straight into the chart-lib
+     * LineChart multi-series render path — categories are the localised century
+     * labels in chronological order, two series (Male / Female). Per-cohort
+     * sample counts below {@see MIN_COHORT_SIZE} are suppressed (replaced with
      * zero) so a single outlier doesn't dominate the visual.
      */
     public function averageLifespanBySexAndCentury(): LineChartPayload
@@ -662,17 +654,15 @@ final readonly class LifeSpanRepository
     }
 
     /**
-     * Survival curve per birth century. For every individual with a
-     * recorded BIRT+DEAT pair, derives the lifespan in whole years
-     * and counts at each {@see SURVIVAL_AGE_THRESHOLDS} threshold
-     * how many cohort members reached at least that age. The
-     * fraction is rendered as a percentage relative to the cohort
-     * size at age 0 (the full count of individuals with both
-     * events recorded), so every series starts at 100 % and falls
-     * monotonically. Centuries below
-     * {@see MIN_COHORT_SIZE_SURVIVAL} are dropped entirely — a
-     * 20-person cohort already lets one death shift a threshold by
-     * 5 percentage points.
+     * Survival curve per birth century. For every individual with a recorded
+     * BIRT+DEAT pair, derives the lifespan in whole years and counts at each
+     * {@see SURVIVAL_AGE_THRESHOLDS} threshold how many cohort members reached
+     * at least that age. The fraction is rendered as a percentage relative to
+     * the cohort size at age 0 (the full count of individuals with both events
+     * recorded), so every series starts at 100 % and falls monotonically.
+     * Centuries below {@see MIN_COHORT_SIZE_SURVIVAL} are dropped entirely — a
+     * 20-person cohort already lets one death shift a threshold by 5 percentage
+     * points.
      */
     public function survivalFunctionByCentury(): LineChartPayload
     {
@@ -759,24 +749,22 @@ final readonly class LifeSpanRepository
     }
 
     /**
-     * Column set every cohort query selects on top of
-     * {@see BirthDeathPairsQuery} so the per-individual aggregation
-     * stays consistent across `deathAgeDistributionByCentury`,
-     * `averageLifespanBySexAndCentury` and `survivalFunctionByCentury`.
+     * Column set every cohort query selects on top of {@see
+     * BirthDeathPairsQuery} so the per-individual aggregation stays consistent
+     * across `deathAgeDistributionByCentury`, `averageLifespanBySexAndCentury`
+     * and `survivalFunctionByCentury`.
      *
-     * Webtrees writes TWO rows into the `dates` table for every
-     * BET..AND / FROM..TO date (one per range bound), so a JOIN
-     * without `GROUP BY individuals.i_id` would see the same
-     * individual twice and double-count them. Aggregating the
-     * earliest BIRT julian-day with `MIN(birth.d_julianday1)` and
-     * the latest DEAT julian-day with `MAX(death.d_julianday2)`
-     * collapses the doubled rows into a single per-individual
-     * lifespan; the convention also matches webtrees core's
+     * Webtrees writes TWO rows into the `dates` table for every BET..AND /
+     * FROM..TO date (one per range bound), so a JOIN without `GROUP BY
+     * individuals.i_id` would see the same individual twice and double-count
+     * them. Aggregating the earliest BIRT julian-day with
+     * `MIN(birth.d_julianday1)` and the latest DEAT julian-day with
+     * `MAX(death.d_julianday2)` collapses the doubled rows into a single
+     * per-individual lifespan; the convention also matches webtrees core's
      * `death.d_julianday2 - birth.d_julianday1` idiom (see
-     * `StatisticsData::averageLifespan*` queries) which produces
-     * the maximum-possible lifespan for year-only / modifier rows
-     * instead of the lower-bound figure the inline `d_julianday1`
-     * pair returned previously.
+     * `StatisticsData::averageLifespan*` queries) which produces the
+     * maximum-possible lifespan for year-only / modifier rows instead of the
+     * lower-bound figure the inline `d_julianday1` pair returned previously.
      *
      * @return list<Expression<non-falsy-string>>
      */
@@ -790,14 +778,12 @@ final readonly class LifeSpanRepository
     }
 
     /**
-     * Decode one row from {@see BirthDeathPairsQuery} into a
-     * `[century, years]` tuple, applying every date-validity guard
-     * that every cohort metric on this repository shares. Returns
-     * null when the row should be skipped — non-positive birth
-     * year, missing julian-day anchors, death-before-birth, or a
-     * lifespan above the plausibility ceiling. Caller-side filters
-     * (e.g. drop zero-day lifespans for cohort means) sit on top
-     * of the tuple value.
+     * Decode one row from {@see BirthDeathPairsQuery} into a `[century, years]`
+     * tuple, applying every date-validity guard that every cohort metric on
+     * this repository shares. Returns null when the row should be skipped —
+     * non-positive birth year, missing julian-day anchors, death-before-birth,
+     * or a lifespan above the plausibility ceiling. Caller-side filters (e.g.
+     * drop zero-day lifespans for cohort means) sit on top of the tuple value.
      *
      * @return array{century: int, years: int}|null
      */
@@ -837,12 +823,12 @@ final readonly class LifeSpanRepository
     }
 
     /**
-     * Per-tree plausibility ceiling for "max lifespan" / "max age
-     * still considered alive" — webtrees keeps this as the
-     * `MAX_ALIVE_AGE` preference on every tree (default 120).
-     * Falls back to {@see self::DEFAULT_MAX_ALIVE_AGE} when the
-     * preference is missing or non-numeric so a fresh-import tree
-     * without preferences still produces sensible records.
+     * Per-tree plausibility ceiling for "max lifespan" / "max age still
+     * considered alive" — webtrees keeps this as the `MAX_ALIVE_AGE` preference
+     * on every tree (default 120). Falls back to {@see
+     * self::DEFAULT_MAX_ALIVE_AGE} when the preference is missing or
+     * non-numeric so a fresh-import tree without preferences still produces
+     * sensible records.
      */
     private function maxPlausibleAge(): int
     {
@@ -859,10 +845,9 @@ final readonly class LifeSpanRepository
 
     /**
      * Living-individual count grouped by life-stage age-band. The
-     * `data-widget=donut` partial reads this as
-     * `[{label, value, class}]`; the `class` slot is wired through
-     * to the SVG slice so the CSS palette can colour them
-     * consistently with the existing donut widgets.
+     * `data-widget=donut` partial reads this as `[{label, value, class}]`; the
+     * `class` slot is wired through to the SVG slice so the CSS palette can
+     * colour them consistently with the existing donut widgets.
      *
      * @return list<array{label: string, value: int, class: string}>
      */
@@ -940,12 +925,11 @@ final readonly class LifeSpanRepository
     }
 
     /**
-     * Plain-text full name suitable for dropping into a
-     * progress-bar aria-label. Delegates to module-base's
-     * {@see NameProcessor::getFullName()}, which strips the HTML
-     * `<span class="NAME">…</span>` wrappers that webtrees'
-     * `Individual::fullName()` emits and would otherwise tear
-     * apart a double-quoted attribute value.
+     * Plain-text full name suitable for dropping into a progress-bar
+     * aria-label. Delegates to module-base's {@see
+     * NameProcessor::getFullName()}, which strips the HTML `<span
+     * class="NAME">…</span>` wrappers that webtrees' `Individual::fullName()`
+     * emits and would otherwise tear apart a double-quoted attribute value.
      */
     private function plainName(Individual $individual): string
     {
@@ -953,8 +937,8 @@ final readonly class LifeSpanRepository
     }
 
     /**
-     * Map a 0-indexed age value to the life-stage label whose
-     * `max` is the smallest cap that still contains it.
+     * Map a 0-indexed age value to the life-stage label whose `max` is the
+     * smallest cap that still contains it.
      */
     private function bandLabel(int $age): string
     {
@@ -984,9 +968,9 @@ final readonly class LifeSpanRepository
     }
 
     /**
-     * SQL expression that yields today's Julian-day-number for the
-     * current calendar date. Lives in a helper so the driver
-     * difference (SQLite vs MySQL/MariaDB) stays in one place.
+     * SQL expression that yields today's Julian-day-number for the current
+     * calendar date. Lives in a helper so the driver difference (SQLite vs
+     * MySQL/MariaDB) stays in one place.
      */
     private function julianTodayExpression(): string
     {

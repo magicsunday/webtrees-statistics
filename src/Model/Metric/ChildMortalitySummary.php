@@ -14,9 +14,9 @@ namespace MagicSunday\Webtrees\Statistic\Model\Metric;
 use JsonSerializable;
 
 /**
- * Tree-wide under-5 child mortality summary: total children with
- * both BIRT + DEAT dates, count of those who died before age 5,
- * and the fraction `died / total`. Consumed by the Life-Span tab.
+ * Tree-wide under-5 child mortality summary: total children with both BIRT +
+ * DEAT dates, count of those who died before age 5, and the fraction `died /
+ * total`. Consumed by the Life-Span tab.
  *
  * Serialises to `{total: int, died: int, rate: float}`.
  *

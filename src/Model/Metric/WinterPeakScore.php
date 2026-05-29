@@ -14,11 +14,10 @@ namespace MagicSunday\Webtrees\Statistic\Model\Metric;
 use JsonSerializable;
 
 /**
- * Relative-density indicator for December–February deaths compared
- * with an even 12-month baseline. `score` >1.0 = winter-peaked,
- * <1.0 = winter-trough, ≈1.0 = no seasonality. `seasonCount` is
- * the count of Dec/Jan/Feb deaths; `total` is the count of all
- * deaths with a recorded month.
+ * Relative-density indicator for December–February deaths compared with an even
+ * 12-month baseline. `score` >1.0 = winter-peaked, <1.0 = winter-trough, ≈1.0 =
+ * no seasonality. `seasonCount` is the count of Dec/Jan/Feb deaths; `total` is
+ * the count of all deaths with a recorded month.
  *
  * Serialises to `{score: float, seasonCount: int, total: int}`.
  *

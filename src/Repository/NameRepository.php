@@ -38,14 +38,13 @@ use const PHP_INT_MAX;
 use const PREG_SPLIT_NO_EMPTY;
 
 /**
- * Total counts for surnames and given names that stay in lockstep with
- * webtrees core's Top-N aggregation. The given-name path still defers
- * to {@see StatisticsData::commonGivenNames()} because the tokenisation
- * (multi-name splits, initial filter) lives in core. The surname path
- * resolves to a single COUNT(DISTINCT) query — calling
- * {@see StatisticsData::commonSurnames()} with PHP_INT_MAX would fire
- * one extra COUNT per distinct surname, turning a single count into an
- * N+1 query storm.
+ * Total counts for surnames and given names that stay in lockstep with webtrees
+ * core's Top-N aggregation. The given-name path still defers to {@see
+ * StatisticsData::commonGivenNames()} because the tokenisation (multi-name
+ * splits, initial filter) lives in core. The surname path resolves to a single
+ * COUNT(DISTINCT) query — calling {@see StatisticsData::commonSurnames()} with
+ * PHP_INT_MAX would fire one extra COUNT per distinct surname, turning a single
+ * count into an N+1 query storm.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -55,9 +54,9 @@ final readonly class NameRepository
 {
     /**
      * Per-century sample floor for {@see fatherSonNamePassdownByCentury}.
-     * Centuries with fewer father-son pairs are suppressed because a
-     * single match would swing the rate by more than 10 percentage
-     * points and read as noise rather than signal.
+     * Centuries with fewer father-son pairs are suppressed because a single
+     * match would swing the rate by more than 10 percentage points and read as
+     * noise rather than signal.
      */
     private const int MIN_COHORT_SIZE = 10;
 
@@ -72,16 +71,16 @@ final readonly class NameRepository
     }
 
     /**
-     * Number of distinct surnames in the tree, mirroring the filter
-     * stack of {@see StatisticsData::commonSurnames()}: exclude
-     * `_MARNM` entries plus empty / `NOMEN_NESCIO` values, then
-     * count distinct surname tokens whose occurrence ≥ `$threshold`.
+     * Number of distinct surnames in the tree, mirroring the filter stack of
+     * {@see StatisticsData::commonSurnames()}: exclude `_MARNM` entries plus
+     * empty / `NOMEN_NESCIO` values, then count distinct surname tokens whose
+     * occurrence ≥ `$threshold`.
      *
-     * Splits into two query shapes so the result stays valid under
-     * MySQL's `ONLY_FULL_GROUP_BY` mode (default on MySQL 5.7+ and
-     * MariaDB 10.5+), where `SELECT *` combined with `GROUP BY n_surn`
-     * is rejected because the non-aggregated columns are not
-     * functionally dependent on the grouping key.
+     * Splits into two query shapes so the result stays valid under MySQL's
+     * `ONLY_FULL_GROUP_BY` mode (default on MySQL 5.7+ and MariaDB 10.5+),
+     * where `SELECT *` combined with `GROUP BY n_surn` is rejected because the
+     * non-aggregated columns are not functionally dependent on the grouping
+     * key.
      *
      * @param int $threshold Lower bound on the occurrences a surname must have
      */
@@ -125,34 +124,30 @@ final readonly class NameRepository
     }
 
     /**
-     * Same-sex given-name passdown rate per child's birth century.
-     * Builds two series on the same X axis: father → son and
-     * mother → daughter. For every same-sex parent-child pair where
-     * both individuals carry an indexed primary NAME record and the
-     * child carries a dated BIRT, the widget collects every
-     * given-name token from each `n_givn` column (case-folded) and
-     * counts the pair as a match when at least one token appears on
-     * both sides. Order and position do not matter — a father named
-     * "Johann Friedrich" matches a son named "Wilhelm Friedrich"
-     * because "Friedrich" appears in both names. That mirrors the
-     * historical naming-tradition pattern in German-speaking
-     * regions, where the leading token was often a fixed baptismal
-     * name ("Johann", "Maria") while the actual everyday name lived
-     * in a later token; a strict first-token comparison would
+     * Same-sex given-name passdown rate per child's birth century. Builds two
+     * series on the same X axis: father → son and mother → daughter. For every
+     * same-sex parent-child pair where both individuals carry an indexed
+     * primary NAME record and the child carries a dated BIRT, the widget
+     * collects every given-name token from each `n_givn` column (case-folded)
+     * and counts the pair as a match when at least one token appears on both
+     * sides. Order and position do not matter — a father named "Johann
+     * Friedrich" matches a son named "Wilhelm Friedrich" because "Friedrich"
+     * appears in both names. That mirrors the historical naming-tradition
+     * pattern in German-speaking regions, where the leading token was often a
+     * fixed baptismal name ("Johann", "Maria") while the actual everyday name
+     * lived in a later token; a strict first-token comparison would
      * systematically miss the passdown signal it tries to measure.
      *
-     * Per-century cohorts with fewer than {@see MIN_COHORT_SIZE}
-     * parent-child pairs are suppressed independently per series
-     * (value 0 + "no data" tooltip). A century survives on the X
-     * axis as long as at least one of the two series passes the
-     * floor, so the union of the two cohorts defines the visible
-     * span and one sparse series cannot hide the other.
+     * Per-century cohorts with fewer than {@see MIN_COHORT_SIZE} parent-child
+     * pairs are suppressed independently per series (value 0 + "no data"
+     * tooltip). A century survives on the X axis as long as at least one of the
+     * two series passes the floor, so the union of the two cohorts defines the
+     * visible span and one sparse series cannot hide the other.
      *
-     * Two SQL passes (one per parent / child sex pair). The walk is
-     * symmetric between the two: father / son uses HUSB + SEX=M,
-     * mother / daughter uses WIFE + SEX=F. All token work runs in
-     * PHP so collation quirks in the different storage engines do
-     * not skew the result.
+     * Two SQL passes (one per parent / child sex pair). The walk is symmetric
+     * between the two: father / son uses HUSB + SEX=M, mother / daughter uses
+     * WIFE + SEX=F. All token work runs in PHP so collation quirks in the
+     * different storage engines do not skew the result.
      */
     public function sameSexNamePassdownByCentury(): LineChartPayload
     {
@@ -209,11 +204,10 @@ final readonly class NameRepository
     }
 
     /**
-     * Run the per-century passdown aggregation for a single
-     * parent / child sex pair. `$parentColumn` is the `families`
-     * column holding the parent xref (`f_husb` for fathers,
-     * `f_wife` for mothers); `$childSex` is the GEDCOM SEX token
-     * the CHIL is filtered to (`M` for sons, `F` for daughters).
+     * Run the per-century passdown aggregation for a single parent / child sex
+     * pair. `$parentColumn` is the `families` column holding the parent xref
+     * (`f_husb` for fathers, `f_wife` for mothers); `$childSex` is the GEDCOM
+     * SEX token the CHIL is filtered to (`M` for sons, `F` for daughters).
      *
      * @return array<int, array{matches: int, total: int}>
      */
@@ -295,11 +289,10 @@ final readonly class NameRepository
     }
 
     /**
-     * Render one century's `{matches, total}` cell into the
-     * `(value, tooltip)` pair the LineChart series consumes. A
-     * null counts argument means the century did not collect any
-     * pair for this sex pairing, which also produces the "no
-     * data" placeholder so the other series can still own the
+     * Render one century's `{matches, total}` cell into the `(value, tooltip)`
+     * pair the LineChart series consumes. A null counts argument means the
+     * century did not collect any pair for this sex pairing, which also
+     * produces the "no data" placeholder so the other series can still own the
      * X-axis slot.
      *
      * @param array{matches: int, total: int}|null $counts
@@ -337,12 +330,11 @@ final readonly class NameRepository
     }
 
     /**
-     * Split a `n_givn` column into the case-folded set of given-name
-     * tokens, dropping empty pieces. Used to detect set-overlap
-     * between a father's and a son's given names regardless of
-     * order or position. Slashes and other GEDCOM markers do not
-     * appear in `n_givn` (those live on `n_surn` / `n_full`), so a
-     * simple whitespace split is sufficient.
+     * Split a `n_givn` column into the case-folded set of given-name tokens,
+     * dropping empty pieces. Used to detect set-overlap between a father's and
+     * a son's given names regardless of order or position. Slashes and other
+     * GEDCOM markers do not appear in `n_givn` (those live on `n_surn` /
+     * `n_full`), so a simple whitespace split is sufficient.
      *
      * @return list<string>
      */

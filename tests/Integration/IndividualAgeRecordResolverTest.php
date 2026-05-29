@@ -16,12 +16,12 @@ use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Verifies the {@see IndividualAgeRecordResolver} branches that the
- * repository-side record-holder integration tests cannot reach:
- * both-null and either-null short-circuits, the
- * unknown-xref-after-deletion fallback, and the happy-path
- * materialisation against a real tree. Lives under tests/Integration/
- * because the resolver calls `Registry::individualFactory()->make()`
- * which needs the webtrees container booted by IntegrationTestCase.
+ * repository-side record-holder integration tests cannot reach: both-null and
+ * either-null short-circuits, the unknown-xref-after-deletion fallback, and the
+ * happy-path materialisation against a real tree. Lives under
+ * tests/Integration/ because the resolver calls
+ * `Registry::individualFactory()->make()` which needs the webtrees container
+ * booted by IntegrationTestCase.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -30,8 +30,8 @@ use PHPUnit\Framework\Attributes\Test;
 final class IndividualAgeRecordResolverTest extends IntegrationTestCase
 {
     /**
-     * Both inputs null collapses to null — `null + null` shorts out
-     * before the Registry lookup so a tree-less caller is safe.
+     * Both inputs null collapses to null — `null + null` shorts out before the
+     * Registry lookup so a tree-less caller is safe.
      */
     #[Test]
     public function resolveReturnsNullWhenBothInputsAreNull(): void
@@ -43,8 +43,8 @@ final class IndividualAgeRecordResolverTest extends IntegrationTestCase
 
     /**
      * `years === null` short-circuits even when a valid xref is present.
-     * Mirrors the case where the pair-iterator never picked a winning
-     * candidate (empty tree, all candidates filtered).
+     * Mirrors the case where the pair-iterator never picked a winning candidate
+     * (empty tree, all candidates filtered).
      */
     #[Test]
     public function resolveReturnsNullWhenYearsIsNull(): void
@@ -66,9 +66,9 @@ final class IndividualAgeRecordResolverTest extends IntegrationTestCase
     }
 
     /**
-     * Xref that no longer resolves to a live Individual collapses to
-     * null — covers the post-deletion race where the candidate row
-     * still points at a tombstone.
+     * Xref that no longer resolves to a live Individual collapses to null —
+     * covers the post-deletion race where the candidate row still points at a
+     * tombstone.
      */
     #[Test]
     public function resolveReturnsNullForUnknownXref(): void
@@ -79,9 +79,9 @@ final class IndividualAgeRecordResolverTest extends IntegrationTestCase
     }
 
     /**
-     * Happy path: a known xref + an integer age materialises the DTO
-     * with both fields populated and the live Individual reachable
-     * via the public property.
+     * Happy path: a known xref + an integer age materialises the DTO with both
+     * fields populated and the live Individual reachable via the public
+     * property.
      */
     #[Test]
     public function resolveBuildsRecordForKnownXref(): void

@@ -16,15 +16,15 @@ use MagicSunday\Webtrees\Statistic\Repository\FamilyRepository;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
- * End-to-end test of the marital-status classifier against a curated
- * GEDCOM fixture loaded into an in-memory SQLite database. Mirrors what
- * webtrees core does in its own TestCase: bootstrap the schema, import
- * the records, then exercise the repository against the real tables.
+ * End-to-end test of the marital-status classifier against a curated GEDCOM
+ * fixture loaded into an in-memory SQLite database. Mirrors what webtrees core
+ * does in its own TestCase: bootstrap the schema, import the records, then
+ * exercise the repository against the real tables.
  *
- * The fixture contains the four marital buckets at their boundaries:
- * a living couple (current × 2), a widow with deceased spouse
- * (widowed × 1), a divorced couple (divorced × 2), and two unpartnered
- * individuals (single × 1 living, single × 1 deceased).
+ * The fixture contains the four marital buckets at their boundaries: a living
+ * couple (current × 2), a widow with deceased spouse (widowed × 1), a divorced
+ * couple (divorced × 2), and two unpartnered individuals (single × 1 living,
+ * single × 1 deceased).
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0

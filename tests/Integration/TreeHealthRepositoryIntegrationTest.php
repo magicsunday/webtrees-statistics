@@ -15,11 +15,11 @@ use MagicSunday\Webtrees\Statistic\Repository\TreeHealthRepository;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
- * End-to-end test of the Tree Health repository against a curated
- * fixture that exercises every documented data-quality scenario:
- * fully sourced individuals, half-sourced ones, individuals missing
- * BIRT or DEAT, individuals with no events at all, plus a parent-child
- * chain with parseable birth years on both ends.
+ * End-to-end test of the Tree Health repository against a curated fixture that
+ * exercises every documented data-quality scenario: fully sourced individuals,
+ * half-sourced ones, individuals missing BIRT or DEAT, individuals with no
+ * events at all, plus a parent-child chain with parseable birth years on both
+ * ends.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -28,8 +28,8 @@ use PHPUnit\Framework\Attributes\Test;
 final class TreeHealthRepositoryIntegrationTest extends IntegrationTestCase
 {
     /**
-     * Two of six individuals carry a SOUR citation; the headline ratio
-     * must report 2 / 6.
+     * Two of six individuals carry a SOUR citation; the headline ratio must
+     * report 2 / 6.
      */
     #[Test]
     public function sourceCitationCoverageReturnsTheExpectedRatio(): void
@@ -43,10 +43,10 @@ final class TreeHealthRepositoryIntegrationTest extends IntegrationTestCase
 
     /**
      * The fixture seeds known missing-event counts: BIRT missing on 2 of 6
-     * individuals (the no-events-stub and the sparse child); BIRT place
-     * missing additionally on the half-data parent (5 of 6); DEAT missing
-     * on 4 of 6 (only the sourced parent and the documented child have
-     * a death event); DEAT place missing on the same 4.
+     * individuals (the no-events-stub and the sparse child); BIRT place missing
+     * additionally on the half-data parent (5 of 6); DEAT missing on 4 of 6
+     * (only the sourced parent and the documented child have a death event);
+     * DEAT place missing on the same 4.
      */
     #[Test]
     public function missingEventGapsReturnTheExpectedCounts(): void
@@ -64,8 +64,8 @@ final class TreeHealthRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * The fixture has two usable parent-child pairs (I1 1900 → I3 1928,
-     * delta 28; I2 1902 → I3 1928, delta 26); the average is 27.
+     * The fixture has two usable parent-child pairs (I1 1900 → I3 1928, delta
+     * 28; I2 1902 → I3 1928, delta 26); the average is 27.
      */
     #[Test]
     public function averageGenerationLengthMatchesTheFixture(): void
@@ -84,11 +84,11 @@ final class TreeHealthRepositoryIntegrationTest extends IntegrationTestCase
      *  * one 18th-century birth, unsourced
      *  * one with no BIRT at all
      *
-     * The minimum-sample threshold is 5. Two cohorts clear it; the
-     * 18th-century cohort (n=1) is dropped. Locks both the
-     * threshold filter and the `ksort` ordering so a regression that
-     * returned the surviving cohorts in insertion order rather than
-     * ascending century would fail at `$result[0]['century'] === 19`.
+     * The minimum-sample threshold is 5. Two cohorts clear it; the 18th-century
+     * cohort (n=1) is dropped. Locks both the threshold filter and the `ksort`
+     * ordering so a regression that returned the surviving cohorts in insertion
+     * order rather than ascending century would fail at `$result[0]['century']
+     * === 19`.
      */
     #[Test]
     public function sourceCitationCoverageByCenturyKeepsCohortsAboveThreshold(): void
@@ -110,10 +110,10 @@ final class TreeHealthRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * The tree-health.ged fixture has only four dated births, all in
-     * the 20th century — below the per-century minimum sample, so the
-     * breakdown drops the cohort and returns an empty list. Locks the
-     * threshold-driven empty path against accidental loosening.
+     * The tree-health.ged fixture has only four dated births, all in the 20th
+     * century — below the per-century minimum sample, so the breakdown drops
+     * the cohort and returns an empty list. Locks the threshold-driven empty
+     * path against accidental loosening.
      */
     #[Test]
     public function sourceCitationCoverageByCenturyIsEmptyWhenAllCohortsAreSubThreshold(): void

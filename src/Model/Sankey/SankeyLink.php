@@ -14,13 +14,12 @@ namespace MagicSunday\Webtrees\Statistic\Model\Sankey;
 use JsonSerializable;
 
 /**
- * One ribbon on a sankey diagram — a directed flow from `source` to
- * `target` (both indices into the parent payload's `nodes` list)
- * carrying `value` individuals plus up to N representative samples
- * the tooltip can surface.
+ * One ribbon on a sankey diagram — a directed flow from `source` to `target`
+ * (both indices into the parent payload's `nodes` list) carrying `value`
+ * individuals plus up to N representative samples the tooltip can surface.
  *
- * Serialises to `{source: int, target: int, value: int, samples: list<{name, xref}>}`
- * for the chart-lib sankey-flow widget.
+ * Serialises to `{source: int, target: int, value: int, samples: list<{name,
+ * xref}>}` for the chart-lib sankey-flow widget.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0

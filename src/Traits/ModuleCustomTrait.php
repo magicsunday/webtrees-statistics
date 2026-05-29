@@ -33,9 +33,9 @@ use const PATHINFO_EXTENSION;
 /**
  * Wraps the shared module-base ModuleCustomTrait with a statistics-specific
  * `getAssetAction()` that adds WOFF / WOFF2 MIME-type entries — without this
- * override Firefox rejects the web fonts shipped under `resources/fonts/`
- * with `NS_ERROR_CORRUPTED_CONTENT` because the core MIME map has no entry
- * for those extensions.
+ * override Firefox rejects the web fonts shipped under `resources/fonts/` with
+ * `NS_ERROR_CORRUPTED_CONTENT` because the core MIME map has no entry for those
+ * extensions.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -48,9 +48,9 @@ trait ModuleCustomTrait
     /**
      * Serves a static asset from the module's `resources/` directory with the
      * proper Content-Type header. Overrides the core implementation to add
-     * MIME-type entries for web fonts (WOFF / WOFF2), which the core map
-     * ({@see Mime::TYPES}) does not list. Without the override Firefox
-     * rejects font downloads served as `application/octet-stream` with
+     * MIME-type entries for web fonts (WOFF / WOFF2), which the core map ({@see
+     * Mime::TYPES}) does not list. Without the override Firefox rejects font
+     * downloads served as `application/octet-stream` with
      * `NS_ERROR_CORRUPTED_CONTENT`.
      *
      * @throws HttpAccessDeniedException When the requested path tries to escape the resources folder

@@ -21,12 +21,11 @@ use function json_decode;
 use function json_encode;
 
 /**
- * Behavioural parity test for the migration-flows DTO chain. Asserts
- * that `json_encode` on a fully-populated `MigrationFlowsPayload`
- * still produces the exact wire shape every chart-lib sankey-flow
- * consumer was built against before the array-shape → DTO refactor.
- * Any drift here would silently break the JSON contract the JS
- * widget reads, so the lock-down is per-key.
+ * Behavioural parity test for the migration-flows DTO chain. Asserts that
+ * `json_encode` on a fully-populated `MigrationFlowsPayload` still produces the
+ * exact wire shape every chart-lib sankey-flow consumer was built against
+ * before the array-shape → DTO refactor. Any drift here would silently break
+ * the JSON contract the JS widget reads, so the lock-down is per-key.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -35,9 +34,8 @@ use function json_encode;
 final class MigrationFlowsPayloadTest extends TestCase
 {
     /**
-     * A populated payload round-trips through `json_encode` to the
-     * exact array shape the chart-lib sankey-flow widget consumed
-     * before the refactor.
+     * A populated payload round-trips through `json_encode` to the exact array
+     * shape the chart-lib sankey-flow widget consumed before the refactor.
      */
     #[Test]
     public function payloadSerialisesToTheLegacyWireShape(): void
@@ -82,10 +80,10 @@ final class MigrationFlowsPayloadTest extends TestCase
     }
 
     /**
-     * An empty payload (no flows / no nodes) serialises to the
-     * `{nodes: [], links: []}` shape the chart-lib widget treats as
-     * "render empty state". A regression here would surface as the
-     * widget either crashing on `null` or rendering a stale chart.
+     * An empty payload (no flows / no nodes) serialises to the `{nodes: [],
+     * links: []}` shape the chart-lib widget treats as "render empty state". A
+     * regression here would surface as the widget either crashing on `null` or
+     * rendering a stale chart.
      */
     #[Test]
     public function emptyPayloadSerialisesToEmptyArrays(): void
@@ -99,10 +97,10 @@ final class MigrationFlowsPayloadTest extends TestCase
     }
 
     /**
-     * `SankeySample` carries name + xref so the consumer's tooltip
-     * can render either. The link to the individual record is held
-     * via the xref; renaming or dropping that key would silently
-     * disconnect every per-flow hover surface.
+     * `SankeySample` carries name + xref so the consumer's tooltip can render
+     * either. The link to the individual record is held via the xref; renaming
+     * or dropping that key would silently disconnect every per-flow hover
+     * surface.
      */
     #[Test]
     public function sankeySampleSerialisesToNameAndXrefKeys(): void
@@ -116,10 +114,10 @@ final class MigrationFlowsPayloadTest extends TestCase
     }
 
     /**
-     * `SankeyLink` includes its samples list inline, which itself
-     * nests through `SankeySample::jsonSerialize`. The nested
-     * encode is the most likely drift point so an explicit empty
-     * + populated case here guards both ends of the spectrum.
+     * `SankeyLink` includes its samples list inline, which itself nests through
+     * `SankeySample::jsonSerialize`. The nested encode is the most likely drift
+     * point so an explicit empty + populated case here guards both ends of the
+     * spectrum.
      */
     #[Test]
     public function sankeyLinkSerialisesWithItsNestedSampleList(): void

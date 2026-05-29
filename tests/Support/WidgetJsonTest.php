@@ -19,11 +19,11 @@ use PHPUnit\Framework\TestCase;
 use function chr;
 
 /**
- * Verifies the chart-widget JSON encoder's two non-default flags:
- * the throw-on-error contract that prevents a `false` return from
- * silently corrupting the rendered DOM, and the
- * UTF-8-substitute contract that absorbs malformed byte sequences
- * from imported GEDCOM without crashing the whole statistics tab.
+ * Verifies the chart-widget JSON encoder's two non-default flags: the
+ * throw-on-error contract that prevents a `false` return from silently
+ * corrupting the rendered DOM, and the UTF-8-substitute contract that absorbs
+ * malformed byte sequences from imported GEDCOM without crashing the whole
+ * statistics tab.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -32,9 +32,9 @@ use function chr;
 final class WidgetJsonTest extends TestCase
 {
     /**
-     * Happy path: a regular array encodes to the canonical JSON
-     * string with no extra escaping that would interfere with the
-     * `data-*` attribute round-trip.
+     * Happy path: a regular array encodes to the canonical JSON string with no
+     * extra escaping that would interfere with the `data-*` attribute
+     * round-trip.
      */
     #[Test]
     public function encodeProducesCanonicalJsonForArrayValues(): void
@@ -48,8 +48,8 @@ final class WidgetJsonTest extends TestCase
     }
 
     /**
-     * A JsonSerializable DTO is forwarded to its `jsonSerialize()`
-     * shape — the same path every chart-payload DTO uses.
+     * A JsonSerializable DTO is forwarded to its `jsonSerialize()` shape — the
+     * same path every chart-payload DTO uses.
      */
     #[Test]
     public function encodeHonoursJsonSerializableImplementations(): void
@@ -68,10 +68,10 @@ final class WidgetJsonTest extends TestCase
     }
 
     /**
-     * Malformed UTF-8 — a lone 0xC3 continuation byte that the
-     * GEDCOM-import path can produce when a multi-byte character
-     * gets truncated mid-character — substitutes to U+FFFD rather
-     * than throwing, so a single bad import cannot crash the tab.
+     * Malformed UTF-8 — a lone 0xC3 continuation byte that the GEDCOM-import
+     * path can produce when a multi-byte character gets truncated mid-character
+     * — substitutes to U+FFFD rather than throwing, so a single bad import
+     * cannot crash the tab.
      */
     #[Test]
     public function encodeSubstitutesMalformedUtf8(): void
@@ -85,11 +85,11 @@ final class WidgetJsonTest extends TestCase
     }
 
     /**
-     * `encodeAttribute()` HTML-escapes the JSON output so a stray
-     * double-quote in a label cannot break out of the surrounding
-     * `data-payload="…"` attribute. JSON already escapes the inner
-     * `"` to `\"`, and `e()` then escapes the resulting backslash-
-     * quote pair plus the outer field quotes into `\&quot;`.
+     * `encodeAttribute()` HTML-escapes the JSON output so a stray double-quote
+     * in a label cannot break out of the surrounding `data-payload="…"`
+     * attribute. JSON already escapes the inner `"` to `\"`, and `e()` then
+     * escapes the resulting backslash- quote pair plus the outer field quotes
+     * into `\&quot;`.
      */
     #[Test]
     public function encodeAttributeEscapesDoubleQuotesForAttributeContext(): void
@@ -103,11 +103,10 @@ final class WidgetJsonTest extends TestCase
     }
 
     /**
-     * Angle brackets and ampersands in encoded payloads escape so a
-     * label cannot inject markup into the host element via the
-     * `data-*` attribute round-trip. JSON leaves `&` and `<` raw
-     * (no `JSON_HEX_*` flags); `e()` then turns them into
-     * `&amp;` / `&lt;` / `&gt;`.
+     * Angle brackets and ampersands in encoded payloads escape so a label
+     * cannot inject markup into the host element via the `data-*` attribute
+     * round-trip. JSON leaves `&` and `<` raw (no `JSON_HEX_*` flags); `e()`
+     * then turns them into `&amp;` / `&lt;` / `&gt;`.
      */
     #[Test]
     public function encodeAttributeEscapesAngleBracketsAndAmpersands(): void
@@ -122,9 +121,9 @@ final class WidgetJsonTest extends TestCase
     }
 
     /**
-     * Clean-ASCII input where no escape is needed still round-trips
-     * through the helper — confirms `encodeAttribute()` does not
-     * mangle plain values that `encode()` already produces correctly.
+     * Clean-ASCII input where no escape is needed still round-trips through the
+     * helper — confirms `encodeAttribute()` does not mangle plain values that
+     * `encode()` already produces correctly.
      */
     #[Test]
     public function encodeAttributeEscapesCleanAsciiOnlyAtAttributeBoundary(): void

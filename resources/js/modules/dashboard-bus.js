@@ -9,15 +9,13 @@ import { dispatch } from "d3-dispatch";
 
 /**
  * Shared selection bus for cross-widget filtering. Widgets emit a
- * `selectionChanged` event with a predicate describing the current
- * filter (or `null` to clear); the bus rebroadcasts to every
- * subscriber.
+ * `selectionChanged` event with a predicate describing the current filter (or
+ * `null` to clear); the bus rebroadcasts to every subscriber.
  *
- * The contract is intentionally minimal — the bus does not know
- * anything about the structure of the predicate, just that it's an
- * opaque value (or null). Each subscriber decides whether the
- * predicate is relevant to its own data and applies it (or
- * ignores it).
+ * The contract is intentionally minimal — the bus does not know anything about
+ * the structure of the predicate, just that it's an opaque value (or null).
+ * Each subscriber decides whether the predicate is relevant to its own data and
+ * applies it (or ignores it).
  *
  * @typedef {object} DashboardSelection
  * @property {string} source     Stable identifier of the widget that emitted the event (`"donut.births-century"`, `"name-bubbles.top-surnames"`, ...). Subscribers use this to ignore their own emissions.
@@ -33,9 +31,8 @@ export class DashboardBus {
     }
 
     /**
-     * Broadcast a selection to every subscriber. Callers should
-     * include a stable `source` identifier so subscribers can
-     * ignore their own emissions.
+     * Broadcast a selection to every subscriber. Callers should include a
+     * stable `source` identifier so subscribers can ignore their own emissions.
      *
      * @param {DashboardSelection} selection
      *
@@ -46,9 +43,8 @@ export class DashboardBus {
     }
 
     /**
-     * Subscribe to selection changes. Returns an `unsubscribe`
-     * function so callers can disconnect cleanly when the host
-     * widget is torn down.
+     * Subscribe to selection changes. Returns an `unsubscribe` function so
+     * callers can disconnect cleanly when the host widget is torn down.
      *
      * @param {(selection: DashboardSelection) => void} callback
      *

@@ -17,16 +17,16 @@ use JsonSerializable;
 use function array_map;
 
 /**
- * Maximum-generation-depth report for the Family tab. Combines the
- * scalar max-depth indicator with the distribution histogram of
- * per-individual descendant depths and a sample of verified
- * leaf-anchored chains at the maximum depth (so the view can
- * advertise the verified line + "+N more" when several exist).
+ * Maximum-generation-depth report for the Family tab. Combines the scalar
+ * max-depth indicator with the distribution histogram of per-individual
+ * descendant depths and a sample of verified leaf-anchored chains at the
+ * maximum depth (so the view can advertise the verified line + "+N more" when
+ * several exist).
  *
- * Carries live `Individual` instances in `chains` so the PHTML
- * consumer can render the chain as a row of names linking to the
- * individual page. `jsonSerialize` flattens chains down to their
- * xrefs because a webtrees `Individual` is not JSON-encodable.
+ * Carries live `Individual` instances in `chains` so the PHTML consumer can
+ * render the chain as a row of names linking to the individual page.
+ * `jsonSerialize` flattens chains down to their xrefs because a webtrees
+ * `Individual` is not JSON-encodable.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -51,8 +51,8 @@ final readonly class GenerationDepthReport implements JsonSerializable
     }
 
     /**
-     * Flattens each chain to its xref list — the JSON form a JS
-     * consumer can drive without an Individual proxy on the wire.
+     * Flattens each chain to its xref list — the JSON form a JS consumer can
+     * drive without an Individual proxy on the wire.
      *
      * @return array{maxDepth: int, distribution: array<int, int>, capped: bool, chains: list<list<string>>, totalChainCount: int}
      */

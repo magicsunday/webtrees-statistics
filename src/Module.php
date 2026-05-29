@@ -34,8 +34,8 @@ use function realpath;
  * navigation page (Overview / Names / LifeSpan / Family / Places / Tree health)
  * over the {@see StatisticsChartModule} chart route. Each tab is served as a
  * separate AJAX action and renders its own template under `tabs/`; the
- * top-level page wires the AJAX URLs, hero stats, stylesheet, JavaScript
- * bundle and the web-font asset URLs that the front-end consumes.
+ * top-level page wires the AJAX URLs, hero stats, stylesheet, JavaScript bundle
+ * and the web-font asset URLs that the front-end consumes.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -54,29 +54,28 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
 
     /**
      * Webtrees renders this URL as the "For more information, see …" link
-     * inside the "An upgrade is available" notice on the admin home and on
-     * the Modules admin pages. Pointed at the GitHub `/releases/latest`
-     * page so admins who notice an available update land directly on the
-     * release notes — including the "Manual / FTP installation" banner
-     * and the install-ready asset zip.
+     * inside the "An upgrade is available" notice on the admin home and on the
+     * Modules admin pages. Pointed at the GitHub `/releases/latest` page so
+     * admins who notice an available update land directly on the release notes
+     * — including the "Manual / FTP installation" banner and the install-ready
+     * asset zip.
      */
     public const string CUSTOM_SUPPORT_URL = 'https://github.com/' . self::GITHUB_REPO . '/releases/latest';
 
     public const string CUSTOM_LATEST_VERSION = 'https://api.github.com/repos/' . self::GITHUB_REPO . '/releases/latest';
 
     /**
-     * Module-specific MIME-type entries that supplement the core
-     * {@see \Fisharebest\Webtrees\Mime::TYPES} map. Lookup order in
-     * {@see ModuleCustomTrait::getAssetAction()} is class-level →
-     * core → default — so this table can both add missing types
-     * (WOFF / WOFF2 are absent from core, which would otherwise serve
-     * web fonts as `application/octet-stream`) and override the core
-     * defaults if ever needed.
+     * Module-specific MIME-type entries that supplement the core {@see
+     * \Fisharebest\Webtrees\Mime::TYPES} map. Lookup order in {@see
+     * ModuleCustomTrait::getAssetAction()} is class-level → core → default — so
+     * this table can both add missing types (WOFF / WOFF2 are absent from core,
+     * which would otherwise serve web fonts as `application/octet-stream`) and
+     * override the core defaults if ever needed.
      *
-     * Placed on the class instead of on the trait so a future webtrees
-     * core release that adds an identically-named constant to its own
-     * `ModuleCustomTrait` cannot trigger a fatal trait-constant
-     * composition conflict at class-load.
+     * Placed on the class instead of on the trait so a future webtrees core
+     * release that adds an identically-named constant to its own
+     * `ModuleCustomTrait` cannot trigger a fatal trait-constant composition
+     * conflict at class-load.
      *
      * @var array<string, string>
      */
@@ -86,8 +85,8 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
     ];
 
     /**
-     * Registers the module's view namespace so AJAX-loaded tab templates
-     * can be resolved by their fully-qualified `<module>::path` names.
+     * Registers the module's view namespace so AJAX-loaded tab templates can be
+     * resolved by their fully-qualified `<module>::path` names.
      */
     public function boot(): void
     {
@@ -98,7 +97,8 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
     }
 
     /**
-     * Returns the module title shown in the control panel and the chart menu entry.
+     * Returns the module title shown in the control panel and the chart menu
+     * entry.
      *
      * @return string
      */
@@ -109,7 +109,8 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
     }
 
     /**
-     * Returns a short description shown in the module list in the control panel.
+     * Returns a short description shown in the module list in the control
+     * panel.
      *
      * @return string
      */
@@ -133,9 +134,10 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
     /**
      * Renders the top-level page that hosts the six-tab navigation skeleton.
      * Builds the action → AJAX-URL map for the nav strip, fetches the hero
-     * aggregate (tree-wide headline numbers), and exposes the bundle / stylesheet /
-     * web-font asset URLs the front-end consumes. The tabs themselves are
-     * lazy-loaded by the JavaScript bundle once the user activates them.
+     * aggregate (tree-wide headline numbers), and exposes the bundle /
+     * stylesheet / web-font asset URLs the front-end consumes. The tabs
+     * themselves are lazy-loaded by the JavaScript bundle once the user
+     * activates them.
      *
      * @param ServerRequestInterface $request Incoming HTTP request
      *
@@ -257,9 +259,9 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
     }
 
     /**
-     * Returns the action → translated-label map that drives the tab
-     * navigation in {@see getChartAction()}. Order here is the order the
-     * tabs appear on screen.
+     * Returns the action → translated-label map that drives the tab navigation
+     * in {@see getChartAction()}. Order here is the order the tabs appear on
+     * screen.
      *
      * @return array<string, string>
      */
@@ -277,8 +279,8 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
 
     /**
      * Shared renderer for every tab action. The template name matches the
-     * action key one-to-one so adding a tab is a two-line change (catalog
-     * entry + action method).
+     * action key one-to-one so adding a tab is a two-line change (catalog entry
+     * + action method).
      *
      * @param string $template Template file name under tabs/ without extension (kebab-case)
      */

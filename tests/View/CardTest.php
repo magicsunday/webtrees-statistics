@@ -17,15 +17,14 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Verifies the immutable fluent Card builder used by the chart /
- * statistic modules. The rendered HTML is asserted in shape, not
- * byte-for-byte — the goal is to lock the contract a consuming
- * template relies on, not the whitespace.
+ * Verifies the immutable fluent Card builder used by the chart / statistic
+ * modules. The rendered HTML is asserted in shape, not byte-for-byte — the goal
+ * is to lock the contract a consuming template relies on, not the whitespace.
  *
- * Illustration-related assertions are out of scope here: the
- * `Illustration` enum's `svg()` method calls the webtrees `view()`
- * helper, which needs the full webtrees runtime. The illustration
- * code-path is covered by browser-level smoke tests on every tab.
+ * Illustration-related assertions are out of scope here: the `Illustration`
+ * enum's `svg()` method calls the webtrees `view()` helper, which needs the
+ * full webtrees runtime. The illustration code-path is covered by browser-level
+ * smoke tests on every tab.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -34,8 +33,8 @@ use PHPUnit\Framework\TestCase;
 final class CardTest extends TestCase
 {
     /**
-     * A bare title-only card emits the `wt-stat-card` section, the
-     * title h3, no eyebrow, no sub, no illustration, no footer.
+     * A bare title-only card emits the `wt-stat-card` section, the title h3, no
+     * eyebrow, no sub, no illustration, no footer.
      */
     #[Test]
     public function bareTitleOnlyCardRendersMinimalShell(): void
@@ -51,8 +50,8 @@ final class CardTest extends TestCase
     }
 
     /**
-     * Eyebrow + sub appear in the header when set; the eyebrow picks
-     * up the accent colour as an inline style.
+     * Eyebrow + sub appear in the header when set; the eyebrow picks up the
+     * accent colour as an inline style.
      */
     #[Test]
     public function eyebrowAndSubRenderWhenSet(): void
@@ -69,8 +68,7 @@ final class CardTest extends TestCase
 
     /**
      * Accent enum is serialised as its CSS literal value into the
-     * `--wt-stat-card-accent` custom property + the eyebrow inline
-     * style.
+     * `--wt-stat-card-accent` custom property + the eyebrow inline style.
      */
     #[Test]
     public function accentEnumPropagatesToCustomPropertyAndEyebrow(): void
@@ -85,9 +83,9 @@ final class CardTest extends TestCase
     }
 
     /**
-     * The grid-span value is reflected in BOTH the inline
-     * `grid-column: span N` rule and the `--wt-stat-card-span`
-     * custom property, so consumer CSS can react to it.
+     * The grid-span value is reflected in BOTH the inline `grid-column: span N`
+     * rule and the `--wt-stat-card-span` custom property, so consumer CSS can
+     * react to it.
      */
     #[Test]
     public function spanPropagatesToGridColumnAndCustomProperty(): void
@@ -99,9 +97,9 @@ final class CardTest extends TestCase
     }
 
     /**
-     * The body-HTML branch echoes the caller string verbatim — the
-     * caller is responsible for escaping any user content. This test
-     * asserts the verbatim contract, not security.
+     * The body-HTML branch echoes the caller string verbatim — the caller is
+     * responsible for escaping any user content. This test asserts the verbatim
+     * contract, not security.
      */
     #[Test]
     public function bodyHtmlEchoesCallerStringVerbatim(): void
@@ -115,9 +113,8 @@ final class CardTest extends TestCase
     }
 
     /**
-     * Setting `withInfo()` auto-shows the footer and wires up the
-     * Bootstrap popover attributes with the localised title and
-     * accessible label.
+     * Setting `withInfo()` auto-shows the footer and wires up the Bootstrap
+     * popover attributes with the localised title and accessible label.
      */
     #[Test]
     public function withInfoAutoShowsFooterAndWiresPopover(): void
@@ -151,11 +148,10 @@ final class CardTest extends TestCase
     }
 
     /**
-     * Without `withInfo()`, `withFooter()` and `withoutFooter()`, the
-     * footer defaults to suppressed. Locks the implicit fallback so
-     * a regression of the tri-state branch (default → footer
-     * suppressed) fails its own clearly-named test instead of
-     * dragging the bare-shell test down with it.
+     * Without `withInfo()`, `withFooter()` and `withoutFooter()`, the footer
+     * defaults to suppressed. Locks the implicit fallback so a regression of
+     * the tri-state branch (default → footer suppressed) fails its own
+     * clearly-named test instead of dragging the bare-shell test down with it.
      */
     #[Test]
     public function defaultFooterStaysSuppressedWithoutInfo(): void
@@ -166,9 +162,8 @@ final class CardTest extends TestCase
     }
 
     /**
-     * `withoutFooter()` suppresses the footer even when `withInfo()`
-     * is set — for cases where the section already has a single
-     * shared info button.
+     * `withoutFooter()` suppresses the footer even when `withInfo()` is set —
+     * for cases where the section already has a single shared info button.
      */
     #[Test]
     public function withoutFooterSuppressesEvenWhenInfoIsSet(): void
@@ -182,8 +177,8 @@ final class CardTest extends TestCase
     }
 
     /**
-     * `centered()` adds the modifier class so the consumer CSS can
-     * centre the body content for scalar / podium cards.
+     * `centered()` adds the modifier class so the consumer CSS can centre the
+     * body content for scalar / podium cards.
      */
     #[Test]
     public function centeredAddsModifierClass(): void
@@ -194,8 +189,8 @@ final class CardTest extends TestCase
     }
 
     /**
-     * The title goes through HTML-escape so accidental user content
-     * with quotes / angle brackets cannot break out of the h3.
+     * The title goes through HTML-escape so accidental user content with quotes
+     * / angle brackets cannot break out of the h3.
      */
     #[Test]
     public function titleIsHtmlEscaped(): void
@@ -207,9 +202,8 @@ final class CardTest extends TestCase
     }
 
     /**
-     * The builder is immutable — each `with*()` call returns a new
-     * instance with the field overridden, leaving the source object
-     * unchanged.
+     * The builder is immutable — each `with*()` call returns a new instance
+     * with the field overridden, leaving the source object unchanged.
      */
     #[Test]
     public function builderIsImmutable(): void
@@ -223,9 +217,9 @@ final class CardTest extends TestCase
     }
 
     /**
-     * Passing `null` to a setter clears the previously-set field
-     * (e.g. for cases where the field is conditionally cleared after
-     * being set in an earlier branch).
+     * Passing `null` to a setter clears the previously-set field (e.g. for
+     * cases where the field is conditionally cleared after being set in an
+     * earlier branch).
      */
     #[Test]
     public function nullClearsPreviouslySetField(): void
@@ -239,9 +233,9 @@ final class CardTest extends TestCase
     }
 
     /**
-     * `withFooter()` forces the dashed footer slot to render even
-     * when no info popover is attached — supports keeping the
-     * dashed-rhythm consistent across a section.
+     * `withFooter()` forces the dashed footer slot to render even when no info
+     * popover is attached — supports keeping the dashed-rhythm consistent
+     * across a section.
      */
     #[Test]
     public function withFooterEmitsEmptyFooterWhenNoInfoIsSet(): void

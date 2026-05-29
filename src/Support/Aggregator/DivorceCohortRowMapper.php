@@ -17,12 +17,11 @@ use MagicSunday\Webtrees\Statistic\Support\Locale\DecadeName;
 use function round;
 
 /**
- * Folds a `[cohort => rate]` divorce-rate distribution (rate as a
- * 0..1 fraction) into the three parallel `categories` / `values` /
- * `tooltips` lists the chart-lib LineChart widget consumes when fed
- * the raw-array payload shape. Each rate is rounded to a whole
- * percentage so the cohort-line reads as `48 %` instead of
- * `47.8312 %` — the cohort sample size rarely supports finer
+ * Folds a `[cohort => rate]` divorce-rate distribution (rate as a 0..1
+ * fraction) into the three parallel `categories` / `values` / `tooltips` lists
+ * the chart-lib LineChart widget consumes when fed the raw-array payload shape.
+ * Each rate is rounded to a whole percentage so the cohort-line reads as `48 %`
+ * instead of `47.8312 %` — the cohort sample size rarely supports finer
  * resolution and the chart axis would be unreadable otherwise.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>

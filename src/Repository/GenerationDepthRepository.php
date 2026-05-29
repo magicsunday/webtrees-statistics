@@ -33,16 +33,15 @@ use function uksort;
 use function usort;
 
 /**
- * Brick-wall surfacing for the Family tab. Computes the tree-wide
- * maximum generation depth and the per-individual "generations
- * below me" histogram, so the viewer can see at a glance whether
- * their tree is broadly shallow (most lines stop at parents or
- * grandparents) or has a few deep verified chains alongside many
- * unfinished lines.
+ * Brick-wall surfacing for the Family tab. Computes the tree-wide maximum
+ * generation depth and the per-individual "generations below me" histogram, so
+ * the viewer can see at a glance whether their tree is broadly shallow (most
+ * lines stop at parents or grandparents) or has a few deep verified chains
+ * alongside many unfinished lines.
  *
- * Reuses {@see ParentMap} so the same SQL pass that feeds the
- * Lacy pedigree-completeness widget also feeds this one, avoiding
- * a second full FAMC + FAM scan.
+ * Reuses {@see ParentMap} so the same SQL pass that feeds the Lacy
+ * pedigree-completeness widget also feeds this one, avoiding a second full FAMC
+ * + FAM scan.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -61,25 +60,24 @@ final readonly class GenerationDepthRepository
     }
 
     /**
-     * Show exactly one concrete chain. When multiple lineages reach
-     * the tree-wide maximum depth, the displayed chain is the one
-     * with the youngest-leaf BIRT (= the still-living-or-recent
-     * branch); the total chain count is surfaced separately so the
-     * reader knows others exist without the card being flooded by
-     * 4-5 near-identical chains that diverge only at the leaf.
+     * Show exactly one concrete chain. When multiple lineages reach the
+     * tree-wide maximum depth, the displayed chain is the one with the
+     * youngest-leaf BIRT (= the still-living-or-recent branch); the total chain
+     * count is surfaced separately so the reader knows others exist without the
+     * card being flooded by 4-5 near-identical chains that diverge only at the
+     * leaf.
      */
     private const int MAX_CHAINS_RENDERED = 1;
 
     /**
-     * Tree-wide generation-depth summary: longest recorded vertical
-     * descent, histogram across all individuals appearing in the
-     * parentage graph (`[depth => count]`), a `capped` flag that
-     * signals whether the {@see GenerationDepth::MAX_DEPTH} guard
-     * tripped, one concrete chain (resolved to {@see Individual}
-     * objects) anchored at the youngest-BIRT leaf that reaches the
-     * tree-wide maximum depth, and the total number of distinct
-     * leaf-anchored chains so the view can advertise "+N more"
-     * when more than one exists.
+     * Tree-wide generation-depth summary: longest recorded vertical descent,
+     * histogram across all individuals appearing in the parentage graph
+     * (`[depth => count]`), a `capped` flag that signals whether the {@see
+     * GenerationDepth::MAX_DEPTH} guard tripped, one concrete chain (resolved
+     * to {@see Individual} objects) anchored at the youngest-BIRT leaf that
+     * reaches the tree-wide maximum depth, and the total number of distinct
+     * leaf-anchored chains so the view can advertise "+N more" when more than
+     * one exists.
      */
     public function summary(): GenerationDepthReport
     {
@@ -146,14 +144,12 @@ final readonly class GenerationDepthRepository
     }
 
     /**
-     * For every leaf descendant whose longest upward chain reaches
-     * `$maxDepth`, reconstruct the chain by walking up via parents.
-     * Keys are leaf IDs — so two structurally different upward paths
-     * landing on the same leaf collapse to one entry (the
-     * alphabetically preferred path through the parents). The leaf
-     * is the most recognisable end of the chain for a present-day
-     * reader, so keying by leaf matches the user-visible notion of
-     * "the same line".
+     * For every leaf descendant whose longest upward chain reaches `$maxDepth`,
+     * reconstruct the chain by walking up via parents. Keys are leaf IDs — so
+     * two structurally different upward paths landing on the same leaf collapse
+     * to one entry (the alphabetically preferred path through the parents). The
+     * leaf is the most recognisable end of the chain for a present-day reader,
+     * so keying by leaf matches the user-visible notion of "the same line".
      *
      * @param array<array-key, array{0: string|null, 1: string|null}> $parentOf
      * @param array<array-key, int>                                   $upDistance
@@ -188,26 +184,23 @@ final readonly class GenerationDepthRepository
     }
 
     /**
-     * Top-N ancestors ranked by their total documented descendant
-     * count (transitive: children + grandchildren + great-grandchildren
-     * + …). Surfaces the structural "roots" of the tree — the
-     * individuals whose branches actually carry the rest of the
-     * recorded lineage.
+     * Top-N ancestors ranked by their total documented descendant count
+     * (transitive: children + grandchildren + great-grandchildren + …).
+     * Surfaces the structural "roots" of the tree — the individuals whose
+     * branches actually carry the rest of the recorded lineage.
      *
-     * Walks the inverted parent map once with per-individual
-     * memoisation, so a descendant reached through two different
-     * grandparents is still counted once per ancestor. The walk is
-     * iterative (no recursion-depth limit) and the cache survives
-     * across the foreach so deep trees stay linear in the
+     * Walks the inverted parent map once with per-individual memoisation, so a
+     * descendant reached through two different grandparents is still counted
+     * once per ancestor. The walk is iterative (no recursion-depth limit) and
+     * the cache survives across the foreach so deep trees stay linear in the
      * cardinality of the graph.
      *
-     * Privacy: follows the webtrees convention used by
-     * {@see ChildrenRepository::topLargestFamilies()}
-     * and core's `StatisticsData::familiesWithTheMostChildren()` — the
-     * podium row stays in place for every ancestor, and
-     * `Individual::fullName()` substitutes the "Private" placeholder
-     * when the current user lacks access. Filtering by `canShow()`
-     * would shift downstream ranks and surface a smaller-than-N
+     * Privacy: follows the webtrees convention used by {@see
+     * ChildrenRepository::topLargestFamilies()} and core's
+     * `StatisticsData::familiesWithTheMostChildren()` — the podium row stays in
+     * place for every ancestor, and `Individual::fullName()` substitutes the
+     * "Private" placeholder when the current user lacks access. Filtering by
+     * `canShow()` would shift downstream ranks and surface a smaller-than-N
      * podium, which the module does not do anywhere else.
      *
      * @param int $topN Maximum number of rows to return (default 10)
@@ -296,20 +289,17 @@ final readonly class GenerationDepthRepository
     }
 
     /**
-     * Iterative BFS over the children map starting at `$startId`,
-     * collecting the set of transitive descendants and returning
-     * its size. The visited set is local to the call so diamond
-     * merges (two parent chains meeting at the same descendant)
-     * collapse to one count. The visited set seed includes
-     * `$startId` itself, which the final size subtracts so the
-     * result is "descendants exclusive of self" as the issue
-     * specifies.
+     * Iterative BFS over the children map starting at `$startId`, collecting
+     * the set of transitive descendants and returning its size. The visited set
+     * is local to the call so diamond merges (two parent chains meeting at the
+     * same descendant) collapse to one count. The visited set seed includes
+     * `$startId` itself, which the final size subtracts so the result is
+     * "descendants exclusive of self" as the issue specifies.
      *
-     * Linear in the size of the reachable subtree; the foreach in
-     * {@see topAncestorsByDescendantCount} runs this once per id,
-     * so the overall complexity is bounded by O(N · D) where N is
-     * the number of individuals and D is the average descendant
-     * count.
+     * Linear in the size of the reachable subtree; the foreach in {@see
+     * topAncestorsByDescendantCount} runs this once per id, so the overall
+     * complexity is bounded by O(N · D) where N is the number of individuals
+     * and D is the average descendant count.
      *
      * @param array<array-key, list<string>> $childrenOf Children-of map
      * @param string                         $startId    Ancestor xref to count from
@@ -336,10 +326,10 @@ final readonly class GenerationDepthRepository
     }
 
     /**
-     * Bulk-fetch the BIRT julian-day for every leaf id in one SQL
-     * round-trip. Returns a `[leafId => julianDay]` map; ids with
-     * no Gregorian/Julian BIRT date are simply absent (the caller
-     * treats absence as "rank below dated leaves").
+     * Bulk-fetch the BIRT julian-day for every leaf id in one SQL round-trip.
+     * Returns a `[leafId => julianDay]` map; ids with no Gregorian/Julian BIRT
+     * date are simply absent (the caller treats absence as "rank below dated
+     * leaves").
      *
      * @param list<string> $leafIds
      *

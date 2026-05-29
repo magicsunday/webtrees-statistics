@@ -18,20 +18,18 @@ use function str_pad;
 use const STR_PAD_LEFT;
 
 /**
- * Folds a value distribution into a list of progress-bar rows with
- * pre-computed display state (zero-padded rank, percentage of the
- * row with the largest value). Both the `progress-list.phtml` and
- * the `podium.phtml` partials consume the same row shape, so the
- * computation lives in one place.
+ * Folds a value distribution into a list of progress-bar rows with pre-computed
+ * display state (zero-padded rank, percentage of the row with the largest
+ * value). Both the `progress-list.phtml` and the `podium.phtml` partials
+ * consume the same row shape, so the computation lives in one place.
  *
- * Two entry points share that core:
- * {@see toRows()} takes a `[label => value]` map for the bar lists,
- * whose keys are the aggregation dimension itself (century, age band,
- * surname, occupation) and are therefore inherently unique;
- * {@see fromRankingEntries()} takes {@see RankingEntry} objects for
- * the entity podiums (most descendants, largest families, oldest),
- * where two distinct individuals or families can share a display
- * name and a label-keyed map would lose a row.
+ * Two entry points share that core: {@see toRows()} takes a `[label => value]`
+ * map for the bar lists, whose keys are the aggregation dimension itself
+ * (century, age band, surname, occupation) and are therefore inherently unique;
+ * {@see fromRankingEntries()} takes {@see RankingEntry} objects for the entity
+ * podiums (most descendants, largest families, oldest), where two distinct
+ * individuals or families can share a display name and a label-keyed map would
+ * lose a row.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -47,12 +45,11 @@ final readonly class ProgressBarRowMapper
     }
 
     /**
-     * Map a `[label => value]` distribution to a list of rows. Each
-     * row carries the original label and numeric value plus two
-     * display-derived fields: a zero-padded two-digit `rank` ("01",
-     * "02", …) and a `percentage` of the row with the largest value
-     * (0–100). Returns an empty list when the input is empty or
-     * every value is non-positive — the caller renders the empty
+     * Map a `[label => value]` distribution to a list of rows. Each row carries
+     * the original label and numeric value plus two display-derived fields: a
+     * zero-padded two-digit `rank` ("01", "02", …) and a `percentage` of the
+     * row with the largest value (0–100). Returns an empty list when the input
+     * is empty or every value is non-positive — the caller renders the empty
      * placeholder in that branch.
      *
      * @param array<array-key, int|float> $data Label → value map (display order = caller order; integer category keys such as decade or century are stringified)
@@ -71,10 +68,10 @@ final readonly class ProgressBarRowMapper
     }
 
     /**
-     * Map an ordered list of {@see RankingEntry} objects to the same
-     * row shape. The entry's `label` drives the display column while
-     * its `xref` keeps the identity distinct, so two same-named
-     * entities each get their own row instead of colliding.
+     * Map an ordered list of {@see RankingEntry} objects to the same row shape.
+     * The entry's `label` drives the display column while its `xref` keeps the
+     * identity distinct, so two same-named entities each get their own row
+     * instead of colliding.
      *
      * @param list<RankingEntry> $entries Ranked entries (display order = caller order)
      *
@@ -92,10 +89,9 @@ final readonly class ProgressBarRowMapper
     }
 
     /**
-     * Shared core: turn an ordered list of `[label, value]` pairs into
-     * display rows. Returns an empty list when the input is empty or
-     * every value is non-positive — the caller renders the empty
-     * placeholder in that branch.
+     * Shared core: turn an ordered list of `[label, value]` pairs into display
+     * rows. Returns an empty list when the input is empty or every value is
+     * non-positive — the caller renders the empty placeholder in that branch.
      *
      * @param list<array{0: string, 1: float}> $pairs
      *

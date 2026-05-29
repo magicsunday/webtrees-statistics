@@ -27,12 +27,12 @@ use function trim;
 use const SORT_NUMERIC;
 
 /**
- * Aggregates individual events (BIRT / DEAT) by ISO-3166-1 alpha-2
- * country. Replaces the empty stubs in
- * {@see \MagicSunday\Webtrees\Statistic\Statistic::getBirthsByCountry()}
- * and friends — webtrees' core `countIndividualEventsByCountry()`
- * is private, and the upstream maintainer is not going to expose
- * it, so the module ships its own implementation.
+ * Aggregates individual events (BIRT / DEAT) by ISO-3166-1 alpha-2 country.
+ * Replaces the empty stubs in {@see
+ * \MagicSunday\Webtrees\Statistic\Statistic::getBirthsByCountry()} and friends
+ * — webtrees' core `countIndividualEventsByCountry()` is private, and the
+ * upstream maintainer is not going to expose it, so the module ships its own
+ * implementation.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -51,8 +51,8 @@ final readonly class CountryRepository
     }
 
     /**
-     * Count individuals whose given event (BIRT / DEAT / …) carries
-     * a place that resolves to a known country.
+     * Count individuals whose given event (BIRT / DEAT / …) carries a place
+     * that resolves to a known country.
      *
      * @param string $tag Level-1 event tag (e.g. `'BIRT'`, `'DEAT'`)
      *
@@ -126,13 +126,12 @@ final readonly class CountryRepository
     }
 
     /**
-     * Count residences across the tree, grouped by country. Differs
-     * from {@see countByCountry()} in two respects: it scans every
-     * `1 RESI` occurrence on every individual (a person with three
-     * recorded residences contributes three times), and it bypasses
-     * the placelinks join because we need *all* RESI places per
-     * person, not the ones that happen to share a top-level place
-     * row with another event.
+     * Count residences across the tree, grouped by country. Differs from {@see
+     * countByCountry()} in two respects: it scans every `1 RESI` occurrence on
+     * every individual (a person with three recorded residences contributes
+     * three times), and it bypasses the placelinks join because we need *all*
+     * RESI places per person, not the ones that happen to share a top-level
+     * place row with another event.
      *
      * @return list<array{countryCode: string, label: string, count: int}>
      */
@@ -178,10 +177,10 @@ final readonly class CountryRepository
     }
 
     /**
-     * Peel the last comma-separated segment off a GEDCOM PLAC string
-     * — the country-name segment by GEDCOM convention. "Hamburg,
-     * Germany" → "Germany". Trims surrounding whitespace and returns
-     * the full input verbatim when no comma is present.
+     * Peel the last comma-separated segment off a GEDCOM PLAC string — the
+     * country-name segment by GEDCOM convention. "Hamburg, Germany" →
+     * "Germany". Trims surrounding whitespace and returns the full input
+     * verbatim when no comma is present.
      */
     private function countrySegment(string $placeString): string
     {
@@ -192,10 +191,10 @@ final readonly class CountryRepository
     }
 
     /**
-     * True when the event's PLAC string ends with (or equals) the
-     * given top-level country place name. Comma-trimmed comparison
-     * — "Hamburg, Germany" matches "Germany" but an unrelated
-     * "Germany Town" elsewhere in the place string would not.
+     * True when the event's PLAC string ends with (or equals) the given
+     * top-level country place name. Comma-trimmed comparison — "Hamburg,
+     * Germany" matches "Germany" but an unrelated "Germany Town" elsewhere in
+     * the place string would not.
      */
     private function placeEndsInCountry(string $placeString, string $country): bool
     {

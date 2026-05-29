@@ -16,11 +16,11 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Verifies the {@see LineChartPayload::singleSeries()} factory used
- * by every tabs/*.phtml LineChart card. Each test pins one
- * documented branch: empty-map → empty series, integer-keyed map,
- * string-keyed map, float counts, and the positional alignment of
- * the projector return keys against the four parallel arrays.
+ * Verifies the {@see LineChartPayload::singleSeries()} factory used by every
+ * tabs/*.phtml LineChart card. Each test pins one documented branch: empty-map
+ * → empty series, integer-keyed map, string-keyed map, float counts, and the
+ * positional alignment of the projector return keys against the four parallel
+ * arrays.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -29,9 +29,9 @@ use PHPUnit\Framework\TestCase;
 final class LineChartPayloadTest extends TestCase
 {
     /**
-     * Empty input map still produces a one-series payload with all
-     * four parallel arrays empty — the chart-lib widget reads this
-     * as "no data" and renders the empty-state placeholder.
+     * Empty input map still produces a one-series payload with all four
+     * parallel arrays empty — the chart-lib widget reads this as "no data" and
+     * renders the empty-state placeholder.
      */
     #[Test]
     public function singleSeriesProducesEmptySeriesForEmptyInput(): void
@@ -55,9 +55,8 @@ final class LineChartPayloadTest extends TestCase
     }
 
     /**
-     * Integer-keyed map flows the integer key into the projector
-     * as `int|string` and the value into the series's `values`
-     * array unchanged.
+     * Integer-keyed map flows the integer key into the projector as
+     * `int|string` and the value into the series's `values` array unchanged.
      */
     #[Test]
     public function singleSeriesForwardsIntegerKeysAndCountsUnchanged(): void
@@ -79,11 +78,10 @@ final class LineChartPayloadTest extends TestCase
     }
 
     /**
-     * String-keyed map passes the string into the projector's first
-     * argument — the sibling-gap and stream-graph consumers rely on
-     * this overload for their bucket labels. All four output arrays
-     * are checked so a regression in any one column fails at the
-     * branch it broke.
+     * String-keyed map passes the string into the projector's first argument —
+     * the sibling-gap and stream-graph consumers rely on this overload for
+     * their bucket labels. All four output arrays are checked so a regression
+     * in any one column fails at the branch it broke.
      */
     #[Test]
     public function singleSeriesHandlesStringKeyedInput(): void
@@ -105,11 +103,10 @@ final class LineChartPayloadTest extends TestCase
     }
 
     /**
-     * Float counts (child-mortality rates) flow through unchanged
-     * into the series `values` list and into the projector's
-     * `$count` parameter — the LineChart widget renders them as
-     * decimals and the tooltip body interpolates them with the
-     * original precision.
+     * Float counts (child-mortality rates) flow through unchanged into the
+     * series `values` list and into the projector's `$count` parameter — the
+     * LineChart widget renders them as decimals and the tooltip body
+     * interpolates them with the original precision.
      */
     #[Test]
     public function singleSeriesPreservesFloatCounts(): void
@@ -131,10 +128,10 @@ final class LineChartPayloadTest extends TestCase
     }
 
     /**
-     * The four projector return keys (`categoryLabel`,
-     * `tooltipBody`, `tooltipLabel`) land in their three respective
-     * parallel arrays + the count in `values` — all four arrays
-     * align positionally with the input map's iteration order.
+     * The four projector return keys (`categoryLabel`, `tooltipBody`,
+     * `tooltipLabel`) land in their three respective parallel arrays + the
+     * count in `values` — all four arrays align positionally with the input
+     * map's iteration order.
      */
     #[Test]
     public function singleSeriesPreservesIterationOrderAcrossAllArrays(): void

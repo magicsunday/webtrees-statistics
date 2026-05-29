@@ -21,8 +21,8 @@ use function array_values;
 use function count;
 
 /**
- * Verifies the co-zero trim used by the age-at-marriage and
- * age-at-divorce side-by-side histograms in the Family tab.
+ * Verifies the co-zero trim used by the age-at-marriage and age-at-divorce
+ * side-by-side histograms in the Family tab.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -31,9 +31,8 @@ use function count;
 final class HistogramTrimTest extends TestCase
 {
     /**
-     * Leading buckets that are 0 in both M and F drop; the first
-     * bucket where at least one sex has a count wins as the new
-     * lower bound.
+     * Leading buckets that are 0 in both M and F drop; the first bucket where
+     * at least one sex has a count wins as the new lower bound.
      */
     #[Test]
     public function dropsLeadingCoZeroBuckets(): void
@@ -48,9 +47,8 @@ final class HistogramTrimTest extends TestCase
     }
 
     /**
-     * Trailing buckets that are 0 in both M and F drop; the last
-     * bucket where at least one sex has a count wins as the new
-     * upper bound.
+     * Trailing buckets that are 0 in both M and F drop; the last bucket where
+     * at least one sex has a count wins as the new upper bound.
      */
     #[Test]
     public function dropsTrailingCoZeroBuckets(): void
@@ -65,8 +63,8 @@ final class HistogramTrimTest extends TestCase
     }
 
     /**
-     * A bucket that is 0 in one sex but non-zero in the other MUST
-     * be kept. The trim is co-zero, not single-sex-zero.
+     * A bucket that is 0 in one sex but non-zero in the other MUST be kept. The
+     * trim is co-zero, not single-sex-zero.
      */
     #[Test]
     public function keepsBucketsWithCountInEitherSex(): void
@@ -83,9 +81,9 @@ final class HistogramTrimTest extends TestCase
     }
 
     /**
-     * Co-zero buckets in the middle are kept — only the outer ends
-     * collapse. A tree with marriages at 18 and 50 but nothing in
-     * between MUST surface the empty 30s/40s so the gap is visible.
+     * Co-zero buckets in the middle are kept — only the outer ends collapse. A
+     * tree with marriages at 18 and 50 but nothing in between MUST surface the
+     * empty 30s/40s so the gap is visible.
      */
     #[Test]
     public function keepsCoZeroBucketsBetweenNonZeroEnds(): void
@@ -100,10 +98,10 @@ final class HistogramTrimTest extends TestCase
     }
 
     /**
-     * If both arrays are completely empty (no marriages / no
-     * divorces at all in the tree), the originals are returned
-     * unchanged so the view layer can decide to hide the card
-     * rather than render a phantom-trimmed empty histogram.
+     * If both arrays are completely empty (no marriages / no divorces at all in
+     * the tree), the originals are returned unchanged so the view layer can
+     * decide to hide the card rather than render a phantom-trimmed empty
+     * histogram.
      */
     #[Test]
     public function returnsUnchangedWhenBothSidesEmpty(): void
@@ -118,9 +116,8 @@ final class HistogramTrimTest extends TestCase
     }
 
     /**
-     * Single-series trim drops leading and trailing zero buckets
-     * but keeps inner zeros so gaps between active periods stay
-     * visible.
+     * Single-series trim drops leading and trailing zero buckets but keeps
+     * inner zeros so gaps between active periods stay visible.
      */
     #[Test]
     public function dropZeroEndsTrimsBothBoundsAndKeepsInnerZero(): void
@@ -142,8 +139,8 @@ final class HistogramTrimTest extends TestCase
     }
 
     /**
-     * A series with values only at the boundaries returns
-     * unchanged (no leading / trailing zero to trim).
+     * A series with values only at the boundaries returns unchanged (no leading
+     * / trailing zero to trim).
      */
     #[Test]
     public function dropZeroEndsReturnsUnchangedWhenBothEndsAreNonZero(): void
@@ -154,9 +151,8 @@ final class HistogramTrimTest extends TestCase
     }
 
     /**
-     * An entirely-zero series is returned unchanged so the view
-     * can decide whether to hide the card or render the all-zero
-     * placeholder.
+     * An entirely-zero series is returned unchanged so the view can decide
+     * whether to hide the card or render the all-zero placeholder.
      */
     #[Test]
     public function dropZeroEndsReturnsUnchangedWhenEverythingZero(): void
@@ -167,9 +163,9 @@ final class HistogramTrimTest extends TestCase
     }
 
     /**
-     * `dropLowOutlierEnds()` drops leading and trailing buckets
-     * below `$ratio * max`. Inner low-value buckets between two
-     * above-threshold edges survive so a sub-peak gap stays visible.
+     * `dropLowOutlierEnds()` drops leading and trailing buckets below `$ratio *
+     * max`. Inner low-value buckets between two above-threshold edges survive
+     * so a sub-peak gap stays visible.
      */
     #[Test]
     public function dropLowOutlierEndsKeepsInnerSubThresholdBuckets(): void
@@ -182,8 +178,8 @@ final class HistogramTrimTest extends TestCase
     }
 
     /**
-     * `$ratio = 0` falls back to {@see HistogramTrim::dropZeroEnds()}
-     * semantics — only literal zero edges are stripped.
+     * `$ratio = 0` falls back to {@see HistogramTrim::dropZeroEnds()} semantics
+     * — only literal zero edges are stripped.
      */
     #[Test]
     public function dropLowOutlierEndsWithZeroRatioStripsZeroEnds(): void
@@ -203,10 +199,10 @@ final class HistogramTrimTest extends TestCase
     }
 
     /**
-     * `capByOutlierTrim()` escalates the trim ratio until the bar
-     * count fits the cap. A series with one peak and 19 tail-noise
-     * entries collapses to the peak once the 2 %-of-max ratio kicks
-     * in (tail values 1 < 100 * 0.02 = 2).
+     * `capByOutlierTrim()` escalates the trim ratio until the bar count fits
+     * the cap. A series with one peak and 19 tail-noise entries collapses to
+     * the peak once the 2 %-of-max ratio kicks in (tail values 1 < 100 * 0.02 =
+     * 2).
      */
     #[Test]
     public function capByOutlierTrimEscalatesRatioUntilFits(): void
@@ -224,8 +220,8 @@ final class HistogramTrimTest extends TestCase
     }
 
     /**
-     * A series already at or under the cap passes through under the
-     * gentlest 1 % rung — the cap is a ceiling, not a floor.
+     * A series already at or under the cap passes through under the gentlest 1
+     * % rung — the cap is a ceiling, not a floor.
      */
     #[Test]
     public function capByOutlierTrimNoOpForShortSeries(): void
@@ -236,11 +232,10 @@ final class HistogramTrimTest extends TestCase
     }
 
     /**
-     * Flat-plateau input (every bucket equals max) — no ratio rung
-     * up to 20 % can drop a single bucket since `$value < $value *
-     * 0.20` is always false. The helper falls through and returns
-     * the unchanged series even when the cap is exceeded; the
-     * documented soft-ceiling contract permits this.
+     * Flat-plateau input (every bucket equals max) — no ratio rung up to 20 %
+     * can drop a single bucket since `$value < $value * 0.20` is always false.
+     * The helper falls through and returns the unchanged series even when the
+     * cap is exceeded; the documented soft-ceiling contract permits this.
      */
     #[Test]
     public function capByOutlierTrimReturnsUnchangedWhenLadderCannotConverge(): void

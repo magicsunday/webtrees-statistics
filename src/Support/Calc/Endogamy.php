@@ -14,16 +14,15 @@ namespace MagicSunday\Webtrees\Statistic\Support\Calc;
 use function array_intersect_key;
 
 /**
- * Pure helper that decides whether two individuals share a common
- * ancestor within a bounded number of generations. Used by the
- * endogamy metric to flag cousin marriages and pedigree collapse —
- * frequent in rural pre-industrial trees, rare in well-mixed urban
- * ones.
+ * Pure helper that decides whether two individuals share a common ancestor
+ * within a bounded number of generations. Used by the endogamy metric to flag
+ * cousin marriages and pedigree collapse — frequent in rural pre-industrial
+ * trees, rare in well-mixed urban ones.
  *
- * The walk is bounded by `$depth` (typical: 4 = great-great-
- * grandparents). At depth 4 each side has at most 2 + 4 + 8 + 16 =
- * 30 ancestors, so a per-couple intersection runs in O(60) — fast
- * enough to scan an entire tree's families in one pass.
+ * The walk is bounded by `$depth` (typical: 4 = great-great- grandparents). At
+ * depth 4 each side has at most 2 + 4 + 8 + 16 = 30 ancestors, so a per-couple
+ * intersection runs in O(60) — fast enough to scan an entire tree's families in
+ * one pass.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -39,10 +38,10 @@ final readonly class Endogamy
     }
 
     /**
-     * Walk `$id` upward through the parent-of map for at most
-     * `$depth` generations, returning the set of distinct ancestor
-     * ids as an associative `[id => true]` map (so intersection via
-     * `array_intersect_key` is O(min(|A|, |B|)) instead of O(|A|·|B|)).
+     * Walk `$id` upward through the parent-of map for at most `$depth`
+     * generations, returning the set of distinct ancestor ids as an associative
+     * `[id => true]` map (so intersection via `array_intersect_key` is
+     * O(min(|A|, |B|)) instead of O(|A|·|B|)).
      *
      * @param array<array-key, array{0: string|null, 1: string|null}> $parentOf
      *
@@ -96,9 +95,9 @@ final readonly class Endogamy
     }
 
     /**
-     * Return the intersection of the two individuals' ancestor sets
-     * within `$depth` generations. Empty intersection means no
-     * common-ancestor evidence within that depth.
+     * Return the intersection of the two individuals' ancestor sets within
+     * `$depth` generations. Empty intersection means no common-ancestor
+     * evidence within that depth.
      *
      * @param array<array-key, array{0: string|null, 1: string|null}> $parentOf
      *

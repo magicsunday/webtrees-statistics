@@ -18,11 +18,11 @@ use function array_keys;
 
 /**
  * End-to-end test of {@see OccupationRepository}. The shared
- * `individual-facts.ged` fixture carries seven individuals with a
- * mix of OCCU shapes: single value (Anna/Berta — case variants),
- * different value (Carl/Emil/Doris), multi-occurrence (Gerda has
- * two OCCU lines), no value (Franz). The aggregation must collapse
- * case variants under the first-seen casing and rank descending.
+ * `individual-facts.ged` fixture carries seven individuals with a mix of OCCU
+ * shapes: single value (Anna/Berta — case variants), different value
+ * (Carl/Emil/Doris), multi-occurrence (Gerda has two OCCU lines), no value
+ * (Franz). The aggregation must collapse case variants under the first-seen
+ * casing and rank descending.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -31,12 +31,11 @@ use function array_keys;
 final class OccupationRepositoryIntegrationTest extends IntegrationTestCase
 {
     /**
-     * `Blacksmith` appears three times (Anna, Berta with lowercase
-     * variant `blacksmith`, and Gerda's first OCCU line). `Farmer`
-     * twice (Carl + Emil). `Teacher` and `Carpenter` once each. The
-     * lowercase variant `blacksmith` merges into the `Blacksmith`
-     * bucket via case-folded keys, with the first-seen casing
-     * winning as the display label.
+     * `Blacksmith` appears three times (Anna, Berta with lowercase variant
+     * `blacksmith`, and Gerda's first OCCU line). `Farmer` twice (Carl + Emil).
+     * `Teacher` and `Carpenter` once each. The lowercase variant `blacksmith`
+     * merges into the `Blacksmith` bucket via case-folded keys, with the
+     * first-seen casing winning as the display label.
      */
     #[Test]
     public function topOccupationsReturnsCaseFoldedFrequencies(): void
@@ -63,8 +62,8 @@ final class OccupationRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Distinct count = number of case-folded keys, independent of
-     * top-N truncation.
+     * Distinct count = number of case-folded keys, independent of top-N
+     * truncation.
      */
     #[Test]
     public function countDistinctOccupationsReturnsTheFullKeyCount(): void

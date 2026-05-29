@@ -17,14 +17,13 @@ use function intdiv;
 use function strip_tags;
 
 /**
- * Pure helper mirroring webtrees core's private `centuryName()`
- * so widgets that produce century data outside of
- * `StatisticsData::countEventsByCentury` (e.g. the child-mortality
- * aggregator, which needs a self-joined dates query) can label
- * their cohorts identically to the rest of the chart.
+ * Pure helper mirroring webtrees core's private `centuryName()` so widgets that
+ * produce century data outside of `StatisticsData::countEventsByCentury` (e.g.
+ * the child-mortality aggregator, which needs a self-joined dates query) can
+ * label their cohorts identically to the rest of the chart.
  *
- * Reuses the existing core PO translation context `CENTURY`, so no
- * new translation strings are introduced.
+ * Reuses the existing core PO translation context `CENTURY`, so no new
+ * translation strings are introduced.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -40,12 +39,11 @@ final readonly class CenturyName
     }
 
     /**
-     * Map a 4-digit year to its 1-based century number using the
-     * Gregorian convention where year 1 lives in the 1st century
-     * and year 100 still does, but year 101 starts the 2nd. The
-     * formula `intdiv(year - 1, 100) + 1` is the single source of
-     * truth that every century-bucketing repository call site
-     * routes through.
+     * Map a 4-digit year to its 1-based century number using the Gregorian
+     * convention where year 1 lives in the 1st century and year 100 still does,
+     * but year 101 starts the 2nd. The formula `intdiv(year - 1, 100) + 1` is
+     * the single source of truth that every century-bucketing repository call
+     * site routes through.
      */
     public static function fromYear(int $year): int
     {
@@ -53,9 +51,9 @@ final readonly class CenturyName
     }
 
     /**
-     * Localise a 1-based century number (1, 2, …, 21) to the
-     * ordinal string ("1st", "21st", …) the active locale uses for
-     * centuries. Negative inputs are wrapped as "{N} BCE".
+     * Localise a 1-based century number (1, 2, …, 21) to the ordinal string
+     * ("1st", "21st", …) the active locale uses for centuries. Negative inputs
+     * are wrapped as "{N} BCE".
      */
     public static function for(int $century): string
     {
@@ -90,12 +88,11 @@ final readonly class CenturyName
     }
 
     /**
-     * Append the localised "Century" noun to a short ordinal label,
-     * producing the long form widget tooltips use ("20th Century" /
-     * "20. Jahrhundert"). Accepts either an already-formatted short
-     * label (the output of `self::for()` or core's
-     * `countEventsByCentury` map keys) so PHTML loops and repository
-     * code share the same suffix logic.
+     * Append the localised "Century" noun to a short ordinal label, producing
+     * the long form widget tooltips use ("20th Century" / "20. Jahrhundert").
+     * Accepts either an already-formatted short label (the output of
+     * `self::for()` or core's `countEventsByCentury` map keys) so PHTML loops
+     * and repository code share the same suffix logic.
      */
     public static function longLabel(string $short): string
     {
@@ -103,10 +100,10 @@ final readonly class CenturyName
     }
 
     /**
-     * Compact-form label for tight legend / axis tick contexts —
-     * "20th cent." in English, "20. Jh." in German. Accepts the
-     * same already-formatted short label as {@see longLabel()};
-     * the translator owns the abbreviated suffix per locale.
+     * Compact-form label for tight legend / axis tick contexts — "20th cent."
+     * in English, "20. Jh." in German. Accepts the same already-formatted short
+     * label as {@see longLabel()}; the translator owns the abbreviated suffix
+     * per locale.
      */
     public static function compactLabel(string $short): string
     {

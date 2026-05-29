@@ -12,11 +12,10 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\View;
 
 /**
- * Central lookup table that maps a legacy `progress-*` CSS class
- * key to the {@see Accent} enum case the `progress-list.phtml` and
- * `podium.phtml` partials use for both the bar fill and the
- * gradient end stop. Adding a new Top-N surface = add one entry
- * here; the partials themselves stay colour-agnostic.
+ * Central lookup table that maps a legacy `progress-*` CSS class key to the
+ * {@see Accent} enum case the `progress-list.phtml` and `podium.phtml` partials
+ * use for both the bar fill and the gradient end stop. Adding a new Top-N
+ * surface = add one entry here; the partials themselves stay colour-agnostic.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -25,8 +24,8 @@ namespace MagicSunday\Webtrees\Statistic\View;
 final readonly class ProgressBarAccent
 {
     /**
-     * Fallback accent applied when the caller's class key is not
-     * registered below.
+     * Fallback accent applied when the caller's class key is not registered
+     * below.
      */
     private const Accent FALLBACK = Accent::Wine;
 
@@ -54,8 +53,8 @@ final readonly class ProgressBarAccent
     }
 
     /**
-     * Return the Accent enum case for the given class key. Falls
-     * through to {@see Accent::Wine} when the key is unknown.
+     * Return the Accent enum case for the given class key. Falls through to
+     * {@see Accent::Wine} when the key is unknown.
      */
     public static function for(string $class): Accent
     {

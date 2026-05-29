@@ -39,9 +39,9 @@ use function sprintf;
 final class ModuleTest extends TestCase
 {
     /**
-     * Action keys that {@see Module::tabCatalog()} maps onto the six tabs.
-     * Kept here so the two structural tests below cannot drift apart on a
-     * future rename.
+     * Action keys that {@see Module::tabCatalog()} maps onto the six tabs. Kept
+     * here so the two structural tests below cannot drift apart on a future
+     * rename.
      *
      * @var list<string>
      */
@@ -73,10 +73,10 @@ final class ModuleTest extends TestCase
     }
 
     /**
-     * Each tab action must take a single ServerRequestInterface and return
-     * a ResponseInterface. Lock the signature so a refactor that swaps the
-     * parameter order, drops the request, or changes the return type is
-     * caught before it ships.
+     * Each tab action must take a single ServerRequestInterface and return a
+     * ResponseInterface. Lock the signature so a refactor that swaps the
+     * parameter order, drops the request, or changes the return type is caught
+     * before it ships.
      */
     #[Test]
     #[DataProvider('tabActionMethodProvider')]
@@ -114,9 +114,9 @@ final class ModuleTest extends TestCase
 
     /**
      * Invoke {@see Module::tabCatalog()} via reflection and assert the keys
-     * match the documented action list in declaration order. A rename in
-     * either place that's not mirrored on the other will fail here instead
-     * of in production as a missing navigation entry.
+     * match the documented action list in declaration order. A rename in either
+     * place that's not mirrored on the other will fail here instead of in
+     * production as a missing navigation entry.
      */
     #[Test]
     public function tabCatalogKeysMatchTheDocumentedActions(): void
@@ -133,11 +133,11 @@ final class ModuleTest extends TestCase
     }
 
     /**
-     * Issue #47: the module previously advertised empty strings for the
-     * four custom-module getters because it used webtrees core's
-     * `ModuleCustomTrait` directly, whose default implementations return
-     * ''. Each accessor must now hand back a non-empty value so admin
-     * tooling and update managers have an upgrade marker to anchor on.
+     * Issue #47: the module previously advertised empty strings for the four
+     * custom-module getters because it used webtrees core's `ModuleCustomTrait`
+     * directly, whose default implementations return ''. Each accessor must now
+     * hand back a non-empty value so admin tooling and update managers have an
+     * upgrade marker to anchor on.
      */
     #[Test]
     public function customModuleGettersReturnNonEmptyMetadata(): void
@@ -153,8 +153,8 @@ final class ModuleTest extends TestCase
     /**
      * Drives the asset handler with a real .woff2 file from the module's
      * resources/ directory and asserts the response header carries the
-     * `font/woff2` MIME type. The core Mime::TYPES map has no entry for
-     * web fonts; without the local override the asset would ship as
+     * `font/woff2` MIME type. The core Mime::TYPES map has no entry for web
+     * fonts; without the local override the asset would ship as
      * `application/octet-stream`, which Firefox rejects with
      * `NS_ERROR_CORRUPTED_CONTENT`.
      */
@@ -173,8 +173,8 @@ final class ModuleTest extends TestCase
     }
 
     /**
-     * A directory-traversal attempt in the `asset` query parameter must
-     * be rejected before any file read happens.
+     * A directory-traversal attempt in the `asset` query parameter must be
+     * rejected before any file read happens.
      */
     #[Test]
     public function getAssetActionRejectsPathTraversal(): void
@@ -188,8 +188,8 @@ final class ModuleTest extends TestCase
     }
 
     /**
-     * A request for an asset that does not exist on disk must surface as
-     * a clean 404 rather than a TypeError from response().
+     * A request for an asset that does not exist on disk must surface as a
+     * clean 404 rather than a TypeError from response().
      */
     #[Test]
     public function getAssetActionThrowsNotFoundForMissingAsset(): void

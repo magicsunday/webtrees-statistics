@@ -20,19 +20,17 @@ use function max;
 use function sort;
 
 /**
- * Pure helper that computes per-individual generation depth from a
- * parent-of map. "Depth" is the number of generations recorded
- * BELOW an individual: a leaf (no descendants in the tree) has
- * depth 0, an individual whose only descendants are direct children
- * has depth 1, and so on. The tree-wide maximum is the longest
- * recorded vertical descent.
+ * Pure helper that computes per-individual generation depth from a parent-of
+ * map. "Depth" is the number of generations recorded BELOW an individual: a
+ * leaf (no descendants in the tree) has depth 0, an individual whose only
+ * descendants are direct children has depth 1, and so on. The tree-wide maximum
+ * is the longest recorded vertical descent.
  *
- * The walk is bounded by `MAX_DEPTH` so an accidentally-cyclic
- * GEDCOM (rare but possible — self-referential FAMC + FAMS edits)
- * cannot loop forever. Within a single individual's DFS, a
- * visited-set protects against the more mundane case of
- * pedigree-collapse where the same descendant could be re-walked
- * through different lines.
+ * The walk is bounded by `MAX_DEPTH` so an accidentally-cyclic GEDCOM (rare but
+ * possible — self-referential FAMC + FAMS edits) cannot loop forever. Within a
+ * single individual's DFS, a visited-set protects against the more mundane case
+ * of pedigree-collapse where the same descendant could be re-walked through
+ * different lines.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -41,10 +39,9 @@ use function sort;
 final readonly class GenerationDepth
 {
     /**
-     * Cap on the downward walk. Set deliberately high — the only
-     * real purpose is to guarantee the walk terminates on a
-     * cyclic FAMC/FAMS edit, not to bound legitimate long
-     * descent lines (which can run very deep on royal /
+     * Cap on the downward walk. Set deliberately high — the only real purpose
+     * is to guarantee the walk terminates on a cyclic FAMC/FAMS edit, not to
+     * bound legitimate long descent lines (which can run very deep on royal /
      * mythical-genealogy trees that trace back to antiquity).
      */
     public const int MAX_DEPTH = 100;
@@ -57,12 +54,11 @@ final readonly class GenerationDepth
     }
 
     /**
-     * Compute the generation-depth metrics for the given parent-of
-     * map: tree-wide maximum depth, a `[depth => count]` histogram
-     * across every individual that appears anywhere in the parentage
-     * graph (as a parent or as a child), and whether the walk hit
-     * the depth cap (signals data quality concerns: cycle or
-     * implausibly long chain).
+     * Compute the generation-depth metrics for the given parent-of map:
+     * tree-wide maximum depth, a `[depth => count]` histogram across every
+     * individual that appears anywhere in the parentage graph (as a parent or
+     * as a child), and whether the walk hit the depth cap (signals data quality
+     * concerns: cycle or implausibly long chain).
      *
      * @param array<array-key, array{0: string|null, 1: string|null}> $parentOf
      *
@@ -99,12 +95,11 @@ final readonly class GenerationDepth
     }
 
     /**
-     * Return every individual that sits at the tree-wide maximum
-     * depth — i.e. every eldest ancestor whose deepest verified
-     * descendant lies maxDepth generations below. The repository
-     * uses these as the candidate set for picking a preferred
-     * chain (e.g. by the leaf's birth-year), so the helper stays
-     * DB-free and the preference is a separate concern.
+     * Return every individual that sits at the tree-wide maximum depth — i.e.
+     * every eldest ancestor whose deepest verified descendant lies maxDepth
+     * generations below. The repository uses these as the candidate set for
+     * picking a preferred chain (e.g. by the leaf's birth-year), so the helper
+     * stays DB-free and the preference is a separate concern.
      *
      * @param array<array-key, int> $depthCache
      *
@@ -134,11 +129,10 @@ final readonly class GenerationDepth
 
     /**
      * Walk down from `$rootId` through children whose recorded
-     * deepest-descendant distance equals exactly `remaining-1`,
-     * yielding the eldest-first chain of length `$maxDepth + 1`.
-     * Ties at any hop are broken by PHP's default `sort()` ordering
-     * (numeric for digit-only XREFs, lexical otherwise) so the result
-     * is reproducible.
+     * deepest-descendant distance equals exactly `remaining-1`, yielding the
+     * eldest-first chain of length `$maxDepth + 1`. Ties at any hop are broken
+     * by PHP's default `sort()` ordering (numeric for digit-only XREFs, lexical
+     * otherwise) so the result is reproducible.
      *
      * @param array<array-key, list<string>> $childrenOf
      * @param array<array-key, int>          $depthCache
@@ -178,9 +172,9 @@ final readonly class GenerationDepth
     }
 
     /**
-     * Build the children-of map from a parent-of map. Public so
-     * the repository can reuse the same inverted view when it walks
-     * a non-default candidate root.
+     * Build the children-of map from a parent-of map. Public so the repository
+     * can reuse the same inverted view when it walks a non-default candidate
+     * root.
      *
      * @param array<array-key, array{0: string|null, 1: string|null}> $parentOf
      *
@@ -192,10 +186,9 @@ final readonly class GenerationDepth
     }
 
     /**
-     * Re-run the per-individual deepest-descendant walk that
-     * {@see compute()} already performs, exposed publicly so the
-     * repository can fold a preferred root into a full chain without
-     * duplicating the cache.
+     * Re-run the per-individual deepest-descendant walk that {@see compute()}
+     * already performs, exposed publicly so the repository can fold a preferred
+     * root into a full chain without duplicating the cache.
      *
      * @param array<array-key, list<string>>                          $childrenOf
      * @param array<array-key, array{0: string|null, 1: string|null}> $parentOf
@@ -215,13 +208,12 @@ final readonly class GenerationDepth
 
     /**
      * Pick one concrete deepest chain so the widget can name actual
-     * individuals: starts at the eldest ancestor (one whose
-     * deepest-descendant distance equals the tree-wide maximum) and
-     * walks down through children that themselves carry exactly the
-     * remaining depth budget. Ties are broken by PHP's default
-     * `sort()` ordering (numeric for digit-only XREFs, lexical
-     * otherwise) so the result is stable across runs even when
-     * several chains share the same maximum length.
+     * individuals: starts at the eldest ancestor (one whose deepest-descendant
+     * distance equals the tree-wide maximum) and walks down through children
+     * that themselves carry exactly the remaining depth budget. Ties are broken
+     * by PHP's default `sort()` ordering (numeric for digit-only XREFs, lexical
+     * otherwise) so the result is stable across runs even when several chains
+     * share the same maximum length.
      *
      * @param array<array-key, list<string>> $childrenOf
      * @param array<array-key, int>          $depthCache
@@ -244,9 +236,9 @@ final readonly class GenerationDepth
     }
 
     /**
-     * Invert a parent-of map into a children-of map. The two views
-     * carry the same information; the downward walk needs the
-     * children-side for an efficient per-individual DFS.
+     * Invert a parent-of map into a children-of map. The two views carry the
+     * same information; the downward walk needs the children-side for an
+     * efficient per-individual DFS.
      *
      * @param array<array-key, array{0: string|null, 1: string|null}> $parentOf
      *
@@ -274,10 +266,10 @@ final readonly class GenerationDepth
     }
 
     /**
-     * Iteratively walk downward from `$id` and write the largest
-     * generation distance to any leaf descendant into
-     * `$depthCache[$id]`. Memoised so the same descendant is not
-     * re-explored when reached through multiple ancestors.
+     * Iteratively walk downward from `$id` and write the largest generation
+     * distance to any leaf descendant into `$depthCache[$id]`. Memoised so the
+     * same descendant is not re-explored when reached through multiple
+     * ancestors.
      *
      * @param array<array-key, list<string>> $childrenOf
      * @param array<array-key, int>          $depthCache In/out cache, mutated on every call
@@ -323,15 +315,13 @@ final readonly class GenerationDepth
     }
 
     /**
-     * Walk upward from a leaf-descendant by following its parents,
-     * yielding the eldest-first chain that ends at `$leafId`. At
-     * every parent step the parent with the larger remaining
-     * upward distance is preferred; ties break by PHP's default
-     * `sort()` ordering (numeric for digit-only XREFs, lexical
-     * otherwise).
-     * Returns null when no chain of length `$maxDepth` can be
-     * reconstructed from the leaf — usually because the leaf is not
-     * actually at the bottom of a max-depth chain.
+     * Walk upward from a leaf-descendant by following its parents, yielding the
+     * eldest-first chain that ends at `$leafId`. At every parent step the
+     * parent with the larger remaining upward distance is preferred; ties break
+     * by PHP's default `sort()` ordering (numeric for digit-only XREFs, lexical
+     * otherwise). Returns null when no chain of length `$maxDepth` can be
+     * reconstructed from the leaf — usually because the leaf is not actually at
+     * the bottom of a max-depth chain.
      *
      * @param array<array-key, array{0: string|null, 1: string|null}> $parentOf
      * @param array<array-key, int>                                   $upDistance
@@ -380,11 +370,10 @@ final readonly class GenerationDepth
     }
 
     /**
-     * Compute the longest upward (= ancestor-side) chain length per
-     * individual id — analogous to {@see depthCache()} but pointed
-     * in the other direction. Used by callers that need to start
-     * the chain reconstruction at a known leaf descendant rather
-     * than at a known root ancestor.
+     * Compute the longest upward (= ancestor-side) chain length per individual
+     * id — analogous to {@see depthCache()} but pointed in the other direction.
+     * Used by callers that need to start the chain reconstruction at a known
+     * leaf descendant rather than at a known root ancestor.
      *
      * @param array<array-key, array{0: string|null, 1: string|null}> $parentOf
      *
@@ -402,13 +391,12 @@ final readonly class GenerationDepth
     }
 
     /**
-     * Flatten the `parentOf` map into every individual the graph
-     * mentions — children PLUS any non-null parent on the right
-     * side of an entry. Returned as a list of XREFs in insertion
-     * order; callers iterate it to seed both `depthCache()` and
-     * `upDistanceCache()` so a single tree-wide DFS sweep covers
-     * every node, including individuals that appear only as a
-     * parent (i.e. have no recorded parents of their own).
+     * Flatten the `parentOf` map into every individual the graph mentions —
+     * children PLUS any non-null parent on the right side of an entry. Returned
+     * as a list of XREFs in insertion order; callers iterate it to seed both
+     * `depthCache()` and `upDistanceCache()` so a single tree-wide DFS sweep
+     * covers every node, including individuals that appear only as a parent
+     * (i.e. have no recorded parents of their own).
      *
      * @param array<array-key, array{0: string|null, 1: string|null}> $parentOf
      *
@@ -440,10 +428,9 @@ final readonly class GenerationDepth
     }
 
     /**
-     * Mirror of {@see deepestDescendantDistance()} that walks
-     * parents instead of children. The two functions share the
-     * same iterative-DFS skeleton but operate on opposite halves
-     * of the parentage graph.
+     * Mirror of {@see deepestDescendantDistance()} that walks parents instead
+     * of children. The two functions share the same iterative-DFS skeleton but
+     * operate on opposite halves of the parentage graph.
      *
      * @param array<array-key, array{0: string|null, 1: string|null}> $parentOf
      * @param array<array-key, int>                                   $cache    In/out cache, mutated on every call

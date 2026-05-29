@@ -16,15 +16,15 @@ use JsonSerializable;
 use function array_map;
 
 /**
- * Wire-format payload for the migration sankey diagram on the
- * Places tab. Produced by `MigrationRepository::flowsByCountry()`
- * and consumed by the chart-lib sankey-flow widget via JSON.
+ * Wire-format payload for the migration sankey diagram on the Places tab.
+ * Produced by `MigrationRepository::flowsByCountry()` and consumed by the
+ * chart-lib sankey-flow widget via JSON.
  *
- * Serialises to `{nodes: list<{name}>, links: list<{source, target, value, samples}>}`
- * — the `{name}` shape on the node side is required by d3-sankey
- * even though we only carry the country label per node; nodes are
- * therefore held internally as plain `list<string>` and projected
- * to the wire shape at `jsonSerialize()` time.
+ * Serialises to `{nodes: list<{name}>, links: list<{source, target, value,
+ * samples}>}` — the `{name}` shape on the node side is required by d3-sankey
+ * even though we only carry the country label per node; nodes are therefore
+ * held internally as plain `list<string>` and projected to the wire shape at
+ * `jsonSerialize()` time.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0

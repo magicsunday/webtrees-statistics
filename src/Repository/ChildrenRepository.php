@@ -52,11 +52,11 @@ use const ENT_HTML5;
 use const ENT_QUOTES;
 
 /**
- * Children-related aggregations for the Family tab. Combines core's
- * public accessors (averageChildrenPerFamily, statsChildrenQuery,
+ * Children-related aggregations for the Family tab. Combines core's public
+ * accessors (averageChildrenPerFamily, statsChildrenQuery,
  * familiesWithTheMostChildren, countFamiliesWithNoChildren,
- * countFirstChildrenByMonth) with a local query for the
- * sibling-age-gap distribution.
+ * countFirstChildrenByMonth) with a local query for the sibling-age-gap
+ * distribution.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -65,43 +65,40 @@ use const ENT_QUOTES;
 final readonly class ChildrenRepository
 {
     /**
-     * Children-per-family histogram is integer-bucketed: 0 child,
-     * 1 child, 2 children, …, 9 children, and a "10+" overflow
-     * for the heroic outliers.
+     * Children-per-family histogram is integer-bucketed: 0 child, 1 child, 2
+     * children, …, 9 children, and a "10+" overflow for the heroic outliers.
      */
     private const int CHILDREN_HISTOGRAM_MAX = 10;
 
     /**
-     * Sibling age gap is bucketed into 1-year bands up to 10 years
-     * plus a "10+" overflow. Birth-spacing peaks usually sit in
-     * the 1–3 year range so 1-year resolution is what surfaces
-     * the typical curve.
+     * Sibling age gap is bucketed into 1-year bands up to 10 years plus a "10+"
+     * overflow. Birth-spacing peaks usually sit in the 1–3 year range so 1-year
+     * resolution is what surfaces the typical curve.
      */
     private const int SIBLING_GAP_MAX = 10;
 
     /**
-     * Minimum per-century sample size for the multiple-birth rate.
-     * The biological baseline sits at ~1 % of births so 200 children
-     * per century is the cohort floor below which a single missing
-     * twin set would swing the rate by 0.5 percentage points or more.
+     * Minimum per-century sample size for the multiple-birth rate. The
+     * biological baseline sits at ~1 % of births so 200 children per century is
+     * the cohort floor below which a single missing twin set would swing the
+     * rate by 0.5 percentage points or more.
      */
     private const int MIN_COHORT_MULTIPLE_BIRTH = 200;
 
     /**
-     * Multiplicity cap for the per-century breakdown — twin / triplet
-     * / quadruplet sets each get their own series, sets of five and
-     * above collapse onto a single "quintuplet+" bucket so the chart
-     * stays readable even on a tree with a heroic outlier.
+     * Multiplicity cap for the per-century breakdown — twin / triplet /
+     * quadruplet sets each get their own series, sets of five and above
+     * collapse onto a single "quintuplet+" bucket so the chart stays readable
+     * even on a tree with a heroic outlier.
      */
     private const int MULTIPLE_BIRTH_CAP = 5;
 
     /**
-     * Maximum BIRT julian-day gap between two consecutively-born
-     * children of the same FAM for them to count as one
-     * multiple-birth set. One day accommodates cross-midnight twins
-     * (e.g. 31 DEC / 1 JAN) without merging genuinely separate births,
-     * which a single mother cannot place within a calendar day of each
-     * other anyway.
+     * Maximum BIRT julian-day gap between two consecutively-born children of
+     * the same FAM for them to count as one multiple-birth set. One day
+     * accommodates cross-midnight twins (e.g. 31 DEC / 1 JAN) without merging
+     * genuinely separate births, which a single mother cannot place within a
+     * calendar day of each other anyway.
      */
     private const int MULTI_BIRTH_MAX_DAY_GAP = 1;
 
@@ -124,8 +121,8 @@ final readonly class ChildrenRepository
     }
 
     /**
-     * Histogram of children-per-family. Keyed by stringified child
-     * count, "10+" for the overflow.
+     * Histogram of children-per-family. Keyed by stringified child count, "10+"
+     * for the overflow.
      *
      * @return array<array-key, int>
      */
@@ -174,10 +171,9 @@ final readonly class ChildrenRepository
     }
 
     /**
-     * Reads the raw `f_numchil` per family aggregated to one row per
-     * family at its earliest MARR year, then groups by century.
-     * Shared backing for the century-bucketed cards (stacked share,
-     * average line).
+     * Reads the raw `f_numchil` per family aggregated to one row per family at
+     * its earliest MARR year, then groups by century. Shared backing for the
+     * century-bucketed cards (stacked share, average line).
      *
      * @return array<int, list<int>>
      */
@@ -194,10 +190,9 @@ final readonly class ChildrenRepository
     }
 
     /**
-     * Load one row per dated family carrying its earliest MARR
-     * year and its `f_numchil`. Multi-MARR families collapse to a
-     * single entry at the earliest valid year so downstream
-     * bucketers see each family once.
+     * Load one row per dated family carrying its earliest MARR year and its
+     * `f_numchil`. Multi-MARR families collapse to a single entry at the
+     * earliest valid year so downstream bucketers see each family once.
      *
      * @return list<array{year: int, n: int}>
      */
@@ -251,12 +246,11 @@ final readonly class ChildrenRepository
     }
 
     /**
-     * Family-size composition as a StackedBar payload — one bar per
-     * decade (1900s, 1910s, …), segments stack 1/2/3/4+ children.
-     * Drops the "0 children" group so the bar height tracks the
-     * recorded children. Decade label uses the `${start}s`
-     * convention to dodge German locale's thousand-separator
-     * formatting ("2000s" rather than "2.000s").
+     * Family-size composition as a StackedBar payload — one bar per decade
+     * (1900s, 1910s, …), segments stack 1/2/3/4+ children. Drops the "0
+     * children" group so the bar height tracks the recorded children. Decade
+     * label uses the `${start}s` convention to dodge German locale's
+     * thousand-separator formatting ("2000s" rather than "2.000s").
      */
     public function familySizeStackedByDecade(): StackedBarPayload
     {
@@ -352,10 +346,10 @@ final readonly class ChildrenRepository
     }
 
     /**
-     * Average children per family by century — single LineChart
-     * series tracking the central tendency over time. Computed as
-     * `total_children / family_count` per century from the same
-     * MARR-anchored aggregation as the stacked share charts.
+     * Average children per family by century — single LineChart series tracking
+     * the central tendency over time. Computed as `total_children /
+     * family_count` per century from the same MARR-anchored aggregation as the
+     * stacked share charts.
      */
     public function averageFamilySizeByCentury(): LineChartPayload
     {
@@ -407,25 +401,22 @@ final readonly class ChildrenRepository
     }
 
     /**
-     * Multiple-birth rate per century, one series per multiplicity
-     * that actually occurs in the tree (twins, triplets, quadruplets,
-     * quintuplet+). Each series carries the per-century share of
-     * children that landed in a set of that size, so the chart-lib
-     * `multiSeriesArea: true` consumer draws a stacked-style area
-     * fill where the twin band dwarfs the triplet / quadruplet bands
-     * by an order of magnitude — the demographic signal worth
+     * Multiple-birth rate per century, one series per multiplicity that
+     * actually occurs in the tree (twins, triplets, quadruplets, quintuplet+).
+     * Each series carries the per-century share of children that landed in a
+     * set of that size, so the chart-lib `multiSeriesArea: true` consumer draws
+     * a stacked-style area fill where the twin band dwarfs the triplet /
+     * quadruplet bands by an order of magnitude — the demographic signal worth
      * surfacing.
      *
-     * Detection: children of the same FAM whose BIRT julian-days sit
-     * within {@see MULTI_BIRTH_MAX_DAY_GAP} of each other form a
-     * multiple-birth set. That subsumes exact same-day twin / triplet
-     * sets and the cross-midnight case (e.g. 31 DEC / 1 JAN) without
-     * needing an explicit INDI:ASSO link — a single mother cannot
-     * place two separate pregnancies a calendar day apart, so the FAM
-     * membership plus date proximity is the signal by itself.
-     * Centuries below {@see MIN_COHORT_MULTIPLE_BIRTH} dated births
-     * are dropped to keep the curve from spiking on small
-     * denominators.
+     * Detection: children of the same FAM whose BIRT julian-days sit within
+     * {@see MULTI_BIRTH_MAX_DAY_GAP} of each other form a multiple-birth set.
+     * That subsumes exact same-day twin / triplet sets and the cross-midnight
+     * case (e.g. 31 DEC / 1 JAN) without needing an explicit INDI:ASSO link — a
+     * single mother cannot place two separate pregnancies a calendar day apart,
+     * so the FAM membership plus date proximity is the signal by itself.
+     * Centuries below {@see MIN_COHORT_MULTIPLE_BIRTH} dated births are dropped
+     * to keep the curve from spiking on small denominators.
      */
     public function multipleBirthRateByCentury(): LineChartPayload
     {
@@ -618,8 +609,8 @@ final readonly class ChildrenRepository
 
     /**
      * Display name for a per-multiplicity LineChart series. Caps at
-     * "Quintuplets and above" so sextuplets and beyond collapse
-     * onto a single readable label.
+     * "Quintuplets and above" so sextuplets and beyond collapse onto a single
+     * readable label.
      */
     private function multiplicitySeriesName(int $multiplicity): string
     {
@@ -636,8 +627,8 @@ final readonly class ChildrenRepository
     }
 
     /**
-     * Stable CSS class hook so the host stylesheet can pin each
-     * multiplicity series to a fixed colour token.
+     * Stable CSS class hook so the host stylesheet can pin each multiplicity
+     * series to a fixed colour token.
      */
     private function multiplicitySeriesClass(int $multiplicity): string
     {
@@ -654,13 +645,12 @@ final readonly class ChildrenRepository
     }
 
     /**
-     * Compose a per-point tooltip body: "N children of M (X.XX %)
-     * — Y twin / triplet / quadruplet sets". Multiplicity drives
-     * the narrative noun so the reader sees what kind of set the
-     * count represents. `$setCount` is the actual number of sets
-     * collected (not derived from `$count / $multiplicity`, which
-     * would drift in the cap bucket when heterogeneous-size sets
-     * pool together).
+     * Compose a per-point tooltip body: "N children of M (X.XX %) — Y twin /
+     * triplet / quadruplet sets". Multiplicity drives the narrative noun so the
+     * reader sees what kind of set the count represents. `$setCount` is the
+     * actual number of sets collected (not derived from `$count /
+     * $multiplicity`, which would drift in the cap bucket when
+     * heterogeneous-size sets pool together).
      */
     private function multipleBirthTooltip(int $multiplicity, int $count, int $setCount, int $total, float $rate): string
     {
@@ -699,23 +689,21 @@ final readonly class ChildrenRepository
     }
 
     /**
-     * Distribution of gaps (in years) between consecutive siblings
-     * across every family. Within each family the children are
-     * sorted by BIRT julian-day; consecutive pairs contribute one
-     * positive gap each. Families with < 2 dated children
-     * contribute nothing.
+     * Distribution of gaps (in years) between consecutive siblings across every
+     * family. Within each family the children are sorted by BIRT julian-day;
+     * consecutive pairs contribute one positive gap each. Families with < 2
+     * dated children contribute nothing.
      *
-     * Children whose BIRT is year-only or carries a `BEF` / `AFT` /
-     * `ABT` / `BET..AND` / `FROM..TO` modifier are skipped: webtrees
-     * still synthesises a default julian-day for those rows (usually
-     * 01.01.YYYY) so two year-only siblings of the same year would
-     * collide at JD = same → phantom 0-year bucket entry, and a
-     * `BET..AND` child shows up as two rows in the JOIN → JD-sorted
-     * run produces a phantom self-gap with the same `i_id` on both
-     * sides. Filtering on `d_day > 0 AND d_mon > 0` cuts both
-     * pathologies in one stroke. Mixed families (some full-date,
-     * some not) still contribute the surviving pairs — those overshoot
-     * the real consecutive distance, which is the documented trade-off.
+     * Children whose BIRT is year-only or carries a `BEF` / `AFT` / `ABT` /
+     * `BET..AND` / `FROM..TO` modifier are skipped: webtrees still synthesises
+     * a default julian-day for those rows (usually 01.01.YYYY) so two year-only
+     * siblings of the same year would collide at JD = same → phantom 0-year
+     * bucket entry, and a `BET..AND` child shows up as two rows in the JOIN →
+     * JD-sorted run produces a phantom self-gap with the same `i_id` on both
+     * sides. Filtering on `d_day > 0 AND d_mon > 0` cuts both pathologies in
+     * one stroke. Mixed families (some full-date, some not) still contribute
+     * the surviving pairs — those overshoot the real consecutive distance,
+     * which is the documented trade-off.
      *
      * @return array<string, int>
      */
@@ -774,8 +762,9 @@ final readonly class ChildrenRepository
     }
 
     /**
-     * Top-N largest families ranked by f_numchil. Each row carries the family XREF
-     * so two families that share a display label stay distinct in the podium.
+     * Top-N largest families ranked by f_numchil. Each row carries the family
+     * XREF so two families that share a display label stay distinct in the
+     * podium.
      *
      * @param int $limit Maximum number of rows.
      *
@@ -801,13 +790,12 @@ final readonly class ChildrenRepository
     }
 
     /**
-     * Single individual with the highest aggregated child count
-     * across every family they participated in. Different from
-     * {@see largestFamilyRecord()} because a man married three
-     * times with 5+4+3 children wins here (12 children total) but
-     * not there (largest single family was 5). Counts each FAM's
-     * `f_numchil` exactly once per spouse, so the same child does
-     * not contribute to both parents' totals across remarriages.
+     * Single individual with the highest aggregated child count across every
+     * family they participated in. Different from {@see largestFamilyRecord()}
+     * because a man married three times with 5+4+3 children wins here (12
+     * children total) but not there (largest single family was 5). Counts each
+     * FAM's `f_numchil` exactly once per spouse, so the same child does not
+     * contribute to both parents' totals across remarriages.
      */
     public function mostChildrenPerPersonRecord(): ?IndividualCountRecord
     {
@@ -855,9 +843,9 @@ final readonly class ChildrenRepository
     }
 
     /**
-     * Single largest-family record holder: the family with the
-     * highest `f_numchil` count. Returns null when the tree has
-     * no family with at least one child.
+     * Single largest-family record holder: the family with the highest
+     * `f_numchil` count. Returns null when the tree has no family with at least
+     * one child.
      */
     public function largestFamilyRecord(): ?FamilyCountRecord
     {
@@ -898,11 +886,10 @@ final readonly class ChildrenRepository
     }
 
     /**
-     * First-children by GEDCOM month abbreviation — pass-through
-     * over core's already-public accessor, prefilled with all
-     * twelve months at zero so the view layer can render a
-     * continuous month axis even on sparse trees. Matches the
-     * empty-contract sibling repositories use for `*byMonth`
+     * First-children by GEDCOM month abbreviation — pass-through over core's
+     * already-public accessor, prefilled with all twelve months at zero so the
+     * view layer can render a continuous month axis even on sparse trees.
+     * Matches the empty-contract sibling repositories use for `*byMonth`
      * aggregations.
      *
      * @return array<string, int>

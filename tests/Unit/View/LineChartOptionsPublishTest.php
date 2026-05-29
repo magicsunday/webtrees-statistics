@@ -20,16 +20,16 @@ use function preg_match;
 
 /**
  * Locks the publish contract for the two chart-lib LineChart options
- * `multiSeriesArea` and `yUnit`. The chart-lib bundle reads them from
- * the host element's `data-options` JSON; if the line-chart partial
- * stops emitting the keys, or if the names tab stops setting them on
- * the same-sex-passdown card, the chart silently regresses to single
- * area + bare numeric tooltip without a visible failure mode.
+ * `multiSeriesArea` and `yUnit`. The chart-lib bundle reads them from the host
+ * element's `data-options` JSON; if the line-chart partial stops emitting the
+ * keys, or if the names tab stops setting them on the same-sex-passdown card,
+ * the chart silently regresses to single area + bare numeric tooltip without a
+ * visible failure mode.
  *
- * Static file-content assertions only — the partial cannot be
- * rendered standalone because `view()` requires the full webtrees
- * runtime. The pattern mirrors `ProgressBarCssCoverageTest`, which
- * locks a similar CSS-to-template contract via static analysis.
+ * Static file-content assertions only — the partial cannot be rendered
+ * standalone because `view()` requires the full webtrees runtime. The pattern
+ * mirrors `ProgressBarCssCoverageTest`, which locks a similar CSS-to-template
+ * contract via static analysis.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -38,10 +38,10 @@ use function preg_match;
 final class LineChartOptionsPublishTest extends TestCase
 {
     /**
-     * The line-chart widget partial must publish `multiSeriesArea`
-     * into the rendered `data-options` JSON so the chart-lib
-     * constructor picks it up. The key arrives via the `with()`
-     * builder and lands in `$multiSeriesArea` inside the partial.
+     * The line-chart widget partial must publish `multiSeriesArea` into the
+     * rendered `data-options` JSON so the chart-lib constructor picks it up.
+     * The key arrives via the `with()` builder and lands in `$multiSeriesArea`
+     * inside the partial.
      */
     #[Test]
     public function lineChartPartialPublishesMultiSeriesAreaOption(): void
@@ -59,9 +59,9 @@ final class LineChartOptionsPublishTest extends TestCase
     }
 
     /**
-     * Same contract for the tooltip suffix option. Without it the
-     * single-series and multi-series tooltip fallbacks render bare
-     * numbers instead of "12 %" / "43 yr".
+     * Same contract for the tooltip suffix option. Without it the single-series
+     * and multi-series tooltip fallbacks render bare numbers instead of "12 %"
+     * / "43 yr".
      */
     #[Test]
     public function lineChartPartialPublishesYUnitOption(): void
@@ -79,10 +79,9 @@ final class LineChartOptionsPublishTest extends TestCase
     }
 
     /**
-     * The same-sex name passdown card is the first real consumer of
-     * the two new options and must wire both through the Widget
-     * builder. A future cleanup that drops either `with()` call would
-     * regress the chart silently.
+     * The same-sex name passdown card is the first real consumer of the two new
+     * options and must wire both through the Widget builder. A future cleanup
+     * that drops either `with()` call would regress the chart silently.
      */
     #[Test]
     public function sameSexPassdownCardSetsMultiSeriesAreaAndYUnit(): void
@@ -109,10 +108,10 @@ final class LineChartOptionsPublishTest extends TestCase
     }
 
     /**
-     * Per-point tooltip swaps the aggregated multi-row tooltip for a
-     * single-row tooltip showing only the hovered series. Locking the
-     * publish path keeps the option reaching chart-lib instead of
-     * being silently dropped from the rendered data-options JSON.
+     * Per-point tooltip swaps the aggregated multi-row tooltip for a single-row
+     * tooltip showing only the hovered series. Locking the publish path keeps
+     * the option reaching chart-lib instead of being silently dropped from the
+     * rendered data-options JSON.
      */
     #[Test]
     public function lineChartPartialPublishesPerPointTooltipOption(): void
@@ -130,9 +129,9 @@ final class LineChartOptionsPublishTest extends TestCase
     }
 
     /**
-     * Optional x/y axis captions. The line-chart partial must emit
-     * both keys so chart-lib's caption-band logic can render them in
-     * their own slots without overlapping the legend.
+     * Optional x/y axis captions. The line-chart partial must emit both keys so
+     * chart-lib's caption-band logic can render them in their own slots without
+     * overlapping the legend.
      */
     #[Test]
     public function lineChartPartialPublishesAxisCaptionOptions(): void
@@ -159,9 +158,9 @@ final class LineChartOptionsPublishTest extends TestCase
     }
 
     /**
-     * The survival-curve card on the Life-span tab is the first
-     * consumer of the cohort-style tooltip + caption combo. Both
-     * `with()` calls must stay wired through the Widget builder.
+     * The survival-curve card on the Life-span tab is the first consumer of the
+     * cohort-style tooltip + caption combo. Both `with()` calls must stay wired
+     * through the Widget builder.
      */
     #[Test]
     public function survivalCurveCardSetsPerPointTooltipAndAxisCaption(): void
@@ -188,8 +187,8 @@ final class LineChartOptionsPublishTest extends TestCase
     }
 
     /**
-     * Helper that loads the line-chart widget partial as a string for
-     * static assertion. Fails fast if the path drifts.
+     * Helper that loads the line-chart widget partial as a string for static
+     * assertion. Fails fast if the path drifts.
      */
     private function loadLineChartPartial(): string
     {
@@ -220,8 +219,8 @@ final class LineChartOptionsPublishTest extends TestCase
     }
 
     /**
-     * Helper that loads the life-span tab template as a string for
-     * static assertion. Fails fast if the path drifts.
+     * Helper that loads the life-span tab template as a string for static
+     * assertion. Fails fast if the path drifts.
      */
     private function loadLifeSpanTab(): string
     {

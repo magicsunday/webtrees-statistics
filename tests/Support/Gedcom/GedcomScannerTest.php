@@ -17,10 +17,10 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Locks the edge-case behaviour the audit loop on Issue #11 surfaced:
- * empty PLAC sub-lines, range-style date markers, and event-block
- * boundary detection. The classifier and the data-quality counters both
- * lean on these helpers so a regression here would silently miscount.
+ * Locks the edge-case behaviour the audit loop on Issue #11 surfaced: empty
+ * PLAC sub-lines, range-style date markers, and event-block boundary detection.
+ * The classifier and the data-quality counters both lean on these helpers so a
+ * regression here would silently miscount.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -69,8 +69,8 @@ final class GedcomScannerTest extends TestCase
     }
 
     /**
-     * Empty `2 PLAC` lines (with or without level-3 sub-lines) must not
-     * count as "place recorded" — the data-quality metric depends on it.
+     * Empty `2 PLAC` lines (with or without level-3 sub-lines) must not count
+     * as "place recorded" — the data-quality metric depends on it.
      */
     #[Test]
     #[DataProvider('eventPlaceSamples')]
@@ -117,8 +117,8 @@ final class GedcomScannerTest extends TestCase
     }
 
     /**
-     * The first four-digit token on the `2 DATE` line wins; range markers
-     * like `BET 1900 AND 1910` therefore resolve to the start year (1900).
+     * The first four-digit token on the `2 DATE` line wins; range markers like
+     * `BET 1900 AND 1910` therefore resolve to the start year (1900).
      */
     #[Test]
     #[DataProvider('eventYearSamples')]
@@ -129,8 +129,8 @@ final class GedcomScannerTest extends TestCase
 
     /**
      * Fixtures for extractEventPlace covering the rules the migration
-     * aggregator depends on: trimmed value, empty / whitespace-only
-     * lines reject, no event returns null.
+     * aggregator depends on: trimmed value, empty / whitespace-only lines
+     * reject, no event returns null.
      *
      * @return iterable<string, array{0: string, 1: string, 2: ?string}>
      */
@@ -169,9 +169,9 @@ final class GedcomScannerTest extends TestCase
     }
 
     /**
-     * extractEventPlace returns the first non-empty 2 PLAC sub-line of
-     * the requested event, trimmed; empty / whitespace-only PLAC lines
-     * are treated as no place.
+     * extractEventPlace returns the first non-empty 2 PLAC sub-line of the
+     * requested event, trimmed; empty / whitespace-only PLAC lines are treated
+     * as no place.
      *
      * @param string  $gedcom   Raw GEDCOM record body
      * @param string  $tag      Level-1 event tag to inspect
@@ -237,10 +237,10 @@ final class GedcomScannerTest extends TestCase
 
     /**
      * extractPrimaryName surfaces the first `1 NAME` line, strips the
-     * surname-delimiter slashes, collapses internal whitespace so a
-     * suffix after the closing slash does not double-space, and falls
-     * back to `(no name)` whenever the resulting string would be empty
-     * or the gedcom carries no NAME line at all.
+     * surname-delimiter slashes, collapses internal whitespace so a suffix
+     * after the closing slash does not double-space, and falls back to `(no
+     * name)` whenever the resulting string would be empty or the gedcom carries
+     * no NAME line at all.
      *
      * @param string $gedcom   Raw GEDCOM record body
      * @param string $expected Expected display name
@@ -295,9 +295,9 @@ final class GedcomScannerTest extends TestCase
     }
 
     /**
-     * extractAllTagValues captures every value of a `1 <tag>` line in
-     * the body, preserving encounter order and trimming each. Used by
-     * Top-N aggregators over individual facts (OCCU, RELI, NATI, …).
+     * extractAllTagValues captures every value of a `1 <tag>` line in the body,
+     * preserving encounter order and trimming each. Used by Top-N aggregators
+     * over individual facts (OCCU, RELI, NATI, …).
      *
      * @param string       $gedcom   Raw GEDCOM record body
      * @param string       $tag      Level-1 tag to capture
@@ -359,10 +359,9 @@ final class GedcomScannerTest extends TestCase
     }
 
     /**
-     * extractEventSubValue scopes to the level-1 event block and pulls
-     * the first matching `2 <subTag>` value. Block-confinement ensures a
-     * later event's sub-tag cannot satisfy an earlier event's missing
-     * sub-tag.
+     * extractEventSubValue scopes to the level-1 event block and pulls the
+     * first matching `2 <subTag>` value. Block-confinement ensures a later
+     * event's sub-tag cannot satisfy an earlier event's missing sub-tag.
      *
      * @param string  $gedcom   Raw GEDCOM record body
      * @param string  $eventTag Level-1 event tag whose block to scan
@@ -419,11 +418,10 @@ final class GedcomScannerTest extends TestCase
     }
 
     /**
-     * extractAllSubTagValues captures every level-2 `<subTag>` value
-     * anywhere in the record. The cross-cutting form complements
-     * {@see extractEventSubValue()} (which is scoped to one event
-     * block) and feeds aggregators that don't care which event the
-     * sub-tag attached to.
+     * extractAllSubTagValues captures every level-2 `<subTag>` value anywhere
+     * in the record. The cross-cutting form complements {@see
+     * extractEventSubValue()} (which is scoped to one event block) and feeds
+     * aggregators that don't care which event the sub-tag attached to.
      *
      * @param string       $gedcom   Raw GEDCOM record body
      * @param string       $subTag   Level-2 tag to capture

@@ -12,11 +12,11 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\View;
 
 /**
- * Backed enum of every accent colour the chart cards use. The case
- * value is the CSS `var(--...)` literal the Heritage palette pins
- * via `:root` custom properties in `statistics.css`. Card builders
- * accept the enum directly (`->withAccent(Accent::Wine)`) and the
- * builder serialises it to the CSS literal at render time.
+ * Backed enum of every accent colour the chart cards use. The case value is the
+ * CSS `var(--...)` literal the Heritage palette pins via `:root` custom
+ * properties in `statistics.css`. Card builders accept the enum directly
+ * (`->withAccent(Accent::Wine)`) and the builder serialises it to the CSS
+ * literal at render time.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0

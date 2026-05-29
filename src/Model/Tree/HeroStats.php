@@ -14,14 +14,14 @@ namespace MagicSunday\Webtrees\Statistic\Model\Tree;
 use JsonSerializable;
 
 /**
- * Aggregated headline metrics for the Statistics-page hero — the six
- * numbers that introduce the tree at a glance (total individuals,
- * total families, deepest verified generation, mean generation length
- * in years, average pedigree completeness fraction, and the source
- * citation coverage as a fraction). Only the average-generation-years
- * figure is nullable, because a tree without a single parseable
- * BIRT-to-BIRT parent-child pair has no defined value; every other
- * metric is well-defined and defaults to 0 / 0.0 for an empty tree.
+ * Aggregated headline metrics for the Statistics-page hero — the six numbers
+ * that introduce the tree at a glance (total individuals, total families,
+ * deepest verified generation, mean generation length in years, average
+ * pedigree completeness fraction, and the source citation coverage as a
+ * fraction). Only the average-generation-years figure is nullable, because a
+ * tree without a single parseable BIRT-to-BIRT parent-child pair has no defined
+ * value; every other metric is well-defined and defaults to 0 / 0.0 for an
+ * empty tree.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0

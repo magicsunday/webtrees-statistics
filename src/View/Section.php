@@ -14,10 +14,9 @@ namespace MagicSunday\Webtrees\Statistic\View;
 use function htmlspecialchars;
 
 /**
- * Fluent builder for the shared section-divider strip used between
- * card groups (kicker + serif title + sub). Spans the full 12-column
- * grid by default; consuming modules style the output classes
- * scoped under their own container.
+ * Fluent builder for the shared section-divider strip used between card groups
+ * (kicker + serif title + sub). Spans the full 12-column grid by default;
+ * consuming modules style the output classes scoped under their own container.
  *
  * Output class set: `wt-section`, `wt-stat-section-kicker`,
  * `wt-stat-section-title`, `wt-stat-section-sub`.
@@ -53,8 +52,8 @@ final readonly class Section
     }
 
     /**
-     * Optional kicker label above the title (usually uppercase short
-     * keyword like "DEMOGRAPHICS" / "FAMILY").
+     * Optional kicker label above the title (usually uppercase short keyword
+     * like "DEMOGRAPHICS" / "FAMILY").
      */
     public function withKicker(?string $kicker): self
     {

@@ -12,10 +12,10 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Enum;
 
 /**
- * One of four mutually-exclusive marital states that every living individual
- * is sorted into. Cases are listed in highest-precedence-first order so the
- * marital classifier can walk them top-to-bottom and keep the first match
- * that fits a row.
+ * One of four mutually-exclusive marital states that every living individual is
+ * sorted into. Cases are listed in highest-precedence-first order so the
+ * marital classifier can walk them top-to-bottom and keep the first match that
+ * fits a row.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0

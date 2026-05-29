@@ -23,16 +23,14 @@ use function strtolower;
 use function trim;
 
 /**
- * Maps free-text country names from GEDCOM PLAC lines to ISO-3166-1
- * alpha-2 codes (e.g. "Germany" → "DE", "Deutschland" → "DE").
+ * Maps free-text country names from GEDCOM PLAC lines to ISO-3166-1 alpha-2
+ * codes (e.g. "Germany" → "DE", "Deutschland" → "DE").
  *
- * Built on PHP's intl extension (Locale::getDisplayRegion) which
- * provides the localised country-name dictionary that ships with
- * ICU. The resolver tries a small set of widely-used locales
- * (English, German, French, Spanish, Italian, Dutch, Portuguese,
- * Polish, Russian) plus the user's current webtrees locale, then
- * caches the inverse lookup in a static map so repeat queries
- * remain O(1).
+ * Built on PHP's intl extension (Locale::getDisplayRegion) which provides the
+ * localised country-name dictionary that ships with ICU. The resolver tries a
+ * small set of widely-used locales (English, German, French, Spanish, Italian,
+ * Dutch, Portuguese, Polish, Russian) plus the user's current webtrees locale,
+ * then caches the inverse lookup in a static map so repeat queries remain O(1).
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -41,9 +39,9 @@ use function trim;
 final class IsoCountryMap
 {
     /**
-     * Locales whose ICU display-region names get folded into the
-     * reverse lookup map. Covers the major Latin-script languages
-     * used in published genealogy software.
+     * Locales whose ICU display-region names get folded into the reverse lookup
+     * map. Covers the major Latin-script languages used in published genealogy
+     * software.
      *
      * @var list<string>
      */
@@ -60,10 +58,10 @@ final class IsoCountryMap
     ];
 
     /**
-     * ISO-3166-1 alpha-2 country codes. Sourced from the published
-     * ISO standard; superseded codes (e.g. "SU" for the Soviet
-     * Union) are intentionally excluded — the world-map widget
-     * renders only present-day territories.
+     * ISO-3166-1 alpha-2 country codes. Sourced from the published ISO
+     * standard; superseded codes (e.g. "SU" for the Soviet Union) are
+     * intentionally excluded — the world-map widget renders only present-day
+     * territories.
      *
      * @var list<string>
      */
@@ -96,10 +94,10 @@ final class IsoCountryMap
     ];
 
     /**
-     * Common abbreviations and informal names that GEDCOM authors
-     * stamp into PLAC fields. Mapped to their ISO-3166-1 alpha-2
-     * codes so the resolver catches them even though ICU's
-     * display-region names don't include these forms.
+     * Common abbreviations and informal names that GEDCOM authors stamp into
+     * PLAC fields. Mapped to their ISO-3166-1 alpha-2 codes so the resolver
+     * catches them even though ICU's display-region names don't include these
+     * forms.
      *
      * @var array<string, string>
      */
@@ -126,9 +124,8 @@ final class IsoCountryMap
     ];
 
     /**
-     * Cached reverse lookup: normalised country name → ISO-2 code.
-     * Populated lazily on first resolve() call and shared across
-     * every instance.
+     * Cached reverse lookup: normalised country name → ISO-2 code. Populated
+     * lazily on first resolve() call and shared across every instance.
      *
      * @var array<string, string>|null
      */
@@ -143,11 +140,10 @@ final class IsoCountryMap
     }
 
     /**
-     * The effective locale for label resolution: the explicit
-     * `$userLocale` if non-empty, otherwise the active webtrees
-     * locale (so labels match the rest of the UI's language).
-     * Falls back to `en_US` when no webtrees locale is active —
-     * this happens in unit tests that don't bootstrap I18N.
+     * The effective locale for label resolution: the explicit `$userLocale` if
+     * non-empty, otherwise the active webtrees locale (so labels match the rest
+     * of the UI's language). Falls back to `en_US` when no webtrees locale is
+     * active — this happens in unit tests that don't bootstrap I18N.
      */
     private function effectiveLocale(): string
     {
@@ -165,9 +161,9 @@ final class IsoCountryMap
     }
 
     /**
-     * Resolve a free-text country name to its ISO-3166-1 alpha-2
-     * code. Returns null when the name doesn't match any known
-     * country for any of the pre-seeded locales.
+     * Resolve a free-text country name to its ISO-3166-1 alpha-2 code. Returns
+     * null when the name doesn't match any known country for any of the
+     * pre-seeded locales.
      *
      * @param string $name Raw place segment (e.g. "Germany", "Deutschland", "Allemagne")
      */
@@ -183,10 +179,9 @@ final class IsoCountryMap
     }
 
     /**
-     * Localised display name for a given ISO-3166-1 alpha-2 code in
-     * the resolver's user locale (or English when the user locale
-     * is empty). Falls back to the raw ISO code if the locale
-     * doesn't recognise the code.
+     * Localised display name for a given ISO-3166-1 alpha-2 code in the
+     * resolver's user locale (or English when the user locale is empty). Falls
+     * back to the raw ISO code if the locale doesn't recognise the code.
      *
      * @param string $iso2 Alpha-2 country code (case-insensitive).
      */
@@ -198,8 +193,8 @@ final class IsoCountryMap
     }
 
     /**
-     * Test-only: clear the static reverse-lookup cache so each test
-     * starts from a clean slate. Not part of the public API.
+     * Test-only: clear the static reverse-lookup cache so each test starts from
+     * a clean slate. Not part of the public API.
      *
      * @internal
      */
@@ -217,8 +212,8 @@ final class IsoCountryMap
     }
 
     /**
-     * Build the reverse name → ISO-2 lookup map, combining every
-     * pre-seeded locale plus the user's current locale.
+     * Build the reverse name → ISO-2 lookup map, combining every pre-seeded
+     * locale plus the user's current locale.
      *
      * @return array<string, string>
      */
@@ -280,9 +275,8 @@ final class IsoCountryMap
     }
 
     /**
-     * Lowercase + collapse whitespace + strip leading/trailing dots
-     * so "United States", "united states", and " USA. " all hit
-     * the same lookup key.
+     * Lowercase + collapse whitespace + strip leading/trailing dots so "United
+     * States", "united states", and " USA. " all hit the same lookup key.
      */
     private function normalise(string $value): string
     {

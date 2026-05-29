@@ -30,11 +30,11 @@ use function substr;
 use function trim;
 
 /**
- * Reusable raw-GEDCOM helpers. Repositories that scan individual or
- * family records (marital classification, data-quality metrics, future
- * name / place aggregators) share the same anchoring rules: level-1 tags
- * must be terminated by space, newline, or end-of-string so substring
- * matches like `1 DIV` vs `1 DIVF` cannot collide.
+ * Reusable raw-GEDCOM helpers. Repositories that scan individual or family
+ * records (marital classification, data-quality metrics, future name / place
+ * aggregators) share the same anchoring rules: level-1 tags must be terminated
+ * by space, newline, or end-of-string so substring matches like `1 DIV` vs `1
+ * DIVF` cannot collide.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -43,10 +43,9 @@ use function trim;
 final readonly class GedcomScanner
 {
     /**
-     * Renderable fallback when {@see extractPrimaryName()} cannot find
-     * a usable `1 NAME` value. Lives as a single constant so the
-     * eventual I18N pass (#41 DTO + translatable strings) touches one
-     * line.
+     * Renderable fallback when {@see extractPrimaryName()} cannot find a usable
+     * `1 NAME` value. Lives as a single constant so the eventual I18N pass (#41
+     * DTO + translatable strings) touches one line.
      */
     public const string NO_NAME_PLACEHOLDER = '(no name)';
 
@@ -58,9 +57,8 @@ final readonly class GedcomScanner
     }
 
     /**
-     * True when the GEDCOM blob contains `\n1 <tag>` for any tag in the
-     * list, anchored so substring tags (e.g. `DIV` vs `DIVF`) cannot
-     * collide.
+     * True when the GEDCOM blob contains `\n1 <tag>` for any tag in the list,
+     * anchored so substring tags (e.g. `DIV` vs `DIVF`) cannot collide.
      *
      * @param string             $gedcom Raw GEDCOM record body
      * @param array<int, string> $tags   Level-1 tags to test for (e.g. ['BIRT'], ['DIV','ANUL'])
@@ -77,8 +75,8 @@ final readonly class GedcomScanner
     }
 
     /**
-     * True when the GEDCOM blob contains a single `\n1 <tag>` line
-     * anchored by space, newline, or end-of-string.
+     * True when the GEDCOM blob contains a single `\n1 <tag>` line anchored by
+     * space, newline, or end-of-string.
      *
      * @param string $gedcom Raw GEDCOM record body
      * @param string $tag    Level-1 tag to test for (e.g. 'BIRT')
@@ -94,11 +92,10 @@ final readonly class GedcomScanner
 
     /**
      * True when the GEDCOM blob carries the given level-1 event AND its
-     * sub-block contains a non-empty `2 PLAC` sub-line. Lines past the
-     * next level-0 / level-1 boundary are ignored so a later event's
-     * PLAC cannot satisfy an earlier event's missing-place check; an
-     * empty `2 PLAC` (no place name after the tag) is treated as no
-     * place at all.
+     * sub-block contains a non-empty `2 PLAC` sub-line. Lines past the next
+     * level-0 / level-1 boundary are ignored so a later event's PLAC cannot
+     * satisfy an earlier event's missing-place check; an empty `2 PLAC` (no
+     * place name after the tag) is treated as no place at all.
      *
      * @param string $gedcom Raw GEDCOM record body
      * @param string $tag    Level-1 event tag whose place sub-line to look for
@@ -119,11 +116,11 @@ final readonly class GedcomScanner
     }
 
     /**
-     * Pull a four-digit year out of the first `2 DATE` sub-line of the
-     * given event block. Range markers (`BEF`, `AFT`, `ABT`, `EST`,
-     * `CAL`, `INT`) are stripped before the year capture so the first
-     * concrete `\d{4}` token wins; `BET 1900 AND 1910` returns 1900,
-     * `FROM 1900 TO 1910` also returns 1900.
+     * Pull a four-digit year out of the first `2 DATE` sub-line of the given
+     * event block. Range markers (`BEF`, `AFT`, `ABT`, `EST`, `CAL`, `INT`) are
+     * stripped before the year capture so the first concrete `\d{4}` token
+     * wins; `BET 1900 AND 1910` returns 1900, `FROM 1900 TO 1910` also returns
+     * 1900.
      *
      * @param string $gedcom Raw GEDCOM record body
      * @param string $tag    Level-1 event tag whose first sub-date to read
@@ -148,10 +145,10 @@ final readonly class GedcomScanner
     }
 
     /**
-     * Pull the first non-empty `2 PLAC` sub-line out of the given event
-     * block. Returns the raw place string (everything after `2 PLAC `
-     * on the same physical line, trimmed). Bare or whitespace-only
-     * `2 PLAC` lines yield null — same rule as {@see hasEventPlace()}.
+     * Pull the first non-empty `2 PLAC` sub-line out of the given event block.
+     * Returns the raw place string (everything after `2 PLAC ` on the same
+     * physical line, trimmed). Bare or whitespace-only `2 PLAC` lines yield
+     * null — same rule as {@see hasEventPlace()}.
      *
      * @param string $gedcom Raw GEDCOM record body
      * @param string $tag    Level-1 event tag whose first sub-place to read
@@ -174,14 +171,13 @@ final readonly class GedcomScanner
     }
 
     /**
-     * Extract every `2 PLAC` value for the given level-1 event tag
-     * within `$gedcom`. Used by metrics where each occurrence of an
-     * event contributes (residences, baptisms, occupations with a
-     * recorded place), unlike {@see extractEventPlace()} which only
-     * returns the first occurrence's place.
+     * Extract every `2 PLAC` value for the given level-1 event tag within
+     * `$gedcom`. Used by metrics where each occurrence of an event contributes
+     * (residences, baptisms, occupations with a recorded place), unlike {@see
+     * extractEventPlace()} which only returns the first occurrence's place.
      *
-     * Returns an empty list when the tag is absent or when every
-     * occurrence has only an empty `2 PLAC` line.
+     * Returns an empty list when the tag is absent or when every occurrence has
+     * only an empty `2 PLAC` line.
      *
      * @param string $gedcom Raw GEDCOM record body
      * @param string $tag    Level-1 event tag whose places to collect
@@ -213,8 +209,8 @@ final readonly class GedcomScanner
 
     /**
      * Extract the GEDCOM sub-block belonging to a given level-1 event
-     * (everything from `\n1 <tag>` up to the next level-0 / level-1
-     * line). Returns null when the event is not present.
+     * (everything from `\n1 <tag>` up to the next level-0 / level-1 line).
+     * Returns null when the event is not present.
      *
      * @param string $gedcom Raw GEDCOM record body
      * @param string $tag    Level-1 tag whose block to extract
@@ -243,9 +239,9 @@ final readonly class GedcomScanner
 
     /**
      * Locate the next line at level 0 or 1 within the GEDCOM substring,
-     * starting from a given line offset (1 = skip the opening line of
-     * the parent event). Returns the absolute byte position of the
-     * matching newline, or null if no level-0/1 line follows.
+     * starting from a given line offset (1 = skip the opening line of the
+     * parent event). Returns the absolute byte position of the matching
+     * newline, or null if no level-0/1 line follows.
      *
      * @param string $block  GEDCOM substring to scan
      * @param int    $offset Number of leading lines to skip
@@ -267,18 +263,17 @@ final readonly class GedcomScanner
     }
 
     /**
-     * Pull the display name out of an individual's raw GEDCOM. Picks
-     * the first `1 NAME` line whose captured value is non-empty after
-     * the slash strip — legacy exports sometimes prepend a placeholder
-     * `1 NAME / /` ahead of the real name record, so the first match
-     * cannot win unconditionally. Collapses internal whitespace so a
-     * suffix following the closing slash does not leave a double space,
-     * and scrubs the result back to valid UTF-8 (lone lead bytes from
-     * legacy ANSEL/Latin-1 imports survive into `i_gedcom` and would
-     * otherwise blow up `json_encode(..., JSON_THROW_ON_ERROR)` on the
-     * consuming view). Falls back to {@see NO_NAME_PLACEHOLDER} when
-     * every candidate is empty or the GEDCOM has no NAME line at all —
-     * the consumer always has a renderable placeholder.
+     * Pull the display name out of an individual's raw GEDCOM. Picks the first
+     * `1 NAME` line whose captured value is non-empty after the slash strip —
+     * legacy exports sometimes prepend a placeholder `1 NAME / /` ahead of the
+     * real name record, so the first match cannot win unconditionally.
+     * Collapses internal whitespace so a suffix following the closing slash
+     * does not leave a double space, and scrubs the result back to valid UTF-8
+     * (lone lead bytes from legacy ANSEL/Latin-1 imports survive into
+     * `i_gedcom` and would otherwise blow up `json_encode(...,
+     * JSON_THROW_ON_ERROR)` on the consuming view). Falls back to {@see
+     * NO_NAME_PLACEHOLDER} when every candidate is empty or the GEDCOM has no
+     * NAME line at all — the consumer always has a renderable placeholder.
      *
      * @param string $gedcom Raw GEDCOM record body
      */
@@ -314,15 +309,14 @@ final readonly class GedcomScanner
     }
 
     /**
-     * Return every value found on a `1 <tag>` line in the GEDCOM body,
-     * trimmed of surrounding whitespace. Multi-occurrence is preserved
-     * as a list so the caller can count each contribution. Lines whose
-     * value is empty after trim are dropped.
+     * Return every value found on a `1 <tag>` line in the GEDCOM body, trimmed
+     * of surrounding whitespace. Multi-occurrence is preserved as a list so the
+     * caller can count each contribution. Lines whose value is empty after trim
+     * are dropped.
      *
-     * Used by Top-N aggregators over individual-level facts (OCCU,
-     * RELI, NATI, …) — anything where the spec admits multiple
-     * occurrences per individual. Tag must be regex-safe; today's
-     * callers pass literals only.
+     * Used by Top-N aggregators over individual-level facts (OCCU, RELI, NATI,
+     * …) — anything where the spec admits multiple occurrences per individual.
+     * Tag must be regex-safe; today's callers pass literals only.
      *
      * @param string $gedcom Raw GEDCOM record body
      * @param string $tag    Level-1 tag whose values to capture (e.g. 'OCCU', 'RELI')
@@ -335,17 +329,16 @@ final readonly class GedcomScanner
     }
 
     /**
-     * Return every value found on a `2 <subTag>` line anywhere in the
-     * GEDCOM body, regardless of which level-1 event block contains it.
-     * Multi-occurrence is preserved as a list. Trimmed; empty values
-     * are dropped.
+     * Return every value found on a `2 <subTag>` line anywhere in the GEDCOM
+     * body, regardless of which level-1 event block contains it.
+     * Multi-occurrence is preserved as a list. Trimmed; empty values are
+     * dropped.
      *
-     * Used by aggregators that pick up cross-cutting facts the spec
-     * allows under any event detail — e.g. `2 RELI` (religious
-     * affiliation declared inside a baptism / confirmation / first
-     * communion event), `2 AGNC` (responsible agency), `2 CAUS` when
-     * collected event-agnostic. For scoping to a single event block
-     * see {@see extractEventSubValue()}.
+     * Used by aggregators that pick up cross-cutting facts the spec allows
+     * under any event detail — e.g. `2 RELI` (religious affiliation declared
+     * inside a baptism / confirmation / first communion event), `2 AGNC`
+     * (responsible agency), `2 CAUS` when collected event-agnostic. For scoping
+     * to a single event block see {@see extractEventSubValue()}.
      *
      * @param string $gedcom Raw GEDCOM record body
      * @param string $subTag Level-2 tag whose values to capture
@@ -358,10 +351,10 @@ final readonly class GedcomScanner
     }
 
     /**
-     * Shared engine behind {@see extractAllTagValues()} and
-     * {@see extractAllSubTagValues()}: anchor a regex to the given
-     * level-prefix, grab everything after the tag, trim, and drop
-     * empty matches. Multi-occurrence is preserved.
+     * Shared engine behind {@see extractAllTagValues()} and {@see
+     * extractAllSubTagValues()}: anchor a regex to the given level-prefix, grab
+     * everything after the tag, trim, and drop empty matches. Multi-occurrence
+     * is preserved.
      *
      * @param int    $level  GEDCOM nesting level the line must carry (1 or 2)
      * @param string $gedcom Raw GEDCOM record body
@@ -389,10 +382,9 @@ final readonly class GedcomScanner
     }
 
     /**
-     * Pull the first `2 <subTag>` value found inside the level-1 block
-     * of the given event tag. Returns null when the event or sub-tag
-     * is absent. Used for sub-level facts like `1 DEAT / 2 CAUS` or
-     * `1 BIRT / 2 ADDR`.
+     * Pull the first `2 <subTag>` value found inside the level-1 block of the
+     * given event tag. Returns null when the event or sub-tag is absent. Used
+     * for sub-level facts like `1 DEAT / 2 CAUS` or `1 BIRT / 2 ADDR`.
      *
      * @param string $gedcom   Raw GEDCOM record body
      * @param string $eventTag Level-1 event tag whose block to scan (e.g. 'DEAT')
@@ -416,11 +408,10 @@ final readonly class GedcomScanner
     }
 
     /**
-     * Build an OR-joined LIKE SQL fragment with the same anchoring as
-     * {@see hasTagAnchored()} for use in SQL counts ("how many
-     * individuals carry / lack this tag"). Each tag yields three
-     * alternatives (`%\n1 <tag> %`, `%\n1 <tag>\n%`, `%\n1 <tag>`
-     * suffix).
+     * Build an OR-joined LIKE SQL fragment with the same anchoring as {@see
+     * hasTagAnchored()} for use in SQL counts ("how many individuals carry /
+     * lack this tag"). Each tag yields three alternatives (`%\n1 <tag> %`,
+     * `%\n1 <tag>\n%`, `%\n1 <tag>` suffix).
      *
      * @param string             $column Fully-qualified column reference, e.g. `individuals.i_gedcom`
      * @param array<int, string> $tags   Level-1 tags to test for
@@ -439,9 +430,9 @@ final readonly class GedcomScanner
     }
 
     /**
-     * Build a list of single-tag LIKE patterns for use with a Query
-     * Builder's `where(..., 'LIKE', $pattern)`. Mirrors the anchoring
-     * of {@see hasTagAnchored()} so SQL and PHP scans agree.
+     * Build a list of single-tag LIKE patterns for use with a Query Builder's
+     * `where(..., 'LIKE', $pattern)`. Mirrors the anchoring of {@see
+     * hasTagAnchored()} so SQL and PHP scans agree.
      *
      * @param string $tag Level-1 tag to anchor
      *

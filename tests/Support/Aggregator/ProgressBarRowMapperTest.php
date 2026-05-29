@@ -17,13 +17,13 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Locks the row-mapping contract shared by the bar lists
- * ({@see ProgressBarRowMapper::toRows()}) and the entity podiums
- * ({@see ProgressBarRowMapper::fromRankingEntries()}). The podium
- * path must keep two entries that share a display label as separate
- * rows — keying a podium by label would collapse two distinct
- * individuals or families onto one row and drop the higher-ranked
- * one, which is the bug the {@see RankingEntry} identity fixes.
+ * Locks the row-mapping contract shared by the bar lists ({@see
+ * ProgressBarRowMapper::toRows()}) and the entity podiums ({@see
+ * ProgressBarRowMapper::fromRankingEntries()}). The podium path must keep two
+ * entries that share a display label as separate rows — keying a podium by
+ * label would collapse two distinct individuals or families onto one row and
+ * drop the higher-ranked one, which is the bug the {@see RankingEntry} identity
+ * fixes.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -32,8 +32,8 @@ use PHPUnit\Framework\TestCase;
 final class ProgressBarRowMapperTest extends TestCase
 {
     /**
-     * Empty input short-circuits so the card renders its empty
-     * placeholder instead of an axis with no bars.
+     * Empty input short-circuits so the card renders its empty placeholder
+     * instead of an axis with no bars.
      */
     #[Test]
     public function emptyEntryListReturnsEmptyRows(): void
@@ -42,11 +42,11 @@ final class ProgressBarRowMapperTest extends TestCase
     }
 
     /**
-     * Two ranking entries that carry the same display label still
-     * produce two rows — the label-keyed map this replaced would have
-     * merged them into one, losing the higher-value entry. Each row
-     * keeps its own value and the rank/percentage are derived from
-     * the caller-supplied order and the largest value.
+     * Two ranking entries that carry the same display label still produce two
+     * rows — the label-keyed map this replaced would have merged them into one,
+     * losing the higher-value entry. Each row keeps its own value and the
+     * rank/percentage are derived from the caller-supplied order and the
+     * largest value.
      */
     #[Test]
     public function sameLabelEntriesStayDistinctRows(): void
@@ -70,10 +70,10 @@ final class ProgressBarRowMapperTest extends TestCase
     }
 
     /**
-     * A list whose every value is non-positive yields no rows: the
-     * percentage basis would be zero, so the card shows the empty
-     * placeholder rather than zero-width bars. Covers both the zero
-     * and the negative branch of the `$maxValue <= 0` guard.
+     * A list whose every value is non-positive yields no rows: the percentage
+     * basis would be zero, so the card shows the empty placeholder rather than
+     * zero-width bars. Covers both the zero and the negative branch of the
+     * `$maxValue <= 0` guard.
      */
     #[Test]
     public function nonPositiveValuesReturnEmptyRows(): void

@@ -22,15 +22,13 @@ use function array_keys;
 use function implode;
 
 /**
- * Helper that builds an Eloquent query against one of the webtrees
- * core tables already scoped to the active tree. Every repository
- * starts with the same two-line pattern — `DB::table($table)`
- * followed by `->where('X_file', '=', $this->tree->id())` —
- * across thirty-plus queries. Centralising both lines means a
- * future schema-column rename or a multi-tree-scoping change
- * lands in one place; the per-table `*_file` column convention
- * is owned by the helper rather than scattered across every
- * repository.
+ * Helper that builds an Eloquent query against one of the webtrees core tables
+ * already scoped to the active tree. Every repository starts with the same
+ * two-line pattern — `DB::table($table)` followed by `->where('X_file', '=',
+ * $this->tree->id())` — across thirty-plus queries. Centralising both lines
+ * means a future schema-column rename or a multi-tree-scoping change lands in
+ * one place; the per-table `*_file` column convention is owned by the helper
+ * rather than scattered across every repository.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -40,9 +38,9 @@ final readonly class TreeScope
 {
     /**
      * Webtrees schema convention: every per-tree table carries a
-     * single-letter-prefixed `<x>_file` column referencing the
-     * `gedcom` table's primary key. The map is the only thing in
-     * the module that owns that convention.
+     * single-letter-prefixed `<x>_file` column referencing the `gedcom` table's
+     * primary key. The map is the only thing in the module that owns that
+     * convention.
      */
     private const array FILE_COLUMNS = [
         'individuals' => 'i_file',
@@ -60,11 +58,10 @@ final readonly class TreeScope
     }
 
     /**
-     * Open a tree-scoped query against the given webtrees core
-     * table. When `$alias` is supplied the helper builds the
-     * `<table> AS <alias>` clause and emits the `<alias>.<file>`
-     * qualifier on the tree-id filter so the caller can chain
-     * `join('… AS other', …)` without prefix collisions.
+     * Open a tree-scoped query against the given webtrees core table. When
+     * `$alias` is supplied the helper builds the `<table> AS <alias>` clause
+     * and emits the `<alias>.<file>` qualifier on the tree-id filter so the
+     * caller can chain `join('… AS other', …)` without prefix collisions.
      *
      * @throws InvalidArgumentException When `$table` is not a known per-tree table
      */
@@ -88,12 +85,12 @@ final readonly class TreeScope
     }
 
     /**
-     * Convenience overload for the most-repeated repository pattern
-     * — load every individual's `i_gedcom` blob for the active tree
-     * as a `Collection<int, stdClass{gedcom: string}>`. Used by the
-     * downstream GEDCOM scanners (Religion, DeathCause, Occupation,
-     * PlaceDispersion) that pull text-level tag values out of the
-     * raw blob rather than the normalised tables.
+     * Convenience overload for the most-repeated repository pattern — load
+     * every individual's `i_gedcom` blob for the active tree as a
+     * `Collection<int, stdClass{gedcom: string}>`. Used by the downstream
+     * GEDCOM scanners (Religion, DeathCause, Occupation, PlaceDispersion) that
+     * pull text-level tag values out of the raw blob rather than the normalised
+     * tables.
      *
      * @return Collection<int, stdClass>
      */

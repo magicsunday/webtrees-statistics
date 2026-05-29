@@ -27,10 +27,9 @@ use function trim;
 use function uasort;
 
 /**
- * Aggregates birth → death country movements across the tree's
- * individuals. Each individual with both a birth-place country and a
- * death-place country contributes one weighted link to the Sankey
- * diagram drawn on the Places tab.
+ * Aggregates birth → death country movements across the tree's individuals.
+ * Each individual with both a birth-place country and a death-place country
+ * contributes one weighted link to the Sankey diagram drawn on the Places tab.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -39,9 +38,9 @@ use function uasort;
 final readonly class MigrationRepository
 {
     /**
-     * Maximum number of sample individuals surfaced per flow on
-     * hover. Three is the acceptance-criteria minimum from issue
-     * #12 and visually fits on one tooltip line per name.
+     * Maximum number of sample individuals surfaced per flow on hover. Three is
+     * the acceptance-criteria minimum from issue #12 and visually fits on one
+     * tooltip line per name.
      */
     private const int SAMPLES_PER_FLOW = 3;
 
@@ -54,24 +53,23 @@ final readonly class MigrationRepository
     }
 
     /**
-     * Build the Sankey payload describing country-level migrations
-     * between birth and death. Same-country movements are dropped (no
-     * migration), as are individuals missing either place. Only the
-     * top-N links by weight are returned so the diagram stays legible
-     * on busy trees; their incident nodes are added in encounter order.
+     * Build the Sankey payload describing country-level migrations between
+     * birth and death. Same-country movements are dropped (no migration), as
+     * are individuals missing either place. Only the top-N links by weight are
+     * returned so the diagram stays legible on busy trees; their incident nodes
+     * are added in encounter order.
      *
-     * Source and target sides are kept as DISJOINT node sets — a node
-     * that appears as both an origin and a destination (e.g. Germany
-     * → USA combined with USA → Germany) shows up as two separate
-     * Sankey nodes, one in each column. This is required because
-     * d3-sankey only lays out directed acyclic graphs; folding such
-     * counter-flows onto a single node would create a 2-cycle and
-     * throw a "circular link" error at render time.
+     * Source and target sides are kept as DISJOINT node sets — a node that
+     * appears as both an origin and a destination (e.g. Germany → USA combined
+     * with USA → Germany) shows up as two separate Sankey nodes, one in each
+     * column. This is required because d3-sankey only lays out directed acyclic
+     * graphs; folding such counter-flows onto a single node would create a
+     * 2-cycle and throw a "circular link" error at render time.
      *
-     * Each link carries up to {@see SAMPLES_PER_FLOW} sample
-     * individuals (`name`, `xref`) so the consumer's hover tooltip
-     * can surface representative people behind every migration
-     * path — the acceptance criterion from issue #12.
+     * Each link carries up to {@see SAMPLES_PER_FLOW} sample individuals
+     * (`name`, `xref`) so the consumer's hover tooltip can surface
+     * representative people behind every migration path — the acceptance
+     * criterion from issue #12.
      *
      * @param int $topLinks Maximum number of distinct flows to retain
      */
@@ -195,11 +193,11 @@ final readonly class MigrationRepository
     }
 
     /**
-     * Pull the country segment out of a webtrees place string. Standard
-     * GEDCOM PLAC ordering is "<most specific>, ..., <country>", so the
-     * last comma-separated segment carries the country (or a single
-     * standalone token when no comma is present, which we accept as
-     * the country itself — common in small or hand-authored trees).
+     * Pull the country segment out of a webtrees place string. Standard GEDCOM
+     * PLAC ordering is "<most specific>, ..., <country>", so the last
+     * comma-separated segment carries the country (or a single standalone token
+     * when no comma is present, which we accept as the country itself — common
+     * in small or hand-authored trees).
      */
     private function extractCountry(string $place): ?string
     {

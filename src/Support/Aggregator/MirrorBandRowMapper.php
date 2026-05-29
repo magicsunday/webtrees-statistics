@@ -16,13 +16,12 @@ use Fisharebest\Webtrees\I18N;
 /**
  * Folds a `[band => count]` distribution into the row shape the
  * `widgets/mirror-histogram.phtml` partial consumes — `[label, value,
- * tooltipLabel, tooltipBody]`. Every Family-tab mirror-histogram (age
- * at marriage, age at first child, age at divorce — each for both
- * sexes) needs an identical loop except for the noun pluralised in
- * the tooltip body. The named factory methods (`husbands()`,
- * `wives()`, `fathers()`, `mothers()`, `men()`, `women()`) keep the
- * `I18N::plural(...)` calls literal so xgettext extracts the msgids
- * from this file the same way it would from each tab template.
+ * tooltipLabel, tooltipBody]`. Every Family-tab mirror-histogram (age at
+ * marriage, age at first child, age at divorce — each for both sexes) needs an
+ * identical loop except for the noun pluralised in the tooltip body. The named
+ * factory methods (`husbands()`, `wives()`, `fathers()`, `mothers()`, `men()`,
+ * `women()`) keep the `I18N::plural(...)` calls literal so xgettext extracts
+ * the msgids from this file the same way it would from each tab template.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -62,8 +61,8 @@ final readonly class MirrorBandRowMapper
     }
 
     /**
-     * Mirror-histogram rows for the female side of the age-at-
-     * marriage distribution. `tooltipBody` pluralises "wife / wives".
+     * Mirror-histogram rows for the female side of the age-at- marriage
+     * distribution. `tooltipBody` pluralises "wife / wives".
      *
      * @param array<string, int> $bands
      *
@@ -86,8 +85,8 @@ final readonly class MirrorBandRowMapper
     }
 
     /**
-     * Mirror-histogram rows for the male side of the age-at-first-
-     * child distribution. `tooltipBody` pluralises "father / fathers".
+     * Mirror-histogram rows for the male side of the age-at-first- child
+     * distribution. `tooltipBody` pluralises "father / fathers".
      *
      * @param array<string, int> $bands
      *
@@ -110,8 +109,8 @@ final readonly class MirrorBandRowMapper
     }
 
     /**
-     * Mirror-histogram rows for the female side of the age-at-first-
-     * child distribution. `tooltipBody` pluralises "mother / mothers".
+     * Mirror-histogram rows for the female side of the age-at-first- child
+     * distribution. `tooltipBody` pluralises "mother / mothers".
      *
      * @param array<string, int> $bands
      *

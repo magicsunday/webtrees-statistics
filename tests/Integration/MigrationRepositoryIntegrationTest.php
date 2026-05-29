@@ -22,13 +22,12 @@ use function array_slice;
 use function array_unique;
 
 /**
- * End-to-end test of the birth → death country flow aggregator. The
- * curated fixture covers the four behaviours that matter at the data
- * layer: a country pair with four individuals (Germany → USA, used
- * to exercise the SAMPLES_PER_FLOW cap), a one-off pair (Vienna →
- * Paris), a same-country trajectory that must be dropped (Austria →
- * Austria), and individuals missing either BIRT or DEAT place (must
- * be silently skipped).
+ * End-to-end test of the birth → death country flow aggregator. The curated
+ * fixture covers the four behaviours that matter at the data layer: a country
+ * pair with four individuals (Germany → USA, used to exercise the
+ * SAMPLES_PER_FLOW cap), a one-off pair (Vienna → Paris), a same-country
+ * trajectory that must be dropped (Austria → Austria), and individuals missing
+ * either BIRT or DEAT place (must be silently skipped).
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -37,12 +36,11 @@ use function array_unique;
 final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
 {
     /**
-     * Aggregates the fixture into the bipartite Sankey payload: the
-     * Germany → USA flow leads with weight 4, Germany → England,
-     * Austria → France, and Germany → Canada each weigh 1. The
-     * same-country Vienna→Vienna individual and the two with a
-     * missing BIRT or DEAT place do not contribute. Source and target
-     * sides occupy disjoint node-index ranges.
+     * Aggregates the fixture into the bipartite Sankey payload: the Germany →
+     * USA flow leads with weight 4, Germany → England, Austria → France, and
+     * Germany → Canada each weigh 1. The same-country Vienna→Vienna individual
+     * and the two with a missing BIRT or DEAT place do not contribute. Source
+     * and target sides occupy disjoint node-index ranges.
      */
     #[Test]
     public function flowsByCountryReturnsTheExpectedAggregation(): void
@@ -84,8 +82,8 @@ final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
 
     /**
      * A small top-N limit drops the tail of the link table while still
-     * surfacing the heaviest flow. Nodes referenced only by dropped
-     * links also disappear from the node table.
+     * surfacing the heaviest flow. Nodes referenced only by dropped links also
+     * disappear from the node table.
      */
     #[Test]
     public function flowsByCountryRespectsTheTopLinksLimit(): void
@@ -104,9 +102,9 @@ final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * A tree where every individual was born and died in the same
-     * country produces no flows — the same-country guard drops every
-     * contribution and the aggregator returns its empty shape.
+     * A tree where every individual was born and died in the same country
+     * produces no flows — the same-country guard drops every contribution and
+     * the aggregator returns its empty shape.
      */
     #[Test]
     public function flowsByCountryReturnsEmptyWhenEveryTrajectoryIsSameCountry(): void
@@ -119,20 +117,18 @@ final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Every link carries up to three sample individuals so the
-     * hover tooltip can surface representative names per flow.
-     * Issue #12 spelled this out as an acceptance criterion.
-     * Samples are name + xref pairs; the names come straight from
-     * the GEDCOM 1 NAME line with the slashes stripped.
+     * Every link carries up to three sample individuals so the hover tooltip
+     * can surface representative names per flow. Issue #12 spelled this out as
+     * an acceptance criterion. Samples are name + xref pairs; the names come
+     * straight from the GEDCOM 1 NAME line with the slashes stripped.
      *
-     * The fixture has FOUR Germany→USA contributors (Anna, Berta,
-     * Carl, Dieter Test) precisely to exercise the cap: the sample
-     * list must hold exactly three distinct names drawn from the
-     * four candidates and the underlying flow value must still
-     * reflect all four contributors. WHICH three survive is pinned
-     * by the repository's ORDER BY i_id, but the test stays
-     * order-agnostic so renumbering the fixture xrefs would not
-     * cascade into noisy churn.
+     * The fixture has FOUR Germany→USA contributors (Anna, Berta, Carl, Dieter
+     * Test) precisely to exercise the cap: the sample list must hold exactly
+     * three distinct names drawn from the four candidates and the underlying
+     * flow value must still reflect all four contributors. WHICH three survive
+     * is pinned by the repository's ORDER BY i_id, but the test stays
+     * order-agnostic so renumbering the fixture xrefs would not cascade into
+     * noisy churn.
      */
     #[Test]
     public function flowsByCountryAttachesSampleIndividualsPerLink(): void
@@ -186,11 +182,11 @@ final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * `extractPrimaryName`'s "(no name)" fallback fires when the
-     * raw GEDCOM `1 NAME` line yields nothing after the slash strip
-     * (e.g. `1 NAME / /` — empty given AND empty surname). The
-     * tooltip must still surface a meaningful placeholder rather
-     * than an empty entry that visually disappears.
+     * `extractPrimaryName`'s "(no name)" fallback fires when the raw GEDCOM `1
+     * NAME` line yields nothing after the slash strip (e.g. `1 NAME / /` —
+     * empty given AND empty surname). The tooltip must still surface a
+     * meaningful placeholder rather than an empty entry that visually
+     * disappears.
      */
     #[Test]
     public function flowsByCountryFallsBackToPlaceholderForBlankNames(): void
@@ -204,10 +200,10 @@ final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * A country that appears both as an origin AND as a destination
-     * shows up as two distinct nodes — one in the source column, one
-     * in the target column. Without this split d3-sankey would throw
-     * a "circular link" error on the bidirectional flow.
+     * A country that appears both as an origin AND as a destination shows up as
+     * two distinct nodes — one in the source column, one in the target column.
+     * Without this split d3-sankey would throw a "circular link" error on the
+     * bidirectional flow.
      */
     #[Test]
     public function flowsByCountryKeepsBidirectionalCountriesOnDisjointSides(): void

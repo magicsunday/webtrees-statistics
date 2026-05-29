@@ -16,11 +16,10 @@ use PHPUnit\Framework\Attributes\Test;
 
 /**
  * End-to-end test of {@see DeathCauseRepository}. The shared
- * `individual-facts.ged` fixture carries three individuals with a
- * DEAT/CAUS sub-fact (Anna=Cholera, Berta=Tuberculosis, Carl=
- * Tuberculosis), one with DEAT but no CAUS (Doris — must NOT
- * contribute), and three with no DEAT at all (Emil, Franz, Gerda
- * — also must NOT contribute).
+ * `individual-facts.ged` fixture carries three individuals with a DEAT/CAUS
+ * sub-fact (Anna=Cholera, Berta=Tuberculosis, Carl= Tuberculosis), one with
+ * DEAT but no CAUS (Doris — must NOT contribute), and three with no DEAT at all
+ * (Emil, Franz, Gerda — also must NOT contribute).
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -29,9 +28,9 @@ use PHPUnit\Framework\Attributes\Test;
 final class DeathCauseRepositoryIntegrationTest extends IntegrationTestCase
 {
     /**
-     * `Tuberculosis` appears twice (Berta + Carl), `Cholera` once
-     * (Anna). The DEAT-without-CAUS individual (Doris) is silently
-     * skipped — proves the sub-tag-absence branch.
+     * `Tuberculosis` appears twice (Berta + Carl), `Cholera` once (Anna). The
+     * DEAT-without-CAUS individual (Doris) is silently skipped — proves the
+     * sub-tag-absence branch.
      */
     #[Test]
     public function topDeathCausesReturnsAggregatedFrequencies(): void
@@ -46,8 +45,8 @@ final class DeathCauseRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Distinct count excludes the no-CAUS-on-DEAT case (Doris) and
-     * the no-DEAT cases (Emil/Franz/Gerda).
+     * Distinct count excludes the no-CAUS-on-DEAT case (Doris) and the no-DEAT
+     * cases (Emil/Franz/Gerda).
      */
     #[Test]
     public function countDistinctDeathCausesIgnoresMissingSubTags(): void

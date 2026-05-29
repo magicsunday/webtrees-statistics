@@ -14,18 +14,16 @@ namespace MagicSunday\Webtrees\Statistic\Model\LineChart;
 use JsonSerializable;
 
 /**
- * One series in a {@see LineChartPayload}. `values` is the numeric
- * sequence the line traces, aligned positionally with the parent
- * payload's `categories` list. `tooltips` and `tooltipLabels` are
- * optional per-point overrides that the renderer surfaces on hover
- * (`tooltipLabels` for the bold header, `tooltips` for the body
- * line); both default to the empty list when the consumer leaves
- * tooltips to chart-lib's autoformatting.
+ * One series in a {@see LineChartPayload}. `values` is the numeric sequence the
+ * line traces, aligned positionally with the parent payload's `categories`
+ * list. `tooltips` and `tooltipLabels` are optional per-point overrides that
+ * the renderer surfaces on hover (`tooltipLabels` for the bold header,
+ * `tooltips` for the body line); both default to the empty list when the
+ * consumer leaves tooltips to chart-lib's autoformatting.
  *
- * Optional `class` token attaches a CSS class to the line + legend
- * swatch — useful for sex-coloured pairs (`male` / `female`) or
- * any rate-vs-baseline split where the styling needs to stay
- * predictable.
+ * Optional `class` token attaches a CSS class to the line + legend swatch —
+ * useful for sex-coloured pairs (`male` / `female`) or any rate-vs-baseline
+ * split where the styling needs to stay predictable.
  *
  * Serialises to `{name, values, tooltips, tooltipLabels[, class]}`.
  *

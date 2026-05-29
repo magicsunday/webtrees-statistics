@@ -14,9 +14,9 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 
 /**
- * Top-N aggregation over the religion / confession affiliations
- * recorded on individuals. The GEDCOM 5.5.1 + FamilySearch 7.0 spec
- * stores religious affiliation in TWO places:
+ * Top-N aggregation over the religion / confession affiliations recorded on
+ * individuals. The GEDCOM 5.5.1 + FamilySearch 7.0 spec stores religious
+ * affiliation in TWO places:
  *
  *   1. `1 RELI <value>` — top-level individual attribute (the
  *      person's declared religion).
@@ -27,8 +27,8 @@ use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
  *      the data lives (e.g. trees with church-book imports rarely
  *      carry a separate `1 RELI` line, only the event-bound one).
  *
- * Both sources contribute to the same aggregation. Multi-occurrence
- * per INDI is preserved.
+ * Both sources contribute to the same aggregation. Multi-occurrence per INDI is
+ * preserved.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -37,10 +37,9 @@ use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 final class ReligionRepository extends AbstractGedcomTagTopNRepository
 {
     /**
-     * Harvests BOTH top-level `1 RELI` lines and event-bound
-     * `2 RELI` sub-tags from the INDI record. The two sources are
-     * merged into one flat list so the case-folded frequency
-     * rollup treats them as the same fact.
+     * Harvests BOTH top-level `1 RELI` lines and event-bound `2 RELI` sub-tags
+     * from the INDI record. The two sources are merged into one flat list so
+     * the case-folded frequency rollup treats them as the same fact.
      *
      * @param string $gedcom The raw INDI GEDCOM record to scan
      *

@@ -18,11 +18,11 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Verifies that the {@see DateJoin::on()} helper writes the four
- * standard join conditions in the expected order and only emits the
- * optional `d_julianday1` predicate when a jd operator is passed.
- * Exercises an in-memory SQLite query builder so the produced SQL
- * fragments stay close to what the real Eloquent driver emits.
+ * Verifies that the {@see DateJoin::on()} helper writes the four standard join
+ * conditions in the expected order and only emits the optional `d_julianday1`
+ * predicate when a jd operator is passed. Exercises an in-memory SQLite query
+ * builder so the produced SQL fragments stay close to what the real Eloquent
+ * driver emits.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -33,9 +33,9 @@ final class DateJoinTest extends TestCase
     private Capsule $capsule;
 
     /**
-     * Spin up a fresh in-memory SQLite via Eloquent's Capsule. The
-     * helper writes against a JoinClause, so the connection is only
-     * needed to materialise the SQL string for assertion.
+     * Spin up a fresh in-memory SQLite via Eloquent's Capsule. The helper
+     * writes against a JoinClause, so the connection is only needed to
+     * materialise the SQL string for assertion.
      */
     protected function setUp(): void
     {
@@ -48,9 +48,9 @@ final class DateJoinTest extends TestCase
     }
 
     /**
-     * Without a jd operator the helper writes the four-condition
-     * core block: file column join, GEDCOM-id column join, fact
-     * filter, calendar predicate. No `d_julianday1` clause appears.
+     * Without a jd operator the helper writes the four-condition core block:
+     * file column join, GEDCOM-id column join, fact filter, calendar predicate.
+     * No `d_julianday1` clause appears.
      */
     #[Test]
     public function onWritesFourConditionsWithoutJulianDayFilter(): void
@@ -70,9 +70,9 @@ final class DateJoinTest extends TestCase
     }
 
     /**
-     * Passing {@see DateJoin::JD_GREATER_THAN_ZERO} appends the
-     * `d_julianday1 > 0` predicate that the deterministic-pair
-     * queries (BirthDeathPairs, age-at-first-child) rely on.
+     * Passing {@see DateJoin::JD_GREATER_THAN_ZERO} appends the `d_julianday1 >
+     * 0` predicate that the deterministic-pair queries (BirthDeathPairs,
+     * age-at-first-child) rely on.
      */
     #[Test]
     public function onAppendsJulianDayGreaterThanZero(): void
@@ -88,8 +88,8 @@ final class DateJoinTest extends TestCase
     }
 
     /**
-     * Passing {@see DateJoin::JD_NOT_EQUAL_ZERO} appends the
-     * `d_julianday1 <> 0` predicate used by the histogram queries.
+     * Passing {@see DateJoin::JD_NOT_EQUAL_ZERO} appends the `d_julianday1 <>
+     * 0` predicate used by the histogram queries.
      */
     #[Test]
     public function onAppendsJulianDayNotEqualZero(): void
@@ -105,17 +105,15 @@ final class DateJoinTest extends TestCase
     }
 
     /**
-     * Passing `requireFullDate = true` appends the `d_day > 0` and
-     * `d_mon > 0` predicates that the day-precision consumers
-     * (multi-birth same-day match, sibling-age-gap distribution)
-     * rely on to filter year-only records, month-only records, and
-     * the BEF / AFT / ABT / BET..AND / FROM..TO modifier rows that
-     * webtrees writes with `d_day = 0` plus a synthesised default
-     * julian-day. Both predicates must appear in the generated SQL,
-     * each with its own `0` binding alongside the existing
-     * julian-day binding so a regression that drops one half stays
-     * detectable at the SQL-shape level instead of only surfacing
-     * via downstream histogram drift.
+     * Passing `requireFullDate = true` appends the `d_day > 0` and `d_mon > 0`
+     * predicates that the day-precision consumers (multi-birth same-day match,
+     * sibling-age-gap distribution) rely on to filter year-only records,
+     * month-only records, and the BEF / AFT / ABT / BET..AND / FROM..TO
+     * modifier rows that webtrees writes with `d_day = 0` plus a synthesised
+     * default julian-day. Both predicates must appear in the generated SQL,
+     * each with its own `0` binding alongside the existing julian-day binding
+     * so a regression that drops one half stays detectable at the SQL-shape
+     * level instead of only surfacing via downstream histogram drift.
      */
     #[Test]
     public function onAppendsFullDateGateWhenRequireFullDateIsTrue(): void
@@ -141,11 +139,10 @@ final class DateJoinTest extends TestCase
     }
 
     /**
-     * `requireFullDate = true` may also stand on its own without a
-     * julian-day operator — covers consumers that want the
-     * day-precision gate but skip the `d_julianday1` constraint. The
-     * default julian-day path must remain absent while both
-     * `d_day > 0` and `d_mon > 0` are emitted.
+     * `requireFullDate = true` may also stand on its own without a julian-day
+     * operator — covers consumers that want the day-precision gate but skip the
+     * `d_julianday1` constraint. The default julian-day path must remain absent
+     * while both `d_day > 0` and `d_mon > 0` are emitted.
      */
     #[Test]
     public function onAppendsFullDateGateAloneWithoutJulianDayOperator(): void

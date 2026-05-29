@@ -20,13 +20,12 @@ use function array_combine;
 use function sort;
 
 /**
- * End-to-end test of {@see CountryRepository::countByCountry()}
- * against a curated fixture: covers a country with multiple
- * individuals, a multi-segment place hierarchy
- * ("Munich, Bayern, Germany"), a country expressed in two
- * languages (Wien/Vienna both resolving to Austria), an individual
- * with no place at all, and a place whose top-level segment is
- * not a known country ("Atlantis").
+ * End-to-end test of {@see CountryRepository::countByCountry()} against a
+ * curated fixture: covers a country with multiple individuals, a multi-segment
+ * place hierarchy ("Munich, Bayern, Germany"), a country expressed in two
+ * languages (Wien/Vienna both resolving to Austria), an individual with no
+ * place at all, and a place whose top-level segment is not a known country
+ * ("Atlantis").
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -35,10 +34,9 @@ use function sort;
 final class CountryRepositoryIntegrationTest extends IntegrationTestCase
 {
     /**
-     * Reset the IsoCountryMap singleton cache before every test so
-     * each scenario sees a freshly-loaded ISO table — the cache is
-     * shared across the suite and would otherwise leak in-memory
-     * state between fixtures.
+     * Reset the IsoCountryMap singleton cache before every test so each
+     * scenario sees a freshly-loaded ISO table — the cache is shared across the
+     * suite and would otherwise leak in-memory state between fixtures.
      */
     protected function setUp(): void
     {
@@ -48,10 +46,10 @@ final class CountryRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Births aggregated per country, including the Munich (3-segment
-     * place) → Germany and Wien → Austria collapses. Atlantis is not
-     * a country and is silently skipped; the empty BIRT (I5) and
-     * the BIRT-place-only individual (I6) contribute nothing.
+     * Births aggregated per country, including the Munich (3-segment place) →
+     * Germany and Wien → Austria collapses. Atlantis is not a country and is
+     * silently skipped; the empty BIRT (I5) and the BIRT-place-only individual
+     * (I6) contribute nothing.
      */
     #[Test]
     public function countByCountryReturnsExpectedBirthDistribution(): void
@@ -77,9 +75,9 @@ final class CountryRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Deaths aggregated per country. Wien (German) and Vienna
-     * (English) collapse onto Austria via the locale-aware
-     * resolver, so I4 (Vienna death) + I5 (Salzburg death) = 2.
+     * Deaths aggregated per country. Wien (German) and Vienna (English)
+     * collapse onto Austria via the locale-aware resolver, so I4 (Vienna death)
+     * + I5 (Salzburg death) = 2.
      */
     #[Test]
     public function countByCountryReturnsExpectedDeathDistribution(): void
@@ -104,9 +102,8 @@ final class CountryRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Every returned row carries a non-empty localised label so
-     * the WorldMap widget can render a meaningful tooltip without
-     * a second lookup.
+     * Every returned row carries a non-empty localised label so the WorldMap
+     * widget can render a meaningful tooltip without a second lookup.
      */
     #[Test]
     public function countByCountryEntriesCarryLocalisedLabels(): void
@@ -121,15 +118,13 @@ final class CountryRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Deeply-nested place hierarchies must collapse onto the
-     * country at the tail. The fixture has Hugo born in
-     * "Newport, Rhode Island, New England, USA" — four segments —
-     * which must still resolve to US.
+     * Deeply-nested place hierarchies must collapse onto the country at the
+     * tail. The fixture has Hugo born in "Newport, Rhode Island, New England,
+     * USA" — four segments — which must still resolve to US.
      *
-     * Compare BIRT (Carl + Hugo = 2) vs DEAT (Carl + Hugo = 2)
-     * vs the same fixture without Hugo's BIRT (would be 1). The
-     * delta-of-1 between Hugo present / absent rules out a
-     * Carl-double-counted false positive.
+     * Compare BIRT (Carl + Hugo = 2) vs DEAT (Carl + Hugo = 2) vs the same
+     * fixture without Hugo's BIRT (would be 1). The delta-of-1 between Hugo
+     * present / absent rules out a Carl-double-counted false positive.
      */
     #[Test]
     public function countByCountryCollapsesDeeplyNestedPlaceHierarchy(): void
@@ -159,18 +154,16 @@ final class CountryRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Country names that carry diacritics in the country segment
-     * itself (not just the inner segments) must resolve. The
-     * fixture deliberately uses two apostrophe variants on the
-     * same country across Ines's two events:
+     * Country names that carry diacritics in the country segment itself (not
+     * just the inner segments) must resolve. The fixture deliberately uses two
+     * apostrophe variants on the same country across Ines's two events:
      *
      *   BIRT: "Abidjan, Côte d’Ivoire"      ← U+2019 (smart quote)
      *   DEAT: "Yamoussoukro, Côte d'Ivoire" ← U+0027 (ASCII)
      *
-     * Both must resolve to CI. ICU's own display-region output for
-     * CI uses U+2019, so without the curly-to-ASCII normalisation
-     * in `IsoCountryMap::normalise`, one of the two events would
-     * silently drop.
+     * Both must resolve to CI. ICU's own display-region output for CI uses
+     * U+2019, so without the curly-to-ASCII normalisation in
+     * `IsoCountryMap::normalise`, one of the two events would silently drop.
      */
     #[Test]
     public function countByCountryHandlesDiacriticsInCountryName(): void
@@ -195,16 +188,15 @@ final class CountryRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Invariant the acceptance spells out: the sum of per-country
-     * counts must equal the number of individuals whose event
-     * carries a place that resolves to a known country. Anything
-     * else means the repository is double-counting or silently
-     * dropping resolvable places.
+     * Invariant the acceptance spells out: the sum of per-country counts must
+     * equal the number of individuals whose event carries a place that resolves
+     * to a known country. Anything else means the repository is double-counting
+     * or silently dropping resolvable places.
      *
-     * For the fixture's BIRT field: Anna (DE), Berta (DE), Carl
-     * (US), Doris (AT), Hugo (US), Ines (CI), Greta (GB). Seven
-     * individuals' BIRT places resolve; Franz's "Atlantis" is
-     * unknown so excluded; Emil has no BIRT place. Total = 7.
+     * For the fixture's BIRT field: Anna (DE), Berta (DE), Carl (US), Doris
+     * (AT), Hugo (US), Ines (CI), Greta (GB). Seven individuals' BIRT places
+     * resolve; Franz's "Atlantis" is unknown so excluded; Emil has no BIRT
+     * place. Total = 7.
      */
     #[Test]
     public function countByCountrySumMatchesResolvableIndividuals(): void
@@ -232,12 +224,12 @@ final class CountryRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Residence aggregation counts every `1 RESI` occurrence per
-     * individual: MultiMove (I1) has two RESI entries (Hamburg and
-     * New York) and contributes once to Germany and once to USA;
-     * SingleMove (I2) has one RESI in England; NoResidence (I3)
-     * has no RESI at all and contributes nothing. Total resolved
-     * residences must equal three across three distinct countries.
+     * Residence aggregation counts every `1 RESI` occurrence per individual:
+     * MultiMove (I1) has two RESI entries (Hamburg and New York) and
+     * contributes once to Germany and once to USA; SingleMove (I2) has one RESI
+     * in England; NoResidence (I3) has no RESI at all and contributes nothing.
+     * Total resolved residences must equal three across three distinct
+     * countries.
      */
     #[Test]
     public function residencesByCountryCountsEachResiOccurrence(): void

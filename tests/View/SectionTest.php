@@ -16,8 +16,8 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Verifies the shared section-divider builder used between card
- * groups across the chart / statistic modules.
+ * Verifies the shared section-divider builder used between card groups across
+ * the chart / statistic modules.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -26,8 +26,8 @@ use PHPUnit\Framework\TestCase;
 final class SectionTest extends TestCase
 {
     /**
-     * A title-only section renders the wrapper and the h2 title, no
-     * kicker, no sub.
+     * A title-only section renders the wrapper and the h2 title, no kicker, no
+     * sub.
      */
     #[Test]
     public function titleOnlySectionRendersMinimalShell(): void
@@ -41,8 +41,7 @@ final class SectionTest extends TestCase
     }
 
     /**
-     * Kicker + sub render in the documented order: kicker, title,
-     * sub.
+     * Kicker + sub render in the documented order: kicker, title, sub.
      */
     #[Test]
     public function kickerAndSubRenderInOrder(): void
@@ -62,8 +61,8 @@ final class SectionTest extends TestCase
     }
 
     /**
-     * Title goes through HTML escape so accidental user content with
-     * quotes or brackets cannot break out of the heading.
+     * Title goes through HTML escape so accidental user content with quotes or
+     * brackets cannot break out of the heading.
      */
     #[Test]
     public function titleIsHtmlEscaped(): void
@@ -75,8 +74,8 @@ final class SectionTest extends TestCase
     }
 
     /**
-     * `withKicker(null)` clears a previously-set kicker — supports
-     * builder chains that conditionally remove the kicker.
+     * `withKicker(null)` clears a previously-set kicker — supports builder
+     * chains that conditionally remove the kicker.
      */
     #[Test]
     public function nullKickerClearsPreviouslySetKicker(): void

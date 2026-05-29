@@ -23,14 +23,13 @@ use function str_starts_with;
 use function substr;
 
 /**
- * Folds a `[label => count]` couple-age-gap distribution into the
- * diverging-bar row shape — `[label, value, sign, tooltipLabel,
- * tooltip]`. The husband-older side is encoded as negative labels
- * (`'-5 to -10'`, `'<-30'`) in the upstream distribution; this
- * mapper cleans those into positive band labels (`'5–10'`, `'>30'`)
- * and tags the row with `sign = -1` so the diverging-bar widget can
- * mirror it onto the left half of the chart. Wife-older bands pass
- * through with `sign = 1`.
+ * Folds a `[label => count]` couple-age-gap distribution into the diverging-bar
+ * row shape — `[label, value, sign, tooltipLabel, tooltip]`. The husband-older
+ * side is encoded as negative labels (`'-5 to -10'`, `'<-30'`) in the upstream
+ * distribution; this mapper cleans those into positive band labels (`'5–10'`,
+ * `'>30'`) and tags the row with `sign = -1` so the diverging-bar widget can
+ * mirror it onto the left half of the chart. Wife-older bands pass through with
+ * `sign = 1`.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -46,11 +45,10 @@ final readonly class CoupleAgeGapRowMapper
     }
 
     /**
-     * Build the diverging-bar rows. PHP auto-casts numeric-string
-     * array keys to int, so the input can carry bare-negative-int
-     * keys (`-15`) as well as the documented `'-X to -Y'` /
-     * `'<-N'` range forms — the loop coerces to string before the
-     * label inspection runs.
+     * Build the diverging-bar rows. PHP auto-casts numeric-string array keys to
+     * int, so the input can carry bare-negative-int keys (`-15`) as well as the
+     * documented `'-X to -Y'` / `'<-N'` range forms — the loop coerces to
+     * string before the label inspection runs.
      *
      * @param array<int|string, int> $ageGap Label → count map (labels can carry leading `-` / `<-` markers indicating the husband-older side)
      *
@@ -81,9 +79,9 @@ final readonly class CoupleAgeGapRowMapper
     }
 
     /**
-     * Strip the husband-older sign markers and reformat the band so
-     * the resulting label is positive: `'-5 to -10'` → `'5–10'`,
-     * `'<-30'` → `'>30'`, bare `'-15'` → `'15'`.
+     * Strip the husband-older sign markers and reformat the band so the
+     * resulting label is positive: `'-5 to -10'` → `'5–10'`, `'<-30'` →
+     * `'>30'`, bare `'-15'` → `'15'`.
      */
     private static function cleanNegativeLabel(string $label): string
     {

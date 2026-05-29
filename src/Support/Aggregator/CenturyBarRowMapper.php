@@ -17,13 +17,12 @@ use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
 use function round;
 
 /**
- * Folds a `[century => count]` map into the row shape the chart-lib
- * `BarChart` widget consumes — `[label, value, tooltipLabel,
- * tooltip]`. Every tab that renders a `births`-, `deaths`-,
- * `weddings`- or `divorces`-by-century histogram runs the same loop
- * with the only difference being the noun pluralised in the tooltip
- * footer. Named factory methods keep the `I18N::plural(...)` calls
- * literal for xgettext.
+ * Folds a `[century => count]` map into the row shape the chart-lib `BarChart`
+ * widget consumes — `[label, value, tooltipLabel, tooltip]`. Every tab that
+ * renders a `births`-, `deaths`-, `weddings`- or `divorces`-by-century
+ * histogram runs the same loop with the only difference being the noun
+ * pluralised in the tooltip footer. Named factory methods keep the
+ * `I18N::plural(...)` calls literal for xgettext.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -39,8 +38,8 @@ final readonly class CenturyBarRowMapper
     }
 
     /**
-     * Century-histogram rows for a births distribution. `tooltip`
-     * pluralises "birth / births".
+     * Century-histogram rows for a births distribution. `tooltip` pluralises
+     * "birth / births".
      *
      * @param array<int|string, int> $byCentury Century → count map
      *
@@ -63,8 +62,8 @@ final readonly class CenturyBarRowMapper
     }
 
     /**
-     * Century-histogram rows for a deaths distribution. `tooltip`
-     * pluralises "death / deaths".
+     * Century-histogram rows for a deaths distribution. `tooltip` pluralises
+     * "death / deaths".
      *
      * @param array<int|string, int> $byCentury
      *
@@ -87,8 +86,8 @@ final readonly class CenturyBarRowMapper
     }
 
     /**
-     * Century-histogram rows for a marriages distribution. `tooltip`
-     * pluralises "marriage / marriages".
+     * Century-histogram rows for a marriages distribution. `tooltip` pluralises
+     * "marriage / marriages".
      *
      * @param array<int|string, int> $byCentury
      *
@@ -111,8 +110,8 @@ final readonly class CenturyBarRowMapper
     }
 
     /**
-     * Century-histogram rows for a divorces distribution. `tooltip`
-     * pluralises "divorce / divorces".
+     * Century-histogram rows for a divorces distribution. `tooltip` pluralises
+     * "divorce / divorces".
      *
      * @param array<int|string, int> $byCentury
      *
@@ -135,19 +134,19 @@ final readonly class CenturyBarRowMapper
     }
 
     /**
-     * Century-histogram rows for the per-century source-citation
-     * coverage breakdown. Each input entry carries the raw counts
-     * (`total`, `sourced`) plus the pre-computed `percentage`; the
-     * bar's `value` is the rounded percentage so the y-axis reads as
-     * a 0..100 scale without decimals, and the tooltip carries the
-     * full "X% — N of M individuals sourced" prose for context.
+     * Century-histogram rows for the per-century source-citation coverage
+     * breakdown. Each input entry carries the raw counts (`total`, `sourced`)
+     * plus the pre-computed `percentage`; the bar's `value` is the rounded
+     * percentage so the y-axis reads as a 0..100 scale without decimals, and
+     * the tooltip carries the full "X% — N of M individuals sourced" prose for
+     * context.
      *
      * Unlike the events-by-century mappers above, the source-coverage
-     * repository returns the raw 1-based integer century rather than
-     * the localised ordinal string core's `countEventsByCentury()`
-     * already produces. The label conversion via {@see CenturyName::for()}
-     * happens here so the rendered bar matches the "19th" / "20th"
-     * tick format used by every sibling per-century chart.
+     * repository returns the raw 1-based integer century rather than the
+     * localised ordinal string core's `countEventsByCentury()` already
+     * produces. The label conversion via {@see CenturyName::for()} happens here
+     * so the rendered bar matches the "19th" / "20th" tick format used by every
+     * sibling per-century chart.
      *
      * @param list<array{century: int, total: int, sourced: int, percentage: float}> $perCentury Repository output
      *

@@ -21,8 +21,8 @@ use function array_map;
 use function array_sum;
 
 /**
- * Integration test for {@see DivorceRepository}. Fixture has 4
- * families; 3 are divorced (F1/F2/F4), 1 still married (F3).
+ * Integration test for {@see DivorceRepository}. Fixture has 4 families; 3 are
+ * divorced (F1/F2/F4), 1 still married (F3).
  *
  *   F1: Alf 1950, Anna 1952; MARR 1975, DIV 1990 — Alf 40, Anna 38
  *   F2: Bert 1955, Beate 1958; MARR 1985, DIV 2005 — Bert 50, Beate 47
@@ -43,9 +43,9 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Age-at-divorce histogram for husbands surfaces Alf (40),
-     * Bert (50), Dirk (45) in their respective 10-year buckets —
-     * Alf and Dirk both fall into 40-49, Bert into 50-59.
+     * Age-at-divorce histogram for husbands surfaces Alf (40), Bert (50), Dirk
+     * (45) in their respective 10-year buckets — Alf and Dirk both fall into
+     * 40-49, Bert into 50-59.
      */
     #[Test]
     public function ageAtDivorceDistributionBucketsHusbands(): void
@@ -59,13 +59,13 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Cohort-rate for the 1970s decade: F1 + F4 marriages, both
-     * divorced. But the cohort filter drops cohorts < 3 — so the
-     * 1970s and 1990s vanish, only cohorts ≥ 3 marriages survive.
+     * Cohort-rate for the 1970s decade: F1 + F4 marriages, both divorced. But
+     * the cohort filter drops cohorts < 3 — so the 1970s and 1990s vanish, only
+     * cohorts ≥ 3 marriages survive.
      *
-     * In this fixture every decade has < 3 marriages, so the
-     * filtered output is empty. That IS the documented behaviour
-     * (sparse trees produce no misleading "100% divorce" lines).
+     * In this fixture every decade has < 3 marriages, so the filtered output is
+     * empty. That IS the documented behaviour (sparse trees produce no
+     * misleading "100% divorce" lines).
      */
     #[Test]
     public function divorceRateCohortFilterDropsThinDecades(): void
@@ -79,8 +79,8 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Divorces-by-century groups the three DIVs into the expected
-     * centuries (one in 20th, two in 21st).
+     * Divorces-by-century groups the three DIVs into the expected centuries
+     * (one in 20th, two in 21st).
      */
     #[Test]
     public function divorcesByCenturyCountsAllDivorces(): void
@@ -100,9 +100,8 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * `divorcesByMonth` returns the GEDCOM month-keyed counts.
-     * Fixture: F1 DIV JUN 1990, F2 DIV SEP 2005, F4 DIV JUN 2015
-     * → JUN ×2, SEP ×1.
+     * `divorcesByMonth` returns the GEDCOM month-keyed counts. Fixture: F1 DIV
+     * JUN 1990, F2 DIV SEP 2005, F4 DIV JUN 2015 → JUN ×2, SEP ×1.
      */
     #[Test]
     public function divorcesByMonthCountsByGedcomMonthCode(): void
@@ -116,9 +115,8 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Age-at-divorce for wives separately: Anna 1952 → 1990 = 38
-     * → 30-39 bucket; Beate 1958 → 2005 = 47 → 40-49; Doris 1972
-     * → 2015 = 43 → 40-49.
+     * Age-at-divorce for wives separately: Anna 1952 → 1990 = 38 → 30-39
+     * bucket; Beate 1958 → 2005 = 47 → 40-49; Doris 1972 → 2015 = 43 → 40-49.
      */
     #[Test]
     public function ageAtDivorceDistributionForWives(): void
@@ -132,12 +130,11 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * `divorcesByCenturyAndAgeBand` classifies F1 (Alf 40) into the
-     * 40–49 band of the 20th century, F2 (Bert 50) into the 50–59
-     * band of the 21st century and F4 (Dirk 45) into the 40–49 band
-     * of the 21st century. The legend always carries every ten-year
-     * cohort plus Unknown, even when a band has zero counts
-     * everywhere, so the reader sees the complete age scale.
+     * `divorcesByCenturyAndAgeBand` classifies F1 (Alf 40) into the 40–49 band
+     * of the 20th century, F2 (Bert 50) into the 50–59 band of the 21st century
+     * and F4 (Dirk 45) into the 40–49 band of the 21st century. The legend
+     * always carries every ten-year cohort plus Unknown, even when a band has
+     * zero counts everywhere, so the reader sees the complete age scale.
      */
     #[Test]
     public function divorcesByCenturyAndAgeBandBucketsByHusbandAge(): void
@@ -174,16 +171,15 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Totals invariant: summing every band across every century must
-     * equal the grand total of `divorcesByCentury`. The widget is
-     * built around the side-by-side comparison, so this catches the
-     * double-counting regression where iterating both spouse-birth
-     * columns rendered twice the sample size. Per-century equality
-     * is asserted separately by the classification tests — checking
-     * it through `divorcesByCentury` here would couple the test to
-     * core's SQL `ROUND` century formula, which diverges from the
-     * PHP `intdiv` formula under SQLite's integer division and is
-     * irrelevant to the cross-card invariant.
+     * Totals invariant: summing every band across every century must equal the
+     * grand total of `divorcesByCentury`. The widget is built around the
+     * side-by-side comparison, so this catches the double-counting regression
+     * where iterating both spouse-birth columns rendered twice the sample size.
+     * Per-century equality is asserted separately by the classification tests —
+     * checking it through `divorcesByCentury` here would couple the test to
+     * core's SQL `ROUND` century formula, which diverges from the PHP `intdiv`
+     * formula under SQLite's integer division and is irrelevant to the
+     * cross-card invariant.
      */
     #[Test]
     public function divorcesByCenturyAndAgeBandPreservesGrandTotal(): void
@@ -201,11 +197,10 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Husband-missing, wife-only and no-BIRT-at-all rows must still
-     * count toward the per-century totals — via the wife-fallback
-     * branch and the Unknown catch-all, respectively. The 150-year
-     * age in F4 is a data-entry typo and lands in Unknown rather
-     * than being silently dropped.
+     * Husband-missing, wife-only and no-BIRT-at-all rows must still count
+     * toward the per-century totals — via the wife-fallback branch and the
+     * Unknown catch-all, respectively. The 150-year age in F4 is a data-entry
+     * typo and lands in Unknown rather than being silently dropped.
      *
      * Fixture (divorce-age-bands.ged):
      *   F1 Hugo 1900 + Hilde 1903, DIV 1990 → husband 90 → 90+
@@ -235,10 +230,10 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Grand-total invariant on the sparsely-dated fixture: every
-     * row that `divorcesByCentury` counts must end up in some band
-     * (no-BIRT rows in Unknown, age typos in Unknown, valid ages in
-     * the matching life-stage band). 4 divorces → 4 ticks total.
+     * Grand-total invariant on the sparsely-dated fixture: every row that
+     * `divorcesByCentury` counts must end up in some band (no-BIRT rows in
+     * Unknown, age typos in Unknown, valid ages in the matching life-stage
+     * band). 4 divorces → 4 ticks total.
      */
     #[Test]
     public function divorcesByCenturyAndAgeBandReconcilesGrandTotalOnSparseTree(): void
@@ -257,9 +252,9 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Empty tree returns the empty `{categories, tooltipLabels,
-     * series}` shape — chart-lib's empty-state placeholder picks up
-     * the absence and renders the "no data" message.
+     * Empty tree returns the empty `{categories, tooltipLabels, series}` shape
+     * — chart-lib's empty-state placeholder picks up the absence and renders
+     * the "no data" message.
      */
     #[Test]
     public function divorcesByCenturyAndAgeBandRendersEmptyOnZeroDivorces(): void
@@ -273,10 +268,10 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Every divorce histogram method must survive a tree with zero
-     * divorces (no families at all) — the same acceptance contract
-     * issue #4 requires for marriages also applies here because the
-     * sex-axis CSS tokens are shared across the two sets.
+     * Every divorce histogram method must survive a tree with zero divorces (no
+     * families at all) — the same acceptance contract issue #4 requires for
+     * marriages also applies here because the sex-axis CSS tokens are shared
+     * across the two sets.
      */
     #[Test]
     public function histogramsRenderEmptyOnZeroDivorces(): void
@@ -292,11 +287,10 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Webtrees writes TWO rows into the `dates` table for every
-     * BET..AND / FROM..TO date range. Every Divorce query joins
-     * `families` to at least two `dates` aliases (DIV plus BIRT
-     * / MARR), so a single ranged DIV or BIRT would surface the
-     * same family more than once and skew every histogram.
+     * Webtrees writes TWO rows into the `dates` table for every BET..AND /
+     * FROM..TO date range. Every Divorce query joins `families` to at least two
+     * `dates` aliases (DIV plus BIRT / MARR), so a single ranged DIV or BIRT
+     * would surface the same family more than once and skew every histogram.
      *
      * Fixture `divorce-edge-cases.ged` carries three families:
      *
@@ -315,10 +309,10 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
      *   Post-MIN anchor: 01.01.1880, husband age 45 → `40–49`,
      *   wife age 43 → `40–49`.
      *
-     * Without the GROUP BY F2 and F3 each contribute two rows for
-     * the husband side (sum climbs from 3 to 5) and F2 doubles on
-     * the wife side as well (sum climbs from 3 to 4; F3 wife BIRT
-     * is full-date so she stays unaffected by the BIRT-doubling).
+     * Without the GROUP BY F2 and F3 each contribute two rows for the husband
+     * side (sum climbs from 3 to 5) and F2 doubles on the wife side as well
+     * (sum climbs from 3 to 4; F3 wife BIRT is full-date so she stays
+     * unaffected by the BIRT-doubling).
      */
     #[Test]
     public function ageAtDivorceDistributionDedupsRangedDivAndBirthRows(): void
@@ -339,14 +333,14 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * The cross-tabulated divorces-by-century-and-age-band stack
-     * counts one tick per FAM. The same ranged-row doubling that
-     * skews the simple age histograms also inflates the per-century
-     * stack totals, so the GROUP BY must propagate here too.
+     * The cross-tabulated divorces-by-century-and-age-band stack counts one
+     * tick per FAM. The same ranged-row doubling that skews the simple age
+     * histograms also inflates the per-century stack totals, so the GROUP BY
+     * must propagate here too.
      *
-     * All three fixture families divorce in the 20th century (F1
-     * 1905, F2 1925-1928, F3 1925). Per-century totals must equal
-     * the number of distinct FAMs (3) — not 5 with two doubled rows.
+     * All three fixture families divorce in the 20th century (F1 1905, F2
+     * 1925-1928, F3 1925). Per-century totals must equal the number of distinct
+     * FAMs (3) — not 5 with two doubled rows.
      */
     #[Test]
     public function divorcesByCenturyAndAgeBandDedupsRangedRows(): void
@@ -368,29 +362,25 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * `divorceRateByMarriageCohort` joins families to MARR + DIV
-     * (leftJoin). A ranged DIV with full-date MARR produces two
-     * rows: both share the same `marr_year` (single anchor) but
-     * each carries a different `div_year`, so a FAM gets counted
-     * twice in `total` AND `divorced` of the same cohort. The
-     * resulting cohort rate drifts away from the true distinct-FAM
-     * count.
+     * `divorceRateByMarriageCohort` joins families to MARR + DIV (leftJoin). A
+     * ranged DIV with full-date MARR produces two rows: both share the same
+     * `marr_year` (single anchor) but each carries a different `div_year`, so a
+     * FAM gets counted twice in `total` AND `divorced` of the same cohort. The
+     * resulting cohort rate drifts away from the true distinct-FAM count.
      *
-     * To make the dedup observable through the public API, the
-     * fixture pads the 1890s decade with two extra `MarrOnly`
-     * families (F4 MARR 1893 + F5 MARR 1898, neither with a DIV)
-     * so the 1890 cohort clears the adaptive sample threshold
-     * (`max(3, intdiv(totalMarriages, 100)) = 3`). The 1880 and 1900
-     * cohorts stay below the floor and drop out of the visible
-     * window, leaving the 1890 cohort as the only visible decade.
+     * To make the dedup observable through the public API, the fixture pads the
+     * 1890s decade with two extra `MarrOnly` families (F4 MARR 1893 + F5 MARR
+     * 1898, neither with a DIV) so the 1890 cohort clears the adaptive sample
+     * threshold (`max(3, intdiv(totalMarriages, 100)) = 3`). The 1880 and 1900
+     * cohorts stay below the floor and drop out of the visible window, leaving
+     * the 1890 cohort as the only visible decade.
      *
-     * Post-dedup: 1890 cohort total = 3 (F2 + F4 + F5), divorced = 1
-     * (F2) → rate = round(1 / 3, 4) = 0.3333.
+     * Post-dedup: 1890 cohort total = 3 (F2 + F4 + F5), divorced = 1 (F2) →
+     * rate = round(1 / 3, 4) = 0.3333.
      *
-     * Without the GROUP BY F2's ranged DIV doubles the cohort: total
-     * = 4, divorced = 2 → rate = 0.5. A regression that drops the
-     * `MIN(divr.d_year)` aggregate would surface as a flipped rate
-     * here.
+     * Without the GROUP BY F2's ranged DIV doubles the cohort: total = 4,
+     * divorced = 2 → rate = 0.5. A regression that drops the `MIN(divr.d_year)`
+     * aggregate would surface as a flipped rate here.
      */
     #[Test]
     public function divorceRateByMarriageCohortDedupsRangedDivRows(): void

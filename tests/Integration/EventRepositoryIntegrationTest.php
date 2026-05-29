@@ -17,9 +17,9 @@ use PHPUnit\Framework\Attributes\Test;
 use function array_sum;
 
 /**
- * Integration test for {@see EventRepository::getBirthsByZodiacSign}.
- * Fixture has six births across four zodiac signs plus one
- * undated-day birth that must be silently excluded.
+ * Integration test for {@see EventRepository::getBirthsByZodiacSign}. Fixture
+ * has six births across four zodiac signs plus one undated-day birth that must
+ * be silently excluded.
  *
  *   1 APR 1900 → Aries
  *  25 MAR 1950 → Aries (boundary check: 21 Mar–21 Apr)
@@ -35,9 +35,9 @@ use function array_sum;
 final class EventRepositoryIntegrationTest extends IntegrationTestCase
 {
     /**
-     * Every sign in the result keeps its position (12 keys total)
-     * and the counts match the fixture, the day-less BIRT is
-     * dropped, the boundary dates land in the correct sign.
+     * Every sign in the result keeps its position (12 keys total) and the
+     * counts match the fixture, the day-less BIRT is dropped, the boundary
+     * dates land in the correct sign.
      */
     #[Test]
     public function getBirthsByZodiacSignBucketsAndDropsUndatedDays(): void

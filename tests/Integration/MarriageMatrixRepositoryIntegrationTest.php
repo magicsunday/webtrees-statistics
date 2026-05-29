@@ -19,9 +19,8 @@ use function array_sum;
 use function count;
 
 /**
- * End-to-end test of {@see MarriageMatrixRepository} against a
- * curated fixture with four surnames and five cross-surname
- * marriages:
+ * End-to-end test of {@see MarriageMatrixRepository} against a curated fixture
+ * with four surnames and five cross-surname marriages:
  *
  *   F1: Anton  /Miller/ × Berta  /Smith/
  *   F2: Carl   /Miller/ × Doris  /Weaver/
@@ -29,16 +28,15 @@ use function count;
  *   F4: Gustav /Klein/  × Hilde  /Weaver/
  *   F5: Ingo   /Smith/  × Jutta  /Klein/
  *
- * Surname marriage counts (each marriage contributes once per
- * partner, only when the surnames differ — no endogamy in this
- * fixture):
+ * Surname marriage counts (each marriage contributes once per partner, only
+ * when the surnames differ — no endogamy in this fixture):
  *   Miller → 3 (F1 husband, F2 husband, F3 wife)
  *   Smith  → 3 (F1 wife, F3 husband, F5 husband)
  *   Klein  → 2 (F4 husband, F5 wife)
  *   Weaver → 2 (F2 wife, F4 wife)
  *
- * The expected symmetric matrix (alphabetical label order — Klein,
- * Miller, Smith, Weaver):
+ * The expected symmetric matrix (alphabetical label order — Klein, Miller,
+ * Smith, Weaver):
  *
  *              Klein  Miller  Smith  Weaver
  *     Klein    0      0       1      1
@@ -58,9 +56,9 @@ final class MarriageMatrixRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * The top-N selection picks all four surnames in the fixture
-     * (every surname appears in at least one marriage) and returns
-     * them alphabetically sorted so the chord layout stays stable.
+     * The top-N selection picks all four surnames in the fixture (every surname
+     * appears in at least one marriage) and returns them alphabetically sorted
+     * so the chord layout stays stable.
      */
     #[Test]
     public function surnameMarriageMatrixReturnsAlphabeticallySortedTopNLabels(): void
@@ -72,9 +70,9 @@ final class MarriageMatrixRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Every off-diagonal cell mirrors its counterpart — the chord
-     * widget consumes a symmetric matrix and the repository's
-     * counting rule (mirror increment per marriage) guarantees it.
+     * Every off-diagonal cell mirrors its counterpart — the chord widget
+     * consumes a symmetric matrix and the repository's counting rule (mirror
+     * increment per marriage) guarantees it.
      */
     #[Test]
     public function surnameMarriageMatrixIsSymmetric(): void
@@ -97,9 +95,9 @@ final class MarriageMatrixRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Every off-diagonal pair holds exactly the marriage count the
-     * fixture wires up. Diagonal cells stay zero — the fixture has
-     * no endogamous (same-surname) marriages.
+     * Every off-diagonal pair holds exactly the marriage count the fixture
+     * wires up. Diagonal cells stay zero — the fixture has no endogamous
+     * (same-surname) marriages.
      */
     #[Test]
     public function surnameMarriageMatrixCountsEveryFixtureMarriage(): void
@@ -136,10 +134,10 @@ final class MarriageMatrixRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Top-N truncation keeps the top-ranked surnames and drops the
-     * tail. With `topN = 2` only the two surnames with the highest
-     * marriage involvement (Miller=3, Smith=3) survive — alphabet
-     * tie-break favours Miller-then-Smith.
+     * Top-N truncation keeps the top-ranked surnames and drops the tail. With
+     * `topN = 2` only the two surnames with the highest marriage involvement
+     * (Miller=3, Smith=3) survive — alphabet tie-break favours
+     * Miller-then-Smith.
      */
     #[Test]
     public function surnameMarriageMatrixHonoursTopNCap(): void
@@ -155,9 +153,9 @@ final class MarriageMatrixRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * `topN = 0` (and any non-positive value) short-circuits to an
-     * empty result so the view layer can skip the chord-diagram card
-     * without rendering an empty chart.
+     * `topN = 0` (and any non-positive value) short-circuits to an empty result
+     * so the view layer can skip the chord-diagram card without rendering an
+     * empty chart.
      */
     #[Test]
     public function surnameMarriageMatrixReturnsEmptyForNonPositiveTopN(): void

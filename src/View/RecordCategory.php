@@ -12,11 +12,10 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\View;
 
 /**
- * Backed enum for the three Hall-of-Fame record categories rendered
- * by `components/records-grid.phtml`. The case value is the CSS-
- * suffix class the partial appends to `.wt-stat-record-<value>` so
- * each category lights up in its own accent colour (life = sage,
- * marriage = wine, family = ochre).
+ * Backed enum for the three Hall-of-Fame record categories rendered by
+ * `components/records-grid.phtml`. The case value is the CSS- suffix class the
+ * partial appends to `.wt-stat-record-<value>` so each category lights up in
+ * its own accent colour (life = sage, marriage = wine, family = ochre).
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0

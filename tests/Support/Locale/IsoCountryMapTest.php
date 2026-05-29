@@ -18,10 +18,9 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Locks the apostrophe-and-diacritic normalisation contract on
- * `IsoCountryMap::resolve()`. ICU's display-region output uses the
- * curly U+2019 apostrophe in names like "Côte d'Ivoire", but GEDCOM
- * authors can stamp any of six common single-quote variants. All
- * six must fold to the same ISO-2 code.
+ * `IsoCountryMap::resolve()`. ICU's display-region output uses the curly U+2019
+ * apostrophe in names like "Côte d'Ivoire", but GEDCOM authors can stamp any of
+ * six common single-quote variants. All six must fold to the same ISO-2 code.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -35,9 +34,9 @@ final class IsoCountryMapTest extends TestCase
     }
 
     /**
-     * Every variant of "Côte d?Ivoire" with a different single-
-     * quote / modifier-letter character at the apostrophe position
-     * must resolve to CI. The six characters covered are:
+     * Every variant of "Côte d?Ivoire" with a different single- quote /
+     * modifier-letter character at the apostrophe position must resolve to CI.
+     * The six characters covered are:
      *
      *   U+0027 — APOSTROPHE (ASCII)
      *   U+2019 — RIGHT SINGLE QUOTATION MARK (ICU canonical)
@@ -66,8 +65,8 @@ final class IsoCountryMapTest extends TestCase
     }
 
     /**
-     * Diacritics in the country name must round-trip without
-     * mojibake. "Österreich" (German for Austria) → AT.
+     * Diacritics in the country name must round-trip without mojibake.
+     * "Österreich" (German for Austria) → AT.
      */
     #[Test]
     public function resolveHandlesDiacriticsInLocalisedCountryName(): void
@@ -76,10 +75,9 @@ final class IsoCountryMapTest extends TestCase
     }
 
     /**
-     * Manual aliases (USA, UK, Deutschland, …) must win over
-     * ICU's display-region names so the resolver matches what
-     * GEDCOM authors actually write rather than only ICU's
-     * canonical labels.
+     * Manual aliases (USA, UK, Deutschland, …) must win over ICU's
+     * display-region names so the resolver matches what GEDCOM authors actually
+     * write rather than only ICU's canonical labels.
      */
     #[Test]
     public function resolveHonoursManualAliasOverIcuLabel(): void
@@ -92,10 +90,9 @@ final class IsoCountryMapTest extends TestCase
     }
 
     /**
-     * `resolve()` returns null for free-text country names that
-     * don't match any locale-aware label or alias. The fixture's
-     * "Atlantis" stays unresolved and the caller drops the event
-     * from the country aggregation.
+     * `resolve()` returns null for free-text country names that don't match any
+     * locale-aware label or alias. The fixture's "Atlantis" stays unresolved
+     * and the caller drops the event from the country aggregation.
      */
     #[Test]
     public function resolveReturnsNullForUnknownCountry(): void
@@ -104,10 +101,9 @@ final class IsoCountryMapTest extends TestCase
     }
 
     /**
-     * `label()` returns the active webtrees locale's name for a
-     * given ISO code. With no I18N bootstrap (the test runs
-     * outside the webtrees request lifecycle), the resolver falls
-     * back to en_US.
+     * `label()` returns the active webtrees locale's name for a given ISO code.
+     * With no I18N bootstrap (the test runs outside the webtrees request
+     * lifecycle), the resolver falls back to en_US.
      */
     #[Test]
     public function labelReturnsEnglishNameWhenNoLocaleIsActive(): void
@@ -116,9 +112,9 @@ final class IsoCountryMapTest extends TestCase
     }
 
     /**
-     * `label()` echoes the ISO code unchanged when ICU has no
-     * display-region name for the input. Protects the caller
-     * from ever seeing an empty label string.
+     * `label()` echoes the ISO code unchanged when ICU has no display-region
+     * name for the input. Protects the caller from ever seeing an empty label
+     * string.
      */
     #[Test]
     public function labelEchoesUnknownIsoCodeUnchanged(): void

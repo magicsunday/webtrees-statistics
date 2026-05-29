@@ -14,16 +14,16 @@ namespace MagicSunday\Webtrees\Statistic\Support\Locale;
 use Fisharebest\Webtrees\I18N;
 
 /**
- * Spell out small integers (1-12) for prose card copy that reads
- * better with words than with digits ("over six centuries" vs.
- * "over 6 centuries"). Numbers outside the small-integer range
- * fall through to the locale-formatted numeric string.
+ * Spell out small integers (1-12) for prose card copy that reads better with
+ * words than with digits ("over six centuries" vs. "over 6 centuries"). Numbers
+ * outside the small-integer range fall through to the locale-formatted numeric
+ * string.
  */
 final class SpelledNumber
 {
     /**
-     * Return the word for $n in the current locale when $n is in
-     * 1..12; otherwise return the digit-formatted I18N::number.
+     * Return the word for $n in the current locale when $n is in 1..12;
+     * otherwise return the digit-formatted I18N::number.
      */
     public static function for(int $n): string
     {

@@ -17,9 +17,9 @@ use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Integration test for {@see NameRepository}. Uses the existing
- * `name-trends.ged` fixture: twelve individuals total (eleven dated +
- * one undated), five distinct given names and one common surname
- * "Test" that appears on every individual.
+ * `name-trends.ged` fixture: twelve individuals total (eleven dated + one
+ * undated), five distinct given names and one common surname "Test" that
+ * appears on every individual.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -33,9 +33,9 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Every individual carries the surname "Test" so the distinct-
-     * surname count is 1. Tests the "headline number stays in
-     * lockstep with the Top-N aggregation" promise.
+     * Every individual carries the surname "Test" so the distinct- surname
+     * count is 1. Tests the "headline number stays in lockstep with the Top-N
+     * aggregation" promise.
      */
     #[Test]
     public function countDistinctSurnamesIs1ForFixture(): void
@@ -47,14 +47,13 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Exercises the threshold > 1 branch separately so the GROUP BY
-     * + HAVING path also gets test coverage. The single surname
-     * "Test" appears on all twelve individuals, so the cardinality
-     * cliff sits at the population size: threshold ≤ 12 returns 1,
-     * threshold ≥ 13 returns 0. Pinning both sides of the boundary
-     * catches an off-by-one regression in the HAVING comparator
-     * (≥ vs >). The branch split was introduced to keep the query
-     * valid under MySQL's `ONLY_FULL_GROUP_BY` mode.
+     * Exercises the threshold > 1 branch separately so the GROUP BY + HAVING
+     * path also gets test coverage. The single surname "Test" appears on all
+     * twelve individuals, so the cardinality cliff sits at the population size:
+     * threshold ≤ 12 returns 1, threshold ≥ 13 returns 0. Pinning both sides of
+     * the boundary catches an off-by-one regression in the HAVING comparator (≥
+     * vs >). The branch split was introduced to keep the query valid under
+     * MySQL's `ONLY_FULL_GROUP_BY` mode.
      */
     #[Test]
     public function countDistinctSurnamesWithThresholdAboveOne(): void
@@ -68,11 +67,10 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Five distinct given names appear in the fixture (Anna,
-     * Friedrich, Maria, Hans, Lisa), split across sexes. Female:
-     * Anna×3, Maria×2, Lisa×1 → 3 distinct. Male: Friedrich×2,
-     * Hans×3 → 2 distinct. The 12th individual is undated but
-     * still has a given name so still contributes.
+     * Five distinct given names appear in the fixture (Anna, Friedrich, Maria,
+     * Hans, Lisa), split across sexes. Female: Anna×3, Maria×2, Lisa×1 → 3
+     * distinct. Male: Friedrich×2, Hans×3 → 2 distinct. The 12th individual is
+     * undated but still has a given name so still contributes.
      */
     #[Test]
     public function countDistinctGivenNamesPerSex(): void
@@ -85,9 +83,9 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * The threshold filter excludes given names that occur fewer
-     * times than the threshold. Asking for names that appear at
-     * least 3 times across the fixture should drop the count.
+     * The threshold filter excludes given names that occur fewer times than the
+     * threshold. Asking for names that appear at least 3 times across the
+     * fixture should drop the count.
      */
     #[Test]
     public function countDistinctGivenNamesRespectsThreshold(): void
@@ -104,17 +102,15 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Father → son name-passdown fixture carries three cohorts:
-     * 1700s with three pairs (below MIN_COHORT_SIZE=10, suppressed),
-     * 1800s with ten pairs and three matches (30 %% rate),
-     * 1900s with ten pairs and five matches (50 %% rate).
-     * Every father is named "Johann"; sons either repeat the
-     * father's name or carry a distinct "Different{n}" name.
+     * Father → son name-passdown fixture carries three cohorts: 1700s with
+     * three pairs (below MIN_COHORT_SIZE=10, suppressed), 1800s with ten pairs
+     * and three matches (30 %% rate), 1900s with ten pairs and five matches (50
+     * %% rate). Every father is named "Johann"; sons either repeat the father's
+     * name or carry a distinct "Different{n}" name.
      *
-     * Locks the per-century rate computation, the cohort-floor
-     * suppression policy (the 1700s century still takes an X-axis
-     * slot but its value drops to zero with a "no data" tooltip),
-     * and the token comparison.
+     * Locks the per-century rate computation, the cohort-floor suppression
+     * policy (the 1700s century still takes an X-axis slot but its value drops
+     * to zero with a "no data" tooltip), and the token comparison.
      */
     #[Test]
     public function sameSexNamePassdownByCenturyComputesFatherSonRateAcrossCenturies(): void
@@ -150,10 +146,9 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * The existing `name-trends.ged` fixture carries no FAMC links,
-     * so the per-century passdown query yields zero parent-child
-     * pairs of either sex pairing and the method short-circuits to
-     * an empty payload.
+     * The existing `name-trends.ged` fixture carries no FAMC links, so the
+     * per-century passdown query yields zero parent-child pairs of either sex
+     * pairing and the method short-circuits to an empty payload.
      */
     #[Test]
     public function sameSexNamePassdownByCenturyIsEmptyWithoutParentChildLinks(): void
@@ -166,10 +161,10 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Multi-token match: a father named "Johann Friedrich" matches
-     * a son named "Wilhelm Friedrich" because "Friedrich" appears
-     * in both names. Pins the set-intersection semantics so a
-     * strict first-token regression would fail this test.
+     * Multi-token match: a father named "Johann Friedrich" matches a son named
+     * "Wilhelm Friedrich" because "Friedrich" appears in both names. Pins the
+     * set-intersection semantics so a strict first-token regression would fail
+     * this test.
      */
     #[Test]
     public function sameSexNamePassdownByCenturyMatchesAnyOverlappingToken(): void

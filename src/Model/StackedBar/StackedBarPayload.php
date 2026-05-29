@@ -14,15 +14,14 @@ namespace MagicSunday\Webtrees\Statistic\Model\StackedBar;
 use JsonSerializable;
 
 /**
- * Wire-format payload for the chart-lib stacked-bar widget.
- * `categories` defines the x-axis labels; `tooltipLabels`
- * supplies the bold header shown when hovering a bar (often a
- * longer human-readable form of the category label, e.g.
- * "18th century" vs. category "18."); `series` carries the
- * stacked segments — each segment's `data` aligns positionally
- * with `categories`.
+ * Wire-format payload for the chart-lib stacked-bar widget. `categories`
+ * defines the x-axis labels; `tooltipLabels` supplies the bold header shown
+ * when hovering a bar (often a longer human-readable form of the category
+ * label, e.g. "18th century" vs. category "18."); `series` carries the stacked
+ * segments — each segment's `data` aligns positionally with `categories`.
  *
- * Serialises to `{categories: list<string>, tooltipLabels: list<string>, series: list<StackedBarSeries>}`.
+ * Serialises to `{categories: list<string>, tooltipLabels: list<string>,
+ * series: list<StackedBarSeries>}`.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0

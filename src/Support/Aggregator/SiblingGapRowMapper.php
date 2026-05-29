@@ -21,16 +21,14 @@ use function rtrim;
 use function str_ends_with;
 
 /**
- * Converts the bucketed `siblingAgeGapDistribution()` map into the
- * unified `{categories, series}` LineChart payload. The repository
- * emits "Ny" labels for 0..max-1 and an "Ny+" overflow label for
- * max-and-above (`SIBLING_GAP_MAX` currently 10). This helper
- * stays decoupled from the specific constant by parsing the
- * trailing "+" as the overflow marker.
+ * Converts the bucketed `siblingAgeGapDistribution()` map into the unified
+ * `{categories, series}` LineChart payload. The repository emits "Ny" labels
+ * for 0..max-1 and an "Ny+" overflow label for max-and-above (`SIBLING_GAP_MAX`
+ * currently 10). This helper stays decoupled from the specific constant by
+ * parsing the trailing "+" as the overflow marker.
  *
- * Extracted from the Family-tab view so the label-to-tooltip
- * logic is unit-testable in isolation and the view stays
- * markup-only.
+ * Extracted from the Family-tab view so the label-to-tooltip logic is
+ * unit-testable in isolation and the view stays markup-only.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -46,12 +44,11 @@ final readonly class SiblingGapRowMapper
     }
 
     /**
-     * Map the sibling-age-gap histogram into a LineChart payload:
-     * categories carry the bucket labels in display order (matches
-     * the repository's emit order), the single series carries the
-     * counts plus per-point tooltip overrides. Headers spell out
-     * "N-year gap" / "N or more years"; bodies pluralise the
-     * "%s pairs" metric so the tooltip reads as a sentence rather
+     * Map the sibling-age-gap histogram into a LineChart payload: categories
+     * carry the bucket labels in display order (matches the repository's emit
+     * order), the single series carries the counts plus per-point tooltip
+     * overrides. Headers spell out "N-year gap" / "N or more years"; bodies
+     * pluralise the "%s pairs" metric so the tooltip reads as a sentence rather
      * than a bare integer.
      *
      * @param array<string, int> $histogram Bucketed `{label: count}` map

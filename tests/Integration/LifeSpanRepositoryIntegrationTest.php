@@ -23,8 +23,8 @@ use function count;
 use function sprintf;
 
 /**
- * End-to-end test of {@see LifeSpanRepository} against a fixture
- * that hits each behaviour the LifeSpan tab depends on:
+ * End-to-end test of {@see LifeSpanRepository} against a fixture that hits each
+ * behaviour the LifeSpan tab depends on:
  *
  * * Anna (1850-1925) — 75y → 70-79 bucket
  * * Berta (1900-1995) — 95y → 90-99 bucket
@@ -40,9 +40,9 @@ use function sprintf;
 final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
 {
     /**
-     * Construct a real LifeSpanRepository wired through core's
-     * {@see StatisticsData} accessor — same constructor signature
-     * the DI container would resolve at runtime.
+     * Construct a real LifeSpanRepository wired through core's {@see
+     * StatisticsData} accessor — same constructor signature the DI container
+     * would resolve at runtime.
      */
     private function repository(Tree $tree): LifeSpanRepository
     {
@@ -53,9 +53,9 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Age-at-death distribution puts each test individual in the
-     * expected 10-year bucket, with the 100+ overflow catching the
-     * Carl outlier. Franz (living) is silently excluded.
+     * Age-at-death distribution puts each test individual in the expected
+     * 10-year bucket, with the 100+ overflow catching the Carl outlier. Franz
+     * (living) is silently excluded.
      */
     #[Test]
     public function ageAtDeathDistributionBucketsEverySurvivor(): void
@@ -79,8 +79,8 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * topOldestDeceased returns Carl first (120y) then Berta (95y)
-     * then Anna (75y); Franz is alive and never shows up.
+     * topOldestDeceased returns Carl first (120y) then Berta (95y) then Anna
+     * (75y); Franz is alive and never shows up.
      */
     #[Test]
     public function topOldestDeceasedRanksByAgeDesc(): void
@@ -93,10 +93,9 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * topOldestLiving returns living individuals (no DEAT date)
-     * with their current age. The fixture has one such — Franz
-     * (1950, still living). Other rows have DEAT and must not
-     * appear.
+     * topOldestLiving returns living individuals (no DEAT date) with their
+     * current age. The fixture has one such — Franz (1950, still living). Other
+     * rows have DEAT and must not appear.
      */
     #[Test]
     public function topOldestLivingReturnsOnlyLivingIndividuals(): void
@@ -116,9 +115,8 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * livingByAgeBand groups Franz (1950, living) into the 65+
-     * bucket. Every other fixture individual is deceased and
-     * contributes nothing.
+     * livingByAgeBand groups Franz (1950, living) into the 65+ bucket. Every
+     * other fixture individual is deceased and contributes nothing.
      */
     #[Test]
     public function livingByAgeBandGroupsByLifeStage(): void
@@ -138,15 +136,13 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * birthsByDecade aggregates every BIRT date across the tree
-     * into a decade bucket, fills inner zero-decades so gaps stay
-     * visible, and trims leading / trailing zeroes via
-     * HistogramTrim. The fixture's six dated births are spread
-     * across 1700, 1850, 1880, 1900, 1920, 1950 decade starts,
-     * so the visible window is 1700..1950 with one tick per
-     * active decade and zero for all empty in-between decades.
-     * Decade keys are integer starts; the view layer formats them
-     * via `I18N::translate('%ss', $decade)`.
+     * birthsByDecade aggregates every BIRT date across the tree into a decade
+     * bucket, fills inner zero-decades so gaps stay visible, and trims leading
+     * / trailing zeroes via HistogramTrim. The fixture's six dated births are
+     * spread across 1700, 1850, 1880, 1900, 1920, 1950 decade starts, so the
+     * visible window is 1700..1950 with one tick per active decade and zero for
+     * all empty in-between decades. Decade keys are integer starts; the view
+     * layer formats them via `I18N::translate('%ss', $decade)`.
      */
     #[Test]
     public function birthsByDecadeFillsInnerGapsAndTrimsBoundaries(): void
@@ -182,12 +178,11 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
 
     /**
      * cumulativeBirthsByDecade layers a running sum on top of the
-     * birthsByDecade() payload. The life-span.ged fixture has one
-     * birth each at decade starts 1700, 1850, 1880, 1900, 1920,
-     * 1950, with zero-filled inner decades. The cumulative series
-     * therefore steps up monotonically: 1 at 1700, holds at 1 across
-     * the long 1710..1840 gap, then 2 at 1850, 3 at 1880, 4 at 1900,
-     * 5 at 1920, and 6 at 1950. Visible window and decade keys
+     * birthsByDecade() payload. The life-span.ged fixture has one birth each at
+     * decade starts 1700, 1850, 1880, 1900, 1920, 1950, with zero-filled inner
+     * decades. The cumulative series therefore steps up monotonically: 1 at
+     * 1700, holds at 1 across the long 1710..1840 gap, then 2 at 1850, 3 at
+     * 1880, 4 at 1900, 5 at 1920, and 6 at 1950. Visible window and decade keys
      * match birthsByDecade() exactly.
      */
     #[Test]
@@ -224,11 +219,10 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Single-birth tree collapses to a one-entry cumulative series:
-     * one decade key, one running-total of 1. Locks the lower-bound
-     * behaviour of the aggregator so a future "drop singleton series"
-     * tweak fails the test instead of silently regressing the
-     * minimum-data display.
+     * Single-birth tree collapses to a one-entry cumulative series: one decade
+     * key, one running-total of 1. Locks the lower-bound behaviour of the
+     * aggregator so a future "drop singleton series" tweak fails the test
+     * instead of silently regressing the minimum-data display.
      */
     #[Test]
     public function cumulativeBirthsByDecadeForSingleBirthHasOneStep(): void
@@ -240,12 +234,11 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * life-span.ged carries five deceased individuals — Anna 75y in
-     * 19th c., Berta 95y in 20th c., Carl 120y in 18th c., Doris 3y
-     * in 20th c., Emil 53y in 19th c. The 18th-century cohort is a
-     * single individual and stays below MIN_COHORT_SIZE; the 19th
-     * and 20th each have two and are also below the threshold. The
-     * fixture is therefore expected to drop every cohort.
+     * life-span.ged carries five deceased individuals — Anna 75y in 19th c.,
+     * Berta 95y in 20th c., Carl 120y in 18th c., Doris 3y in 20th c., Emil 53y
+     * in 19th c. The 18th-century cohort is a single individual and stays below
+     * MIN_COHORT_SIZE; the 19th and 20th each have two and are also below the
+     * threshold. The fixture is therefore expected to drop every cohort.
      */
     #[Test]
     public function deathAgeDistributionByCenturyDropsSubThresholdCohorts(): void
@@ -256,9 +249,9 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * empty-marriages.ged has one dated BIRT but no DEAT, so no
-     * BirthDeathPair survives the join. Locks the empty-result
-     * short-circuit for trees without computable lifespans.
+     * empty-marriages.ged has one dated BIRT but no DEAT, so no BirthDeathPair
+     * survives the join. Locks the empty-result short-circuit for trees without
+     * computable lifespans.
      */
     #[Test]
     public function deathAgeDistributionByCenturyIsEmptyWithoutDeathDates(): void
@@ -269,10 +262,9 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Sub-threshold sample (life-span.ged only carries 5 dated
-     * deaths, the threshold is 12) returns null because the
-     * winter / baseline ratio derived from too few samples is too
-     * noisy to publish.
+     * Sub-threshold sample (life-span.ged only carries 5 dated deaths, the
+     * threshold is 12) returns null because the winter / baseline ratio derived
+     * from too few samples is too noisy to publish.
      */
     #[Test]
     public function deathWinterPeakScoreReturnsNullBelowMinimumSample(): void
@@ -283,10 +275,10 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Winter-peak fixture has 12 deaths with six in DEC/JAN/FEB and
-     * six spread across the rest of the calendar. Score becomes
-     * (6 / 3) / (12 / 12) = 2.0 — the peak is exactly twice the
-     * baseline rate. Locks both the threshold trip and the formula.
+     * Winter-peak fixture has 12 deaths with six in DEC/JAN/FEB and six spread
+     * across the rest of the calendar. Score becomes (6 / 3) / (12 / 12) = 2.0
+     * — the peak is exactly twice the baseline rate. Locks both the threshold
+     * trip and the formula.
      */
     #[Test]
     public function deathWinterPeakScoreComputesRatioForWinterHeavyFixture(): void
@@ -301,10 +293,9 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Evenly-distributed fixture: one death per calendar month,
-     * twelve months. Winter share equals the baseline so the score
-     * lands exactly at 1.0 — the neutral middle the consumer reads
-     * as "no winter peak".
+     * Evenly-distributed fixture: one death per calendar month, twelve months.
+     * Winter share equals the baseline so the score lands exactly at 1.0 — the
+     * neutral middle the consumer reads as "no winter peak".
      */
     #[Test]
     public function deathWinterPeakScoreLandsAtOneForEvenDistribution(): void
@@ -319,10 +310,10 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Winter-trough fixture: one death in JAN, none in DEC/FEB,
-     * eleven spread across the rest. Winter density falls well
-     * below the baseline so the score sits under 1.0 — the
-     * widget surfaces this as "winter is under-represented".
+     * Winter-trough fixture: one death in JAN, none in DEC/FEB, eleven spread
+     * across the rest. Winter density falls well below the baseline so the
+     * score sits under 1.0 — the widget surfaces this as "winter is
+     * under-represented".
      */
     #[Test]
     public function deathWinterPeakScoreFallsBelowOneForWinterPoorDistribution(): void
@@ -337,17 +328,17 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Survival curve emits one series per qualifying birth century
-     * with monotonically falling values from 100 % at age 0 down
-     * to the post-100 floor. The fixture carries:
+     * Survival curve emits one series per qualifying birth century with
+     * monotonically falling values from 100 % at age 0 down to the post-100
+     * floor. The fixture carries:
      * * 19th + 20th century cohorts (30 individuals each, both qualify)
      * * 18th-century cohort with 5 individuals (well below floor)
      * * 17th-century cohort with 29 individuals — exactly one short
      *   of the {@see MIN_COHORT_SIZE_SURVIVAL} floor, locking the
      *   strict-less-than boundary against off-by-one regressions.
      *
-     * Categories are always the 11 age anchors regardless of which
-     * cohorts pass the floor.
+     * Categories are always the 11 age anchors regardless of which cohorts pass
+     * the floor.
      */
     #[Test]
     public function survivalFunctionByCenturyEmitsOneSeriesPerQualifyingCohort(): void
@@ -396,12 +387,11 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * A tree with no recorded BIRT+DEAT pairs at all returns an
-     * empty payload (no categories, no series) so the widget
-     * surfaces the EmptyStatePlaceholder instead of an axis
-     * scaffold with zero lines. empty-marriages.ged carries one
-     * BIRT without a DEAT — exactly the case where every cohort
-     * stays empty.
+     * A tree with no recorded BIRT+DEAT pairs at all returns an empty payload
+     * (no categories, no series) so the widget surfaces the
+     * EmptyStatePlaceholder instead of an axis scaffold with zero lines.
+     * empty-marriages.ged carries one BIRT without a DEAT — exactly the case
+     * where every cohort stays empty.
      */
     #[Test]
     public function survivalFunctionByCenturyReturnsEmptyPayloadWithoutRecordedDeaths(): void
@@ -414,13 +404,12 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Webtrees writes TWO rows into the `dates` table for every
-     * BET..AND / FROM..TO date — one for the lower bound, one for
-     * the upper. A JOIN that fetches `dates AS birth` and
-     * `dates AS death` without grouping by individual would
-     * therefore see the same person twice (with two different JDs
-     * each side), inflating cohort counts and skewing every per-
-     * century aggregation.
+     * Webtrees writes TWO rows into the `dates` table for every BET..AND /
+     * FROM..TO date — one for the lower bound, one for the upper. A JOIN that
+     * fetches `dates AS birth` and `dates AS death` without grouping by
+     * individual would therefore see the same person twice (with two different
+     * JDs each side), inflating cohort counts and skewing every per- century
+     * aggregation.
      *
      * The dedicated fixture `life-span-edge-cases.ged` carries:
      *
@@ -434,10 +423,10 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
      *   DEAT rows.
      *
      * The cohort therefore contains 32 distinct individuals. A
-     * non-deduplicating JOIN would yield 34 rows (30 controls +
-     * 2 for BET..AND + 2 for FROM..TO), and 34 would surface here
-     * via `n`. The assertion locks the post-aggregation count so a
-     * regression that drops the GROUP BY surfaces immediately.
+     * non-deduplicating JOIN would yield 34 rows (30 controls + 2 for BET..AND
+     * + 2 for FROM..TO), and 34 would surface here via `n`. The assertion locks
+     * the post-aggregation count so a regression that drops the GROUP BY
+     * surfaces immediately.
      */
     #[Test]
     public function deathAgeDistributionByCenturyDedupsBetweenAndFromToDoubleRows(): void
@@ -455,15 +444,14 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * `averageLifespanBySexAndCentury` runs the same BirthDeath
-     * pairs through a per-sex aggregation, so the same BET..AND /
-     * FROM..TO doubling pathology would inflate either the male or
-     * female cohort count. The fixture splits sexes alternately
-     * across the 30 controls (15 male + 15 female) and adds one
-     * male BET..AND BIRT plus one female FROM..TO DEAT, so each
-     * sex cohort must land at exactly 16. The tooltip carries the
-     * cohort size in its `n = …` suffix — we assert it directly
-     * to surface a regression at the per-sex layer.
+     * `averageLifespanBySexAndCentury` runs the same BirthDeath pairs through a
+     * per-sex aggregation, so the same BET..AND / FROM..TO doubling pathology
+     * would inflate either the male or female cohort count. The fixture splits
+     * sexes alternately across the 30 controls (15 male + 15 female) and adds
+     * one male BET..AND BIRT plus one female FROM..TO DEAT, so each sex cohort
+     * must land at exactly 16. The tooltip carries the cohort size in its `n =
+     * …` suffix — we assert it directly to surface a regression at the per-sex
+     * layer.
      */
     #[Test]
     public function averageLifespanBySexAndCenturyDedupsBetweenAndFromToDoubleRows(): void
@@ -487,18 +475,15 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * `survivalFunctionByCentury` is the third cohort method that
-     * rides on `aggregatedPairColumns()`; without a dedup-specific
-     * test the GROUP BY on this path could silently regress while
-     * the other two assertions stay green. The 19th-century cohort
-     * post-aggregation has 32 individuals (= 30 controls + 1
-     * BET..AND BIRT + 1 FROM..TO DEAT) and clears the
-     * `MIN_COHORT_SIZE_SURVIVAL = 30` floor, so the series is
-     * emitted. The tooltip text embeds the cohort denominator
-     * (`of %s individuals reached this age`) and is the only
-     * public surface that exposes the cohort size — we assert
-     * `of 32 individuals` to lock the dedup on this third call
-     * site.
+     * `survivalFunctionByCentury` is the third cohort method that rides on
+     * `aggregatedPairColumns()`; without a dedup-specific test the GROUP BY on
+     * this path could silently regress while the other two assertions stay
+     * green. The 19th-century cohort post-aggregation has 32 individuals (= 30
+     * controls + 1 BET..AND BIRT + 1 FROM..TO DEAT) and clears the
+     * `MIN_COHORT_SIZE_SURVIVAL = 30` floor, so the series is emitted. The
+     * tooltip text embeds the cohort denominator (`of %s individuals reached
+     * this age`) and is the only public surface that exposes the cohort size —
+     * we assert `of 32 individuals` to lock the dedup on this third call site.
      */
     #[Test]
     public function survivalFunctionByCenturyDedupsBetweenAndFromToDoubleRows(): void

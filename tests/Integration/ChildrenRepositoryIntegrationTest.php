@@ -21,13 +21,13 @@ use function array_map;
 use function array_sum;
 
 /**
- * Integration tests for {@see ChildrenRepository} backed by several
- * curated GEDCOM fixtures — see each test's docblock for the family
- * layout the assertions ride on. The shared lookups (children-per-
- * family, sibling-age-gap, childless distribution, first child by
- * month, average per family, top-N families) ride on `children.ged`;
- * the multi-birth, sibling-modifier-edge-case, and cross-midnight
- * proximity paths bring their own dedicated fixtures.
+ * Integration tests for {@see ChildrenRepository} backed by several curated
+ * GEDCOM fixtures — see each test's docblock for the family layout the
+ * assertions ride on. The shared lookups (children-per- family,
+ * sibling-age-gap, childless distribution, first child by month, average per
+ * family, top-N families) ride on `children.ged`; the multi-birth,
+ * sibling-modifier-edge-case, and cross-midnight proximity paths bring their
+ * own dedicated fixtures.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -44,9 +44,8 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * children-per-family histogram puts F2 in the "0" bucket and
-     * F1 in the "3" bucket. No families ≥ 10 children, so the 10+
-     * overflow stays empty.
+     * children-per-family histogram puts F2 in the "0" bucket and F1 in the "3"
+     * bucket. No families ≥ 10 children, so the 10+ overflow stays empty.
      */
     #[Test]
     public function childrenPerFamilyDistributionCountsByFamilyChildCount(): void
@@ -60,8 +59,8 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Sibling-age-gap distribution sees F1's three children at
-     * 1900-1902-1905 — two pairs (2y, 3y). F2 contributes nothing.
+     * Sibling-age-gap distribution sees F1's three children at 1900-1902-1905 —
+     * two pairs (2y, 3y). F2 contributes nothing.
      */
     #[Test]
     public function siblingAgeGapDistributionMeasuresConsecutivePairs(): void
@@ -75,13 +74,12 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Year-only BIRT records, BEF/AFT/ABT modifiers, and BET..AND /
-     * FROM..TO ranges all land in the `dates` table with `d_day = 0`
-     * and `d_mon = 0`, and webtrees still synthesises a default
-     * julian-day (typically 01.01.YYYY) so the row passes the
-     * `d_julianday1 <> 0` sentinel filter. Without explicitly
-     * gating on `d_day > 0 AND d_mon > 0` the distribution picks up
-     * three pathologies:
+     * Year-only BIRT records, BEF/AFT/ABT modifiers, and BET..AND / FROM..TO
+     * ranges all land in the `dates` table with `d_day = 0` and `d_mon = 0`,
+     * and webtrees still synthesises a default julian-day (typically
+     * 01.01.YYYY) so the row passes the `d_julianday1 <> 0` sentinel filter.
+     * Without explicitly gating on `d_day > 0 AND d_mon > 0` the distribution
+     * picks up three pathologies:
      *
      * * two year-only siblings of the same year collide in the `0y`
      *   bucket (phantom twins) — the distribution must NOT confuse
@@ -121,10 +119,10 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
      *   `9y`. Without the filter the BET..AND child would also
      *   produce a phantom self-gap with itself.
      *
-     * The per-modifier buckets (7y / 8y / 9y) are intentionally
-     * distinct so a regression that lets one modifier slip through
-     * the filter flips exactly one assertion — pinpointing the
-     * defective modifier rather than masking it in a shared bucket.
+     * The per-modifier buckets (7y / 8y / 9y) are intentionally distinct so a
+     * regression that lets one modifier slip through the filter flips exactly
+     * one assertion — pinpointing the defective modifier rather than masking it
+     * in a shared bucket.
      */
     #[Test]
     public function siblingAgeGapDistributionExcludesYearOnlyAndModifierSiblings(): void
@@ -143,8 +141,7 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Childless-families breakdown counts F1 (with children) and
-     * F2 (without).
+     * Childless-families breakdown counts F1 (with children) and F2 (without).
      */
     #[Test]
     public function childlessFamiliesDistributionIsBinary(): void
@@ -163,8 +160,8 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Fixture has 2 families and 3 children → average 1.5 per
-     * family. Pass-through over core's accessor.
+     * Fixture has 2 families and 3 children → average 1.5 per family.
+     * Pass-through over core's accessor.
      */
     #[Test]
     public function averageChildrenPerFamilyMatchesCoreAccessor(): void
@@ -176,9 +173,9 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Top-N largest families list F1 first (3 children); F2 with
-     * 0 children should still appear (the accessor sorts
-     * descending by child count, not "only those > 0").
+     * Top-N largest families list F1 first (3 children); F2 with 0 children
+     * should still appear (the accessor sorts descending by child count, not
+     * "only those > 0").
      */
     #[Test]
     public function topLargestFamiliesRanksByChildCount(): void
@@ -197,9 +194,9 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * `firstChildrenByMonth` returns the GEDCOM month-keyed
-     * counts. F1's three children all born in JAN → JAN ×3.
-     * F2 has no children, contributes nothing.
+     * `firstChildrenByMonth` returns the GEDCOM month-keyed counts. F1's three
+     * children all born in JAN → JAN ×3. F2 has no children, contributes
+     * nothing.
      */
     #[Test]
     public function firstChildrenByMonthCountsTheFirstChildPerFamily(): void
@@ -214,8 +211,8 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Multiple-birth rate histogram emits one series per multiplicity
-     * that actually occurs in the tree. The dedicated fixture carries:
+     * Multiple-birth rate histogram emits one series per multiplicity that
+     * actually occurs in the tree. The dedicated fixture carries:
      *
      * * 18th century: 50 singletons (below MIN_COHORT_MULTIPLE_BIRTH=200,
      *   so the whole century is dropped).
@@ -228,11 +225,11 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
      *   children. Qualifies. Only the twin series carries a non-zero
      *   value for this century.
      *
-     * Locks every output surface the chart-lib consumer reads:
-     * categories (compact century labels in chronological order),
-     * one series per multiplicity bucket present anywhere in the
-     * tree, per-series CSS class hooks, and the multi-band cohort
-     * floor that drops the 18th-century column entirely.
+     * Locks every output surface the chart-lib consumer reads: categories
+     * (compact century labels in chronological order), one series per
+     * multiplicity bucket present anywhere in the tree, per-series CSS class
+     * hooks, and the multi-band cohort floor that drops the 18th-century column
+     * entirely.
      */
     #[Test]
     public function multipleBirthRateByCenturyEmitsOneSeriesPerMultiplicity(): void
@@ -277,9 +274,9 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * A tree with no dated births returns an empty payload so the
-     * widget surfaces the EmptyStatePlaceholder rather than an axis
-     * scaffold with zero lines.
+     * A tree with no dated births returns an empty payload so the widget
+     * surfaces the EmptyStatePlaceholder rather than an axis scaffold with zero
+     * lines.
      */
     #[Test]
     public function multipleBirthRateByCenturyReturnsEmptyPayloadWithoutDatedChildren(): void
@@ -292,15 +289,14 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Same-FAM siblings whose BIRT julian-days sit within one
-     * calendar day of the set's earliest birth form a multi-birth
-     * set, with no INDI:ASSO link required — a mother cannot deliver
-     * two separate pregnancies a day apart, so same-FAM proximity is
-     * the signal by itself. Detection anchors each set on its
-     * earliest birth rather than chaining off the previous child, so
-     * a set never grows past a one-day span. The fixture carries 262
-     * 19th-century children: 250 singletons in their own FAMs plus
-     * five hand-placed FAMs that exercise every branch of the rule:
+     * Same-FAM siblings whose BIRT julian-days sit within one calendar day of
+     * the set's earliest birth form a multi-birth set, with no INDI:ASSO link
+     * required — a mother cannot deliver two separate pregnancies a day apart,
+     * so same-FAM proximity is the signal by itself. Detection anchors each set
+     * on its earliest birth rather than chaining off the previous child, so a
+     * set never grows past a one-day span. The fixture carries 262 19th-century
+     * children: 250 singletons in their own FAMs plus five hand-placed FAMs
+     * that exercise every branch of the rule:
      * * F350 — 31 DEC 1850 / 1 JAN 1851: span 1 day → MERGE (twin),
      * * F351 — 10 JUN 1860 / 20 JUN 1860: span 10 days → NO merge,
      * * F352 — 10 JAN 1862 / 12 JAN 1862: span 2 days → NO merge,
@@ -313,11 +309,10 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
      *   so this yields a twin (28 / 29) plus a singleton — NOT a
      *   chained triplet.
      *
-     * Resulting sets: 2 twin sets (F350 + F354's 28/29 pair) = 4
-     * children, 1 triplet set (F353) = 3 children. The chaining bug
-     * this guards against would instead read F354 as a triplet,
-     * flipping the figures to 1 twin set (2 children) + 2 triplet
-     * sets (6 children).
+     * Resulting sets: 2 twin sets (F350 + F354's 28/29 pair) = 4 children, 1
+     * triplet set (F353) = 3 children. The chaining bug this guards against
+     * would instead read F354 as a triplet, flipping the figures to 1 twin set
+     * (2 children) + 2 triplet sets (6 children).
      */
     #[Test]
     public function multipleBirthRateByCenturyUnionsSameFamilySiblingsBornWithinOneDay(): void

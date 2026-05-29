@@ -14,15 +14,14 @@ namespace MagicSunday\Webtrees\Statistic\Model\Chord;
 use JsonSerializable;
 
 /**
- * Symmetric N×N matrix payload for the chart-lib chord-diagram
- * widget. `labels[i]` names the i-th arc; `matrix[i][j]` is the
- * connection strength between arc i and arc j. Endogamous self-
- * connections sit on the diagonal.
+ * Symmetric N×N matrix payload for the chart-lib chord-diagram widget.
+ * `labels[i]` names the i-th arc; `matrix[i][j]` is the connection strength
+ * between arc i and arc j. Endogamous self- connections sit on the diagonal.
  *
- * Currently produced by `MarriageMatrixRepository::surnameMarriageMatrix()`
- * for the Names-tab surname × surname marriage chord diagram, but
- * the shape is generic enough for any future symmetric-matrix
- * consumer (family-pair kinship density, source-citation overlap, …).
+ * Currently produced by `MarriageMatrixRepository::surnameMarriageMatrix()` for
+ * the Names-tab surname × surname marriage chord diagram, but the shape is
+ * generic enough for any future symmetric-matrix consumer (family-pair kinship
+ * density, source-citation overlap, …).
  *
  * Serialises to `{labels: list<string>, matrix: list<list<int>>}`.
  *

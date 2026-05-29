@@ -23,9 +23,9 @@ use function count;
 use function range;
 
 /**
- * Verifies the equal-width decade-binning helper that both Overview
- * (cumulative tree growth) and Life-span (births by decade) lean on
- * to keep the line-chart readable for long birth windows.
+ * Verifies the equal-width decade-binning helper that both Overview (cumulative
+ * tree growth) and Life-span (births by decade) lean on to keep the line-chart
+ * readable for long birth windows.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -34,9 +34,9 @@ use function range;
 final class DecadeBinCollapserTest extends TestCase
 {
     /**
-     * Inputs already under the cap pass through untouched — the
-     * collapser must be a no-op for the common per-tree case where
-     * the birth window fits the readability budget.
+     * Inputs already under the cap pass through untouched — the collapser must
+     * be a no-op for the common per-tree case where the birth window fits the
+     * readability budget.
      */
     #[Test]
     public function shortInputPassesThroughUnchanged(): void
@@ -48,9 +48,9 @@ final class DecadeBinCollapserTest extends TestCase
     }
 
     /**
-     * `pickBinSize()` reports `1` for inputs already under the cap
-     * (no collapse will happen), and snaps to the smallest ladder
-     * rung that meets the cap for longer series.
+     * `pickBinSize()` reports `1` for inputs already under the cap (no collapse
+     * will happen), and snaps to the smallest ladder rung that meets the cap
+     * for longer series.
      */
     #[Test]
     public function pickBinSizeWalksTheLadder(): void
@@ -70,9 +70,9 @@ final class DecadeBinCollapserTest extends TestCase
     }
 
     /**
-     * `collapseCounts()` preserves `array_sum`: total count across
-     * the input equals total count across the output. The key of
-     * each bin is the earliest decade-start it contains.
+     * `collapseCounts()` preserves `array_sum`: total count across the input
+     * equals total count across the output. The key of each bin is the earliest
+     * decade-start it contains.
      */
     #[Test]
     public function collapseCountsPreservesTotalAndBinsByEarliestKey(): void
@@ -100,9 +100,9 @@ final class DecadeBinCollapserTest extends TestCase
     }
 
     /**
-     * `collapseCumulative()` preserves the running-total invariant
-     * by taking the LAST value per bin: the bin's representative is
-     * the running total at the latest decade it contains.
+     * `collapseCumulative()` preserves the running-total invariant by taking
+     * the LAST value per bin: the bin's representative is the running total at
+     * the latest decade it contains.
      */
     #[Test]
     public function collapseCumulativeTakesLastValuePerBin(): void
@@ -136,8 +136,8 @@ final class DecadeBinCollapserTest extends TestCase
     }
 
     /**
-     * Empty input returns empty, regardless of mode — the calling
-     * card renders the unified empty-state placeholder.
+     * Empty input returns empty, regardless of mode — the calling card renders
+     * the unified empty-state placeholder.
      */
     #[Test]
     public function emptyInputReturnsEmpty(): void
@@ -148,10 +148,10 @@ final class DecadeBinCollapserTest extends TestCase
     }
 
     /**
-     * Non-positive `$maxPoints` clamps to 1 — the helper never
-     * returns more bins than the caller asked for, and the public
-     * `pickBinSize()` entry-point must not raise DivisionByZeroError
-     * for the documented `maxPoints = 0` defensive case.
+     * Non-positive `$maxPoints` clamps to 1 — the helper never returns more
+     * bins than the caller asked for, and the public `pickBinSize()`
+     * entry-point must not raise DivisionByZeroError for the documented
+     * `maxPoints = 0` defensive case.
      */
     #[Test]
     public function nonPositiveMaxPointsClampsToOneBin(): void
@@ -167,11 +167,10 @@ final class DecadeBinCollapserTest extends TestCase
     }
 
     /**
-     * Unsorted decade keys still produce an ascending output — the
-     * helper ksorts internally before binning so caller order does
-     * not bleed into the chart's x-axis. Triggered with a tight cap
-     * so the binning branch (which is what owns the ksort call) is
-     * actually exercised.
+     * Unsorted decade keys still produce an ascending output — the helper
+     * ksorts internally before binning so caller order does not bleed into the
+     * chart's x-axis. Triggered with a tight cap so the binning branch (which
+     * is what owns the ksort call) is actually exercised.
      */
     #[Test]
     public function unsortedInputIsKsortedBeforeBinning(): void
@@ -188,9 +187,9 @@ final class DecadeBinCollapserTest extends TestCase
     }
 
     /**
-     * The largest ladder rung (100 decades) caps at one millennium.
-     * For inputs that exceed even that ratio the collapser falls
-     * back to a derived bin size so the cap is still respected.
+     * The largest ladder rung (100 decades) caps at one millennium. For inputs
+     * that exceed even that ratio the collapser falls back to a derived bin
+     * size so the cap is still respected.
      */
     #[Test]
     public function fallsBackToDerivedBinSizeForExtremeInputs(): void

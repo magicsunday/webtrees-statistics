@@ -15,10 +15,10 @@ use JsonSerializable;
 
 /**
  * Cousin-marriage / shared-ancestor rate within `depth` generations.
- * `endogamous` is the count of couples sharing at least one common
- * ancestor in that depth; `total` is the count of couples where both
- * spouses have at least one parent on record (the tractable
- * population); `rate` is `endogamous / total`.
+ * `endogamous` is the count of couples sharing at least one common ancestor in
+ * that depth; `total` is the count of couples where both spouses have at least
+ * one parent on record (the tractable population); `rate` is `endogamous /
+ * total`.
  *
  * Serialises to `{total: int, endogamous: int, rate: float, depth: int}`.
  *

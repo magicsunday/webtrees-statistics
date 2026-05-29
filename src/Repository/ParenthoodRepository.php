@@ -32,21 +32,18 @@ use function ksort;
 use function round;
 
 /**
- * Age-at-first-child distributions for the Family tab. For every
- * family the repository pairs the parent's BIRT julian-day with the
- * earliest dated child's BIRT julian-day, converts the delta to
- * full years, and bucketises into the standard
- * {@see AgeBuckets} 5-year layout — separately for fathers and
- * mothers so the histogram can render side-by-side and the
- * generation-by-sex difference (typically a few years' offset)
- * becomes visible.
+ * Age-at-first-child distributions for the Family tab. For every family the
+ * repository pairs the parent's BIRT julian-day with the earliest dated child's
+ * BIRT julian-day, converts the delta to full years, and bucketises into the
+ * standard {@see AgeBuckets} 5-year layout — separately for fathers and mothers
+ * so the histogram can render side-by-side and the generation-by-sex difference
+ * (typically a few years' offset) becomes visible.
  *
- * Families without dated parent or without any dated child are
- * silently excluded — without both anchors there is no age to
- * compute. Implausible values are also dropped: ages below
- * {@see MIN_PLAUSIBLE_AGE} (data-entry error: parent BIRT after
- * child BIRT) and above {@see MAX_PLAUSIBLE_AGE} (records where a
- * stepparent or adoptive parent's BIRT predates the link's
+ * Families without dated parent or without any dated child are silently
+ * excluded — without both anchors there is no age to compute. Implausible
+ * values are also dropped: ages below {@see MIN_PLAUSIBLE_AGE} (data-entry
+ * error: parent BIRT after child BIRT) and above {@see MAX_PLAUSIBLE_AGE}
+ * (records where a stepparent or adoptive parent's BIRT predates the link's
  * intended semantics) would distort the histogram tail.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
@@ -56,25 +53,22 @@ use function round;
 final class ParenthoodRepository
 {
     /**
-     * Below this age the row is almost certainly a data-entry
-     * error (BIRT dates swapped, adoptive-parent semantics in a
-     * direct CHIL link, etc.) so we drop it rather than skew the
-     * histogram's lower tail.
+     * Below this age the row is almost certainly a data-entry error (BIRT dates
+     * swapped, adoptive-parent semantics in a direct CHIL link, etc.) so we
+     * drop it rather than skew the histogram's lower tail.
      */
     private const int MIN_PLAUSIBLE_AGE = 12;
 
     /**
-     * Above this age the row almost certainly describes a
-     * stepparent / adoptive relationship or a stale BIRT that was
-     * never corrected. Anything beyond falls into the overflow
-     * bucket regardless of value.
+     * Above this age the row almost certainly describes a stepparent / adoptive
+     * relationship or a stale BIRT that was never corrected. Anything beyond
+     * falls into the overflow bucket regardless of value.
      */
     private const int MAX_PLAUSIBLE_AGE = 65;
 
     /**
-     * Histogram axis: bands of {@see self::BUCKET_WIDTH} years
-     * spanning `[BUCKET_MIN, BUCKET_MAX)` plus a `BUCKET_MAX+`
-     * overflow band.
+     * Histogram axis: bands of {@see self::BUCKET_WIDTH} years spanning
+     * `[BUCKET_MIN, BUCKET_MAX)` plus a `BUCKET_MAX+` overflow band.
      */
     private const int BUCKET_MIN = 10;
 
@@ -84,23 +78,21 @@ final class ParenthoodRepository
 
     /**
      * Per-decade × sex sample floor for {@see ageAtFirstChildMeanByDecade}.
-     * Decade cohorts below this size are suppressed independently per
-     * sex so a single outlier cannot dominate the line and the
-     * resulting trend remains statistically defensible. Set to match
-     * {@see LifeSpanRepository::MIN_COHORT_SIZE};
-     * the smaller decade bucket tolerates the same floor because the
-     * trend reader compares neighbouring decades and the per-sex
-     * independent drop keeps the surviving series readable when a
+     * Decade cohorts below this size are suppressed independently per sex so a
+     * single outlier cannot dominate the line and the resulting trend remains
+     * statistically defensible. Set to match {@see
+     * LifeSpanRepository::MIN_COHORT_SIZE}; the smaller decade bucket tolerates
+     * the same floor because the trend reader compares neighbouring decades and
+     * the per-sex independent drop keeps the surviving series readable when a
      * single decade × sex falls just short.
      */
     private const int MIN_DECADE_COHORT_SIZE = 5;
 
     /**
-     * Per-instance cache for `ageAtFirstChildPairs`, keyed by sex.
-     * The Overview tab triggers four calls (young/old × M/F) and the
-     * Family tab additionally consumes the per-decade aggregate;
-     * memoising per sex collapses them into two SELECTs total
-     * instead of one per consumer.
+     * Per-instance cache for `ageAtFirstChildPairs`, keyed by sex. The Overview
+     * tab triggers four calls (young/old × M/F) and the Family tab additionally
+     * consumes the per-decade aggregate; memoising per sex collapses them into
+     * two SELECTs total instead of one per consumer.
      *
      * @var array<string, array<int, array{xref: string, years: int, childBirthYear: int}>>
      */
@@ -115,9 +107,9 @@ final class ParenthoodRepository
     }
 
     /**
-     * Distribution of parent age at the first dated child, bucketed
-     * into 5-year bands. Passes 'M' (HUSB / father) or 'F' (WIFE /
-     * mother) to switch the side of the family being aggregated.
+     * Distribution of parent age at the first dated child, bucketed into 5-year
+     * bands. Passes 'M' (HUSB / father) or 'F' (WIFE / mother) to switch the
+     * side of the family being aggregated.
      *
      * @param string $sex 'M' for fathers, 'F' for mothers
      *
@@ -136,11 +128,11 @@ final class ParenthoodRepository
     }
 
     /**
-     * Single youngest parent at first child: minimum positive age
-     * at first dated child across the tree, restricted to one
-     * parent sex. Plausibility band {@see MIN_PLAUSIBLE_AGE} ..
-     * {@see MAX_PLAUSIBLE_AGE} is applied via the underlying pair
-     * iterator so a 5-year-old "father" cannot win the slot.
+     * Single youngest parent at first child: minimum positive age at first
+     * dated child across the tree, restricted to one parent sex. Plausibility
+     * band {@see MIN_PLAUSIBLE_AGE} .. {@see MAX_PLAUSIBLE_AGE} is applied via
+     * the underlying pair iterator so a 5-year-old "father" cannot win the
+     * slot.
      *
      * @param string $sex 'M' for fathers, 'F' for mothers
      */
@@ -152,8 +144,8 @@ final class ParenthoodRepository
     }
 
     /**
-     * Single oldest parent at first child — mirror of
-     * {@see youngestParentAtFirstChildRecord()}.
+     * Single oldest parent at first child — mirror of {@see
+     * youngestParentAtFirstChildRecord()}.
      *
      * @param string $sex 'M' for fathers, 'F' for mothers
      */
@@ -165,16 +157,14 @@ final class ParenthoodRepository
     }
 
     /**
-     * Iterate every parent (one sex) and yield their age at their
-     * earliest dated child across all FAMS they appear in plus the
-     * child's birth year (the trend X-anchor for the per-decade
-     * aggregate). Groups by the parent xref so a man married three
-     * times yields one row referencing whichever family produced
-     * his first child. Ages outside the plausibility band are
-     * dropped at source. `MIN(d_year)` is monotone-equivalent to
-     * the year-of `MIN(d_julianday1)` within the same parent's
-     * children, so the two MIN aggregates always describe the same
-     * birth event.
+     * Iterate every parent (one sex) and yield their age at their earliest
+     * dated child across all FAMS they appear in plus the child's birth year
+     * (the trend X-anchor for the per-decade aggregate). Groups by the parent
+     * xref so a man married three times yields one row referencing whichever
+     * family produced his first child. Ages outside the plausibility band are
+     * dropped at source. `MIN(d_year)` is monotone-equivalent to the year-of
+     * `MIN(d_julianday1)` within the same parent's children, so the two MIN
+     * aggregates always describe the same birth event.
      *
      * @param string $sex 'M' for fathers, 'F' for mothers
      *
@@ -261,17 +251,16 @@ final class ParenthoodRepository
     }
 
     /**
-     * Mean parental age at first child grouped by the decade of the
-     * child's birth, with one series per parent sex. The X axis is
-     * the decade-start year (1850, 1860, …); each series carries
-     * the per-decade mean parental age in full years. Decade × sex
-     * cohorts below {@see MIN_DECADE_COHORT_SIZE} samples are
-     * suppressed independently per sex — empty decades therefore
-     * surface as a zero value on the suppressed series only, while
-     * the other sex keeps its trend line continuous. Pure aggregate
-     * over the same pair iterator the histogram and the
-     * Hall-of-Fame records read from, so the new view stays in
-     * lockstep with the existing parenthood numbers.
+     * Mean parental age at first child grouped by the decade of the child's
+     * birth, with one series per parent sex. The X axis is the decade-start
+     * year (1850, 1860, …); each series carries the per-decade mean parental
+     * age in full years. Decade × sex cohorts below {@see
+     * MIN_DECADE_COHORT_SIZE} samples are suppressed independently per sex —
+     * empty decades therefore surface as a zero value on the suppressed series
+     * only, while the other sex keeps its trend line continuous. Pure aggregate
+     * over the same pair iterator the histogram and the Hall-of-Fame records
+     * read from, so the new view stays in lockstep with the existing parenthood
+     * numbers.
      */
     public function ageAtFirstChildMeanByDecade(): LineChartPayload
     {

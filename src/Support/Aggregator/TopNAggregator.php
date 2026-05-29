@@ -20,12 +20,12 @@ use function is_string;
 use function mb_strtolower;
 
 /**
- * Generic Top-N counter for "iterate a row set, extract zero or more
- * label strings per row, count case-folded labels, return the top
- * entries by descending frequency". Used by the OCCU / RELI / CAUS
- * Top-N repositories which share this exact shape; consolidating the
- * loop and the case-folding-vs-display-form bookkeeping in one place
- * means a fix here propagates to every aggregator at once.
+ * Generic Top-N counter for "iterate a row set, extract zero or more label
+ * strings per row, count case-folded labels, return the top entries by
+ * descending frequency". Used by the OCCU / RELI / CAUS Top-N repositories
+ * which share this exact shape; consolidating the loop and the
+ * case-folding-vs-display-form bookkeeping in one place means a fix here
+ * propagates to every aggregator at once.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -41,11 +41,10 @@ final readonly class TopNAggregator
     }
 
     /**
-     * Walk `$rows`, run `$extract` on each row's GEDCOM column, count
-     * the extracted label strings case-folded so spelling variants
-     * (`Catholic` / `catholic ` / `CATHOLIC`) merge into a
-     * single bucket. The display label is the first-seen original
-     * casing; the count returns the merged total.
+     * Walk `$rows`, run `$extract` on each row's GEDCOM column, count the
+     * extracted label strings case-folded so spelling variants (`Catholic` /
+     * `catholic ` / `CATHOLIC`) merge into a single bucket. The display label
+     * is the first-seen original casing; the count returns the merged total.
      *
      * @param Collection<int, object>       $rows    Result set from a DB::table('individuals')->...->get() call
      * @param Closure(string): list<string> $extract Returns the list of label values for one row's gedcom blob

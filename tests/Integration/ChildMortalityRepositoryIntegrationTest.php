@@ -39,10 +39,10 @@ use function array_column;
 final class ChildMortalityRepositoryIntegrationTest extends IntegrationTestCase
 {
     /**
-     * The tree-wide summary counts every individual whose BIRT and
-     * DEAT julian-days are both > 0 (regardless of recording
-     * completeness elsewhere) and computes the under-5 percentage
-     * across all of them, ignoring per-century cohort suppression.
+     * The tree-wide summary counts every individual whose BIRT and DEAT
+     * julian-days are both > 0 (regardless of recording completeness elsewhere)
+     * and computes the under-5 percentage across all of them, ignoring
+     * per-century cohort suppression.
      */
     #[Test]
     public function summaryAggregatesAcrossAllValidPairs(): void
@@ -57,10 +57,10 @@ final class ChildMortalityRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Per-century breakdown drops cohorts below the minimum
-     * threshold (5 children) so the line does not spike on a single
-     * unlucky family. The 16th-century single death (Klara) must not
-     * appear; the 19th and 20th centuries must.
+     * Per-century breakdown drops cohorts below the minimum threshold (5
+     * children) so the line does not spike on a single unlucky family. The
+     * 16th-century single death (Klara) must not appear; the 19th and 20th
+     * centuries must.
      */
     #[Test]
     public function perCenturyBreakdownSuppressesTinyCohorts(): void
@@ -75,9 +75,9 @@ final class ChildMortalityRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Per-century rates carry the actual numerator + denominator so
-     * the view can phrase the tooltip prose ("3 of 5 children died
-     * before age 5"). Verify the numbers match the fixture inventory.
+     * Per-century rates carry the actual numerator + denominator so the view
+     * can phrase the tooltip prose ("3 of 5 children died before age 5").
+     * Verify the numbers match the fixture inventory.
      */
     #[Test]
     public function perCenturyRatesCarryNumeratorAndDenominator(): void
@@ -101,16 +101,14 @@ final class ChildMortalityRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Year-only BIRT records, BEF / AFT / ABT modifiers, and
-     * BET..AND / FROM..TO ranges all land in the `dates` table with
-     * `d_day = 0` and `d_mon = 0`, and webtrees still synthesises a
-     * default julian-day (typically 01.01.YYYY). The under-5
-     * threshold (`UNDER_FIVE_THRESHOLD_DAYS = 5 * 365 = 1825 days`)
-     * is day-precise, so a year-only BIRT 1872 + full-date DEAT
-     * 10 JUN 1875 would be misread as a ~3-year-old death — a
-     * phantom under-5 entry. BET..AND and FROM..TO additionally
-     * write TWO rows per single GEDCOM date, double-counting the
-     * individual in the JOIN.
+     * Year-only BIRT records, BEF / AFT / ABT modifiers, and BET..AND /
+     * FROM..TO ranges all land in the `dates` table with `d_day = 0` and `d_mon
+     * = 0`, and webtrees still synthesises a default julian-day (typically
+     * 01.01.YYYY). The under-5 threshold (`UNDER_FIVE_THRESHOLD_DAYS = 5 * 365
+     * = 1825 days`) is day-precise, so a year-only BIRT 1872 + full-date DEAT
+     * 10 JUN 1875 would be misread as a ~3-year-old death — a phantom under-5
+     * entry. BET..AND and FROM..TO additionally write TWO rows per single
+     * GEDCOM date, double-counting the individual in the JOIN.
      *
      * The dedicated fixture `child-mortality-edge-cases.ged` carries:
      *
@@ -127,11 +125,11 @@ final class ChildMortalityRepositoryIntegrationTest extends IntegrationTestCase
      *   below the `MIN_COHORT_SIZE = 5` floor → dropped from the
      *   per-century breakdown, still in the tree-wide summary.
      *
-     * Tree-wide summary post-filter: 5 + 5 + 1 = 11 valid pairs,
-     * 3 + 0 + 1 = 4 died → 4 / 11 ≈ 36.4 %. Without the filter the
-     * modifier-only individuals would flip every assertion: phantom
-     * under-5 counts from the year-only / BEF / ABT diffs, doubled
-     * BET..AND and FROM..TO rows inflating both `total` and `died`.
+     * Tree-wide summary post-filter: 5 + 5 + 1 = 11 valid pairs, 3 + 0 + 1 = 4
+     * died → 4 / 11 ≈ 36.4 %. Without the filter the modifier-only individuals
+     * would flip every assertion: phantom under-5 counts from the year-only /
+     * BEF / ABT diffs, doubled BET..AND and FROM..TO rows inflating both
+     * `total` and `died`.
      */
     #[Test]
     public function summaryExcludesYearOnlyAndModifierAffectedBirthDeathPairs(): void
@@ -146,13 +144,12 @@ final class ChildMortalityRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * The per-century breakdown filters modifier-affected rows
-     * BEFORE the cohort-size gate. With the modifier rows still in,
-     * the 19th-century cohort would carry 10 individuals plus the
-     * BET..AND / FROM..TO doubles; with them out, the count locks
-     * back at the control's 5 individuals (3 died → 60 %). The 16th
-     * century stays below the `MIN_COHORT_SIZE = 5` floor and is
-     * dropped from the breakdown.
+     * The per-century breakdown filters modifier-affected rows BEFORE the
+     * cohort-size gate. With the modifier rows still in, the 19th-century
+     * cohort would carry 10 individuals plus the BET..AND / FROM..TO doubles;
+     * with them out, the count locks back at the control's 5 individuals (3
+     * died → 60 %). The 16th century stays below the `MIN_COHORT_SIZE = 5`
+     * floor and is dropped from the breakdown.
      */
     #[Test]
     public function perCenturyBreakdownExcludesModifierAffectedPairsBeforeCohortGate(): void

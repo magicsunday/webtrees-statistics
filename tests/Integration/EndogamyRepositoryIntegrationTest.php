@@ -16,9 +16,8 @@ use MagicSunday\Webtrees\Statistic\Repository\ParentMapRepository;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
- * End-to-end test of {@see EndogamyRepository} against the
- * `endogamy.ged` fixture, which contains exactly two testable
- * couples:
+ * End-to-end test of {@see EndogamyRepository} against the `endogamy.ged`
+ * fixture, which contains exactly two testable couples:
  *
  *   F_COUSIN — CousinHusb (I7) + CousinWife (I8). Their parents
  *       (I3 + I5) are siblings whose parents are the shared
@@ -29,10 +28,9 @@ use PHPUnit\Framework\Attributes\Test;
  *       parents, but the two parentage trees are completely
  *       disjoint → NOT endogamous.
  *
- * Five additional families (F0, F1, F2, F_UH, F_UW) exist purely to
- * populate the parent-of map; their spouses have no FAMC records
- * themselves and are therefore EXCLUDED from the testable-couple
- * denominator.
+ * Five additional families (F0, F1, F2, F_UH, F_UW) exist purely to populate
+ * the parent-of map; their spouses have no FAMC records themselves and are
+ * therefore EXCLUDED from the testable-couple denominator.
  *
  * Expected: total=2, endogamous=1, rate=50.0 %.
  *
@@ -43,10 +41,10 @@ use PHPUnit\Framework\Attributes\Test;
 final class EndogamyRepositoryIntegrationTest extends IntegrationTestCase
 {
     /**
-     * The 50 % acceptance scenario from the issue: one cousin
-     * couple sharing grandparents I1 + I2, one completely
-     * unrelated couple. Couples whose spouses lack recorded
-     * parents do not contribute to either side of the ratio.
+     * The 50 % acceptance scenario from the issue: one cousin couple sharing
+     * grandparents I1 + I2, one completely unrelated couple. Couples whose
+     * spouses lack recorded parents do not contribute to either side of the
+     * ratio.
      */
     #[Test]
     public function summaryMatchesAcceptanceScenario(): void

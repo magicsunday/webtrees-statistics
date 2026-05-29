@@ -32,10 +32,10 @@ use function range;
 use const PREG_SPLIT_NO_EMPTY;
 
 /**
- * Per-decade frequency of the top-N given names across the tree.
- * Backs the Names tab's stream graph: each individual contributes one
- * count for every token of their primary given name to the decade
- * derived from their birth year.
+ * Per-decade frequency of the top-N given names across the tree. Backs the
+ * Names tab's stream graph: each individual contributes one count for every
+ * token of their primary given name to the decade derived from their birth
+ * year.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -44,9 +44,9 @@ use const PREG_SPLIT_NO_EMPTY;
 final readonly class GivenNameTrendsRepository
 {
     /**
-     * Regex used to strip given-name particles and initials (matches
-     * webtrees core's commonGivenNames tokenisation: single capital
-     * letter, or one-to-three lowercase letters).
+     * Regex used to strip given-name particles and initials (matches webtrees
+     * core's commonGivenNames tokenisation: single capital letter, or
+     * one-to-three lowercase letters).
      */
     private const string PARTICLE_REGEX = '/^([A-Z]|[a-z]{1,3})$/';
 
@@ -59,9 +59,9 @@ final readonly class GivenNameTrendsRepository
     }
 
     /**
-     * Compute the per-decade count of the top-N given names. Returns
-     * `{decades, names, series}` so the stream-graph renderer can lay
-     * out axes and band labels without re-aggregating.
+     * Compute the per-decade count of the top-N given names. Returns `{decades,
+     * names, series}` so the stream-graph renderer can lay out axes and band
+     * labels without re-aggregating.
      *
      * @param int $topN Maximum number of distinct given names to keep
      */
@@ -133,11 +133,10 @@ final readonly class GivenNameTrendsRepository
     }
 
     /**
-     * Build the dense decade range for the chart's x-axis. Starts at
-     * the first decade where any top-N name actually has a birth (no
-     * pre-history pad from outlier early dates) and ends at the most
-     * recent dated birth in the whole population so the right side
-     * shows the natural fade-out of classic names.
+     * Build the dense decade range for the chart's x-axis. Starts at the first
+     * decade where any top-N name actually has a birth (no pre-history pad from
+     * outlier early dates) and ends at the most recent dated birth in the whole
+     * population so the right side shows the natural fade-out of classic names.
      *
      * @param list<array{givn: string, year: int}> $rows     Loaded individuals with names + years
      * @param array<int, array<string, int>>       $byDecade Top-N counts already bucketed per decade
@@ -169,8 +168,8 @@ final readonly class GivenNameTrendsRepository
     }
 
     /**
-     * Load every individual's primary given name plus a parseable birth
-     * year. Skips rows where either piece is missing.
+     * Load every individual's primary given name plus a parseable birth year.
+     * Skips rows where either piece is missing.
      *
      * @return list<array{givn: string, year: int}>
      */
@@ -218,12 +217,11 @@ final readonly class GivenNameTrendsRepository
     }
 
     /**
-     * Split a given-name string on Unicode whitespace into countable
-     * tokens, dropping initials and short particles using the same
-     * regex webtrees core's `StatisticsData::commonGivenNames()`
-     * applies. `preg_split('/\s+/u', …)` recognises tabs and NBSP as
-     * separators too, so a hand-edited name with stray whitespace
-     * still tokenises cleanly.
+     * Split a given-name string on Unicode whitespace into countable tokens,
+     * dropping initials and short particles using the same regex webtrees
+     * core's `StatisticsData::commonGivenNames()` applies.
+     * `preg_split('/\s+/u', …)` recognises tabs and NBSP as separators too, so
+     * a hand-edited name with stray whitespace still tokenises cleanly.
      *
      * @return list<string>
      */

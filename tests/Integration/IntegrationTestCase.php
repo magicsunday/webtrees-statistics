@@ -49,9 +49,8 @@ use function preg_split;
 abstract class IntegrationTestCase extends TestCase
 {
     /**
-     * Connect to an in-memory SQLite database and run every webtrees
-     * migration so the production schema is in place before any test
-     * body runs.
+     * Connect to an in-memory SQLite database and run every webtrees migration
+     * so the production schema is in place before any test body runs.
      */
     protected function setUp(): void
     {
@@ -117,8 +116,8 @@ abstract class IntegrationTestCase extends TestCase
     }
 
     /**
-     * Import a GEDCOM file from this module's `tests/fixtures/`
-     * directory into a fresh tree and return the resulting Tree.
+     * Import a GEDCOM file from this module's `tests/fixtures/` directory into
+     * a fresh tree and return the resulting Tree.
      *
      * @param string $fixture Filename relative to `tests/fixtures/`
      */
@@ -173,11 +172,10 @@ abstract class IntegrationTestCase extends TestCase
     }
 
     /**
-     * Build a {@see StatisticsData} accessor scoped to the imported
-     * tree — every Integration test that wires a repository depending
-     * on core's stats facade needs this exact construction, so it
-     * lives here once instead of being re-rolled in seven sibling
-     * test classes.
+     * Build a {@see StatisticsData} accessor scoped to the imported tree —
+     * every Integration test that wires a repository depending on core's stats
+     * facade needs this exact construction, so it lives here once instead of
+     * being re-rolled in seven sibling test classes.
      */
     final protected function statisticsData(Tree $tree): StatisticsData
     {

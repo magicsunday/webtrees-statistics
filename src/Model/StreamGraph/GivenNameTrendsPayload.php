@@ -14,14 +14,14 @@ namespace MagicSunday\Webtrees\Statistic\Model\StreamGraph;
 use JsonSerializable;
 
 /**
- * Wire-format payload for the chart-lib stream-graph widget on the
- * Names tab. `decades` is the dense x-axis (every 10-year step from
- * the first decade with any top-N name's birth to the last);
- * `names` is the top-N given names in display order; `series` is
- * a `name → {decade → count}` map so the renderer can build one
- * band per name without re-aggregating.
+ * Wire-format payload for the chart-lib stream-graph widget on the Names tab.
+ * `decades` is the dense x-axis (every 10-year step from the first decade with
+ * any top-N name's birth to the last); `names` is the top-N given names in
+ * display order; `series` is a `name → {decade → count}` map so the renderer
+ * can build one band per name without re-aggregating.
  *
- * Serialises to `{decades: list<int>, names: list<string>, series: array<string, array<int, int>>}`.
+ * Serialises to `{decades: list<int>, names: list<string>, series:
+ * array<string, array<int, int>>}`.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0

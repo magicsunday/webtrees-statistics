@@ -15,14 +15,14 @@ use MagicSunday\Webtrees\Statistic\Support\Aggregator\SiblingGapRowMapper;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
- * Verifies the bucket-label-to-LineChart-payload conversion behind
- * the Family-tab sibling-age-gap line chart. The mapper has to
- * survive any `SIBLING_GAP_MAX` value the repository ships, so the
- * tests deliberately mix labels with different overflow caps.
+ * Verifies the bucket-label-to-LineChart-payload conversion behind the
+ * Family-tab sibling-age-gap line chart. The mapper has to survive any
+ * `SIBLING_GAP_MAX` value the repository ships, so the tests deliberately mix
+ * labels with different overflow caps.
  *
- * Lives under tests/Integration/ because the mapper calls I18N
- * helpers — IntegrationTestCase boots webtrees' container so the
- * translation static resolves.
+ * Lives under tests/Integration/ because the mapper calls I18N helpers —
+ * IntegrationTestCase boots webtrees' container so the translation static
+ * resolves.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -31,9 +31,9 @@ use PHPUnit\Framework\Attributes\Test;
 final class SiblingGapRowMapperTest extends IntegrationTestCase
 {
     /**
-     * Empty input returns the empty-payload shape — the LineChart
-     * partial's empty-state path picks up the absence and renders
-     * the "no data" placeholder via the chart-lib widget.
+     * Empty input returns the empty-payload shape — the LineChart partial's
+     * empty-state path picks up the absence and renders the "no data"
+     * placeholder via the chart-lib widget.
      */
     #[Test]
     public function toLineChartPayloadReturnsEmptyShapeForEmptyHistogram(): void
@@ -45,9 +45,9 @@ final class SiblingGapRowMapperTest extends IntegrationTestCase
     }
 
     /**
-     * Regular "Ny" labels become category strings and the parallel
-     * `values` array carries the counts at the same indices. The
-     * pluralised tooltip header reflects the gap size.
+     * Regular "Ny" labels become category strings and the parallel `values`
+     * array carries the counts at the same indices. The pluralised tooltip
+     * header reflects the gap size.
      */
     #[Test]
     public function toLineChartPayloadCarriesParallelCategoriesAndValues(): void
@@ -63,10 +63,9 @@ final class SiblingGapRowMapperTest extends IntegrationTestCase
     }
 
     /**
-     * The overflow label ("Ny+") is identified by the trailing "+"
-     * so the mapper stays decoupled from the repository's
-     * SIBLING_GAP_MAX constant. The overflow header reads "N or
-     * more years" rather than "N-year gap".
+     * The overflow label ("Ny+") is identified by the trailing "+" so the
+     * mapper stays decoupled from the repository's SIBLING_GAP_MAX constant.
+     * The overflow header reads "N or more years" rather than "N-year gap".
      */
     #[Test]
     public function toLineChartPayloadMarksOverflowBucketByTrailingPlus(): void
@@ -83,9 +82,9 @@ final class SiblingGapRowMapperTest extends IntegrationTestCase
     }
 
     /**
-     * A future bump of `SIBLING_GAP_MAX` to (say) 15 must surface
-     * the same widget shape — the parser locks onto the trailing
-     * "+" sentinel rather than the literal "10y+" key.
+     * A future bump of `SIBLING_GAP_MAX` to (say) 15 must surface the same
+     * widget shape — the parser locks onto the trailing "+" sentinel rather
+     * than the literal "10y+" key.
      */
     #[Test]
     public function toLineChartPayloadSurvivesADifferentOverflowCap(): void
@@ -101,8 +100,8 @@ final class SiblingGapRowMapperTest extends IntegrationTestCase
     }
 
     /**
-     * Tooltip body uses the plural form so single-pair buckets read
-     * "1 pair" and multi-pair buckets read "N pairs".
+     * Tooltip body uses the plural form so single-pair buckets read "1 pair"
+     * and multi-pair buckets read "N pairs".
      */
     #[Test]
     public function toLineChartPayloadPluralisesTooltipBody(): void

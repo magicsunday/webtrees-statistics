@@ -12,10 +12,10 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Model;
 
 /**
- * Immutable DTO that captures one row of the
- * (living-individual × family-membership) projection consumed by the
- * marital-state classifier. Lifted out of `stdClass` so that the
- * classifier can rely on a typed shape instead of `mixed` properties.
+ * Immutable DTO that captures one row of the (living-individual ×
+ * family-membership) projection consumed by the marital-state classifier.
+ * Lifted out of `stdClass` so that the classifier can rely on a typed shape
+ * instead of `mixed` properties.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0

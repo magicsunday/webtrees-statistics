@@ -15,24 +15,22 @@ use function view;
 
 /**
  * Fluent immutable builder for the thin chart-lib widget hosts under
- * `resources/views/modules/statistics-chart/widgets/<name>.phtml`.
- * Each widget partial emits a `<div data-widget="…" data-payload="…"
- * data-options="…">` shell consumed by the JS dispatcher, and every
- * `view()` call needs the same boilerplate (module-prefixed view
- * name, identifier, payload, optional aria label, …).
+ * `resources/views/modules/statistics-chart/widgets/<name>.phtml`. Each widget
+ * partial emits a `<div data-widget="…" data-payload="…" data-options="…">`
+ * shell consumed by the JS dispatcher, and every `view()` call needs the same
+ * boilerplate (module-prefixed view name, identifier, payload, optional aria
+ * label, …).
  *
- * The builder centralises that boilerplate behind one factory method
- * per widget type (`Widget::barChart`, `Widget::lineChart`, …) so the
- * tab templates read as a single fluent chain instead of an opaque
- * `view('…/widgets/bar-chart', ['identifier' => …, 'data' => …, …])`
- * array.
+ * The builder centralises that boilerplate behind one factory method per widget
+ * type (`Widget::barChart`, `Widget::lineChart`, …) so the tab templates read
+ * as a single fluent chain instead of an opaque `view('…/widgets/bar-chart',
+ * ['identifier' => …, 'data' => …, …])` array.
  *
- * Typed setters cover the options shared by every widget (`data`,
- * `ariaLabel`, `height`, `accent`). Widget-specific options
- * (`orientation`, `brush`, `xLabelEvery`, …) flow through the
- * generic `with(string $key, mixed $value)` escape hatch — the
- * underlying widget partial's `@var` headers still document the
- * exact contract.
+ * Typed setters cover the options shared by every widget (`data`, `ariaLabel`,
+ * `height`, `accent`). Widget-specific options (`orientation`, `brush`,
+ * `xLabelEvery`, …) flow through the generic `with(string $key, mixed $value)`
+ * escape hatch — the underlying widget partial's `@var` headers still document
+ * the exact contract.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -95,10 +93,9 @@ final readonly class Widget
     }
 
     /**
-     * Start a new box-plot widget host. The widget computes
-     * quartiles + whiskers internally — callers ship the raw sample
-     * arrays per category via `->withData([['category' => …,
-     * 'values' => [int, …]], …])`.
+     * Start a new box-plot widget host. The widget computes quartiles +
+     * whiskers internally — callers ship the raw sample arrays per category via
+     * `->withData([['category' => …, 'values' => [int, …]], …])`.
      */
     public static function boxPlot(string $module, string $identifier): self
     {
@@ -126,8 +123,8 @@ final readonly class Widget
     }
 
     /**
-     * Start a new gauge-arc widget host. Gauge-arc has no identifier
-     * — the partial renders inline SVG directly.
+     * Start a new gauge-arc widget host. Gauge-arc has no identifier — the
+     * partial renders inline SVG directly.
      */
     public static function gaugeArc(string $module): self
     {
@@ -140,8 +137,8 @@ final readonly class Widget
 
     /**
      * Start a new geo-map widget host. The partial emits a
-     * `data-widget="world-map"` shell that the JS dispatcher hands
-     * off to the chart-lib `WorldMap` widget.
+     * `data-widget="world-map"` shell that the JS dispatcher hands off to the
+     * chart-lib `WorldMap` widget.
      */
     public static function geoMap(string $module, string $identifier): self
     {
@@ -169,10 +166,10 @@ final readonly class Widget
     }
 
     /**
-     * Start a new mirror-histogram widget host. The mirror-histogram
-     * partial takes `top` + `bottom` row lists and the two axis
-     * captions — wire them via `withTop(...)`, `withBottom(...)`,
-     * `withTopLabel(...)`, `withBottomLabel(...)`.
+     * Start a new mirror-histogram widget host. The mirror-histogram partial
+     * takes `top` + `bottom` row lists and the two axis captions — wire them
+     * via `withTop(...)`, `withBottom(...)`, `withTopLabel(...)`,
+     * `withBottomLabel(...)`.
      */
     public static function mirrorHistogram(string $module): self
     {
@@ -184,8 +181,8 @@ final readonly class Widget
     }
 
     /**
-     * Start a new month-radial widget host. Pass the 12-slice data
-     * map via `withData(...)` and the colour via `withAccent(...)`.
+     * Start a new month-radial widget host. Pass the 12-slice data map via
+     * `withData(...)` and the colour via `withAccent(...)`.
      */
     public static function monthRadial(string $module): self
     {
@@ -251,10 +248,10 @@ final readonly class Widget
     }
 
     /**
-     * Attach the payload data. Shape depends on the widget partial
-     * (`@var header) $data` — bar-chart accepts an array of rows,
-     * line-chart accepts a `LineChartPayload` or its array form,
-     * sankey-flow accepts a `MigrationFlowsPayload`, etc.
+     * Attach the payload data. Shape depends on the widget partial (`@var
+     * header) $data` — bar-chart accepts an array of rows, line-chart accepts a
+     * `LineChartPayload` or its array form, sankey-flow accepts a
+     * `MigrationFlowsPayload`, etc.
      */
     public function withData(mixed $data): self
     {
@@ -285,9 +282,9 @@ final readonly class Widget
     }
 
     /**
-     * Optional viewport height in pixels. Each widget partial has
-     * its own default (200 / 240 / 280 / 320 / 360 / 600) so leaving
-     * this unset is normal.
+     * Optional viewport height in pixels. Each widget partial has its own
+     * default (200 / 240 / 280 / 320 / 360 / 600) so leaving this unset is
+     * normal.
      */
     public function withHeight(?int $height): self
     {
@@ -302,10 +299,10 @@ final readonly class Widget
     }
 
     /**
-     * Accent colour from the Heritage palette for widgets that
-     * expose it — month-radial slice fill, name-bubbles bubble base,
-     * gauge-arc filled arc. The enum value (CSS `var(--...)` literal)
-     * is what the widget partial reads.
+     * Accent colour from the Heritage palette for widgets that expose it —
+     * month-radial slice fill, name-bubbles bubble base, gauge-arc filled arc.
+     * The enum value (CSS `var(--...)` literal) is what the widget partial
+     * reads.
      */
     public function withAccent(?Accent $accent): self
     {
@@ -320,8 +317,8 @@ final readonly class Widget
     }
 
     /**
-     * Legend placement for the donut-chart widget. The enum value
-     * (`"right"` / `"bottom"`) is what the widget partial reads.
+     * Legend placement for the donut-chart widget. The enum value (`"right"` /
+     * `"bottom"`) is what the widget partial reads.
      */
     public function withLegendPosition(LegendPosition $position): self
     {
@@ -336,9 +333,9 @@ final readonly class Widget
     }
 
     /**
-     * Widget-specific option escape hatch — sets an arbitrary key on
-     * the partial's variable bag. The underlying partial's `@var`
-     * header documents the exact contract.
+     * Widget-specific option escape hatch — sets an arbitrary key on the
+     * partial's variable bag. The underlying partial's `@var` header documents
+     * the exact contract.
      */
     public function with(string $key, mixed $value): self
     {
@@ -353,8 +350,8 @@ final readonly class Widget
     }
 
     /**
-     * Render the widget host to an HTML string by delegating to the
-     * underlying view partial.
+     * Render the widget host to an HTML string by delegating to the underlying
+     * view partial.
      */
     public function render(): string
     {

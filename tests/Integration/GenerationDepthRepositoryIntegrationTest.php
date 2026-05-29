@@ -39,10 +39,10 @@ use function array_search;
 final class GenerationDepthRepositoryIntegrationTest extends IntegrationTestCase
 {
     /**
-     * The summary captures the longest descent and the distribution
-     * of individuals across generation distances. The isolated
-     * individual is correctly excluded because they have no entry
-     * in the parent-of map (no FAMC link).
+     * The summary captures the longest descent and the distribution of
+     * individuals across generation distances. The isolated individual is
+     * correctly excluded because they have no entry in the parent-of map (no
+     * FAMC link).
      */
     #[Test]
     public function summaryMatchesAcceptanceFixture(): void
@@ -59,14 +59,13 @@ final class GenerationDepthRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Top-N ancestors podium: the grandparent (I1) carries two
-     * transitive descendants (the parent I2 plus the child I3),
-     * the parent itself one. The child I3 sits at zero descendants
-     * and the isolated individual I4 has no parentage links at
-     * all — both are excluded because zero-descendant entries do
-     * not belong on a "structural roots" podium. So the ranking
-     * is exactly two rows: Grandparent first with 2, Parent
-     * second with 1, in descending order of descendant count.
+     * Top-N ancestors podium: the grandparent (I1) carries two transitive
+     * descendants (the parent I2 plus the child I3), the parent itself one. The
+     * child I3 sits at zero descendants and the isolated individual I4 has no
+     * parentage links at all — both are excluded because zero-descendant
+     * entries do not belong on a "structural roots" podium. So the ranking is
+     * exactly two rows: Grandparent first with 2, Parent second with 1, in
+     * descending order of descendant count.
      */
     #[Test]
     public function topAncestorsByDescendantCountRanksGrandparentFirst(): void
@@ -88,10 +87,10 @@ final class GenerationDepthRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Edge: when the requested top-N exceeds the number of
-     * individuals with at least one descendant, the result simply
-     * stops at the available rows — no zero-padding, no overflow.
-     * Locks the implicit "no leaves on the podium" contract.
+     * Edge: when the requested top-N exceeds the number of individuals with at
+     * least one descendant, the result simply stops at the available rows — no
+     * zero-padding, no overflow. Locks the implicit "no leaves on the podium"
+     * contract.
      */
     #[Test]
     public function topAncestorsLimitClampsToAvailableRanks(): void
@@ -104,13 +103,12 @@ final class GenerationDepthRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Regression for #71: a tree whose XREFs are digit-only (e.g.
-     * "1", "54") must not crash the summary. PHP coerces numeric
-     * string array keys to integers, so the parent-of map ends up
-     * keyed by int; the depth walk and the chain reconstruction must
-     * tolerate that and still produce the same result as the
-     * alphabetic-XREF fixture. Same topology as
-     * {@see summaryMatchesAcceptanceFixture}, only the XREFs differ.
+     * Regression for #71: a tree whose XREFs are digit-only (e.g. "1", "54")
+     * must not crash the summary. PHP coerces numeric string array keys to
+     * integers, so the parent-of map ends up keyed by int; the depth walk and
+     * the chain reconstruction must tolerate that and still produce the same
+     * result as the alphabetic-XREF fixture. Same topology as {@see
+     * summaryMatchesAcceptanceFixture}, only the XREFs differ.
      */
     #[Test]
     public function summaryHandlesNumericOnlyXrefs(): void
@@ -137,11 +135,11 @@ final class GenerationDepthRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Regression for #71: the top-ancestors podium must survive
-     * digit-only XREFs too. The descendant-count map is keyed by the
-     * coerced integer XREF and then resolved via Registry::make(),
-     * which is string-typed. Same expected podium as
-     * {@see topAncestorsByDescendantCountRanksGrandparentFirst}.
+     * Regression for #71: the top-ancestors podium must survive digit-only
+     * XREFs too. The descendant-count map is keyed by the coerced integer XREF
+     * and then resolved via Registry::make(), which is string-typed. Same
+     * expected podium as {@see
+     * topAncestorsByDescendantCountRanksGrandparentFirst}.
      */
     #[Test]
     public function topAncestorsHandlesNumericOnlyXrefs(): void
@@ -163,13 +161,13 @@ final class GenerationDepthRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Two distinct ancestors that share a display name ("Hans Müller",
-     * I1 with 3 descendants and I2 with 1) must stay separate podium
-     * rows. The previous name-keyed map collapsed them: iterating in
-     * descending-count order, I2's count overwrote I1's under the same
-     * label, so the row showed the LOWER value sitting above
-     * higher-valued rows — the "ordering looks wrong" symptom. Keying
-     * each row by XREF keeps both, with the correct values and order.
+     * Two distinct ancestors that share a display name ("Hans Müller", I1 with
+     * 3 descendants and I2 with 1) must stay separate podium rows. The previous
+     * name-keyed map collapsed them: iterating in descending-count order, I2's
+     * count overwrote I1's under the same label, so the row showed the LOWER
+     * value sitting above higher-valued rows — the "ordering looks wrong"
+     * symptom. Keying each row by XREF keeps both, with the correct values and
+     * order.
      */
     #[Test]
     public function topAncestorsByDescendantCountKeepsSameNamedAncestorsDistinct(): void

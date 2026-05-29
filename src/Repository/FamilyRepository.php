@@ -26,9 +26,10 @@ use function array_values;
 use function is_string;
 
 /**
- * Classifies every living individual in a tree into exactly one marital
- * state (current, widowed, divorced, single) using the same per-family
- * decision order webtrees core uses in {@see \Fisharebest\Webtrees\Census\AbstractCensusColumnCondition}:
+ * Classifies every living individual in a tree into exactly one marital state
+ * (current, widowed, divorced, single) using the same per-family decision order
+ * webtrees core uses in {@see
+ * \Fisharebest\Webtrees\Census\AbstractCensusColumnCondition}:
  *
  *  1. A family that has neither a marriage tag nor a divorce tag is treated
  *     as a non-marital relationship → 'single' (no contribution).
@@ -39,19 +40,18 @@ use function is_string;
  *  4. A family carrying a true marriage tag (MARR) with a living partner
  *     classes both spouses as 'current'.
  *
- * Death tags mirror {@see Gedcom::DEATH_EVENTS} (DEAT, BURI, CREM) so the
- * four bucket counts sum exactly to
- * {@see \Fisharebest\Webtrees\StatisticsData::countIndividualsLiving()}
- * without clamping. Marriage and divorce tag sets are intentionally tighter
- * than the Gedcom event constants because {@see Gedcom::MARRIAGE_EVENTS}
- * includes `_NMR` ('not married') and {@see Gedcom::DIVORCE_EVENTS} includes
- * `_SEPR` (separated but still married); both would invert the bucket
- * semantics if used as-is.
+ * Death tags mirror {@see Gedcom::DEATH_EVENTS} (DEAT, BURI, CREM) so the four
+ * bucket counts sum exactly to {@see
+ * \Fisharebest\Webtrees\StatisticsData::countIndividualsLiving()} without
+ * clamping. Marriage and divorce tag sets are intentionally tighter than the
+ * Gedcom event constants because {@see Gedcom::MARRIAGE_EVENTS} includes `_NMR`
+ * ('not married') and {@see Gedcom::DIVORCE_EVENTS} includes `_SEPR` (separated
+ * but still married); both would invert the bucket semantics if used as-is.
  *
- * Across-family precedence applied per individual (highest wins):
- * current > divorced > widowed. This matches the typical user expectation
- * that a remarried person is 'currently married' rather than carrying a
- * status from a prior family.
+ * Across-family precedence applied per individual (highest wins): current >
+ * divorced > widowed. This matches the typical user expectation that a
+ * remarried person is 'currently married' rather than carrying a status from a
+ * prior family.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -60,18 +60,18 @@ use function is_string;
 final readonly class FamilyRepository
 {
     /**
-     * GEDCOM family-event tags that denote an active marriage. Excludes
-     * `_NMR` from {@see Gedcom::MARRIAGE_EVENTS} because that tag means
-     * 'not married' — its presence is the opposite of a marriage signal.
+     * GEDCOM family-event tags that denote an active marriage. Excludes `_NMR`
+     * from {@see Gedcom::MARRIAGE_EVENTS} because that tag means 'not married'
+     * — its presence is the opposite of a marriage signal.
      */
     private const array MARRIAGE_TAGS = ['MARR'];
 
     /**
-     * GEDCOM family-event tags that denote an ended marriage. Excludes
-     * `_SEPR` from {@see Gedcom::DIVORCE_EVENTS} because separation does
-     * not legally end the marriage — webtrees Census also uses only
-     * `DIV` for this gate but we additionally recognise `ANUL` (annulment)
-     * so that nullified marriages are not misclassified as 'current'.
+     * GEDCOM family-event tags that denote an ended marriage. Excludes `_SEPR`
+     * from {@see Gedcom::DIVORCE_EVENTS} because separation does not legally
+     * end the marriage — webtrees Census also uses only `DIV` for this gate but
+     * we additionally recognise `ANUL` (annulment) so that nullified marriages
+     * are not misclassified as 'current'.
      */
     private const array DIVORCE_TAGS = ['DIV', 'ANUL'];
 
@@ -87,8 +87,8 @@ final readonly class FamilyRepository
      * Return the per-bucket count of living individuals.
      *
      * Precedence is applied per individual: current > divorced > widowed >
-     * single. The four bucket counts sum to the number of living
-     * individuals (no clamping).
+     * single. The four bucket counts sum to the number of living individuals
+     * (no clamping).
      *
      * @return array<value-of<MaritalBucket>, int>
      */
@@ -121,9 +121,9 @@ final readonly class FamilyRepository
 
     /**
      * Load every (living individual × family-membership) row for the tree.
-     * Living means `i_gedcom` does not contain any of {@see Gedcom::DEATH_EVENTS}
-     * at level 1. Individuals with no family produce one row with NULL family
-     * columns thanks to LEFT JOIN.
+     * Living means `i_gedcom` does not contain any of {@see
+     * Gedcom::DEATH_EVENTS} at level 1. Individuals with no family produce one
+     * row with NULL family columns thanks to LEFT JOIN.
      *
      * @param int $treeId Tree row ID that scopes the SELECT
      *
@@ -171,9 +171,9 @@ final readonly class FamilyRepository
     /**
      * Fetch each distinct partner ID referenced by `$rows` and return a map
      * `partnerId => hasAnyTagAnchored(partner.i_gedcom, DEATH_EVENTS)`. A
-     * partner XREF that does not resolve to an INDI row (orphan/deleted)
-     * is intentionally omitted from the map so the caller can distinguish
-     * 'partner alive' from 'partner unknown'.
+     * partner XREF that does not resolve to an INDI row (orphan/deleted) is
+     * intentionally omitted from the map so the caller can distinguish 'partner
+     * alive' from 'partner unknown'.
      *
      * @param int             $treeId Tree row ID that scopes the SELECT
      * @param list<FamilyRow> $rows   Family-membership rows from {@see loadLivingIndividualFamilies()}
@@ -291,9 +291,9 @@ final readonly class FamilyRepository
 
     /**
      * Resolve the partner-individual ID of a single family-membership row.
-     * Treats an empty-string `f_husb`/`f_wife` (the webtrees default when
-     * a HUSB/WIFE line is missing) the same as NULL, and rejects partner
-     * XREFs equal to the individual themselves (data corruption).
+     * Treats an empty-string `f_husb`/`f_wife` (the webtrees default when a
+     * HUSB/WIFE line is missing) the same as NULL, and rejects partner XREFs
+     * equal to the individual themselves (data corruption).
      */
     private function partnerIdOf(FamilyRow $row): ?string
     {
@@ -325,8 +325,8 @@ final readonly class FamilyRepository
     }
 
     /**
-     * Narrow a raw database column value (`mixed` because PDO+stdClass do
-     * not expose property types) into a non-empty string, or null.
+     * Narrow a raw database column value (`mixed` because PDO+stdClass do not
+     * expose property types) into a non-empty string, or null.
      */
     private function coerceString(mixed $value): ?string
     {

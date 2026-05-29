@@ -26,10 +26,10 @@ use function is_string;
 
 /**
  * Exercises the pure-PHP classification rules of {@see FamilyRepository}
- * (partnerIdOf, hasAnyTagAnchored, classifyOneIndividual) without touching
- * the database. The DB-bound public method is covered separately by
- * browser-verified live trees; this test locks in the precedence semantics
- * that the audit-loop deemed correctness-critical.
+ * (partnerIdOf, hasAnyTagAnchored, classifyOneIndividual) without touching the
+ * database. The DB-bound public method is covered separately by
+ * browser-verified live trees; this test locks in the precedence semantics that
+ * the audit-loop deemed correctness-critical.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -95,9 +95,9 @@ final class FamilyRepositoryClassifierTest extends TestCase
 
     /**
      * Anchored tag matching must distinguish `1 DIV` from `1 DIVF` so the
-     * "Divorced" bucket does not absorb annulment-filed records. The
-     * classifier delegates to {@see GedcomScanner::hasAnyTagAnchored()},
-     * so the contract test runs against the shared helper directly.
+     * "Divorced" bucket does not absorb annulment-filed records. The classifier
+     * delegates to {@see GedcomScanner::hasAnyTagAnchored()}, so the contract
+     * test runs against the shared helper directly.
      *
      * @param list<string> $tags
      */
@@ -109,9 +109,9 @@ final class FamilyRepositoryClassifierTest extends TestCase
     }
 
     /**
-     * Remarried-after-divorce: living person has one DIV family AND one
-     * current MARR family. Precedence current > divorced must put them in
-     * the current bucket, never both.
+     * Remarried-after-divorce: living person has one DIV family AND one current
+     * MARR family. Precedence current > divorced must put them in the current
+     * bucket, never both.
      */
     #[Test]
     public function remarriedSurvivorClassifiesAsCurrent(): void
@@ -143,8 +143,8 @@ final class FamilyRepositoryClassifierTest extends TestCase
     }
 
     /**
-     * Surviving spouse of a deceased partner classifies as widowed when
-     * the only family carries MARR + dead partner.
+     * Surviving spouse of a deceased partner classifies as widowed when the
+     * only family carries MARR + dead partner.
      */
     #[Test]
     public function widowedSurvivorClassifiesAsWidowed(): void
@@ -186,9 +186,9 @@ final class FamilyRepositoryClassifierTest extends TestCase
     }
 
     /**
-     * Orphaned spouse XREF (partner record absent from individuals table)
-     * does NOT class the survivor as current or widowed; abstention keeps
-     * the bucket count conservative.
+     * Orphaned spouse XREF (partner record absent from individuals table) does
+     * NOT class the survivor as current or widowed; abstention keeps the bucket
+     * count conservative.
      */
     #[Test]
     public function orphanedSpouseXrefAbstainsFromClassification(): void
@@ -203,9 +203,9 @@ final class FamilyRepositoryClassifierTest extends TestCase
     }
 
     /**
-     * A `_NMR` family (Brothers-Keeper "not married") must NOT be treated
-     * as a marriage even though Gedcom::MARRIAGE_EVENTS lists it. The
-     * survivor stays in the single bucket.
+     * A `_NMR` family (Brothers-Keeper "not married") must NOT be treated as a
+     * marriage even though Gedcom::MARRIAGE_EVENTS lists it. The survivor stays
+     * in the single bucket.
      */
     #[Test]
     public function nmrFamilyDoesNotClassifyAsCurrent(): void
@@ -220,9 +220,9 @@ final class FamilyRepositoryClassifierTest extends TestCase
     }
 
     /**
-     * A `_SEPR` family (separated but not legally divorced) is NOT a
-     * divorce per webtrees Census semantics; with `1 MARR` still present
-     * the survivor stays in the current bucket.
+     * A `_SEPR` family (separated but not legally divorced) is NOT a divorce
+     * per webtrees Census semantics; with `1 MARR` still present the survivor
+     * stays in the current bucket.
      */
     #[Test]
     public function seprFamilyDoesNotClassifyAsDivorced(): void
@@ -263,8 +263,8 @@ final class FamilyRepositoryClassifierTest extends TestCase
     }
 
     /**
-     * Instantiate FamilyRepository without invoking the Tree-bound
-     * constructor — the helpers under test never read $this->tree.
+     * Instantiate FamilyRepository without invoking the Tree-bound constructor
+     * — the helpers under test never read $this->tree.
      */
     private function newRepoWithoutTree(): FamilyRepository
     {

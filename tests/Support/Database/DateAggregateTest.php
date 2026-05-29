@@ -19,12 +19,11 @@ use PHPUnit\Framework\TestCase;
 /**
  * Verifies that {@see DateAggregate::min()} and {@see DateAggregate::max()}
  * emit the correctly prefix-quoted `MIN(prefix_alias.col) AS out` /
- * `MAX(prefix_alias.col) AS out` fragments the six cohort-repository
- * consumers depend on. The helper concatenates the table prefix from
- * the live connection, so the test spins up an in-memory SQLite
- * Capsule with a fixed `wt_` prefix and inspects the resulting
- * `Expression::getValue()` output directly — locking the rendered
- * SQL string at the helper boundary so a future prefix-quoting
+ * `MAX(prefix_alias.col) AS out` fragments the six cohort-repository consumers
+ * depend on. The helper concatenates the table prefix from the live connection,
+ * so the test spins up an in-memory SQLite Capsule with a fixed `wt_` prefix
+ * and inspects the resulting `Expression::getValue()` output directly — locking
+ * the rendered SQL string at the helper boundary so a future prefix-quoting
  * change cannot silently drift across every call site.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
@@ -36,10 +35,9 @@ final class DateAggregateTest extends TestCase
     private Capsule $capsule;
 
     /**
-     * Spin up a fresh in-memory SQLite via Eloquent's Capsule with
-     * the standard webtrees `wt_` table-prefix so the produced
-     * Expression strings carry the same prefix the real repository
-     * code would see at runtime.
+     * Spin up a fresh in-memory SQLite via Eloquent's Capsule with the standard
+     * webtrees `wt_` table-prefix so the produced Expression strings carry the
+     * same prefix the real repository code would see at runtime.
      */
     protected function setUp(): void
     {
@@ -52,11 +50,10 @@ final class DateAggregateTest extends TestCase
     }
 
     /**
-     * `DateAggregate::min()` renders `MIN(prefix_alias.column) AS as`.
-     * Used by ageGapDistribution, marriageDurationPairs,
-     * ageAtDivorceDistribution, divorcesByCenturyAndAgeBand and
-     * divorceRateByMarriageCohort to collapse ranged-date double
-     * rows onto the lower-bound anchor.
+     * `DateAggregate::min()` renders `MIN(prefix_alias.column) AS as`. Used by
+     * ageGapDistribution, marriageDurationPairs, ageAtDivorceDistribution,
+     * divorcesByCenturyAndAgeBand and divorceRateByMarriageCohort to collapse
+     * ranged-date double rows onto the lower-bound anchor.
      */
     #[Test]
     public function minRendersPrefixedMinExpression(): void
@@ -67,10 +64,9 @@ final class DateAggregateTest extends TestCase
     }
 
     /**
-     * `DateAggregate::max()` renders `MAX(prefix_alias.column) AS as`.
-     * Used by widowhoodYearsDistribution to pick the upper-bound
-     * DEAT julian day in line with webtrees core's
-     * maximum-possible-lifespan convention.
+     * `DateAggregate::max()` renders `MAX(prefix_alias.column) AS as`. Used by
+     * widowhoodYearsDistribution to pick the upper-bound DEAT julian day in
+     * line with webtrees core's maximum-possible-lifespan convention.
      */
     #[Test]
     public function maxRendersPrefixedMaxExpression(): void
@@ -81,11 +77,10 @@ final class DateAggregateTest extends TestCase
     }
 
     /**
-     * Both helpers honour an arbitrary alias / column pair so a
-     * future cohort method picking different anchors (e.g. a `divr`
-     * alias with the `d_year` column) gets the same predictable
-     * rendering. Locks the column / alias slots against accidental
-     * hard-coding.
+     * Both helpers honour an arbitrary alias / column pair so a future cohort
+     * method picking different anchors (e.g. a `divr` alias with the `d_year`
+     * column) gets the same predictable rendering. Locks the column / alias
+     * slots against accidental hard-coding.
      */
     #[Test]
     public function minAndMaxHonourCustomAliasAndColumn(): void

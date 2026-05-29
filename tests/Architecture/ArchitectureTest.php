@@ -22,10 +22,10 @@ use PHPat\Test\PHPat;
 use function array_map;
 
 /**
- * Architecture rules executed by phpat through PHPStan. Each
- * `#[TestRule]` method returns one rule that pins a structural
- * invariant of the module so the codebase cannot silently drift
- * past the layering the rest of the production code relies on.
+ * Architecture rules executed by phpat through PHPStan. Each `#[TestRule]`
+ * method returns one rule that pins a structural invariant of the module so the
+ * codebase cannot silently drift past the layering the rest of the production
+ * code relies on.
  *
  * Pyramid in this module (top = depends on layers below):
  *
@@ -46,11 +46,10 @@ final class ArchitectureTest
     private const string NAMESPACE_ROOT = 'MagicSunday\\Webtrees\\Statistic';
 
     /**
-     * Per-widget DTO sub-namespaces under `Model\`. Listed explicitly so
-     * the DTO architecture rules below select exactly the wire-shape
-     * value objects and not the root-level value objects (`FamilyRow`)
-     * which live alongside them. Add an entry here whenever a new widget
-     * shape ships its own DTOs.
+     * Per-widget DTO sub-namespaces under `Model\`. Listed explicitly so the
+     * DTO architecture rules below select exactly the wire-shape value objects
+     * and not the root-level value objects (`FamilyRow`) which live alongside
+     * them. Add an entry here whenever a new widget shape ships its own DTOs.
      *
      * @var list<string>
      */
@@ -66,9 +65,9 @@ final class ArchitectureTest
     ];
 
     /**
-     * Builds one `Selector::inNamespace` per DTO sub-namespace so the
-     * resulting list can be splat into `->classes(...)` (which takes a
-     * varargs disjunction) or wrapped in `Selector::AnyOf(...)`.
+     * Builds one `Selector::inNamespace` per DTO sub-namespace so the resulting
+     * list can be splat into `->classes(...)` (which takes a varargs
+     * disjunction) or wrapped in `Selector::AnyOf(...)`.
      *
      * @return list<SelectorInterface>
      */
@@ -81,12 +80,11 @@ final class ArchitectureTest
     }
 
     /**
-     * Every helper in `Support\` must be `final` so its contract
-     * (`private __construct`, static-only API) cannot be subverted
-     * by a subclass. `readonly` is not required: a single helper
-     * caches a static lookup table to amortise its setup cost
-     * across the tree, and `readonly` would forbid that one
-     * mutation site.
+     * Every helper in `Support\` must be `final` so its contract (`private
+     * __construct`, static-only API) cannot be subverted by a subclass.
+     * `readonly` is not required: a single helper caches a static lookup table
+     * to amortise its setup cost across the tree, and `readonly` would forbid
+     * that one mutation site.
      */
     #[TestRule]
     public function supportClassesAreFinal(): Rule
@@ -98,12 +96,11 @@ final class ArchitectureTest
     }
 
     /**
-     * Support helpers are a leaf layer: they may depend on PHP
-     * stdlib, the webtrees framework, and on each other, but never
-     * on a Repository or on the Statistic facade. The reverse flow
-     * — repositories importing helpers — is the architecture this
-     * module wants; the inverse would create a cycle that turns
-     * helpers into framework-coupled adapters.
+     * Support helpers are a leaf layer: they may depend on PHP stdlib, the
+     * webtrees framework, and on each other, but never on a Repository or on
+     * the Statistic facade. The reverse flow — repositories importing helpers —
+     * is the architecture this module wants; the inverse would create a cycle
+     * that turns helpers into framework-coupled adapters.
      */
     #[TestRule]
     public function supportDoesNotDependOnRepositoryOrFacade(): Rule
@@ -119,21 +116,19 @@ final class ArchitectureTest
     }
 
     /**
-     * Repositories must be `final` so the contract that the
-     * `Statistic` facade composes (immutable Tree dependency,
-     * single per-domain query surface) cannot be subverted by a
-     * subclass. `readonly` is the standard shape across the
-     * module, but three repositories cache their lazy aggregation
-     * result on first call and therefore stay non-readonly by
-     * necessity — `final` alone is the strongest invariant we can
-     * enforce for the whole layer.
+     * Repositories must be `final` so the contract that the `Statistic` facade
+     * composes (immutable Tree dependency, single per-domain query surface)
+     * cannot be subverted by a subclass. `readonly` is the standard shape
+     * across the module, but three repositories cache their lazy aggregation
+     * result on first call and therefore stay non-readonly by necessity —
+     * `final` alone is the strongest invariant we can enforce for the whole
+     * layer.
      *
-     * Abstract repositories are exempted: `AbstractGedcomTagTopNRepository`
-     * is the shared scaffolding for the three Top-N repos
-     * (`ReligionRepository`, `OccupationRepository`, `DeathCauseRepository`).
-     * Each concrete subclass is still `final`, so the
-     * invariant survives transitively — the only callable types
-     * the DI container resolves are the sealed leaves.
+     * Abstract repositories are exempted: `AbstractGedcomTagTopNRepository` is
+     * the shared scaffolding for the three Top-N repos (`ReligionRepository`,
+     * `OccupationRepository`, `DeathCauseRepository`). Each concrete subclass
+     * is still `final`, so the invariant survives transitively — the only
+     * callable types the DI container resolves are the sealed leaves.
      */
     #[TestRule]
     public function repositoryClassesAreFinal(): Rule
@@ -146,11 +141,10 @@ final class ArchitectureTest
     }
 
     /**
-     * Repositories must not depend on the Statistic facade. The
-     * direction is fixed: Statistic composes repositories, never
-     * the reverse. A repository pulling the facade in would short
-     * the composition graph and make individual repositories
-     * impossible to test in isolation.
+     * Repositories must not depend on the Statistic facade. The direction is
+     * fixed: Statistic composes repositories, never the reverse. A repository
+     * pulling the facade in would short the composition graph and make
+     * individual repositories impossible to test in isolation.
      */
     #[TestRule]
     public function repositoryDoesNotDependOnFacade(): Rule
@@ -163,15 +157,13 @@ final class ArchitectureTest
     }
 
     /**
-     * Database access via Eloquent's `DB::table()` facade is the
-     * exclusive responsibility of repositories and of the dedicated
-     * `Support\Database` namespace that factors the recurring
-     * `DB::table(X)->where('X_file', …)` + birth/death-pair + date-
-     * table joins out of every repository call site. Letting the
-     * Statistic facade or the composition root issue SQL directly
-     * would scatter query-shape decisions across every layer and
-     * make it impossible to reason about which class actually
-     * touches which table.
+     * Database access via Eloquent's `DB::table()` facade is the exclusive
+     * responsibility of repositories and of the dedicated `Support\Database`
+     * namespace that factors the recurring `DB::table(X)->where('X_file', …)` +
+     * birth/death-pair + date- table joins out of every repository call site.
+     * Letting the Statistic facade or the composition root issue SQL directly
+     * would scatter query-shape decisions across every layer and make it
+     * impossible to reason about which class actually touches which table.
      */
     #[TestRule]
     public function databaseAccessIsConfinedToRepositories(): Rule
@@ -191,12 +183,11 @@ final class ArchitectureTest
     }
 
     /**
-     * The composition root is `Module.php`. Nothing inside the
-     * production namespace tree may import it — services start
-     * reaching back into the wiring layer and the dependency
-     * graph develops a cycle that is invisible to PHP itself but
-     * lethal for testability. Tests are exempt because integration
-     * tests have to instantiate the composition root.
+     * The composition root is `Module.php`. Nothing inside the production
+     * namespace tree may import it — services start reaching back into the
+     * wiring layer and the dependency graph develops a cycle that is invisible
+     * to PHP itself but lethal for testability. Tests are exempt because
+     * integration tests have to instantiate the composition root.
      */
     #[TestRule]
     public function nothingDependsOnTheCompositionRoot(): Rule
@@ -215,11 +206,10 @@ final class ArchitectureTest
     }
 
     /**
-     * Every DTO must be `final`. A subclass could add mutable state
-     * or override `jsonSerialize` and silently drift the wire
-     * shape — the whole point of moving repository return types
-     * from `array{…}` PHPDoc to typed DTOs is that the wire shape
-     * stays pinned at a single class per payload.
+     * Every DTO must be `final`. A subclass could add mutable state or override
+     * `jsonSerialize` and silently drift the wire shape — the whole point of
+     * moving repository return types from `array{…}` PHPDoc to typed DTOs is
+     * that the wire shape stays pinned at a single class per payload.
      */
     #[TestRule]
     public function dtoClassesAreFinal(): Rule
@@ -232,11 +222,10 @@ final class ArchitectureTest
 
     /**
      * Every DTO must implement `JsonSerializable`. The per-widget DTO
-     * sub-namespaces under `Model\` exist to be serialised to JSON for
-     * the chart-lib widgets via `json_encode`; a DTO without
-     * `jsonSerialize` would silently fall back to PHP's default
-     * object-serialisation (mangled property names) and break the
-     * widget contract on the wire.
+     * sub-namespaces under `Model\` exist to be serialised to JSON for the
+     * chart-lib widgets via `json_encode`; a DTO without `jsonSerialize` would
+     * silently fall back to PHP's default object-serialisation (mangled
+     * property names) and break the widget contract on the wire.
      */
     #[TestRule]
     public function dtoClassesAreJsonSerializable(): Rule
@@ -249,13 +238,12 @@ final class ArchitectureTest
     }
 
     /**
-     * DTOs are pure value objects: they may not depend on a
-     * repository, the facade, the composition root, or even a
-     * Support helper. The dependency arrow points the other way —
-     * repositories construct DTOs from query results, the facade
-     * surfaces them, and the view layer consumes them. A DTO that
-     * pulled in a repository would turn into a service in
-     * disguise and break the layering this module relies on.
+     * DTOs are pure value objects: they may not depend on a repository, the
+     * facade, the composition root, or even a Support helper. The dependency
+     * arrow points the other way — repositories construct DTOs from query
+     * results, the facade surfaces them, and the view layer consumes them. A
+     * DTO that pulled in a repository would turn into a service in disguise and
+     * break the layering this module relies on.
      */
     #[TestRule]
     public function dtoDoesNotDependOnAnyOtherProductionLayer(): Rule
@@ -273,14 +261,13 @@ final class ArchitectureTest
     }
 
     /**
-     * The root of the `Model` namespace holds cross-cutting value
-     * objects that classify webtrees data without carrying behaviour
-     * (currently `FamilyRow`). The same leaf-layer invariant as for
-     * the per-widget DTOs applies: they must not reach into
-     * repositories, the facade, the composition root, or Support
-     * helpers — they ARE the vocabulary those layers speak, not the
-     * other way around. The per-widget DTO sub-namespaces are
-     * excluded here because they already have their own stricter
+     * The root of the `Model` namespace holds cross-cutting value objects that
+     * classify webtrees data without carrying behaviour (currently
+     * `FamilyRow`). The same leaf-layer invariant as for the per-widget DTOs
+     * applies: they must not reach into repositories, the facade, the
+     * composition root, or Support helpers — they ARE the vocabulary those
+     * layers speak, not the other way around. The per-widget DTO sub-namespaces
+     * are excluded here because they already have their own stricter
      * `dtoDoesNotDependOnAnyOtherProductionLayer` rule above.
      */
     #[TestRule]
@@ -307,13 +294,12 @@ final class ArchitectureTest
     }
 
     /**
-     * Cross-cutting domain enums live under `Enum\` and follow the
-     * same leaf-layer invariant as the Model value objects: they
-     * define the vocabulary (`Sex`, `MaritalBucket`, `AgePairExtremum`)
-     * that repositories, the facade and the View builders consume.
-     * An enum that pulled in a Repository or the Statistic facade
-     * would turn into a service in disguise and break the dependency
-     * direction this module relies on.
+     * Cross-cutting domain enums live under `Enum\` and follow the same
+     * leaf-layer invariant as the Model value objects: they define the
+     * vocabulary (`Sex`, `MaritalBucket`, `AgePairExtremum`) that repositories,
+     * the facade and the View builders consume. An enum that pulled in a
+     * Repository or the Statistic facade would turn into a service in disguise
+     * and break the dependency direction this module relies on.
      */
     #[TestRule]
     public function enumDoesNotDependOnAnyOtherProductionLayer(): Rule

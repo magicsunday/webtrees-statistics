@@ -16,21 +16,20 @@ use function implode;
 use function sprintf;
 
 /**
- * Fluent builder for the shared card frame used by every chart /
- * statistic card. Renders the eyebrow + title + sub header strip,
- * the body slot, the optional accent illustration anchored top-
- * right, and the optional footer info-popover button as one HTML
- * string.
+ * Fluent builder for the shared card frame used by every chart / statistic
+ * card. Renders the eyebrow + title + sub header strip, the body slot, the
+ * optional accent illustration anchored top- right, and the optional footer
+ * info-popover button as one HTML string.
  *
- * Accent colour and illustration both resolve from typed enums
- * (`Accent`, `Illustration`) so a tab template gets compile-time
- * spelling-safety on both axes — `Card::for($module, $title)
+ * Accent colour and illustration both resolve from typed enums (`Accent`,
+ * `Illustration`) so a tab template gets compile-time spelling-safety on both
+ * axes — `Card::for($module, $title)
  *   ->withAccent(Accent::Wine)
  *   ->withIllustration(Illustration::Tree)
  *   ->render()` — instead of free-form strings.
  *
- * The accent colour drives both the eyebrow label and the
- * illustration's `currentColor` stroke automatically.
+ * The accent colour drives both the eyebrow label and the illustration's
+ * `currentColor` stroke automatically.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -39,8 +38,7 @@ use function sprintf;
 final readonly class Card
 {
     /**
-     * Default span across the 12-column grid for cards that don't
-     * override.
+     * Default span across the 12-column grid for cards that don't override.
      */
     public const int DEFAULT_SPAN = 12;
 
@@ -77,8 +75,8 @@ final readonly class Card
     }
 
     /**
-     * Start a new card. `$module` is the view-namespace prefix used
-     * when the illustration is resolved at render time.
+     * Start a new card. `$module` is the view-namespace prefix used when the
+     * illustration is resolved at render time.
      */
     public static function for(string $module, string $title): self
     {
@@ -166,8 +164,8 @@ final readonly class Card
     }
 
     /**
-     * Accent colour from the Heritage palette. Drives both the
-     * eyebrow label and the illustration's `currentColor` stroke.
+     * Accent colour from the Heritage palette. Drives both the eyebrow label
+     * and the illustration's `currentColor` stroke.
      */
     public function withAccent(?Accent $accent): self
     {
@@ -189,9 +187,8 @@ final readonly class Card
     }
 
     /**
-     * Illustration key from the catalogue. Rendered into the top-
-     * right corner of the card via the shared
-     * `components/illustration.phtml` partial.
+     * Illustration key from the catalogue. Rendered into the top- right corner
+     * of the card via the shared `components/illustration.phtml` partial.
      */
     public function withIllustration(?Illustration $illustration): self
     {
@@ -213,20 +210,19 @@ final readonly class Card
     }
 
     /**
-     * Long-form help text rendered into a Bootstrap popover triggered
-     * from the footer info-button. When set, the footer auto-shows
-     * unless explicitly suppressed via `withoutFooter()`.
+     * Long-form help text rendered into a Bootstrap popover triggered from the
+     * footer info-button. When set, the footer auto-shows unless explicitly
+     * suppressed via `withoutFooter()`.
      *
-     * `$title` and `$ariaLabel` are the localised popover heading
-     * and accessible label — pass them through `I18N::translate()`
-     * at the call site so xgettext extracts the source strings.
+     * `$title` and `$ariaLabel` are the localised popover heading and
+     * accessible label — pass them through `I18N::translate()` at the call site
+     * so xgettext extracts the source strings.
      *
-     * Note: the popover is rendered with Bootstrap's `data-bs-html="true"`
-     * so the body supports inline `<b>` / `<em>` formatting. Treat
-     * `$text` as translator-controlled developer content — never feed
-     * user-supplied data through this setter; with `data-bs-html` on,
-     * any HTML in the content is injected via `innerHTML` and would
-     * become a stored-XSS sink.
+     * Note: the popover is rendered with Bootstrap's `data-bs-html="true"` so
+     * the body supports inline `<b>` / `<em>` formatting. Treat `$text` as
+     * translator-controlled developer content — never feed user-supplied data
+     * through this setter; with `data-bs-html` on, any HTML in the content is
+     * injected via `innerHTML` and would become a stored-XSS sink.
      */
     public function withInfo(string $text, string $title, string $ariaLabel): self
     {
@@ -292,8 +288,8 @@ final readonly class Card
     }
 
     /**
-     * Force the footer slot on even when no info popover is attached
-     * (used to keep the dashed-rhythm consistent across a section).
+     * Force the footer slot on even when no info popover is attached (used to
+     * keep the dashed-rhythm consistent across a section).
      */
     public function withFooter(): self
     {
@@ -315,8 +311,8 @@ final readonly class Card
     }
 
     /**
-     * Pre-rendered HTML body. Echoed verbatim into the card body slot
-     * — caller is responsible for escaping any user content via `e()`.
+     * Pre-rendered HTML body. Echoed verbatim into the card body slot — caller
+     * is responsible for escaping any user content via `e()`.
      */
     public function withBodyHtml(string $html): self
     {
@@ -338,8 +334,8 @@ final readonly class Card
     }
 
     /**
-     * Render the card to an HTML string. Safe to embed directly into
-     * a parent template via `<?php echo Card::for(...)->render(); ?>`.
+     * Render the card to an HTML string. Safe to embed directly into a parent
+     * template via `<?php echo Card::for(...)->render(); ?>`.
      */
     public function render(): string
     {
@@ -374,8 +370,8 @@ HTML;
     }
 
     /**
-     * Assemble the inline `style="..."` rule from grid-span and the
-     * optional accent CSS custom property.
+     * Assemble the inline `style="..."` rule from grid-span and the optional
+     * accent CSS custom property.
      */
     private function buildStyle(): string
     {
@@ -389,8 +385,8 @@ HTML;
     }
 
     /**
-     * Render the illustration slot (top-right SVG) or an empty string
-     * when no illustration was passed.
+     * Render the illustration slot (top-right SVG) or an empty string when no
+     * illustration was passed.
      */
     private function renderIllustration(): string
     {
@@ -430,8 +426,8 @@ HTML;
     }
 
     /**
-     * Render the optional eyebrow paragraph (returns empty string
-     * when no eyebrow was passed).
+     * Render the optional eyebrow paragraph (returns empty string when no
+     * eyebrow was passed).
      */
     private function renderEyebrow(): string
     {
@@ -448,8 +444,8 @@ HTML;
     }
 
     /**
-     * Render the optional sub-heading paragraph (returns empty string
-     * when no sub was passed).
+     * Render the optional sub-heading paragraph (returns empty string when no
+     * sub was passed).
      */
     private function renderSub(): string
     {
@@ -461,8 +457,8 @@ HTML;
     }
 
     /**
-     * Render the footer slot (info popover button) or an empty
-     * string when the footer is suppressed.
+     * Render the footer slot (info popover button) or an empty string when the
+     * footer is suppressed.
      */
     private function renderFooter(): string
     {
@@ -500,8 +496,8 @@ HTML;
     }
 
     /**
-     * HTML-escape any user-supplied string before it lands inside an
-     * attribute or text node.
+     * HTML-escape any user-supplied string before it lands inside an attribute
+     * or text node.
      */
     private function escapeHtml(string $value): string
     {

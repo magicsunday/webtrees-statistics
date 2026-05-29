@@ -15,10 +15,10 @@ use MagicSunday\Webtrees\Statistic\Repository\GivenNameTrendsRepository;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
- * End-to-end test of the per-decade given-name aggregator against a
- * curated fixture covering: a name peaking in one decade, a name with
- * two peaks, a name spanning more than one decade, and an individual
- * with no birth date (must be silently skipped).
+ * End-to-end test of the per-decade given-name aggregator against a curated
+ * fixture covering: a name peaking in one decade, a name with two peaks, a name
+ * spanning more than one decade, and an individual with no birth date (must be
+ * silently skipped).
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -27,11 +27,11 @@ use PHPUnit\Framework\Attributes\Test;
 final class GivenNameTrendsRepositoryIntegrationTest extends IntegrationTestCase
 {
     /**
-     * The fixture has eleven dated individuals across five decades:
-     * Anna×2 in the 1850s and Anna×1 in the 1900s (total 3), Friedrich×2
-     * in the 1860s, Maria×2 in the 1900s, Hans×3 in the 1950s, Lisa×1
-     * in the 1960s. A twelfth individual carries no BIRT date and is
-     * silently skipped by the aggregator.
+     * The fixture has eleven dated individuals across five decades: Anna×2 in
+     * the 1850s and Anna×1 in the 1900s (total 3), Friedrich×2 in the 1860s,
+     * Maria×2 in the 1900s, Hans×3 in the 1950s, Lisa×1 in the 1960s. A twelfth
+     * individual carries no BIRT date and is silently skipped by the
+     * aggregator.
      */
     #[Test]
     public function countByDecadeReturnsTheExpectedSeries(): void
@@ -84,10 +84,10 @@ final class GivenNameTrendsRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Asking for a top-N smaller than the distinct-name count truncates
-     * the result to exactly that many bands and to the decades where at
-     * least one of those bands actually has data. Within each kept
-     * decade the series rows stay dense — missing entries default to 0.
+     * Asking for a top-N smaller than the distinct-name count truncates the
+     * result to exactly that many bands and to the decades where at least one
+     * of those bands actually has data. Within each kept decade the series rows
+     * stay dense — missing entries default to 0.
      */
     #[Test]
     public function countByDecadeRespectsTheTopNLimit(): void

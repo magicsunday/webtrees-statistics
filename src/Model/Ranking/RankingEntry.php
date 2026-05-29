@@ -14,15 +14,14 @@ namespace MagicSunday\Webtrees\Statistic\Model\Ranking;
 use JsonSerializable;
 
 /**
- * One row of a Top-N podium ranking: the entity's XREF, a
- * human-readable `label` and the ranked `value`. Podiums return a
- * LIST of these rows rather than a `label => value` map, which is what
- * keeps two distinct individuals or families that share a display name
- * as separate rows: a name-keyed map collapses them onto one key,
- * where the lower-ranked one overwrites the higher and the rendered
- * list stops descending. The XREF is the row's stable identity — what
- * callers rank and deduplicate on, and the handle a later change can
- * use to link the name to its record page. The label stays plain text.
+ * One row of a Top-N podium ranking: the entity's XREF, a human-readable
+ * `label` and the ranked `value`. Podiums return a LIST of these rows rather
+ * than a `label => value` map, which is what keeps two distinct individuals or
+ * families that share a display name as separate rows: a name-keyed map
+ * collapses them onto one key, where the lower-ranked one overwrites the higher
+ * and the rendered list stops descending. The XREF is the row's stable identity
+ * — what callers rank and deduplicate on, and the handle a later change can use
+ * to link the name to its record page. The label stays plain text.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0

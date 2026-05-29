@@ -15,13 +15,12 @@ use Fisharebest\Webtrees\Family;
 use JsonSerializable;
 
 /**
- * Hall-of-Fame record carrying one family plus its marriage
- * duration in days. Used for the "shortest marriage" record on
- * the Overview tab — days carry the precision a year-rounded
- * duration would lose.
+ * Hall-of-Fame record carrying one family plus its marriage duration in days.
+ * Used for the "shortest marriage" record on the Overview tab — days carry the
+ * precision a year-rounded duration would lose.
  *
- * Serialises to `{xref, durationDays}`; PHTML consumers reach
- * the live `family` via the public property.
+ * Serialises to `{xref, durationDays}`; PHTML consumers reach the live `family`
+ * via the public property.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0

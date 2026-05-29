@@ -18,10 +18,10 @@ use MagicSunday\Webtrees\Statistic\Repository\ParenthoodRepository;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
- * End-to-end tests for the Hall-of-Fame record-holder methods
- * across LifeSpan / Marriage / Children / Parenthood repositories.
- * Each test imports `records.ged`, runs one record method, and
- * asserts the deliberate extreme it was designed to surface:
+ * End-to-end tests for the Hall-of-Fame record-holder methods across LifeSpan /
+ * Marriage / Children / Parenthood repositories. Each test imports
+ * `records.ged`, runs one record method, and asserts the deliberate extreme it
+ * was designed to surface:
  *
  *   I1 Centenarian (BIRT 1850, DEAT 1960, 110 years) — beats I2
  *       ShortLife (30 years) as oldest deceased.
@@ -53,8 +53,8 @@ use PHPUnit\Framework\Attributes\Test;
 final class RecordsIntegrationTest extends IntegrationTestCase
 {
     /**
-     * Oldest-deceased picks Centenarian (110 years) over
-     * ShortLife (30 years) — confirms descending-delta order.
+     * Oldest-deceased picks Centenarian (110 years) over ShortLife (30 years) —
+     * confirms descending-delta order.
      */
     #[Test]
     public function oldestDeceasedPicksTheLongestLifespan(): void
@@ -68,9 +68,9 @@ final class RecordsIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Longest-marriage picks F1 (1925 → 1980, 55 years), not F3
-     * (1930 MARR + 06 Apr 1930 DIV ≈ 95 days). Confirms that the
-     * underlying iterator picks the largest end-julian-day delta.
+     * Longest-marriage picks F1 (1925 → 1980, 55 years), not F3 (1930 MARR + 06
+     * Apr 1930 DIV ≈ 95 days). Confirms that the underlying iterator picks the
+     * largest end-julian-day delta.
      */
     #[Test]
     public function longestMarriagePicksFiftyFiveYearMarriage(): void
@@ -99,8 +99,8 @@ final class RecordsIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Largest-family picks F2 (6 children) — the only family
-     * with children in the fixture.
+     * Largest-family picks F2 (6 children) — the only family with children in
+     * the fixture.
      */
     #[Test]
     public function largestFamilyPicksTheSixChildFamily(): void
@@ -114,11 +114,10 @@ final class RecordsIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Most children per person — BigDad (I7) and BigMom (I8)
-     * both belong to F2 with six children. The aggregator picks
-     * one of the two (tie-breaker is the DB's natural order over
-     * `link.l_from`, which isn't fixture-stable across MySQL
-     * versions). Either is correct; what matters is that the
+     * Most children per person — BigDad (I7) and BigMom (I8) both belong to F2
+     * with six children. The aggregator picks one of the two (tie-breaker is
+     * the DB's natural order over `link.l_from`, which isn't fixture-stable
+     * across MySQL versions). Either is correct; what matters is that the
      * record beats PolygamistA (two FAMS, zero children).
      */
     #[Test]
@@ -133,13 +132,12 @@ final class RecordsIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Youngest father at first child — YoungParent (BIRT 1900) +
-     * EarlyChild (BIRT 1915) → 15 years. Sits at the
-     * MIN_PLAUSIBLE_AGE boundary (12) so it survives the filter.
-     * This record carries the digit-only XREF "915" so the test
-     * doubles as a regression for #71: the numeric XREF must
-     * round-trip through Registry::make() and back out of xref()
-     * as the string "915", not a coerced integer.
+     * Youngest father at first child — YoungParent (BIRT 1900) + EarlyChild
+     * (BIRT 1915) → 15 years. Sits at the MIN_PLAUSIBLE_AGE boundary (12) so it
+     * survives the filter. This record carries the digit-only XREF "915" so the
+     * test doubles as a regression for #71: the numeric XREF must round-trip
+     * through Registry::make() and back out of xref() as the string "915", not
+     * a coerced integer.
      */
     #[Test]
     public function youngestFatherAtFirstChildPicksFifteenYearOldFather(): void
@@ -153,11 +151,10 @@ final class RecordsIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Oldest father at first child — I7 BigDad (BIRT 1900) +
-     * Child1 (BIRT 1925) → 25 years. Beats YoungParent (915) at 15.
-     * Mirrors the youngest-father test so both AgePairExtremum
-     * branches (Lowest / Highest) carry direct coverage through
-     * the ParenthoodRepository pair iterator.
+     * Oldest father at first child — I7 BigDad (BIRT 1900) + Child1 (BIRT 1925)
+     * → 25 years. Beats YoungParent (915) at 15. Mirrors the youngest-father
+     * test so both AgePairExtremum branches (Lowest / Highest) carry direct
+     * coverage through the ParenthoodRepository pair iterator.
      */
     #[Test]
     public function oldestFatherAtFirstChildPicksTwentyFiveYearOldBigDad(): void
@@ -171,10 +168,10 @@ final class RecordsIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Oldest mother at first child — I8 BigMom (BIRT 1905) +
-     * Child1 (BIRT 1925) → 20 years. The only plausible mother in
-     * the fixture: I16 YoungParentWife was 10 at EarlyChild's birth
-     * which sits below MIN_PLAUSIBLE_AGE (12) and gets filtered out.
+     * Oldest mother at first child — I8 BigMom (BIRT 1905) + Child1 (BIRT 1925)
+     * → 20 years. The only plausible mother in the fixture: I16 YoungParentWife
+     * was 10 at EarlyChild's birth which sits below MIN_PLAUSIBLE_AGE (12) and
+     * gets filtered out.
      */
     #[Test]
     public function oldestMotherAtFirstChildPicksTwentyYearOldBigMom(): void
@@ -202,10 +199,10 @@ final class RecordsIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Youngest husband at marriage — F1 I3 (BIRT 1900, MARR 1925 → 25
-     * years) wins over I5 (BIRT 1900, MARR 1930 → 30 years). Pins the
-     * youngest-spouse picker through the resolver chain that just
-     * replaced the inline Registry+instanceof block.
+     * Youngest husband at marriage — F1 I3 (BIRT 1900, MARR 1925 → 25 years)
+     * wins over I5 (BIRT 1900, MARR 1930 → 30 years). Pins the youngest-spouse
+     * picker through the resolver chain that just replaced the inline
+     * Registry+instanceof block.
      */
     #[Test]
     public function youngestHusbandAtMarriagePicksTheTwentyFiveYearOld(): void
@@ -219,9 +216,9 @@ final class RecordsIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Oldest husband at marriage — F3 I5 (BIRT 1900, MARR 1930 → 30
-     * years) wins. Mirrors the youngest picker so both branches of
-     * the shared resolver carry coverage.
+     * Oldest husband at marriage — F3 I5 (BIRT 1900, MARR 1930 → 30 years)
+     * wins. Mirrors the youngest picker so both branches of the shared resolver
+     * carry coverage.
      */
     #[Test]
     public function oldestHusbandAtMarriagePicksTheThirtyYearOld(): void
@@ -235,8 +232,7 @@ final class RecordsIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Youngest wife at marriage — F1 I4 (BIRT 1905, MARR 1925 → 20
-     * years) wins.
+     * Youngest wife at marriage — F1 I4 (BIRT 1905, MARR 1925 → 20 years) wins.
      */
     #[Test]
     public function youngestWifeAtMarriagePicksTheTwentyYearOld(): void
@@ -250,8 +246,7 @@ final class RecordsIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Oldest wife at marriage — F3 I6 (BIRT 1905, MARR 1930 → 25
-     * years) wins.
+     * Oldest wife at marriage — F3 I6 (BIRT 1905, MARR 1930 → 25 years) wins.
      */
     #[Test]
     public function oldestWifeAtMarriagePicksTheTwentyFiveYearOld(): void

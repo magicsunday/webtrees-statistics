@@ -14,14 +14,14 @@ namespace MagicSunday\Webtrees\Statistic\Support\Calc;
 use function intdiv;
 
 /**
- * Shared bucket-label scheme used by every "X-year band" widget
- * (age at marriage, marriage duration, sibling gaps, age at first
- * child, …). One place to change the label format ("5–9" vs "5-9"
- * vs "5 to 9") and one place to evolve the overflow convention.
+ * Shared bucket-label scheme used by every "X-year band" widget (age at
+ * marriage, marriage duration, sibling gaps, age at first child, …). One place
+ * to change the label format ("5–9" vs "5-9" vs "5 to 9") and one place to
+ * evolve the overflow convention.
  *
- * The layout: `[min .. max)` divided into bands of `$width`,
- * labelled `"low–high"` (en-dash), plus a `"max+"` overflow bucket
- * for values that land at or beyond `$max`.
+ * The layout: `[min .. max)` divided into bands of `$width`, labelled
+ * `"low–high"` (en-dash), plus a `"max+"` overflow bucket for values that land
+ * at or beyond `$max`.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -37,9 +37,9 @@ final readonly class AgeBuckets
     }
 
     /**
-     * Build a zero-initialised bucket map across `[minInclusive,
-     * maxExclusive)` plus a `"maxExclusive+"` overflow band, all in
-     * insertion order so the rendering preserves a stable axis.
+     * Build a zero-initialised bucket map across `[minInclusive, maxExclusive)`
+     * plus a `"maxExclusive+"` overflow band, all in insertion order so the
+     * rendering preserves a stable axis.
      *
      * @return array<string, int>
      */
@@ -57,9 +57,8 @@ final readonly class AgeBuckets
     }
 
     /**
-     * Resolve a value to the matching bucket label in
-     * {@see init()} layout. Values at or above `$maxExclusive`
-     * collapse onto the overflow band.
+     * Resolve a value to the matching bucket label in {@see init()} layout.
+     * Values at or above `$maxExclusive` collapse onto the overflow band.
      */
     public static function label(int $value, int $maxExclusive, int $width): string
     {

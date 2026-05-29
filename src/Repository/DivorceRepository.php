@@ -34,10 +34,10 @@ use function max;
 use function round;
 
 /**
- * Divorce-related aggregations for the Family tab. Built on the
- * same join chain core uses for marriage stats but anchored on
- * `1 DIV` events. `1 DIVF` (Divorce Filed) is intentionally
- * excluded — same anchoring rule the marital classifier uses.
+ * Divorce-related aggregations for the Family tab. Built on the same join chain
+ * core uses for marriage stats but anchored on `1 DIV` events. `1 DIVF`
+ * (Divorce Filed) is intentionally excluded — same anchoring rule the marital
+ * classifier uses.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -52,17 +52,15 @@ final readonly class DivorceRepository
     private const int AGE_AT_DIVORCE_TYPO_CAP = 110;
 
     /**
-     * Five life-stage age bands plus an Unknown catch-all so the
-     * per-century totals of `divorcesByCenturyAndAgeBand` stay
-     * equal to `divorcesByCentury` even when BIRT records are
-     * sparse. The Unknown row carries the literal English name so
-     * the const stays constant-expression-only; the legend translates
-     * it via `I18N::translate(...)` at series-build time.
+     * Five life-stage age bands plus an Unknown catch-all so the per-century
+     * totals of `divorcesByCenturyAndAgeBand` stay equal to `divorcesByCentury`
+     * even when BIRT records are sparse. The Unknown row carries the literal
+     * English name so the const stays constant-expression-only; the legend
+     * translates it via `I18N::translate(...)` at series-build time.
      *
-     * The `I18N::translate('Unknown')` call below registers the key
-     * for static extractors that scan literal arguments — the
-     * runtime translation happens through `$band['name']` in the
-     * series-build loop.
+     * The `I18N::translate('Unknown')` call below registers the key for static
+     * extractors that scan literal arguments — the runtime translation happens
+     * through `$band['name']` in the series-build loop.
      *
      * @see I18N::translate('Unknown')
      */
@@ -91,8 +89,8 @@ final readonly class DivorceRepository
     }
 
     /**
-     * Divorces grouped by century — pass-through over core's
-     * already-public accessor.
+     * Divorces grouped by century — pass-through over core's already-public
+     * accessor.
      *
      * @return array<string, int>
      */
@@ -112,8 +110,8 @@ final readonly class DivorceRepository
     }
 
     /**
-     * Divorces grouped by GEDCOM month abbreviation — pass-through
-     * over core's already-public accessor.
+     * Divorces grouped by GEDCOM month abbreviation — pass-through over core's
+     * already-public accessor.
      *
      * @return array<string, int>
      */
@@ -181,26 +179,23 @@ final readonly class DivorceRepository
     }
 
     /**
-     * Divorces cross-tabulated by divorce century and age-at-divorce
-     * band. Returns the unified `{categories, series}` payload so
-     * the result feeds straight into the chart-lib StackedBar
-     * widget. Categories are the localised century labels of the
-     * DIV event in chronological order; series are the age bands
-     * (`0–24`, `25–34`, `35–44`, `45–54`, `55+`), each carrying
-     * one count per century. The bands are coarser than the
-     * `ageAtDivorceDistribution` 5-year buckets — a 10-band stack
-     * reads as visual noise, the broader life-stage bands let the
-     * "younger / older at divorce" story come through.
+     * Divorces cross-tabulated by divorce century and age-at-divorce band.
+     * Returns the unified `{categories, series}` payload so the result feeds
+     * straight into the chart-lib StackedBar widget. Categories are the
+     * localised century labels of the DIV event in chronological order; series
+     * are the age bands (`0–24`, `25–34`, `35–44`, `45–54`, `55+`), each
+     * carrying one count per century. The bands are coarser than the
+     * `ageAtDivorceDistribution` 5-year buckets — a 10-band stack reads as
+     * visual noise, the broader life-stage bands let the "younger / older at
+     * divorce" story come through.
      *
-     * Counts one tick per divorce so the per-century totals match
-     * the `divorcesByCentury` LineChart side-by-side. The husband's
-     * BIRT classifies the cohort when present; the wife's BIRT is
-     * the fallback when his is missing. Divorces with no usable
-     * BIRT on either spouse, with a BIRT that places the spouse
-     * after the divorce, or with an age outside the [0, 110] sanity
-     * window fall into a sixth "Unknown" band so the per-century
-     * totals stay equal to `divorcesByCentury` even on sparsely
-     * dated trees.
+     * Counts one tick per divorce so the per-century totals match the
+     * `divorcesByCentury` LineChart side-by-side. The husband's BIRT classifies
+     * the cohort when present; the wife's BIRT is the fallback when his is
+     * missing. Divorces with no usable BIRT on either spouse, with a BIRT that
+     * places the spouse after the divorce, or with an age outside the [0, 110]
+     * sanity window fall into a sixth "Unknown" band so the per-century totals
+     * stay equal to `divorcesByCentury` even on sparsely dated trees.
      */
     public function divorcesByCenturyAndAgeBand(): StackedBarPayload
     {
@@ -334,14 +329,14 @@ final readonly class DivorceRepository
     }
 
     /**
-     * Divorce rate per marriage cohort. Cohort = decade of MARR
-     * event; rate = `divorced / total` within that decade. Output
-     * is keyed by integer decade start (1900, 1910, …); the value
-     * is a fraction 0.0–1.0 rounded to 4 decimals. The display
-     * layer renders the suffix via `I18N::translate('%ss', $cohort)`.
+     * Divorce rate per marriage cohort. Cohort = decade of MARR event; rate =
+     * `divorced / total` within that decade. Output is keyed by integer decade
+     * start (1900, 1910, …); the value is a fraction 0.0–1.0 rounded to 4
+     * decimals. The display layer renders the suffix via
+     * `I18N::translate('%ss', $cohort)`.
      *
-     * Three filters keep the result tight on real trees that span
-     * many centuries:
+     * Three filters keep the result tight on real trees that span many
+     * centuries:
      *
      *  1. Adaptive sample threshold: cohorts with fewer than
      *     `max(3, total_marriages / 100)` marriages drop out — at

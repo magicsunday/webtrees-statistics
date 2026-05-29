@@ -14,9 +14,9 @@ namespace MagicSunday\Webtrees\Statistic\Model\Metric;
 use JsonSerializable;
 
 /**
- * Generic rate counter — `value` over `total`. Feeds the source-
- * citation coverage metric on the Tree-Health tab; consumers derive
- * both the percentage and the absolute counts from the same DTO.
+ * Generic rate counter — `value` over `total`. Feeds the source- citation
+ * coverage metric on the Tree-Health tab; consumers derive both the percentage
+ * and the absolute counts from the same DTO.
  *
  * Serialises to `{value: int, total: int}`.
  *

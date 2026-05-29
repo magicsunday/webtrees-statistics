@@ -27,16 +27,16 @@ use function count;
 use function sort;
 
 /**
- * Surname × surname marriage matrix for the chord-diagram widget
- * on the Names tab. Each arc is one of the top-N surnames in the
- * tree; the ribbon between two arcs encodes the number of marriages
- * between those surnames across the whole tree.
+ * Surname × surname marriage matrix for the chord-diagram widget on the Names
+ * tab. Each arc is one of the top-N surnames in the tree; the ribbon between
+ * two arcs encodes the number of marriages between those surnames across the
+ * whole tree.
  *
- * The matrix is symmetric — a marriage with husband-surname A and
- * wife-surname B contributes one unit to both `matrix[A][B]` and
- * `matrix[B][A]`. Endogamous marriages (same surname on both sides)
- * land on the diagonal once. That mirrors what the chord-diagram
- * widget expects and keeps the visual ribbon-thickness honest.
+ * The matrix is symmetric — a marriage with husband-surname A and wife-surname
+ * B contributes one unit to both `matrix[A][B]` and `matrix[B][A]`. Endogamous
+ * marriages (same surname on both sides) land on the diagonal once. That
+ * mirrors what the chord-diagram widget expects and keeps the visual
+ * ribbon-thickness honest.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -53,11 +53,10 @@ final readonly class MarriageMatrixRepository
     }
 
     /**
-     * Surname × surname marriage matrix, restricted to the top-N
-     * surnames by marriage count (each marriage contributes to two
-     * surname totals — husband-side and wife-side). Labels are
-     * alphabetically sorted so the chord layout stays stable
-     * across renders.
+     * Surname × surname marriage matrix, restricted to the top-N surnames by
+     * marriage count (each marriage contributes to two surname totals —
+     * husband-side and wife-side). Labels are alphabetically sorted so the
+     * chord layout stays stable across renders.
      *
      * @param int $topN Cap on the number of arcs in the chord diagram. 8 is a comfortable upper bound for most trees; the widget gets unreadable beyond ~12 arcs.
      */
@@ -86,14 +85,13 @@ final readonly class MarriageMatrixRepository
     }
 
     /**
-     * Pull every (husband-surname, wife-surname) pair from the tree.
-     * Husband and wife surnames come from the primary `NAME` record
-     * (anything other than `_MARNM` — webtrees' married-name type)
-     * so a wife stays under her birth surname even when her record
-     * also carries a married-name alias.
+     * Pull every (husband-surname, wife-surname) pair from the tree. Husband
+     * and wife surnames come from the primary `NAME` record (anything other
+     * than `_MARNM` — webtrees' married-name type) so a wife stays under her
+     * birth surname even when her record also carries a married-name alias.
      *
-     * Empty surnames and the NOMEN_NESCIO placeholder are dropped:
-     * those rows can't carry information in a surname-pair matrix.
+     * Empty surnames and the NOMEN_NESCIO placeholder are dropped: those rows
+     * can't carry information in a surname-pair matrix.
      *
      * @return list<array{h: string, w: string}>
      */
@@ -142,10 +140,9 @@ final readonly class MarriageMatrixRepository
     }
 
     /**
-     * Rank every surname by the count of marriages it appears in
-     * (husband-side OR wife-side), then keep the top N. Returned
-     * labels are alphabetically sorted so the chord layout stays
-     * stable across renders.
+     * Rank every surname by the count of marriages it appears in (husband-side
+     * OR wife-side), then keep the top N. Returned labels are alphabetically
+     * sorted so the chord layout stays stable across renders.
      *
      * @param list<array{h: string, w: string}> $pairs
      * @param int                               $topN
@@ -173,11 +170,10 @@ final readonly class MarriageMatrixRepository
     }
 
     /**
-     * Build the symmetric N×N matrix. Counting rule: one marriage
-     * with husband-surname A and wife-surname B contributes 1 to
-     * `matrix[A][B]` AND 1 to `matrix[B][A]` (the symmetric mirror),
-     * unless A == B (endogamous), in which case it contributes 1
-     * to `matrix[A][A]` once.
+     * Build the symmetric N×N matrix. Counting rule: one marriage with
+     * husband-surname A and wife-surname B contributes 1 to `matrix[A][B]` AND
+     * 1 to `matrix[B][A]` (the symmetric mirror), unless A == B (endogamous),
+     * in which case it contributes 1 to `matrix[A][A]` once.
      *
      * @param list<array{h: string, w: string}> $pairs
      * @param list<string>                      $labels Alphabetically sorted top-N surnames

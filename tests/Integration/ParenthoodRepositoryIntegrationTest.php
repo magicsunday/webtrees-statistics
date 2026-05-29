@@ -41,9 +41,8 @@ use function count;
 final class ParenthoodRepositoryIntegrationTest extends IntegrationTestCase
 {
     /**
-     * Fathers' distribution picks up Anton (23 years → 20–24 bucket)
-     * and Emil (47 years → 45–49 bucket). The childless family
-     * contributes nothing.
+     * Fathers' distribution picks up Anton (23 years → 20–24 bucket) and Emil
+     * (47 years → 45–49 bucket). The childless family contributes nothing.
      */
     #[Test]
     public function fathersDistributionMatchesFixture(): void
@@ -58,9 +57,8 @@ final class ParenthoodRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Mothers' distribution picks up Berta (18 years → 15–19 bucket)
-     * and Frieda (37 years → 35–39 bucket). The childless family
-     * contributes nothing.
+     * Mothers' distribution picks up Berta (18 years → 15–19 bucket) and Frieda
+     * (37 years → 35–39 bucket). The childless family contributes nothing.
      */
     #[Test]
     public function mothersDistributionMatchesFixture(): void
@@ -75,10 +73,10 @@ final class ParenthoodRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * The family with no children must NOT contribute to either
-     * sex's distribution — there is no age to compute without a
-     * dated child. Total count across all buckets sums to exactly
-     * the families that had a dated child.
+     * The family with no children must NOT contribute to either sex's
+     * distribution — there is no age to compute without a dated child. Total
+     * count across all buckets sums to exactly the families that had a dated
+     * child.
      */
     #[Test]
     public function childlessFamiliesAreExcluded(): void
@@ -92,12 +90,11 @@ final class ParenthoodRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * The 2-family age-at-first-child fixture is below the per-
-     * decade cohort floor (5) on every cohort, so the mean-by-
-     * decade aggregate must short-circuit to an empty payload —
-     * no categories, no series. Locks the sub-threshold drop so
-     * single-couple trees don't render a statistically meaningless
-     * 1-point trend line.
+     * The 2-family age-at-first-child fixture is below the per- decade cohort
+     * floor (5) on every cohort, so the mean-by- decade aggregate must
+     * short-circuit to an empty payload — no categories, no series. Locks the
+     * sub-threshold drop so single-couple trees don't render a statistically
+     * meaningless 1-point trend line.
      */
     #[Test]
     public function meanByDecadeIsEmptyWhenEveryCohortIsBelowThreshold(): void
@@ -110,16 +107,14 @@ final class ParenthoodRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * The by-decade fixture carries five qualifying families in
-     * the 1900s, five in the 1910s, and two sub-threshold families
-     * in the 1920s. The 1920s decade must therefore be dropped
-     * from `categories` (both sexes below the cohort floor of 5),
-     * leaving exactly two decades on the X-axis, ordered
-     * chronologically by decade-start year (1900s then 1910s).
-     * Both series stay in lockstep so the chart-lib LineChart can
-     * render them on a shared X axis. The series names are
-     * asserted literally so a future label refactor that swaps
-     * the order trips this test instead of the silent assertion
+     * The by-decade fixture carries five qualifying families in the 1900s, five
+     * in the 1910s, and two sub-threshold families in the 1920s. The 1920s
+     * decade must therefore be dropped from `categories` (both sexes below the
+     * cohort floor of 5), leaving exactly two decades on the X-axis, ordered
+     * chronologically by decade-start year (1900s then 1910s). Both series stay
+     * in lockstep so the chart-lib LineChart can render them on a shared X
+     * axis. The series names are asserted literally so a future label refactor
+     * that swaps the order trips this test instead of the silent assertion
      * downstream.
      */
     #[Test]
@@ -150,18 +145,16 @@ final class ParenthoodRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Children-by-birth-decade bucketing: the fixture's first
-     * cohort (children born 1900–1905) anchors families whose
-     * fathers were born in the 1870s/1880s and mothers in the
-     * 1880s. The parental-decade is irrelevant. The 1900s
-     * bucket therefore holds the five 1900-birth-year families
-     * and lands the fathers' mean at 26.6 years
-     * ((23+25+24+29+32)/5) and the mothers' at 20.8
-     * ((21+20+21+22+20)/5). The 1910s bucket is pinned too so a
-     * cursor-tracking bug between decades cannot pass with only
-     * the first index green. Locks the "decade = child's BIRT"
-     * contract the issue specifies and guards against an
-     * accidental "decade = parent's BIRT" regression.
+     * Children-by-birth-decade bucketing: the fixture's first cohort (children
+     * born 1900–1905) anchors families whose fathers were born in the
+     * 1870s/1880s and mothers in the 1880s. The parental-decade is irrelevant.
+     * The 1900s bucket therefore holds the five 1900-birth-year families and
+     * lands the fathers' mean at 26.6 years ((23+25+24+29+32)/5) and the
+     * mothers' at 20.8 ((21+20+21+22+20)/5). The 1910s bucket is pinned too so
+     * a cursor-tracking bug between decades cannot pass with only the first
+     * index green. Locks the "decade = child's BIRT" contract the issue
+     * specifies and guards against an accidental "decade = parent's BIRT"
+     * regression.
      */
     #[Test]
     public function meanByDecadeBucketsByChildBirthYearNotParentBirthYear(): void
@@ -190,15 +183,14 @@ final class ParenthoodRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Cache-sharing safety check: the same per-instance pair cache
-     * now serves both the bucket-histogram consumer
-     * ({@see ParenthoodRepository::ageAtFirstChildDistribution()})
-     * and the per-decade aggregate
-     * ({@see ParenthoodRepository::ageAtFirstChildMeanByDecade()}).
-     * Call them in sequence on the same repository instance and
-     * verify the second consumer sees the full payload — a
-     * regression where the cached row shape diverged or the cache
-     * key collided across consumers would surface here.
+     * Cache-sharing safety check: the same per-instance pair cache now serves
+     * both the bucket-histogram consumer ({@see
+     * ParenthoodRepository::ageAtFirstChildDistribution()}) and the per-decade
+     * aggregate ({@see ParenthoodRepository::ageAtFirstChildMeanByDecade()}).
+     * Call them in sequence on the same repository instance and verify the
+     * second consumer sees the full payload — a regression where the cached row
+     * shape diverged or the cache key collided across consumers would surface
+     * here.
      */
     #[Test]
     public function meanByDecadeReadsCorrectlyAfterDistributionPopulatesTheCache(): void
@@ -218,17 +210,15 @@ final class ParenthoodRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Per-sex-independent cohort drop: the asymmetric fixture
-     * carries five families in the 1930s where both spouses have
-     * a recorded birth date and five families in the 1940s where
-     * only the husband has a birth date (the wife row is filtered
-     * upstream by the BIRT-julian-day predicate). The 1940s
-     * decade must therefore survive the cohort floor — the
-     * fathers cohort sits at 5 — while the mothers cohort sits
-     * at 0 and gets suppressed with the "no data" tooltip plus a
-     * zero value on the mothers line. Locks the contract that
-     * one sex below the floor does NOT drag the whole decade
-     * with it.
+     * Per-sex-independent cohort drop: the asymmetric fixture carries five
+     * families in the 1930s where both spouses have a recorded birth date and
+     * five families in the 1940s where only the husband has a birth date (the
+     * wife row is filtered upstream by the BIRT-julian-day predicate). The
+     * 1940s decade must therefore survive the cohort floor — the fathers cohort
+     * sits at 5 — while the mothers cohort sits at 0 and gets suppressed with
+     * the "no data" tooltip plus a zero value on the mothers line. Locks the
+     * contract that one sex below the floor does NOT drag the whole decade with
+     * it.
      */
     #[Test]
     public function meanByDecadeSuppressesOnlySexBelowCohortFloor(): void

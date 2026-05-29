@@ -12,11 +12,10 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Enum;
 
 /**
- * Picks the lowest- or highest-`years` row out of a
- * `{xref, years}` pair iterator. Used by the mirror-twin
- * record-holder methods (youngest vs oldest spouse at marriage,
- * youngest vs oldest parent at first child, …) that previously
- * duplicated the same min / max walk with only the comparison
+ * Picks the lowest- or highest-`years` row out of a `{xref, years}` pair
+ * iterator. Used by the mirror-twin record-holder methods (youngest vs oldest
+ * spouse at marriage, youngest vs oldest parent at first child, …) that
+ * previously duplicated the same min / max walk with only the comparison
  * operator changing between them.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
@@ -29,10 +28,9 @@ enum AgePairExtremum
     case Highest;
 
     /**
-     * Walk every `{xref: string, years: int}` row in the iterator
-     * and keep the one whose `years` is the lowest (or highest,
-     * depending on this enum case). Returns null when the iterator
-     * is empty.
+     * Walk every `{xref: string, years: int}` row in the iterator and keep the
+     * one whose `years` is the lowest (or highest, depending on this enum
+     * case). Returns null when the iterator is empty.
      *
      * @param iterable<int, array{xref: string, years: int}> $entries
      *

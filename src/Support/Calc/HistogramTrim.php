@@ -19,12 +19,11 @@ use function max;
 /**
  * Histogram-display helpers used by the chart view layer to suppress
  * always-empty leading / trailing buckets. The age-at-marriage and
- * age-at-divorce widgets render two sex-split histograms side by
- * side; rendering 0–4 / 5–9 / 10–14 rows when nobody in either sex
- * has a marriage in that bucket is pure visual noise. A bucket is
- * only dropped when BOTH sex variants are 0 — keeping an
- * outlier in either series prevents the histogram from misleading
- * the reader into thinking the bucket doesn't exist.
+ * age-at-divorce widgets render two sex-split histograms side by side;
+ * rendering 0–4 / 5–9 / 10–14 rows when nobody in either sex has a marriage in
+ * that bucket is pure visual noise. A bucket is only dropped when BOTH sex
+ * variants are 0 — keeping an outlier in either series prevents the histogram
+ * from misleading the reader into thinking the bucket doesn't exist.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -40,14 +39,14 @@ final readonly class HistogramTrim
     }
 
     /**
-     * Single-series variant of {@see dropCoZeroEnds()}: drop leading
-     * and trailing buckets where the value is 0. Internal zero
-     * buckets are preserved so a gap between two non-zero ends
-     * stays visible (informative — e.g. a decade with no recorded
-     * births between two decades that did have births).
+     * Single-series variant of {@see dropCoZeroEnds()}: drop leading and
+     * trailing buckets where the value is 0. Internal zero buckets are
+     * preserved so a gap between two non-zero ends stays visible (informative —
+     * e.g. a decade with no recorded births between two decades that did have
+     * births).
      *
-     * If every bucket is 0, the original is returned unchanged so
-     * the view layer can decide how to handle "completely empty".
+     * If every bucket is 0, the original is returned unchanged so the view
+     * layer can decide how to handle "completely empty".
      *
      * @template TKey of array-key
      *
@@ -78,13 +77,12 @@ final readonly class HistogramTrim
     }
 
     /**
-     * Walks an escalating threshold ladder until the trimmed series
-     * fits `$maxBars`, then returns it. Each rung calls
-     * {@see dropLowOutlierEnds()} with a higher fraction-of-max
-     * ratio (1 % → 2 % → 5 % → 10 % → 20 %); the first rung whose
-     * trimmed output fits the cap wins. Falls back to the most
-     * aggressive trim when even 20 % still overshoots, so the cap is
-     * a soft ceiling, not a hard guarantee.
+     * Walks an escalating threshold ladder until the trimmed series fits
+     * `$maxBars`, then returns it. Each rung calls {@see dropLowOutlierEnds()}
+     * with a higher fraction-of-max ratio (1 % → 2 % → 5 % → 10 % → 20 %); the
+     * first rung whose trimmed output fits the cap wins. Falls back to the most
+     * aggressive trim when even 20 % still overshoots, so the cap is a soft
+     * ceiling, not a hard guarantee.
      *
      * @template TKey of array-key
      *
@@ -109,16 +107,16 @@ final readonly class HistogramTrim
     }
 
     /**
-     * Drop leading and trailing buckets whose value is below
-     * `$ratio * max($series)`. Inner low-but-non-zero buckets are
-     * preserved so gaps between non-trimmed buckets still show up.
+     * Drop leading and trailing buckets whose value is below `$ratio *
+     * max($series)`. Inner low-but-non-zero buckets are preserved so gaps
+     * between non-trimmed buckets still show up.
      *
-     * The first kept bucket has value ≥ `$ratio * max`. `$ratio = 0`
-     * falls back to {@see dropZeroEnds()} semantics; `$ratio = 1.0`
-     * keeps only the maximum bucket.
+     * The first kept bucket has value ≥ `$ratio * max`. `$ratio = 0` falls back
+     * to {@see dropZeroEnds()} semantics; `$ratio = 1.0` keeps only the maximum
+     * bucket.
      *
-     * Returned with the same key shape; no-op if every bucket is
-     * either at or above the ratio threshold.
+     * Returned with the same key shape; no-op if every bucket is either at or
+     * above the ratio threshold.
      *
      * @template TKey of array-key
      *
@@ -162,17 +160,15 @@ final readonly class HistogramTrim
     }
 
     /**
-     * Drop leading and trailing buckets that are 0 (or missing) in
-     * both `$a` and `$b`. The two arrays MUST share the same key
-     * order (typically because they come from the same repository
-     * with a sex parameter). Returns slices with the same key shape,
-     * trimmed to the inclusive range from the first to the last
-     * bucket where at least one series carries a non-zero count.
+     * Drop leading and trailing buckets that are 0 (or missing) in both `$a`
+     * and `$b`. The two arrays MUST share the same key order (typically because
+     * they come from the same repository with a sex parameter). Returns slices
+     * with the same key shape, trimmed to the inclusive range from the first to
+     * the last bucket where at least one series carries a non-zero count.
      *
-     * If both arrays are completely empty (every bucket 0 in both),
-     * the originals are returned unchanged so the caller can decide
-     * how to handle that case at the view level (typically by
-     * hiding the card entirely).
+     * If both arrays are completely empty (every bucket 0 in both), the
+     * originals are returned unchanged so the caller can decide how to handle
+     * that case at the view level (typically by hiding the card entirely).
      *
      * @param array<string, int> $a First sex variant (e.g. husbands)
      * @param array<string, int> $b Second sex variant (e.g. wives)

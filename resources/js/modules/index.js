@@ -33,9 +33,9 @@ const WORLD_GEOJSON_URL =
 let cachedGeoJson = null;
 
 /**
- * Lazily load (and cache) the world GeoJSON. The chart-lib WorldMap
- * widget needs the FeatureCollection up-front in its options; we
- * fetch it once per page load and reuse for every map render.
+ * Lazily load (and cache) the world GeoJSON. The chart-lib WorldMap widget
+ * needs the FeatureCollection up-front in its options; we fetch it once per
+ * page load and reuse for every map render.
  *
  * @returns {Promise<object>} The parsed FeatureCollection.
  */
@@ -61,9 +61,9 @@ async function loadWorldGeoJson() {
 }
 
 /**
- * Adapter that turns a chart-lib widget class (`new Widget(node, opts).draw(data)`)
- * into the functional `(node, data, options)` shape the dispatcher
- * uses. Keeps the dispatch table flat.
+ * Adapter that turns a chart-lib widget class (`new Widget(node,
+ * opts).draw(data)`) into the functional `(node, data, options)` shape the
+ * dispatcher uses. Keeps the dispatch table flat.
  *
  * @param {{new (node: HTMLElement, options: object): {draw: (data: unknown) => unknown}}} Widget Chart-lib widget class.
  *
@@ -78,11 +78,10 @@ function fromChartLib(Widget) {
 }
 
 /**
- * Asynchronous world-map dispatcher. Fetches (and caches) the
- * geojson, then hands it to the chart-lib WorldMap widget alongside
- * a d3-geo Mercator projection. Same async return shape as the
- * other widgets even though they resolve synchronously, so callers
- * never have to special-case the map.
+ * Asynchronous world-map dispatcher. Fetches (and caches) the geojson, then
+ * hands it to the chart-lib WorldMap widget alongside a d3-geo Mercator
+ * projection. Same async return shape as the other widgets even though they
+ * resolve synchronously, so callers never have to special-case the map.
  *
  * @param {HTMLElement} node
  * @param {unknown}     data
@@ -102,10 +101,9 @@ async function drawWorldMap(node, data, options) {
 }
 
 /**
- * Dispatch table mapping a `data-widget` attribute value to its
- * draw function. Every widget is a chart-lib widget; the world map
- * just needs a pre-fetch hop to load the GeoJSON the widget
- * consumes via its constructor.
+ * Dispatch table mapping a `data-widget` attribute value to its draw function.
+ * Every widget is a chart-lib widget; the world map just needs a pre-fetch hop
+ * to load the GeoJSON the widget consumes via its constructor.
  *
  * @type {Object<string, (node: HTMLElement, data: unknown, options: object) => unknown>}
  */
@@ -127,14 +125,13 @@ const WIDGETS = {
 };
 
 /**
- * Render every `[data-widget]` element inside `root` by dispatching
- * to the registered draw function. Each node carries its widget
- * type in `data-widget`, its serialised payload in `data-payload`,
- * and its renderer options in `data-options` (both JSON).
+ * Render every `[data-widget]` element inside `root` by dispatching to the
+ * registered draw function. Each node carries its widget type in `data-widget`,
+ * its serialised payload in `data-payload`, and its renderer options in
+ * `data-options` (both JSON).
  *
- * Bootstrap popovers attached to chart-header info buttons are
- * initialised in the same pass so the consumer doesn't need a
- * second hook.
+ * Bootstrap popovers attached to chart-header info buttons are initialised in
+ * the same pass so the consumer doesn't need a second hook.
  *
  * @param {ParentNode} root Document fragment to scan.
  *
@@ -187,11 +184,11 @@ export function renderWidgets(root) {
 
 /**
  * Wire up the Place-of-birth / Recorded-residences / Place-of-death
- * tab-switcher rendered by the PlacesPanel partial. The server
- * ships ALL three panels in the DOM with `.is-active` toggled on
- * the default; a click on a tab swaps that flag + the wrapper's
- * `data-view` attribute (which CSS reads to recolour the accent).
- * No widget re-instantiation — switching is purely a class toggle.
+ * tab-switcher rendered by the PlacesPanel partial. The server ships ALL three
+ * panels in the DOM with `.is-active` toggled on the default; a click on a tab
+ * swaps that flag + the wrapper's `data-view` attribute (which CSS reads to
+ * recolour the accent). No widget re-instantiation — switching is purely a
+ * class toggle.
  *
  * @param {ParentNode} root Document fragment to scan.
  */
@@ -220,15 +217,14 @@ function initPlacesPanelTabs(root) {
 }
 
 /**
- * Wire a single widget into the shared bus: emit clicks via
- * `bus.emit`, re-broadcast incoming selections via the widget's
- * `setSelection` hook. Widgets without a recognisable interface
- * (no `onSelectionChanged` / `setSelection`) are skipped silently
- * so the dispatcher stays additive — a future widget that opts in
- * to the bus only needs to expose the two hooks.
+ * Wire a single widget into the shared bus: emit clicks via `bus.emit`,
+ * re-broadcast incoming selections via the widget's `setSelection` hook.
+ * Widgets without a recognisable interface (no `onSelectionChanged` /
+ * `setSelection`) are skipped silently so the dispatcher stays additive — a
+ * future widget that opts in to the bus only needs to expose the two hooks.
  *
- * The receiver ignores echoes of its own emission so a widget never
- * fights its own click via the round-trip.
+ * The receiver ignores echoes of its own emission so a widget never fights its
+ * own click via the round-trip.
  *
  * @param {object|null|undefined} instance
  * @param {DashboardBus}          bus
@@ -256,10 +252,9 @@ function connectToBus(instance, bus, widgets) {
 }
 
 /**
- * Parse a JSON-encoded dataset attribute, returning the fallback on
- * missing or unparsable input. Logs the parse error to the console
- * so a corrupt payload is debuggable but never breaks the render
- * loop for sibling widgets.
+ * Parse a JSON-encoded dataset attribute, returning the fallback on missing or
+ * unparsable input. Logs the parse error to the console so a corrupt payload is
+ * debuggable but never breaks the render loop for sibling widgets.
  *
  * @param {string|undefined} raw      The serialised JSON string.
  * @param {*}                fallback Value returned when parse fails / input is empty.
@@ -280,10 +275,10 @@ function parseJsonAttribute(raw, fallback) {
 }
 
 /**
- * Initialise Bootstrap popovers used by the "About this chart" info
- * buttons. Bootstrap ships with the webtrees vendor bundle and
- * exposes itself on `window.bootstrap`. getOrCreateInstance keeps
- * the call idempotent across re-renders.
+ * Initialise Bootstrap popovers used by the "About this chart" info buttons.
+ * Bootstrap ships with the webtrees vendor bundle and exposes itself on
+ * `window.bootstrap`. getOrCreateInstance keeps the call idempotent across
+ * re-renders.
  *
  * @param {ParentNode} root Document fragment to scan.
  */

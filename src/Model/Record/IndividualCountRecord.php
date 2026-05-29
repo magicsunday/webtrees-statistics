@@ -15,12 +15,12 @@ use Fisharebest\Webtrees\Individual;
 use JsonSerializable;
 
 /**
- * Hall-of-Fame record carrying one individual plus the count
- * (children, spouses, …) that earned them the row. Used for
- * "most children per person" and "most spouses" records.
+ * Hall-of-Fame record carrying one individual plus the count (children,
+ * spouses, …) that earned them the row. Used for "most children per person" and
+ * "most spouses" records.
  *
- * Serialises to `{xref, count}`; PHTML consumers reach the live
- * `individual` via the public property.
+ * Serialises to `{xref, count}`; PHTML consumers reach the live `individual`
+ * via the public property.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0

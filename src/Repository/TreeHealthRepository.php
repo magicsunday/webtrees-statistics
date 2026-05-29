@@ -27,10 +27,10 @@ use function count;
 use function ksort;
 
 /**
- * Tree-wide data-quality metrics: source-citation coverage, missing-event
- * gap rates, and the average parent-to-child birth-year delta. Counters
- * lean on the shared {@see GedcomScanner} so PHP-side scans and SQL-side
- * NOT LIKE filters stay in lockstep with the same anchoring rules.
+ * Tree-wide data-quality metrics: source-citation coverage, missing-event gap
+ * rates, and the average parent-to-child birth-year delta. Counters lean on the
+ * shared {@see GedcomScanner} so PHP-side scans and SQL-side NOT LIKE filters
+ * stay in lockstep with the same anchoring rules.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -39,10 +39,9 @@ use function ksort;
 final readonly class TreeHealthRepository
 {
     /**
-     * Minimum per-century sample below which the sourced percentage
-     * is dropped from the breakdown. Five recorded births is the
-     * smallest cohort at which a single sourced ancestor doesn't
-     * skew the bar by ≥ 20 percentage points.
+     * Minimum per-century sample below which the sourced percentage is dropped
+     * from the breakdown. Five recorded births is the smallest cohort at which
+     * a single sourced ancestor doesn't skew the bar by ≥ 20 percentage points.
      */
     private const int MIN_CENTURY_SAMPLE = 5;
 
@@ -55,9 +54,9 @@ final readonly class TreeHealthRepository
     }
 
     /**
-     * Fraction of individuals with at least one SOUR citation, expressed
-     * as `{value, total}` so consumers can derive both the percentage
-     * and the absolute counts from the same DTO.
+     * Fraction of individuals with at least one SOUR citation, expressed as
+     * `{value, total}` so consumers can derive both the percentage and the
+     * absolute counts from the same DTO.
      */
     public function sourceCitationCoverage(): RateCount
     {
@@ -82,34 +81,31 @@ final readonly class TreeHealthRepository
     }
 
     /**
-     * Source-citation coverage broken down by birth century. Surfaces
-     * which historical eras carry their share of source-backed
-     * documentation and which rely on family lore. Per-century
-     * companion to {@see sourceCitationCoverage()}.
+     * Source-citation coverage broken down by birth century. Surfaces which
+     * historical eras carry their share of source-backed documentation and
+     * which rely on family lore. Per-century companion to {@see
+     * sourceCitationCoverage()}.
      *
-     * Two queries feed the breakdown: one collects the earliest
-     * gregorian / julian birth year per individual ({@see MIN()} +
-     * `GROUP BY d_gid` so multi-row pairs persisted by webtrees'
-     * minimum/maximum date storage do not double-count), the other
-     * collects the set of individual ids that have at least one SOUR
-     * citation. The view-side intersection happens in PHP rather
-     * than as an EXISTS subquery so the planner can hit each table's
-     * indices independently. The SOUR-link query joins to
-     * `individuals` so polymorphic `l_from` values pointing at
-     * families / media / notes are filtered out — the breakdown is
-     * about individuals, not records-with-citations.
+     * Two queries feed the breakdown: one collects the earliest gregorian /
+     * julian birth year per individual ({@see MIN()} + `GROUP BY d_gid` so
+     * multi-row pairs persisted by webtrees' minimum/maximum date storage do
+     * not double-count), the other collects the set of individual ids that have
+     * at least one SOUR citation. The view-side intersection happens in PHP
+     * rather than as an EXISTS subquery so the planner can hit each table's
+     * indices independently. The SOUR-link query joins to `individuals` so
+     * polymorphic `l_from` values pointing at families / media / notes are
+     * filtered out — the breakdown is about individuals, not
+     * records-with-citations.
      *
-     * BCE / B.C. years are excluded (`d_year > 0` rather than `<> 0`).
-     * {@see CenturyName::fromYear()} truncates toward zero for
-     * negative input, which collapses 100 BCE..1 CE into century 0
-     * and renders the bar with an unlabelled ordinal — better to
-     * keep ancient ancestors off the chart than to silently
-     * misbucket them.
+     * BCE / B.C. years are excluded (`d_year > 0` rather than `<> 0`). {@see
+     * CenturyName::fromYear()} truncates toward zero for negative input, which
+     * collapses 100 BCE..1 CE into century 0 and renders the bar with an
+     * unlabelled ordinal — better to keep ancient ancestors off the chart than
+     * to silently misbucket them.
      *
-     * Centuries with fewer than {@see self::MIN_CENTURY_SAMPLE} dated
-     * births are dropped: a single sourced ancestor would otherwise
-     * pin the bar to 0 % or 100 % on a cohort too small to read as
-     * data quality.
+     * Centuries with fewer than {@see self::MIN_CENTURY_SAMPLE} dated births
+     * are dropped: a single sourced ancestor would otherwise pin the bar to 0 %
+     * or 100 % on a cohort too small to read as data quality.
      *
      * @return list<array{century: int, total: int, sourced: int, percentage: float}>
      */
@@ -188,16 +184,16 @@ final readonly class TreeHealthRepository
     }
 
     /**
-     * Per-event missing-data rates for BIRT, DEAT, and MARR. Each event
-     * yields two ProgressList rows — one for the event itself, one for
-     * its `2 PLAC` sub-line. Event-presence is computed in SQL via
-     * anchored NOT LIKE filters; PLAC-within-event requires PHP-side
-     * scanning so the place check is scoped to the right event block.
+     * Per-event missing-data rates for BIRT, DEAT, and MARR. Each event yields
+     * two ProgressList rows — one for the event itself, one for its `2 PLAC`
+     * sub-line. Event-presence is computed in SQL via anchored NOT LIKE
+     * filters; PLAC-within-event requires PHP-side scanning so the place check
+     * is scoped to the right event block.
      *
-     * Marriage gaps use a different denominator: only individuals who
-     * are actually spouses in at least one family contribute. Counting
-     * every minor and never-married person as "missing MARR" would dilute
-     * the data-quality signal we care about.
+     * Marriage gaps use a different denominator: only individuals who are
+     * actually spouses in at least one family contribute. Counting every minor
+     * and never-married person as "missing MARR" would dilute the data-quality
+     * signal we care about.
      *
      * @return array<string, array{event: string, kind: string, value: int, total: int}>
      */
@@ -332,9 +328,9 @@ final readonly class TreeHealthRepository
     }
 
     /**
-     * Mean parent-to-child birth-year delta across every parent-child
-     * pair where both ends carry a parseable `1 BIRT / 2 DATE` line.
-     * Returns null when the tree has fewer than one usable pair.
+     * Mean parent-to-child birth-year delta across every parent-child pair
+     * where both ends carry a parseable `1 BIRT / 2 DATE` line. Returns null
+     * when the tree has fewer than one usable pair.
      */
     public function averageGenerationLength(): ?float
     {
@@ -390,8 +386,8 @@ final readonly class TreeHealthRepository
     }
 
     /**
-     * Total individual count for the tree, scoped to the same connection
-     * the other repository methods use so the percentages always reconcile.
+     * Total individual count for the tree, scoped to the same connection the
+     * other repository methods use so the percentages always reconcile.
      */
     private function countIndividuals(): int
     {

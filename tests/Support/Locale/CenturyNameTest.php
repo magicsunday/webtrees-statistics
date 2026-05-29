@@ -17,12 +17,11 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Verifies the year → century mapping the four century-bucketing
- * repositories share via {@see CenturyName::fromYear()}. The Gregorian
- * convention is that year 1 still belongs to the 1st century and the
- * 2nd century begins at year 101, so the boundary tests pin the
- * `-1 / +1` shift that the inline formula was prone to fat-finger
- * before the helper extraction.
+ * Verifies the year → century mapping the four century-bucketing repositories
+ * share via {@see CenturyName::fromYear()}. The Gregorian convention is that
+ * year 1 still belongs to the 1st century and the 2nd century begins at year
+ * 101, so the boundary tests pin the `-1 / +1` shift that the inline formula
+ * was prone to fat-finger before the helper extraction.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -31,9 +30,9 @@ use PHPUnit\Framework\TestCase;
 final class CenturyNameTest extends TestCase
 {
     /**
-     * Each row of the provider pins one Gregorian century-boundary
-     * case so the formula cannot drift back to the off-by-one variant
-     * (`intdiv($year, 100) + 1`, `intdiv($year - 1, 100)`, …).
+     * Each row of the provider pins one Gregorian century-boundary case so the
+     * formula cannot drift back to the off-by-one variant (`intdiv($year, 100)
+     * + 1`, `intdiv($year - 1, 100)`, …).
      *
      * @return array<string, array{int, int}>
      */
@@ -51,8 +50,8 @@ final class CenturyNameTest extends TestCase
     }
 
     /**
-     * Boundary-rich mapping confirms each off-by-one case the inline
-     * formula was vulnerable to.
+     * Boundary-rich mapping confirms each off-by-one case the inline formula
+     * was vulnerable to.
      */
     #[Test]
     #[DataProvider('gregorianBoundaryProvider')]

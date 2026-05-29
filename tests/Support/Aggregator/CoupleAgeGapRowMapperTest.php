@@ -17,11 +17,10 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Locks the label-cleaning + sign-tagging contract that drives the
- * couple-age-gap diverging-bar widget on the Family tab. The
- * husband-older side comes in with negative-marker labels
- * (`'-5 to -10'`, `'<-30'`, bare `'-15'`); this mapper has to
- * normalise them into positive band labels and tag the row with
- * `sign = -1` so the chart mirrors them onto the left half.
+ * couple-age-gap diverging-bar widget on the Family tab. The husband-older side
+ * comes in with negative-marker labels (`'-5 to -10'`, `'<-30'`, bare `'-15'`);
+ * this mapper has to normalise them into positive band labels and tag the row
+ * with `sign = -1` so the chart mirrors them onto the left half.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -30,8 +29,8 @@ use PHPUnit\Framework\TestCase;
 final class CoupleAgeGapRowMapperTest extends TestCase
 {
     /**
-     * Empty input short-circuits — the caller renders the empty
-     * placeholder for the surrounding card.
+     * Empty input short-circuits — the caller renders the empty placeholder for
+     * the surrounding card.
      */
     #[Test]
     public function emptyInputReturnsEmptyList(): void
@@ -40,8 +39,8 @@ final class CoupleAgeGapRowMapperTest extends TestCase
     }
 
     /**
-     * Positive bands (wife-older side) pass through with the label
-     * unchanged and `sign = +1`.
+     * Positive bands (wife-older side) pass through with the label unchanged
+     * and `sign = +1`.
      */
     #[Test]
     public function positiveBandKeepsLabelAndTagsSignPositive(): void
@@ -58,8 +57,8 @@ final class CoupleAgeGapRowMapperTest extends TestCase
     }
 
     /**
-     * Negative range bands (husband-older side, `-X to -Y` form)
-     * normalise to a positive en-dash range with min/max ordering.
+     * Negative range bands (husband-older side, `-X to -Y` form) normalise to a
+     * positive en-dash range with min/max ordering.
      */
     #[Test]
     public function negativeRangeBandCleansToPositiveEnDashRange(): void
@@ -74,8 +73,8 @@ final class CoupleAgeGapRowMapperTest extends TestCase
     }
 
     /**
-     * Open-ended low band (`<-30`) inverts to an open-ended high
-     * positive label (`>30`).
+     * Open-ended low band (`<-30`) inverts to an open-ended high positive label
+     * (`>30`).
      */
     #[Test]
     public function openEndedLowBandInvertsToOpenEndedHighLabel(): void
@@ -88,10 +87,10 @@ final class CoupleAgeGapRowMapperTest extends TestCase
     }
 
     /**
-     * Bare negative-int label (`-15`, no range) strips the leading
-     * minus and stays a single band. PHP auto-casts the
-     * numeric-string key to int at array-construction time, so the
-     * mapper coerces the key back to string before inspection.
+     * Bare negative-int label (`-15`, no range) strips the leading minus and
+     * stays a single band. PHP auto-casts the numeric-string key to int at
+     * array-construction time, so the mapper coerces the key back to string
+     * before inspection.
      */
     #[Test]
     public function bareNegativeIntStripsLeadingMinus(): void
@@ -104,9 +103,8 @@ final class CoupleAgeGapRowMapperTest extends TestCase
     }
 
     /**
-     * Negative range with reversed min/max (`-10 to -5`) still
-     * orders the cleaned label low→high so the chart's x-axis
-     * stays monotonic.
+     * Negative range with reversed min/max (`-10 to -5`) still orders the
+     * cleaned label low→high so the chart's x-axis stays monotonic.
      */
     #[Test]
     public function negativeRangeReversedInputStillOrdersLowToHigh(): void

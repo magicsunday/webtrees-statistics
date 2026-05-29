@@ -19,13 +19,13 @@ use MagicSunday\Webtrees\Statistic\Model\Record\IndividualAgeRecord;
 use MagicSunday\Webtrees\Statistic\Model\Record\IndividualCountRecord;
 
 /**
- * Hall-of-Fame report bundling every record-holder slot the Overview
- * tab renders. Each property is independently nullable — a fresh
- * tree without enough data may yield zero, some, or all slots; the
- * view renders each row only when its slot is populated.
+ * Hall-of-Fame report bundling every record-holder slot the Overview tab
+ * renders. Each property is independently nullable — a fresh tree without
+ * enough data may yield zero, some, or all slots; the view renders each row
+ * only when its slot is populated.
  *
- * Lives alongside {@see GenerationDepthReport} in the `Model\Tree`
- * namespace so all per-tree aggregate reports share one home.
+ * Lives alongside {@see GenerationDepthReport} in the `Model\Tree` namespace so
+ * all per-tree aggregate reports share one home.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0

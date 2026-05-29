@@ -15,13 +15,12 @@ use function view;
 
 /**
  * Backed enum of every illustration key the shared
- * `components/illustration.phtml` partial knows how to render. The
- * case value is the lookup key the partial keys its icon catalogue
- * on; the `svg()` method resolves the case to the rendered `<svg>`
- * string. Tab templates pass the enum case directly to the Card
- * builder — `Card::for($module, $title)->withIllustration(
- * Illustration::People)->render()` — and the Card resolves the SVG
- * at render time via the bound module slug.
+ * `components/illustration.phtml` partial knows how to render. The case value
+ * is the lookup key the partial keys its icon catalogue on; the `svg()` method
+ * resolves the case to the rendered `<svg>` string. Tab templates pass the enum
+ * case directly to the Card builder — `Card::for($module,
+ * $title)->withIllustration( Illustration::People)->render()` — and the Card
+ * resolves the SVG at render time via the bound module slug.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -52,9 +51,8 @@ enum Illustration: string
     case Zodiac      = 'zodiac';
 
     /**
-     * Return the pre-rendered SVG markup for this illustration. The
-     * shared illustration partial keys the icon catalogue on the
-     * enum case value.
+     * Return the pre-rendered SVG markup for this illustration. The shared
+     * illustration partial keys the icon catalogue on the enum case value.
      */
     public function svg(string $module): string
     {

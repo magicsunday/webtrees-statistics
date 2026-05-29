@@ -22,9 +22,9 @@ use function array_values;
 use function count;
 
 /**
- * Verifies the auto-compression histogram-bucket aggregator used by
- * the TreeHealth tab's generation-depth distribution when the source
- * series exceeds the card's readable bar count.
+ * Verifies the auto-compression histogram-bucket aggregator used by the
+ * TreeHealth tab's generation-depth distribution when the source series exceeds
+ * the card's readable bar count.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -33,9 +33,8 @@ use function count;
 final class HistogramBucketAggregatorTest extends TestCase
 {
     /**
-     * Empty input short-circuits to an empty array regardless of the
-     * cap — the calling template renders the unified placeholder
-     * instead.
+     * Empty input short-circuits to an empty array regardless of the cap — the
+     * calling template renders the unified placeholder instead.
      */
     #[Test]
     public function emptyInputReturnsEmptyArray(): void
@@ -47,9 +46,9 @@ final class HistogramBucketAggregatorTest extends TestCase
     }
 
     /**
-     * When the series already fits under the cap, the smallest ladder
-     * candidate (1) wins and every bucket survives unchanged. Keys
-     * carry the positional index as a string.
+     * When the series already fits under the cap, the smallest ladder candidate
+     * (1) wins and every bucket survives unchanged. Keys carry the positional
+     * index as a string.
      */
     #[Test]
     public function fitsUnderCapWithoutCompression(): void
@@ -63,9 +62,9 @@ final class HistogramBucketAggregatorTest extends TestCase
     }
 
     /**
-     * A `$maxBars` value below 1 is clamped to 1 so the helper never
-     * returns more bars than the cap — protects callers passing a
-     * misconfigured constant.
+     * A `$maxBars` value below 1 is clamped to 1 so the helper never returns
+     * more bars than the cap — protects callers passing a misconfigured
+     * constant.
      */
     #[Test]
     public function maxBarsBelowOneClampsToOne(): void
@@ -79,8 +78,8 @@ final class HistogramBucketAggregatorTest extends TestCase
     }
 
     /**
-     * Boundary at the cap: a series of exactly `$maxBars` entries
-     * still fits at chunkSize 1 and stays uncompressed.
+     * Boundary at the cap: a series of exactly `$maxBars` entries still fits at
+     * chunkSize 1 and stays uncompressed.
      */
     #[Test]
     public function exactlyAtCapFitsUncompressed(): void
@@ -93,9 +92,9 @@ final class HistogramBucketAggregatorTest extends TestCase
     }
 
     /**
-     * Boundary one above the cap: 25 entries at maxBars 24 forces the
-     * ladder up to chunkSize 5, yielding five bands of size 5 — labels
-     * use the en-dash range form.
+     * Boundary one above the cap: 25 entries at maxBars 24 forces the ladder up
+     * to chunkSize 5, yielding five bands of size 5 — labels use the en-dash
+     * range form.
      */
     #[Test]
     public function exactlyOverCapJumpsToFives(): void
@@ -112,9 +111,9 @@ final class HistogramBucketAggregatorTest extends TestCase
     }
 
     /**
-     * 77 buckets (royal-92 generation-depth scenario) with cap 24
-     * forces the ladder to chunkSize 5 — yielding 16 bands which
-     * comfortably fits the card width.
+     * 77 buckets (royal-92 generation-depth scenario) with cap 24 forces the
+     * ladder to chunkSize 5 — yielding 16 bands which comfortably fits the card
+     * width.
      */
     #[Test]
     public function royalScenarioCompressesToFives(): void
@@ -128,9 +127,8 @@ final class HistogramBucketAggregatorTest extends TestCase
     }
 
     /**
-     * A series long enough to exhaust every ladder candidate (1, 5,
-     * 10, 25, 50, 100) triggers the ceil fallback so the bar count
-     * still respects the cap.
+     * A series long enough to exhaust every ladder candidate (1, 5, 10, 25, 50,
+     * 100) triggers the ceil fallback so the bar count still respects the cap.
      */
     #[Test]
     public function oversizeInputUsesCeilFallback(): void
@@ -145,9 +143,9 @@ final class HistogramBucketAggregatorTest extends TestCase
     }
 
     /**
-     * The last chunk picks up the trailing remainder when the source
-     * length is not a clean multiple of the chunk size — its label
-     * reflects the smaller range.
+     * The last chunk picks up the trailing remainder when the source length is
+     * not a clean multiple of the chunk size — its label reflects the smaller
+     * range.
      */
     #[Test]
     public function trailingRemainderShrinksLastBandLabel(): void
@@ -164,8 +162,8 @@ final class HistogramBucketAggregatorTest extends TestCase
     }
 
     /**
-     * A single-element trailing chunk collapses its label to the bare
-     * index rather than a degenerate `n–n` range.
+     * A single-element trailing chunk collapses its label to the bare index
+     * rather than a degenerate `n–n` range.
      */
     #[Test]
     public function singleElementChunkUsesBareLabel(): void

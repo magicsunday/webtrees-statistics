@@ -14,11 +14,10 @@ namespace MagicSunday\Webtrees\Statistic\Support\Locale;
 use Fisharebest\Webtrees\I18N;
 
 /**
- * Translates the canonical English zodiac sign keys (Aries, Taurus, …)
- * used by `EventRepository::getBirthsByZodiacSign()` into the display
- * label of the active locale. The repository keeps the keys language-
- * neutral so SQL aliases and downstream code stay stable; only the
- * view layer translates them.
+ * Translates the canonical English zodiac sign keys (Aries, Taurus, …) used by
+ * `EventRepository::getBirthsByZodiacSign()` into the display label of the
+ * active locale. The repository keeps the keys language- neutral so SQL aliases
+ * and downstream code stay stable; only the view layer translates them.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -32,9 +31,9 @@ final class ZodiacLabels
 
     /**
      * Rebuild `[zodiacKey => count]` with the keys passed through
-     * I18N::translate(). Unknown keys (callers must not invent any,
-     * but defensively guard anyway) flow through unchanged so no
-     * data row goes missing.
+     * I18N::translate(). Unknown keys (callers must not invent any, but
+     * defensively guard anyway) flow through unchanged so no data row goes
+     * missing.
      *
      * @param array<string, int> $data Counts keyed by English zodiac sign
      *

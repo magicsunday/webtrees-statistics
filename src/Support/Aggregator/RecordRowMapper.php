@@ -20,19 +20,17 @@ use MagicSunday\Webtrees\Statistic\Model\Record\IndividualCountRecord;
 use MagicSunday\Webtrees\Statistic\View\RecordCategory;
 
 /**
- * Flattens the typed record DTOs in `TreeRecordsReport` into the
- * `[cat, label, value, who, url]` row shape that the
- * `components/records-grid.phtml` partial iterates over. Each
- * factory method covers one record-holder shape — `years()` for
- * individual age-records, `familyYears()` / `familyDays()` for
- * marriage durations, `marriages()` / `children()` /
- * `familyChildren()` for count records. Every method returns
- * `null` when the source record is missing so the caller can
- * `array_filter()` the assembled list without a per-record `if`.
+ * Flattens the typed record DTOs in `TreeRecordsReport` into the `[cat, label,
+ * value, who, url]` row shape that the `components/records-grid.phtml` partial
+ * iterates over. Each factory method covers one record-holder shape — `years()`
+ * for individual age-records, `familyYears()` / `familyDays()` for marriage
+ * durations, `marriages()` / `children()` / `familyChildren()` for count
+ * records. Every method returns `null` when the source record is missing so the
+ * caller can `array_filter()` the assembled list without a per-record `if`.
  *
- * The pluralised value strings live here as literal
- * `I18N::plural(...)` calls — xgettext extracts the msgids from
- * this file the same way it would from the original template.
+ * The pluralised value strings live here as literal `I18N::plural(...)` calls —
+ * xgettext extracts the msgids from this file the same way it would from the
+ * original template.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -70,8 +68,7 @@ final readonly class RecordRowMapper
     }
 
     /**
-     * Family marriage-duration record measured in years
-     * (`longestMarriage`).
+     * Family marriage-duration record measured in years (`longestMarriage`).
      *
      * @return array{cat: string, label: string, value: string, who: string, url: string}|null
      */
@@ -91,8 +88,7 @@ final readonly class RecordRowMapper
     }
 
     /**
-     * Family marriage-duration record measured in days
-     * (`shortestMarriage`).
+     * Family marriage-duration record measured in days (`shortestMarriage`).
      *
      * @return array{cat: string, label: string, value: string, who: string, url: string}|null
      */

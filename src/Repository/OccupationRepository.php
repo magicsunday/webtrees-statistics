@@ -14,8 +14,8 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 
 /**
- * Top-N aggregation over the `1 OCCU` (occupation) facts attached
- * to individuals. Multiple OCCU lines per INDI all contribute.
+ * Top-N aggregation over the `1 OCCU` (occupation) facts attached to
+ * individuals. Multiple OCCU lines per INDI all contribute.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -24,9 +24,9 @@ use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 final class OccupationRepository extends AbstractGedcomTagTopNRepository
 {
     /**
-     * Harvests every top-level `1 OCCU` line from the INDI record.
-     * An individual carrying two recorded occupations contributes
-     * two entries to the frequency rollup.
+     * Harvests every top-level `1 OCCU` line from the INDI record. An
+     * individual carrying two recorded occupations contributes two entries to
+     * the frequency rollup.
      *
      * @param string $gedcom The raw INDI GEDCOM record to scan
      *

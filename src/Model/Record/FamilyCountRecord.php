@@ -15,12 +15,11 @@ use Fisharebest\Webtrees\Family;
 use JsonSerializable;
 
 /**
- * Hall-of-Fame record carrying one family plus a count (children,
- * generations, …). Used for "largest family by child count" on
- * the Overview tab.
+ * Hall-of-Fame record carrying one family plus a count (children, generations,
+ * …). Used for "largest family by child count" on the Overview tab.
  *
- * Serialises to `{xref, count}`; PHTML consumers reach the live
- * `family` via the public property.
+ * Serialises to `{xref, count}`; PHTML consumers reach the live `family` via
+ * the public property.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0

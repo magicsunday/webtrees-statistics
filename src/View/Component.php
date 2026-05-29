@@ -14,17 +14,15 @@ namespace MagicSunday\Webtrees\Statistic\View;
 use function view;
 
 /**
- * Fluent immutable builder for the non-widget server-rendered HTML
- * fragments under
- * `resources/views/modules/statistics-chart/components/<name>.phtml`.
- * These are plain PHP-rendered building blocks (scalar bignum,
- * podium ranking list, progress-list, hall-of-fame grid, …) — no
- * `data-widget` JSON marker, no JS dispatcher pickup.
+ * Fluent immutable builder for the non-widget server-rendered HTML fragments
+ * under `resources/views/modules/statistics-chart/components/<name>.phtml`.
+ * These are plain PHP-rendered building blocks (scalar bignum, podium ranking
+ * list, progress-list, hall-of-fame grid, …) — no `data-widget` JSON marker, no
+ * JS dispatcher pickup.
  *
- * Mirrors the `Widget` builder shape: one factory method per
- * component partial, generic `with(string $key, mixed $value)` for
- * the partial-specific variables. The partial's `@var` header
- * still documents the exact contract.
+ * Mirrors the `Widget` builder shape: one factory method per component partial,
+ * generic `with(string $key, mixed $value)` for the partial-specific variables.
+ * The partial's `@var` header still documents the exact contract.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -45,8 +43,7 @@ final readonly class Component
     }
 
     /**
-     * Start a new heat-strip component (gaps display in the
-     * tree-health tab).
+     * Start a new heat-strip component (gaps display in the tree-health tab).
      */
     public static function heatStrip(string $module): self
     {
@@ -82,8 +79,8 @@ final readonly class Component
     }
 
     /**
-     * Start a new places-panel component (places tab — wraps
-     * progress-list + geo-map for each birth/residence/death view).
+     * Start a new places-panel component (places tab — wraps progress-list +
+     * geo-map for each birth/residence/death view).
      */
     public static function placesPanel(string $module): self
     {
@@ -95,8 +92,7 @@ final readonly class Component
     }
 
     /**
-     * Start a new podium component (top-N ranking list with medal
-     * decoration).
+     * Start a new podium component (top-N ranking list with medal decoration).
      */
     public static function podium(string $module): self
     {
@@ -120,8 +116,8 @@ final readonly class Component
     }
 
     /**
-     * Start a new records-grid component (tree-records hall-of-fame
-     * grid on the overview tab).
+     * Start a new records-grid component (tree-records hall-of-fame grid on the
+     * overview tab).
      */
     public static function recordsGrid(string $module): self
     {
@@ -133,8 +129,8 @@ final readonly class Component
     }
 
     /**
-     * Start a new scalar component (bignum value + caption + optional
-     * scale strip).
+     * Start a new scalar component (bignum value + caption + optional scale
+     * strip).
      */
     public static function scalar(string $module): self
     {
@@ -146,8 +142,8 @@ final readonly class Component
     }
 
     /**
-     * Set the payload data. Shape depends on the component partial
-     * (`@var header). $data`.
+     * Set the payload data. Shape depends on the component partial (`@var
+     * header). $data`.
      */
     public function withData(mixed $data): self
     {
@@ -162,9 +158,9 @@ final readonly class Component
     }
 
     /**
-     * Component-specific option escape hatch — sets an arbitrary key
-     * on the partial's variable bag. The underlying partial's `@var`
-     * header documents the exact contract.
+     * Component-specific option escape hatch — sets an arbitrary key on the
+     * partial's variable bag. The underlying partial's `@var` header documents
+     * the exact contract.
      */
     public function with(string $key, mixed $value): self
     {
@@ -179,8 +175,8 @@ final readonly class Component
     }
 
     /**
-     * Render the component to an HTML string by delegating to the
-     * underlying view partial.
+     * Render the component to an HTML string by delegating to the underlying
+     * view partial.
      */
     public function render(): string
     {
