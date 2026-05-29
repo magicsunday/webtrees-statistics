@@ -3,7 +3,9 @@ name: Greetings
 on:
     issues:
         types: [ opened ]
-    pull_request_target:
+    # pull_request_target is required so the greeting can be posted on
+    # first-time contributors' fork PRs; bot PRs are skipped in the job below.
+    pull_request_target:  # zizmor: ignore[dangerous-triggers]
         types: [ opened ]
 
 permissions:
