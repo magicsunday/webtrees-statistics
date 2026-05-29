@@ -519,4 +519,178 @@ describe("renderWidgets", () => {
         expect(worldMapPlayEntrySpy).toHaveBeenCalledTimes(1);
         expect(observers[0].observed).not.toContain(node);
     });
+
+    test("returns a disconnect() that tears down the observer and motion listener", () => {
+        const disconnectSpy = jest.fn();
+        global.IntersectionObserver = class {
+            constructor(callback) {
+                this.callback = callback;
+            }
+            observe() {}
+            unobserve() {}
+            disconnect() {
+                disconnectSpy();
+            }
+        };
+        const removeListenerSpy = jest.fn();
+        window.matchMedia = jest.fn().mockReturnValue({
+            matches: false,
+            addEventListener: () => {},
+            removeEventListener: removeListenerSpy,
+        });
+
+        document.body.innerHTML = `<div id="d1" data-widget="donut" data-payload='[]'></div>`;
+        const result = renderWidgets(document.body);
+
+        expect(typeof result.disconnect).toBe("function");
+
+        result.disconnect();
+
+        expect(disconnectSpy).toHaveBeenCalledTimes(1);
+        expect(removeListenerSpy).toHaveBeenCalledTimes(1);
+    });
+
+    test("fast-forwards held entrances and stops arming when reduced-motion turns on after render", () => {
+        const observers = [];
+        global.IntersectionObserver = class {
+            constructor(callback) {
+                this.callback = callback;
+                this.observed = [];
+                this.disconnected = false;
+                observers.push(this);
+            }
+            observe(node) {
+                this.observed.push(node);
+            }
+            unobserve() {}
+            disconnect() {
+                this.disconnected = true;
+            }
+        };
+        // matchMedia starts at matches:false (reveal-gating active) and captures
+        // the change handler so the test can flip the preference mid-life.
+        let changeHandler = null;
+        window.matchMedia = jest.fn().mockReturnValue({
+            matches: false,
+            addEventListener: (event, handler) => {
+                changeHandler = handler;
+            },
+            removeEventListener: () => {},
+        });
+
+        document.body.innerHTML = `<div id="d1" data-widget="donut" data-payload='[]'></div>`;
+        renderWidgets(document.body);
+
+        // Off-screen at render (default jsdom rect) → entrance HELD, node observed,
+        // nothing played yet.
+        expect(donutPlayEntrySpy).not.toHaveBeenCalled();
+        expect(observers[0].observed).toHaveLength(1);
+        expect(typeof changeHandler).toBe("function");
+
+        // User turns on reduce-motion: the held entrance fast-forwards and the
+        // observer is disconnected so no further reveals arm.
+        changeHandler({ matches: true });
+
+        expect(donutPlayEntrySpy).toHaveBeenCalledTimes(1);
+        expect(observers[0].disconnected).toBe(true);
+    });
+
+    test("ignores a reduced-motion change that turns the preference back off", () => {
+        const observers = [];
+        global.IntersectionObserver = class {
+            constructor(callback) {
+                this.callback = callback;
+                this.observed = [];
+                this.disconnected = false;
+                observers.push(this);
+            }
+            observe(node) {
+                this.observed.push(node);
+            }
+            unobserve() {}
+            disconnect() {
+                this.disconnected = true;
+            }
+        };
+        let changeHandler = null;
+        window.matchMedia = jest.fn().mockReturnValue({
+            matches: false,
+            addEventListener: (event, handler) => {
+                changeHandler = handler;
+            },
+            removeEventListener: () => {},
+        });
+
+        document.body.innerHTML = `<div id="d1" data-widget="donut" data-payload='[]'></div>`;
+        renderWidgets(document.body);
+
+        // A change to matches:false (reduce turned OFF) must be a no-op: the
+        // held entrance keeps waiting for its scroll-in reveal.
+        changeHandler({ matches: false });
+
+        expect(donutPlayEntrySpy).not.toHaveBeenCalled();
+        expect(observers[0].disconnected).toBe(false);
+
+        // Prove the held entry SURVIVED the no-op (distinct from a teardown): a
+        // later scroll-in still reveals it exactly once.
+        const node = document.getElementById("d1");
+        observers[0].callback([{ target: node, isIntersecting: true }], observers[0]);
+        expect(donutPlayEntrySpy).toHaveBeenCalledTimes(1);
+    });
+
+    test("plays an async widget inline (no observer re-arm) when reduced-motion turned on before it resolved", async () => {
+        const observers = [];
+        global.IntersectionObserver = class {
+            constructor(callback) {
+                this.callback = callback;
+                this.observed = [];
+                this.disconnected = false;
+                observers.push(this);
+            }
+            observe(node) {
+                this.observed.push(node);
+            }
+            unobserve() {}
+            disconnect() {
+                this.disconnected = true;
+            }
+        };
+        let changeHandler = null;
+        window.matchMedia = jest.fn().mockReturnValue({
+            matches: false,
+            addEventListener: (event, handler) => {
+                changeHandler = handler;
+            },
+            removeEventListener: () => {},
+        });
+
+        document.body.innerHTML = `<div id="w1" data-widget="world-map" data-payload='[]'></div>`;
+        const node = document.getElementById("w1");
+        // Off-screen, so absent the retire it would defer to the observer.
+        node.getBoundingClientRect = () => ({
+            top: 10000,
+            bottom: 10100,
+            left: 0,
+            right: 0,
+            width: 0,
+            height: 100,
+        });
+
+        renderWidgets(document.body);
+
+        // Reduce-motion turns on while the geojson promise is still pending —
+        // the world-map's .then has not run yet, so it is not in `held`.
+        changeHandler({ matches: true });
+        expect(observers[0].disconnected).toBe(true);
+        expect(worldMapPlayEntrySpy).not.toHaveBeenCalled();
+
+        // Flush the geojson promise + .then chain.
+        await Promise.resolve();
+        await Promise.resolve();
+
+        // The resolved map plays its entrance inline (final state reached) and
+        // is NEVER re-observed on the disconnected observer.
+        expect(worldMapPlayEntrySpy).toHaveBeenCalledTimes(1);
+        expect(observers[0].observed).not.toContain(node);
+    });
 });
