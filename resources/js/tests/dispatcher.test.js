@@ -20,6 +20,7 @@ const donutPlayEntrySpy = jest.fn();
 const streamGraphDrawSpy = jest.fn();
 const sankeyFlowDrawSpy = jest.fn();
 const worldMapDrawSpy = jest.fn();
+const worldMapPlayEntrySpy = jest.fn();
 const lineChartDrawSpy = jest.fn();
 
 class DonutChart {
@@ -59,6 +60,9 @@ class WorldMap {
     }
     draw(data) {
         worldMapDrawSpy(this.node, data, this.options);
+    }
+    playEntry() {
+        worldMapPlayEntrySpy(this.node);
     }
 }
 class LineChart {
@@ -135,6 +139,7 @@ describe("renderWidgets", () => {
         donutDrawSpy.mockClear();
         donutPlayEntrySpy.mockClear();
         worldMapDrawSpy.mockClear();
+        worldMapPlayEntrySpy.mockClear();
         streamGraphDrawSpy.mockClear();
         sankeyFlowDrawSpy.mockClear();
         lineChartDrawSpy.mockClear();
@@ -430,5 +435,88 @@ describe("renderWidgets", () => {
         // The dispatcher never engaged the observer or called playEntry.
         expect(observe).not.toHaveBeenCalled();
         expect(donutPlayEntrySpy).not.toHaveBeenCalled();
+    });
+
+    test("plays the entrance immediately for a card already in the viewport (no observer wait)", () => {
+        const observers = [];
+        global.IntersectionObserver = class {
+            constructor(callback) {
+                this.callback = callback;
+                this.observed = [];
+                observers.push(this);
+            }
+            observe(node) {
+                this.observed.push(node);
+            }
+            unobserve() {}
+            disconnect() {}
+        };
+
+        document.body.innerHTML = `<div id="d1" data-widget="donut" data-payload='[]'></div>`;
+        const node = document.getElementById("d1");
+        // Pretend the card is on-screen — jsdom's default all-zero rect reads as
+        // not-visible, so a visible rect must be stubbed. This guards the
+        // bottom-band / non-scrollable-page case: a visible card must play even
+        // though the negative-margin observer would never fire for it.
+        node.getBoundingClientRect = () => ({
+            top: 100,
+            bottom: 200,
+            left: 0,
+            right: 0,
+            width: 0,
+            height: 100,
+        });
+
+        renderWidgets(document.body);
+
+        // Visible at render → entrance plays now; the observer is never armed.
+        expect(donutPlayEntrySpy).toHaveBeenCalledTimes(1);
+        expect(observers[0].observed).not.toContain(node);
+    });
+
+    test("arms an async (world-map) widget's reveal only after its promise resolves", async () => {
+        const observers = [];
+        global.IntersectionObserver = class {
+            constructor(callback) {
+                this.callback = callback;
+                this.observed = [];
+                this.unobserved = [];
+                observers.push(this);
+            }
+            observe(node) {
+                this.observed.push(node);
+            }
+            unobserve(node) {
+                this.unobserved.push(node);
+            }
+            disconnect() {}
+        };
+
+        document.body.innerHTML = `<div id="w1" data-widget="world-map" data-payload='[]'></div>`;
+        const node = document.getElementById("w1");
+        // On-screen, so once the async instance resolves it plays immediately —
+        // and is never observed-then-unobserved before the instance exists.
+        node.getBoundingClientRect = () => ({
+            top: 0,
+            bottom: 200,
+            left: 0,
+            right: 0,
+            width: 0,
+            height: 200,
+        });
+
+        renderWidgets(document.body);
+
+        // Async: nothing played synchronously — the instance isn't resolved yet.
+        expect(worldMapPlayEntrySpy).not.toHaveBeenCalled();
+
+        // Flush the geojson Promise + the .then chain.
+        await Promise.resolve();
+        await Promise.resolve();
+
+        // The resolved instance's entrance is now armed (played, since visible),
+        // with no premature observe/unobserve on the still-pending node.
+        expect(worldMapPlayEntrySpy).toHaveBeenCalledTimes(1);
+        expect(observers[0].observed).not.toContain(node);
     });
 });
