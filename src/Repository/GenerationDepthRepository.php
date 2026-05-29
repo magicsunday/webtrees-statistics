@@ -21,6 +21,7 @@ use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 
 use function array_filter;
 use function array_keys;
+use function array_map;
 use function array_pop;
 use function array_slice;
 use function arsort;
@@ -94,9 +95,16 @@ final readonly class GenerationDepthRepository
         // present-day reader recognises the lineage end. A missing
         // BIRT julian-day falls back to alphabetical leaf ID, which
         // keeps the order stable across reloads.
-        $leafBirthJday = $this->birthJulianDaysForLeaves(array_keys($byLeaf));
+        // array_keys() yields int for numeric-only XREFs; normalise to
+        // string so birthJulianDaysForLeaves() receives the list<string>
+        // its signature promises.
+        $leafBirthJday = $this->birthJulianDaysForLeaves(
+            array_map(static fn (int|string $id): string => (string) $id, array_keys($byLeaf)),
+        );
 
-        uksort($byLeaf, static function (string $a, string $b) use ($leafBirthJday): int {
+        // Keys are leaf XREFs; PHP delivers them as int for numeric-only
+        // XREFs ("54"), so the comparator must accept int|string.
+        uksort($byLeaf, static function (int|string $a, int|string $b) use ($leafBirthJday): int {
             $jdayA = $leafBirthJday[$a] ?? 0;
             $jdayB = $leafBirthJday[$b] ?? 0;
 
@@ -145,10 +153,10 @@ final readonly class GenerationDepthRepository
      * reader, so keying by leaf matches the user-visible notion of
      * "the same line".
      *
-     * @param array<string, array{0: string|null, 1: string|null}> $parentOf
-     * @param array<string, int>                                   $upDistance
+     * @param array<array-key, array{0: string|null, 1: string|null}> $parentOf
+     * @param array<array-key, int>                                   $upDistance
      *
-     * @return array<string, list<string>>
+     * @return array<array-key, list<string>>
      */
     private function collectDistinctChainsKeyedByLeaf(array $parentOf, array $upDistance, int $maxDepth): array
     {
@@ -159,7 +167,9 @@ final readonly class GenerationDepthRepository
                 continue;
             }
 
-            $chain = GenerationDepth::walkUpFromLeaf($parentOf, $upDistance, $leafId, $maxDepth);
+            // $leafId arrives as int for numeric-only XREFs (array-key
+            // coercion); cast so the string-typed walk accepts it.
+            $chain = GenerationDepth::walkUpFromLeaf($parentOf, $upDistance, (string) $leafId, $maxDepth);
 
             if ($chain === null) {
                 continue;
@@ -222,11 +232,13 @@ final readonly class GenerationDepthRepository
             $allIds[$id] ??= [null, null];
         }
 
-        /** @var array<string, int> $descendantCount */
+        /** @var array<array-key, int> $descendantCount */
         $descendantCount = [];
 
         foreach (array_keys($allIds) as $id) {
-            $descendantCount[$id] = $this->countDescendantsTransitive($childrenOf, $id);
+            // Numeric-only XREFs come back as int keys; cast for the
+            // string-typed descendant walk.
+            $descendantCount[$id] = $this->countDescendantsTransitive($childrenOf, (string) $id);
         }
 
         // Drop leaves: an individual with zero descendants is not a
@@ -243,7 +255,9 @@ final readonly class GenerationDepthRepository
                 break;
             }
 
-            $individual = Registry::individualFactory()->make($xref, $this->tree);
+            // $xref is int for numeric-only XREFs; Registry::make() is
+            // string-typed, so cast before resolving.
+            $individual = Registry::individualFactory()->make((string) $xref, $this->tree);
 
             if (!$individual instanceof Individual) {
                 continue;
@@ -271,8 +285,8 @@ final readonly class GenerationDepthRepository
      * the number of individuals and D is the average descendant
      * count.
      *
-     * @param array<string, list<string>> $childrenOf Children-of map
-     * @param string                      $startId    Ancestor xref to count from
+     * @param array<array-key, list<string>> $childrenOf Children-of map
+     * @param string                         $startId    Ancestor xref to count from
      */
     private function countDescendantsTransitive(array $childrenOf, string $startId): int
     {
@@ -303,7 +317,7 @@ final readonly class GenerationDepthRepository
      *
      * @param list<string> $leafIds
      *
-     * @return array<string, int>
+     * @return array<array-key, int>
      */
     private function birthJulianDaysForLeaves(array $leafIds): array
     {

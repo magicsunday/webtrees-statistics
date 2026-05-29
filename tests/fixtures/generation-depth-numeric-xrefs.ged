@@ -1,0 +1,34 @@
+0 HEAD
+1 SOUR webtrees-statistics-fixture
+2 NAME generation-depth-numeric-xrefs
+1 DEST ANSTFILE
+1 CHAR UTF-8
+1 SUBM @SUBM1@
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+0 @SUBM1@ SUBM
+1 NAME Fixture
+0 @1@ INDI
+1 NAME Grandparent /Test/
+1 SEX M
+1 FAMS @5@
+0 @2@ INDI
+1 NAME Parent /Test/
+1 SEX M
+1 FAMC @5@
+1 FAMS @6@
+0 @3@ INDI
+1 NAME Child /Test/
+1 SEX F
+1 FAMC @6@
+0 @4@ INDI
+1 NAME Isolated /Test/
+1 SEX M
+0 @5@ FAM
+1 HUSB @1@
+1 CHIL @2@
+0 @6@ FAM
+1 HUSB @2@
+1 CHIL @3@
+0 TRLR

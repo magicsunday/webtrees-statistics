@@ -44,9 +44,9 @@ final readonly class Endogamy
      * ids as an associative `[id => true]` map (so intersection via
      * `array_intersect_key` is O(min(|A|, |B|)) instead of O(|A|·|B|)).
      *
-     * @param array<string, array{0: string|null, 1: string|null}> $parentOf
+     * @param array<array-key, array{0: string|null, 1: string|null}> $parentOf
      *
-     * @return array<string, bool>
+     * @return array<array-key, bool>
      */
     public static function ancestorSet(array $parentOf, string $id, int $depth): array
     {
@@ -100,9 +100,9 @@ final readonly class Endogamy
      * within `$depth` generations. Empty intersection means no
      * common-ancestor evidence within that depth.
      *
-     * @param array<string, array{0: string|null, 1: string|null}> $parentOf
+     * @param array<array-key, array{0: string|null, 1: string|null}> $parentOf
      *
-     * @return array<string, bool>
+     * @return array<array-key, bool>
      */
     public static function sharedAncestors(array $parentOf, string $a, string $b, int $depth): array
     {

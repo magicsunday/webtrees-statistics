@@ -43,7 +43,7 @@ final class ParentMapRepository
      * and the underlying SQL + map construction were dominating
      * the tab's load time when each caller rebuilt independently.
      *
-     * @var array<string, array{0: string|null, 1: string|null}>|null
+     * @var array<array-key, array{0: string|null, 1: string|null}>|null
      */
     private ?array $cache = null;
 
@@ -62,7 +62,12 @@ final class ParentMapRepository
      * of the walk — no further ancestors known". Result is cached
      * for the lifetime of the repository instance.
      *
-     * @return array<string, array{0: string|null, 1: string|null}>
+     * The key type is `array-key`, not `string`: a digit-only XREF
+     * ("54") is silently coerced to an int the moment it indexes the
+     * array, so callers that read a key back out must cast it to
+     * string before passing it to a string-typed sink.
+     *
+     * @return array<array-key, array{0: string|null, 1: string|null}>
      */
     public function build(): array
     {

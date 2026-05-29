@@ -13,6 +13,7 @@ namespace MagicSunday\Webtrees\Statistic\Support\Calc;
 
 use function array_fill;
 use function array_keys;
+use function array_map;
 use function array_pop;
 use function array_reverse;
 use function max;
@@ -63,7 +64,7 @@ final readonly class GenerationDepth
      * the depth cap (signals data quality concerns: cycle or
      * implausibly long chain).
      *
-     * @param array<string, array{0: string|null, 1: string|null}> $parentOf
+     * @param array<array-key, array{0: string|null, 1: string|null}> $parentOf
      *
      * @return array{maxDepth: int, distribution: array<int, int>, capped: bool, deepestChain: list<string>, deepestChainCandidates: list<string>}
      */
@@ -105,7 +106,7 @@ final readonly class GenerationDepth
      * chain (e.g. by the leaf's birth-year), so the helper stays
      * DB-free and the preference is a separate concern.
      *
-     * @param array<string, int> $depthCache
+     * @param array<array-key, int> $depthCache
      *
      * @return list<string>
      */
@@ -119,7 +120,10 @@ final readonly class GenerationDepth
 
         foreach ($depthCache as $id => $depth) {
             if ($depth === $maxDepth) {
-                $roots[] = $id;
+                // Numeric-only XREFs ("54") surface here as integer
+                // array keys; cast back to string so the chain stays
+                // string-typed all the way to Registry::make().
+                $roots[] = (string) $id;
             }
         }
 
@@ -132,11 +136,12 @@ final readonly class GenerationDepth
      * Walk down from `$rootId` through children whose recorded
      * deepest-descendant distance equals exactly `remaining-1`,
      * yielding the eldest-first chain of length `$maxDepth + 1`.
-     * Ties at any hop are broken alphabetically by ID so the result
+     * Ties at any hop are broken by PHP's default `sort()` ordering
+     * (numeric for digit-only XREFs, lexical otherwise) so the result
      * is reproducible.
      *
-     * @param array<string, list<string>> $childrenOf
-     * @param array<string, int>          $depthCache
+     * @param array<array-key, list<string>> $childrenOf
+     * @param array<array-key, int>          $depthCache
      *
      * @return list<string>
      */
@@ -177,9 +182,9 @@ final readonly class GenerationDepth
      * the repository can reuse the same inverted view when it walks
      * a non-default candidate root.
      *
-     * @param array<string, array{0: string|null, 1: string|null}> $parentOf
+     * @param array<array-key, array{0: string|null, 1: string|null}> $parentOf
      *
-     * @return array<string, list<string>>
+     * @return array<array-key, list<string>>
      */
     public static function childrenMap(array $parentOf): array
     {
@@ -192,10 +197,10 @@ final readonly class GenerationDepth
      * repository can fold a preferred root into a full chain without
      * duplicating the cache.
      *
-     * @param array<string, list<string>>                          $childrenOf
-     * @param array<string, array{0: string|null, 1: string|null}> $parentOf
+     * @param array<array-key, list<string>>                          $childrenOf
+     * @param array<array-key, array{0: string|null, 1: string|null}> $parentOf
      *
-     * @return array<string, int>
+     * @return array<array-key, int>
      */
     public static function depthCache(array $childrenOf, array $parentOf): array
     {
@@ -213,12 +218,13 @@ final readonly class GenerationDepth
      * individuals: starts at the eldest ancestor (one whose
      * deepest-descendant distance equals the tree-wide maximum) and
      * walks down through children that themselves carry exactly the
-     * remaining depth budget. Ties are broken alphabetically by ID
-     * so the result is stable across runs even when several chains
-     * share the same maximum length.
+     * remaining depth budget. Ties are broken by PHP's default
+     * `sort()` ordering (numeric for digit-only XREFs, lexical
+     * otherwise) so the result is stable across runs even when
+     * several chains share the same maximum length.
      *
-     * @param array<string, list<string>> $childrenOf
-     * @param array<string, int>          $depthCache
+     * @param array<array-key, list<string>> $childrenOf
+     * @param array<array-key, int>          $depthCache
      *
      * @return list<string>
      */
@@ -242,21 +248,25 @@ final readonly class GenerationDepth
      * carry the same information; the downward walk needs the
      * children-side for an efficient per-individual DFS.
      *
-     * @param array<string, array{0: string|null, 1: string|null}> $parentOf
+     * @param array<array-key, array{0: string|null, 1: string|null}> $parentOf
      *
-     * @return array<string, list<string>>
+     * @return array<array-key, list<string>>
      */
     private static function invertToChildrenMap(array $parentOf): array
     {
         $childrenOf = [];
 
         foreach ($parentOf as $childId => [$father, $mother]) {
+            // A numeric-only XREF key ("54") is coerced to int by PHP;
+            // cast back so the children-of lists stay string-typed.
+            $childIdString = (string) $childId;
+
             if ($father !== null) {
-                $childrenOf[$father][] = $childId;
+                $childrenOf[$father][] = $childIdString;
             }
 
             if ($mother !== null) {
-                $childrenOf[$mother][] = $childId;
+                $childrenOf[$mother][] = $childIdString;
             }
         }
 
@@ -269,8 +279,8 @@ final readonly class GenerationDepth
      * `$depthCache[$id]`. Memoised so the same descendant is not
      * re-explored when reached through multiple ancestors.
      *
-     * @param array<string, list<string>> $childrenOf
-     * @param array<string, int>          $depthCache In/out cache, mutated on every call
+     * @param array<array-key, list<string>> $childrenOf
+     * @param array<array-key, int>          $depthCache In/out cache, mutated on every call
      */
     private static function deepestDescendantDistance(array $childrenOf, string $id, array &$depthCache): void
     {
@@ -316,13 +326,15 @@ final readonly class GenerationDepth
      * Walk upward from a leaf-descendant by following its parents,
      * yielding the eldest-first chain that ends at `$leafId`. At
      * every parent step the parent with the larger remaining
-     * upward distance is preferred; ties break alphabetically by id.
+     * upward distance is preferred; ties break by PHP's default
+     * `sort()` ordering (numeric for digit-only XREFs, lexical
+     * otherwise).
      * Returns null when no chain of length `$maxDepth` can be
      * reconstructed from the leaf — usually because the leaf is not
      * actually at the bottom of a max-depth chain.
      *
-     * @param array<string, array{0: string|null, 1: string|null}> $parentOf
-     * @param array<string, int>                                   $upDistance
+     * @param array<array-key, array{0: string|null, 1: string|null}> $parentOf
+     * @param array<array-key, int>                                   $upDistance
      *
      * @return list<string>|null
      */
@@ -374,9 +386,9 @@ final readonly class GenerationDepth
      * the chain reconstruction at a known leaf descendant rather
      * than at a known root ancestor.
      *
-     * @param array<string, array{0: string|null, 1: string|null}> $parentOf
+     * @param array<array-key, array{0: string|null, 1: string|null}> $parentOf
      *
-     * @return array<string, int>
+     * @return array<array-key, int>
      */
     public static function upDistanceCache(array $parentOf): array
     {
@@ -398,7 +410,7 @@ final readonly class GenerationDepth
      * every node, including individuals that appear only as a
      * parent (i.e. have no recorded parents of their own).
      *
-     * @param array<string, array{0: string|null, 1: string|null}> $parentOf
+     * @param array<array-key, array{0: string|null, 1: string|null}> $parentOf
      *
      * @return list<string>
      */
@@ -420,7 +432,11 @@ final readonly class GenerationDepth
             }
         }
 
-        return array_keys($allIds);
+        // array_keys() returns int for numeric-only XREFs ("54"),
+        // which PHP coerced when they indexed $allIds. Cast each back
+        // to string so the depth/up-distance walks — and ultimately
+        // Registry::make() — receive the string type they expect.
+        return array_map(static fn (int|string $id): string => (string) $id, array_keys($allIds));
     }
 
     /**
@@ -429,8 +445,8 @@ final readonly class GenerationDepth
      * same iterative-DFS skeleton but operate on opposite halves
      * of the parentage graph.
      *
-     * @param array<string, array{0: string|null, 1: string|null}> $parentOf
-     * @param array<string, int>                                   $cache    In/out cache, mutated on every call
+     * @param array<array-key, array{0: string|null, 1: string|null}> $parentOf
+     * @param array<array-key, int>                                   $cache    In/out cache, mutated on every call
      */
     private static function deepestAncestorDistance(array $parentOf, string $id, array &$cache): void
     {

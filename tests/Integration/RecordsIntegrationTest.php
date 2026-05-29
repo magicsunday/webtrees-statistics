@@ -133,9 +133,13 @@ final class RecordsIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Youngest father at first child — I15 YoungParent (BIRT
-     * 1900) + EarlyChild (BIRT 1915) → 15 years. Sits at the
+     * Youngest father at first child — YoungParent (BIRT 1900) +
+     * EarlyChild (BIRT 1915) → 15 years. Sits at the
      * MIN_PLAUSIBLE_AGE boundary (12) so it survives the filter.
+     * This record carries the digit-only XREF "915" so the test
+     * doubles as a regression for #71: the numeric XREF must
+     * round-trip through Registry::make() and back out of xref()
+     * as the string "915", not a coerced integer.
      */
     #[Test]
     public function youngestFatherAtFirstChildPicksFifteenYearOldFather(): void
@@ -144,13 +148,13 @@ final class RecordsIntegrationTest extends IntegrationTestCase
         $record = (new ParenthoodRepository($tree))->youngestParentAtFirstChildRecord('M');
 
         self::assertNotNull($record);
-        self::assertSame('I15', $record->individual->xref());
+        self::assertSame('915', $record->individual->xref());
         self::assertSame(15, $record->ageYears);
     }
 
     /**
      * Oldest father at first child — I7 BigDad (BIRT 1900) +
-     * Child1 (BIRT 1925) → 25 years. Beats I15 YoungParent at 15.
+     * Child1 (BIRT 1925) → 25 years. Beats YoungParent (915) at 15.
      * Mirrors the youngest-father test so both AgePairExtremum
      * branches (Lowest / Highest) carry direct coverage through
      * the ParenthoodRepository pair iterator.

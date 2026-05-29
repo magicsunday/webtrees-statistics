@@ -102,4 +102,66 @@ final class GenerationDepthRepositoryIntegrationTest extends IntegrationTestCase
 
         self::assertCount(2, $result, 'Asking for 50 rows on a 2-row tree still yields 2 rows');
     }
+
+    /**
+     * Regression for #71: a tree whose XREFs are digit-only (e.g.
+     * "1", "54") must not crash the summary. PHP coerces numeric
+     * string array keys to integers, so the parent-of map ends up
+     * keyed by int; the depth walk and the chain reconstruction must
+     * tolerate that and still produce the same result as the
+     * alphabetic-XREF fixture. Same topology as
+     * {@see summaryMatchesAcceptanceFixture}, only the XREFs differ.
+     */
+    #[Test]
+    public function summaryHandlesNumericOnlyXrefs(): void
+    {
+        $tree   = $this->importFixtureTree('generation-depth-numeric-xrefs.ged');
+        $result = (new GenerationDepthRepository($tree, new ParentMapRepository($tree)))->summary();
+
+        self::assertSame(2, $result->maxDepth);
+        self::assertFalse($result->capped);
+        self::assertSame(
+            [0 => 1, 1 => 1, 2 => 1],
+            $result->distribution,
+        );
+
+        // The reconstructed chain must resolve to real Individuals,
+        // eldest-first. Asserting the resolved name (not just the
+        // count) proves the digit-only XREFs reached the string-typed
+        // Registry::make() intact rather than as coerced integers that
+        // would have failed to resolve.
+        self::assertCount(1, $result->chains);
+        self::assertCount(3, $result->chains[0]);
+        self::assertStringContainsString('Grandparent', $result->chains[0][0]->fullName());
+        self::assertStringContainsString('Child', $result->chains[0][2]->fullName());
+    }
+
+    /**
+     * Regression for #71: the top-ancestors podium must survive
+     * digit-only XREFs too. The descendant-count map is keyed by the
+     * coerced integer XREF and then resolved via Registry::make(),
+     * which is string-typed. Same expected podium as
+     * {@see topAncestorsByDescendantCountRanksGrandparentFirst}.
+     */
+    #[Test]
+    public function topAncestorsHandlesNumericOnlyXrefs(): void
+    {
+        $tree   = $this->importFixtureTree('generation-depth-numeric-xrefs.ged');
+        $result = (new GenerationDepthRepository($tree, new ParentMapRepository($tree)))
+            ->topAncestorsByDescendantCount(10);
+
+        self::assertCount(2, $result, 'Only the two individuals with descendants land on the podium');
+
+        $ordered = [];
+
+        foreach ($result as $label => $count) {
+            $ordered[] = [$label, $count];
+        }
+
+        self::assertSame(2, $ordered[0][1], 'Grandparent leads with two descendants (parent + grandchild)');
+        self::assertStringContainsString('Grandparent', $ordered[0][0]);
+
+        self::assertSame(1, $ordered[1][1], 'Parent follows with one descendant (the child)');
+        self::assertStringContainsString('Parent', $ordered[1][0]);
+    }
 }

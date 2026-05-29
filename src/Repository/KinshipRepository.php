@@ -70,7 +70,7 @@ final class KinshipRepository
      * the same walk — caching keeps it at one BFS per individual
      * instead of two.
      *
-     * @var array<string, array<int, int>>
+     * @var array<array-key, array<int, int>>
      */
     private array $perGenCache = [];
 
@@ -181,7 +181,7 @@ final class KinshipRepository
      * tree with pedigree collapse (cousin marriage) doesn't
      * inflate the count.
      *
-     * @param array<string, array{0: string|null, 1: string|null}> $parentOf
+     * @param array<array-key, array{0: string|null, 1: string|null}> $parentOf
      */
     private function countKnownAncestors(array $parentOf, string $id): int
     {
@@ -194,7 +194,7 @@ final class KinshipRepository
      * Walk the ancestor tree breadth-first; return a
      * `[generation => count]` map for the requested depth.
      *
-     * @param array<string, array{0: string|null, 1: string|null}> $parentOf
+     * @param array<array-key, array{0: string|null, 1: string|null}> $parentOf
      *
      * @return array<int, int>
      */

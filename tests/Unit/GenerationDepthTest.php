@@ -161,4 +161,139 @@ final class GenerationDepthTest extends TestCase
         self::assertLessThanOrEqual(GenerationDepth::MAX_DEPTH, $result['maxDepth']);
         self::assertNotSame([], $result['distribution']);
     }
+
+    /**
+     * Numeric-only XREFs (e.g. "54", common in trees imported from
+     * software that uses digit-only pointers) become integer array
+     * keys the moment they index a PHP array — `$parentOf["54"]`
+     * stores key int 54. `array_keys()` and `foreach`-over-keys then
+     * yield ints, which crash the `string`-typed walk under
+     * strict_types. This variant of
+     * {@see threeGenerationLinearChainMatchesAcceptance} guards that
+     * the whole compute path tolerates the coercion and still emits a
+     * string-typed eldest-first chain (regression for #71).
+     */
+    #[Test]
+    public function numericOnlyXrefsLinearChainReturnsStringChain(): void
+    {
+        // Keys are written as numeric strings but PHP coerces them to
+        // int array keys: 3 (grandparent) → 12 (parent) → 54 (child).
+        $parentOf = [
+            '54' => ['12', null],
+            '12' => ['3', null],
+        ];
+
+        $result = GenerationDepth::compute($parentOf);
+
+        self::assertSame(2, $result['maxDepth']);
+        self::assertSame(
+            [0 => 1, 1 => 1, 2 => 1],
+            $result['distribution'],
+        );
+        self::assertFalse($result['capped']);
+        // assertSame is strict: a coerced [3, 12, 54] of ints would
+        // not match the expected string chain, so this pins both the
+        // values and their string type.
+        self::assertSame(['3', '12', '54'], $result['deepestChain']);
+    }
+
+    /**
+     * Numeric-XREF variant of
+     * {@see deepestChainIsDeterministicOnTiesAlphabetical} with roots
+     * whose lexical and numeric orderings disagree: candidate roots 2
+     * and 10 ("10" sorts before "2" lexically, but 2 before 10
+     * numerically). This pins both that the tie-break runs on the
+     * coerced keys at all and that the picked chain stays
+     * string-typed (regression for #71). The chain "2 → 200" — not
+     * "10 → 100" — confirms PHP's default numeric-string sort decided
+     * the tie.
+     */
+    #[Test]
+    public function numericOnlyXrefsDeepestChainIsDeterministic(): void
+    {
+        $parentOf = [
+            '200' => ['2', null],
+            '100' => ['10', null],
+        ];
+
+        $result = GenerationDepth::compute($parentOf);
+
+        self::assertSame(1, $result['maxDepth']);
+        self::assertSame(['2', '200'], $result['deepestChain']);
+    }
+
+    /**
+     * Numeric-XREF variant of
+     * {@see pedigreeCollapseChoosesLongestDownwardPath}: 100 has
+     * parents 10 and 20, both children of 1. Confirms the
+     * children-of inversion and depth memoisation survive integer
+     * key coercion (regression for #71).
+     */
+    #[Test]
+    public function numericOnlyXrefsPedigreeCollapseComputesDepth(): void
+    {
+        $parentOf = [
+            '100' => ['10', '20'],
+            '10'  => ['1', null],
+            '20'  => ['1', null],
+        ];
+
+        $result = GenerationDepth::compute($parentOf);
+
+        self::assertSame(2, $result['maxDepth']);
+        self::assertSame(
+            [0 => 1, 1 => 2, 2 => 1],
+            $result['distribution'],
+        );
+    }
+
+    /**
+     * The upward-walk pair {@see GenerationDepth::upDistanceCache()}
+     * and {@see GenerationDepth::walkUpFromLeaf()} mirror the
+     * descendant walk on the parent side and are otherwise only
+     * reached through the repository. This locks them directly
+     * against numeric-only XREFs: the cache must record the leaf's
+     * upward distance and the reconstructed chain must come back
+     * eldest-first and string-typed (regression for #71).
+     */
+    #[Test]
+    public function numericOnlyXrefsUpwardWalkReturnsStringChain(): void
+    {
+        $parentOf = [
+            '54' => ['12', null],
+            '12' => ['3', null],
+        ];
+
+        $upDistance = GenerationDepth::upDistanceCache($parentOf);
+
+        // Leaf 54 sits two generations below the eldest ancestor 3.
+        self::assertSame(2, $upDistance['54'] ?? null);
+
+        $chain = GenerationDepth::walkUpFromLeaf($parentOf, $upDistance, '54', 2);
+
+        // Strict equality pins the eldest-first order and the string
+        // type of every entry in one assertion.
+        self::assertSame(['3', '12', '54'], $chain);
+    }
+
+    /**
+     * Leading-zero XREFs ("007") are NOT canonical decimal-integer
+     * strings, so PHP does not coerce them to int when they index an
+     * array — they survive as string keys. This guards the boundary
+     * the AGENTS.md "Key patterns" note describes: the chain must
+     * carry "007" verbatim, not a coerced "7", proving the fix
+     * neither over- nor under-normalises (regression for #71).
+     */
+    #[Test]
+    public function leadingZeroXrefsSurviveAsStringKeys(): void
+    {
+        $parentOf = [
+            '007' => ['1', null],
+        ];
+
+        $result = GenerationDepth::compute($parentOf);
+
+        self::assertSame(1, $result['maxDepth']);
+        self::assertSame(['1', '007'], $result['deepestChain']);
+    }
 }
