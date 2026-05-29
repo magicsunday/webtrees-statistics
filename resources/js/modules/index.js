@@ -90,7 +90,24 @@ function fromChartLib(Widget) {
  * @returns {Promise<unknown>}
  */
 async function drawWorldMap(node, data, options) {
-    const geojson = await loadWorldGeoJson();
+    let geojson;
+
+    try {
+        geojson = await loadWorldGeoJson();
+    } catch (error) {
+        // A failed geojson fetch must not surface as an unhandled rejection or
+        // leave a blank gap — render the shared empty-state and bow out. (The
+        // WorldMap constructor itself throws without geojson, so we render the
+        // placeholder directly rather than instantiating it.)
+        console.error("renderWidgets: world-map geojson failed to load", error);
+        const placeholder = document.createElement("div");
+        placeholder.className = "chart-empty-state";
+        placeholder.textContent =
+            typeof options.emptyMessage === "string" ? options.emptyMessage : "";
+        node.replaceChildren(placeholder);
+        return null;
+    }
+
     const widget = new WorldMap(node, {
         ...options,
         geojson,
@@ -267,7 +284,7 @@ export function renderWidgets(root) {
             // has flushed layout, so they can reveal directly.
             instance.then((resolved) => {
                 connectToBus(resolved, bus, widgets);
-                if (revealOnScroll) {
+                if (revealOnScroll && resolved !== null && resolved !== undefined) {
                     revealWhenSeen(node, resolved);
                 }
             });
