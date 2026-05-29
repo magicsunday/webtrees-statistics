@@ -142,7 +142,29 @@ export function renderWidgets(root) {
     const bus = new DashboardBus();
     const widgets = [];
 
-    nodes.forEach((node) => {
+    // Reveal-on-scroll: every widget is drawn up front — so it is in the DOM
+    // and wired to the bus immediately (needed for cross-widget filtering,
+    // print, and in-page search) — but each animated widget HOLDS its entrance
+    // at the initial keyframe and only plays it once the card scrolls into
+    // view. Eager draw also keeps the layout stable (each chart sizes itself on
+    // draw), so the observer fires only for genuinely-visible cards instead of
+    // a collapsed initial stack. Disabled under reduced motion (no entrance to
+    // gate) or when IntersectionObserver is unavailable (older browser, jsdom):
+    // the entrance then plays inline on draw.
+    const reduceMotion =
+        typeof window.matchMedia === "function" &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const revealOnScroll = reduceMotion === false && typeof IntersectionObserver !== "undefined";
+    const instanceByNode = revealOnScroll ? new WeakMap() : null;
+
+    /**
+     * Draw a single widget node and wire it into the shared bus.
+     *
+     * @param {Element} node
+     *
+     * @returns {void}
+     */
+    const renderNode = (node) => {
         const widget = WIDGETS[node.dataset.widget];
 
         if (widget === undefined) {
@@ -165,17 +187,64 @@ export function renderWidgets(root) {
             options.emptyMessage = node.dataset.emptyMessage;
         }
 
+        // Hold the entrance until the card is revealed; playEntry() starts it.
+        if (revealOnScroll) {
+            options.animateOnReveal = true;
+        }
+
         const instance = widget(node, data, options);
 
         // Async widgets (world-map) return a Promise instead of the
         // widget instance; connect the bus inside the .then so the
         // wiring happens once the widget has actually rendered.
         if (instance instanceof Promise) {
-            instance.then((resolved) => connectToBus(resolved, bus, widgets));
+            instance.then((resolved) => {
+                connectToBus(resolved, bus, widgets);
+                if (instanceByNode !== null) {
+                    instanceByNode.set(node, resolved);
+                }
+            });
         } else {
             connectToBus(instance, bus, widgets);
+            if (instanceByNode !== null) {
+                instanceByNode.set(node, instance);
+            }
         }
+    };
+
+    nodes.forEach((node) => {
+        renderNode(node);
     });
+
+    if (revealOnScroll) {
+        const observer = new IntersectionObserver(
+            (entries, obs) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting === false) {
+                        return;
+                    }
+
+                    // One-shot per node: stop watching, then play the entrance
+                    // on the already-drawn widget (no re-draw).
+                    obs.unobserve(entry.target);
+                    const instance = instanceByNode.get(entry.target);
+                    if (instance !== undefined && typeof instance.playEntry === "function") {
+                        instance.playEntry();
+                    }
+                });
+            },
+            // Hold the entrance until the card has scrolled meaningfully into
+            // view: the negative bottom margin pulls the effective trigger line
+            // 25% up from the viewport bottom, so a card animates once its top
+            // edge is a quarter of the way up the screen — not the instant its
+            // first sliver appears.
+            { rootMargin: "0px 0px -25% 0px", threshold: 0 },
+        );
+
+        nodes.forEach((node) => {
+            observer.observe(node);
+        });
+    }
 
     initPopovers(root);
     initPlacesPanelTabs(root);

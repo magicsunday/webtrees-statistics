@@ -16,6 +16,7 @@ import { describe, expect, jest, test, beforeEach, afterEach } from "@jest/globa
 // the test bundle. Each class mock exposes a single `draw` spy
 // reachable through the instance.
 const donutDrawSpy = jest.fn();
+const donutPlayEntrySpy = jest.fn();
 const streamGraphDrawSpy = jest.fn();
 const sankeyFlowDrawSpy = jest.fn();
 const worldMapDrawSpy = jest.fn();
@@ -28,6 +29,9 @@ class DonutChart {
     }
     draw(data) {
         donutDrawSpy(this.node, data, this.options);
+    }
+    playEntry() {
+        donutPlayEntrySpy(this.node);
     }
 }
 class StreamGraph {
@@ -129,6 +133,7 @@ const { renderWidgets } = await import("../modules/index.js");
 describe("renderWidgets", () => {
     beforeEach(() => {
         donutDrawSpy.mockClear();
+        donutPlayEntrySpy.mockClear();
         worldMapDrawSpy.mockClear();
         streamGraphDrawSpy.mockClear();
         sankeyFlowDrawSpy.mockClear();
@@ -138,6 +143,10 @@ describe("renderWidgets", () => {
 
     afterEach(() => {
         document.body.innerHTML = "";
+        // Drop any per-test visibility/motion overrides so they can't leak
+        // into the synchronous (eager-fallback) tests above.
+        delete global.IntersectionObserver;
+        delete window.matchMedia;
     });
 
     test("dispatches a donut widget when data-widget=donut", () => {
@@ -325,5 +334,101 @@ describe("renderWidgets", () => {
         delete DonutChart.prototype.onSelectionChanged;
         delete DonutChart.prototype.setSelection;
         DonutChart.prototype.draw = originalDraw;
+    });
+
+    test("draws every widget eagerly and plays its entrance once the node scrolls into view", () => {
+        // Fake IntersectionObserver: records observed nodes and lets the test
+        // fire the intersection callback manually.
+        const observers = [];
+        global.IntersectionObserver = class {
+            constructor(callback) {
+                this.callback = callback;
+                this.observed = [];
+                this.unobserved = [];
+                observers.push(this);
+            }
+            observe(node) {
+                this.observed.push(node);
+            }
+            unobserve(node) {
+                this.unobserved.push(node);
+            }
+            disconnect() {}
+        };
+
+        document.body.innerHTML = `
+            <div id="d1" data-widget="donut" data-payload='[]'></div>
+        `;
+
+        renderWidgets(document.body);
+
+        // Eager: the widget is drawn up front (in the DOM + on the bus) with its
+        // entrance held via animateOnReveal — but playEntry has NOT fired yet.
+        expect(donutDrawSpy).toHaveBeenCalledTimes(1);
+        expect(donutDrawSpy.mock.calls[0][2]).toMatchObject({ animateOnReveal: true });
+        expect(donutPlayEntrySpy).not.toHaveBeenCalled();
+        expect(observers).toHaveLength(1);
+        expect(observers[0].observed).toHaveLength(1);
+
+        // Card scrolls into view → entrance plays once, node is unobserved.
+        const node = observers[0].observed[0];
+        observers[0].callback([{ target: node, isIntersecting: true }], observers[0]);
+
+        expect(donutPlayEntrySpy).toHaveBeenCalledTimes(1);
+        expect(observers[0].unobserved).toContain(node);
+        // playEntry never re-draws.
+        expect(donutDrawSpy).toHaveBeenCalledTimes(1);
+    });
+
+    test("does not play the entrance for a non-intersecting entry", () => {
+        const observers = [];
+        global.IntersectionObserver = class {
+            constructor(callback) {
+                this.callback = callback;
+                this.unobserved = [];
+                observers.push(this);
+            }
+            observe() {}
+            unobserve(node) {
+                this.unobserved.push(node);
+            }
+            disconnect() {}
+        };
+
+        document.body.innerHTML = `<div id="d1" data-widget="donut" data-payload='[]'></div>`;
+        renderWidgets(document.body);
+
+        const node = document.getElementById("d1");
+        // A leaving-viewport entry (isIntersecting=false) must be ignored.
+        observers[0].callback([{ target: node, isIntersecting: false }], observers[0]);
+
+        // Drawn eagerly, but the entrance has not played and the node stays observed.
+        expect(donutDrawSpy).toHaveBeenCalledTimes(1);
+        expect(donutPlayEntrySpy).not.toHaveBeenCalled();
+        expect(observers[0].unobserved).not.toContain(node);
+    });
+
+    test("plays the entrance inline (no reveal-gating) under prefers-reduced-motion", () => {
+        window.matchMedia = jest.fn().mockReturnValue({ matches: true });
+        // Even with an observer available, reduced motion disables reveal-gating:
+        // the widget draws without animateOnReveal and the observer is never set up.
+        const observe = jest.fn();
+        global.IntersectionObserver = class {
+            observe(node) {
+                observe(node);
+            }
+            unobserve() {}
+            disconnect() {}
+        };
+
+        document.body.innerHTML = `<div id="d1" data-widget="donut" data-payload='[]'></div>`;
+        renderWidgets(document.body);
+
+        expect(donutDrawSpy).toHaveBeenCalledTimes(1);
+        // animateOnReveal is NOT set — the widget animates inline on draw.
+        expect(donutDrawSpy.mock.calls[0][2].animateOnReveal).toBeUndefined();
+        // The dispatcher never engaged the observer or called playEntry.
+        expect(observe).not.toHaveBeenCalled();
+        expect(donutPlayEntrySpy).not.toHaveBeenCalled();
     });
 });

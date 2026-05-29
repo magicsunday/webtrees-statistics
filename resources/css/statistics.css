@@ -2424,8 +2424,9 @@
 }
 
 .wt-statistics-chart svg.wt-line-chart .area {
-    fill:    var(--wine);
-    opacity: 0.18;
+    /* Opacity is owned by the LineChart widget (inline style, so the entrance
+       fade can animate); only the fill colour lives here. */
+    fill: var(--wine);
 }
 
 .wt-statistics-chart svg.wt-line-chart .point {
