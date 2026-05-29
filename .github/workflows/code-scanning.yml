@@ -1,0 +1,55 @@
+name: Code scanning
+
+on:
+    push:
+        branches: [ main ]
+    pull_request:
+    schedule:
+        -   cron: '27 3 * * 1'
+
+permissions:
+    contents: read
+
+jobs:
+    semgrep:
+        name: Semgrep (PHP + JS)
+        runs-on: ubuntu-latest
+
+        permissions:
+            contents: read
+            security-events: write
+
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v4
+
+            -   name: Set up Python
+                uses: actions/setup-python@v5
+                with:
+                    python-version: '3.12'
+
+            -   name: Install Semgrep
+                run: pip install --quiet semgrep
+
+            # Static security analysis for PHP (not covered by CodeQL) plus the
+            # JavaScript surface. Findings are uploaded as code-scanning alerts;
+            # the step never fails the build so alerts inform rather than block.
+            -   name: Run Semgrep
+                continue-on-error: true
+                run: |
+                    semgrep scan \
+                        --config p/php \
+                        --config p/javascript \
+                        --config p/security-audit \
+                        --sarif --output semgrep.sarif \
+                        --exclude '*.min.js' \
+                        --exclude vendor \
+                        --exclude node_modules \
+                        --exclude .build \
+                        --metrics off
+
+            -   name: Upload SARIF to code scanning
+                if: always()
+                uses: github/codeql-action/upload-sarif@v3
+                with:
+                    sarif_file: semgrep.sarif
