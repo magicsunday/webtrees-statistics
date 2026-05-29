@@ -19,7 +19,6 @@ use PHPUnit\Framework\Attributes\Test;
 use function array_keys;
 use function array_map;
 use function array_sum;
-use function array_values;
 use function count;
 use function sprintf;
 
@@ -89,9 +88,8 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('life-span.ged');
         $result = $this->repository($tree)->topOldestDeceased(10);
 
-        $values = array_values($result);
-        self::assertGreaterThanOrEqual(120, $values[0]);
-        self::assertGreaterThanOrEqual($values[1], $values[0]);
+        self::assertGreaterThanOrEqual(120, $result[0]->value);
+        self::assertGreaterThanOrEqual($result[1]->value, $result[0]->value);
     }
 
     /**
@@ -108,11 +106,13 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
 
         // Exactly one living individual in the fixture (Franz).
         self::assertCount(1, $result);
+        // Franz carries the digit-only XREF "906" (see fixture) — the
+        // entry must round-trip it intact alongside the age.
+        self::assertSame('906', $result[0]->xref);
         // Franz born 1950 → his current age in test-run year is
         // > 60 in any plausible environment. Use a generous floor
         // so the test stays stable as years pass.
-        $age = array_values($result)[0];
-        self::assertGreaterThan(60, $age);
+        self::assertGreaterThan(60, $result[0]->value);
     }
 
     /**

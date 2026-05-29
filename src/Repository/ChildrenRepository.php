@@ -22,6 +22,7 @@ use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
+use MagicSunday\Webtrees\Statistic\Model\Ranking\RankingEntry;
 use MagicSunday\Webtrees\Statistic\Model\Record\FamilyCountRecord;
 use MagicSunday\Webtrees\Statistic\Model\Record\IndividualCountRecord;
 use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarPayload;
@@ -773,16 +774,16 @@ final readonly class ChildrenRepository
     }
 
     /**
-     * Top-N largest families ranked by f_numchil, returned in the
-     * widget-ready {label, value} shape.
+     * Top-N largest families ranked by f_numchil. Each row carries the family XREF
+     * so two families that share a display label stay distinct in the podium.
      *
      * @param int $limit Maximum number of rows.
      *
-     * @return array<string, int>
+     * @return list<RankingEntry>
      */
     public function topLargestFamilies(int $limit): array
     {
-        $out = [];
+        $entries = [];
 
         foreach ($this->data->familiesWithTheMostChildren($limit) as $entry) {
             $family   = $entry->family ?? null;
@@ -792,11 +793,11 @@ final readonly class ChildrenRepository
                 continue;
             }
 
-            $plainName       = html_entity_decode(strip_tags($family->fullName()), ENT_QUOTES | ENT_HTML5, 'UTF-8');
-            $out[$plainName] = $children;
+            $plainName = html_entity_decode(strip_tags($family->fullName()), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            $entries[] = new RankingEntry($family->xref(), $plainName, $children);
         }
 
-        return $out;
+        return $entries;
     }
 
     /**

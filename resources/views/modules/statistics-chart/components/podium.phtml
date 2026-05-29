@@ -24,16 +24,16 @@ use MagicSunday\Webtrees\Statistic\View\ProgressBarAccent;
  * detached in a small sans label — the layout the mockup uses for
  * Longevity and Largest families.
  *
- * @var array<string, int|float> $data         Label → value map (largest first)
- * @var string                   $class        Accent-key (e.g. `progress-oldest-deceased`)
- * @var string                   $suffix       Unit appended to every value in the small sans column (e.g. "yr" / "J.")
- * @var string                   $emptyMessage Optional override for the "no data" placeholder
+ * @var list<MagicSunday\Webtrees\Statistic\Model\Ranking\RankingEntry> $data         Ranked entries (largest first)
+ * @var string                                                          $class        Accent-key (e.g. `progress-oldest-deceased`)
+ * @var string                                                          $suffix       Unit appended to every value in the small sans column (e.g. "yr" / "J.")
+ * @var string                                                          $emptyMessage Optional override for the "no data" placeholder
  */
 $suffix       ??= '';
 $emptyMessage ??= EmptyStatePlaceholder::defaultMessage();
 $class        ??= '';
 
-$rows = ProgressBarRowMapper::toRows($data);
+$rows = ProgressBarRowMapper::fromRankingEntries($data);
 
 if ($rows === []) {
     echo EmptyStatePlaceholder::render($emptyMessage);

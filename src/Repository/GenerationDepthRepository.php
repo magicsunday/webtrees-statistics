@@ -14,6 +14,7 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Tree;
+use MagicSunday\Webtrees\Statistic\Model\Ranking\RankingEntry;
 use MagicSunday\Webtrees\Statistic\Model\Tree\GenerationDepthReport;
 use MagicSunday\Webtrees\Statistic\Support\Calc\GenerationDepth;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
@@ -24,11 +25,12 @@ use function array_keys;
 use function array_map;
 use function array_pop;
 use function array_slice;
-use function arsort;
 use function count;
 use function max;
+use function strcmp;
 use function strip_tags;
 use function uksort;
+use function usort;
 
 /**
  * Brick-wall surfacing for the Family tab. Computes the tree-wide
@@ -210,7 +212,7 @@ final readonly class GenerationDepthRepository
      *
      * @param int $topN Maximum number of rows to return (default 10)
      *
-     * @return array<string, int> Display label → descendant count, descending
+     * @return list<RankingEntry> XREF + display label + descendant count, most descendants first
      */
     public function topAncestorsByDescendantCount(int $topN = 10): array
     {
@@ -246,27 +248,51 @@ final readonly class GenerationDepthRepository
         // the genuine roots.
         $descendantCount = array_filter($descendantCount, static fn (int $n): bool => $n > 0);
 
-        arsort($descendantCount);
-
-        $out = [];
+        // Most descendants first; ties broken by XREF so the podium is
+        // stable across runs. Sorting an explicit list (rather than
+        // arsort on the map) keeps the order deterministic and lets the
+        // cap below count individuals, not collapsed display names.
+        $ranked = [];
 
         foreach ($descendantCount as $xref => $count) {
-            if (count($out) >= $topN) {
+            // $xref is int for numeric-only XREFs; normalise to string.
+            $ranked[] = ['xref' => (string) $xref, 'count' => $count];
+        }
+
+        usort($ranked, static function (array $a, array $b): int {
+            $byCount = $b['count'] <=> $a['count'];
+
+            if ($byCount !== 0) {
+                return $byCount;
+            }
+
+            return strcmp($a['xref'], $b['xref']);
+        });
+
+        $entries = [];
+
+        foreach ($ranked as $row) {
+            if (count($entries) >= $topN) {
                 break;
             }
 
-            // $xref is int for numeric-only XREFs; Registry::make() is
-            // string-typed, so cast before resolving.
-            $individual = Registry::individualFactory()->make((string) $xref, $this->tree);
+            $individual = Registry::individualFactory()->make($row['xref'], $this->tree);
 
             if (!$individual instanceof Individual) {
                 continue;
             }
 
-            $out[strip_tags($individual->fullName())] = $count;
+            // One row per ancestor in a list (not a name-keyed map), so
+            // two same-named ancestors stay distinct; the XREF is the
+            // row's stable identity.
+            $entries[] = new RankingEntry(
+                $row['xref'],
+                strip_tags($individual->fullName()),
+                $row['count'],
+            );
         }
 
-        return $out;
+        return $entries;
     }
 
     /**

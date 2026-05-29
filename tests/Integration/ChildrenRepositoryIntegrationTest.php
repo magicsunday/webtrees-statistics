@@ -19,7 +19,6 @@ use PHPUnit\Framework\Attributes\Test;
 use function array_keys;
 use function array_map;
 use function array_sum;
-use function array_values;
 
 /**
  * Integration tests for {@see ChildrenRepository} backed by several
@@ -189,8 +188,12 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
 
         // Two families in the fixture.
         self::assertCount(2, $result);
-        // F1 wins with 3 children → first value is 3.
-        self::assertSame(3, array_values($result)[0]);
+        // F1 wins with 3 children → first entry carries its XREF and count.
+        self::assertSame('F1', $result[0]->xref);
+        self::assertSame(3, $result[0]->value);
+        // F2 with zero children still appears as a distinct row, not filtered out.
+        self::assertSame('F2', $result[1]->xref);
+        self::assertSame(0, $result[1]->value);
     }
 
     /**

@@ -23,6 +23,7 @@ use MagicSunday\Webtrees\ModuleBase\Processor\NameProcessor;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
 use MagicSunday\Webtrees\Statistic\Model\Metric\WinterPeakScore;
+use MagicSunday\Webtrees\Statistic\Model\Ranking\RankingEntry;
 use MagicSunday\Webtrees\Statistic\Model\Record\IndividualAgeRecord;
 use MagicSunday\Webtrees\Statistic\Support\Calc\HistogramTrim;
 use MagicSunday\Webtrees\Statistic\Support\Database\BirthDeathPairsQuery;
@@ -395,12 +396,12 @@ final readonly class LifeSpanRepository
     }
 
     /**
-     * Top-N oldest deceased individuals across the tree, formatted
-     * as {label: "Given Surname (years)", value: years}.
+     * Top-N oldest deceased individuals across the tree. Each row carries the XREF,
+     * display name and age in years, so two same-named individuals stay distinct.
      *
      * @param int $limit Maximum number of rows to return.
      *
-     * @return array<string, int>
+     * @return list<RankingEntry>
      */
     public function topOldestDeceased(int $limit): array
     {
@@ -410,13 +411,13 @@ final readonly class LifeSpanRepository
     }
 
     /**
-     * Top-N oldest living individuals across the tree. Same
-     * shape as {@see topOldestDeceased()} — age is the difference
-     * between today and the BIRT date.
+     * Top-N oldest living individuals across the tree. Same shape as
+     * {@see topOldestDeceased()} — age is the difference between today and the
+     * BIRT date.
      *
      * @param int $limit Maximum number of rows to return.
      *
-     * @return array<string, int>
+     * @return list<RankingEntry>
      */
     public function topOldestLiving(int $limit): array
     {
@@ -426,7 +427,7 @@ final readonly class LifeSpanRepository
         // derive age from today minus BIRT julianday ourselves.
         $today          = getdate();
         $todayJulianDay = gregoriantojd($today['mon'], $today['mday'], $today['year']);
-        $out            = [];
+        $entries        = [];
 
         foreach ($this->data->topTenOldestAliveQuery('ALL', $limit) as $individual) {
             $birthDate = $individual->getBirthDate();
@@ -441,11 +442,11 @@ final readonly class LifeSpanRepository
                 continue;
             }
 
-            $years                              = intdiv($todayJulianDay - $birthJd, 365);
-            $out[$this->plainName($individual)] = $years;
+            $years     = intdiv($todayJulianDay - $birthJd, 365);
+            $entries[] = new RankingEntry($individual->xref(), $this->plainName($individual), $years);
         }
 
-        return $out;
+        return $entries;
     }
 
     /**
@@ -914,13 +915,13 @@ final readonly class LifeSpanRepository
     }
 
     /**
-     * @param iterable<object> $individuals Core query result (Individual collection).
+     * @param iterable<object> $individuals Core query result ({individual, days} rows).
      *
-     * @return array<string, int>
+     * @return list<RankingEntry>
      */
     private function shapeOldest(iterable $individuals): array
     {
-        $out = [];
+        $entries = [];
 
         foreach ($individuals as $entry) {
             $individual = $entry->individual ?? null;
@@ -931,11 +932,11 @@ final readonly class LifeSpanRepository
                 continue;
             }
 
-            $years                              = intdiv($days, 365);
-            $out[$this->plainName($individual)] = $years;
+            $years     = intdiv($days, 365);
+            $entries[] = new RankingEntry($individual->xref(), $this->plainName($individual), $years);
         }
 
-        return $out;
+        return $entries;
     }
 
     /**

@@ -21,6 +21,7 @@ use MagicSunday\Webtrees\Statistic\Model\Metric\EndogamyRate;
 use MagicSunday\Webtrees\Statistic\Model\Metric\PlaceDispersionSummary;
 use MagicSunday\Webtrees\Statistic\Model\Metric\RateCount;
 use MagicSunday\Webtrees\Statistic\Model\Metric\WinterPeakScore;
+use MagicSunday\Webtrees\Statistic\Model\Ranking\RankingEntry;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\MigrationFlowsPayload;
 use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarPayload;
 use MagicSunday\Webtrees\Statistic\Model\StreamGraph\GivenNameTrendsPayload;
@@ -548,12 +549,13 @@ final readonly class Statistic
      * Top-N ancestors ranked by total transitive descendant count.
      * Surfaces the structural roots of the tree — the individuals
      * whose branches actually carry the rest of the recorded
-     * lineage. Each entry is a `displayName → descendantCount`
-     * pair so the Podium component renders it directly.
+     * lineage. Each entry carries the XREF, display label and count
+     * so the Podium component renders it directly without collapsing
+     * same-named ancestors.
      *
      * @param int $limit Maximum number of rows to return
      *
-     * @return array<string, int>
+     * @return list<RankingEntry>
      */
     public function getTopAncestorsByDescendantCount(int $limit): array
     {
@@ -628,11 +630,12 @@ final readonly class Statistic
     }
 
     /**
-     * Top-N oldest deceased individuals (label includes the age).
+     * Top-N oldest deceased individuals, each carrying the XREF,
+     * display name and age in years.
      *
      * @param int $limit Maximum number of rows to return.
      *
-     * @return array<string, int>
+     * @return list<RankingEntry>
      */
     public function getTopOldestDeceased(int $limit): array
     {
@@ -640,11 +643,12 @@ final readonly class Statistic
     }
 
     /**
-     * Top-N oldest living individuals (label includes the age).
+     * Top-N oldest living individuals, each carrying the XREF,
+     * display name and age in years.
      *
      * @param int $limit Maximum number of rows to return.
      *
-     * @return array<string, int>
+     * @return list<RankingEntry>
      */
     public function getTopOldestLiving(int $limit): array
     {
@@ -853,11 +857,12 @@ final readonly class Statistic
     }
 
     /**
-     * Top-N largest families by child count.
+     * Top-N largest families by child count, each carrying the
+     * family XREF, display label and child count.
      *
      * @param int $limit Maximum number of rows.
      *
-     * @return array<string, int>
+     * @return list<RankingEntry>
      */
     public function getTopLargestFamilies(int $limit): array
     {

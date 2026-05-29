@@ -11,9 +11,13 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
+use MagicSunday\Webtrees\Statistic\Model\Ranking\RankingEntry;
 use MagicSunday\Webtrees\Statistic\Repository\GenerationDepthRepository;
 use MagicSunday\Webtrees\Statistic\Repository\ParentMapRepository;
 use PHPUnit\Framework\Attributes\Test;
+
+use function array_map;
+use function array_search;
 
 /**
  * End-to-end test of {@see GenerationDepthRepository} against
@@ -73,18 +77,14 @@ final class GenerationDepthRepositoryIntegrationTest extends IntegrationTestCase
 
         self::assertCount(2, $result, 'Only the two individuals with descendants land on the podium');
 
-        // arsort preserves keys; convert to ordered pairs for assertion.
-        $ordered = [];
+        // Result is an ordered list of RankingEntry, most descendants first.
+        self::assertSame('I1', $result[0]->xref);
+        self::assertSame(2, $result[0]->value, 'Grandparent leads with two descendants (parent + grandchild)');
+        self::assertStringContainsString('Grandparent', $result[0]->label);
 
-        foreach ($result as $label => $count) {
-            $ordered[] = [$label, $count];
-        }
-
-        self::assertSame(2, $ordered[0][1], 'Grandparent leads with two descendants (parent + grandchild)');
-        self::assertStringContainsString('Grandparent', $ordered[0][0]);
-
-        self::assertSame(1, $ordered[1][1], 'Parent follows with one descendant (the child)');
-        self::assertStringContainsString('Parent', $ordered[1][0]);
+        self::assertSame('I2', $result[1]->xref);
+        self::assertSame(1, $result[1]->value, 'Parent follows with one descendant (the child)');
+        self::assertStringContainsString('Parent', $result[1]->label);
     }
 
     /**
@@ -152,16 +152,59 @@ final class GenerationDepthRepositoryIntegrationTest extends IntegrationTestCase
 
         self::assertCount(2, $result, 'Only the two individuals with descendants land on the podium');
 
-        $ordered = [];
+        // Digit-only XREFs round-trip into the entry as strings.
+        self::assertSame('1', $result[0]->xref);
+        self::assertSame(2, $result[0]->value, 'Grandparent leads with two descendants (parent + grandchild)');
+        self::assertStringContainsString('Grandparent', $result[0]->label);
 
-        foreach ($result as $label => $count) {
-            $ordered[] = [$label, $count];
+        self::assertSame('2', $result[1]->xref);
+        self::assertSame(1, $result[1]->value, 'Parent follows with one descendant (the child)');
+        self::assertStringContainsString('Parent', $result[1]->label);
+    }
+
+    /**
+     * Two distinct ancestors that share a display name ("Hans Müller",
+     * I1 with 3 descendants and I2 with 1) must stay separate podium
+     * rows. The previous name-keyed map collapsed them: iterating in
+     * descending-count order, I2's count overwrote I1's under the same
+     * label, so the row showed the LOWER value sitting above
+     * higher-valued rows — the "ordering looks wrong" symptom. Keying
+     * each row by XREF keeps both, with the correct values and order.
+     */
+    #[Test]
+    public function topAncestorsByDescendantCountKeepsSameNamedAncestorsDistinct(): void
+    {
+        $tree   = $this->importFixtureTree('top-ancestors-duplicate-names.ged');
+        $result = (new GenerationDepthRepository($tree, new ParentMapRepository($tree)))
+            ->topAncestorsByDescendantCount(10);
+
+        // I1, I3, I4, I2 all have at least one descendant.
+        self::assertCount(4, $result);
+
+        // Highest-count ancestor first, carrying its own XREF + value.
+        self::assertSame('I1', $result[0]->xref);
+        self::assertSame(3, $result[0]->value);
+
+        // Both same-named ancestors survive as distinct rows — the old
+        // name-keyed map would have produced a single "Hans Müller".
+        $byXref = [];
+
+        foreach ($result as $entry) {
+            $byXref[$entry->xref] = $entry;
         }
 
-        self::assertSame(2, $ordered[0][1], 'Grandparent leads with two descendants (parent + grandchild)');
-        self::assertStringContainsString('Grandparent', $ordered[0][0]);
+        self::assertArrayHasKey('I1', $byXref);
+        self::assertArrayHasKey('I2', $byXref);
+        self::assertStringContainsString('Müller', $byXref['I1']->label);
+        self::assertStringContainsString('Müller', $byXref['I2']->label);
+        self::assertSame(3, $byXref['I1']->value);
+        self::assertSame(1, $byXref['I2']->value);
 
-        self::assertSame(1, $ordered[1][1], 'Parent follows with one descendant (the child)');
-        self::assertStringContainsString('Parent', $ordered[1][0]);
+        // The higher-count namesake ranks above the lower-count one.
+        $xrefOrder = array_map(static fn (RankingEntry $entry): string => $entry->xref, $result);
+        self::assertLessThan(
+            array_search('I2', $xrefOrder, true),
+            array_search('I1', $xrefOrder, true),
+        );
     }
 }
