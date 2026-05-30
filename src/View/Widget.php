@@ -223,9 +223,10 @@ final readonly class Widget
     }
 
     /**
-     * Start a new population-pyramid widget host. Pass the
-     * `{centuries, bands, data}` payload via `withData(...)`; the male/female
-     * captions and crossfilter source flow through `with(...)`.
+     * Start a new population-pyramid widget host. Pass the `{groups, bands,
+     * data}` payload via `withData(...)`; the `leftLabel` / `rightLabel` /
+     * `axisLabel` captions and the crossfilter `source` flow through
+     * `with(...)`.
      */
     public static function populationPyramid(string $module, string $identifier): self
     {

@@ -2889,7 +2889,7 @@
     border-bottom:  1px solid var(--border-soft);
 }
 
-.wt-statistics-chart .wt-stat-pyramid-century {
+.wt-statistics-chart .wt-stat-pyramid-group {
     padding:              6px 12px;
     border:               1px solid var(--border);
     border-radius:        4px;
@@ -2902,62 +2902,83 @@
     transition:           border-color 160ms, color 160ms, background-color 160ms;
 }
 
-.wt-statistics-chart .wt-stat-pyramid-century:hover {
+.wt-statistics-chart .wt-stat-pyramid-group:hover {
     border-color: var(--ink-3);
     color:        var(--ink);
 }
 
-.wt-statistics-chart .wt-stat-pyramid-century[aria-pressed="true"] {
+.wt-statistics-chart .wt-stat-pyramid-group[aria-pressed="true"] {
     border-color: var(--pyramid-accent);
     color:        var(--ink);
     background:   color-mix(in srgb, var(--pyramid-accent) 8%, transparent);
 }
 
+/* Pyramid text inherits the sans family from the SVG root; the numeric and
+   eyebrow groups below override only what differs (mono family, tracking,
+   per-cell fill) rather than re-declaring the shared base on every class. */
 .wt-statistics-chart svg.wt-stat-pyramid-svg {
-    width:  100%;
-    height: auto;
+    width:       100%;
+    height:      auto;
+    font-family: var(--sans);
 }
 
-.wt-statistics-chart svg.wt-stat-pyramid-svg rect.wt-stat-pyramid-bar-m {
+.wt-statistics-chart svg.wt-stat-pyramid-svg path.wt-stat-pyramid-bar-left {
     fill:       var(--wmstats-sex-male);
     transition: opacity 160ms;
 }
 
-.wt-statistics-chart svg.wt-stat-pyramid-svg rect.wt-stat-pyramid-bar-f {
+.wt-statistics-chart svg.wt-stat-pyramid-svg path.wt-stat-pyramid-bar-right {
     fill:       var(--wmstats-sex-female);
     transition: opacity 160ms;
 }
 
-.wt-statistics-chart svg.wt-stat-pyramid-svg rect.wt-stat-pyramid-bar-m:hover,
-.wt-statistics-chart svg.wt-stat-pyramid-svg rect.wt-stat-pyramid-bar-f:hover {
+.wt-statistics-chart svg.wt-stat-pyramid-svg path.wt-stat-pyramid-bar-left:hover,
+.wt-statistics-chart svg.wt-stat-pyramid-svg path.wt-stat-pyramid-bar-right:hover {
     opacity: 0.82;
 }
 
-/* Centre-gutter age-band labels are numeric ranges ("60–69", "100+"),
-   so they share the monospaced tabular system of the other axis ticks. */
-.wt-statistics-chart svg.wt-stat-pyramid-svg text.wt-stat-pyramid-band {
+/* The numeric layers — centre-gutter age-band ranges ("60–69", "100+") and the
+   per-bar count captions — share one monospaced tabular system set on their
+   group <g>; the text children inherit it. Values run a touch smaller. */
+.wt-statistics-chart svg.wt-stat-pyramid-svg .wt-stat-pyramid-bands,
+.wt-statistics-chart svg.wt-stat-pyramid-svg .wt-stat-pyramid-values {
     fill:                 var(--ink-2);
     font-family:          var(--mono);
     font-size:            12px;
     font-variant-numeric: tabular-nums;
 }
 
-/* Per-column sex captions sit above each side as an uppercase eyebrow,
-   colour-matched to the bars they head. */
-.wt-statistics-chart svg.wt-stat-pyramid-svg text.wt-stat-pyramid-sidelabel {
-    font-family:    var(--sans);
+.wt-statistics-chart svg.wt-stat-pyramid-svg .wt-stat-pyramid-values {
+    font-size: 11px;
+}
+
+/* The header eyebrows (MÄNNER · AGE · FRAUEN) share an uppercase tracking set
+   on the header group; only the per-cell fill (and the slightly smaller,
+   neutral axis title) differs. */
+.wt-statistics-chart svg.wt-stat-pyramid-svg .wt-stat-pyramid-header {
     font-size:      12px;
     font-weight:    600;
     letter-spacing: 0.14em;
     text-transform: uppercase;
 }
 
-.wt-statistics-chart svg.wt-stat-pyramid-svg text.wt-stat-pyramid-sidelabel-m {
+.wt-statistics-chart svg.wt-stat-pyramid-svg text.wt-stat-pyramid-sidelabel-left {
     fill: var(--wmstats-sex-male);
 }
 
-.wt-statistics-chart svg.wt-stat-pyramid-svg text.wt-stat-pyramid-sidelabel-f {
+.wt-statistics-chart svg.wt-stat-pyramid-svg text.wt-stat-pyramid-sidelabel-right {
     fill: var(--wmstats-sex-female);
+}
+
+.wt-statistics-chart svg.wt-stat-pyramid-svg text.wt-stat-pyramid-axis-title {
+    fill:      var(--ink-3);
+    font-size: 11px;
+}
+
+/* Solid rules framing the centre age gutter on both sides. */
+.wt-statistics-chart svg.wt-stat-pyramid-svg line.wt-stat-pyramid-separator {
+    stroke:       var(--border);
+    stroke-width: 1px;
 }
 
 /* ----------------------------------------------------------------------

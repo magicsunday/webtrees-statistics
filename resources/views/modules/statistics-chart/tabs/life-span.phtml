@@ -297,20 +297,21 @@ echo Card::for($module, I18N::translate('Age-at-death distribution by century'))
 echo Card::for($module, I18N::translate('Age-at-death distribution by sex and century'))
     ->withSub(I18N::translate('Age-band counts per birth century, split into a male and a female column'))
     ->withEyebrow(I18N::translate('Distribution'))
-    ->withAccent(Accent::Sage)
+    ->withAccent(Accent::Slate)
     ->withIllustration(Illustration::People)
     ->withInfo(
         I18N::translate("Pick a birth century with the buttons above the chart. For that cohort every individual with both a birth and a death date is sorted into a 10-year age-at-death band, then counted separately for each sex. The two columns grow outward from the central band labels so the male and female age structure can be compared band by band; both columns share one scale, so a longer bar always means more people. The youngest band sits at the base and the oldest (100+) at the top. Infant and child deaths are kept, so a band can be wide at the very bottom. Ages are capped at the tree's plausibility ceiling to keep a single data-entry error from stretching the axis."),
         $aboutThisChart,
         $aboutThisChart,
     )
-    ->withSpan(12)
+    ->withSpan(8)
     ->withBodyHtml(
         Widget::populationPyramid($module, 'deaths-by-century-pyramid')
             ->withData($deathsByCenturyPyramid)
             ->withHeight(460)
-            ->with('maleLabel', I18N::translate('Male'))
-            ->with('femaleLabel', I18N::translate('Female'))
+            ->with('leftLabel', I18N::translate('Male'))
+            ->with('rightLabel', I18N::translate('Female'))
+            ->with('axisLabel', I18N::translate('Age'))
             ->with('source', 'deaths-pyramid')
             ->withAriaLabel(I18N::translate('Age-at-death distribution by sex and century'))
             ->render()

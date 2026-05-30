@@ -518,7 +518,7 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
         $result = $this->repository($tree)->deathsByCenturyAgeBandSex();
 
         // Centuries axis: only populated cohorts, chronological order.
-        self::assertSame(['17th cent.', '19th cent.', '20th cent.'], $result->centuries);
+        self::assertSame(['17th cent.', '19th cent.', '20th cent.'], $result->groups);
 
         // Bands axis: full 11-band range, oldest first so the pyramid base
         // (youngest) sits at the bottom.
@@ -527,17 +527,17 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame('0–9', $result->bands[10]);
 
         // 17th century: one male + one female centenarian.
-        self::assertSame(['m' => 1, 'f' => 1], $result->data[0][0], '17th c. 100+ band');
+        self::assertSame(['left' => 1, 'right' => 1], $result->data[0][0], '17th c. 100+ band');
         self::assertSame(2, $this->columnTotal($result->data[0]), '17th c. carries exactly two deaths');
 
         // 19th century: 70–79 pair, 50–59 male, 0–9 female.
-        self::assertSame(['m' => 1, 'f' => 1], $result->data[1][3], '19th c. 70–79 band');
-        self::assertSame(['m' => 1, 'f' => 0], $result->data[1][5], '19th c. 50–59 band (male only)');
-        self::assertSame(['m' => 0, 'f' => 1], $result->data[1][10], '19th c. 0–9 band (female only)');
+        self::assertSame(['left' => 1, 'right' => 1], $result->data[1][3], '19th c. 70–79 band');
+        self::assertSame(['left' => 1, 'right' => 0], $result->data[1][5], '19th c. 50–59 band (male only)');
+        self::assertSame(['left' => 0, 'right' => 1], $result->data[1][10], '19th c. 0–9 band (female only)');
 
         // 20th century: 0–9 male, 90–99 female.
-        self::assertSame(['m' => 1, 'f' => 0], $result->data[2][10], '20th c. 0–9 band (male only)');
-        self::assertSame(['m' => 0, 'f' => 1], $result->data[2][1], '20th c. 90–99 band (female only)');
+        self::assertSame(['left' => 1, 'right' => 0], $result->data[2][10], '20th c. 0–9 band (male only)');
+        self::assertSame(['left' => 0, 'right' => 1], $result->data[2][1], '20th c. 90–99 band (female only)');
     }
 
     /**
@@ -571,7 +571,7 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('empty-marriages.ged');
         $result = $this->repository($tree)->deathsByCenturyAgeBandSex();
 
-        self::assertSame([], $result->centuries);
+        self::assertSame([], $result->groups);
         self::assertSame([], $result->bands);
         self::assertSame([], $result->data);
     }
@@ -589,18 +589,18 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('population-pyramid-bands.ged');
         $result = $this->repository($tree)->deathsByCenturyAgeBandSex();
 
-        self::assertSame(['20th cent.'], $result->centuries);
+        self::assertSame(['20th cent.'], $result->groups);
 
         $column = $result->data[0];
         // bands are oldest-first: [100+, 90–99, 80–89, 70–79, …, 10–19, 0–9].
-        self::assertSame(['m' => 1, 'f' => 0], $column[0], '100.5y → 100+ overflow');
-        self::assertSame(['m' => 1, 'f' => 0], $column[1], '99.5y → 90–99');
-        self::assertSame(['m' => 1, 'f' => 0], $column[9], '10.5y → 10–19');
-        self::assertSame(['m' => 2, 'f' => 0], $column[10], '0.5y and 9.5y → 0–9');
+        self::assertSame(['left' => 1, 'right' => 0], $column[0], '100.5y → 100+ overflow');
+        self::assertSame(['left' => 1, 'right' => 0], $column[1], '99.5y → 90–99');
+        self::assertSame(['left' => 1, 'right' => 0], $column[9], '10.5y → 10–19');
+        self::assertSame(['left' => 2, 'right' => 0], $column[10], '0.5y and 9.5y → 0–9');
 
         // Bands 80–89 … 20–29 stay empty.
         foreach ([2, 3, 4, 5, 6, 7, 8] as $emptyBand) {
-            self::assertSame(['m' => 0, 'f' => 0], $column[$emptyBand]);
+            self::assertSame(['left' => 0, 'right' => 0], $column[$emptyBand]);
         }
     }
 
@@ -772,16 +772,16 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Sum the male + female counts across every band of one century column.
+     * Sum the left + right counts across every band of one group column.
      *
-     * @param list<array{m: int, f: int}> $column
+     * @param list<array{left: int, right: int}> $column
      */
     private function columnTotal(array $column): int
     {
         $total = 0;
 
         foreach ($column as $cell) {
-            $total += $cell['m'] + $cell['f'];
+            $total += $cell['left'] + $cell['right'];
         }
 
         return $total;

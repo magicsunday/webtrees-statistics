@@ -14,15 +14,17 @@ namespace MagicSunday\Webtrees\Statistic\Model\Pyramid;
 use JsonSerializable;
 
 /**
- * Wire-format payload for the chart-lib population-pyramid widget on the
- * LifeSpan tab. `centuries` is the picker axis (one localised century label per
- * column, chronological order); `bands` is the shared age-at-death band axis in
- * top-to-bottom order (oldest band first so the pyramid reads conventionally);
- * `data[centuryIdx][bandIdx]` is the male/female count pair for that century ×
- * band cell.
+ * Wire-format payload for the chart-lib pyramid widget on the LifeSpan tab.
+ * Built for the deaths-by-sex use, but shaped to the widget's domain-neutral
+ * contract: `groups` is the picker axis (one localised century label per
+ * selectable column-set, chronological order); `bands` is the shared
+ * age-at-death band axis in top-to-bottom order (oldest band first so the
+ * pyramid reads conventionally); `data[groupIdx][bandIdx]` is the
+ * `{left, right}` count pair — here left = male, right = female, the mapping
+ * the LifeSpan card pins via its `leftLabel` / `rightLabel` captions.
  *
- * Serialises to `{centuries: list<string>, bands: list<string>, data:
- * list<list<array{m: int, f: int}>>}`.
+ * Serialises to `{groups: list<string>, bands: list<string>, data:
+ * list<list<array{left: int, right: int}>>}`.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -31,26 +33,26 @@ use JsonSerializable;
 final readonly class PopulationPyramidPayload implements JsonSerializable
 {
     /**
-     * @param list<string>                      $centuries Localised century labels in chronological order
-     * @param list<string>                      $bands     Age-at-death band labels, oldest first (top of the pyramid)
-     * @param list<list<array{m: int, f: int}>> $data      Per-century column of `{m, f}` count pairs, one entry per band
+     * @param list<string>                             $groups Localised picker labels (centuries) in chronological order
+     * @param list<string>                             $bands  Age-at-death band labels, oldest first (top of the pyramid)
+     * @param list<list<array{left: int, right: int}>> $data   Per-group column of `{left, right}` count pairs, one entry per band
      */
     public function __construct(
-        public array $centuries,
+        public array $groups,
         public array $bands,
         public array $data,
     ) {
     }
 
     /**
-     * @return array{centuries: list<string>, bands: list<string>, data: list<list<array{m: int, f: int}>>}
+     * @return array{groups: list<string>, bands: list<string>, data: list<list<array{left: int, right: int}>>}
      */
     public function jsonSerialize(): array
     {
         return [
-            'centuries' => $this->centuries,
-            'bands'     => $this->bands,
-            'data'      => $this->data,
+            'groups' => $this->groups,
+            'bands'  => $this->bands,
+            'data'   => $this->data,
         ];
     }
 }

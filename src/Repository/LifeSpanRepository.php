@@ -815,7 +815,7 @@ final readonly class LifeSpanRepository
         }
 
         if ($seenCenturies === []) {
-            return new PopulationPyramidPayload(centuries: [], bands: [], data: []);
+            return new PopulationPyramidPayload(groups: [], bands: [], data: []);
         }
 
         ksort($seenCenturies);
@@ -829,9 +829,12 @@ final readonly class LifeSpanRepository
             $column = [];
 
             foreach ($bands as $band) {
+                // Map the sex tally onto the widget's neutral two-sided cell:
+                // male → left, female → right (the LifeSpan card pins the
+                // captions to match).
                 $column[] = [
-                    'm' => $male[$century][$band] ?? 0,
-                    'f' => $female[$century][$band] ?? 0,
+                    'left'  => $male[$century][$band] ?? 0,
+                    'right' => $female[$century][$band] ?? 0,
                 ];
             }
 
@@ -839,7 +842,7 @@ final readonly class LifeSpanRepository
         }
 
         return new PopulationPyramidPayload(
-            centuries: $centuries,
+            groups: $centuries,
             bands: $bands,
             data: $data,
         );

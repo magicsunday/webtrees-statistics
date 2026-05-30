@@ -213,8 +213,8 @@ describe("renderWidgets", () => {
         document.body.innerHTML = `
             <div id="p1"
                  data-widget="population-pyramid"
-                 data-payload='{"centuries":["19th cent."],"bands":["0–9"],"data":[[{"m":2,"f":1}]]}'
-                 data-options='{"height":460,"maleLabel":"Male","femaleLabel":"Female"}'></div>
+                 data-payload='{"groups":["19th cent."],"bands":["0–9"],"data":[[{"left":2,"right":1}]]}'
+                 data-options='{"height":460,"leftLabel":"Male","rightLabel":"Female"}'></div>
         `;
 
         renderWidgets(document.body);
@@ -223,12 +223,12 @@ describe("renderWidgets", () => {
         const [node, data, options] = populationPyramidDrawSpy.mock.calls[0];
         expect(node.id).toBe("p1");
         expect(data).toEqual({
-            centuries: ["19th cent."],
+            groups: ["19th cent."],
             bands: ["0–9"],
-            data: [[{ m: 2, f: 1 }]],
+            data: [[{ left: 2, right: 1 }]],
         });
-        expect(options.maleLabel).toBe("Male");
-        expect(options.femaleLabel).toBe("Female");
+        expect(options.leftLabel).toBe("Male");
+        expect(options.rightLabel).toBe("Female");
     });
 
     test("dispatches a heatmap widget when data-widget=heatmap", () => {
