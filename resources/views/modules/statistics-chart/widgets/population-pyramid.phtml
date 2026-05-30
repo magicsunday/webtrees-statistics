@@ -33,6 +33,7 @@ use MagicSunday\Webtrees\Statistic\View\EmptyStatePlaceholder;
  * @var string|null              $axisLabel    Pre-translated centre gutter title
  * @var string|null              $categoryUnit Pre-translated unit appended to the band in the tooltip
  * @var string|null              $valueLabel   Pre-translated unit appended to the count in the tooltip
+ * @var string|null              $ease         Entrance/switch easing name (e.g. "cubic-out", "back-out")
  * @var string|null              $source       Crossfilter source id for the shared selection bus
  */
 $height ??= 460;
@@ -51,6 +52,7 @@ $options = [
     'axisLabel'    => $axisLabel ?? null,
     'categoryUnit' => $categoryUnit ?? null,
     'valueLabel'   => $valueLabel ?? null,
+    'ease'         => $ease ?? null,
 ];
 
 if (isset($source) && ($source !== '')) {
