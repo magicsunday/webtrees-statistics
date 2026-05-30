@@ -12,14 +12,21 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use Fisharebest\Webtrees\Tree;
+use MagicSunday\Webtrees\Statistic\Enum\Sex;
 use MagicSunday\Webtrees\Statistic\Repository\NameRepository;
 use PHPUnit\Framework\Attributes\Test;
 
+use function array_column;
+use function array_unique;
+
 /**
- * Integration test for {@see NameRepository}. Uses the existing
- * `name-trends.ged` fixture: twelve individuals total (eleven dated + one
- * undated), five distinct given names and one common surname "Test" that
- * appears on every individual.
+ * Integration test for {@see NameRepository}. The count / passdown cases use
+ * the `name-trends.ged` fixture (twelve individuals, five distinct given names,
+ * one common surname "Test"); the whitelist cases use `name-custom-subtag.ged`,
+ * which pairs primary `NAME` records with custom and standardised sub-tags
+ * (`_LAST`, `_AKA`, `_MARNM`, `ROMN`, `FONE`, `_HEB`) to prove that the custom,
+ * alias and married-name forms are excluded while the primary name and its
+ * romanised / phonetic / Hebrew transliterations still count.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -29,7 +36,7 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
 {
     private function repository(Tree $tree): NameRepository
     {
-        return new NameRepository($tree, $this->statisticsData($tree));
+        return new NameRepository($tree);
     }
 
     /**
@@ -78,8 +85,8 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
         $tree = $this->importFixtureTree('name-trends.ged');
         $repo = $this->repository($tree);
 
-        self::assertGreaterThanOrEqual(3, $repo->countDistinctGivenNames('F'));
-        self::assertGreaterThanOrEqual(2, $repo->countDistinctGivenNames('M'));
+        self::assertGreaterThanOrEqual(3, $repo->countDistinctGivenNames(Sex::Female->value));
+        self::assertGreaterThanOrEqual(2, $repo->countDistinctGivenNames(Sex::Male->value));
     }
 
     /**
@@ -95,8 +102,8 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
 
         // With threshold 1 we see all five given names; with
         // threshold 3 only Anna (3) and Hans (3) qualify.
-        $unbounded = $repo->countDistinctGivenNames('ALL', 1);
-        $threeOnly = $repo->countDistinctGivenNames('ALL', 3);
+        $unbounded = $repo->countDistinctGivenNames(NameRepository::SEX_ALL, 1);
+        $threeOnly = $repo->countDistinctGivenNames(NameRepository::SEX_ALL, 3);
 
         self::assertGreaterThan($threeOnly, $unbounded);
     }
@@ -185,5 +192,113 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
         $motherDaughter = $result->series[1];
         self::assertSame(0, $motherDaughter->values[0]);
         self::assertStringContainsString('no data', $motherDaughter->tooltips[0]);
+    }
+
+    /**
+     * Regression for the "common given names" leak (issue #75). A `1 NAME` with
+     * a level-2 custom sub-tag (`2 _LAST 05 May 2001`) is indexed by core as a
+     * separate `name` row whose `n_givn` is the literal sub-tag value. Core's
+     * Top-N aggregation filters only `n_type <> '_MARNM'`, so the date string
+     * tokenises into `05` / `May` / `2001` and pollutes the chart. The
+     * whitelist (`NAME`, `ROMN`, `FONE`, `_HEB`) drops every arbitrary custom
+     * tag and the `_AKA` alias, so none of those tokens may survive — while the
+     * romanised (`ROMN`), phonetic (`FONE`) and Hebrew (`_HEB`) transliteration
+     * variants still contribute the real name in their script.
+     */
+    #[Test]
+    public function topGivenNamesExcludesCustomSubtagJunkButKeepsWhitelistedForms(): void
+    {
+        $tree   = $this->importFixtureTree('name-custom-subtag.ged');
+        $labels = array_column($this->repository($tree)->topGivenNames(NameRepository::SEX_ALL, 1, 100), 'label');
+
+        // _LAST date tokens must not leak in as "given names".
+        self::assertNotContains('2001', $labels);
+        self::assertNotContains('1999', $labels);
+        self::assertNotContains('May', $labels);
+        self::assertNotContains('Jun', $labels);
+        self::assertNotContains('Jan', $labels);
+
+        // _AKA is an arbitrary custom alias — excluded by the whitelist.
+        self::assertNotContains('Aliasius', $labels);
+
+        // Romanised / phonetic / Hebrew transliteration variants carry the
+        // real name in another script — kept.
+        self::assertContains('Romulus', $labels);
+        self::assertContains('Phonetus', $labels);
+        self::assertContains('Hebraicus', $labels);
+
+        // Sanity: the primary NAME given names are still present.
+        self::assertContains('John', $labels);
+        self::assertContains('Greta', $labels);
+    }
+
+    /**
+     * Surname counterpart of the whitelist fix. Neither the arbitrary custom
+     * `_AKA` form nor the married-name `_MARNM` form contributes a surname:
+     * `_AKA` is junk, and `_MARNM` is excluded so surnames stay counted by
+     * primary (birth) name exactly as webtrees core does. Only the primary
+     * `NAME` surname of each individual survives.
+     */
+    #[Test]
+    public function topSurnamesKeepsOnlyPrimaryNameSurnames(): void
+    {
+        $tree   = $this->importFixtureTree('name-custom-subtag.ged');
+        $labels = array_column($this->repository($tree)->topSurnames(100, 1), 'label');
+
+        // _AKA surname (arbitrary custom) is excluded.
+        self::assertNotContains('Aliasson', $labels);
+
+        // _MARNM married name is excluded — core counts surnames by birth name.
+        self::assertNotContains('Married', $labels);
+
+        // Primary NAME surnames remain, including the maiden name behind the
+        // _MARNM record.
+        self::assertContains('Maiden', $labels);
+        self::assertContains('Ditchi', $labels);
+        self::assertContains('Smith', $labels);
+    }
+
+    /**
+     * The distinct-given-name headline must stay in lockstep with the Top-N
+     * list: counting the same whitelisted, tokenised set. With the junk
+     * excluded the fixture exposes a bounded set of real given-name tokens, so
+     * the count is finite and excludes the date fragments.
+     */
+    #[Test]
+    public function countDistinctGivenNamesIgnoresCustomSubtagJunk(): void
+    {
+        $tree = $this->importFixtureTree('name-custom-subtag.ged');
+        $repo = $this->repository($tree);
+
+        // Distinct male given names: John, Peter, Edgar, Fred, Henry, Isaac,
+        // Romulus (ROMN), Phonetus (FONE), Hebraicus (_HEB). @P.N. is excluded;
+        // the _LAST date tokens and the _AKA alias are dropped.
+        self::assertSame(9, $repo->countDistinctGivenNames(Sex::Male->value));
+    }
+
+    /**
+     * Deterministic tie-break when the limit caps the Top-N list. Every
+     * whitelisted given-name token in the fixture occurs exactly once, so all
+     * counts tie; which tokens survive a sub-pool limit is therefore decided
+     * solely by the tie-break. The aggregation orders its source rows by
+     * `n_givn` and relies on PHP's stable sort, so the survivors must be the
+     * tokens from the alphabetically-first `n_givn` rows — `Edgar`, `Fred`,
+     * `Greta`. Without the deterministic ordering the survivors would follow
+     * arbitrary database row order, so this pins the contract that the
+     * `ORDER BY n_givn` tie-break exists to guarantee.
+     */
+    #[Test]
+    public function topGivenNamesBreaksEqualCountTiesDeterministicallyUnderLimit(): void
+    {
+        $tree   = $this->importFixtureTree('name-custom-subtag.ged');
+        $labels = array_column($this->repository($tree)->topGivenNames(NameRepository::SEX_ALL, 1, 3), 'label');
+
+        // Limit honoured: exactly three distinct survivors.
+        self::assertCount(3, $labels);
+        self::assertSame($labels, array_unique($labels));
+
+        // All tokens tie at one occurrence, so the n_givn-ascending tie-break
+        // decides: the three lowest n_givn rows yield Edgar / Fred / Greta.
+        self::assertSame(['Edgar', 'Fred', 'Greta'], $labels);
     }
 }

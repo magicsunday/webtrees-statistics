@@ -14,6 +14,7 @@ namespace MagicSunday\Webtrees\Statistic;
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\StatisticsData;
 use MagicSunday\Webtrees\Statistic\Enum\MaritalBucket;
+use MagicSunday\Webtrees\Statistic\Enum\Sex;
 use MagicSunday\Webtrees\Statistic\Model\Chord\ChordMatrixPayload;
 use MagicSunday\Webtrees\Statistic\Model\Heatmap\HeatmapPayload;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
@@ -56,11 +57,9 @@ use MagicSunday\Webtrees\Statistic\Support\Calc\HistogramTrim;
 use MagicSunday\Webtrees\Statistic\Support\Locale\MonthName;
 use MagicSunday\Webtrees\Statistic\Support\Locale\ZodiacLabels;
 
-use function array_sum;
 use function array_values;
 use function count;
 use function is_array;
-use function usort;
 
 /**
  * Aggregator service that backs the statistics-chart tab partials.
@@ -82,7 +81,7 @@ final readonly class Statistic
      * @param StatisticsData                  $data                            Core data accessor for individual, family and event counts
      * @param FamilyRepository                $familyRepository                Census-style marital classification not exposed by core
      * @param EventRepository                 $eventRepository                 Zodiac-sign grouping not exposed by core
-     * @param NameRepository                  $nameRepository                  Distinct primary-name counts (direct COUNT(DISTINCT) to avoid the N+1 query storm hidden in commonSurnames(PHP_INT_MAX))
+     * @param NameRepository                  $nameRepository                  Top-N surnames / given names + distinct counts, restricted to whitelisted GEDCOM name forms
      * @param TreeHealthRepository            $treeHealthRepository            Data-quality metrics: source coverage, missing-event gaps, generation length
      * @param GivenNameTrendsRepository       $givenNameTrendsRepository       Per-decade frequency of the top-N given names for the stream graph
      * @param MigrationRepository             $migrationRepository             Birth → death country flows for the Places-tab Sankey diagram
@@ -292,9 +291,7 @@ final readonly class Statistic
      */
     public function getTopSurnames(int $limit): array
     {
-        return $this->shapeSurnameList(
-            $this->data->commonSurnames($limit, self::NAME_FREQUENCY_THRESHOLD, 'count'),
-        );
+        return $this->nameRepository->topSurnames($limit, self::NAME_FREQUENCY_THRESHOLD);
     }
 
     /**
@@ -302,7 +299,7 @@ final readonly class Statistic
      */
     public function getTotalMaleGivenNames(): int
     {
-        return $this->nameRepository->countDistinctGivenNames('M', self::NAME_FREQUENCY_THRESHOLD);
+        return $this->nameRepository->countDistinctGivenNames(Sex::Male->value, self::NAME_FREQUENCY_THRESHOLD);
     }
 
     /**
@@ -312,9 +309,7 @@ final readonly class Statistic
      */
     public function getTopMaleGivenNames(int $limit): array
     {
-        return $this->shapeGivenNameList(
-            $this->data->commonGivenNames('M', self::NAME_FREQUENCY_THRESHOLD, $limit),
-        );
+        return $this->nameRepository->topGivenNames(Sex::Male->value, self::NAME_FREQUENCY_THRESHOLD, $limit);
     }
 
     /**
@@ -322,7 +317,7 @@ final readonly class Statistic
      */
     public function getTotalFemaleGivenNames(): int
     {
-        return $this->nameRepository->countDistinctGivenNames('F', self::NAME_FREQUENCY_THRESHOLD);
+        return $this->nameRepository->countDistinctGivenNames(Sex::Female->value, self::NAME_FREQUENCY_THRESHOLD);
     }
 
     /**
@@ -332,9 +327,7 @@ final readonly class Statistic
      */
     public function getTopFemaleGivenNames(int $limit): array
     {
-        return $this->shapeGivenNameList(
-            $this->data->commonGivenNames('F', self::NAME_FREQUENCY_THRESHOLD, $limit),
-        );
+        return $this->nameRepository->topGivenNames(Sex::Female->value, self::NAME_FREQUENCY_THRESHOLD, $limit);
     }
 
     /**
@@ -1076,58 +1069,6 @@ final readonly class Statistic
     public function getOccupationInheritance(int $topLinks): SankeyFlowsPayload
     {
         return $this->occupationInheritanceRepository->occupationInheritance($topLinks);
-    }
-
-    /**
-     * Convert StatisticsData::commonSurnames output (surname → variant-count
-     * map) into the [{label, value}] shape consumed by chart widgets, sorted
-     * alphabetically by surname. Core's PHPDoc declares the shape as
-     * `array<array<int>>`; in practice the outer keys are always the surname
-     * strings and the inner array sums to the total occurrences.
-     *
-     * @param array<array-key, array<int>> $rows
-     *
-     * @return array<int, array{label: string, value: int}>
-     */
-    private function shapeSurnameList(array $rows): array
-    {
-        $entries = [];
-
-        foreach ($rows as $surname => $variants) {
-            $entries[] = ['label' => (string) $surname, 'value' => array_sum($variants)];
-        }
-
-        usort(
-            $entries,
-            static fn (array $x, array $y): int => $x['label'] <=> $y['label'],
-        );
-
-        return $entries;
-    }
-
-    /**
-     * Convert StatisticsData::commonGivenNames output (iterable<string,int>)
-     * into the [{label, value}] shape consumed by chart widgets, sorted
-     * alphabetically by name.
-     *
-     * @param iterable<string, int> $rows
-     *
-     * @return array<int, array{label: string, value: int}>
-     */
-    private function shapeGivenNameList(iterable $rows): array
-    {
-        $entries = [];
-
-        foreach ($rows as $name => $count) {
-            $entries[] = ['label' => $name, 'value' => $count];
-        }
-
-        usort(
-            $entries,
-            static fn (array $x, array $y): int => $x['label'] <=> $y['label'],
-        );
-
-        return $entries;
     }
 
     /**
