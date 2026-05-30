@@ -498,25 +498,25 @@ final readonly class Statistic
     }
 
     /**
-     * Births faceted by decade × calendar month — feeds the births heatmap on
-     * the LifeSpan tab. Each BIRT date contributes one tick to its decade row
-     * and month column. Leading / trailing all-zero decade rows are trimmed;
-     * inner zero rows stay so a gap in the recorded history remains a visible
-     * blank band.
+     * Births faceted by 25-year period × calendar month — feeds the births
+     * heatmap on the LifeSpan tab. Each BIRT date contributes one tick to its
+     * period row and month column. Leading / trailing empty period rows are
+     * trimmed; inner empty rows stay so a gap in the recorded history remains a
+     * visible blank band.
      */
-    public function getBirthHeatmapByDecadeMonth(): HeatmapPayload
+    public function getBirthHeatmapByPeriodMonth(): HeatmapPayload
     {
-        return $this->lifeSpanRepository->eventHeatmapByDecadeMonth('BIRT');
+        return $this->lifeSpanRepository->eventHeatmapByPeriodMonth('BIRT');
     }
 
     /**
-     * Deaths faceted by decade × calendar month — feeds the deaths heatmap on
-     * the LifeSpan tab. Mirrors {@see getBirthHeatmapByDecadeMonth()} over DEAT
-     * dates.
+     * Deaths faceted by 25-year period × calendar month — feeds the deaths
+     * heatmap on the LifeSpan tab. Mirrors {@see getBirthHeatmapByPeriodMonth()}
+     * over DEAT dates.
      */
-    public function getDeathHeatmapByDecadeMonth(): HeatmapPayload
+    public function getDeathHeatmapByPeriodMonth(): HeatmapPayload
     {
-        return $this->lifeSpanRepository->eventHeatmapByDecadeMonth('DEAT');
+        return $this->lifeSpanRepository->eventHeatmapByPeriodMonth('DEAT');
     }
 
     /**

@@ -34,7 +34,6 @@ use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
-use MagicSunday\Webtrees\Statistic\Support\Locale\DecadeName;
 use MagicSunday\Webtrees\Statistic\Support\Locale\MonthName;
 
 use function array_fill_keys;
@@ -849,33 +848,36 @@ final readonly class LifeSpanRepository
     }
 
     /**
-     * Events of one fact type faceted by decade × calendar month — feeds the
+     * Events of one fact type faceted by period × calendar month — feeds the
      * chart-lib heatmap on the LifeSpan tab. Each GREGORIAN / JULIAN date with a
-     * known year and month contributes one tick to the `decade × (month − 1)`
-     * cell.
+     * known year and month contributes one tick to the `period × (month − 1)`
+     * cell, where a period is a fixed 25-year span (a quarter-century) so the
+     * grid stays compact however far back the tree reaches.
      *
-     * Rows are dense from the first to the last decade that carries any event
-     * (10-year steps); inner zero-decades stay as all-zero rows so a gap in the
+     * Rows are dense from the first to the last period that carries any event
+     * (25-year steps); inner empty periods stay as all-zero rows so a gap in the
      * recorded history reads as a blank band rather than collapsing. Leading and
-     * trailing all-zero decades never appear because a decade row is only seeded
-     * once an event lands in it.
+     * trailing empty periods never appear because a period row is only seeded
+     * once an event lands in it. Row labels are the plain period-start year
+     * ("1900", "1925", …); columns are the abbreviated month names, with the
+     * full names carried alongside for the tooltip.
      *
      * @param string $fact GEDCOM fact tag to tally (e.g. `BIRT`, `DEAT`)
      *
-     * @return HeatmapPayload Decade rows × twelve month columns of event counts
+     * @return HeatmapPayload Period rows × twelve month columns of event counts
      */
-    public function eventHeatmapByDecadeMonth(string $fact): HeatmapPayload
+    public function eventHeatmapByPeriodMonth(string $fact): HeatmapPayload
     {
+        $periodYears = 25;
+
         // Bound the year on BOTH sides so a single out-of-range date can't blow
-        // the dense decade-fill into thousands of empty rows. `d_year > 0`
+        // the dense period-fill into hundreds of empty rows. `d_year > 0`
         // excludes the year-0 sentinel and BCE (negative) years; `d_year <=`
         // this year excludes future dates — a non-physical birth/death year, and
         // crucially the upper bound a `BET … AND <far-future>` range writes as a
-        // second `dates` row (webtrees stores both range bounds). Without the cap
-        // one `BET MAR 1900 AND MAR 9999` record would stretch the matrix from
-        // the 1900s to the 9990s. `d_mon BETWEEN 1 AND 12` keeps only dates with
-        // a real calendar month, so the foreach below trusts the bounds and adds
-        // no redundant in-PHP re-checks.
+        // second `dates` row (webtrees stores both range bounds). `d_mon BETWEEN
+        // 1 AND 12` keeps only dates with a real calendar month, so the foreach
+        // below trusts the bounds and adds no redundant in-PHP re-checks.
         $currentYear = getdate()['year'];
 
         $rows = TreeScope::table($this->tree, 'dates')
@@ -888,35 +890,35 @@ final readonly class LifeSpanRepository
             ->select(['d_year', 'd_mon'])
             ->get();
 
-        /** @var array<int, array<int, int>> $byDecadeMonth Decade start → month index (0-11) → count */
-        $byDecadeMonth = [];
+        /** @var array<int, array<int, int>> $byPeriodMonth Period start year → month index (0-11) → count */
+        $byPeriodMonth = [];
 
         foreach ($rows as $row) {
             $year  = RowCast::int($row, 'd_year');
             $month = RowCast::int($row, 'd_mon');
 
-            $decade     = intdiv($year, 10) * 10;
+            $period     = intdiv($year, $periodYears) * $periodYears;
             $monthIndex = $month - 1;
 
-            $byDecadeMonth[$decade][$monthIndex] = ($byDecadeMonth[$decade][$monthIndex] ?? 0) + 1;
+            $byPeriodMonth[$period][$monthIndex] = ($byPeriodMonth[$period][$monthIndex] ?? 0) + 1;
         }
 
-        if ($byDecadeMonth === []) {
+        if ($byPeriodMonth === []) {
             return new HeatmapPayload(rows: [], cols: [], values: []);
         }
 
-        ksort($byDecadeMonth);
-        $decadeKeys = array_keys($byDecadeMonth);
-        $firstDec   = $decadeKeys[0];
-        $lastDec    = $decadeKeys[array_key_last($decadeKeys)];
+        ksort($byPeriodMonth);
+        $periodKeys  = array_keys($byPeriodMonth);
+        $firstPeriod = $periodKeys[0];
+        $lastPeriod  = $periodKeys[array_key_last($periodKeys)];
 
         $rowLabels = [];
         $values    = [];
 
-        for ($decade = $firstDec; $decade <= $lastDec; $decade += 10) {
-            $rowLabels[] = DecadeName::for($decade);
+        for ($period = $firstPeriod; $period <= $lastPeriod; $period += $periodYears) {
+            $rowLabels[] = (string) $period;
 
-            $monthCounts = $byDecadeMonth[$decade] ?? [];
+            $monthCounts = $byPeriodMonth[$period] ?? [];
             $rowValues   = [];
 
             for ($monthIndex = 0; $monthIndex < 12; ++$monthIndex) {
@@ -928,8 +930,9 @@ final readonly class LifeSpanRepository
 
         return new HeatmapPayload(
             rows: $rowLabels,
-            cols: MonthName::ordered(),
+            cols: MonthName::abbreviated(),
             values: $values,
+            colTitles: MonthName::ordered(),
         );
     }
 

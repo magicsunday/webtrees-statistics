@@ -605,49 +605,55 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * eventHeatmapByDecadeMonth('BIRT') bins every dated birth into its decade
-     * row and calendar-month column. The fixture's births land in 1900 (two in
-     * January, one in July) and 1920 (two in December); the column axis is the
-     * twelve month names with January first.
+     * eventHeatmapByPeriodMonth('BIRT') bins every dated birth into its 25-year
+     * period row and calendar-month column. The fixture's births land in the
+     * 1900 period (two in January 1901, one in July 1905) and the 1925 period
+     * (two in December, 1925 and 1928); the column axis is the twelve month
+     * names abbreviated to three characters, January first.
      */
     #[Test]
-    public function eventHeatmapByDecadeMonthBinsBirthsByDecadeAndMonth(): void
+    public function eventHeatmapByPeriodMonthBinsBirthsByPeriodAndMonth(): void
     {
         $tree   = $this->importFixtureTree('event-heatmap.ged');
-        $result = $this->repository($tree)->eventHeatmapByDecadeMonth('BIRT');
+        $result = $this->repository($tree)->eventHeatmapByPeriodMonth('BIRT');
 
-        self::assertSame(['1900s', '1910s', '1920s'], $result->rows);
+        self::assertSame(['1900', '1925'], $result->rows);
 
-        // Twelve month columns, January first and December last.
+        // Twelve abbreviated month columns, January first and December last.
         self::assertCount(12, $result->cols);
-        self::assertSame('January', $result->cols[0]);
-        self::assertSame('December', $result->cols[11]);
+        self::assertSame('Jan', $result->cols[0]);
+        self::assertSame('Dec', $result->cols[11]);
 
-        // 1900s: January (index 0) carries two births, July (index 6) one.
-        self::assertSame(2, $result->values[0][0], '1900s January holds I1 + I2');
-        self::assertSame(1, $result->values[0][6], '1900s July holds I3');
+        // The full month names ride alongside for the tooltip.
+        self::assertCount(12, $result->colTitles);
+        self::assertSame('January', $result->colTitles[0]);
+        self::assertSame('December', $result->colTitles[11]);
 
-        // 1920s: December (index 11) carries two births.
-        self::assertSame(2, $result->values[2][11], '1920s December holds I4 + I5');
+        // 1900 period: January (index 0) carries two births, July (index 6) one.
+        self::assertSame(2, $result->values[0][0], '1900 period January holds I1 + I2');
+        self::assertSame(1, $result->values[0][6], '1900 period July holds I3');
+
+        // 1925 period: December (index 11) carries two births.
+        self::assertSame(2, $result->values[1][11], '1925 period December holds I4 + I5');
 
         // Five dated births land in the matrix; the year-only birth is excluded.
         self::assertSame(5, $this->matrixTotal($result->values));
     }
 
     /**
-     * A decade with no recorded event between two that do carry one survives as
-     * an all-zero row, so a gap in the records reads as a blank band rather than
-     * collapsing the axis. The fixture has births in 1900 and 1920 but none in
-     * 1910.
+     * A 25-year period with no recorded event between two that do carry one
+     * survives as an all-zero row, so a gap in the records reads as a blank band
+     * rather than collapsing the axis. The future fixture's births fall in the
+     * 1900 and 1950 periods, leaving the 1925 period empty between them.
      */
     #[Test]
-    public function eventHeatmapByDecadeMonthKeepsInnerGapAsZeroRow(): void
+    public function eventHeatmapByPeriodMonthKeepsInnerGapAsZeroRow(): void
     {
-        $tree   = $this->importFixtureTree('event-heatmap.ged');
-        $result = $this->repository($tree)->eventHeatmapByDecadeMonth('BIRT');
+        $tree   = $this->importFixtureTree('event-heatmap-future.ged');
+        $result = $this->repository($tree)->eventHeatmapByPeriodMonth('BIRT');
 
-        self::assertSame('1910s', $result->rows[1]);
-        self::assertSame(array_fill(0, 12, 0), $result->values[1], '1910s is an all-zero band');
+        self::assertSame('1925', $result->rows[1]);
+        self::assertSame(array_fill(0, 12, 0), $result->values[1], '1925 period is an all-zero band');
     }
 
     /**
@@ -657,59 +663,60 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
      * heatmap counts it — the births matrix totals five, not six.
      */
     #[Test]
-    public function eventHeatmapByDecadeMonthExcludesYearOnlyDates(): void
+    public function eventHeatmapByPeriodMonthExcludesYearOnlyDates(): void
     {
         $tree       = $this->importFixtureTree('event-heatmap.ged');
         $repository = $this->repository($tree);
 
-        // The year-only 1922 birth would have seeded a 1920s cell; instead the
-        // 1920s row carries only the two December births.
-        $births = $repository->eventHeatmapByDecadeMonth('BIRT');
-        self::assertSame(2, array_sum($births->values[2]), '1920s holds only the two dated December births');
+        // The year-only 1922 birth falls in the 1900 period; excluded, that row
+        // carries only the three dated births (two January, one July).
+        $births = $repository->eventHeatmapByPeriodMonth('BIRT');
+        self::assertSame(3, array_sum($births->values[0]), '1900 period holds only the three dated births');
 
-        // The year-only 1975 death would have seeded a 1970s cell; instead the
+        // The year-only 1975 death would have seeded the 1975 period; instead the
         // deaths matrix totals four dated events.
-        $deaths = $repository->eventHeatmapByDecadeMonth('DEAT');
+        $deaths = $repository->eventHeatmapByPeriodMonth('DEAT');
         self::assertSame(4, $this->matrixTotal($deaths->values), 'four dated deaths, year-only excluded');
     }
 
     /**
      * A BCE (negative-year) date is excluded entirely: it must not seed a
-     * negative decade row that would balloon the dense decade-fill into hundreds
+     * negative period row that would balloon the dense period-fill into hundreds
      * of empty rows reaching back to antiquity. The fixture's I7 has a BCE birth
-     * (1 MAR 50 B.C.); the births matrix still starts at 1900s and totals five.
+     * (1 MAR 50 B.C.); the births matrix still starts at the 1900 period and
+     * totals five.
      */
     #[Test]
-    public function eventHeatmapByDecadeMonthExcludesBceDates(): void
+    public function eventHeatmapByPeriodMonthExcludesBceDates(): void
     {
         $tree   = $this->importFixtureTree('event-heatmap.ged');
-        $result = $this->repository($tree)->eventHeatmapByDecadeMonth('BIRT');
+        $result = $this->repository($tree)->eventHeatmapByPeriodMonth('BIRT');
 
-        // No pre-CE / antiquity rows — the first row is still the 1900s.
-        self::assertSame('1900s', $result->rows[0]);
-        self::assertSame(['1900s', '1910s', '1920s'], $result->rows);
+        // No pre-CE / antiquity rows — the first row is still the 1900 period.
+        self::assertSame('1900', $result->rows[0]);
+        self::assertSame(['1900', '1925'], $result->rows);
         self::assertSame(5, $this->matrixTotal($result->values), 'the BCE birth is not counted');
     }
 
     /**
      * A future-dated year is excluded: webtrees stores both bounds of a
      * `BET … AND …` range as separate `dates` rows, so a `BET MAR 1900 AND MAR
-     * 9999` birth would otherwise seed the dense decade-fill out to the 9990s
-     * and balloon the matrix into hundreds of empty rows. The fixture's I1 has
-     * exactly that range; the in-range lower bound (1900s) is kept while the
-     * far-future upper bound is dropped, so the matrix ends at the realistic
-     * 1950s anchor (I2) rather than the 9990s.
+     * 9999` birth would otherwise seed the dense period-fill out past the year
+     * 9000 and balloon the matrix into hundreds of empty rows. The fixture's I1
+     * has exactly that range; the in-range lower bound (1900 period) is kept
+     * while the far-future upper bound is dropped, so the matrix ends at the
+     * realistic 1950 period (I2) rather than reaching into the future.
      */
     #[Test]
-    public function eventHeatmapByDecadeMonthExcludesFarFutureRangeBound(): void
+    public function eventHeatmapByPeriodMonthExcludesFarFutureRangeBound(): void
     {
         $tree   = $this->importFixtureTree('event-heatmap-future.ged');
-        $result = $this->repository($tree)->eventHeatmapByDecadeMonth('BIRT');
+        $result = $this->repository($tree)->eventHeatmapByPeriodMonth('BIRT');
 
-        // The matrix stays bounded: 1900s through 1950s, not out to the 9990s.
-        self::assertSame('1900s', $result->rows[0]);
-        self::assertSame('1950s', $result->rows[count($result->rows) - 1]);
-        self::assertSame(range(1900, 1950, 10), array_map(
+        // The matrix stays bounded: the 1900 through 1950 periods, not the 9000s.
+        self::assertSame('1900', $result->rows[0]);
+        self::assertSame('1950', $result->rows[count($result->rows) - 1]);
+        self::assertSame(range(1900, 1950, 25), array_map(
             static fn (string $label): int => (int) $label,
             $result->rows,
         ));
@@ -720,21 +727,21 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * eventHeatmapByDecadeMonth('DEAT') bins dated deaths the same way over the
-     * DEAT axis. The fixture's deaths land in 1970 (two in March), 1980 (one in
-     * December) and 1990 (one in January).
+     * eventHeatmapByPeriodMonth('DEAT') bins dated deaths the same way over the
+     * DEAT axis. The fixture's deaths fall in the 1950 period (two in March,
+     * 1970 and 1972) and the 1975 period (one December 1980, one January 1990).
      */
     #[Test]
-    public function eventHeatmapByDecadeMonthBinsDeathsByDecadeAndMonth(): void
+    public function eventHeatmapByPeriodMonthBinsDeathsByPeriodAndMonth(): void
     {
         $tree   = $this->importFixtureTree('event-heatmap.ged');
-        $result = $this->repository($tree)->eventHeatmapByDecadeMonth('DEAT');
+        $result = $this->repository($tree)->eventHeatmapByPeriodMonth('DEAT');
 
-        self::assertSame(['1970s', '1980s', '1990s'], $result->rows);
+        self::assertSame(['1950', '1975'], $result->rows);
 
-        self::assertSame(2, $result->values[0][2], '1970s March holds I1 + I2');
-        self::assertSame(1, $result->values[1][11], '1980s December holds I3');
-        self::assertSame(1, $result->values[2][0], '1990s January holds I4');
+        self::assertSame(2, $result->values[0][2], '1950 period March holds I1 + I2');
+        self::assertSame(1, $result->values[1][11], '1975 period December holds I3');
+        self::assertSame(1, $result->values[1][0], '1975 period January holds I4');
 
         self::assertSame(4, $this->matrixTotal($result->values));
     }
@@ -745,18 +752,19 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
      * The fixture records no deaths, so the DEAT heatmap collapses to empty.
      */
     #[Test]
-    public function eventHeatmapByDecadeMonthReturnsEmptyAxesWithoutEvents(): void
+    public function eventHeatmapByPeriodMonthReturnsEmptyAxesWithoutEvents(): void
     {
         $tree   = $this->importFixtureTree('empty-marriages.ged');
-        $result = $this->repository($tree)->eventHeatmapByDecadeMonth('DEAT');
+        $result = $this->repository($tree)->eventHeatmapByPeriodMonth('DEAT');
 
         self::assertSame([], $result->rows);
         self::assertSame([], $result->cols);
+        self::assertSame([], $result->colTitles);
         self::assertSame([], $result->values);
     }
 
     /**
-     * Sum every count across a decade × month value matrix.
+     * Sum every count across a period × month value matrix.
      *
      * @param list<list<int>> $values
      */

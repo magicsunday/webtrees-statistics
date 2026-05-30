@@ -13,15 +13,18 @@ namespace MagicSunday\Webtrees\Statistic\Support\Locale;
 
 use Fisharebest\Webtrees\I18N;
 
+use function array_map;
 use function array_values;
+use function mb_substr;
 
 /**
  * Pure helper for the localised NOMINATIVE month names every per-month widget
  * renders. Mirrors {@see DecadeName} and {@see CenturyName} so the by-month
- * donuts and the decade × month heatmap share one source of truth for the
- * twelve labels. Two display forms: the abbreviation-keyed map the
- * GEDCOM-driven month tallies fold their `JAN`/`FEB`/… buckets onto, and the
- * January-first ordered list a heatmap column axis consumes directly.
+ * donuts and the period × month heatmap share one source of truth for the
+ * twelve labels. Three display forms: the abbreviation-keyed map the
+ * GEDCOM-driven month tallies fold their `JAN`/`FEB`/… buckets onto, the full
+ * ordered list a heatmap shows in its tooltip, and the three-letter ordered
+ * list a heatmap column axis consumes directly.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -63,13 +66,34 @@ final readonly class MonthName
     }
 
     /**
-     * The twelve localised month names in calendar order, January first — the
-     * column axis a decade × month heatmap renders left to right.
+     * The twelve full localised month names in calendar order, January first —
+     * the verbose column titles a heatmap shows in its tooltip, and the source
+     * {@see abbreviated()} shortens for the compact axis.
      *
      * @return list<string>
      */
     public static function ordered(): array
     {
         return array_values(self::byAbbreviation());
+    }
+
+    /**
+     * The twelve localised month names shortened to their first three
+     * characters, January first — the compact column axis a heatmap renders
+     * horizontally; `mb_substr` keeps multibyte initials (e.g. de "Mär") intact.
+     * The cut reads cleanly in most locales (en "Jan".."Dec", de "Jan".."Dez")
+     * but can repeat in a few (fr "juin"/"juillet" both yield "jui"); the
+     * heatmap keys its columns by position, not label, so a repeated
+     * abbreviation still gets its own column and the tooltip's full month name
+     * disambiguates it.
+     *
+     * @return list<string>
+     */
+    public static function abbreviated(): array
+    {
+        return array_map(
+            static fn (string $name): string => mb_substr($name, 0, 3),
+            self::ordered(),
+        );
     }
 }

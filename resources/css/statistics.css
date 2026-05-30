@@ -773,6 +773,7 @@
 .wt-statistics-chart .wt-stat-card-body:has(.wt-stat-records),
 .wt-statistics-chart .wt-stat-card-body:has(.wt-stat-hbars),
 .wt-statistics-chart .wt-stat-card-body:has(.wt-stat-podium),
+.wt-statistics-chart .wt-stat-card-body:has(.wt-stat-heatmap),
 .wt-statistics-chart .wt-stat-card-body:has(.progress-bar-table) {
     justify-content: flex-start;
 }
@@ -2993,9 +2994,9 @@
     height: auto;
 }
 
-/* Row (decade) labels are numeric decade suffixes ("1900s"), so they share
-   the monospaced tabular system the other axis ticks use; the month column
-   labels stay in the proportional sans because they are words. */
+/* Row labels are numeric period-start years ("1900"), so they share the
+   monospaced tabular system the other axis ticks use; the abbreviated month
+   column labels stay in the proportional sans because they are words. */
 .wt-statistics-chart svg.wt-stat-heatmap-svg text.wt-stat-heatmap-row {
     fill:                 var(--ink-2);
     font-family:          var(--mono);
@@ -3009,21 +3010,33 @@
     font-size:   12px;
 }
 
+/* The count printed inside each cell — monospaced tabular, small. Pointer
+   events off so the cell beneath still receives the hover. On a strongly
+   tinted cell the dark default would vanish, so the --on-dark variant switches
+   to the card colour for contrast. */
+.wt-statistics-chart svg.wt-stat-heatmap-svg text.wt-stat-heatmap-value {
+    fill:                 var(--ink-2);
+    font-family:          var(--mono);
+    font-size:            10px;
+    font-variant-numeric: tabular-nums;
+    pointer-events:       none;
+}
+
+.wt-statistics-chart svg.wt-stat-heatmap-svg text.wt-stat-heatmap-value--on-dark {
+    fill: var(--card);
+}
+
+/* Hovering a cell grows it slightly so the focused period × month lifts off
+   the grid. `transform-box: fill-box` re-bases the origin onto the rect's own
+   box so the scale centres on the cell rather than the SVG viewport corner. */
 .wt-statistics-chart svg.wt-stat-heatmap-svg rect.wt-stat-heatmap-cell {
-    transition: stroke 160ms;
-    stroke:     transparent;
-    stroke-width: 1.5px;
+    transition:       transform 120ms;
+    transform-box:    fill-box;
+    transform-origin: center;
 }
 
 .wt-statistics-chart svg.wt-stat-heatmap-svg rect.wt-stat-heatmap-cell:hover {
-    stroke: var(--ink);
-}
-
-/* An empty (zero-count) cell keeps a hairline outline so the grid reads as a
-   continuous field rather than a hole, even though its fill is near-blank. */
-.wt-statistics-chart svg.wt-stat-heatmap-svg rect.wt-stat-heatmap-cell--empty {
-    stroke:       var(--border);
-    stroke-width: 1px;
+    transform: scale(1.1);
 }
 
 /* ----------------------------------------------------------------------

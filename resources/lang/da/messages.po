@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Statistics\n"
 "Report-Msgid-Bugs-To: https://github.com/magicsunday/webtrees-statistics/"
 "issues\n"
-"POT-Creation-Date: 2026-05-30 13:59+0000\n"
+"POT-Creation-Date: 2026-05-30 15:49+0000\n"
 "PO-Revision-Date: 2026-05-22 07:04+0000\n"
 "Last-Translator: Rico Sonntag <mail@ricosonntag.de>\n"
 "Language-Team: \n"
@@ -22,7 +22,7 @@ msgstr ""
 "X-Poedit-SearchPath-0: src\n"
 "X-Poedit-SearchPath-1: resources/views\n"
 
-#: src/Repository/LifeSpanRepository.php:731
+#: src/Repository/LifeSpanRepository.php:730
 #, php-format
 msgid "%1$s %% (%2$s of %3$s individuals reached this age)"
 msgstr "%1$s %% (%2$s af %3$s personer nåede denne alder)"
@@ -74,8 +74,8 @@ msgstr[1] ""
 "%1$s af %2$s par, hvor begge ægtefæller har mindst én registreret forælder, "
 "deler en fælles forfader."
 
-#: src/Repository/LifeSpanRepository.php:622
-#: src/Repository/LifeSpanRepository.php:629
+#: src/Repository/LifeSpanRepository.php:621
+#: src/Repository/LifeSpanRepository.php:628
 #: src/Repository/ParenthoodRepository.php:318
 #: src/Repository/ParenthoodRepository.php:325
 #, php-format
@@ -718,7 +718,7 @@ msgstr "Efter partnerens død"
 msgid "Age"
 msgstr "Alder"
 
-#: src/Repository/LifeSpanRepository.php:729
+#: src/Repository/LifeSpanRepository.php:728
 #, php-format
 msgid "Age %s"
 msgstr "Alder %s"
@@ -839,7 +839,7 @@ msgstr "Alliancer"
 msgid "Ancestors"
 msgstr "Forfædre"
 
-#: src/Support/Locale/MonthName.php:53
+#: src/Support/Locale/MonthName.php:55
 msgctxt "NOMINATIVE"
 msgid "April"
 msgstr "april"
@@ -852,7 +852,7 @@ msgstr "Vandmanden"
 msgid "Aries"
 msgstr "Vædderen"
 
-#: src/Support/Locale/MonthName.php:57
+#: src/Support/Locale/MonthName.php:59
 msgctxt "NOMINATIVE"
 msgid "August"
 msgstr "august"
@@ -900,6 +900,10 @@ msgstr "Fødsler"
 msgid "Births and deaths across the year"
 msgstr ""
 
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:605
+msgid "Births by 25-year period and calendar month"
+msgstr ""
+
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:481
 msgid "Births by century"
 msgstr "Fødsler efter århundrede"
@@ -907,10 +911,6 @@ msgstr "Fødsler efter århundrede"
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:85
 msgid "Births by decade"
 msgstr "Fødsler per årti"
-
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:605
-msgid "Births by decade and calendar month"
-msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:496
 msgid "Births by month"
@@ -939,7 +939,7 @@ msgid "Births per millennium"
 msgstr "Fødsler pr. årtusind"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:587
-msgid "Births — decade × month"
+msgid "Births — 25-year period × month"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/places.phtml:135
@@ -1086,13 +1086,13 @@ msgstr "Dødsfald"
 msgid "Deaths are evenly spread across the year."
 msgstr "Deaths are evenly spread across the year."
 
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:628
+msgid "Deaths by 25-year period and calendar month"
+msgstr ""
+
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:542
 msgid "Deaths by century"
 msgstr "Dødsfald efter århundrede"
-
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:628
-msgid "Deaths by decade and calendar month"
-msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:557
 msgid "Deaths by month"
@@ -1103,22 +1103,18 @@ msgid "Deaths per century"
 msgstr "Dødsfald per århundrede"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:610
-msgid "Deaths — decade × month"
+msgid "Deaths — 25-year period × month"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:573
 msgid "Dec – Feb vs. baseline"
 msgstr "Dec – Feb vs. baseline"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:584
-msgid "Decade-by-month density of recorded births and deaths"
-msgstr ""
-
 #: src/Statistic.php:236
 msgid "Deceased"
 msgstr "Afdøde"
 
-#: src/Support/Locale/MonthName.php:61
+#: src/Support/Locale/MonthName.php:63
 msgctxt "NOMINATIVE"
 msgid "December"
 msgstr "december"
@@ -1130,6 +1126,10 @@ msgstr "december"
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:187
 msgid "Demographics"
 msgstr "Demografi"
+
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:584
+msgid "Density of recorded births and deaths by 25-year period and month"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:246
 msgid "Depth"
@@ -1259,26 +1259,28 @@ msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:593
 msgid ""
-"Each cell counts the births recorded in one decade (a row) and one calendar "
-"month (a column). The more births fell in that decade and month, the more "
-"saturated the cell; a near-blank cell means few or none. Reading down a "
-"column shows whether a month stayed busy across the decades, reading along a "
-"row shows how one decade spread its births over the year. Only dates with "
-"both a known year and month are placed. Leading and trailing decades without "
-"a single recorded birth are dropped, while an empty decade between two "
-"recorded ones stays as a blank band so a gap in the records is not hidden."
+"Each cell counts the births recorded in one 25-year period (a row) and one "
+"calendar month (a column), with the count printed inside it. The more births "
+"fell in that period and month, the more saturated the cell; a near-blank "
+"cell means few or none. Reading down a column shows whether a month stayed "
+"busy across the periods, reading along a row shows how one period spread its "
+"births over the year. Only dates with both a known year and month are "
+"placed. Leading and trailing periods without a single recorded birth are "
+"dropped, while an empty period between two recorded ones stays as a blank "
+"band so a gap in the records is not hidden."
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:616
 msgid ""
-"Each cell counts the deaths recorded in one decade (a row) and one calendar "
-"month (a column). The more deaths fell in that decade and month, the more "
-"saturated the cell; a near-blank cell means few or none. Reading down a "
-"column shows whether a month stayed busy across the decades, reading along a "
-"row shows how one decade spread its deaths over the year. Only dates with "
-"both a known year and month are placed. Leading and trailing decades without "
-"a single recorded death are dropped, while an empty decade between two "
-"recorded ones stays as a blank band so a gap in the records is not hidden."
+"Each cell counts the deaths recorded in one 25-year period (a row) and one "
+"calendar month (a column), with the count printed inside it. The more deaths "
+"fell in that period and month, the more saturated the cell; a near-blank "
+"cell means few or none. Reading down a column shows whether a month stayed "
+"busy across the periods, reading along a row shows how one period spread its "
+"deaths over the year. Only dates with both a known year and month are "
+"placed. Leading and trailing periods without a single recorded death are "
+"dropped, while an empty period between two recorded ones stays as a blank "
+"band so a gap in the records is not hidden."
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/places.phtml:53
@@ -1389,13 +1391,13 @@ msgstr "Fathers"
 msgid "Fathers and mothers · decade of the first child's birth"
 msgstr "Fædre og mødre · årtiet for det første barns fødsel"
 
-#: src/Support/Locale/MonthName.php:51
+#: src/Support/Locale/MonthName.php:53
 msgctxt "NOMINATIVE"
 msgid "February"
 msgstr "Februar"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:313
-#: src/Repository/LifeSpanRepository.php:651 src/Statistic.php:212
+#: src/Repository/LifeSpanRepository.php:650 src/Statistic.php:212
 msgid "Female"
 msgstr "Kvinde"
 
@@ -1729,17 +1731,17 @@ msgstr ""
 msgid "Individuals with ≥ 1 source citation"
 msgstr "Individuals with ≥ 1 source citation"
 
-#: src/Support/Locale/MonthName.php:50
+#: src/Support/Locale/MonthName.php:52
 msgctxt "NOMINATIVE"
 msgid "January"
 msgstr "Januar"
 
-#: src/Support/Locale/MonthName.php:56
+#: src/Support/Locale/MonthName.php:58
 msgctxt "NOMINATIVE"
 msgid "July"
 msgstr "Juli"
 
-#: src/Support/Locale/MonthName.php:55
+#: src/Support/Locale/MonthName.php:57
 msgctxt "NOMINATIVE"
 msgid "June"
 msgstr "Juni"
@@ -1820,11 +1822,11 @@ msgid "Longevity"
 msgstr "Longevity"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:312
-#: src/Repository/LifeSpanRepository.php:644 src/Statistic.php:207
+#: src/Repository/LifeSpanRepository.php:643 src/Statistic.php:207
 msgid "Male"
 msgstr "Mand"
 
-#: src/Support/Locale/MonthName.php:52
+#: src/Support/Locale/MonthName.php:54
 msgctxt "NOMINATIVE"
 msgid "March"
 msgstr "Marts"
@@ -1852,7 +1854,7 @@ msgstr "Gift"
 msgid "Maximum generation depth"
 msgstr "Maksimal generationsdybde"
 
-#: src/Support/Locale/MonthName.php:54
+#: src/Support/Locale/MonthName.php:56
 msgctxt "NOMINATIVE"
 msgid "May"
 msgstr "Maj"
@@ -1989,7 +1991,7 @@ msgstr "Ingen data registreret for denne metrik."
 msgid "Normalised to 100 %% · shift from large to small families"
 msgstr "Normalised to 100 %% · shift from large to small families"
 
-#: src/Support/Locale/MonthName.php:60
+#: src/Support/Locale/MonthName.php:62
 msgctxt "NOMINATIVE"
 msgid "November"
 msgstr "november"
@@ -2020,7 +2022,7 @@ msgstr ""
 msgid "Occupational and religious affiliation of the recorded individuals"
 msgstr "Occupational and religious affiliation of the recorded individuals"
 
-#: src/Support/Locale/MonthName.php:59
+#: src/Support/Locale/MonthName.php:61
 msgctxt "NOMINATIVE"
 msgid "October"
 msgstr "Oktober"
@@ -2202,7 +2204,7 @@ msgstr "Season and century of recorded deaths"
 msgid "Seasonality"
 msgstr ""
 
-#: src/Support/Locale/MonthName.php:58
+#: src/Support/Locale/MonthName.php:60
 msgctxt "NOMINATIVE"
 msgid "September"
 msgstr "september"
@@ -2679,8 +2681,8 @@ msgctxt "count word"
 msgid "nine"
 msgstr "nine"
 
-#: src/Repository/LifeSpanRepository.php:626
-#: src/Repository/LifeSpanRepository.php:633
+#: src/Repository/LifeSpanRepository.php:625
+#: src/Repository/LifeSpanRepository.php:632
 #: src/Repository/NameRepository.php:306 src/Repository/NameRepository.php:310
 #: src/Repository/ParenthoodRepository.php:322
 #: src/Repository/ParenthoodRepository.php:329
