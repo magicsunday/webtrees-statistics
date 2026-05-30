@@ -152,6 +152,23 @@ final readonly class Widget
     }
 
     /**
+     * Start a new heatmap widget host. The partial emits a
+     * `data-widget="heatmap"` shell carrying the `{rows, cols, values}` payload;
+     * the accent hue and value caption are passed via `withAccent(...)` /
+     * `with('valueLabel', …)`.
+     */
+    public static function heatmap(string $module, string $identifier): self
+    {
+        return new self(
+            $module,
+            'heatmap',
+            [
+                'identifier' => $identifier,
+            ]
+        );
+    }
+
+    /**
      * Start a new line-chart widget host.
      */
     public static function lineChart(string $module, string $identifier): self

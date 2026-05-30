@@ -23,6 +23,7 @@ const worldMapDrawSpy = jest.fn();
 const worldMapPlayEntrySpy = jest.fn();
 const lineChartDrawSpy = jest.fn();
 const populationPyramidDrawSpy = jest.fn();
+const heatmapDrawSpy = jest.fn();
 
 class DonutChart {
     constructor(node, options) {
@@ -115,6 +116,15 @@ class PopulationPyramid {
         populationPyramidDrawSpy(this.node, data, this.options);
     }
 }
+class Heatmap {
+    constructor(node, options) {
+        this.node = node;
+        this.options = options;
+    }
+    draw(data) {
+        heatmapDrawSpy(this.node, data, this.options);
+    }
+}
 
 jest.unstable_mockModule("@magicsunday/webtrees-chart-lib", () => ({
     DonutChart,
@@ -132,6 +142,7 @@ jest.unstable_mockModule("@magicsunday/webtrees-chart-lib", () => ({
     MirrorHistogram,
     BoxPlot,
     PopulationPyramid,
+    Heatmap,
 }));
 
 // world-map dispatch is async (geojson fetch); mock d3-fetch + d3-geo
@@ -155,6 +166,7 @@ describe("renderWidgets", () => {
         sankeyFlowDrawSpy.mockClear();
         lineChartDrawSpy.mockClear();
         populationPyramidDrawSpy.mockClear();
+        heatmapDrawSpy.mockClear();
         document.body.innerHTML = "";
     });
 
@@ -217,6 +229,28 @@ describe("renderWidgets", () => {
         });
         expect(options.maleLabel).toBe("Male");
         expect(options.femaleLabel).toBe("Female");
+    });
+
+    test("dispatches a heatmap widget when data-widget=heatmap", () => {
+        document.body.innerHTML = `
+            <div id="h1"
+                 data-widget="heatmap"
+                 data-payload='{"rows":["1900s"],"cols":["Jan","Feb"],"values":[[3,1]]}'
+                 data-options='{"height":460,"accent":"var(--ochre)","valueLabel":"Births"}'></div>
+        `;
+
+        renderWidgets(document.body);
+
+        expect(heatmapDrawSpy).toHaveBeenCalledTimes(1);
+        const [node, data, options] = heatmapDrawSpy.mock.calls[0];
+        expect(node.id).toBe("h1");
+        expect(data).toEqual({
+            rows: ["1900s"],
+            cols: ["Jan", "Feb"],
+            values: [[3, 1]],
+        });
+        expect(options.accent).toBe("var(--ochre)");
+        expect(options.valueLabel).toBe("Births");
     });
 
     test("ignores nodes without data-widget attribute", () => {

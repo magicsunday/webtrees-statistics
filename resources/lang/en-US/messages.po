@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Statistics\n"
 "Report-Msgid-Bugs-To: https://github.com/magicsunday/webtrees-statistics/"
 "issues\n"
-"POT-Creation-Date: 2026-05-29 21:30+0000\n"
+"POT-Creation-Date: 2026-05-30 10:18+0000\n"
 "PO-Revision-Date: 2026-05-22 07:04+0000\n"
 "Last-Translator: Rico Sonntag <mail@ricosonntag.de>\n"
 "Language-Team: \n"
@@ -22,7 +22,7 @@ msgstr ""
 "X-Poedit-SearchPath-0: src\n"
 "X-Poedit-SearchPath-1: resources/views\n"
 
-#: src/Repository/LifeSpanRepository.php:727
+#: src/Repository/LifeSpanRepository.php:731
 #, php-format
 msgid "%1$s %% (%2$s of %3$s individuals reached this age)"
 msgstr "%1$s %% (%2$s of %3$s individuals reached this age)"
@@ -52,7 +52,7 @@ msgstr "%1$s of %2$s"
 msgid "%1$s of %2$s children (%3$s %%)"
 msgstr "%1$s of %2$s children (%3$s %%)"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:437
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:439
 #, php-format
 msgid ""
 "%1$s of %2$s children died before age 5 — the darkest cohort in the tree."
@@ -74,15 +74,15 @@ msgstr[1] ""
 "%1$s of %2$s couples where both spouses had at least one recorded parent "
 "share a common ancestor."
 
-#: src/Repository/LifeSpanRepository.php:618
-#: src/Repository/LifeSpanRepository.php:625
+#: src/Repository/LifeSpanRepository.php:622
+#: src/Repository/LifeSpanRepository.php:629
 #: src/Repository/ParenthoodRepository.php:318
 #: src/Repository/ParenthoodRepository.php:325
 #, php-format
 msgid "%1$s years (n = %2$s)"
 msgstr "%1$s years (n = %2$s)"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:120
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:122
 #, php-format
 msgid "%1$s%% — %2$s of %3$s children died before age 5"
 msgstr "%1$s%% — %2$s of %3$s children died before age 5"
@@ -109,7 +109,7 @@ msgstr ""
 msgid "%s BCE"
 msgstr "%s BCE"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:107
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:109
 #: src/Support/Aggregator/CenturyBarRowMapper.php:57
 #, php-format
 msgid "%s birth"
@@ -117,7 +117,7 @@ msgid_plural "%s births"
 msgstr[0] "%s birth"
 msgstr[1] "%s births"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:137
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:139
 #: src/Support/Locale/CenturyName.php:110
 #, php-format
 msgid "%s cent."
@@ -194,7 +194,7 @@ msgid_plural "%s deaths"
 msgstr[0] "%s death"
 msgstr[1] "%s deaths"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:391
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:393
 #, php-format
 msgid "%s distinct causes (top 15)"
 msgstr "%s distinct causes (top 15)"
@@ -319,21 +319,21 @@ msgid_plural "%s individuals sampled"
 msgstr[0] "%s individual sampled"
 msgstr[1] "%s individuals sampled"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:507
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:509
 #, php-format
 msgid "%s individual with a known zodiac sign"
 msgid_plural "%s individuals with a known zodiac sign"
 msgstr[0] "%s individual with a known zodiac sign"
 msgstr[1] "%s individuals with a known zodiac sign"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:492
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:494
 #, php-format
 msgid "%s individual with a recorded birth month"
 msgid_plural "%s individuals with a recorded birth month"
 msgstr[0] "%s individual with a recorded birth month"
 msgstr[1] "%s individuals with a recorded birth month"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:465
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:467
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:55
 #, php-format
 msgid "%s individual with a recorded birth year"
@@ -341,21 +341,21 @@ msgid_plural "%s individuals with a recorded birth year"
 msgstr[0] "%s individual with a recorded birth year"
 msgstr[1] "%s individuals with a recorded birth year"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:553
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:555
 #, php-format
 msgid "%s individual with a recorded death month"
 msgid_plural "%s individuals with a recorded death month"
 msgstr[0] "%s individual with a recorded death month"
 msgstr[1] "%s individuals with a recorded death month"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:526
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:528
 #, php-format
 msgid "%s individual with a recorded death year"
 msgid_plural "%s individuals with a recorded death year"
 msgstr[0] "%s individual with a recorded death year"
 msgstr[1] "%s individuals with a recorded death year"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:246
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:248
 #, php-format
 msgid "%s individual with both birth and death dates"
 msgid_plural "%s individuals with both birth and death dates"
@@ -367,7 +367,7 @@ msgstr[1] "%s individuals with both birth and death dates"
 msgid "%s known ancestors"
 msgstr "%s known ancestors"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:261
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:263
 #, php-format
 msgid "%s living individual with a birth date"
 msgid_plural "%s living individuals with a birth date"
@@ -414,8 +414,8 @@ msgstr "%s or more children"
 msgid "%s or more years"
 msgstr "%s or more years"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:469
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:530
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:471
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:532
 #, php-format
 msgid "%s outlier century not shown"
 msgid_plural "%s outlier centuries not shown"
@@ -429,8 +429,8 @@ msgid_plural "%s pairs"
 msgstr[0] "%s pair"
 msgstr[1] "%s pairs"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:73
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:174
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:75
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:176
 #, php-format
 msgid "%s person"
 msgid_plural "%s persons"
@@ -451,7 +451,7 @@ msgid_plural "%s quintuplet+ sets"
 msgstr[0] "%s quintuplet+ set"
 msgstr[1] "%s quintuplet+ sets"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:90
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:92
 #, php-format
 msgid "%s recorded birth date"
 msgid_plural "%s recorded birth dates"
@@ -510,8 +510,8 @@ msgstr[1] "%s years"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:96
 #: resources/views/modules/statistics-chart/tabs/family.phtml:110
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:72
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:173
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:74
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:175
 #: src/Support/Aggregator/MirrorBandRowMapper.php:55
 #: src/Support/Aggregator/MirrorBandRowMapper.php:79
 #: src/Support/Aggregator/MirrorBandRowMapper.php:103
@@ -658,6 +658,11 @@ msgctxt "CENTURY"
 msgid "9th"
 msgstr "9th"
 
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:585
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:608
+msgid "A fuller cell marks a busier month"
+msgstr ""
+
 #: resources/views/modules/statistics-chart/tabs/places.phtml:72
 msgid "A sedentary population — most lived and died in the same place."
 msgstr "A sedentary population — most lived and died in the same place."
@@ -686,7 +691,7 @@ msgstr ""
 "gaps in the archive."
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:129
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:209
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:211
 #: resources/views/modules/statistics-chart/tabs/names.phtml:42
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:210
 #: resources/views/modules/statistics-chart/tabs/places.phtml:157
@@ -708,28 +713,28 @@ msgid "After the partner's death"
 msgstr "After the partner's death"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:506
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:349
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:351
 msgid "Age"
 msgstr "Age"
 
-#: src/Repository/LifeSpanRepository.php:725
+#: src/Repository/LifeSpanRepository.php:729
 #, php-format
 msgid "Age %s"
 msgstr "Age %s"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:245
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:247
 msgid "Age at death (10-year bands)"
 msgstr "Age at death (10-year bands)"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:255
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:257
 msgid "Age at death distribution"
 msgstr "Age at death distribution"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:319
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:321
 msgid "Age at death per birth century, split by sex"
 msgstr "Age at death per birth century, split by sex"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:242
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:244
 msgid "Age at death, longevity and life-stage of the living"
 msgstr "Age at death, longevity and life-stage of the living"
 
@@ -781,7 +786,7 @@ msgstr ""
 "the wife was older. Each bar covers a 5-year range. The band labelled 30+ "
 "collects every gap of 30 years or more."
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:356
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:358
 msgid "Age in years at death, longest-lived first"
 msgstr "Age in years at death, longest-lived first"
 
@@ -809,17 +814,17 @@ msgstr ""
 "same age bands, so the two distributions can be compared side by side. Empty "
 "bands stay visible, so cohort gaps are not hidden."
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:275
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:290
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:277
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:292
 msgid "Age-at-death distribution by century"
 msgstr "Age-at-death distribution by century"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:295
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:313
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:297
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:315
 msgid "Age-at-death distribution by sex and century"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:296
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:298
 msgid ""
 "Age-band counts per birth century, split into a male and a female column"
 msgstr ""
@@ -833,7 +838,7 @@ msgstr "Alliances"
 msgid "Ancestors"
 msgstr "Ancestors"
 
-#: src/Statistic.php:1121
+#: src/Support/Locale/MonthName.php:53
 msgctxt "NOMINATIVE"
 msgid "April"
 msgstr "April"
@@ -846,7 +851,7 @@ msgstr "Aquarius"
 msgid "Aries"
 msgstr "Aries"
 
-#: src/Statistic.php:1125
+#: src/Support/Locale/MonthName.php:57
 msgctxt "NOMINATIVE"
 msgid "August"
 msgstr "August"
@@ -864,11 +869,11 @@ msgstr "Average distinct places per individual"
 msgid "Average family size by century"
 msgstr "Average family size by century"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:328
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:330
 msgid "Average lifespan by sex and century"
 msgstr "Average lifespan by sex and century"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:318
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:320
 msgid "Average lifespan by sex × century"
 msgstr "Average lifespan by sex × century"
 
@@ -885,44 +890,56 @@ msgstr "Averaged across every parent-child pair with parseable birth dates."
 msgid "Avg. generation length"
 msgstr "Avg. generation length"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:100
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:446
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:102
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:448
 msgid "Births"
 msgstr "Births"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:476
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:579
+msgid "Births and deaths across the year"
+msgstr ""
+
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:478
 msgid "Births by century"
 msgstr "Births by century"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:83
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:85
 msgid "Births by decade"
 msgstr "Births by decade"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:491
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:602
+msgid "Births by decade and calendar month"
+msgstr ""
+
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:493
 msgid "Births by month"
 msgstr "Births by month"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:88
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:90
 #, php-format
 msgid "Births per %s-decade period"
 msgstr "Births per %s-decade period"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:85
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:486
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:87
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:488
 msgid "Births per century"
 msgstr "Births per century"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:84
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:86
 msgid "Births per half-century"
 msgstr "Births per half-century"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:86
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:88
 msgid "Births per half-millennium"
 msgstr "Births per half-millennium"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:87
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:89
 msgid "Births per millennium"
 msgstr "Births per millennium"
+
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:584
+msgid "Births — decade × month"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/places.phtml:135
 msgid ""
@@ -958,11 +975,11 @@ msgstr "Cancer"
 msgid "Capricornus"
 msgstr "Capricornus"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:392
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:394
 msgid "Causes"
 msgstr "Causes"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:385
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:387
 msgid "Causes of death and infant mortality"
 msgstr "Causes of death and infant mortality"
 
@@ -972,12 +989,12 @@ msgstr "Causes of death and infant mortality"
 msgid "Century"
 msgstr "Century"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:422
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:424
 #, php-format
 msgid "Child mortality %s century"
 msgstr "Child mortality %s century"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:404
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:406
 msgid "Child mortality (under 5)"
 msgstr "Child mortality (under 5)"
 
@@ -1007,7 +1024,7 @@ msgstr ""
 msgid "Chronicle"
 msgstr "Chronicle"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:390
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:392
 msgid "Common causes of death"
 msgstr "Common causes of death"
 
@@ -1055,45 +1072,57 @@ msgstr ""
 msgid "Cumulative population"
 msgstr "Cumulative population"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:371
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:373
 msgid "Current age, oldest first"
 msgstr "Current age, oldest first"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:522
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:524
 msgid "Deaths"
 msgstr "Deaths"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:224
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:226
 msgid "Deaths are evenly spread across the year."
 msgstr "Deaths are evenly spread across the year."
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:537
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:539
 msgid "Deaths by century"
 msgstr "Deaths by century"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:552
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:625
+msgid "Deaths by decade and calendar month"
+msgstr ""
+
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:554
 msgid "Deaths by month"
 msgstr "Deaths by month"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:547
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:549
 msgid "Deaths per century"
 msgstr "Deaths per century"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:568
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:607
+msgid "Deaths — decade × month"
+msgstr ""
+
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:570
 msgid "Dec – Feb vs. baseline"
 msgstr "Dec – Feb vs. baseline"
 
-#: src/Statistic.php:234
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:581
+msgid "Decade-by-month density of recorded births and deaths"
+msgstr ""
+
+#: src/Statistic.php:236
 msgid "Deceased"
 msgstr "Deceased"
 
-#: src/Statistic.php:1129
+#: src/Support/Locale/MonthName.php:61
 msgctxt "NOMINATIVE"
 msgid "December"
 msgstr "December"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:388
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:335
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:337
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:89
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:167
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:187
@@ -1113,9 +1142,9 @@ msgstr "Distinct ancestors up to 4 generations (max. 30)"
 msgid "Distinct places per individual"
 msgstr "Distinct places per individual"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:247
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:277
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:297
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:249
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:279
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:299
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:95
 msgid "Distribution"
 msgstr "Distribution"
@@ -1163,7 +1192,7 @@ msgstr ""
 "Divorce rate, season and life-stage of the divorced · a rare category in the "
 "tree"
 
-#: src/Statistic.php:270
+#: src/Statistic.php:272
 msgid "Divorced"
 msgstr "Divorced"
 
@@ -1225,6 +1254,30 @@ msgstr ""
 "around zero, so the chart reads as relative magnitudes. Hover any band to "
 "see absolute counts and its peak decade."
 
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:590
+msgid ""
+"Each cell counts the births recorded in one decade (a row) and one calendar "
+"month (a column). The more births fell in that decade and month, the more "
+"saturated the cell; a near-blank cell means few or none. Reading down a "
+"column shows whether a month stayed busy across the decades, reading along a "
+"row shows how one decade spread its births over the year. Only dates with "
+"both a known year and month are placed. Leading and trailing decades without "
+"a single recorded birth are dropped, while an empty decade between two "
+"recorded ones stays as a blank band so a gap in the records is not hidden."
+msgstr ""
+
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:613
+msgid ""
+"Each cell counts the deaths recorded in one decade (a row) and one calendar "
+"month (a column). The more deaths fell in that decade and month, the more "
+"saturated the cell; a near-blank cell means few or none. Reading down a "
+"column shows whether a month stayed busy across the decades, reading along a "
+"row shows how one decade spread its deaths over the year. Only dates with "
+"both a known year and month are placed. Leading and trailing decades without "
+"a single recorded death are dropped, while an empty decade between two "
+"recorded ones stays as a blank band so a gap in the records is not hidden."
+msgstr ""
+
 #: resources/views/modules/statistics-chart/tabs/places.phtml:53
 msgid ""
 "Each flow shows individuals who were born in one country and died in "
@@ -1285,7 +1338,7 @@ msgstr "Endogamy rate"
 msgid "Evolution"
 msgstr "Evolution"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:424
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:426
 msgid "Extreme"
 msgstr "Extreme"
 
@@ -1333,13 +1386,13 @@ msgstr "Fathers"
 msgid "Fathers and mothers · decade of the first child's birth"
 msgstr "Fathers and mothers · decade of the first child's birth"
 
-#: src/Statistic.php:1119
+#: src/Support/Locale/MonthName.php:51
 msgctxt "NOMINATIVE"
 msgid "February"
 msgstr "February"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:311
-#: src/Repository/LifeSpanRepository.php:647 src/Statistic.php:210
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:313
+#: src/Repository/LifeSpanRepository.php:651 src/Statistic.php:212
 msgid "Female"
 msgstr "Female"
 
@@ -1443,7 +1496,7 @@ msgstr ""
 "those counts split across 1 / 2 / 3 / 4 / 5+ distinct places per person — a "
 "high tail signals migrant ancestors, a heavy bar at \\"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:339
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:341
 msgid ""
 "For every individual with both a birth and a death date recorded, the "
 "lifespan in whole years is derived. Each birth century forms one cohort and "
@@ -1459,7 +1512,7 @@ msgstr ""
 "individuals are dropped because a single death would shift the curve by more "
 "than three percentage points."
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:145
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:147
 msgid ""
 "For every individual with both a birth and a death date the widget computes "
 "the number of days lived. A death within five years (1826 days) of birth "
@@ -1580,6 +1633,11 @@ msgstr "Growth"
 msgid "Hall of fame across the whole tree"
 msgstr "Hall of fame across the whole tree"
 
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:586
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:609
+msgid "Heatmap"
+msgstr ""
+
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:207
 msgid "Heritage"
 msgstr ""
@@ -1608,7 +1666,7 @@ msgstr "How large were the families?"
 msgid "How long the surviving spouse outlived the first-deceased partner"
 msgstr "How long the surviving spouse outlived the first-deceased partner"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:240
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:242
 msgid "How long was the life?"
 msgstr "How long was the life?"
 
@@ -1663,17 +1721,17 @@ msgstr ""
 msgid "Individuals with ≥ 1 source citation"
 msgstr "Individuals with ≥ 1 source citation"
 
-#: src/Statistic.php:1118
+#: src/Support/Locale/MonthName.php:50
 msgctxt "NOMINATIVE"
 msgid "January"
 msgstr "January"
 
-#: src/Statistic.php:1124
+#: src/Support/Locale/MonthName.php:56
 msgctxt "NOMINATIVE"
 msgid "July"
 msgstr "July"
 
-#: src/Statistic.php:1123
+#: src/Support/Locale/MonthName.php:55
 msgctxt "NOMINATIVE"
 msgid "June"
 msgstr "June"
@@ -1716,7 +1774,7 @@ msgstr "Life event"
 msgid "Life span"
 msgstr "Life span"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:260
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:262
 msgid "Life-stage (living)"
 msgstr "Life-stage (living)"
 
@@ -1724,11 +1782,11 @@ msgstr "Life-stage (living)"
 msgid "Life-stage at divorce · men vs. women"
 msgstr "Life-stage at divorce · men vs. women"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:241
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:243
 msgid "Lifespan"
 msgstr "Lifespan"
 
-#: src/Statistic.php:229
+#: src/Statistic.php:231
 msgid "Living"
 msgstr "Living"
 
@@ -1748,17 +1806,17 @@ msgstr "Longest line in the tree, leaf to oldest ancestor"
 msgid "Longest marriage"
 msgstr "Longest marriage"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:357
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:372
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:359
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:374
 msgid "Longevity"
 msgstr "Longevity"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:310
-#: src/Repository/LifeSpanRepository.php:640 src/Statistic.php:205
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:312
+#: src/Repository/LifeSpanRepository.php:644 src/Statistic.php:207
 msgid "Male"
 msgstr "Male"
 
-#: src/Statistic.php:1120
+#: src/Support/Locale/MonthName.php:52
 msgctxt "NOMINATIVE"
 msgid "March"
 msgstr "March"
@@ -1778,7 +1836,7 @@ msgstr "Marriage"
 msgid "Marriage duration"
 msgstr "Marriage duration"
 
-#: src/Statistic.php:255
+#: src/Statistic.php:257
 msgid "Married"
 msgstr "Married"
 
@@ -1786,7 +1844,7 @@ msgstr "Married"
 msgid "Maximum generation depth"
 msgstr "Maximum generation depth"
 
-#: src/Statistic.php:1122
+#: src/Support/Locale/MonthName.php:54
 msgctxt "NOMINATIVE"
 msgid "May"
 msgstr "May"
@@ -1796,7 +1854,7 @@ msgstr "May"
 msgid "Mean age at first child by decade"
 msgstr "Mean age at first child by decade"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:276
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:278
 msgid "Median, inter-quartile range and whiskers per birth century"
 msgstr "Median, inter-quartile range and whiskers per birth century"
 
@@ -1858,21 +1916,21 @@ msgstr "Moderate mobility — many stayed in their region, some moved."
 #: resources/views/modules/statistics-chart/tabs/family.phtml:210
 #: resources/views/modules/statistics-chart/tabs/family.phtml:268
 #: resources/views/modules/statistics-chart/tabs/family.phtml:476
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:493
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:554
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:495
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:556
 msgid "Month clock"
 msgstr "Month clock"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:386
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:406
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:388
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:408
 msgid "Mortality"
 msgstr "Mortality"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:128
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:130
 msgid "Mortality rate"
 msgstr "Mortality rate"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:405
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:407
 msgid "Mortality rate per birth century"
 msgstr "Mortality rate per birth century"
 
@@ -1923,7 +1981,7 @@ msgstr "No data recorded for this metric."
 msgid "Normalised to 100 %% · shift from large to small families"
 msgstr "Normalised to 100 %% · shift from large to small families"
 
-#: src/Statistic.php:1128
+#: src/Support/Locale/MonthName.php:60
 msgctxt "NOMINATIVE"
 msgid "November"
 msgstr "November"
@@ -1954,7 +2012,7 @@ msgstr ""
 msgid "Occupational and religious affiliation of the recorded individuals"
 msgstr "Occupational and religious affiliation of the recorded individuals"
 
-#: src/Statistic.php:1127
+#: src/Support/Locale/MonthName.php:59
 msgctxt "NOMINATIVE"
 msgid "October"
 msgstr "October"
@@ -1989,7 +2047,7 @@ msgid ""
 msgstr ""
 "Oldest, longest marriages, largest families · records that anchor the dataset"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:281
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:283
 #, php-format
 msgid ""
 "One box per birth century summarises how old people in that cohort lived to "
@@ -2039,7 +2097,7 @@ msgstr ""
 msgid "Peak"
 msgstr "Peak"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:420
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:422
 msgid "Peak value"
 msgstr "Peak value"
 
@@ -2052,7 +2110,7 @@ msgstr "Pedigree completeness"
 msgid "Period: %1$s–%2$s"
 msgstr "Period: %1$s–%2$s"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:301
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:303
 msgid ""
 "Pick a birth century with the buttons above the chart. For that cohort every "
 "individual with both a birth and a death date is sorted into a 10-year age-"
@@ -2123,15 +2181,19 @@ msgstr ""
 msgid "Scorpio"
 msgstr "Scorpio"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:569
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:571
 msgid "Season"
 msgstr "Season"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:523
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:525
 msgid "Season and century of recorded deaths"
 msgstr "Season and century of recorded deaths"
 
-#: src/Statistic.php:1126
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:580
+msgid "Seasonality"
+msgstr ""
+
+#: src/Support/Locale/MonthName.php:58
 msgctxt "NOMINATIVE"
 msgid "September"
 msgstr "September"
@@ -2144,7 +2206,7 @@ msgstr "Sex"
 msgid "Sex, status, marital state"
 msgstr "Sex, status, marital state"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:334
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:336
 msgid "Share of a birth cohort still alive at each age threshold"
 msgstr "Share of a birth cohort still alive at each age threshold"
 
@@ -2188,7 +2250,7 @@ msgstr "Shortest marriage"
 msgid "Sibling age gap"
 msgstr "Sibling age gap"
 
-#: src/Statistic.php:260
+#: src/Statistic.php:262
 msgid "Single"
 msgstr "Single"
 
@@ -2242,11 +2304,11 @@ msgstr "Surname × surname marriage matrix"
 msgid "Surnames"
 msgstr "Surnames"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:333
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:335
 msgid "Survival curve"
 msgstr "Survival curve"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:350
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:352
 msgid "Survival curve per birth century"
 msgstr "Survival curve per birth century"
 
@@ -2272,7 +2334,7 @@ msgstr ""
 "recorded in the tree. The widget walks every individual upward, follows "
 "fathers and mothers in parallel, and reports the deepest verified line."
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:149
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:151
 msgid ""
 "The single birth century with the highest under-5 mortality rate across the "
 "tree. Computed from the same per-individual BIRT+DEAT pairs as the per-"
@@ -2292,22 +2354,22 @@ msgstr "Three views of every individual · birth, residence, death"
 msgid "Time"
 msgstr "Time"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:447
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:449
 msgid "Time-distribution of births"
 msgstr "Time-distribution of births"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:225
 #: resources/views/modules/statistics-chart/tabs/family.phtml:374
 #: resources/views/modules/statistics-chart/tabs/family.phtml:491
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:320
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:452
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:478
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:539
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:322
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:454
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:480
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:541
 #: resources/views/modules/statistics-chart/tabs/names.phtml:103
 msgid "Timeline"
 msgstr "Timeline"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:262
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:264
 msgid "Today living"
 msgstr "Today living"
 
@@ -2324,11 +2386,11 @@ msgstr "Top 10 largest families"
 msgid "Top 10 most-influential ancestors"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:355
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:357
 msgid "Top 10 oldest (deceased)"
 msgstr "Top 10 oldest (deceased)"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:370
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:372
 msgid "Top 10 oldest (living)"
 msgstr "Top 10 oldest (living)"
 
@@ -2360,7 +2422,7 @@ msgstr "Twins"
 msgid "Typical range"
 msgstr "Typical range"
 
-#: src/Statistic.php:215
+#: src/Statistic.php:217
 msgid "Unknown"
 msgstr "Unknown"
 
@@ -2403,7 +2465,7 @@ msgstr "Weddings by month"
 msgid "What is missing?"
 msgstr "What is missing?"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:387
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:389
 msgid "What the recorded individuals died of"
 msgstr "What the recorded individuals died of"
 
@@ -2411,7 +2473,7 @@ msgstr "What the recorded individuals died of"
 msgid "When and whom they married"
 msgstr "When and whom they married"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:521
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:523
 msgid "When did they die?"
 msgstr "When did they die?"
 
@@ -2423,7 +2485,7 @@ msgstr "When marriages ended"
 msgid "When they had children"
 msgstr "When they had children"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:445
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:447
 msgid "When were they born?"
 msgstr "When were they born?"
 
@@ -2443,7 +2505,7 @@ msgstr "Which names return?"
 msgid "Who is recorded?"
 msgstr "Who is recorded?"
 
-#: src/Statistic.php:265
+#: src/Statistic.php:267
 msgid "Widowed"
 msgstr "Widowed"
 
@@ -2465,21 +2527,21 @@ msgstr "Wife older"
 msgid "Wife older by %s years"
 msgstr "Wife older by %s years"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:217
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:219
 #, php-format
 msgid ""
 "Winter months show a %s%% higher mortality density than the annual average."
 msgstr ""
 "Winter months show a %s%% higher mortality density than the annual average."
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:221
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:223
 #, php-format
 msgid ""
 "Winter months show a %s%% lower mortality density than the annual average."
 msgstr ""
 "Winter months show a %s%% lower mortality density than the annual average."
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:567
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:569
 msgid "Winter-peak score"
 msgstr "Winter-peak score"
 
@@ -2517,19 +2579,27 @@ msgstr "Youngest mother"
 msgid "Youngest wife"
 msgstr "Youngest wife"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:508
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:510
 msgid "Zodiac"
 msgstr "Zodiac"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:506
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:508
 msgid "Zodiac signs"
 msgstr "Zodiac signs"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:94
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:96
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:63
 #, php-format
 msgid "aggregated into %s-decade bins for readability"
 msgstr "aggregated into %s-decade bins for readability"
+
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:600
+msgid "births"
+msgstr ""
+
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:623
+msgid "deaths"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/components/live-dead-card.phtml:37
 msgid "deceased"
@@ -2583,7 +2653,7 @@ msgstr "individuals"
 msgid "kids"
 msgstr "kids"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:269
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:271
 msgid "living"
 msgstr "living"
 
@@ -2600,8 +2670,8 @@ msgctxt "count word"
 msgid "nine"
 msgstr "nine"
 
-#: src/Repository/LifeSpanRepository.php:622
-#: src/Repository/LifeSpanRepository.php:629
+#: src/Repository/LifeSpanRepository.php:626
+#: src/Repository/LifeSpanRepository.php:633
 #: src/Repository/NameRepository.php:306 src/Repository/NameRepository.php:310
 #: src/Repository/ParenthoodRepository.php:322
 #: src/Repository/ParenthoodRepository.php:329
@@ -2621,12 +2691,12 @@ msgstr "peak in the {decade}"
 #: resources/views/modules/statistics-chart/tabs/family.phtml:218
 #: resources/views/modules/statistics-chart/tabs/family.phtml:276
 #: resources/views/modules/statistics-chart/tabs/family.phtml:484
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:501
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:562
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:503
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:564
 msgid "peak month"
 msgstr "peak month"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:516
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:518
 msgid "peak sign"
 msgstr "peak sign"
 
@@ -2674,8 +2744,8 @@ msgid "years"
 msgstr "years"
 
 #: resources/views/modules/statistics-chart/components/hero.phtml:76
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:365
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:380
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:367
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:382
 msgid "yr"
 msgstr "yr"
 

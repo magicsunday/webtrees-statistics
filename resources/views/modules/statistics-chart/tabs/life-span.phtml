@@ -50,6 +50,8 @@ $lifespanBySexCentury    = $statistic->getAverageLifespanBySexAndCentury();
 $survivalByCentury       = $statistic->getSurvivalCurveByCentury();
 $ageDistByCentury        = $statistic->getDeathAgeDistributionByCentury();
 $deathsByCenturyPyramid  = $statistic->getDeathsByCenturyAgeBandSex();
+$birthHeatmap            = $statistic->getBirthHeatmapByDecadeMonth();
+$deathHeatmap            = $statistic->getDeathHeatmapByDecadeMonth();
 
 $totalBirthsByMonth   = array_sum($birthsByMonth);
 $totalBirthsByZodiac  = array_sum($birthsByZodiacSign);
@@ -572,6 +574,57 @@ echo Card::for($module, I18N::translate('Winter-peak score'))
     ->withSpan(4)
     ->centered()
     ->withBodyHtml($winterPeakCardBody)
+    ->render();
+
+echo Section::create(I18N::translate('Births and deaths across the year'))
+    ->withKicker(I18N::translate('Seasonality'))
+    ->withSub(I18N::translate('Decade-by-month density of recorded births and deaths'))
+    ->render();
+
+echo Card::for($module, I18N::translate('Births — decade × month'))
+    ->withSub(I18N::translate('A fuller cell marks a busier month'))
+    ->withEyebrow(I18N::translate('Heatmap'))
+    ->withAccent(Accent::Ochre)
+    ->withIllustration(Illustration::Sunrise)
+    ->withInfo(
+        I18N::translate('Each cell counts the births recorded in one decade (a row) and one calendar month (a column). The more births fell in that decade and month, the more saturated the cell; a near-blank cell means few or none. Reading down a column shows whether a month stayed busy across the decades, reading along a row shows how one decade spread its births over the year. Only dates with both a known year and month are placed. Leading and trailing decades without a single recorded birth are dropped, while an empty decade between two recorded ones stays as a blank band so a gap in the records is not hidden.'),
+        $aboutThisChart,
+        $aboutThisChart,
+    )
+    ->withSpan(6)
+    ->withBodyHtml(
+        Widget::heatmap($module, 'births-by-decade-month-heatmap')
+            ->withData($birthHeatmap)
+            ->withHeight(420)
+            ->withAccent(Accent::Ochre)
+            ->with('valueLabel', I18N::translate('births'))
+            ->with('source', 'births-heatmap')
+            ->withAriaLabel(I18N::translate('Births by decade and calendar month'))
+            ->render()
+    )
+    ->render();
+
+echo Card::for($module, I18N::translate('Deaths — decade × month'))
+    ->withSub(I18N::translate('A fuller cell marks a busier month'))
+    ->withEyebrow(I18N::translate('Heatmap'))
+    ->withAccent(Accent::Wine)
+    ->withIllustration(Illustration::Moon)
+    ->withInfo(
+        I18N::translate('Each cell counts the deaths recorded in one decade (a row) and one calendar month (a column). The more deaths fell in that decade and month, the more saturated the cell; a near-blank cell means few or none. Reading down a column shows whether a month stayed busy across the decades, reading along a row shows how one decade spread its deaths over the year. Only dates with both a known year and month are placed. Leading and trailing decades without a single recorded death are dropped, while an empty decade between two recorded ones stays as a blank band so a gap in the records is not hidden.'),
+        $aboutThisChart,
+        $aboutThisChart,
+    )
+    ->withSpan(6)
+    ->withBodyHtml(
+        Widget::heatmap($module, 'deaths-by-decade-month-heatmap')
+            ->withData($deathHeatmap)
+            ->withHeight(420)
+            ->withAccent(Accent::Wine)
+            ->with('valueLabel', I18N::translate('deaths'))
+            ->with('source', 'deaths-heatmap')
+            ->withAriaLabel(I18N::translate('Deaths by decade and calendar month'))
+            ->render()
+    )
     ->render();
 ?>
 </div>

@@ -15,6 +15,7 @@ use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\StatisticsData;
 use MagicSunday\Webtrees\Statistic\Enum\MaritalBucket;
 use MagicSunday\Webtrees\Statistic\Model\Chord\ChordMatrixPayload;
+use MagicSunday\Webtrees\Statistic\Model\Heatmap\HeatmapPayload;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Model\Metric\ChildMortalitySummary;
 use MagicSunday\Webtrees\Statistic\Model\Metric\EndogamyRate;
@@ -52,6 +53,7 @@ use MagicSunday\Webtrees\Statistic\Repository\PlaceDispersionRepository;
 use MagicSunday\Webtrees\Statistic\Repository\ReligionRepository;
 use MagicSunday\Webtrees\Statistic\Repository\TreeHealthRepository;
 use MagicSunday\Webtrees\Statistic\Support\Calc\HistogramTrim;
+use MagicSunday\Webtrees\Statistic\Support\Locale\MonthName;
 use MagicSunday\Webtrees\Statistic\Support\Locale\ZodiacLabels;
 
 use function array_sum;
@@ -493,6 +495,28 @@ final readonly class Statistic
     public function getDeathsByCenturyAgeBandSex(): PopulationPyramidPayload
     {
         return $this->lifeSpanRepository->deathsByCenturyAgeBandSex();
+    }
+
+    /**
+     * Births faceted by decade × calendar month — feeds the births heatmap on
+     * the LifeSpan tab. Each BIRT date contributes one tick to its decade row
+     * and month column. Leading / trailing all-zero decade rows are trimmed;
+     * inner zero rows stay so a gap in the recorded history remains a visible
+     * blank band.
+     */
+    public function getBirthHeatmapByDecadeMonth(): HeatmapPayload
+    {
+        return $this->lifeSpanRepository->eventHeatmapByDecadeMonth('BIRT');
+    }
+
+    /**
+     * Deaths faceted by decade × calendar month — feeds the deaths heatmap on
+     * the LifeSpan tab. Mirrors {@see getBirthHeatmapByDecadeMonth()} over DEAT
+     * dates.
+     */
+    public function getDeathHeatmapByDecadeMonth(): HeatmapPayload
+    {
+        return $this->lifeSpanRepository->eventHeatmapByDecadeMonth('DEAT');
     }
 
     /**
@@ -1114,20 +1138,7 @@ final readonly class Statistic
      */
     private function monthLabels(): array
     {
-        return [
-            'JAN' => I18N::translateContext('NOMINATIVE', 'January'),
-            'FEB' => I18N::translateContext('NOMINATIVE', 'February'),
-            'MAR' => I18N::translateContext('NOMINATIVE', 'March'),
-            'APR' => I18N::translateContext('NOMINATIVE', 'April'),
-            'MAY' => I18N::translateContext('NOMINATIVE', 'May'),
-            'JUN' => I18N::translateContext('NOMINATIVE', 'June'),
-            'JUL' => I18N::translateContext('NOMINATIVE', 'July'),
-            'AUG' => I18N::translateContext('NOMINATIVE', 'August'),
-            'SEP' => I18N::translateContext('NOMINATIVE', 'September'),
-            'OCT' => I18N::translateContext('NOMINATIVE', 'October'),
-            'NOV' => I18N::translateContext('NOMINATIVE', 'November'),
-            'DEC' => I18N::translateContext('NOMINATIVE', 'December'),
-        ];
+        return MonthName::byAbbreviation();
     }
 
     /**

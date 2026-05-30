@@ -2961,6 +2961,51 @@
 }
 
 /* ----------------------------------------------------------------------
+   Heatmap — a decade (row) × month (column) grid of event-count cells.
+   The accent hue is supplied per card via the widget's `accent` option
+   (a CSS `var(--…)` literal applied as the cell fill); the count drives
+   fill-opacity, so the stylesheet only owns the chrome — axis labels,
+   the cell hover lift and the faint baseline of an empty cell.
+   -------------------------------------------------------------------- */
+.wt-statistics-chart svg.wt-stat-heatmap-svg {
+    width:  100%;
+    height: auto;
+}
+
+/* Row (decade) labels are numeric decade suffixes ("1900s"), so they share
+   the monospaced tabular system the other axis ticks use; the month column
+   labels stay in the proportional sans because they are words. */
+.wt-statistics-chart svg.wt-stat-heatmap-svg text.wt-stat-heatmap-row {
+    fill:                 var(--ink-2);
+    font-family:          var(--mono);
+    font-size:            12px;
+    font-variant-numeric: tabular-nums;
+}
+
+.wt-statistics-chart svg.wt-stat-heatmap-svg text.wt-stat-heatmap-col {
+    fill:        var(--ink-2);
+    font-family: var(--sans);
+    font-size:   12px;
+}
+
+.wt-statistics-chart svg.wt-stat-heatmap-svg rect.wt-stat-heatmap-cell {
+    transition: stroke 160ms;
+    stroke:     transparent;
+    stroke-width: 1.5px;
+}
+
+.wt-statistics-chart svg.wt-stat-heatmap-svg rect.wt-stat-heatmap-cell:hover {
+    stroke: var(--ink);
+}
+
+/* An empty (zero-count) cell keeps a hairline outline so the grid reads as a
+   continuous field rather than a hole, even though its fill is near-blank. */
+.wt-statistics-chart svg.wt-stat-heatmap-svg rect.wt-stat-heatmap-cell--empty {
+    stroke:       var(--border);
+    stroke-width: 1px;
+}
+
+/* ----------------------------------------------------------------------
    Places panel — single card holding the three geographic views
    (place of birth / recorded residences / place of death) behind
    an inline tab strip. The active tab swaps the panel below + the

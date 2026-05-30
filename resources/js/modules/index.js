@@ -15,6 +15,7 @@ import {
     DivergingBar,
     DonutChart,
     GaugeArc,
+    Heatmap,
     LineChart,
     MirrorHistogram,
     MonthRadial,
@@ -144,6 +145,7 @@ const WIDGETS = {
     "mirror-histogram": fromChartLib(MirrorHistogram),
     "box-plot": fromChartLib(BoxPlot),
     "population-pyramid": fromChartLib(PopulationPyramid),
+    heatmap: fromChartLib(Heatmap),
 };
 
 /**

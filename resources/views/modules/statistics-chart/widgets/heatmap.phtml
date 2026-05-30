@@ -1,0 +1,56 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+use MagicSunday\Webtrees\Statistic\Model\Heatmap\HeatmapPayload;
+use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
+use MagicSunday\Webtrees\Statistic\View\EmptyStatePlaceholder;
+
+/**
+ * Heatmap widget shell. Emits a `data-widget="heatmap"` marker carrying the
+ * `{rows, cols, values}` payload. The row (decade) and column (month) labels in
+ * the payload are already localised, so the widget renders them verbatim. The
+ * accent is a CSS colour literal (`var(--ochre)` / `var(--wine)`) used as the
+ * cell fill, with the count driving fill-opacity; the value caption shown in
+ * the tooltip is passed in pre-translated by the caller.
+ *
+ * @var string         $identifier Host element id
+ * @var HeatmapPayload $data       Decade × month count matrix
+ * @var int|null       $height     Optional viewport height (defaults to 460)
+ * @var string|null    $accent     CSS colour literal for the cell fill
+ * @var string|null    $valueLabel Pre-translated unit caption for the tooltip
+ * @var string|null    $ariaLabel  Accessible label on the host svg
+ * @var string|null    $source     Crossfilter source id for the shared selection bus
+ */
+$height ??= 460;
+
+if ($data->rows === []) {
+    echo EmptyStatePlaceholder::render();
+
+    return;
+}
+
+$options = [
+    'height'     => $height,
+    'accent'     => $accent ?? null,
+    'valueLabel' => $valueLabel ?? null,
+    'ariaLabel'  => $ariaLabel ?? null,
+];
+
+if (isset($source) && ($source !== '')) {
+    $options['source'] = $source;
+}
+?>
+<div class="wt-stat-heatmap-host"
+     id="<?php echo e($identifier); ?>"
+     data-widget="heatmap"
+     data-payload="<?php echo WidgetJson::encodeAttribute($data); ?>"
+     data-options="<?php echo WidgetJson::encodeAttribute($options); ?>"
+     data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"></div>
