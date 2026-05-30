@@ -312,6 +312,8 @@ echo Card::for($module, I18N::translate('Age-at-death distribution by sex and ce
             ->with('leftLabel', I18N::translate('Male'))
             ->with('rightLabel', I18N::translate('Female'))
             ->with('axisLabel', I18N::translate('Age'))
+            ->with('categoryUnit', I18N::translate('years'))
+            ->with('valueLabel', I18N::translate('individuals'))
             ->with('source', 'deaths-pyramid')
             ->withAriaLabel(I18N::translate('Age-at-death distribution by sex and century'))
             ->render()

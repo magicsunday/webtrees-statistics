@@ -28,10 +28,12 @@ use MagicSunday\Webtrees\Statistic\View\EmptyStatePlaceholder;
  * @var PopulationPyramidPayload $data       Group × band × {left, right} payload
  * @var int|null                 $height     Optional viewport height (defaults to 460)
  * @var string|null              $ariaLabel  Accessible label on the host svg
- * @var string|null              $leftLabel  Pre-translated caption for the left column
- * @var string|null              $rightLabel Pre-translated caption for the right column
- * @var string|null              $axisLabel  Pre-translated centre gutter title
- * @var string|null              $source     Crossfilter source id for the shared selection bus
+ * @var string|null              $leftLabel    Pre-translated caption for the left column
+ * @var string|null              $rightLabel   Pre-translated caption for the right column
+ * @var string|null              $axisLabel    Pre-translated centre gutter title
+ * @var string|null              $categoryUnit Pre-translated unit appended to the band in the tooltip
+ * @var string|null              $valueLabel   Pre-translated unit appended to the count in the tooltip
+ * @var string|null              $source       Crossfilter source id for the shared selection bus
  */
 $height ??= 460;
 
@@ -42,11 +44,13 @@ if ($data->groups === []) {
 }
 
 $options = [
-    'height'     => $height,
-    'ariaLabel'  => $ariaLabel ?? null,
-    'leftLabel'  => $leftLabel ?? null,
-    'rightLabel' => $rightLabel ?? null,
-    'axisLabel'  => $axisLabel ?? null,
+    'height'       => $height,
+    'ariaLabel'    => $ariaLabel ?? null,
+    'leftLabel'    => $leftLabel ?? null,
+    'rightLabel'   => $rightLabel ?? null,
+    'axisLabel'    => $axisLabel ?? null,
+    'categoryUnit' => $categoryUnit ?? null,
+    'valueLabel'   => $valueLabel ?? null,
 ];
 
 if (isset($source) && ($source !== '')) {
