@@ -1405,14 +1405,14 @@
     justify-content: center;
 }
 
-.wt-statistics-chart svg.wt-stat-bubble {
+.wt-statistics-chart svg.wt-name-bubbles {
     display:    block;
     width:      100%;
     max-height: calc(var(--wt-stat-card-span, 12) * 50px);
     height:     auto;
 }
 
-.wt-statistics-chart .wt-stat-bubble-g {
+.wt-statistics-chart .wt-name-bubbles-g {
     transition: opacity 240ms ease;
 }
 
@@ -3381,11 +3381,11 @@
 /* Name-bubbles labels — the font-SIZE is a per-bubble function of
    the radius (computed in JS) and stays inline; the family + weight
    are constant and live here. */
-.wt-statistics-chart svg .wt-stat-bubbles-name-text {
+.wt-statistics-chart svg .wt-name-bubbles-name-text {
     font-family: var(--serif);
 }
 
-.wt-statistics-chart svg .wt-stat-bubbles-count-text {
+.wt-statistics-chart svg .wt-name-bubbles-count-text {
     font-family: var(--mono);
     font-weight: 500;
 }
