@@ -1351,25 +1351,25 @@
     margin: 0 auto;
 }
 
-.wt-statistics-chart svg.wt-stat-radial-svg {
+.wt-statistics-chart svg.wt-month-radial-svg {
     width:   100%;
     height:  auto;
     display: block;
 }
 
-.wt-statistics-chart .wt-stat-radial-lab {
+.wt-statistics-chart .wt-month-radial-lab {
     font-family: var(--sans);
     font-size:   11px;
     font-weight: 500;
 }
 
-.wt-statistics-chart .wt-stat-radial-center {
+.wt-statistics-chart .wt-month-radial-center {
     font-family: var(--serif);
     font-size:   20px;
     font-weight: 400;
 }
 
-.wt-statistics-chart .wt-stat-radial-sub {
+.wt-statistics-chart .wt-month-radial-sub {
     font-family:    var(--sans);
     font-size:      10px;
     letter-spacing: 0.12em;
@@ -1379,12 +1379,12 @@
 /* Hover / selection highlight: the focused slice brightens
    slightly; surrounding slices stay at their default fill.
    Mirrors the donut / bar-chart / box-plot hover treatment. */
-.wt-statistics-chart svg.wt-stat-radial-svg path.wt-stat-radial-slice {
+.wt-statistics-chart svg.wt-month-radial-svg path.wt-month-radial-slice {
     transition: filter 200ms ease-out;
 }
 
-.wt-statistics-chart svg.wt-stat-radial-svg path.wt-stat-radial-slice:hover,
-.wt-statistics-chart svg.wt-stat-radial-svg path.wt-stat-radial-slice.is-selected {
+.wt-statistics-chart svg.wt-month-radial-svg path.wt-month-radial-slice:hover,
+.wt-statistics-chart svg.wt-month-radial-svg path.wt-month-radial-slice.is-selected {
     opacity: 0.75;
     cursor: pointer;
 }
