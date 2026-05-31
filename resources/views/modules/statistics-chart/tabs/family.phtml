@@ -55,7 +55,7 @@ $firstChildAgeByDecade   = $statistic->getAgeAtFirstChildMeanByDecade();
 $totalAgeM             = array_sum($ageAtMarriageM);
 $totalAgeF             = array_sum($ageAtMarriageF);
 $totalDur              = array_sum($duration);
-$totalAgeGap           = array_sum($ageGap);
+$totalAgeGap           = array_sum(array_map(static fn (array $band): int => $band['left'] + $band['right'], $ageGap));
 $totalCentury          = array_sum($byCentury);
 $totalMonth            = array_sum($byMonth);
 $totalDivCentury       = array_sum($divorcesByCentury);
@@ -112,7 +112,7 @@ foreach ($widowhoodDistribution as $label => $count) {
     ];
 }
 
-$ageGapRows = CoupleAgeGapRowMapper::toRows($ageGap);
+$ageGapModel = CoupleAgeGapRowMapper::toModel($ageGap);
 
 $childrenPerFamilyBars = [];
 
@@ -189,18 +189,20 @@ echo Card::for($module, I18N::translate('Couple age gap'))
     ->withIllustration(Illustration::Rings)
     ->withInfo(
         I18N::translate(
-            'Age difference between spouses at marriage. Negative values mark couples where the husband was the older partner. Positive values mark couples where the wife was older. Each bar covers a 5-year range. The band labelled 30+ collects every gap of 30 years or more.'
+            'Age difference between spouses at marriage. The left column counts couples where the husband is the older partner, the right column those where the wife is older. Both sides share the same 5-year gap bands, so the two distributions can be compared at a glance. The 30+ band collects every gap of 30 years or more.'
         ),
         $aboutThisChart,
         $aboutThisChart
     )
     ->withSpan(6)
     ->withBodyHtml(
-        Widget::divergingBar($module, 'couple-age-gap-diverging')
-            ->withData($ageGapRows)
+        Widget::populationPyramid($module, 'couple-age-gap-pyramid')
+            ->withData($ageGapModel)
             ->withAriaLabel(I18N::translate('Couple age gap'))
-            ->with('leftCap', I18N::translate('Husband older'))
-            ->with('rightCap', I18N::translate('Wife older'))
+            ->with('leftLabel', I18N::translate('Husband older'))
+            ->with('rightLabel', I18N::translate('Wife older'))
+            ->with('categoryUnit', I18N::translate('years'))
+            ->with('valueLabel', I18N::translate('couples'))
             ->render()
     )
     ->render();

@@ -723,11 +723,11 @@ final readonly class Statistic
     }
 
     /**
-     * Couple age-gap histogram (symmetric 5-year bands centred on zero).
-     * Negative buckets mean husband older than wife (`husbandBirthJd <
-     * wifeBirthJd` → husband born first).
+     * Couple age-gap histogram as a two-sided bucket: each shared magnitude band
+     * carries the count of couples where the husband is the older partner
+     * (`left`) and where the wife is (`right`).
      *
-     * @return array<string, int>
+     * @return array<string, array{left: int, right: int}>
      */
     public function getCoupleAgeGapDistribution(): array
     {

@@ -86,9 +86,6 @@ class BarChart {
 class StackedBar {
     draw() {}
 }
-class DivergingBar {
-    draw() {}
-}
 class ChordDiagram {
     draw() {}
 }
@@ -107,7 +104,7 @@ class MirrorHistogram {
 class BoxPlot {
     draw() {}
 }
-class PopulationPyramid {
+class DivergingBarChart {
     constructor(node, options) {
         this.node = node;
         this.options = options;
@@ -134,14 +131,13 @@ jest.unstable_mockModule("@magicsunday/webtrees-chart-lib", () => ({
     LineChart,
     BarChart,
     StackedBar,
-    DivergingBar,
     ChordDiagram,
     MonthRadial,
     NameBubbles,
     GaugeArc,
     MirrorHistogram,
     BoxPlot,
-    PopulationPyramid,
+    DivergingBarChart,
     Heatmap,
 }));
 

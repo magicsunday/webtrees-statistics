@@ -79,20 +79,6 @@ final readonly class Widget
     }
 
     /**
-     * Start a new diverging-bar widget host.
-     */
-    public static function divergingBar(string $module, string $identifier): self
-    {
-        return new self(
-            $module,
-            'diverging-bar',
-            [
-                'identifier' => $identifier,
-            ]
-        );
-    }
-
-    /**
      * Start a new box-plot widget host. The widget computes quartiles +
      * whiskers internally — callers ship the raw sample arrays per category via
      * `->withData([['category' => …, 'values' => [int, …]], …])`.

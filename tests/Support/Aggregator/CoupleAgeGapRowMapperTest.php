@@ -16,11 +16,9 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Locks the label-cleaning + sign-tagging contract that drives the
- * couple-age-gap diverging-bar widget on the Family tab. The husband-older side
- * comes in with negative-marker labels (`'-5 to -10'`, `'<-30'`, bare `'-15'`);
- * this mapper has to normalise them into positive band labels and tag the row
- * with `sign = -1` so the chart mirrors them onto the left half.
+ * Locks the fold from the two-sided couple-age-gap distribution into the
+ * population-pyramid payload — bands become rows, husband counts feed the left
+ * column, wife counts the right.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -29,90 +27,73 @@ use PHPUnit\Framework\TestCase;
 final class CoupleAgeGapRowMapperTest extends TestCase
 {
     /**
-     * Empty input short-circuits — the caller renders the empty placeholder for
-     * the surrounding card.
+     * Empty input short-circuits to an empty payload so the caller renders the
+     * empty placeholder.
      */
     #[Test]
-    public function emptyInputReturnsEmptyList(): void
+    public function emptyInputReturnsEmptyPayload(): void
     {
-        self::assertSame([], CoupleAgeGapRowMapper::toRows([]));
+        $payload = CoupleAgeGapRowMapper::toModel([]);
+
+        self::assertSame([], $payload->groups);
+        self::assertSame([], $payload->bands);
+        self::assertSame([], $payload->data);
     }
 
     /**
-     * Positive bands (wife-older side) pass through with the label unchanged
-     * and `sign = +1`.
+     * A distribution whose every band is zero carries no data and yields the
+     * empty payload, not a chart of empty bars.
      */
     #[Test]
-    public function positiveBandKeepsLabelAndTagsSignPositive(): void
+    public function allZeroCountsReturnEmptyPayload(): void
     {
-        $rows = CoupleAgeGapRowMapper::toRows(['5 to 10' => 12]);
+        $payload = CoupleAgeGapRowMapper::toModel([
+            '0–4' => ['left' => 0, 'right' => 0],
+            '5–9' => ['left' => 0, 'right' => 0],
+        ]);
 
-        self::assertCount(1, $rows);
-        self::assertSame('5 to 10', $rows[0]['label']);
-        self::assertSame(12, $rows[0]['value']);
-        self::assertSame(1, $rows[0]['sign']);
-        self::assertStringContainsString('Wife', $rows[0]['tooltipLabel']);
-        self::assertStringContainsString('5 to 10', $rows[0]['tooltipLabel']);
-        self::assertStringContainsString('12', $rows[0]['tooltip']);
+        self::assertSame([], $payload->groups);
     }
 
     /**
-     * Negative range bands (husband-older side, `-X to -Y` form) normalise to a
-     * positive en-dash range with min/max ordering.
+     * The payload is a single group whose rows preserve the distribution's band
+     * order and counts, husband on the left and wife on the right.
      */
     #[Test]
-    public function negativeRangeBandCleansToPositiveEnDashRange(): void
+    public function foldsBandsIntoASingleGroupPayload(): void
     {
-        $rows = CoupleAgeGapRowMapper::toRows(['-5 to -10' => 7]);
+        $payload = CoupleAgeGapRowMapper::toModel([
+            '0–4'   => ['left' => 7, 'right' => 12],
+            '5–9'   => ['left' => 3, 'right' => 0],
+            '10–14' => ['left' => 0, 'right' => 4],
+        ]);
 
-        self::assertCount(1, $rows);
-        self::assertSame('5–10', $rows[0]['label']);
-        self::assertSame(-1, $rows[0]['sign']);
-        self::assertStringContainsString('Husband', $rows[0]['tooltipLabel']);
-        self::assertStringContainsString('5–10', $rows[0]['tooltipLabel']);
+        self::assertSame([''], $payload->groups);
+        self::assertSame(['0–4', '5–9', '10–14'], $payload->bands);
+        self::assertSame(
+            [
+                [
+                    ['left' => 7, 'right' => 12],
+                    ['left' => 3, 'right' => 0],
+                    ['left' => 0, 'right' => 4],
+                ],
+            ],
+            $payload->data
+        );
     }
 
     /**
-     * Open-ended low band (`<-30`) inverts to an open-ended high positive label
-     * (`>30`).
+     * A distribution carrying a count on only one side still renders that band,
+     * with the empty side left at zero.
      */
     #[Test]
-    public function openEndedLowBandInvertsToOpenEndedHighLabel(): void
+    public function oneSidedBandKeepsTheEmptySideAtZero(): void
     {
-        $rows = CoupleAgeGapRowMapper::toRows(['<-30' => 3]);
+        $payload = CoupleAgeGapRowMapper::toModel([
+            '30+' => ['left' => 5, 'right' => 0],
+        ]);
 
-        self::assertCount(1, $rows);
-        self::assertSame('>30', $rows[0]['label']);
-        self::assertSame(-1, $rows[0]['sign']);
-    }
-
-    /**
-     * Bare negative-int label (`-15`, no range) strips the leading minus and
-     * stays a single band. PHP auto-casts the numeric-string key to int at
-     * array-construction time, so the mapper coerces the key back to string
-     * before inspection.
-     */
-    #[Test]
-    public function bareNegativeIntStripsLeadingMinus(): void
-    {
-        $rows = CoupleAgeGapRowMapper::toRows([-15 => 1]);
-
-        self::assertCount(1, $rows);
-        self::assertSame('15', $rows[0]['label']);
-        self::assertSame(-1, $rows[0]['sign']);
-    }
-
-    /**
-     * Negative range with reversed min/max (`-10 to -5`) still orders the
-     * cleaned label low→high so the chart's x-axis stays monotonic.
-     */
-    #[Test]
-    public function negativeRangeReversedInputStillOrdersLowToHigh(): void
-    {
-        $rows = CoupleAgeGapRowMapper::toRows(['-10 to -5' => 4]);
-
-        self::assertCount(1, $rows);
-        self::assertSame('5–10', $rows[0]['label']);
-        self::assertSame(-1, $rows[0]['sign']);
+        self::assertSame(['30+'], $payload->bands);
+        self::assertSame(['left' => 5, 'right' => 0], $payload->data[0][0]);
     }
 }

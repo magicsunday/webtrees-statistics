@@ -17,7 +17,7 @@ use MagicSunday\Webtrees\Statistic\View\EmptyStatePlaceholder;
  * Population-pyramid widget shell. Emits a `data-widget="population-pyramid"`
  * marker carrying the `{groups, bands, data}` payload for the domain-neutral
  * chart-lib pyramid widget. Bar and picker colours come from CSS
- * (`.wt-stat-pyramid-bar-left`, `-bar-right`, `.wt-stat-pyramid-group`) — not
+ * (`.wt-diverging-bar-left`, `-bar-right`, `.wt-diverging-group`) — not
  * from PHP options. The group (century) labels in the payload are already
  * localised, so the widget renders them verbatim. The left/right captions (here
  * male/female) and the centre axis title are passed in pre-translated by the
@@ -59,7 +59,7 @@ if (isset($source) && ($source !== '')) {
     $options['source'] = $source;
 }
 ?>
-<div class="wt-stat-pyramid-host"
+<div class="wt-diverging-host"
      id="<?php echo e($identifier); ?>"
      data-widget="population-pyramid"
      data-payload="<?php echo WidgetJson::encodeAttribute($data); ?>"

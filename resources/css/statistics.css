@@ -2784,21 +2784,6 @@
 }
 
 /* ----------------------------------------------------------------------
-   Diverging bar chart (chart-lib DivergingBar) — design2 layout: per-row
-   3-column grid (left bar | centre label | right bar), no x-axis. The
-   negative-sign side reads slate (husband-older), positive-sign side
-   reads rose (wife-older), matching the other M/F splits on the tab.
-   -------------------------------------------------------------------- */
-
-.wt-statistics-chart svg.wt-diverging-bar rect.wt-diverging-bar-left {
-    fill: var(--slate);
-}
-
-.wt-statistics-chart svg.wt-diverging-bar rect.wt-diverging-bar-right {
-    fill: var(--rose);
-}
-
-/* ----------------------------------------------------------------------
    Mirror histogram (chart-lib MirrorHistogram) — slate (top side =
    male/father/husband) and rose (bot side = female/mother/wife).
    Tokens applied via per-side class hooks so callers don't have to
@@ -2806,11 +2791,18 @@
    -------------------------------------------------------------------- */
 
 .wt-statistics-chart svg.wt-stat-mirror path.wt-stat-mirror-bar-top {
-    fill: var(--slate);
+    fill:       var(--slate);
+    transition: opacity 160ms;
 }
 
 .wt-statistics-chart svg.wt-stat-mirror path.wt-stat-mirror-bar-bot {
-    fill: var(--rose);
+    fill:       var(--rose);
+    transition: opacity 160ms;
+}
+
+.wt-statistics-chart svg.wt-stat-mirror path.wt-stat-mirror-bar-top:hover,
+.wt-statistics-chart svg.wt-stat-mirror path.wt-stat-mirror-bar-bot:hover {
+    opacity: 0.82;
 }
 
 .wt-statistics-chart svg.wt-stat-mirror text.wt-stat-mirror-axislabel-top {
@@ -2845,30 +2837,6 @@
 }
 
 /* ----------------------------------------------------------------------
-   Diverging cap — caption row under the diverging chart, anchored
-   left and right with directional arrows. Design2 `.gs-diverging-cap`.
-   -------------------------------------------------------------------- */
-
-.wt-statistics-chart .wt-stat-diverging-cap {
-    display:         flex;
-    justify-content: space-between;
-    margin-top:      12px;
-    font-family:     var(--sans);
-    font-size:       11px;
-    font-weight:     500;
-    letter-spacing:  0.1em;
-    text-transform:  uppercase;
-}
-
-.wt-statistics-chart .wt-stat-diverging-cap-left {
-    color: var(--slate);
-}
-
-.wt-statistics-chart .wt-stat-diverging-cap-right {
-    color: var(--rose);
-}
-
-/* ----------------------------------------------------------------------
    Population pyramid — horizontal mirrored bars of one age-band count
    series per sex, with a century picker above the chart. Male bars grow
    left from the centre gutter, female bars grow right; the band labels
@@ -2877,11 +2845,11 @@
    palette adapts without a per-rule override. The picker echoes the
    card's sage eyebrow via `--pyramid-accent`.
    -------------------------------------------------------------------- */
-.wt-statistics-chart .wt-stat-pyramid {
+.wt-statistics-chart .wt-diverging {
     --pyramid-accent: var(--sage);
 }
 
-.wt-statistics-chart .wt-stat-pyramid-picker {
+.wt-statistics-chart .wt-diverging-picker {
     display:        flex;
     flex-wrap:      wrap;
     gap:            8px;
@@ -2890,7 +2858,7 @@
     border-bottom:  1px solid var(--border-soft);
 }
 
-.wt-statistics-chart .wt-stat-pyramid-group {
+.wt-statistics-chart .wt-diverging-group {
     padding:              6px 12px;
     border:               1px solid var(--border);
     border-radius:        4px;
@@ -2903,12 +2871,12 @@
     transition:           border-color 160ms, color 160ms, background-color 160ms;
 }
 
-.wt-statistics-chart .wt-stat-pyramid-group:hover {
+.wt-statistics-chart .wt-diverging-group:hover {
     border-color: var(--ink-3);
     color:        var(--ink);
 }
 
-.wt-statistics-chart .wt-stat-pyramid-group[aria-pressed="true"] {
+.wt-statistics-chart .wt-diverging-group[aria-pressed="true"] {
     border-color: var(--pyramid-accent);
     color:        var(--ink);
     background:   color-mix(in srgb, var(--pyramid-accent) 8%, transparent);
@@ -2917,67 +2885,67 @@
 /* Pyramid text inherits the sans family from the SVG root; the numeric and
    eyebrow groups below override only what differs (mono family, tracking,
    per-cell fill) rather than re-declaring the shared base on every class. */
-.wt-statistics-chart svg.wt-stat-pyramid-svg {
+.wt-statistics-chart svg.wt-diverging-svg {
     width:       100%;
     height:      auto;
     font-family: var(--sans);
 }
 
-.wt-statistics-chart svg.wt-stat-pyramid-svg path.wt-stat-pyramid-bar-left {
+.wt-statistics-chart svg.wt-diverging-svg path.wt-diverging-bar-left {
     fill:       var(--wmstats-sex-male);
     transition: opacity 160ms;
 }
 
-.wt-statistics-chart svg.wt-stat-pyramid-svg path.wt-stat-pyramid-bar-right {
+.wt-statistics-chart svg.wt-diverging-svg path.wt-diverging-bar-right {
     fill:       var(--wmstats-sex-female);
     transition: opacity 160ms;
 }
 
-.wt-statistics-chart svg.wt-stat-pyramid-svg path.wt-stat-pyramid-bar-left:hover,
-.wt-statistics-chart svg.wt-stat-pyramid-svg path.wt-stat-pyramid-bar-right:hover {
+.wt-statistics-chart svg.wt-diverging-svg path.wt-diverging-bar-left:hover,
+.wt-statistics-chart svg.wt-diverging-svg path.wt-diverging-bar-right:hover {
     opacity: 0.82;
 }
 
 /* The numeric layers — centre-gutter age-band ranges ("60–69", "100+") and the
    per-bar count captions — share one monospaced tabular system set on their
    group <g>; the text children inherit it. Values run a touch smaller. */
-.wt-statistics-chart svg.wt-stat-pyramid-svg .wt-stat-pyramid-bands,
-.wt-statistics-chart svg.wt-stat-pyramid-svg .wt-stat-pyramid-values {
+.wt-statistics-chart svg.wt-diverging-svg .wt-diverging-bands,
+.wt-statistics-chart svg.wt-diverging-svg .wt-diverging-values {
     fill:                 var(--ink-2);
     font-family:          var(--mono);
     font-size:            12px;
     font-variant-numeric: tabular-nums;
 }
 
-.wt-statistics-chart svg.wt-stat-pyramid-svg .wt-stat-pyramid-values {
+.wt-statistics-chart svg.wt-diverging-svg .wt-diverging-values {
     font-size: 11px;
 }
 
 /* The header eyebrows (MÄNNER · AGE · FRAUEN) share an uppercase tracking set
    on the header group; only the per-cell fill (and the slightly smaller,
    neutral axis title) differs. */
-.wt-statistics-chart svg.wt-stat-pyramid-svg .wt-stat-pyramid-header {
+.wt-statistics-chart svg.wt-diverging-svg .wt-diverging-header {
     font-size:      12px;
     font-weight:    600;
     letter-spacing: 0.14em;
     text-transform: uppercase;
 }
 
-.wt-statistics-chart svg.wt-stat-pyramid-svg text.wt-stat-pyramid-sidelabel-left {
+.wt-statistics-chart svg.wt-diverging-svg text.wt-diverging-sidelabel-left {
     fill: var(--wmstats-sex-male);
 }
 
-.wt-statistics-chart svg.wt-stat-pyramid-svg text.wt-stat-pyramid-sidelabel-right {
+.wt-statistics-chart svg.wt-diverging-svg text.wt-diverging-sidelabel-right {
     fill: var(--wmstats-sex-female);
 }
 
-.wt-statistics-chart svg.wt-stat-pyramid-svg text.wt-stat-pyramid-axis-title {
+.wt-statistics-chart svg.wt-diverging-svg text.wt-diverging-axis-title {
     fill:      var(--ink-3);
     font-size: 11px;
 }
 
 /* Solid rules framing the centre age gutter on both sides. */
-.wt-statistics-chart svg.wt-stat-pyramid-svg line.wt-stat-pyramid-separator {
+.wt-statistics-chart svg.wt-diverging-svg line.wt-diverging-separator {
     stroke:       var(--border);
     stroke-width: 1px;
 }
@@ -3382,23 +3350,6 @@
     font-size:      10px;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-}
-
-/* Diverging-bar row label + per-side value caption — numeric data,
-   monospaced 12 px to match the bar / line chart tick system. */
-.wt-statistics-chart svg .wt-diverging-label {
-    fill:                 var(--ink-2);
-    font-family:          var(--mono);
-    font-size:            12px;
-    font-variant-numeric: tabular-nums;
-}
-
-.wt-statistics-chart svg .wt-diverging-val-left,
-.wt-statistics-chart svg .wt-diverging-val-right {
-    fill:                 var(--ink);
-    font-family:          var(--mono);
-    font-size:            12px;
-    font-variant-numeric: tabular-nums;
 }
 
 /* Gauge-arc centre value (display) + percent suffix (italic accent). */
