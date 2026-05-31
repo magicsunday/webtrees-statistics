@@ -1304,15 +1304,14 @@
     max-width: 200px;
 }
 
-.wt-statistics-chart svg.wt-stat-gauge {
+.wt-statistics-chart svg.wt-gauge-arc {
     display: block;
     width:   100%;
     height:  auto;
 }
 
-/* Eyebrow-style caption right under the gauge SVG (e.g.
-   "DOCUMENTED" / "LACY 1989") — matches design2 `.gs-gauge-label`,
-   sitting between the arc and the mono meta line. */
+/* Eyebrow-style caption right under the gauge SVG, sitting between
+   the arc and the mono meta line. */
 .wt-statistics-chart .wt-stat-gauge-label {
     margin:         8px 0 0;
     font-family:    var(--sans);
@@ -3353,14 +3352,14 @@
 }
 
 /* Gauge-arc centre value (display) + percent suffix (italic accent). */
-.wt-statistics-chart svg .wt-stat-gauge-val {
+.wt-statistics-chart svg .wt-gauge-arc-value {
     fill:           var(--ink);
     font-family:    var(--serif);
     font-size:      56px;
     letter-spacing: -0.02em;
 }
 
-.wt-statistics-chart svg .wt-stat-gauge-suf {
+.wt-statistics-chart svg .wt-gauge-arc-suffix {
     fill:        var(--ink-2);
     font-family: var(--serif);
     font-size:   24px;
