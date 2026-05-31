@@ -57,7 +57,7 @@ final class CountryRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('places-test.ged');
         $result = (new CountryRepository($tree, new IsoCountryMap()))->countByCountry('BIRT');
 
-        $byCode = array_combine(array_column($result, 'countryCode'), array_column($result, 'count'));
+        $byCode = array_combine(array_column($result, 'code'), array_column($result, 'count'));
 
         // Germany: I1 (Hamburg) + I2 (Munich) = 2
         self::assertSame(2, $byCode['DE'] ?? null);
@@ -85,7 +85,7 @@ final class CountryRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('places-test.ged');
         $result = (new CountryRepository($tree, new IsoCountryMap()))->countByCountry('DEAT');
 
-        $byCode = array_combine(array_column($result, 'countryCode'), array_column($result, 'count'));
+        $byCode = array_combine(array_column($result, 'code'), array_column($result, 'count'));
 
         // Germany: I1 (Berlin) = 1
         self::assertSame(1, $byCode['DE'] ?? null);
@@ -113,7 +113,7 @@ final class CountryRepositoryIntegrationTest extends IntegrationTestCase
 
         foreach ($result as $entry) {
             self::assertNotSame('', $entry['label']);
-            self::assertNotSame($entry['countryCode'], $entry['label']);
+            self::assertNotSame($entry['code'], $entry['label']);
         }
     }
 
@@ -132,7 +132,7 @@ final class CountryRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('places-test.ged');
         $result = (new CountryRepository($tree, new IsoCountryMap()))->countByCountry('BIRT');
 
-        $byCode = array_combine(array_column($result, 'countryCode'), array_column($result, 'count'));
+        $byCode = array_combine(array_column($result, 'code'), array_column($result, 'count'));
 
         // Carl (NY, USA) + Hugo (Newport, RI, NewEngland, USA) = 2.
         self::assertSame(2, $byCode['US'] ?? null, 'Hugo joins Carl in the US bucket');
@@ -172,11 +172,11 @@ final class CountryRepositoryIntegrationTest extends IntegrationTestCase
         $repo = new CountryRepository($tree, new IsoCountryMap());
 
         $birthByCode = array_combine(
-            array_column($repo->countByCountry('BIRT'), 'countryCode'),
+            array_column($repo->countByCountry('BIRT'), 'code'),
             array_column($repo->countByCountry('BIRT'), 'count'),
         );
         $deathByCode = array_combine(
-            array_column($repo->countByCountry('DEAT'), 'countryCode'),
+            array_column($repo->countByCountry('DEAT'), 'code'),
             array_column($repo->countByCountry('DEAT'), 'count'),
         );
 
@@ -209,7 +209,7 @@ final class CountryRepositoryIntegrationTest extends IntegrationTestCase
 
         foreach ($result as $entry) {
             $total += $entry['count'];
-            $byCode[$entry['countryCode']] = $entry['count'];
+            $byCode[$entry['code']] = $entry['count'];
         }
 
         // 7 individuals have a BIRT place that resolves to a known
@@ -240,14 +240,14 @@ final class CountryRepositoryIntegrationTest extends IntegrationTestCase
         $byCode = [];
 
         foreach ($result as $entry) {
-            $byCode[$entry['countryCode']] = $entry['count'];
+            $byCode[$entry['code']] = $entry['count'];
         }
 
         self::assertSame(1, $byCode['DE'] ?? null, 'MultiMove contributes Hamburg → Germany');
         self::assertSame(1, $byCode['US'] ?? null, 'MultiMove contributes New York → USA');
         self::assertSame(1, $byCode['GB'] ?? null, 'SingleMove contributes London → United Kingdom');
 
-        $codes = array_column($result, 'countryCode');
+        $codes = array_column($result, 'code');
         sort($codes);
         self::assertSame(['DE', 'GB', 'US'], $codes, 'exactly the three resolvable RESI countries appear; NoResidence contributes nothing');
     }

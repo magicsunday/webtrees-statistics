@@ -364,7 +364,7 @@ final readonly class Statistic
      * `placelinks` join chain core uses internally, then re-confirmed against
      * the raw GEDCOM so a person's BIRT only counts where it actually happened.
      *
-     * @return list<array{countryCode: string, label: string, count: int}>
+     * @return list<array{code: string, label: string, count: int}>
      */
     public function getBirthsByCountry(): array
     {
@@ -391,7 +391,7 @@ final readonly class Statistic
      * Country grouping for deaths. Same aggregation pipeline as {@see
      * getBirthsByCountry()}; the event tag is the only difference.
      *
-     * @return list<array{countryCode: string, label: string, count: int}>
+     * @return list<array{code: string, label: string, count: int}>
      */
     public function getDeathsByCountry(): array
     {
@@ -403,7 +403,7 @@ final readonly class Statistic
      * individual contributes once — a person with three recorded residences
      * (e.g. Germany, USA, France) registers in all three countries.
      *
-     * @return list<array{countryCode: string, label: string, count: int}>
+     * @return list<array{code: string, label: string, count: int}>
      */
     public function getResidencesByCountry(): array
     {

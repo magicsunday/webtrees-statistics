@@ -56,7 +56,7 @@ final readonly class CountryRepository
      *
      * @param string $tag Level-1 event tag (e.g. `'BIRT'`, `'DEAT'`)
      *
-     * @return list<array{countryCode: string, label: string, count: int}>
+     * @return list<array{code: string, label: string, count: int}>
      */
     public function countByCountry(string $tag): array
     {
@@ -116,9 +116,9 @@ final readonly class CountryRepository
 
         foreach ($counts as $iso2 => $count) {
             $entries[] = [
-                'countryCode' => $iso2,
-                'label'       => $this->isoMap->label($iso2),
-                'count'       => $count,
+                'code'  => $iso2,
+                'label' => $this->isoMap->label($iso2),
+                'count' => $count,
             ];
         }
 
@@ -133,7 +133,7 @@ final readonly class CountryRepository
      * RESI places per person, not the ones that happen to share a top-level
      * place row with another event.
      *
-     * @return list<array{countryCode: string, label: string, count: int}>
+     * @return list<array{code: string, label: string, count: int}>
      */
     public function residencesByCountry(): array
     {
@@ -167,9 +167,9 @@ final readonly class CountryRepository
 
         foreach ($counts as $iso2 => $count) {
             $entries[] = [
-                'countryCode' => $iso2,
-                'label'       => $this->isoMap->label($iso2),
-                'count'       => $count,
+                'code'  => $iso2,
+                'label' => $this->isoMap->label($iso2),
+                'count' => $count,
             ];
         }
 

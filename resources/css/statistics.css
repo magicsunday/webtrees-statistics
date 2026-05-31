@@ -2335,14 +2335,14 @@
     --bs-progress-label-gradient-end:   var(--wmstats-gradient-deaths-end);
 }
 
-.wt-statistics-chart .world-map-container .world-map {
+.wt-statistics-chart .world-map-container .wt-stat-geo-map-host {
     display:         flex;
     justify-content: center;
     align-items:     center;
     height:          100%;
 }
 
-.wt-statistics-chart .world-map-container .world-map svg path {
+.wt-statistics-chart .world-map-container .wt-stat-geo-map-host .wt-world-map path {
     stroke:       var(--wmstats-map-stroke);
     stroke-width: 0.5px;
 }
