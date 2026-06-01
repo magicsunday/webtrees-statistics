@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Support\Aggregator;
 
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\DecadeBinCollapser;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -31,6 +32,7 @@ use function range;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
+#[CoversClass(DecadeBinCollapser::class)]
 final class DecadeBinCollapserTest extends TestCase
 {
     /**

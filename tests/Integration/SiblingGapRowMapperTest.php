@@ -11,8 +11,12 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
+use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
+use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\SiblingGapRowMapper;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 
 /**
  * Verifies the bucket-label-to-LineChart-payload conversion behind the
@@ -28,6 +32,9 @@ use PHPUnit\Framework\Attributes\Test;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
+#[CoversClass(SiblingGapRowMapper::class)]
+#[UsesClass(LineChartPayload::class)]
+#[UsesClass(LineChartSeries::class)]
 final class SiblingGapRowMapperTest extends IntegrationTestCase
 {
     /**

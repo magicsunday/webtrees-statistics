@@ -12,8 +12,13 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use MagicSunday\Webtrees\Statistic\Repository\CountryRepository;
+use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Locale\IsoCountryMap;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 
 use function array_column;
 use function array_combine;
@@ -31,6 +36,11 @@ use function sort;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
+#[CoversClass(CountryRepository::class)]
+#[UsesClass(TreeScope::class)]
+#[UsesClass(GedcomScanner::class)]
+#[UsesClass(RowCast::class)]
+#[UsesClass(IsoCountryMap::class)]
 final class CountryRepositoryIntegrationTest extends IntegrationTestCase
 {
     /**

@@ -11,8 +11,11 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Support\Aggregator;
 
+use MagicSunday\Webtrees\Statistic\Model\Pyramid\PopulationPyramidPayload;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\CoupleAgeGapRowMapper;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -24,6 +27,8 @@ use PHPUnit\Framework\TestCase;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
+#[CoversClass(CoupleAgeGapRowMapper::class)]
+#[UsesClass(PopulationPyramidPayload::class)]
 final class CoupleAgeGapRowMapperTest extends TestCase
 {
     /**

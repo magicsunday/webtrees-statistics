@@ -12,7 +12,12 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use MagicSunday\Webtrees\Statistic\Repository\OccupationRepository;
+use MagicSunday\Webtrees\Statistic\Support\Aggregator\TopNAggregator;
+use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 
 use function array_keys;
 
@@ -28,6 +33,10 @@ use function array_keys;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
+#[CoversClass(OccupationRepository::class)]
+#[UsesClass(TopNAggregator::class)]
+#[UsesClass(TreeScope::class)]
+#[UsesClass(GedcomScanner::class)]
 final class OccupationRepositoryIntegrationTest extends IntegrationTestCase
 {
     /**

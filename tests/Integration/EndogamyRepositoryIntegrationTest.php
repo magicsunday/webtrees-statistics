@@ -11,9 +11,15 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
+use MagicSunday\Webtrees\Statistic\Model\Metric\EndogamyRate;
 use MagicSunday\Webtrees\Statistic\Repository\EndogamyRepository;
 use MagicSunday\Webtrees\Statistic\Repository\ParentMapRepository;
+use MagicSunday\Webtrees\Statistic\Support\Calc\Endogamy;
+use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 
 /**
  * End-to-end test of {@see EndogamyRepository} against the `endogamy.ged`
@@ -38,6 +44,12 @@ use PHPUnit\Framework\Attributes\Test;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
+#[CoversClass(EndogamyRepository::class)]
+#[UsesClass(EndogamyRate::class)]
+#[UsesClass(ParentMapRepository::class)]
+#[UsesClass(Endogamy::class)]
+#[UsesClass(TreeScope::class)]
+#[UsesClass(RowCast::class)]
 final class EndogamyRepositoryIntegrationTest extends IntegrationTestCase
 {
     /**

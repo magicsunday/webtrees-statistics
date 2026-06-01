@@ -12,9 +12,24 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use Fisharebest\Webtrees\Tree;
+use MagicSunday\Webtrees\Statistic\Model\Heatmap\HeatmapPayload;
+use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
+use MagicSunday\Webtrees\Statistic\Model\Metric\WinterPeakScore;
+use MagicSunday\Webtrees\Statistic\Model\Pyramid\PopulationPyramidPayload;
+use MagicSunday\Webtrees\Statistic\Model\Ranking\RankingEntry;
 use MagicSunday\Webtrees\Statistic\Repository\LifeSpanRepository;
+use MagicSunday\Webtrees\Statistic\Support\Calc\HistogramTrim;
+use MagicSunday\Webtrees\Statistic\Support\Database\BirthDeathPairsQuery;
+use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
+use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
+use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
+use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
+use MagicSunday\Webtrees\Statistic\Support\Locale\MonthName;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 
 use function array_fill;
 use function array_keys;
@@ -38,6 +53,21 @@ use function sprintf;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
+#[CoversClass(LifeSpanRepository::class)]
+#[UsesClass(HeatmapPayload::class)]
+#[UsesClass(LineChartPayload::class)]
+#[UsesClass(LineChartSeries::class)]
+#[UsesClass(WinterPeakScore::class)]
+#[UsesClass(PopulationPyramidPayload::class)]
+#[UsesClass(RankingEntry::class)]
+#[UsesClass(HistogramTrim::class)]
+#[UsesClass(BirthDeathPairsQuery::class)]
+#[UsesClass(DateAggregate::class)]
+#[UsesClass(DateJoin::class)]
+#[UsesClass(TreeScope::class)]
+#[UsesClass(RowCast::class)]
+#[UsesClass(CenturyName::class)]
+#[UsesClass(MonthName::class)]
 final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
 {
     /**

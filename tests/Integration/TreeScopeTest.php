@@ -13,6 +13,7 @@ namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use InvalidArgumentException;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
@@ -25,6 +26,7 @@ use PHPUnit\Framework\Attributes\Test;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
+#[CoversClass(TreeScope::class)]
 final class TreeScopeTest extends IntegrationTestCase
 {
     /**

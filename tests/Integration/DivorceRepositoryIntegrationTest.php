@@ -12,9 +12,19 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use Fisharebest\Webtrees\Tree;
+use MagicSunday\Webtrees\Statistic\Enum\Sex;
+use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarPayload;
 use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarSeries;
 use MagicSunday\Webtrees\Statistic\Repository\DivorceRepository;
+use MagicSunday\Webtrees\Statistic\Support\Calc\AgeBuckets;
+use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
+use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
+use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
+use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 
 use function array_combine;
 use function array_map;
@@ -32,6 +42,16 @@ use function array_sum;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
+#[CoversClass(DivorceRepository::class)]
+#[UsesClass(Sex::class)]
+#[UsesClass(StackedBarPayload::class)]
+#[UsesClass(StackedBarSeries::class)]
+#[UsesClass(AgeBuckets::class)]
+#[UsesClass(DateAggregate::class)]
+#[UsesClass(DateJoin::class)]
+#[UsesClass(TreeScope::class)]
+#[UsesClass(RowCast::class)]
+#[UsesClass(CenturyName::class)]
 final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
 {
     private function repository(Tree $tree): DivorceRepository

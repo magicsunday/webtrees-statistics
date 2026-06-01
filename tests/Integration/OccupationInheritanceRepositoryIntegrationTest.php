@@ -11,11 +11,18 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
+use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyFlowsPayload;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyLink;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeySample;
 use MagicSunday\Webtrees\Statistic\Repository\OccupationInheritanceRepository;
 use MagicSunday\Webtrees\Statistic\Repository\ParentMapRepository;
+use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
+use MagicSunday\Webtrees\Statistic\Support\Sankey\BipartiteSankeyAssembler;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 
 use function array_map;
 use function array_unique;
@@ -34,6 +41,15 @@ use function in_array;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
+#[CoversClass(OccupationInheritanceRepository::class)]
+#[UsesClass(SankeyFlowsPayload::class)]
+#[UsesClass(SankeyLink::class)]
+#[UsesClass(SankeySample::class)]
+#[UsesClass(ParentMapRepository::class)]
+#[UsesClass(TreeScope::class)]
+#[UsesClass(GedcomScanner::class)]
+#[UsesClass(RowCast::class)]
+#[UsesClass(BipartiteSankeyAssembler::class)]
 final class OccupationInheritanceRepositoryIntegrationTest extends IntegrationTestCase
 {
     /**

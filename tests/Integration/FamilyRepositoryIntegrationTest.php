@@ -12,8 +12,13 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use MagicSunday\Webtrees\Statistic\Enum\MaritalBucket;
+use MagicSunday\Webtrees\Statistic\Model\FamilyRow;
 use MagicSunday\Webtrees\Statistic\Repository\FamilyRepository;
+use MagicSunday\Webtrees\Statistic\Support\Database\ChunkedWhereIn;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 
 /**
  * End-to-end test of the marital-status classifier against a curated GEDCOM
@@ -30,6 +35,10 @@ use PHPUnit\Framework\Attributes\Test;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
+#[CoversClass(FamilyRepository::class)]
+#[UsesClass(FamilyRow::class)]
+#[UsesClass(ChunkedWhereIn::class)]
+#[UsesClass(GedcomScanner::class)]
 final class FamilyRepositoryIntegrationTest extends IntegrationTestCase
 {
     /**
