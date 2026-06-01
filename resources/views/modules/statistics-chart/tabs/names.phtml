@@ -28,6 +28,7 @@ $topSurnames           = $statistic->getTopSurnames(15);
 $topMaleGivenNames     = $statistic->getTopMaleGivenNames(15);
 $topFemaleGivenNames   = $statistic->getTopFemaleGivenNames(15);
 $givenNameTrends       = $statistic->getGivenNameTrends(10);
+$givenNameLastYear     = $statistic->getGivenNameLastYear(15);
 $surnameMarriageMatrix = $statistic->getSurnameMarriageMatrix(8);
 $namePassdown          = $statistic->getSameSexNamePassdownByCentury();
 
@@ -37,6 +38,10 @@ $streamGraphExplanation = I18N::translate(
 
 $surnameMarriageMatrixExplanation = I18N::translate(
     'Each arc on the circumference is one of the top surnames in the tree, ranked by how many marriages that surname appears in (as husband or wife). Ribbons between two arcs encode the number of marriages between those surnames. The ribbon thickness is proportional to that count. The diagram is symmetric, so a Schmidt × Müller marriage contributes equally to both arcs. Self-loops on an arc represent endogamous marriages where husband and wife share a surname.'
+);
+
+$givenNameLastYearExplanation = I18N::translate(
+    'Each row is one of the most common given names. Its marker sits on the year axis at the most recent birth recorded for a person carrying that name. Names whose most recent bearer was born within the last 25 years are flagged as still in use. Read left to right, the chart separates names that fell out of use long ago from those still given today.'
 );
 
 $aboutThisChart = I18N::translate('About this chart');
@@ -108,6 +113,20 @@ echo Card::for($module, I18N::translate('Given-name popularity across decades'))
     ->withBodyHtml(
         Widget::streamGraph($module, 'given-name-trends-stream')
             ->withData($givenNameTrends)
+            ->render()
+    )
+    ->render();
+
+echo Card::for($module, I18N::translate('Given-name lifespan'))
+    ->withSub(I18N::translate('Most recent birth year per name · names still in use are highlighted'))
+    ->withEyebrow(I18N::translate('Timeline'))
+    ->withAccent(Accent::Wine)
+    ->withIllustration(Illustration::Hourglass)
+    ->withInfo($givenNameLastYearExplanation, $aboutThisChart, $aboutThisChart)
+    ->withSpan(12)
+    ->withBodyHtml(
+        Widget::nameTimeline($module)
+            ->withData($givenNameLastYear)
             ->render()
     )
     ->render();

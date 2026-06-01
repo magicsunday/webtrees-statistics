@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Statistics\n"
 "Report-Msgid-Bugs-To: https://github.com/magicsunday/webtrees-statistics/"
 "issues\n"
-"POT-Creation-Date: 2026-06-01 14:00+0000\n"
+"POT-Creation-Date: 2026-06-01 19:28+0000\n"
 "PO-Revision-Date: 2026-05-22 07:04+0000\n"
 "Last-Translator: Rico Sonntag <mail@ricosonntag.de>\n"
 "Language-Team: \n"
@@ -209,8 +209,8 @@ msgstr[2] ""
 msgid "%s distinct causes (top 15)"
 msgstr "%s distinct causes (top 15)"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:67
-#: resources/views/modules/statistics-chart/tabs/names.phtml:82
+#: resources/views/modules/statistics-chart/tabs/names.phtml:72
+#: resources/views/modules/statistics-chart/tabs/names.phtml:87
 #, php-format
 msgid "%s distinct given names (top 15)"
 msgstr "%s distinct given names (top 15)"
@@ -244,7 +244,7 @@ msgstr[1] "%s distinct religions"
 msgid "%s distinct religions (top 15)"
 msgstr "%s distinct religions (top 15)"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:52
+#: resources/views/modules/statistics-chart/tabs/names.phtml:57
 #, php-format
 msgid "%s distinct surnames (top 15)"
 msgstr "%s distinct surnames (top 15)"
@@ -728,7 +728,7 @@ msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:129
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:211
-#: resources/views/modules/statistics-chart/tabs/names.phtml:42
+#: resources/views/modules/statistics-chart/tabs/names.phtml:47
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:210
 #: resources/views/modules/statistics-chart/tabs/places.phtml:157
 #: resources/views/modules/statistics-chart/tabs/places.phtml:176
@@ -876,7 +876,7 @@ msgid ""
 "Age-band counts per birth century, split into a male and a female column"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:140
+#: resources/views/modules/statistics-chart/tabs/names.phtml:159
 msgid "Alliances"
 msgstr "Alliances"
 
@@ -1059,7 +1059,7 @@ msgstr "Children per dated family"
 msgid "Children per family"
 msgstr "Детей в семье"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:139
+#: resources/views/modules/statistics-chart/tabs/names.phtml:158
 msgid ""
 "Chord diagram: arcs = surnames, ribbons = marriages between them, loops = "
 "endogamy"
@@ -1075,11 +1075,11 @@ msgstr "Chronicle"
 msgid "Common causes of death"
 msgstr "Распространённые причины смерти"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:81
+#: resources/views/modules/statistics-chart/tabs/names.phtml:86
 msgid "Common given names – female"
 msgstr "Распространённые женские имена"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:66
+#: resources/views/modules/statistics-chart/tabs/names.phtml:71
 msgid "Common given names – male"
 msgstr "Распространённые мужские имена"
 
@@ -1091,7 +1091,7 @@ msgstr "Распространённые профессии"
 msgid "Common religions"
 msgstr "Распространённые религии"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:51
+#: resources/views/modules/statistics-chart/tabs/names.phtml:56
 msgid "Common surnames"
 msgstr "Распространённые фамилии"
 
@@ -1263,7 +1263,7 @@ msgstr "Разводы по месяцам"
 msgid "Documentation"
 msgstr "Documentation"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:39
+#: resources/views/modules/statistics-chart/tabs/names.phtml:40
 msgid ""
 "Each arc on the circumference is one of the top surnames in the tree, ranked "
 "by how many marriages that surname appears in (as husband or wife). Ribbons "
@@ -1289,7 +1289,7 @@ msgid ""
 "trade → son trade, the number of sons, and a few of them by name."
 msgstr ""
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:35
+#: resources/views/modules/statistics-chart/tabs/names.phtml:36
 msgid ""
 "Each band stands for one of the most common given names in the tree. The "
 "band's vertical thickness in a given decade shows how many individuals born "
@@ -1376,6 +1376,15 @@ msgstr ""
 "Вторая линия остаётся непрерывной. Наведите курсор на любую точку, чтобы "
 "узнать, на скольких родителях основано среднее значение."
 
+#: resources/views/modules/statistics-chart/tabs/names.phtml:44
+msgid ""
+"Each row is one of the most common given names. Its marker sits on the year "
+"axis at the most recent birth recorded for a person carrying that name. "
+"Names whose most recent bearer was born within the last 25 years are flagged "
+"as still in use. Read left to right, the chart separates names that fell out "
+"of use long ago from those still given today."
+msgstr ""
+
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:260
 msgid "Each step is one parent–child link upward."
 msgstr "Each step is one parent–child link upward."
@@ -1386,7 +1395,7 @@ msgstr "Endogamy rate"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:285
 #: resources/views/modules/statistics-chart/tabs/family.phtml:447
-#: resources/views/modules/statistics-chart/tabs/names.phtml:97
+#: resources/views/modules/statistics-chart/tabs/names.phtml:102
 msgid "Evolution"
 msgstr "Evolution"
 
@@ -1411,7 +1420,7 @@ msgstr "Семьи с детьми и без"
 msgid "Family"
 msgstr "Семья"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:48
+#: resources/views/modules/statistics-chart/tabs/names.phtml:53
 msgid "Family names and given names by frequency across the tree"
 msgstr "Family names and given names by frequency across the tree"
 
@@ -1607,7 +1616,7 @@ msgstr ""
 "(0, 1, 2 … 10+). Каждый столбец нормирован на 100 %%, чтобы десятилетия с "
 "очень разным числом семей можно было сравнивать рядом."
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:122
+#: resources/views/modules/statistics-chart/tabs/names.phtml:141
 msgid ""
 "For every parent-child pair of the same sex (father / son and mother / "
 "daughter) where both individuals carry a recorded given name, the widget "
@@ -1628,7 +1637,7 @@ msgstr ""
 "что одно-единственное совпадение сместило бы показатель более чем на 10 "
 "процентных пунктов."
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:47
+#: resources/views/modules/statistics-chart/tabs/names.phtml:52
 msgid "Frequencies"
 msgstr "Frequencies"
 
@@ -1675,12 +1684,18 @@ msgstr "Geographic view"
 msgid "Geography"
 msgstr "Geography"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:68
-#: resources/views/modules/statistics-chart/tabs/names.phtml:83
+#: resources/views/modules/statistics-chart/tabs/names.phtml:73
+#: resources/views/modules/statistics-chart/tabs/names.phtml:88
 msgid "Given names"
 msgstr "Имя (имена)"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:101
+#: resources/views/modules/statistics-chart/tabs/names.phtml:120
+#, fuzzy
+#| msgid "Given names"
+msgid "Given-name lifespan"
+msgstr "Имя (имена)"
+
+#: resources/views/modules/statistics-chart/tabs/names.phtml:106
 msgid "Given-name popularity across decades"
 msgstr "Популярность имён по десятилетиям"
 
@@ -1729,7 +1744,7 @@ msgstr "Сколько лет переживший супруг прожил п�
 msgid "How long was the life?"
 msgstr "How long was the life?"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:96
+#: resources/views/modules/statistics-chart/tabs/names.phtml:101
 msgid "How names came and went over time"
 msgstr "How names came and went over time"
 
@@ -1748,6 +1763,10 @@ msgstr "How well is the tree documented?"
 #: resources/views/modules/statistics-chart/tabs/family.phtml:202
 msgid "Husband older"
 msgstr "Husband older"
+
+#: resources/views/modules/statistics-chart/widgets/name-timeline.phtml:58
+msgid "In use"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/components/hero.phtml:60
 msgid "Individuals"
@@ -1994,6 +2013,10 @@ msgstr "Mortality rate per birth century"
 msgid "Most children"
 msgstr "Most children"
 
+#: resources/views/modules/statistics-chart/tabs/names.phtml:121
+msgid "Most recent birth year per name · names still in use are highlighted"
+msgstr ""
+
 #: resources/views/modules/statistics-chart/components/records-grid.phtml:36
 msgid "Most spouses"
 msgstr "Больше всего супругов"
@@ -2197,7 +2220,7 @@ msgstr "Places of birth"
 msgid "Places of death"
 msgstr "Places of death"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:98
+#: resources/views/modules/statistics-chart/tabs/names.phtml:103
 msgid "Popularity over decades and marriage alliances between families"
 msgstr "Popularity over decades and marriage alliances between families"
 
@@ -2229,8 +2252,8 @@ msgstr "Записей"
 msgid "Sagittarius"
 msgstr "Стрелец"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:115
-#: resources/views/modules/statistics-chart/tabs/names.phtml:133
+#: resources/views/modules/statistics-chart/tabs/names.phtml:134
+#: resources/views/modules/statistics-chart/tabs/names.phtml:152
 msgid "Same-sex name passdown"
 msgstr "Передача имени по одной линии пола"
 
@@ -2271,7 +2294,7 @@ msgstr "Доля когорты рождения, доживающая до ка
 msgid "Share of children born on the same day as a sibling in the same family"
 msgstr "Доля детей, родившихся в один день с братом или сестрой в той же семье"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:116
+#: resources/views/modules/statistics-chart/tabs/names.phtml:135
 msgid ""
 "Share of children sharing at least one given name with the same-sex parent"
 msgstr "Доля детей, разделяющих хотя бы одно имя с однополым родителем"
@@ -2351,12 +2374,12 @@ msgstr "Статус"
 msgid "Structure"
 msgstr "Structure"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:138
-#: resources/views/modules/statistics-chart/tabs/names.phtml:148
+#: resources/views/modules/statistics-chart/tabs/names.phtml:157
+#: resources/views/modules/statistics-chart/tabs/names.phtml:167
 msgid "Surname × surname marriage matrix"
 msgstr "Surname × surname marriage matrix"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:53
+#: resources/views/modules/statistics-chart/tabs/names.phtml:58
 msgid "Surnames"
 msgstr "Фамилии"
 
@@ -2421,7 +2444,8 @@ msgstr "Time-distribution of births"
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:457
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:483
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:544
-#: resources/views/modules/statistics-chart/tabs/names.phtml:103
+#: resources/views/modules/statistics-chart/tabs/names.phtml:108
+#: resources/views/modules/statistics-chart/tabs/names.phtml:122
 msgid "Timeline"
 msgstr "Шкала времени"
 
@@ -2429,7 +2453,7 @@ msgstr "Шкала времени"
 msgid "Today living"
 msgstr "Today living"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:102
+#: resources/views/modules/statistics-chart/tabs/names.phtml:107
 #, php-format
 msgid "Top %s given names, stacked · band thickness = share per decade"
 msgstr "Top %s given names, stacked · band thickness = share per decade"
@@ -2450,7 +2474,7 @@ msgstr "Топ 10 самых старых (умершие)"
 msgid "Top 10 oldest (living)"
 msgstr "Топ 10 самых старых (живые)"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:117
+#: resources/views/modules/statistics-chart/tabs/names.phtml:136
 msgid "Tradition"
 msgstr "Традиция"
 
@@ -2553,7 +2577,7 @@ msgstr "Where the tree has gaps · events and places not recorded"
 msgid "Where they lived and died"
 msgstr "Where they lived and died"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:46
+#: resources/views/modules/statistics-chart/tabs/names.phtml:51
 msgid "Which names return?"
 msgstr "Which names return?"
 

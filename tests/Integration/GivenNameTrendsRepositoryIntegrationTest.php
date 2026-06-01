@@ -19,6 +19,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
 
+use function array_column;
+
 /**
  * End-to-end test of the per-decade given-name aggregator against a curated
  * fixture covering: a name peaking in one decade, a name with two peaks, a name
@@ -117,5 +119,80 @@ final class GivenNameTrendsRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame(1, $result->series['Anna'][1900]);
         self::assertSame(0, $result->series['Anna'][1950]);
         self::assertSame(3, $result->series['Hans'][1950]);
+    }
+
+    /**
+     * The last-year aggregate keeps the same top-N-by-frequency selection as the
+     * decade series, but reports each name's most recent birth year and orders
+     * the result by that year, descending. The fixture's most recent births per
+     * name are Anna 1900, Friedrich 1865, Maria 1905, Hans 1955, Lisa 1960; the
+     * undated individual is skipped. With a reference year of 1980 and the
+     * default 25-year active window, only names last seen in 1955 or later
+     * (Hans, Lisa) count as active.
+     */
+    #[Test]
+    public function lastYearByNameReportsMostRecentYearAndActiveFlag(): void
+    {
+        $tree   = $this->importFixtureTree('name-trends.ged');
+        $result = (new GivenNameTrendsRepository($tree))->lastYearByName(10, 1980);
+
+        self::assertSame(
+            [
+                ['name' => 'Lisa', 'lastYear' => 1960, 'total' => 1, 'isActive' => true],
+                ['name' => 'Hans', 'lastYear' => 1955, 'total' => 3, 'isActive' => true],
+                ['name' => 'Maria', 'lastYear' => 1905, 'total' => 2, 'isActive' => false],
+                ['name' => 'Anna', 'lastYear' => 1900, 'total' => 3, 'isActive' => false],
+                ['name' => 'Friedrich', 'lastYear' => 1865, 'total' => 2, 'isActive' => false],
+            ],
+            $result,
+        );
+    }
+
+    /**
+     * The top-N cap selects names by total frequency (Anna 3, Hans 3,
+     * Friedrich 2), exactly as the decade series does — NOT by recency. So even
+     * though Lisa (1960) and Maria (1905) have later last years, a top-3 request
+     * drops them; the kept three then list the still-in-use name (Hans) first,
+     * the rest by last year descending.
+     */
+    #[Test]
+    public function lastYearByNameSelectsTopNByFrequencyNotRecency(): void
+    {
+        $tree   = $this->importFixtureTree('name-trends.ged');
+        $result = (new GivenNameTrendsRepository($tree))->lastYearByName(3, 1980);
+
+        self::assertSame(
+            [
+                ['name' => 'Hans', 'lastYear' => 1955, 'total' => 3, 'isActive' => true],
+                ['name' => 'Anna', 'lastYear' => 1900, 'total' => 3, 'isActive' => false],
+                ['name' => 'Friedrich', 'lastYear' => 1865, 'total' => 2, 'isActive' => false],
+            ],
+            $result,
+        );
+    }
+
+    /**
+     * The "no given name" placeholder (`@P.N.`) is not a real name. The
+     * dedicated fixture pairs two dated "Anna" births (1900, 1910) with a third
+     * individual who has only the placeholder and a 2010 birth. The aggregator
+     * must drop the placeholder from both the decade series and the last-year
+     * list — and because it is dropped before the decade range is computed, the
+     * 2010 birth never widens the x-axis past the 1910s.
+     */
+    #[Test]
+    public function excludesTheNoGivenNamePlaceholder(): void
+    {
+        $tree = $this->importFixtureTree('given-name-placeholder.ged');
+        $repo = new GivenNameTrendsRepository($tree);
+
+        $trends = $repo->countByDecade(20);
+        self::assertSame(['Anna'], $trends->names);
+        self::assertNotContains('@P.N.', $trends->names);
+        // The placeholder's 2010 birth must not widen the range past 1910.
+        self::assertSame([1900, 1910], $trends->decades);
+
+        $lastYear = $repo->lastYearByName(20);
+        self::assertSame(['Anna'], array_column($lastYear, 'name'));
+        self::assertNotContains('@P.N.', array_column($lastYear, 'name'));
     }
 }

@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
+use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\Builder;
@@ -22,12 +23,14 @@ use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use function array_keys;
 use function array_slice;
 use function arsort;
+use function date;
 use function intdiv;
 use function max;
 use function min;
 use function preg_match;
 use function preg_split;
 use function range;
+use function usort;
 
 use const PREG_SPLIT_NO_EMPTY;
 
@@ -133,6 +136,71 @@ final readonly class GivenNameTrendsRepository
     }
 
     /**
+     * For each of the top-N given names — selected by total frequency, exactly
+     * as {@see countByDecade()} ranks its bands — the most recent birth year a
+     * token of that name was recorded on, its total occurrence count, and
+     * whether that year still falls inside the active window. Names still in
+     * use are listed first, then the rest by last year descending, with the
+     * name as a deterministic final tie-break.
+     *
+     * @param int      $topN              Maximum number of distinct given names to keep
+     * @param int|null $referenceYear     Reference year ("now") for the active-window test; defaults to the current year
+     * @param int      $activeWithinYears A name counts as still active when its last year is no more than this many years before the reference year
+     *
+     * @return list<array{name: string, lastYear: int, total: int, isActive: bool}>
+     */
+    public function lastYearByName(int $topN, ?int $referenceYear = null, int $activeWithinYears = 25): array
+    {
+        $rows = $this->loadIndividualNamesAndYears();
+
+        $perNameTotal    = [];
+        $perNameLastYear = [];
+
+        foreach ($rows as $entry) {
+            foreach ($this->splitTokens($entry['givn']) as $token) {
+                $perNameTotal[$token]    = ($perNameTotal[$token] ?? 0) + 1;
+                $perNameLastYear[$token] = max($perNameLastYear[$token] ?? $entry['year'], $entry['year']);
+            }
+        }
+
+        arsort($perNameTotal);
+        $topNames = array_slice(array_keys($perNameTotal), 0, $topN);
+
+        $threshold = ($referenceYear ?? (int) date('Y')) - $activeWithinYears;
+
+        $result = [];
+
+        foreach ($topNames as $name) {
+            $lastYear = $perNameLastYear[$name];
+
+            $result[] = [
+                'name'     => $name,
+                'lastYear' => $lastYear,
+                'total'    => $perNameTotal[$name],
+                'isActive' => ($lastYear >= $threshold),
+            ];
+        }
+
+        usort($result, static function (array $a, array $b): int {
+            // Still-in-use names lead the list, then the rest by last year
+            // descending, then the name for a stable final tie-break.
+            if ($a['isActive'] !== $b['isActive']) {
+                return $a['isActive'] ? -1 : 1;
+            }
+
+            $byYearDescending = $b['lastYear'] <=> $a['lastYear'];
+
+            if ($byYearDescending !== 0) {
+                return $byYearDescending;
+            }
+
+            return $a['name'] <=> $b['name'];
+        });
+
+        return $result;
+    }
+
+    /**
      * Build the dense decade range for the chart's x-axis. Starts at the first
      * decade where any top-N name actually has a birth (no pre-history pad from
      * outlier early dates) and ends at the most recent dated birth in the whole
@@ -202,7 +270,14 @@ final readonly class GivenNameTrendsRepository
             $gedcom = RowCast::string($row, 'gedcom');
             $year   = GedcomScanner::extractEventYear($gedcom, 'BIRT');
 
+            // Skip the "no given name" placeholder (`@P.N.`); it is not a real
+            // name and would otherwise rank as a band of its own in both the
+            // decade series and the last-year aggregate.
             if ($givn === '') {
+                continue;
+            }
+
+            if ($givn === Individual::PRAENOMEN_NESCIO) {
                 continue;
             }
 

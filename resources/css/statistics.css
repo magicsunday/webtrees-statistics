@@ -1417,6 +1417,135 @@
 }
 
 /* ----------------------------------------------------------------------
+   Name-timeline widget (Names tab — given-name lifespan)
+   ----------------------------------------------------------------------
+   One row per given name: a serif label, a stem line ending in a dot on the
+   shared year axis, and a meta column with the year (or an "in use" badge) plus
+   the occurrence count. The stem `width` and the dot `left` percentage are the
+   widget's only data-driven styles; everything else is layout. Inactive marks
+   take the card accent; a still-in-use name (`.is-active`) pins to the axis end
+   and turns its dot + badge to the live (sage) tone.
+   -------------------------------------------------------------------- */
+.wt-statistics-chart .wt-stat-name-timeline-container {
+    width: 100%;
+}
+
+.wt-statistics-chart .msc-name-timeline {
+    display:        flex;
+    flex-direction: column;
+    padding:        0.5rem 0;
+}
+
+/* Axis caption strip; the left / right padding aligns the two year labels with
+   the track column (name column + gap left, meta column + gap right). */
+.wt-statistics-chart .msc-name-timeline-axis {
+    display:         flex;
+    justify-content: space-between;
+    padding-left:    112px;
+    padding-right:   122px;
+    margin-bottom:   12px;
+    padding-bottom:  6px;
+    border-bottom:   1px dashed var(--border-soft);
+    font-family:     var(--mono);
+    font-size:       11px;
+    color:           var(--ink-3);
+}
+
+.wt-statistics-chart .msc-name-timeline-rows {
+    list-style: none;
+    margin:     0;
+    padding:    0;
+}
+
+.wt-statistics-chart .msc-name-timeline-row {
+    display:               grid;
+    grid-template-columns: 100px 1fr 110px;
+    align-items:           center;
+    gap:                   12px;
+    padding:               8px 0;
+    border-bottom:         1px solid var(--border-soft);
+}
+
+.wt-statistics-chart .msc-name-timeline-row:last-child {
+    border-bottom: none;
+}
+
+.wt-statistics-chart .msc-name-timeline-label {
+    font-family:   var(--serif);
+    font-size:     18px;
+    text-align:    right;
+    color:         var(--ink);
+    overflow-wrap: anywhere;
+    line-height:   1.15;
+}
+
+.wt-statistics-chart .msc-name-timeline-track {
+    position: relative;
+    height:   12px;
+}
+
+.wt-statistics-chart .msc-name-timeline-line {
+    position:      absolute;
+    left:          0;
+    top:           5px;
+    height:        2px;
+    border-radius: 1px;
+    background:    var(--wt-stat-card-accent, var(--sage));
+}
+
+.wt-statistics-chart .msc-name-timeline-row.is-active .msc-name-timeline-line {
+    background: linear-gradient(
+        90deg,
+        var(--wt-stat-card-accent, var(--sage)),
+        color-mix(in srgb, var(--wt-stat-card-accent, var(--sage)) 30%, transparent)
+    );
+}
+
+.wt-statistics-chart .msc-name-timeline-dot {
+    position:      absolute;
+    top:           0;
+    width:         12px;
+    height:        12px;
+    border-radius: 50%;
+    transform:     translateX(-50%);
+    background:    var(--wt-stat-card-accent, var(--sage));
+    box-shadow:    0 0 0 3px var(--card);
+    transition:    background-color 240ms ease;
+}
+
+.wt-statistics-chart .msc-name-timeline-row.is-active .msc-name-timeline-dot {
+    background: var(--sage);
+}
+
+.wt-statistics-chart .msc-name-timeline-meta {
+    display:         flex;
+    flex-direction:  column;
+    align-items:     flex-end;
+    gap:             2px;
+    font-size:       12px;
+}
+
+.wt-statistics-chart .msc-name-timeline-primary {
+    font-family: var(--mono);
+    color:       var(--ink-2);
+}
+
+.wt-statistics-chart .msc-name-timeline-row.is-active .msc-name-timeline-primary {
+    font-family:    var(--sans);
+    font-size:      10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight:    600;
+    color:          var(--sage);
+}
+
+.wt-statistics-chart .msc-name-timeline-secondary {
+    font-family: var(--mono);
+    font-size:   10px;
+    color:       var(--ink-3);
+}
+
+/* ----------------------------------------------------------------------
    Records hall-of-fame grid (Overview CHRONICLE section)
    ----------------------------------------------------------------------
    5-column grid of mini-cards with category-coloured dot, label,

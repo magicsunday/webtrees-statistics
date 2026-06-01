@@ -209,6 +209,19 @@ final readonly class Widget
     }
 
     /**
+     * Start a new name-timeline widget host. Pass the `{label, value, active}`
+     * rows via `withData(...)`.
+     */
+    public static function nameTimeline(string $module): self
+    {
+        return new self(
+            $module,
+            'name-timeline',
+            []
+        );
+    }
+
+    /**
      * Start a new population-pyramid widget host. Pass the `{groups, bands,
      * data}` payload via `withData(...)`; the `leftLabel` / `rightLabel` /
      * `axisLabel` captions and the crossfilter `source` flow through
