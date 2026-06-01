@@ -15,8 +15,9 @@ use MagicSunday\Webtrees\Statistic\View\EmptyStatePlaceholder;
 /**
  * Mirror-histogram widget shell. Emits a `data-widget="mirror-histogram"`
  * marker carrying the top + bottom row buckets as a JSON payload. Bar
- * colours and side-label colours come from CSS — `.wt-stat-mirror-bar-top`,
- * `-bot`, `.wt-stat-mirror-axislabel-top`, `-bot` — not from PHP options.
+ * colours and side-label colours come from CSS —
+ * `.msc-mirror-histogram-bar-top`, `-bar-bot`,
+ * `.msc-mirror-histogram-axislabel-top`, `-axislabel-bot` — not from PHP options.
  *
  * Caller is responsible for pre-building each row's tooltip strings
  * with literal calls to `I18N::translate` / `I18N::plural`, so xgettext
