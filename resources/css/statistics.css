@@ -3381,11 +3381,11 @@
 /* Name-bubbles labels — the font-SIZE is a per-bubble function of
    the radius (computed in JS) and stays inline; the family + weight
    are constant and live here. */
-.wt-statistics-chart svg .wt-name-bubbles-name-text {
+.wt-statistics-chart svg .wt-name-bubbles-label-text {
     font-family: var(--serif);
 }
 
-.wt-statistics-chart svg .wt-name-bubbles-count-text {
+.wt-statistics-chart svg .wt-name-bubbles-value-text {
     font-family: var(--mono);
     font-weight: 500;
 }
