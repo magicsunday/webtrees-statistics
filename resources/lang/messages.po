@@ -8,7 +8,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://github.com/magicsunday/webtrees-statistics/"
 "issuesissuesissues\n"
 "POT-Creation-Date: 2026-05-30 15:49+0000\n"
-"PO-Revision-Date: 2026-05-31 13:34+0200\n"
+"PO-Revision-Date: 2026-06-01 21:00+0200\n"
 "Last-Translator: TheDutchJewel <thedutchjewel@gmail.com>\n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -781,15 +781,17 @@ msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:192
 msgid ""
-"Age difference between spouses at marriage. Negative values mark couples where "
-"the husband was the older partner. Positive values mark couples where the wife "
-"was older. Each bar covers a 5-year range. The band labelled 30+ collects "
-"every gap of 30 years or more."
+"Age difference between spouses at marriage. The left column counts couples "
+"where the husband is the older partner, the right column those where the wife "
+"is older. Both sides share the same 5-year gap bands, so the two distributions "
+"can be compared at a glance. The 30+ band collects every gap of 30 years or "
+"more."
 msgstr ""
-"Leeftijdsverschil tussen echtgenoten bij huwelijk. Negatieve waarden markeren "
-"paren waarin de echtgenoot de oudere partner was. Positieve waarden markeren "
-"paren waarin de echtgenote ouder was. Elke balk beslaat een interval van vijf "
-"jaar. De balk met label 30+ omvat alle verschillen van 30 jaar of meer."
+"Leeftijdsverschil tussen echtgenoten bij het huwelijk. De linker kolom telt "
+"paren waarbij de man de oudere partner is, de rechter kolom die waarbij de "
+"vrouw ouder is. Beide zijden gebruiken dezelfde 5-jaarsklassen, zodat de twee "
+"verdelingen in één oogopslag kunnen worden vergeleken. De klasse met het label "
+"30+ omvat alle verschillen van 30 jaar of meer."
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:361
 msgid "Age in years at death, longest-lived first"
@@ -1736,11 +1738,6 @@ msgstr "Hoe goed is de stamboom gedocumenteerd?"
 msgid "Husband older"
 msgstr "Echtgenoot ouder"
 
-#: src/Support/Aggregator/CoupleAgeGapRowMapper.php:72
-#, php-format
-msgid "Husband older by %s years"
-msgstr "Echtgenoot %s jaar ouder"
-
 #: resources/views/modules/statistics-chart/components/hero.phtml:60
 msgid "Individuals"
 msgstr "Personen"
@@ -2589,11 +2586,6 @@ msgstr "Weduwperiode"
 msgid "Wife older"
 msgstr "Vrouw ouder"
 
-#: src/Support/Aggregator/CoupleAgeGapRowMapper.php:73
-#, php-format
-msgid "Wife older by %s years"
-msgstr "Vrouw %s jaar ouder"
-
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:219
 #, php-format
 msgid ""
@@ -2663,6 +2655,10 @@ msgstr "geaggregeerd in %s-decenniumklassen voor betere leesbaarheid"
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:603
 msgid "births"
 msgstr "geboorten"
+
+#: resources/views/modules/statistics-chart/tabs/family.phtml:205
+msgid "couples"
+msgstr "paren"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:626
 msgid "deaths"
@@ -2753,8 +2749,8 @@ msgid "one"
 msgstr "één"
 
 #: resources/views/modules/statistics-chart/widgets/stream-graph.phtml:49
-msgid "peak in the {decade}"
-msgstr "piek in het {decade}"
+msgid "peak in the {step}"
+msgstr "piek in de {step}"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:218
 #: resources/views/modules/statistics-chart/tabs/family.phtml:276
@@ -2843,6 +2839,14 @@ msgstr "{count} totaal in deze categorie"
 #: resources/views/modules/statistics-chart/widgets/stream-graph.phtml:50
 msgid "{name}: {total}, {peak}"
 msgstr "{name}: {total}, {peak}"
+
+#, php-format
+#~ msgid "Husband older by %s years"
+#~ msgstr "Echtgenoot %s jaar ouder"
+
+#, php-format
+#~ msgid "Wife older by %s years"
+#~ msgstr "Vrouw %s jaar ouder"
 
 #~ msgid ""
 #~ "For every individual with a parseable BIRT + DEAT date the widget computes "
