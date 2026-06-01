@@ -11,8 +11,15 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
+use MagicSunday\Webtrees\Statistic\Model\Metric\RateCount;
 use MagicSunday\Webtrees\Statistic\Repository\TreeHealthRepository;
+use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
+use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 
 /**
  * End-to-end test of the Tree Health repository against a curated fixture that
@@ -25,6 +32,12 @@ use PHPUnit\Framework\Attributes\Test;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
+#[CoversClass(TreeHealthRepository::class)]
+#[UsesClass(RateCount::class)]
+#[UsesClass(TreeScope::class)]
+#[UsesClass(GedcomScanner::class)]
+#[UsesClass(RowCast::class)]
+#[UsesClass(CenturyName::class)]
 final class TreeHealthRepositoryIntegrationTest extends IntegrationTestCase
 {
     /**

@@ -11,8 +11,11 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
+use MagicSunday\Webtrees\Statistic\Model\Record\IndividualAgeRecord;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\IndividualAgeRecordResolver;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 
 /**
  * Verifies the {@see IndividualAgeRecordResolver} branches that the
@@ -27,6 +30,8 @@ use PHPUnit\Framework\Attributes\Test;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
+#[CoversClass(IndividualAgeRecordResolver::class)]
+#[UsesClass(IndividualAgeRecord::class)]
 final class IndividualAgeRecordResolverTest extends IntegrationTestCase
 {
     /**

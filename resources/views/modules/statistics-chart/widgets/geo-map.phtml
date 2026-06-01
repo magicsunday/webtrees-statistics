@@ -13,11 +13,11 @@ use Fisharebest\Webtrees\I18N;
 use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
 
 /**
- * @var string                                                            $identifier Host element id
- * @var array<int, array{countryCode: string, label: string, count: int}> $data
- * @var string|null                                                       $accent     Optional CSS colour string (e.g. `var(--sage)`)
- *                                                                        for the country-fill scale. Falls back to the
- *                                                                        chart-lib blues palette when omitted.
+ * @var string                                                     $identifier Host element id
+ * @var array<int, array{code: string, label: string, count: int}> $data
+ * @var string|null                                                $accent     Optional CSS colour string (e.g. `var(--sage)`)
+ *                                                                 for the country-fill scale. Falls back to the
+ *                                                                 chart-lib blues palette when omitted.
  */
 $accent ??= null;
 $options = ['width' => 900, 'height' => 510];
@@ -26,12 +26,10 @@ if ($accent !== null) {
     $options['accent'] = $accent;
 }
 ?>
-<div class="world-map-container">
-    <div id="<?php echo e($identifier); ?>"
-         class="world-map"
-         data-widget="world-map"
-         data-payload="<?php echo WidgetJson::encodeAttribute($data); ?>"
-         data-options="<?php echo WidgetJson::encodeAttribute($options); ?>"
-         data-error-message="<?php echo e(I18N::translate('The map could not be loaded.')); ?>"
-    ></div>
-</div>
+<div id="<?php echo e($identifier); ?>"
+     class="wt-stat-world-map-container"
+     data-widget="world-map"
+     data-payload="<?php echo WidgetJson::encodeAttribute($data); ?>"
+     data-options="<?php echo WidgetJson::encodeAttribute($options); ?>"
+     data-error-message="<?php echo e(I18N::translate('The map could not be loaded.')); ?>"
+></div>

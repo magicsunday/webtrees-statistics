@@ -14,7 +14,11 @@ namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Repository\KinshipRepository;
 use MagicSunday\Webtrees\Statistic\Repository\ParentMapRepository;
+use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 
 use function array_sum;
 
@@ -32,6 +36,10 @@ use function array_sum;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
+#[CoversClass(KinshipRepository::class)]
+#[UsesClass(ParentMapRepository::class)]
+#[UsesClass(TreeScope::class)]
+#[UsesClass(RowCast::class)]
 final class KinshipRepositoryIntegrationTest extends IntegrationTestCase
 {
     private function repository(Tree $tree): KinshipRepository

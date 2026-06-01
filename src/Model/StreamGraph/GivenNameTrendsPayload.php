@@ -15,12 +15,13 @@ use JsonSerializable;
 
 /**
  * Wire-format payload for the chart-lib stream-graph widget on the Names tab.
- * `decades` is the dense x-axis (every 10-year step from the first decade with
+ * `$decades` is the dense x-axis (every 10-year step from the first decade with
  * any top-N name's birth to the last); `names` is the top-N given names in
  * display order; `series` is a `name → {decade → count}` map so the renderer
  * can build one band per name without re-aggregating.
  *
- * Serialises to `{decades: list<int>, names: list<string>, series:
+ * The decade axis is emitted under the chart-lib widget's neutral `steps` key,
+ * so it serialises to `{steps: list<int>, names: list<string>, series:
  * array<string, array<int, int>>}`.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
@@ -42,14 +43,16 @@ final readonly class GivenNameTrendsPayload implements JsonSerializable
     }
 
     /**
-     * @return array{decades: list<int>, names: list<string>, series: array<string, array<int, int>>}
+     * @return array{steps: list<int>, names: list<string>, series: array<string, array<int, int>>}
      */
     public function jsonSerialize(): array
     {
         return [
-            'decades' => $this->decades,
-            'names'   => $this->names,
-            'series'  => $this->series,
+            // The chart-lib stream-graph widget reads the x-axis under the
+            // neutral `steps` key; the producer's decade axis maps onto it.
+            'steps'  => $this->decades,
+            'names'  => $this->names,
+            'series' => $this->series,
         ];
     }
 }

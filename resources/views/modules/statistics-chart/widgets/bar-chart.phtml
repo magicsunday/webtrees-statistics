@@ -37,19 +37,17 @@ if (($data === []) || (array_sum(array_column($data, 'value')) <= 0)) {
     return;
 }
 ?>
-<div class="wt-bar-chart-container">
-    <div id="<?php echo e($identifier); ?>"
-         class="wt-bar-chart-host"
-         data-widget="bar-chart"
-         data-payload="<?php echo WidgetJson::encodeAttribute($data); ?>"
-         data-options="<?php echo WidgetJson::encodeAttribute([
-             'height'      => $height,
-             'orientation' => $orientation,
-             'brush'       => $brush,
-             'xLabel'      => $xLabel ?? null,
-             'yLabel'      => $yLabel ?? null,
-             'ariaLabel'   => $ariaLabel ?? null,
-         ]); ?>"
-         data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"
-    ></div>
-</div>
+<div id="<?php echo e($identifier); ?>"
+     class="wt-stat-bar-chart-container"
+     data-widget="bar-chart"
+     data-payload="<?php echo WidgetJson::encodeAttribute($data); ?>"
+     data-options="<?php echo WidgetJson::encodeAttribute([
+         'height'      => $height,
+         'orientation' => $orientation,
+         'brush'       => $brush,
+         'xLabel'      => $xLabel ?? null,
+         'yLabel'      => $yLabel ?? null,
+         'ariaLabel'   => $ariaLabel ?? null,
+     ]); ?>"
+     data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"
+></div>

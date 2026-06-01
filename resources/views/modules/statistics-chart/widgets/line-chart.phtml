@@ -51,22 +51,20 @@ if ($categories === []) {
 // adjacent labels start to overlap.
 $xLabelEvery ??= max(1, (int) ceil(count($categories) / 12));
 ?>
-<div class="wt-line-chart-container">
-    <div id="<?php echo e($identifier); ?>"
-         class="wt-line-chart-host"
-         data-widget="line-chart"
-         data-payload="<?php echo WidgetJson::encodeAttribute($data); ?>"
-         data-options="<?php echo WidgetJson::encodeAttribute([
-             'height'          => $height,
-             'xLabelEvery'     => $xLabelEvery,
-             'showArea'        => $showArea ?? null,
-             'multiSeriesArea' => $multiSeriesArea ?? null,
-             'perPointTooltip' => $perPointTooltip ?? null,
-             'xLabel'          => $xLabel ?? null,
-             'yLabel'          => $yLabel ?? null,
-             'yUnit'           => $yUnit ?? null,
-             'ariaLabel'       => $ariaLabel ?? null,
-         ]); ?>"
-         data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"
-    ></div>
-</div>
+<div id="<?php echo e($identifier); ?>"
+     class="wt-stat-line-chart-container"
+     data-widget="line-chart"
+     data-payload="<?php echo WidgetJson::encodeAttribute($data); ?>"
+     data-options="<?php echo WidgetJson::encodeAttribute([
+         'height'          => $height,
+         'xLabelEvery'     => $xLabelEvery,
+         'showArea'        => $showArea ?? null,
+         'multiSeriesArea' => $multiSeriesArea ?? null,
+         'perPointTooltip' => $perPointTooltip ?? null,
+         'xLabel'          => $xLabel ?? null,
+         'yLabel'          => $yLabel ?? null,
+         'yUnit'           => $yUnit ?? null,
+         'ariaLabel'       => $ariaLabel ?? null,
+     ]); ?>"
+     data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"
+></div>

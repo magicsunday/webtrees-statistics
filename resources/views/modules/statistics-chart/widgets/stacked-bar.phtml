@@ -54,18 +54,16 @@ $stackedBarI18n = [
     'totalInCategoryPattern' => I18N::translate('{count} total in this category'),
 ];
 ?>
-<div class="wt-stacked-bar-container">
-    <div id="<?php echo e($identifier); ?>"
-         class="wt-stacked-bar-host"
-         data-widget="stacked-bar"
-         data-payload="<?php echo WidgetJson::encodeAttribute($data); ?>"
-         data-options="<?php echo WidgetJson::encodeAttribute([
-             'height'     => $height,
-             'legend'     => $legend ?? null,
-             'percentage' => $percentage ?? null,
-             'ariaLabel'  => $ariaLabel ?? null,
-             'i18n'       => $stackedBarI18n,
-         ]); ?>"
-         data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"
-    ></div>
-</div>
+<div id="<?php echo e($identifier); ?>"
+     class="wt-stat-stacked-bar-container"
+     data-widget="stacked-bar"
+     data-payload="<?php echo WidgetJson::encodeAttribute($data); ?>"
+     data-options="<?php echo WidgetJson::encodeAttribute([
+         'height'     => $height,
+         'legend'     => $legend ?? null,
+         'percentage' => $percentage ?? null,
+         'ariaLabel'  => $ariaLabel ?? null,
+         'i18n'       => $stackedBarI18n,
+     ]); ?>"
+     data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"
+></div>

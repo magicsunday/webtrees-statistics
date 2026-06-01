@@ -12,8 +12,13 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use MagicSunday\Webtrees\Statistic\Enum\MaritalBucket;
+use MagicSunday\Webtrees\Statistic\Model\FamilyRow;
 use MagicSunday\Webtrees\Statistic\Repository\FamilyRepository;
+use MagicSunday\Webtrees\Statistic\Support\Database\ChunkedWhereIn;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 
 /**
  * End-to-end test of the marital-status classifier against a curated GEDCOM
@@ -30,6 +35,10 @@ use PHPUnit\Framework\Attributes\Test;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
+#[CoversClass(FamilyRepository::class)]
+#[UsesClass(FamilyRow::class)]
+#[UsesClass(ChunkedWhereIn::class)]
+#[UsesClass(GedcomScanner::class)]
 final class FamilyRepositoryIntegrationTest extends IntegrationTestCase
 {
     /**
@@ -51,6 +60,35 @@ final class FamilyRepositoryIntegrationTest extends IntegrationTestCase
             ],
             $buckets,
             'Four bucket counts must match the curated fixture',
+        );
+    }
+
+    /**
+     * A remarried individual appears in two FAMS families — one divorced, one
+     * current — so the individual→families join must fan out to BOTH rows for
+     * that person before the classifier applies its current > divorced
+     * precedence. Guards the link-table join (which replaced an O(n×m) OR-join
+     * for #82): a join that collapsed the multi-FAMS fan-out to one row would
+     * silently misclassify the remarried individual.
+     */
+    #[Test]
+    public function classifyLivingIndividualsFansOutAcrossMultipleFamsFamilies(): void
+    {
+        $tree    = $this->importFixtureTree('marital-status-remarried.ged');
+        $buckets = (new FamilyRepository($tree))->classifyLivingIndividuals();
+
+        self::assertSame(
+            [
+                // I1 (remarried: divorced F1 + current F2 → current wins) and
+                // I3 (current second wife) are Current; I2 (divorced first
+                // wife) is Divorced; nobody is widowed or single.
+                MaritalBucket::Current->value  => 2,
+                MaritalBucket::Divorced->value => 1,
+                MaritalBucket::Widowed->value  => 0,
+                MaritalBucket::Single->value   => 0,
+            ],
+            $buckets,
+            'The remarried individual must classify as Current via the multi-FAMS fan-out',
         );
     }
 }

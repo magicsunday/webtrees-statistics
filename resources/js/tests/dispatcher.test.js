@@ -86,9 +86,6 @@ class BarChart {
 class StackedBar {
     draw() {}
 }
-class DivergingBar {
-    draw() {}
-}
 class ChordDiagram {
     draw() {}
 }
@@ -107,7 +104,7 @@ class MirrorHistogram {
 class BoxPlot {
     draw() {}
 }
-class PopulationPyramid {
+class DivergingBarChart {
     constructor(node, options) {
         this.node = node;
         this.options = options;
@@ -134,14 +131,13 @@ jest.unstable_mockModule("@magicsunday/webtrees-chart-lib", () => ({
     LineChart,
     BarChart,
     StackedBar,
-    DivergingBar,
     ChordDiagram,
     MonthRadial,
     NameBubbles,
     GaugeArc,
     MirrorHistogram,
     BoxPlot,
-    PopulationPyramid,
+    DivergingBarChart,
     Heatmap,
 }));
 
@@ -178,10 +174,10 @@ describe("renderWidgets", () => {
         delete window.matchMedia;
     });
 
-    test("dispatches a donut widget when data-widget=donut", () => {
+    test("dispatches a donut widget when data-widget=donut-chart", () => {
         document.body.innerHTML = `
             <div id="d1"
-                 data-widget="donut"
+                 data-widget="donut-chart"
                  data-payload='[{"label":"Male","value":1,"class":"male"}]'></div>
         `;
 
@@ -276,8 +272,8 @@ describe("renderWidgets", () => {
         // so a single malformed widget doesn't take down the whole tab.
         const errorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
         document.body.innerHTML = `
-            <div data-widget="donut" data-payload="not-json"></div>
-            <div data-widget="donut" data-payload='[{"label":"X","value":2}]'></div>
+            <div data-widget="donut-chart" data-payload="not-json"></div>
+            <div data-widget="donut-chart" data-payload='[{"label":"X","value":2}]'></div>
         `;
 
         renderWidgets(document.body);
@@ -292,7 +288,7 @@ describe("renderWidgets", () => {
 
     test("dispatches every widget type in a multi-card tab", async () => {
         document.body.innerHTML = `
-            <div data-widget="donut"        data-payload='[]'></div>
+            <div data-widget="donut-chart"        data-payload='[]'></div>
             <div data-widget="world-map"    data-payload='[]'></div>
             <div data-widget="stream-graph" data-payload='{}'></div>
             <div data-widget="sankey-flow"  data-payload='{}'></div>
@@ -341,7 +337,7 @@ describe("renderWidgets", () => {
     test("returns a DashboardBus instance and the connected widgets", () => {
         document.body.innerHTML = `
             <div id="d1"
-                 data-widget="donut"
+                 data-widget="donut-chart"
                  data-payload='[{"label":"Male","value":1}]'></div>
         `;
 
@@ -379,9 +375,9 @@ describe("renderWidgets", () => {
         // Because Jest's ESM module mocks are immutable, swap the
         // donut spy chain via a fresh dispatch instead of re-mocking.
         document.body.innerHTML = `
-            <div id="bus-a" data-widget="donut" data-payload='[]'
+            <div id="bus-a" data-widget="donut-chart" data-payload='[]'
                  data-options='{"source":"donut.a"}'></div>
-            <div id="bus-b" data-widget="donut" data-payload='[]'
+            <div id="bus-b" data-widget="donut-chart" data-payload='[]'
                  data-options='{"source":"donut.b"}'></div>
         `;
 
@@ -430,7 +426,7 @@ describe("renderWidgets", () => {
         };
 
         document.body.innerHTML = `
-            <div id="d1" data-widget="donut" data-payload='[]'></div>
+            <div id="d1" data-widget="donut-chart" data-payload='[]'></div>
         `;
 
         renderWidgets(document.body);
@@ -468,7 +464,7 @@ describe("renderWidgets", () => {
             disconnect() {}
         };
 
-        document.body.innerHTML = `<div id="d1" data-widget="donut" data-payload='[]'></div>`;
+        document.body.innerHTML = `<div id="d1" data-widget="donut-chart" data-payload='[]'></div>`;
         renderWidgets(document.body);
 
         const node = document.getElementById("d1");
@@ -494,7 +490,7 @@ describe("renderWidgets", () => {
             disconnect() {}
         };
 
-        document.body.innerHTML = `<div id="d1" data-widget="donut" data-payload='[]'></div>`;
+        document.body.innerHTML = `<div id="d1" data-widget="donut-chart" data-payload='[]'></div>`;
         renderWidgets(document.body);
 
         expect(donutDrawSpy).toHaveBeenCalledTimes(1);
@@ -520,7 +516,7 @@ describe("renderWidgets", () => {
             disconnect() {}
         };
 
-        document.body.innerHTML = `<div id="d1" data-widget="donut" data-payload='[]'></div>`;
+        document.body.innerHTML = `<div id="d1" data-widget="donut-chart" data-payload='[]'></div>`;
         const node = document.getElementById("d1");
         // Pretend the card is on-screen — jsdom's default all-zero rect reads as
         // not-visible, so a visible rect must be stubbed. This guards the
@@ -607,7 +603,7 @@ describe("renderWidgets", () => {
             removeEventListener: removeListenerSpy,
         });
 
-        document.body.innerHTML = `<div id="d1" data-widget="donut" data-payload='[]'></div>`;
+        document.body.innerHTML = `<div id="d1" data-widget="donut-chart" data-payload='[]'></div>`;
         const result = renderWidgets(document.body);
 
         expect(typeof result.disconnect).toBe("function");
@@ -646,7 +642,7 @@ describe("renderWidgets", () => {
             removeEventListener: () => {},
         });
 
-        document.body.innerHTML = `<div id="d1" data-widget="donut" data-payload='[]'></div>`;
+        document.body.innerHTML = `<div id="d1" data-widget="donut-chart" data-payload='[]'></div>`;
         renderWidgets(document.body);
 
         // Off-screen at render (default jsdom rect) → entrance HELD, node observed,
@@ -689,7 +685,7 @@ describe("renderWidgets", () => {
             removeEventListener: () => {},
         });
 
-        document.body.innerHTML = `<div id="d1" data-widget="donut" data-payload='[]'></div>`;
+        document.body.innerHTML = `<div id="d1" data-widget="donut-chart" data-payload='[]'></div>`;
         renderWidgets(document.body);
 
         // A change to matches:false (reduce turned OFF) must be a no-op: the

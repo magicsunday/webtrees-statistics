@@ -13,6 +13,7 @@ namespace MagicSunday\Webtrees\Statistic\Test\Support\Database;
 
 use Illuminate\Database\Capsule\Manager as Capsule;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -30,6 +31,7 @@ use PHPUnit\Framework\TestCase;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
+#[CoversClass(DateAggregate::class)]
 final class DateAggregateTest extends TestCase
 {
     private Capsule $capsule;

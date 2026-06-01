@@ -13,8 +13,16 @@ namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Repository\MarriageRepository;
+use MagicSunday\Webtrees\Statistic\Support\Calc\AgeBuckets;
+use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
+use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
+use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 
+use function array_column;
 use function array_sum;
 use function array_values;
 
@@ -34,6 +42,12 @@ use function array_values;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
+#[CoversClass(MarriageRepository::class)]
+#[UsesClass(AgeBuckets::class)]
+#[UsesClass(DateAggregate::class)]
+#[UsesClass(DateJoin::class)]
+#[UsesClass(TreeScope::class)]
+#[UsesClass(RowCast::class)]
 final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
 {
     private function repository(Tree $tree): MarriageRepository
@@ -42,6 +56,17 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
             $tree,
             $this->statisticsData($tree),
         );
+    }
+
+    /**
+     * Total husband-older + wife-older count across the two-sided age-gap
+     * distribution.
+     *
+     * @param array<string, array{left: int, right: int}> $dist
+     */
+    private function ageGapTotal(array $dist): int
+    {
+        return array_sum(array_column($dist, 'left')) + array_sum(array_column($dist, 'right'));
     }
 
     /**
@@ -78,36 +103,27 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Couple age-gap histogram uses signed buckets centred on zero. F1: husband
-     * 1850 − wife 1853 = −3y → -5 to -1 bucket F2: 1880 − 1895 = -15y → -15 to
-     * -11 F3: 1920 − 1915 = +5y → 5-9.
+     * Couple age-gap histogram folds into shared magnitude bands, the side
+     * decided by who is the older partner. In the fixture F1 (husband older
+     * ~3y) and F2 (husband older ~15y) feed the left column, F3 (wife older
+     * ~5y) the right.
      */
     #[Test]
-    public function ageGapDistributionAcceptsSignedBuckets(): void
+    public function ageGapDistributionSplitsCouplesByOlderPartner(): void
     {
         $tree   = $this->importFixtureTree('marriage.ged');
         $result = $this->repository($tree)->ageGapDistribution();
 
-        // The buckets render with en-dashes (–) for positive ranges
-        // and " to " for negative ranges — find the correct one
-        // by exact key match.
-        $negTotal = 0;
-        $posTotal = 0;
+        $husbandOlder = array_sum(array_column($result, 'left'));
+        $wifeOlder    = array_sum(array_column($result, 'right'));
 
-        foreach ($result as $label => $count) {
-            if (str_starts_with($label, '-')) {
-                $negTotal += $count;
-            } elseif (str_starts_with($label, '<')) {
-                $negTotal += $count;
-            } else {
-                $posTotal += $count;
-            }
-        }
+        self::assertSame(2, $husbandOlder, 'F1 + F2 — husband the older partner');
+        self::assertSame(1, $wifeOlder, 'F3 — wife the older partner');
 
-        // 2 couples have the husband younger, 1 the husband older.
-        self::assertSame(2, $negTotal);
-        self::assertSame(1, $posTotal);
-        self::assertSame(3, array_sum($result));
+        // The husband-older ~3y couple sits on the left of the nearest band.
+        self::assertSame(1, $result['0–4']['left'], 'F1 husband older ~3y');
+        // The wife-older ~5y couple sits on the right of the 5–9 band.
+        self::assertSame(1, $result['5–9']['right'], 'F3 wife older ~5y');
     }
 
     /**
@@ -199,7 +215,7 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame(0, array_sum($repo->ageAtMarriageDistribution('M')));
         self::assertSame(0, array_sum($repo->ageAtMarriageDistribution('F')));
         self::assertSame(0, array_sum($repo->durationDistribution()));
-        self::assertSame(0, array_sum($repo->ageGapDistribution()));
+        self::assertSame(0, $this->ageGapTotal($repo->ageGapDistribution()));
         self::assertSame(0, array_sum($repo->weddingsByCentury()));
         self::assertSame(0, array_sum($repo->weddingsByMonth()));
     }
@@ -243,7 +259,7 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
 
         // F1 has no spouse BIRT; F2 only has the husband's BIRT
         // → no fully-dated couple → age-gap histogram empty.
-        self::assertSame(0, array_sum($repo->ageGapDistribution()));
+        self::assertSame(0, $this->ageGapTotal($repo->ageGapDistribution()));
 
         // F2's MARR 1905 lands in the 20th century.
         self::assertSame(1, array_sum($repo->weddingsByCentury()));
@@ -281,19 +297,18 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
 
         self::assertSame(
             4,
-            array_sum($result),
+            $this->ageGapTotal($result),
             'F1 + F2 + F3 + F4 = 4 entries; without dedup F3 would contribute 2 (one per BET..AND bound) and the sum would climb to 5',
         );
 
         // Bucket-specific lock so a future MIN -> MAX flip on
-        // `hb.d_julianday1` would surface: with MIN (lower bound)
-        // F3's husband BIRT anchors at 01.01.1870 and the gap to wife
-        // (05.03.1872) is ~-2 years → bucket "-5 to -1". With MAX
-        // (upper bound) the anchor would slide to 01.01.1873 and the
-        // gap would flip sign to ~+0 years → bucket "0–4", landing
-        // outside this assertion.
-        self::assertSame(4, $result['-5 to -1'] ?? 0, 'F1..F4 all land in the husband-older-by-1-to-5-years band post-MIN-aggregate');
-        self::assertSame(0, $result['0–4'] ?? 0, 'no family is husband-younger-by-0-to-4-years; a MIN -> MAX swap on F3 BIRT would push 1 entry here');
+        // `hb.d_julianday1` would surface: with MIN (lower bound) every
+        // husband anchors a couple of years older than his wife → the four
+        // land husband-older (left) in the nearest "0–4" band. A MIN -> MAX
+        // swap on F3 BIRT would flip its sign toward wife-older and move it to
+        // the right, surfacing here.
+        self::assertSame(4, array_sum(array_column($result, 'left')), 'F1..F4 all husband-older, post-MIN-aggregate');
+        self::assertSame(0, array_sum(array_column($result, 'right')), 'no family flips to wife-older');
     }
 
     /**

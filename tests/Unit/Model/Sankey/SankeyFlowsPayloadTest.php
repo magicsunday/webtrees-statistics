@@ -14,7 +14,9 @@ namespace MagicSunday\Webtrees\Statistic\Test\Unit\Model\Sankey;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyFlowsPayload;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyLink;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeySample;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
 use function json_decode;
@@ -31,6 +33,9 @@ use function json_encode;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
+#[CoversClass(SankeyFlowsPayload::class)]
+#[UsesClass(SankeyLink::class)]
+#[UsesClass(SankeySample::class)]
 final class SankeyFlowsPayloadTest extends TestCase
 {
     /**

@@ -32,8 +32,10 @@ use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 
 use function abs;
+use function count;
 use function intdiv;
 use function is_numeric;
+use function min;
 
 /**
  * Marriage-related aggregations for the Family tab. Combines core's {@see
@@ -62,14 +64,23 @@ final class MarriageRepository
     private const int DURATION_MAX = 60;
 
     /**
-     * Couple-age-gap histogram is centred on zero and 5-year wide. gap =
-     * `husbandBirthJd − wifeBirthJd`. Negative buckets mean the husband was
-     * born first (smaller julian day) → husband is older than wife. Positive
-     * buckets mean wife older than husband (or same year).
+     * Couple-age-gap histogram bucket width in years. The absolute birth-year
+     * gap is binned into the seven shared magnitude bands below, with the side
+     * (husband-older / wife-older) decided by the sign of the day difference.
      */
     private const int AGE_GAP_BUCKET = 5;
 
-    private const int AGE_GAP_LIMIT_HI = 30;
+    /**
+     * Julian days per year used to turn a birth-day difference into whole years.
+     */
+    private const int DAYS_PER_YEAR = 365;
+
+    /**
+     * The seven shared age-gap magnitude bands, both sides read against these.
+     *
+     * @var list<string>
+     */
+    private const array AGE_GAP_BANDS = ['0–4', '5–9', '10–14', '15–19', '20–24', '25–29', '30+'];
 
     /**
      * Widowhood / widower interval histogram is 5-year wide and runs up to a
@@ -484,12 +495,13 @@ final class MarriageRepository
     }
 
     /**
-     * Couple age-gap distribution. Husband's birth year minus wife's birth
-     * year, bucketed into symmetric 5-year bands centred on zero. Negative
-     * buckets read "husband older than wife" (smaller julian day → husband born
-     * first); positive buckets read "wife older than husband".
+     * Couple age-gap distribution as a two-sided bucket histogram. The absolute
+     * birth-year gap is binned into seven shared 5-year magnitude bands; each
+     * band carries the count of couples where the husband is the older partner
+     * (`left`) and where the wife is (`right`), so the two sides read against
+     * the same band labels.
      *
-     * @return array<string, int>
+     * @return array<string, array{left: int, right: int}> Band label → `{left: husband-older, right: wife-older}` counts
      */
     public function ageGapDistribution(): array
     {
@@ -514,14 +526,12 @@ final class MarriageRepository
             ->groupBy('families.f_id')
             ->get();
 
-        $buckets                                                      = [];
-        $buckets[$this->signedOverflowLabel(-self::AGE_GAP_LIMIT_HI)] = 0;
+        $bands = self::AGE_GAP_BANDS;
+        $dist  = [];
 
-        for ($edge = -self::AGE_GAP_LIMIT_HI + self::AGE_GAP_BUCKET; $edge < self::AGE_GAP_LIMIT_HI; $edge += self::AGE_GAP_BUCKET) {
-            $buckets[$this->signedBucketLabel($edge)] = 0;
+        foreach ($bands as $band) {
+            $dist[$band] = ['left' => 0, 'right' => 0];
         }
-
-        $buckets[$this->signedOverflowLabel(self::AGE_GAP_LIMIT_HI)] = 0;
 
         foreach ($rows as $row) {
             $hbJd = RowCast::int($row, 'hb_jd');
@@ -535,19 +545,27 @@ final class MarriageRepository
                 continue;
             }
 
-            $gapYears = intdiv($hbJd - $wbJd, 365);
+            // Husband born first (smaller julian day) → husband older; the sign
+            // of the raw day difference settles couples less than a year apart,
+            // and an exact same-day tie is neither partner older and drops out.
+            $diff = $hbJd - $wbJd;
 
-            if (abs($gapYears) >= self::AGE_GAP_LIMIT_HI) {
-                $label = $this->signedOverflowLabel($gapYears >= 0 ? self::AGE_GAP_LIMIT_HI : -self::AGE_GAP_LIMIT_HI);
-            } else {
-                $edge  = $this->signedBucketLowerEdge($gapYears);
-                $label = $this->signedBucketLabel($edge + self::AGE_GAP_BUCKET);
+            if ($diff === 0) {
+                continue;
             }
 
-            $buckets[$label] = ($buckets[$label] ?? 0) + 1;
+            $years = intdiv(abs($diff), self::DAYS_PER_YEAR);
+            $rank  = min(count($bands) - 1, intdiv($years, self::AGE_GAP_BUCKET));
+            $band  = $bands[$rank];
+
+            if ($diff < 0) {
+                ++$dist[$band]['left'];
+            } else {
+                ++$dist[$band]['right'];
+            }
         }
 
-        return $buckets;
+        return $dist;
     }
 
     /**
@@ -646,40 +664,6 @@ final class MarriageRepository
         }
 
         return $out;
-    }
-
-    /**
-     * Label for a symmetric signed bucket, e.g. "0–4", "−5 to −1", "5–9".
-     */
-    private function signedBucketLabel(int $upperExclusive): string
-    {
-        $lower = $upperExclusive - self::AGE_GAP_BUCKET;
-
-        if ($lower >= 0) {
-            return $lower . '–' . ($upperExclusive - 1);
-        }
-
-        return $lower . ' to ' . ($upperExclusive - 1);
-    }
-
-    /**
-     * Label for the overflow buckets at either end of the gap distribution.
-     */
-    private function signedOverflowLabel(int $edge): string
-    {
-        return $edge >= 0 ? $edge . '+' : '<' . $edge;
-    }
-
-    /**
-     * Lower edge of the bucket containing the given signed value.
-     */
-    private function signedBucketLowerEdge(int $value): int
-    {
-        if ($value >= 0) {
-            return intdiv($value, self::AGE_GAP_BUCKET) * self::AGE_GAP_BUCKET;
-        }
-
-        return -((intdiv(-$value - 1, self::AGE_GAP_BUCKET) + 1) * self::AGE_GAP_BUCKET);
     }
 
     /**

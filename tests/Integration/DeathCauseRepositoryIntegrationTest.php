@@ -12,7 +12,12 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use MagicSunday\Webtrees\Statistic\Repository\DeathCauseRepository;
+use MagicSunday\Webtrees\Statistic\Support\Aggregator\TopNAggregator;
+use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 
 /**
  * End-to-end test of {@see DeathCauseRepository}. The shared
@@ -25,6 +30,10 @@ use PHPUnit\Framework\Attributes\Test;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
+#[CoversClass(DeathCauseRepository::class)]
+#[UsesClass(TopNAggregator::class)]
+#[UsesClass(TreeScope::class)]
+#[UsesClass(GedcomScanner::class)]
 final class DeathCauseRepositoryIntegrationTest extends IntegrationTestCase
 {
     /**

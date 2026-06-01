@@ -12,7 +12,7 @@ import {
     BarChart,
     BoxPlot,
     ChordDiagram,
-    DivergingBar,
+    DivergingBarChart,
     DonutChart,
     GaugeArc,
     Heatmap,
@@ -20,7 +20,6 @@ import {
     MirrorHistogram,
     MonthRadial,
     NameBubbles,
-    PopulationPyramid,
     SankeyFlow,
     StackedBar,
     StreamGraph,
@@ -130,21 +129,20 @@ async function drawWorldMap(node, data, options) {
  * @type {Object<string, (node: HTMLElement, data: unknown, options: object) => unknown>}
  */
 const WIDGETS = {
-    donut: fromChartLib(DonutChart),
+    "donut-chart": fromChartLib(DonutChart),
     "world-map": drawWorldMap,
     "stream-graph": fromChartLib(StreamGraph),
     "sankey-flow": fromChartLib(SankeyFlow),
     "line-chart": fromChartLib(LineChart),
     "bar-chart": fromChartLib(BarChart),
     "stacked-bar": fromChartLib(StackedBar),
-    "diverging-bar": fromChartLib(DivergingBar),
     "chord-diagram": fromChartLib(ChordDiagram),
     "name-bubbles": fromChartLib(NameBubbles),
     "month-radial": fromChartLib(MonthRadial),
     "gauge-arc": fromChartLib(GaugeArc),
     "mirror-histogram": fromChartLib(MirrorHistogram),
     "box-plot": fromChartLib(BoxPlot),
-    "population-pyramid": fromChartLib(PopulationPyramid),
+    "population-pyramid": fromChartLib(DivergingBarChart),
     heatmap: fromChartLib(Heatmap),
 };
 

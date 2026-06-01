@@ -33,7 +33,7 @@
  * existing chart-scoped rules win on conflict. New body-detached
  * widget? Add its root selector to this list — that is the ONE
  * place tokens need to be exposed. */
-:where(.wt-statistics-chart, .popover.wt-stat-popover, .wt-chart-tooltip) {
+:where(.wt-statistics-chart, .popover.wt-stat-popover, .msc-chart-tooltip) {
     /*
      * The full Editorial-Modern token block ships in S1 even though
      * a subset of the tokens (hero-*, shadow-card, serif, mono,
@@ -160,7 +160,7 @@
     --wmstats-without-children:            var(--mute);
 }
 
-[data-bs-theme="dark"] :where(.wt-statistics-chart, .popover.wt-stat-popover, .wt-chart-tooltip) {
+[data-bs-theme="dark"] :where(.wt-statistics-chart, .popover.wt-stat-popover, .msc-chart-tooltip) {
     /* Editorial-Modern dark surface — near-black paper, slightly
        lifted card. Accents lift ~12% lightness so contrast stays
        readable against the dark body. */
@@ -773,7 +773,7 @@
 .wt-statistics-chart .wt-stat-card-body:has(.wt-stat-records),
 .wt-statistics-chart .wt-stat-card-body:has(.wt-stat-hbars),
 .wt-statistics-chart .wt-stat-card-body:has(.wt-stat-podium),
-.wt-statistics-chart .wt-stat-card-body:has(.wt-stat-heatmap),
+.wt-statistics-chart .wt-stat-card-body:has(.msc-heatmap),
 .wt-statistics-chart .wt-stat-card-body:has(.progress-bar-table) {
     justify-content: flex-start;
 }
@@ -1109,10 +1109,10 @@
    ----------------------------------------------------------------------
    Mockup default: donut LEFT, legend RIGHT in a `auto 1fr` grid with
    24 px gutter. Cards that need the vertical variant (donut on top
-   of the legend) opt in via the `.wt-stat-donut-v` modifier on the
+   of the legend) opt in via the `.wt-stat-donut-chart-v` modifier on the
    host wrapper.
    -------------------------------------------------------------------- */
-.wt-statistics-chart .wt-stat-donut {
+.wt-statistics-chart .wt-stat-donut-chart {
     display:               grid;
     /* Donut sizes itself (auto), legend sizes to its longest row
        (auto + the per-row `max-content` label column below). With
@@ -1144,37 +1144,37 @@
 }
 
 @container wt-stat-card (max-width: 320px) {
-    .wt-statistics-chart .wt-stat-donut {
+    .wt-statistics-chart .wt-stat-donut-chart {
         grid-template-columns: 1fr;
         justify-items:         center;
         text-align:            center;
     }
 
-    .wt-statistics-chart .wt-stat-donut .wt-stat-legend {
+    .wt-statistics-chart .wt-stat-donut-chart .wt-stat-donut-chart-legend {
         width:     max-content;
         max-width: 100%;
     }
 }
 
-.wt-statistics-chart .wt-stat-donut-v {
+.wt-statistics-chart .wt-stat-donut-chart-v {
     grid-template-columns: 1fr;
     justify-items:         center;
 }
 
-.wt-statistics-chart .wt-stat-donut .donut-chart {
+.wt-statistics-chart .wt-stat-donut-chart .wt-stat-donut-chart-container {
     width:     100%;
     max-width: 170px;
     height:    auto;
 }
 
-.wt-statistics-chart .wt-stat-donut svg.donut-chart {
+.wt-statistics-chart .wt-stat-donut-chart svg.msc-donut-chart {
     display: block;
 }
 
 /* Narrow viewports collapse the horizontal donut+legend layout to
    stacked, mirroring the mockup's `@media` rule. */
 @media (max-width: 760px) {
-    .wt-statistics-chart .wt-stat-donut {
+    .wt-statistics-chart .wt-stat-donut-chart {
         grid-template-columns: 1fr;
         justify-items:         center;
         text-align:            center;
@@ -1189,13 +1189,13 @@
        capped at the card width via `max-width: 100%`). Mirrors
        the existing rule on the donut-v variant where the legend
        sat below the donut from the start. */
-    .wt-statistics-chart .wt-stat-donut .wt-stat-legend {
+    .wt-statistics-chart .wt-stat-donut-chart .wt-stat-donut-chart-legend {
         width:     max-content;
         max-width: 100%;
     }
 }
 
-.wt-statistics-chart .wt-stat-legend {
+.wt-statistics-chart .wt-stat-donut-chart-legend {
     display:        flex;
     flex-direction: column;
     gap:            6px;
@@ -1205,14 +1205,14 @@
        whatever pixels remain after the donut takes its auto
        slice. `max-width: 100%` falls back to card width if a
        single label is wider than the card (extreme edge case);
-       the container query in `.wt-stat-donut` stacks the legend
+       the container query in `.wt-stat-donut-chart` stacks the legend
        below when it can't fit beside the donut. */
     width:          max-content;
     max-width:      100%;
     min-width:      0;
 }
 
-.wt-statistics-chart .wt-stat-legend-row {
+.wt-statistics-chart .wt-stat-donut-chart-legend-row {
     display:               grid;
     /* col1 = 12 px for the colour dot (8 px swatch + slack so it
        doesn't crop at the row's left edge).
@@ -1232,18 +1232,18 @@
     border-bottom:         1px solid var(--border-soft);
 }
 
-.wt-statistics-chart .wt-stat-legend-row:last-child {
+.wt-statistics-chart .wt-stat-donut-chart-legend-row:last-child {
     border-bottom: none;
 }
 
-.wt-statistics-chart .wt-stat-legend-dot {
+.wt-statistics-chart .wt-stat-donut-chart-legend-dot {
     width:         8px;
     height:        8px;
     border-radius: 2px;
     background:    var(--ink-3);
 }
 
-.wt-statistics-chart .wt-stat-legend-lab {
+.wt-statistics-chart .wt-stat-donut-chart-legend-lab {
     color:         var(--ink);
     min-width:     0;
     overflow:      hidden;
@@ -1251,7 +1251,7 @@
     white-space:   nowrap;
 }
 
-.wt-statistics-chart .wt-stat-legend-val {
+.wt-statistics-chart .wt-stat-donut-chart-legend-val {
     color:                var(--ink);
     font-family:          var(--mono);
     font-variant-numeric: tabular-nums;
@@ -1259,7 +1259,7 @@
     justify-self:         end;
 }
 
-.wt-statistics-chart .wt-stat-legend-pct {
+.wt-statistics-chart .wt-stat-donut-chart-legend-pct {
     color:                var(--ink-3);
     font-family:          var(--mono);
     font-size:            12px;
@@ -1273,10 +1273,10 @@
    cleanly under each other instead of spanning the full card width
    and looking sparse. `width: max-content` makes the legend exactly
    as wide as its widest row (so no trailing blank space rightwards
-   of the percent column), and the parent `.wt-stat-donut-v` already
+   of the percent column), and the parent `.wt-stat-donut-chart-v` already
    centres grid items, so the whole legend stack sits centred under
    the donut without an extra margin rule. */
-.wt-statistics-chart .wt-stat-donut-v .wt-stat-legend {
+.wt-statistics-chart .wt-stat-donut-chart-v .wt-stat-donut-chart-legend {
     width:     max-content;
     max-width: 100%;
 }
@@ -1286,7 +1286,7 @@
    The SVG itself ships with the headline value inside the arc; an
    optional meta + caption stack underneath the gauge.
    -------------------------------------------------------------------- */
-.wt-statistics-chart .wt-stat-gauge-wrap {
+.wt-statistics-chart .wt-stat-gauge-arc-wrap {
     display:        flex;
     flex-direction: column;
     align-items:    center;
@@ -1294,7 +1294,7 @@
     width:          100%;
 }
 
-.wt-statistics-chart .wt-stat-gauge-host {
+.wt-statistics-chart .wt-stat-gauge-arc-container {
     /* viewBox is 200×124 — cap the rendered width at 200 px so the
        value text sits at its native 56 px font-size and stays in
        the upper half of the arc. Above 200 the SVG scales up via
@@ -1304,16 +1304,15 @@
     max-width: 200px;
 }
 
-.wt-statistics-chart svg.wt-stat-gauge {
+.wt-statistics-chart svg.msc-gauge-arc {
     display: block;
     width:   100%;
     height:  auto;
 }
 
-/* Eyebrow-style caption right under the gauge SVG (e.g.
-   "DOCUMENTED" / "LACY 1989") — matches design2 `.gs-gauge-label`,
-   sitting between the arc and the mono meta line. */
-.wt-statistics-chart .wt-stat-gauge-label {
+/* Eyebrow-style caption right under the gauge SVG, sitting between
+   the arc and the mono meta line. */
+.wt-statistics-chart .wt-stat-gauge-arc-label {
     margin:         8px 0 0;
     font-family:    var(--sans);
     font-size:      10px;
@@ -1324,7 +1323,7 @@
     text-align:     center;
 }
 
-.wt-statistics-chart .wt-stat-gauge-meta {
+.wt-statistics-chart .wt-stat-gauge-arc-meta {
     display:        flex;
     flex-direction: column;
     align-items:    center;
@@ -1333,12 +1332,12 @@
     text-align:     center;
 }
 
-.wt-statistics-chart .wt-stat-gauge-meta-line {
+.wt-statistics-chart .wt-stat-gauge-arc-meta-line {
     font-size: 12px;
     color:     var(--ink-2);
 }
 
-.wt-statistics-chart .wt-stat-gauge-meta-cap {
+.wt-statistics-chart .wt-stat-gauge-arc-meta-cap {
     font-size: 11px;
     color:     var(--ink-3);
 }
@@ -1347,30 +1346,30 @@
    Month radial — 12-slice radial clock chart for monthly/zodiac data.
    Server-rendered SVG, no JS.
    -------------------------------------------------------------------- */
-.wt-statistics-chart .wt-stat-radial-host {
+.wt-statistics-chart .wt-stat-month-radial-container {
     width:  100%;
     margin: 0 auto;
 }
 
-.wt-statistics-chart svg.wt-stat-radial-svg {
+.wt-statistics-chart svg.msc-month-radial {
     width:   100%;
     height:  auto;
     display: block;
 }
 
-.wt-statistics-chart .wt-stat-radial-lab {
+.wt-statistics-chart .msc-month-radial-lab {
     font-family: var(--sans);
     font-size:   11px;
     font-weight: 500;
 }
 
-.wt-statistics-chart .wt-stat-radial-center {
+.wt-statistics-chart .msc-month-radial-center {
     font-family: var(--serif);
     font-size:   20px;
     font-weight: 400;
 }
 
-.wt-statistics-chart .wt-stat-radial-sub {
+.wt-statistics-chart .msc-month-radial-sub {
     font-family:    var(--sans);
     font-size:      10px;
     letter-spacing: 0.12em;
@@ -1380,12 +1379,12 @@
 /* Hover / selection highlight: the focused slice brightens
    slightly; surrounding slices stay at their default fill.
    Mirrors the donut / bar-chart / box-plot hover treatment. */
-.wt-statistics-chart svg.wt-stat-radial-svg path.wt-stat-radial-slice {
+.wt-statistics-chart svg.msc-month-radial path.msc-month-radial-slice {
     transition: filter 200ms ease-out;
 }
 
-.wt-statistics-chart svg.wt-stat-radial-svg path.wt-stat-radial-slice:hover,
-.wt-statistics-chart svg.wt-stat-radial-svg path.wt-stat-radial-slice.is-selected {
+.wt-statistics-chart svg.msc-month-radial path.msc-month-radial-slice:hover,
+.wt-statistics-chart svg.msc-month-radial path.msc-month-radial-slice.is-selected {
     opacity: 0.75;
     cursor: pointer;
 }
@@ -1397,7 +1396,7 @@
 /* The max-height tracks the host card's span — a span-12 card gets
    the full 600 px, a span-6 card 300 px, a span-4 card 200 px, etc.
    Cards that don't expose `--wt-stat-card-span` fall back to 600 px. */
-.wt-statistics-chart .wt-stat-bubble-host {
+.wt-statistics-chart .wt-stat-name-bubbles-container {
     width:           100%;
     max-height:      calc(var(--wt-stat-card-span, 12) * 50px);
     overflow:        hidden;
@@ -1406,14 +1405,14 @@
     justify-content: center;
 }
 
-.wt-statistics-chart svg.wt-stat-bubble {
+.wt-statistics-chart svg.msc-name-bubbles {
     display:    block;
     width:      100%;
     max-height: calc(var(--wt-stat-card-span, 12) * 50px);
     height:     auto;
 }
 
-.wt-statistics-chart .wt-stat-bubble-g {
+.wt-statistics-chart .msc-name-bubbles-bubble {
     transition: opacity 240ms ease;
 }
 
@@ -1614,7 +1613,7 @@
    Donut chart slices
    -------------------------------------------------------------------- */
 
-.wt-statistics-chart svg.donut-chart path.slice {
+.wt-statistics-chart svg.msc-donut-chart path.msc-donut-chart-slice {
     cursor: default;
 }
 
@@ -1625,16 +1624,9 @@
  * stream-graph / sankey hover treatment so click and hover read
  * the same across the dashboard.
  */
-.wt-statistics-chart svg.donut-chart path.slice:hover,
-.wt-statistics-chart svg.donut-chart path.slice.is-selected {
+.wt-statistics-chart svg.msc-donut-chart path.msc-donut-chart-slice:hover,
+.wt-statistics-chart svg.msc-donut-chart path.msc-donut-chart-slice.is-selected {
     opacity: 0.75;
-}
-
-.wt-statistics-chart .donut-chart-container .donut-chart {
-    display:         flex;
-    justify-content: center;
-    align-items:     center;
-    height:          250px;
 }
 
 .wt-statistics-chart .male {
@@ -1746,7 +1738,7 @@
     text-align: right;
 }
 
-.wt-statistics-chart .progress-bar-table .progress-bar {
+.wt-statistics-chart .progress-bar-table .msc-progress-list-bar {
     border-radius: var(--bs-progress-border-radius);
 }
 
@@ -2177,14 +2169,10 @@
    Stream graph (Names tab — given-name popularity)
    -------------------------------------------------------------------- */
 
-.wt-statistics-chart .wt-stream-graph-container {
-    width:  100%;
-    height: auto;
-}
-
-.wt-statistics-chart .wt-stream-graph-host {
+.wt-statistics-chart .wt-stat-stream-graph-container {
     display:  block;
     width:    100%;
+    height:   auto;
     position: relative;
 }
 
@@ -2196,7 +2184,7 @@
    or triggering a page-level scrollbar. Hence the rules are NOT scoped
    to .wt-statistics-chart — that scope wouldn't apply on the body.
 
-   Every chart shares ONE `.wt-chart-tooltip` base class. Per-chart hook
+   Every chart shares ONE `.msc-chart-tooltip` base class. Per-chart hook
    classes (.wt-donut-tooltip etc.) stay on the element only so JS can
    tell them apart for cleanup — they carry no own styling.
    -------------------------------------------------------------------- */
@@ -2210,7 +2198,7 @@
  * (transparent / currentColor / 0) and the tooltip surface
  * disappears.
  */
-.wt-chart-tooltip {
+.msc-chart-tooltip {
     position:        fixed;
     pointer-events:  none;
     z-index:         1080;
@@ -2236,20 +2224,20 @@
     overflow-wrap:   anywhere;
 }
 
-.wt-chart-tooltip.is-visible {
+.msc-chart-tooltip.is-visible {
     opacity: 1;
 }
 
-.wt-chart-tooltip strong {
+.msc-chart-tooltip strong {
     font-weight: 600;
     color:       var(--paper, #fafafa);
 }
 
-.wt-chart-tooltip__stat {
+.msc-chart-tooltip__stat {
     color: var(--paper, #fafafa);
 }
 
-.wt-chart-tooltip__meta {
+.msc-chart-tooltip__meta {
     color:     color-mix(in srgb, var(--paper, #fafafa) 70%, transparent);
     font-size: 10px;
 }
@@ -2257,31 +2245,31 @@
 /*
  * Dark mode inverts the tooltip — paper surface, ink text — so the
  * tip keeps contrast against the dark page background. The tooltip
- * lives on `document.body` (see the comment above .wt-chart-tooltip),
+ * lives on `document.body` (see the comment above .msc-chart-tooltip),
  * so we anchor under [data-bs-theme="dark"] directly.
  */
-[data-bs-theme="dark"] .wt-chart-tooltip {
+[data-bs-theme="dark"] .msc-chart-tooltip {
     background: #fafafa;
     color:      #0d0d0d;
 }
 
-[data-bs-theme="dark"] .wt-chart-tooltip strong,
-[data-bs-theme="dark"] .wt-chart-tooltip__stat {
+[data-bs-theme="dark"] .msc-chart-tooltip strong,
+[data-bs-theme="dark"] .msc-chart-tooltip__stat {
     color: #0d0d0d;
 }
 
-[data-bs-theme="dark"] .wt-chart-tooltip__meta {
+[data-bs-theme="dark"] .msc-chart-tooltip__meta {
     color: color-mix(in srgb, #0d0d0d 70%, transparent);
 }
 
-.wt-statistics-chart svg.wt-stream-graph {
+.wt-statistics-chart svg.msc-stream-graph {
     width:    100%;
     height:   auto;
     display:  block;
     overflow: hidden;
 }
 
-.wt-statistics-chart svg.wt-stream-graph path.band {
+.wt-statistics-chart svg.msc-stream-graph path.msc-stream-graph-band {
     transition: opacity 200ms ease-out;
     cursor:     default;
 }
@@ -2290,25 +2278,25 @@
  * Hover / selection highlight: the focused band brightens; the
  * surrounding bands stay at their default fill.
  */
-.wt-statistics-chart svg.wt-stream-graph path.band:hover,
-.wt-statistics-chart svg.wt-stream-graph path.band.is-selected {
+.wt-statistics-chart svg.msc-stream-graph path.msc-stream-graph-band:hover,
+.wt-statistics-chart svg.msc-stream-graph path.msc-stream-graph-band.is-selected {
     opacity: 0.75;
 }
 
-.wt-statistics-chart svg.wt-stream-graph .x-axis line,
-.wt-statistics-chart svg.wt-stream-graph .x-axis path {
+.wt-statistics-chart svg.msc-stream-graph .msc-stream-graph-x-axis line,
+.wt-statistics-chart svg.msc-stream-graph .msc-stream-graph-x-axis path {
     stroke: var(--border);
 }
 
-.wt-statistics-chart svg.wt-stream-graph .x-axis text {
+.wt-statistics-chart svg.msc-stream-graph .msc-stream-graph-x-axis text {
     fill:                 var(--wmstats-card-muted);
     font-family:          var(--mono);
     font-size:            12px;
     font-variant-numeric: tabular-nums;
 }
 
-.wt-statistics-chart svg.wt-stream-graph .y-axis line,
-.wt-statistics-chart svg.wt-stream-graph .y-axis path {
+.wt-statistics-chart svg.msc-stream-graph .msc-stream-graph-y-axis line,
+.wt-statistics-chart svg.msc-stream-graph .msc-stream-graph-y-axis path {
     display: none;
 }
 
@@ -2336,14 +2324,14 @@
     --bs-progress-label-gradient-end:   var(--wmstats-gradient-deaths-end);
 }
 
-.wt-statistics-chart .world-map-container .world-map {
+.wt-statistics-chart .wt-stat-world-map-container {
     display:         flex;
     justify-content: center;
     align-items:     center;
     height:          100%;
 }
 
-.wt-statistics-chart .world-map-container .world-map svg path {
+.wt-statistics-chart .wt-stat-world-map-container .msc-world-map path {
     stroke:       var(--wmstats-map-stroke);
     stroke-width: 0.5px;
 }
@@ -2352,25 +2340,21 @@
    Sankey flow (Places tab — birth→death country migrations)
    -------------------------------------------------------------------- */
 
-.wt-statistics-chart .wt-sankey-container {
-    width:  100%;
-    height: auto;
-}
-
-.wt-statistics-chart .wt-sankey-host {
+.wt-statistics-chart .wt-stat-sankey-flow-container {
     display:  block;
     width:    100%;
+    height:   auto;
     position: relative;
 }
 
-.wt-statistics-chart svg.wt-sankey {
+.wt-statistics-chart svg.msc-sankey-flow {
     width:    100%;
     height:   auto;
     display:  block;
     overflow: hidden;
 }
 
-.wt-statistics-chart svg.wt-sankey path.link {
+.wt-statistics-chart svg.msc-sankey-flow path.msc-sankey-flow-link {
     transition: stroke-opacity 200ms ease-out;
     cursor:     default;
 }
@@ -2380,17 +2364,17 @@
  * opacity; surrounding flows stay at their default visibility so
  * the chart context survives the focus.
  */
-.wt-statistics-chart svg.wt-sankey path.link:hover,
-.wt-statistics-chart svg.wt-sankey path.link.is-selected {
+.wt-statistics-chart svg.msc-sankey-flow path.msc-sankey-flow-link:hover,
+.wt-statistics-chart svg.msc-sankey-flow path.msc-sankey-flow-link.is-selected {
     opacity: 0.75;
 }
 
-.wt-statistics-chart svg.wt-sankey .nodes rect {
+.wt-statistics-chart svg.msc-sankey-flow .msc-sankey-flow-nodes rect {
     stroke:       var(--border);
     stroke-width: 0.5px;
 }
 
-.wt-statistics-chart svg.wt-sankey .node-label {
+.wt-statistics-chart svg.msc-sankey-flow .msc-sankey-flow-node-label {
     fill:                 var(--ink-2);
     font-size:            0.78rem;
     font-variant-numeric: tabular-nums;
@@ -2401,78 +2385,74 @@
    Line chart (TreeHealth tab — births per decade growth curve)
    -------------------------------------------------------------------- */
 
-.wt-statistics-chart .wt-line-chart-container {
-    width:  100%;
-    height: auto;
-}
-
-.wt-statistics-chart .wt-line-chart-host {
+.wt-statistics-chart .wt-stat-line-chart-container {
     display:  block;
     width:    100%;
+    height:   auto;
     position: relative;
 }
 
-.wt-statistics-chart svg.wt-line-chart {
+.wt-statistics-chart svg.msc-line-chart {
     width:  100%;
     height: auto;
     display: block;
 }
 
-.wt-statistics-chart svg.wt-line-chart .line {
+.wt-statistics-chart svg.msc-line-chart .msc-line-chart-line {
     stroke:       var(--wine);
     stroke-width: 1.75px;
     fill:         none;
 }
 
-.wt-statistics-chart svg.wt-line-chart .area {
+.wt-statistics-chart svg.msc-line-chart .msc-line-chart-area {
     /* Opacity is owned by the LineChart widget (inline style, so the entrance
        fade can animate); only the fill colour lives here. */
     fill: var(--wine);
 }
 
-.wt-statistics-chart svg.wt-line-chart .point {
+.wt-statistics-chart svg.msc-line-chart .msc-line-chart-point {
     fill:         var(--wine);
     stroke:       var(--card);
     stroke-width: 1.5px;
     cursor:       default;
 }
 
-.wt-statistics-chart svg.wt-line-chart .point:hover {
+.wt-statistics-chart svg.msc-line-chart .msc-line-chart-point:hover {
     fill: var(--ink-2);
 }
 
 /* Sex-coloured pairs — `male`/`female` class hooks let the consumer
    pin the slate/wine pairing without depending on chart-lib's
    ordinal colour scale. */
-.wt-statistics-chart svg.wt-line-chart .series.male .line {
+.wt-statistics-chart svg.msc-line-chart .msc-line-chart-series.male .msc-line-chart-line {
     stroke: var(--slate);
 }
 
-.wt-statistics-chart svg.wt-line-chart .series.male .point {
+.wt-statistics-chart svg.msc-line-chart .msc-line-chart-series.male .msc-line-chart-point {
     fill: var(--slate);
 }
 
-.wt-statistics-chart svg.wt-line-chart .series.male .area {
+.wt-statistics-chart svg.msc-line-chart .msc-line-chart-series.male .msc-line-chart-area {
     fill: var(--slate);
 }
 
-.wt-statistics-chart svg.wt-line-chart .legend-swatch.male {
+.wt-statistics-chart svg.msc-line-chart .msc-line-chart-legend-swatch.male {
     fill: var(--slate);
 }
 
-.wt-statistics-chart svg.wt-line-chart .series.female .line {
+.wt-statistics-chart svg.msc-line-chart .msc-line-chart-series.female .msc-line-chart-line {
     stroke: var(--wine);
 }
 
-.wt-statistics-chart svg.wt-line-chart .series.female .point {
+.wt-statistics-chart svg.msc-line-chart .msc-line-chart-series.female .msc-line-chart-point {
     fill: var(--wine);
 }
 
-.wt-statistics-chart svg.wt-line-chart .series.female .area {
+.wt-statistics-chart svg.msc-line-chart .msc-line-chart-series.female .msc-line-chart-area {
     fill: var(--wine);
 }
 
-.wt-statistics-chart svg.wt-line-chart .legend-swatch.female {
+.wt-statistics-chart svg.msc-line-chart .msc-line-chart-legend-swatch.female {
     fill: var(--wine);
 }
 
@@ -2480,67 +2460,67 @@
    triplets, quadruplets, quintuplet+). Each series pins to its
    own colour token so the layered area fills read as distinct
    contributions at a glance. */
-.wt-statistics-chart svg.wt-line-chart .series.multiple-birth-twin .line {
+.wt-statistics-chart svg.msc-line-chart .msc-line-chart-series.multiple-birth-twin .msc-line-chart-line {
     stroke: var(--ochre);
 }
 
-.wt-statistics-chart svg.wt-line-chart .series.multiple-birth-twin .point {
+.wt-statistics-chart svg.msc-line-chart .msc-line-chart-series.multiple-birth-twin .msc-line-chart-point {
     fill: var(--ochre);
 }
 
-.wt-statistics-chart svg.wt-line-chart .series.multiple-birth-twin .area {
+.wt-statistics-chart svg.msc-line-chart .msc-line-chart-series.multiple-birth-twin .msc-line-chart-area {
     fill: var(--ochre);
 }
 
-.wt-statistics-chart svg.wt-line-chart .legend-swatch.multiple-birth-twin {
+.wt-statistics-chart svg.msc-line-chart .msc-line-chart-legend-swatch.multiple-birth-twin {
     fill: var(--ochre);
 }
 
-.wt-statistics-chart svg.wt-line-chart .series.multiple-birth-triplet .line {
+.wt-statistics-chart svg.msc-line-chart .msc-line-chart-series.multiple-birth-triplet .msc-line-chart-line {
     stroke: var(--wine);
 }
 
-.wt-statistics-chart svg.wt-line-chart .series.multiple-birth-triplet .point {
+.wt-statistics-chart svg.msc-line-chart .msc-line-chart-series.multiple-birth-triplet .msc-line-chart-point {
     fill: var(--wine);
 }
 
-.wt-statistics-chart svg.wt-line-chart .series.multiple-birth-triplet .area {
+.wt-statistics-chart svg.msc-line-chart .msc-line-chart-series.multiple-birth-triplet .msc-line-chart-area {
     fill: var(--wine);
 }
 
-.wt-statistics-chart svg.wt-line-chart .legend-swatch.multiple-birth-triplet {
+.wt-statistics-chart svg.msc-line-chart .msc-line-chart-legend-swatch.multiple-birth-triplet {
     fill: var(--wine);
 }
 
-.wt-statistics-chart svg.wt-line-chart .series.multiple-birth-quadruplet .line {
+.wt-statistics-chart svg.msc-line-chart .msc-line-chart-series.multiple-birth-quadruplet .msc-line-chart-line {
     stroke: var(--slate);
 }
 
-.wt-statistics-chart svg.wt-line-chart .series.multiple-birth-quadruplet .point {
+.wt-statistics-chart svg.msc-line-chart .msc-line-chart-series.multiple-birth-quadruplet .msc-line-chart-point {
     fill: var(--slate);
 }
 
-.wt-statistics-chart svg.wt-line-chart .series.multiple-birth-quadruplet .area {
+.wt-statistics-chart svg.msc-line-chart .msc-line-chart-series.multiple-birth-quadruplet .msc-line-chart-area {
     fill: var(--slate);
 }
 
-.wt-statistics-chart svg.wt-line-chart .legend-swatch.multiple-birth-quadruplet {
+.wt-statistics-chart svg.msc-line-chart .msc-line-chart-legend-swatch.multiple-birth-quadruplet {
     fill: var(--slate);
 }
 
-.wt-statistics-chart svg.wt-line-chart .series.multiple-birth-quintuplet-plus .line {
+.wt-statistics-chart svg.msc-line-chart .msc-line-chart-series.multiple-birth-quintuplet-plus .msc-line-chart-line {
     stroke: var(--sage);
 }
 
-.wt-statistics-chart svg.wt-line-chart .series.multiple-birth-quintuplet-plus .point {
+.wt-statistics-chart svg.msc-line-chart .msc-line-chart-series.multiple-birth-quintuplet-plus .msc-line-chart-point {
     fill: var(--sage);
 }
 
-.wt-statistics-chart svg.wt-line-chart .series.multiple-birth-quintuplet-plus .area {
+.wt-statistics-chart svg.msc-line-chart .msc-line-chart-series.multiple-birth-quintuplet-plus .msc-line-chart-area {
     fill: var(--sage);
 }
 
-.wt-statistics-chart svg.wt-line-chart .legend-swatch.multiple-birth-quintuplet-plus {
+.wt-statistics-chart svg.msc-line-chart .msc-line-chart-legend-swatch.multiple-birth-quintuplet-plus {
     fill: var(--sage);
 }
 
@@ -2551,21 +2531,21 @@
    back to the browser default 16 px while only the axis-tick
    inline-rules sat at 0.7 rem, visibly mixing two scales inside
    the same widget. */
-.wt-statistics-chart svg.wt-line-chart .x-axis text,
-.wt-statistics-chart svg.wt-line-chart .y-axis text {
+.wt-statistics-chart svg.msc-line-chart .msc-line-chart-x-axis text,
+.wt-statistics-chart svg.msc-line-chart .msc-line-chart-y-axis text {
     fill:                 var(--ink-2);
     font-family:          var(--mono);
     font-size:            12px;
     font-variant-numeric: tabular-nums;
 }
 
-.wt-statistics-chart svg.wt-line-chart .line-legend text {
+.wt-statistics-chart svg.msc-line-chart .msc-line-chart-line-legend text {
     fill:        var(--ink-2);
     font-family: var(--sans);
     font-size:   12px;
 }
 
-.wt-statistics-chart svg.wt-line-chart .axis-label {
+.wt-statistics-chart svg.msc-line-chart .msc-line-chart-axis-label {
     fill:           var(--ink-3);
     font-family:    var(--sans);
     font-size:      0.7rem;
@@ -2577,12 +2557,12 @@
 /* Y-axis as gridline strip — chart-lib drops the axis baseline
    ("domain") at render-time; each tick mark renders as a faint
    dashed cross-bar. */
-.wt-statistics-chart svg.wt-line-chart .y-axis .tick line {
+.wt-statistics-chart svg.msc-line-chart .msc-line-chart-y-axis .tick line {
     stroke:           var(--border-soft);
     stroke-dasharray: 2 3;
 }
 
-.wt-statistics-chart svg.wt-line-chart .x-axis .tick line {
+.wt-statistics-chart svg.msc-line-chart .msc-line-chart-x-axis .tick line {
     stroke: var(--border);
 }
 
@@ -2590,8 +2570,8 @@
    Bar chart (chart-lib BarChart)
    -------------------------------------------------------------------- */
 
-.wt-statistics-chart svg.wt-bar-chart rect.bar,
-.wt-statistics-chart svg.wt-bar-chart path.bar {
+.wt-statistics-chart svg.msc-bar-chart rect.msc-bar-chart-bar,
+.wt-statistics-chart svg.msc-bar-chart path.msc-bar-chart-bar {
     fill:       var(--wt-stat-card-accent, var(--slate));
     transition: opacity 200ms ease-out;
     cursor:     pointer;
@@ -2599,8 +2579,8 @@
 
 /* Faint secondary baseline below the main x-axis, mirroring the
    editorial mockup's double-line histogram footer. */
-.wt-statistics-chart svg.wt-bar-chart .x-axis text,
-.wt-statistics-chart svg.wt-bar-chart .y-axis text {
+.wt-statistics-chart svg.msc-bar-chart .msc-bar-chart-x-axis text,
+.wt-statistics-chart svg.msc-bar-chart .msc-bar-chart-y-axis text {
     fill:                 var(--ink-2);
     font-family:          var(--mono);
     font-size:            12px;
@@ -2611,11 +2591,11 @@
    per-tick stub lines at render-time. Only the dedicated
    x-axis-rule remains as a faint horizontal hairline rendered
    below the tick labels. */
-.wt-statistics-chart svg.wt-bar-chart .x-axis line.x-axis-rule {
+.wt-statistics-chart svg.msc-bar-chart .msc-bar-chart-x-axis line.msc-bar-chart-x-axis-rule {
     stroke: var(--border-soft);
 }
 
-.wt-statistics-chart svg.wt-bar-chart .axis-label {
+.wt-statistics-chart svg.msc-bar-chart .msc-bar-chart-axis-label {
     fill:           var(--ink-3);
     font-family:    var(--sans);
     font-size:      0.7rem;
@@ -2624,7 +2604,7 @@
     text-transform: uppercase;
 }
 
-.wt-statistics-chart svg.wt-bar-chart text.bar-value {
+.wt-statistics-chart svg.msc-bar-chart text.msc-bar-chart-bar-value {
     fill:                 var(--ink-2);
     font-family:          var(--mono);
     font-size:            12px;
@@ -2638,10 +2618,10 @@
  * donut / stream-graph / sankey rules so click + hover read the
  * same across the dashboard.
  */
-.wt-statistics-chart svg.wt-bar-chart rect.bar:hover,
-.wt-statistics-chart svg.wt-bar-chart rect.bar.is-selected,
-.wt-statistics-chart svg.wt-bar-chart path.bar:hover,
-.wt-statistics-chart svg.wt-bar-chart path.bar.is-selected {
+.wt-statistics-chart svg.msc-bar-chart rect.msc-bar-chart-bar:hover,
+.wt-statistics-chart svg.msc-bar-chart rect.msc-bar-chart-bar.is-selected,
+.wt-statistics-chart svg.msc-bar-chart path.msc-bar-chart-bar:hover,
+.wt-statistics-chart svg.msc-bar-chart path.msc-bar-chart-bar.is-selected {
     opacity: 0.75;
 }
 
@@ -2649,8 +2629,8 @@
    Box plot (chart-lib BoxPlot)
    -------------------------------------------------------------------- */
 
-.wt-statistics-chart svg.wt-box-plot .x-axis text,
-.wt-statistics-chart svg.wt-box-plot .y-axis text {
+.wt-statistics-chart svg.msc-box-plot .msc-box-plot-x-axis text,
+.wt-statistics-chart svg.msc-box-plot .msc-box-plot-y-axis text {
     fill:                 var(--ink-2);
     font-family:          var(--mono);
     font-size:            12px;
@@ -2660,21 +2640,21 @@
 /* Value axis renders as a gridline strip via tickSize(-innerWidth);
    category-axis tick stubs render as short hairlines below the
    labels, mirroring the line-chart x-axis. */
-.wt-statistics-chart svg.wt-box-plot .y-axis--grid .tick line,
-.wt-statistics-chart svg.wt-box-plot .x-axis--grid .tick line {
+.wt-statistics-chart svg.msc-box-plot .msc-box-plot-y-axis--grid .tick line,
+.wt-statistics-chart svg.msc-box-plot .msc-box-plot-x-axis--grid .tick line {
     stroke:           var(--border-soft);
     stroke-dasharray: 2 3;
 }
 
-.wt-statistics-chart svg.wt-box-plot .x-axis:not(.x-axis--grid) .tick line,
-.wt-statistics-chart svg.wt-box-plot .y-axis:not(.y-axis--grid) .tick line {
+.wt-statistics-chart svg.msc-box-plot .msc-box-plot-x-axis:not(.msc-box-plot-x-axis--grid) .tick line,
+.wt-statistics-chart svg.msc-box-plot .msc-box-plot-y-axis:not(.msc-box-plot-y-axis--grid) .tick line {
     stroke: var(--border);
 }
 
 /* Whiskers + caps share the card accent at a hairline weight so
    the IQR box stays the eye's primary anchor. */
-.wt-statistics-chart svg.wt-box-plot .whisker,
-.wt-statistics-chart svg.wt-box-plot .whisker-cap {
+.wt-statistics-chart svg.msc-box-plot .msc-box-plot-whisker,
+.wt-statistics-chart svg.msc-box-plot .msc-box-plot-whisker-cap {
     stroke:       var(--wt-stat-card-accent, var(--wine));
     stroke-width: 1.5;
     fill:         none;
@@ -2683,7 +2663,7 @@
 /* IQR rectangle: outlined in the accent, filled with the same
    colour mixed 22 % into the card surface so the box reads as a
    semi-transparent band. */
-.wt-statistics-chart svg.wt-box-plot rect.box {
+.wt-statistics-chart svg.msc-box-plot rect.msc-box-plot-box {
     fill:         color-mix(in srgb, var(--wt-stat-card-accent, var(--wine)) 22%, var(--card));
     stroke:       var(--wt-stat-card-accent, var(--wine));
     stroke-width: 1.5;
@@ -2691,7 +2671,7 @@
 
 /* Median line in the card accent at 3 px so it dominates the box
    visually. */
-.wt-statistics-chart svg.wt-box-plot line.median {
+.wt-statistics-chart svg.msc-box-plot line.msc-box-plot-median {
     stroke:       var(--wt-stat-card-accent, var(--wine));
     stroke-width: 3;
     fill:         none;
@@ -2702,7 +2682,7 @@
    render as a plain ink-coloured number. `central` keeps the
    glyph mid-height pinned to the y-position rather than the
    alphabetic baseline. */
-.wt-statistics-chart svg.wt-box-plot text.median-value {
+.wt-statistics-chart svg.msc-box-plot text.msc-box-plot-median-value {
     fill:                 var(--ink);
     font-family:          var(--serif, var(--sans));
     font-size:            13px;
@@ -2713,7 +2693,7 @@
 
 /* Sample size label below the category tick. Numeric data, so it
    sits on the same monospaced system as the axis ticks. */
-.wt-statistics-chart svg.wt-box-plot text.sample-size {
+.wt-statistics-chart svg.msc-box-plot text.msc-box-plot-sample-size {
     fill:                 var(--ink-3);
     font-family:          var(--mono);
     font-size:            10px;
@@ -2723,7 +2703,7 @@
 
 /* Outlier dots in the accent at 0.6 opacity — visible without
    competing with the box itself. */
-.wt-statistics-chart svg.wt-box-plot circle.outlier {
+.wt-statistics-chart svg.msc-box-plot circle.msc-box-plot-outlier {
     fill:    var(--wt-stat-card-accent, var(--wine));
     opacity: 0.6;
 }
@@ -2733,7 +2713,7 @@
    at rest; revealed only when the parent cohort is hovered or
    selected so the reader can read P25 / P75 straight off the
    y-axis without the chart being noisy. */
-.wt-statistics-chart svg.wt-box-plot line.box-guide {
+.wt-statistics-chart svg.msc-box-plot line.msc-box-plot-box-guide {
     stroke:           var(--ink-2);
     stroke-width:     1;
     stroke-dasharray: 3 3;
@@ -2742,8 +2722,8 @@
     transition:       opacity 150ms ease-out;
 }
 
-.wt-statistics-chart svg.wt-box-plot g.cohort:hover line.box-guide,
-.wt-statistics-chart svg.wt-box-plot g.cohort.is-selected line.box-guide {
+.wt-statistics-chart svg.msc-box-plot g.msc-box-plot-cohort:hover line.msc-box-plot-box-guide,
+.wt-statistics-chart svg.msc-box-plot g.msc-box-plot-cohort.is-selected line.msc-box-plot-box-guide {
     opacity: 0.7;
 }
 
@@ -2753,17 +2733,17 @@
    through). Whiskers / caps / outliers reuse the opacity shift
    used elsewhere — they are already opaque so transparency is
    safe there. */
-.wt-statistics-chart svg.wt-box-plot g.cohort:hover rect.box,
-.wt-statistics-chart svg.wt-box-plot g.cohort.is-selected rect.box {
+.wt-statistics-chart svg.msc-box-plot g.msc-box-plot-cohort:hover rect.msc-box-plot-box,
+.wt-statistics-chart svg.msc-box-plot g.msc-box-plot-cohort.is-selected rect.msc-box-plot-box {
     fill: color-mix(in srgb, var(--wt-stat-card-accent, var(--wine)) 45%, var(--card));
 }
 
-.wt-statistics-chart svg.wt-box-plot g.cohort:hover .whisker,
-.wt-statistics-chart svg.wt-box-plot g.cohort:hover .whisker-cap,
-.wt-statistics-chart svg.wt-box-plot g.cohort:hover .outlier,
-.wt-statistics-chart svg.wt-box-plot g.cohort.is-selected .whisker,
-.wt-statistics-chart svg.wt-box-plot g.cohort.is-selected .whisker-cap,
-.wt-statistics-chart svg.wt-box-plot g.cohort.is-selected .outlier {
+.wt-statistics-chart svg.msc-box-plot g.msc-box-plot-cohort:hover .msc-box-plot-whisker,
+.wt-statistics-chart svg.msc-box-plot g.msc-box-plot-cohort:hover .msc-box-plot-whisker-cap,
+.wt-statistics-chart svg.msc-box-plot g.msc-box-plot-cohort:hover .msc-box-plot-outlier,
+.wt-statistics-chart svg.msc-box-plot g.msc-box-plot-cohort.is-selected .msc-box-plot-whisker,
+.wt-statistics-chart svg.msc-box-plot g.msc-box-plot-cohort.is-selected .msc-box-plot-whisker-cap,
+.wt-statistics-chart svg.msc-box-plot g.msc-box-plot-cohort.is-selected .msc-box-plot-outlier {
     opacity: 0.75;
 }
 
@@ -2784,42 +2764,34 @@
 }
 
 /* ----------------------------------------------------------------------
-   Diverging bar chart (chart-lib DivergingBar) — design2 layout: per-row
-   3-column grid (left bar | centre label | right bar), no x-axis. The
-   negative-sign side reads slate (husband-older), positive-sign side
-   reads rose (wife-older), matching the other M/F splits on the tab.
-   -------------------------------------------------------------------- */
-
-.wt-statistics-chart svg.wt-diverging-bar rect.wt-diverging-bar-left {
-    fill: var(--slate);
-}
-
-.wt-statistics-chart svg.wt-diverging-bar rect.wt-diverging-bar-right {
-    fill: var(--rose);
-}
-
-/* ----------------------------------------------------------------------
    Mirror histogram (chart-lib MirrorHistogram) — slate (top side =
    male/father/husband) and rose (bot side = female/mother/wife).
    Tokens applied via per-side class hooks so callers don't have to
    thread colour strings through PHP options.
    -------------------------------------------------------------------- */
 
-.wt-statistics-chart svg.wt-stat-mirror path.wt-stat-mirror-bar-top {
-    fill: var(--slate);
+.wt-statistics-chart svg.msc-mirror-histogram path.msc-mirror-histogram-bar-top {
+    fill:       var(--slate);
+    transition: opacity 160ms;
 }
 
-.wt-statistics-chart svg.wt-stat-mirror path.wt-stat-mirror-bar-bot {
-    fill: var(--rose);
+.wt-statistics-chart svg.msc-mirror-histogram path.msc-mirror-histogram-bar-bot {
+    fill:       var(--rose);
+    transition: opacity 160ms;
 }
 
-.wt-statistics-chart svg.wt-stat-mirror text.wt-stat-mirror-axislabel-top {
+.wt-statistics-chart svg.msc-mirror-histogram path.msc-mirror-histogram-bar-top:hover,
+.wt-statistics-chart svg.msc-mirror-histogram path.msc-mirror-histogram-bar-bot:hover {
+    opacity: 0.82;
+}
+
+.wt-statistics-chart svg.msc-mirror-histogram text.msc-mirror-histogram-axislabel-top {
     fill:        var(--slate);
     font-family: var(--sans);
     font-size:   12px;
 }
 
-.wt-statistics-chart svg.wt-stat-mirror text.wt-stat-mirror-axislabel-bot {
+.wt-statistics-chart svg.msc-mirror-histogram text.msc-mirror-histogram-axislabel-bot {
     fill:        var(--rose);
     font-family: var(--sans);
     font-size:   12px;
@@ -2828,7 +2800,7 @@
 /* Category labels are numeric age-band ranges ("15-19", "60+"), so
    they sit on the same monospaced 12 px system as the bar-chart and
    line-chart axis ticks. */
-.wt-statistics-chart svg.wt-stat-mirror text.wt-stat-mirror-cat {
+.wt-statistics-chart svg.msc-mirror-histogram text.msc-mirror-histogram-cat {
     fill:                 var(--ink-2);
     font-family:          var(--mono);
     font-size:            12px;
@@ -2837,35 +2809,11 @@
 
 /* Per-bar value labels carry numeric counts — same mono 12 px
    treatment as the category bands so they align typographically. */
-.wt-statistics-chart svg.wt-stat-mirror text.wt-stat-mirror-val-top,
-.wt-statistics-chart svg.wt-stat-mirror text.wt-stat-mirror-val-bot {
+.wt-statistics-chart svg.msc-mirror-histogram text.msc-mirror-histogram-val-top,
+.wt-statistics-chart svg.msc-mirror-histogram text.msc-mirror-histogram-val-bot {
     font-family:          var(--mono);
     font-size:            12px;
     font-variant-numeric: tabular-nums;
-}
-
-/* ----------------------------------------------------------------------
-   Diverging cap — caption row under the diverging chart, anchored
-   left and right with directional arrows. Design2 `.gs-diverging-cap`.
-   -------------------------------------------------------------------- */
-
-.wt-statistics-chart .wt-stat-diverging-cap {
-    display:         flex;
-    justify-content: space-between;
-    margin-top:      12px;
-    font-family:     var(--sans);
-    font-size:       11px;
-    font-weight:     500;
-    letter-spacing:  0.1em;
-    text-transform:  uppercase;
-}
-
-.wt-statistics-chart .wt-stat-diverging-cap-left {
-    color: var(--slate);
-}
-
-.wt-statistics-chart .wt-stat-diverging-cap-right {
-    color: var(--rose);
 }
 
 /* ----------------------------------------------------------------------
@@ -2877,11 +2825,11 @@
    palette adapts without a per-rule override. The picker echoes the
    card's sage eyebrow via `--pyramid-accent`.
    -------------------------------------------------------------------- */
-.wt-statistics-chart .wt-stat-pyramid {
+.wt-statistics-chart .msc-diverging-bar-chart {
     --pyramid-accent: var(--sage);
 }
 
-.wt-statistics-chart .wt-stat-pyramid-picker {
+.wt-statistics-chart .msc-diverging-bar-chart-picker {
     display:        flex;
     flex-wrap:      wrap;
     gap:            8px;
@@ -2890,7 +2838,7 @@
     border-bottom:  1px solid var(--border-soft);
 }
 
-.wt-statistics-chart .wt-stat-pyramid-group {
+.wt-statistics-chart .msc-diverging-bar-chart-group {
     padding:              6px 12px;
     border:               1px solid var(--border);
     border-radius:        4px;
@@ -2903,12 +2851,12 @@
     transition:           border-color 160ms, color 160ms, background-color 160ms;
 }
 
-.wt-statistics-chart .wt-stat-pyramid-group:hover {
+.wt-statistics-chart .msc-diverging-bar-chart-group:hover {
     border-color: var(--ink-3);
     color:        var(--ink);
 }
 
-.wt-statistics-chart .wt-stat-pyramid-group[aria-pressed="true"] {
+.wt-statistics-chart .msc-diverging-bar-chart-group[aria-pressed="true"] {
     border-color: var(--pyramid-accent);
     color:        var(--ink);
     background:   color-mix(in srgb, var(--pyramid-accent) 8%, transparent);
@@ -2917,67 +2865,67 @@
 /* Pyramid text inherits the sans family from the SVG root; the numeric and
    eyebrow groups below override only what differs (mono family, tracking,
    per-cell fill) rather than re-declaring the shared base on every class. */
-.wt-statistics-chart svg.wt-stat-pyramid-svg {
+.wt-statistics-chart svg.msc-diverging-bar-chart-svg {
     width:       100%;
     height:      auto;
     font-family: var(--sans);
 }
 
-.wt-statistics-chart svg.wt-stat-pyramid-svg path.wt-stat-pyramid-bar-left {
+.wt-statistics-chart svg.msc-diverging-bar-chart-svg path.msc-diverging-bar-chart-bar-left {
     fill:       var(--wmstats-sex-male);
     transition: opacity 160ms;
 }
 
-.wt-statistics-chart svg.wt-stat-pyramid-svg path.wt-stat-pyramid-bar-right {
+.wt-statistics-chart svg.msc-diverging-bar-chart-svg path.msc-diverging-bar-chart-bar-right {
     fill:       var(--wmstats-sex-female);
     transition: opacity 160ms;
 }
 
-.wt-statistics-chart svg.wt-stat-pyramid-svg path.wt-stat-pyramid-bar-left:hover,
-.wt-statistics-chart svg.wt-stat-pyramid-svg path.wt-stat-pyramid-bar-right:hover {
+.wt-statistics-chart svg.msc-diverging-bar-chart-svg path.msc-diverging-bar-chart-bar-left:hover,
+.wt-statistics-chart svg.msc-diverging-bar-chart-svg path.msc-diverging-bar-chart-bar-right:hover {
     opacity: 0.82;
 }
 
 /* The numeric layers — centre-gutter age-band ranges ("60–69", "100+") and the
    per-bar count captions — share one monospaced tabular system set on their
    group <g>; the text children inherit it. Values run a touch smaller. */
-.wt-statistics-chart svg.wt-stat-pyramid-svg .wt-stat-pyramid-bands,
-.wt-statistics-chart svg.wt-stat-pyramid-svg .wt-stat-pyramid-values {
+.wt-statistics-chart svg.msc-diverging-bar-chart-svg .msc-diverging-bar-chart-bands,
+.wt-statistics-chart svg.msc-diverging-bar-chart-svg .msc-diverging-bar-chart-values {
     fill:                 var(--ink-2);
     font-family:          var(--mono);
     font-size:            12px;
     font-variant-numeric: tabular-nums;
 }
 
-.wt-statistics-chart svg.wt-stat-pyramid-svg .wt-stat-pyramid-values {
+.wt-statistics-chart svg.msc-diverging-bar-chart-svg .msc-diverging-bar-chart-values {
     font-size: 11px;
 }
 
 /* The header eyebrows (MÄNNER · AGE · FRAUEN) share an uppercase tracking set
    on the header group; only the per-cell fill (and the slightly smaller,
    neutral axis title) differs. */
-.wt-statistics-chart svg.wt-stat-pyramid-svg .wt-stat-pyramid-header {
+.wt-statistics-chart svg.msc-diverging-bar-chart-svg .msc-diverging-bar-chart-header {
     font-size:      12px;
     font-weight:    600;
     letter-spacing: 0.14em;
     text-transform: uppercase;
 }
 
-.wt-statistics-chart svg.wt-stat-pyramid-svg text.wt-stat-pyramid-sidelabel-left {
+.wt-statistics-chart svg.msc-diverging-bar-chart-svg text.msc-diverging-bar-chart-sidelabel-left {
     fill: var(--wmstats-sex-male);
 }
 
-.wt-statistics-chart svg.wt-stat-pyramid-svg text.wt-stat-pyramid-sidelabel-right {
+.wt-statistics-chart svg.msc-diverging-bar-chart-svg text.msc-diverging-bar-chart-sidelabel-right {
     fill: var(--wmstats-sex-female);
 }
 
-.wt-statistics-chart svg.wt-stat-pyramid-svg text.wt-stat-pyramid-axis-title {
+.wt-statistics-chart svg.msc-diverging-bar-chart-svg text.msc-diverging-bar-chart-axis-title {
     fill:      var(--ink-3);
     font-size: 11px;
 }
 
 /* Solid rules framing the centre age gutter on both sides. */
-.wt-statistics-chart svg.wt-stat-pyramid-svg line.wt-stat-pyramid-separator {
+.wt-statistics-chart svg.msc-diverging-bar-chart-svg line.msc-diverging-bar-chart-separator {
     stroke:       var(--border);
     stroke-width: 1px;
 }
@@ -2989,7 +2937,7 @@
    fill-opacity, so the stylesheet only owns the chrome — axis labels,
    the cell hover lift and the faint baseline of an empty cell.
    -------------------------------------------------------------------- */
-.wt-statistics-chart svg.wt-stat-heatmap-svg {
+.wt-statistics-chart svg.msc-heatmap-svg {
     width:  100%;
     height: auto;
 }
@@ -2997,14 +2945,14 @@
 /* Row labels are numeric period-start years ("1900"), so they share the
    monospaced tabular system the other axis ticks use; the abbreviated month
    column labels stay in the proportional sans because they are words. */
-.wt-statistics-chart svg.wt-stat-heatmap-svg text.wt-stat-heatmap-row {
+.wt-statistics-chart svg.msc-heatmap-svg text.msc-heatmap-row {
     fill:                 var(--ink-2);
     font-family:          var(--mono);
     font-size:            12px;
     font-variant-numeric: tabular-nums;
 }
 
-.wt-statistics-chart svg.wt-stat-heatmap-svg text.wt-stat-heatmap-col {
+.wt-statistics-chart svg.msc-heatmap-svg text.msc-heatmap-col {
     fill:        var(--ink-2);
     font-family: var(--sans);
     font-size:   12px;
@@ -3014,7 +2962,7 @@
    events off so the cell beneath still receives the hover. On a strongly
    tinted cell the dark default would vanish, so the --on-dark variant switches
    to the card colour for contrast. */
-.wt-statistics-chart svg.wt-stat-heatmap-svg text.wt-stat-heatmap-value {
+.wt-statistics-chart svg.msc-heatmap-svg text.msc-heatmap-value {
     fill:                 var(--ink-2);
     font-family:          var(--mono);
     font-size:            10px;
@@ -3022,20 +2970,20 @@
     pointer-events:       none;
 }
 
-.wt-statistics-chart svg.wt-stat-heatmap-svg text.wt-stat-heatmap-value--on-dark {
+.wt-statistics-chart svg.msc-heatmap-svg text.msc-heatmap-value--on-dark {
     fill: var(--card);
 }
 
 /* Hovering a cell grows it slightly so the focused period × month lifts off
    the grid. `transform-box: fill-box` re-bases the origin onto the rect's own
    box so the scale centres on the cell rather than the SVG viewport corner. */
-.wt-statistics-chart svg.wt-stat-heatmap-svg rect.wt-stat-heatmap-cell {
+.wt-statistics-chart svg.msc-heatmap-svg rect.msc-heatmap-cell {
     transition:       transform 120ms;
     transform-box:    fill-box;
     transform-origin: center;
 }
 
-.wt-statistics-chart svg.wt-stat-heatmap-svg rect.wt-stat-heatmap-cell:hover {
+.wt-statistics-chart svg.msc-heatmap-svg rect.msc-heatmap-cell:hover {
     transform: scale(1.1);
 }
 
@@ -3252,39 +3200,35 @@
    Stacked bar chart (chart-lib StackedBar)
    -------------------------------------------------------------------- */
 
-.wt-statistics-chart .wt-stacked-bar-container {
-    width:  100%;
-    height: auto;
-}
-
-.wt-statistics-chart .wt-stacked-bar-host {
+.wt-statistics-chart .wt-stat-stacked-bar-container {
     display:  block;
     width:    100%;
+    height:   auto;
     position: relative;
 }
 
-.wt-statistics-chart svg.wt-stacked-bar {
+.wt-statistics-chart svg.msc-stacked-bar {
     width:  100%;
     height: auto;
     display: block;
 }
 
-.wt-statistics-chart svg.wt-stacked-bar rect.bar {
+.wt-statistics-chart svg.msc-stacked-bar rect.msc-stacked-bar-segment {
     transition: opacity 200ms ease-out;
 }
 
-.wt-statistics-chart svg.wt-stacked-bar .x-axis text,
-.wt-statistics-chart svg.wt-stacked-bar .y-axis text {
+.wt-statistics-chart svg.msc-stacked-bar .msc-stacked-bar-x-axis text,
+.wt-statistics-chart svg.msc-stacked-bar .msc-stacked-bar-y-axis text {
     fill:                 var(--ink-2);
     font-family:          var(--mono);
     font-size:            12px;
     font-variant-numeric: tabular-nums;
 }
 
-.wt-statistics-chart svg.wt-stacked-bar .x-axis path,
-.wt-statistics-chart svg.wt-stacked-bar .y-axis path,
-.wt-statistics-chart svg.wt-stacked-bar .x-axis line,
-.wt-statistics-chart svg.wt-stacked-bar .y-axis line {
+.wt-statistics-chart svg.msc-stacked-bar .msc-stacked-bar-x-axis path,
+.wt-statistics-chart svg.msc-stacked-bar .msc-stacked-bar-y-axis path,
+.wt-statistics-chart svg.msc-stacked-bar .msc-stacked-bar-x-axis line,
+.wt-statistics-chart svg.msc-stacked-bar .msc-stacked-bar-y-axis line {
     stroke: var(--border);
 }
 
@@ -3293,12 +3237,12 @@
  * the matching `.age-band-N` rule so band-colour and legend stay
  * in lockstep.
  */
-.wt-statistics-chart svg.wt-stacked-bar .stack-legend .legend-swatch {
+.wt-statistics-chart svg.msc-stacked-bar .msc-stacked-bar-stack-legend .msc-stacked-bar-legend-swatch {
     stroke:       var(--border);
     stroke-width: 0.5;
 }
 
-.wt-statistics-chart svg.wt-stacked-bar .stack-legend .legend-label {
+.wt-statistics-chart svg.msc-stacked-bar .msc-stacked-bar-stack-legend .msc-stacked-bar-legend-label {
     fill:        var(--ink-2);
     font-family: var(--sans);
     font-size:   12px;
@@ -3308,8 +3252,8 @@
  * Hover dim mirrors the BarChart / DivergingBar pattern so a
  * focused segment reads against a softened backdrop.
  */
-.wt-statistics-chart svg.wt-stacked-bar rect.bar:hover,
-.wt-statistics-chart svg.wt-stacked-bar rect.bar.is-selected {
+.wt-statistics-chart svg.msc-stacked-bar rect.msc-stacked-bar-segment:hover,
+.wt-statistics-chart svg.msc-stacked-bar rect.msc-stacked-bar-segment.is-selected {
     opacity: 0.75;
 }
 
@@ -3321,32 +3265,32 @@
  * the -1/-2/-3/-max classes; the remaining rules stay defensive
  * for future consumers that bucket differently.
  */
-.wt-statistics-chart svg.wt-stacked-bar g.series.family-size-0   { fill: var(--wmstats-family-size-0); }
-.wt-statistics-chart svg.wt-stacked-bar g.series.family-size-1   { fill: var(--wmstats-family-size-1); }
-.wt-statistics-chart svg.wt-stacked-bar g.series.family-size-2   { fill: var(--wmstats-family-size-2); }
-.wt-statistics-chart svg.wt-stacked-bar g.series.family-size-3   { fill: var(--wmstats-family-size-3); }
-.wt-statistics-chart svg.wt-stacked-bar g.series.family-size-4   { fill: var(--wmstats-family-size-4); }
-.wt-statistics-chart svg.wt-stacked-bar g.series.family-size-5   { fill: var(--wmstats-family-size-5); }
-.wt-statistics-chart svg.wt-stacked-bar g.series.family-size-6   { fill: var(--wmstats-family-size-6); }
-.wt-statistics-chart svg.wt-stacked-bar g.series.family-size-7   { fill: var(--wmstats-family-size-7); }
+.wt-statistics-chart svg.msc-stacked-bar g.msc-stacked-bar-series.family-size-0   { fill: var(--wmstats-family-size-0); }
+.wt-statistics-chart svg.msc-stacked-bar g.msc-stacked-bar-series.family-size-1   { fill: var(--wmstats-family-size-1); }
+.wt-statistics-chart svg.msc-stacked-bar g.msc-stacked-bar-series.family-size-2   { fill: var(--wmstats-family-size-2); }
+.wt-statistics-chart svg.msc-stacked-bar g.msc-stacked-bar-series.family-size-3   { fill: var(--wmstats-family-size-3); }
+.wt-statistics-chart svg.msc-stacked-bar g.msc-stacked-bar-series.family-size-4   { fill: var(--wmstats-family-size-4); }
+.wt-statistics-chart svg.msc-stacked-bar g.msc-stacked-bar-series.family-size-5   { fill: var(--wmstats-family-size-5); }
+.wt-statistics-chart svg.msc-stacked-bar g.msc-stacked-bar-series.family-size-6   { fill: var(--wmstats-family-size-6); }
+.wt-statistics-chart svg.msc-stacked-bar g.msc-stacked-bar-series.family-size-7   { fill: var(--wmstats-family-size-7); }
 /* Cap the visible palette at family-size-7 so the deep blue stops
    stay out of the active range — softens the top tone without
    losing the deeper palette tokens for other consumers. */
-.wt-statistics-chart svg.wt-stacked-bar g.series.family-size-8   { fill: var(--wmstats-family-size-7); }
-.wt-statistics-chart svg.wt-stacked-bar g.series.family-size-9   { fill: var(--wmstats-family-size-7); }
-.wt-statistics-chart svg.wt-stacked-bar g.series.family-size-max { fill: var(--wmstats-family-size-7); }
+.wt-statistics-chart svg.msc-stacked-bar g.msc-stacked-bar-series.family-size-8   { fill: var(--wmstats-family-size-7); }
+.wt-statistics-chart svg.msc-stacked-bar g.msc-stacked-bar-series.family-size-9   { fill: var(--wmstats-family-size-7); }
+.wt-statistics-chart svg.msc-stacked-bar g.msc-stacked-bar-series.family-size-max { fill: var(--wmstats-family-size-7); }
 
-.wt-statistics-chart svg.wt-stacked-bar .legend-swatch.family-size-0   { fill: var(--wmstats-family-size-0); }
-.wt-statistics-chart svg.wt-stacked-bar .legend-swatch.family-size-1   { fill: var(--wmstats-family-size-1); }
-.wt-statistics-chart svg.wt-stacked-bar .legend-swatch.family-size-2   { fill: var(--wmstats-family-size-2); }
-.wt-statistics-chart svg.wt-stacked-bar .legend-swatch.family-size-3   { fill: var(--wmstats-family-size-3); }
-.wt-statistics-chart svg.wt-stacked-bar .legend-swatch.family-size-4   { fill: var(--wmstats-family-size-4); }
-.wt-statistics-chart svg.wt-stacked-bar .legend-swatch.family-size-5   { fill: var(--wmstats-family-size-5); }
-.wt-statistics-chart svg.wt-stacked-bar .legend-swatch.family-size-6   { fill: var(--wmstats-family-size-6); }
-.wt-statistics-chart svg.wt-stacked-bar .legend-swatch.family-size-7   { fill: var(--wmstats-family-size-7); }
-.wt-statistics-chart svg.wt-stacked-bar .legend-swatch.family-size-8   { fill: var(--wmstats-family-size-7); }
-.wt-statistics-chart svg.wt-stacked-bar .legend-swatch.family-size-9   { fill: var(--wmstats-family-size-7); }
-.wt-statistics-chart svg.wt-stacked-bar .legend-swatch.family-size-max { fill: var(--wmstats-family-size-7); }
+.wt-statistics-chart svg.msc-stacked-bar .msc-stacked-bar-legend-swatch.family-size-0   { fill: var(--wmstats-family-size-0); }
+.wt-statistics-chart svg.msc-stacked-bar .msc-stacked-bar-legend-swatch.family-size-1   { fill: var(--wmstats-family-size-1); }
+.wt-statistics-chart svg.msc-stacked-bar .msc-stacked-bar-legend-swatch.family-size-2   { fill: var(--wmstats-family-size-2); }
+.wt-statistics-chart svg.msc-stacked-bar .msc-stacked-bar-legend-swatch.family-size-3   { fill: var(--wmstats-family-size-3); }
+.wt-statistics-chart svg.msc-stacked-bar .msc-stacked-bar-legend-swatch.family-size-4   { fill: var(--wmstats-family-size-4); }
+.wt-statistics-chart svg.msc-stacked-bar .msc-stacked-bar-legend-swatch.family-size-5   { fill: var(--wmstats-family-size-5); }
+.wt-statistics-chart svg.msc-stacked-bar .msc-stacked-bar-legend-swatch.family-size-6   { fill: var(--wmstats-family-size-6); }
+.wt-statistics-chart svg.msc-stacked-bar .msc-stacked-bar-legend-swatch.family-size-7   { fill: var(--wmstats-family-size-7); }
+.wt-statistics-chart svg.msc-stacked-bar .msc-stacked-bar-legend-swatch.family-size-8   { fill: var(--wmstats-family-size-7); }
+.wt-statistics-chart svg.msc-stacked-bar .msc-stacked-bar-legend-swatch.family-size-9   { fill: var(--wmstats-family-size-7); }
+.wt-statistics-chart svg.msc-stacked-bar .msc-stacked-bar-legend-swatch.family-size-max { fill: var(--wmstats-family-size-7); }
 
 /* ----------------------------------------------------------------------
    Chart-lib widget typography contract
@@ -3370,13 +3314,13 @@
    -------------------------------------------------------------------- */
 
 /* Donut centre value (large display number) + caption strip. */
-.wt-statistics-chart svg .donut-center-value {
+.wt-statistics-chart svg .msc-donut-chart-center-value {
     fill:        var(--ink);
     font-family: var(--serif);
     font-size:   30px;
 }
 
-.wt-statistics-chart svg .donut-center-label {
+.wt-statistics-chart svg .msc-donut-chart-center-label {
     fill:           var(--ink-2);
     font-family:    var(--sans);
     font-size:      10px;
@@ -3384,32 +3328,15 @@
     text-transform: uppercase;
 }
 
-/* Diverging-bar row label + per-side value caption — numeric data,
-   monospaced 12 px to match the bar / line chart tick system. */
-.wt-statistics-chart svg .wt-diverging-label {
-    fill:                 var(--ink-2);
-    font-family:          var(--mono);
-    font-size:            12px;
-    font-variant-numeric: tabular-nums;
-}
-
-.wt-statistics-chart svg .wt-diverging-val-left,
-.wt-statistics-chart svg .wt-diverging-val-right {
-    fill:                 var(--ink);
-    font-family:          var(--mono);
-    font-size:            12px;
-    font-variant-numeric: tabular-nums;
-}
-
 /* Gauge-arc centre value (display) + percent suffix (italic accent). */
-.wt-statistics-chart svg .wt-stat-gauge-val {
+.wt-statistics-chart svg .msc-gauge-arc-value {
     fill:           var(--ink);
     font-family:    var(--serif);
     font-size:      56px;
     letter-spacing: -0.02em;
 }
 
-.wt-statistics-chart svg .wt-stat-gauge-suf {
+.wt-statistics-chart svg .msc-gauge-arc-suffix {
     fill:        var(--ink-2);
     font-family: var(--serif);
     font-size:   24px;
@@ -3419,8 +3346,8 @@
 /* Mirror-histogram top / bottom side labels ("MEN" / "WOMEN" eyebrow
    strip). The axis-label colour token is owned by the per-side rule
    higher up in this file; only the typographic system lives here. */
-.wt-statistics-chart svg.wt-stat-mirror text.wt-stat-mirror-axislabel-top,
-.wt-statistics-chart svg.wt-stat-mirror text.wt-stat-mirror-axislabel-bot {
+.wt-statistics-chart svg.msc-mirror-histogram text.msc-mirror-histogram-axislabel-top,
+.wt-statistics-chart svg.msc-mirror-histogram text.msc-mirror-histogram-axislabel-bot {
     font-family:    var(--sans);
     font-size:      12px;
     font-weight:    600;
@@ -3431,11 +3358,11 @@
 /* Name-bubbles labels — the font-SIZE is a per-bubble function of
    the radius (computed in JS) and stays inline; the family + weight
    are constant and live here. */
-.wt-statistics-chart svg .wt-stat-bubbles-name-text {
+.wt-statistics-chart svg .msc-name-bubbles-label-text {
     font-family: var(--serif);
 }
 
-.wt-statistics-chart svg .wt-stat-bubbles-count-text {
+.wt-statistics-chart svg .msc-name-bubbles-value-text {
     font-family: var(--mono);
     font-weight: 500;
 }

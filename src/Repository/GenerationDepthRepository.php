@@ -17,6 +17,7 @@ use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Model\Ranking\RankingEntry;
 use MagicSunday\Webtrees\Statistic\Model\Tree\GenerationDepthReport;
 use MagicSunday\Webtrees\Statistic\Support\Calc\GenerationDepth;
+use MagicSunday\Webtrees\Statistic\Support\Database\ChunkedWhereIn;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 
@@ -326,10 +327,14 @@ final readonly class GenerationDepthRepository
     }
 
     /**
-     * Bulk-fetch the BIRT julian-day for every leaf id in one SQL round-trip.
-     * Returns a `[leafId => julianDay]` map; ids with no Gregorian/Julian BIRT
-     * date are simply absent (the caller treats absence as "rank below dated
-     * leaves").
+     * Bulk-fetch the BIRT julian-day for every leaf id. Returns a `[leafId =>
+     * julianDay]` map; ids with no Gregorian/Julian BIRT date are simply absent
+     * (the caller treats absence as "rank below dated leaves").
+     *
+     * The leaf set is the leaves of the tree, so on a flat tree it can hold tens
+     * of thousands of ids — one placeholder each in a single `whereIn` would
+     * overrun the database's prepared-statement ceiling (issue #82). {@see
+     * ChunkedWhereIn} slices the id list so each round-trip stays within budget.
      *
      * @param list<string> $leafIds
      *
@@ -341,13 +346,13 @@ final readonly class GenerationDepthRepository
             return [];
         }
 
-        $rows = TreeScope::table($this->tree, 'dates')
+        $query = TreeScope::table($this->tree, 'dates')
             ->where('d_fact', '=', 'BIRT')
-            ->whereIn('d_gid', $leafIds)
             ->whereIn('d_type', ['@#DGREGORIAN@', '@#DJULIAN@'])
             ->where('d_julianday1', '>', 0)
-            ->select(['d_gid', 'd_julianday1'])
-            ->get();
+            ->select(['d_gid', 'd_julianday1']);
+
+        $rows = ChunkedWhereIn::get($query, 'd_gid', $leafIds);
 
         $out = [];
 
