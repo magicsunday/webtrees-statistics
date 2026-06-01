@@ -18,6 +18,7 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Enum\MaritalBucket;
 use MagicSunday\Webtrees\Statistic\Model\FamilyRow;
+use MagicSunday\Webtrees\Statistic\Support\Database\ChunkedWhereIn;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 
 use function array_key_exists;
@@ -131,15 +132,26 @@ final readonly class FamilyRepository
      */
     private function loadLivingIndividualFamilies(int $treeId): array
     {
+        // Reach each individual's spouse-families through the indexed `link`
+        // table (l_type = FAMS) rather than matching `families.f_husb = i_id OR
+        // f_wife = i_id` directly. An OR across two columns in the JOIN
+        // condition cannot use an index, so the direct match degrades to a
+        // nested-loop scan of O(individuals × families) — minutes on a large
+        // tree (issue #82). The link join keys on the indexed `link.l_from`,
+        // then resolves the family by its primary key, restoring near-linear
+        // scaling. The two LEFT JOINs preserve the family-less row (NULL family
+        // columns) for individuals with no FAMS membership.
         $query = DB::table('individuals')
+            ->leftJoin('link', static function (JoinClause $join): void {
+                $join
+                    ->on('link.l_file', '=', 'individuals.i_file')
+                    ->on('link.l_from', '=', 'individuals.i_id')
+                    ->where('link.l_type', '=', 'FAMS');
+            })
             ->leftJoin('families', static function (JoinClause $join): void {
                 $join
                     ->on('families.f_file', '=', 'individuals.i_file')
-                    ->where(static function (Builder $partner): void {
-                        $partner
-                            ->whereColumn('families.f_husb', '=', 'individuals.i_id')
-                            ->orWhereColumn('families.f_wife', '=', 'individuals.i_id');
-                    });
+                    ->on('families.f_id', '=', 'link.l_to');
             })
             ->where('individuals.i_file', '=', $treeId);
 
@@ -198,11 +210,16 @@ final readonly class FamilyRepository
             return [];
         }
 
-        $partners = DB::table('individuals')
+        // The partner set scales with the living individuals of the tree, so on
+        // a large tree it can exceed the database's prepared-statement
+        // placeholder ceiling if bound as a single `whereIn` (issue #82). {@see
+        // ChunkedWhereIn} slices the id list so each round-trip stays within
+        // budget.
+        $query = DB::table('individuals')
             ->where('i_file', '=', $treeId)
-            ->whereIn('i_id', $partnerIds)
-            ->select('i_id', 'i_gedcom')
-            ->get();
+            ->select('i_id', 'i_gedcom');
+
+        $partners = ChunkedWhereIn::get($query, 'i_id', $partnerIds);
 
         $out = [];
 

@@ -53,4 +53,33 @@ final class FamilyRepositoryIntegrationTest extends IntegrationTestCase
             'Four bucket counts must match the curated fixture',
         );
     }
+
+    /**
+     * A remarried individual appears in two FAMS families — one divorced, one
+     * current — so the individual→families join must fan out to BOTH rows for
+     * that person before the classifier applies its current > divorced
+     * precedence. Guards the link-table join (which replaced an O(n×m) OR-join
+     * for #82): a join that collapsed the multi-FAMS fan-out to one row would
+     * silently misclassify the remarried individual.
+     */
+    #[Test]
+    public function classifyLivingIndividualsFansOutAcrossMultipleFamsFamilies(): void
+    {
+        $tree    = $this->importFixtureTree('marital-status-remarried.ged');
+        $buckets = (new FamilyRepository($tree))->classifyLivingIndividuals();
+
+        self::assertSame(
+            [
+                // I1 (remarried: divorced F1 + current F2 → current wins) and
+                // I3 (current second wife) are Current; I2 (divorced first
+                // wife) is Divorced; nobody is widowed or single.
+                MaritalBucket::Current->value  => 2,
+                MaritalBucket::Divorced->value => 1,
+                MaritalBucket::Widowed->value  => 0,
+                MaritalBucket::Single->value   => 0,
+            ],
+            $buckets,
+            'The remarried individual must classify as Current via the multi-FAMS fan-out',
+        );
+    }
 }
