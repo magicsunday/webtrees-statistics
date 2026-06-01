@@ -39,16 +39,14 @@ $chordI18n ??= [
     'tooltipValuePlural'   => I18N::translate('{count} marriages'),
 ];
 ?>
-<div class="wt-chord-diagram-container">
-    <div id="<?php echo e($identifier); ?>"
-         class="wt-chord-diagram-host"
-         data-widget="chord-diagram"
-         data-payload="<?php echo WidgetJson::encodeAttribute($data); ?>"
-         data-options="<?php echo WidgetJson::encodeAttribute([
-             'height'    => $height,
-             'ariaLabel' => $ariaLabel ?? null,
-             'i18n'      => $chordI18n,
-         ]); ?>"
-         data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"
-    ></div>
-</div>
+<div id="<?php echo e($identifier); ?>"
+     class="wt-stat-chord-diagram-container"
+     data-widget="chord-diagram"
+     data-payload="<?php echo WidgetJson::encodeAttribute($data); ?>"
+     data-options="<?php echo WidgetJson::encodeAttribute([
+         'height'    => $height,
+         'ariaLabel' => $ariaLabel ?? null,
+         'i18n'      => $chordI18n,
+     ]); ?>"
+     data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"
+></div>

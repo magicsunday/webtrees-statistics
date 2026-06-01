@@ -1109,10 +1109,10 @@
    ----------------------------------------------------------------------
    Mockup default: donut LEFT, legend RIGHT in a `auto 1fr` grid with
    24 px gutter. Cards that need the vertical variant (donut on top
-   of the legend) opt in via the `.wt-stat-donut-v` modifier on the
+   of the legend) opt in via the `.wt-stat-donut-chart-v` modifier on the
    host wrapper.
    -------------------------------------------------------------------- */
-.wt-statistics-chart .wt-stat-donut {
+.wt-statistics-chart .wt-stat-donut-chart {
     display:               grid;
     /* Donut sizes itself (auto), legend sizes to its longest row
        (auto + the per-row `max-content` label column below). With
@@ -1144,37 +1144,37 @@
 }
 
 @container wt-stat-card (max-width: 320px) {
-    .wt-statistics-chart .wt-stat-donut {
+    .wt-statistics-chart .wt-stat-donut-chart {
         grid-template-columns: 1fr;
         justify-items:         center;
         text-align:            center;
     }
 
-    .wt-statistics-chart .wt-stat-donut .wt-stat-legend {
+    .wt-statistics-chart .wt-stat-donut-chart .wt-stat-donut-chart-legend {
         width:     max-content;
         max-width: 100%;
     }
 }
 
-.wt-statistics-chart .wt-stat-donut-v {
+.wt-statistics-chart .wt-stat-donut-chart-v {
     grid-template-columns: 1fr;
     justify-items:         center;
 }
 
-.wt-statistics-chart .wt-stat-donut .donut-chart {
+.wt-statistics-chart .wt-stat-donut-chart .wt-stat-donut-chart-container {
     width:     100%;
     max-width: 170px;
     height:    auto;
 }
 
-.wt-statistics-chart .wt-stat-donut svg.msc-donut-chart {
+.wt-statistics-chart .wt-stat-donut-chart svg.msc-donut-chart {
     display: block;
 }
 
 /* Narrow viewports collapse the horizontal donut+legend layout to
    stacked, mirroring the mockup's `@media` rule. */
 @media (max-width: 760px) {
-    .wt-statistics-chart .wt-stat-donut {
+    .wt-statistics-chart .wt-stat-donut-chart {
         grid-template-columns: 1fr;
         justify-items:         center;
         text-align:            center;
@@ -1189,13 +1189,13 @@
        capped at the card width via `max-width: 100%`). Mirrors
        the existing rule on the donut-v variant where the legend
        sat below the donut from the start. */
-    .wt-statistics-chart .wt-stat-donut .wt-stat-legend {
+    .wt-statistics-chart .wt-stat-donut-chart .wt-stat-donut-chart-legend {
         width:     max-content;
         max-width: 100%;
     }
 }
 
-.wt-statistics-chart .wt-stat-legend {
+.wt-statistics-chart .wt-stat-donut-chart-legend {
     display:        flex;
     flex-direction: column;
     gap:            6px;
@@ -1205,14 +1205,14 @@
        whatever pixels remain after the donut takes its auto
        slice. `max-width: 100%` falls back to card width if a
        single label is wider than the card (extreme edge case);
-       the container query in `.wt-stat-donut` stacks the legend
+       the container query in `.wt-stat-donut-chart` stacks the legend
        below when it can't fit beside the donut. */
     width:          max-content;
     max-width:      100%;
     min-width:      0;
 }
 
-.wt-statistics-chart .wt-stat-legend-row {
+.wt-statistics-chart .wt-stat-donut-chart-legend-row {
     display:               grid;
     /* col1 = 12 px for the colour dot (8 px swatch + slack so it
        doesn't crop at the row's left edge).
@@ -1232,18 +1232,18 @@
     border-bottom:         1px solid var(--border-soft);
 }
 
-.wt-statistics-chart .wt-stat-legend-row:last-child {
+.wt-statistics-chart .wt-stat-donut-chart-legend-row:last-child {
     border-bottom: none;
 }
 
-.wt-statistics-chart .wt-stat-legend-dot {
+.wt-statistics-chart .wt-stat-donut-chart-legend-dot {
     width:         8px;
     height:        8px;
     border-radius: 2px;
     background:    var(--ink-3);
 }
 
-.wt-statistics-chart .wt-stat-legend-lab {
+.wt-statistics-chart .wt-stat-donut-chart-legend-lab {
     color:         var(--ink);
     min-width:     0;
     overflow:      hidden;
@@ -1251,7 +1251,7 @@
     white-space:   nowrap;
 }
 
-.wt-statistics-chart .wt-stat-legend-val {
+.wt-statistics-chart .wt-stat-donut-chart-legend-val {
     color:                var(--ink);
     font-family:          var(--mono);
     font-variant-numeric: tabular-nums;
@@ -1259,7 +1259,7 @@
     justify-self:         end;
 }
 
-.wt-statistics-chart .wt-stat-legend-pct {
+.wt-statistics-chart .wt-stat-donut-chart-legend-pct {
     color:                var(--ink-3);
     font-family:          var(--mono);
     font-size:            12px;
@@ -1273,10 +1273,10 @@
    cleanly under each other instead of spanning the full card width
    and looking sparse. `width: max-content` makes the legend exactly
    as wide as its widest row (so no trailing blank space rightwards
-   of the percent column), and the parent `.wt-stat-donut-v` already
+   of the percent column), and the parent `.wt-stat-donut-chart-v` already
    centres grid items, so the whole legend stack sits centred under
    the donut without an extra margin rule. */
-.wt-statistics-chart .wt-stat-donut-v .wt-stat-legend {
+.wt-statistics-chart .wt-stat-donut-chart-v .wt-stat-donut-chart-legend {
     width:     max-content;
     max-width: 100%;
 }
@@ -1286,7 +1286,7 @@
    The SVG itself ships with the headline value inside the arc; an
    optional meta + caption stack underneath the gauge.
    -------------------------------------------------------------------- */
-.wt-statistics-chart .wt-stat-gauge-wrap {
+.wt-statistics-chart .wt-stat-gauge-arc-wrap {
     display:        flex;
     flex-direction: column;
     align-items:    center;
@@ -1294,7 +1294,7 @@
     width:          100%;
 }
 
-.wt-statistics-chart .wt-stat-gauge-host {
+.wt-statistics-chart .wt-stat-gauge-arc-container {
     /* viewBox is 200×124 — cap the rendered width at 200 px so the
        value text sits at its native 56 px font-size and stays in
        the upper half of the arc. Above 200 the SVG scales up via
@@ -1312,7 +1312,7 @@
 
 /* Eyebrow-style caption right under the gauge SVG, sitting between
    the arc and the mono meta line. */
-.wt-statistics-chart .wt-stat-gauge-label {
+.wt-statistics-chart .wt-stat-gauge-arc-label {
     margin:         8px 0 0;
     font-family:    var(--sans);
     font-size:      10px;
@@ -1323,7 +1323,7 @@
     text-align:     center;
 }
 
-.wt-statistics-chart .wt-stat-gauge-meta {
+.wt-statistics-chart .wt-stat-gauge-arc-meta {
     display:        flex;
     flex-direction: column;
     align-items:    center;
@@ -1332,12 +1332,12 @@
     text-align:     center;
 }
 
-.wt-statistics-chart .wt-stat-gauge-meta-line {
+.wt-statistics-chart .wt-stat-gauge-arc-meta-line {
     font-size: 12px;
     color:     var(--ink-2);
 }
 
-.wt-statistics-chart .wt-stat-gauge-meta-cap {
+.wt-statistics-chart .wt-stat-gauge-arc-meta-cap {
     font-size: 11px;
     color:     var(--ink-3);
 }
@@ -1346,7 +1346,7 @@
    Month radial — 12-slice radial clock chart for monthly/zodiac data.
    Server-rendered SVG, no JS.
    -------------------------------------------------------------------- */
-.wt-statistics-chart .wt-stat-radial-host {
+.wt-statistics-chart .wt-stat-month-radial-container {
     width:  100%;
     margin: 0 auto;
 }
@@ -1396,7 +1396,7 @@
 /* The max-height tracks the host card's span — a span-12 card gets
    the full 600 px, a span-6 card 300 px, a span-4 card 200 px, etc.
    Cards that don't expose `--wt-stat-card-span` fall back to 600 px. */
-.wt-statistics-chart .wt-stat-bubble-host {
+.wt-statistics-chart .wt-stat-name-bubbles-container {
     width:           100%;
     max-height:      calc(var(--wt-stat-card-span, 12) * 50px);
     overflow:        hidden;
@@ -2169,14 +2169,10 @@
    Stream graph (Names tab — given-name popularity)
    -------------------------------------------------------------------- */
 
-.wt-statistics-chart .wt-stream-graph-container {
-    width:  100%;
-    height: auto;
-}
-
-.wt-statistics-chart .wt-stream-graph-host {
+.wt-statistics-chart .wt-stat-stream-graph-container {
     display:  block;
     width:    100%;
+    height:   auto;
     position: relative;
 }
 
@@ -2328,14 +2324,14 @@
     --bs-progress-label-gradient-end:   var(--wmstats-gradient-deaths-end);
 }
 
-.wt-statistics-chart .world-map-container .wt-stat-geo-map-host {
+.wt-statistics-chart .wt-stat-world-map-container {
     display:         flex;
     justify-content: center;
     align-items:     center;
     height:          100%;
 }
 
-.wt-statistics-chart .world-map-container .wt-stat-geo-map-host .msc-world-map path {
+.wt-statistics-chart .wt-stat-world-map-container .msc-world-map path {
     stroke:       var(--wmstats-map-stroke);
     stroke-width: 0.5px;
 }
@@ -2344,14 +2340,10 @@
    Sankey flow (Places tab — birth→death country migrations)
    -------------------------------------------------------------------- */
 
-.wt-statistics-chart .wt-sankey-container {
-    width:  100%;
-    height: auto;
-}
-
-.wt-statistics-chart .wt-sankey-host {
+.wt-statistics-chart .wt-stat-sankey-flow-container {
     display:  block;
     width:    100%;
+    height:   auto;
     position: relative;
 }
 
@@ -2393,14 +2385,10 @@
    Line chart (TreeHealth tab — births per decade growth curve)
    -------------------------------------------------------------------- */
 
-.wt-statistics-chart .wt-line-chart-container {
-    width:  100%;
-    height: auto;
-}
-
-.wt-statistics-chart .wt-line-chart-host {
+.wt-statistics-chart .wt-stat-line-chart-container {
     display:  block;
     width:    100%;
+    height:   auto;
     position: relative;
 }
 
@@ -3212,14 +3200,10 @@
    Stacked bar chart (chart-lib StackedBar)
    -------------------------------------------------------------------- */
 
-.wt-statistics-chart .wt-stacked-bar-container {
-    width:  100%;
-    height: auto;
-}
-
-.wt-statistics-chart .wt-stacked-bar-host {
+.wt-statistics-chart .wt-stat-stacked-bar-container {
     display:  block;
     width:    100%;
+    height:   auto;
     position: relative;
 }
 

@@ -33,20 +33,20 @@ $label   ??= null;
 $meta    ??= null;
 $caption ??= null;
 ?>
-<div class="wt-stat-gauge-wrap">
-    <div class="wt-stat-gauge-host"
+<div class="wt-stat-gauge-arc-wrap">
+    <div class="wt-stat-gauge-arc-container"
          data-widget="gauge-arc"
          data-payload="<?php echo WidgetJson::encodeAttribute($payload); ?>"
          data-options="<?php echo WidgetJson::encodeAttribute($options); ?>"
          data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"></div>
     <?php if (($label !== null) && ($label !== '')) { ?>
-        <div class="wt-stat-gauge-label"><?php echo e((string) $label); ?></div>
+        <div class="wt-stat-gauge-arc-label"><?php echo e((string) $label); ?></div>
     <?php } ?>
     <?php if (($meta !== null) && ($meta !== '')) { ?>
-        <div class="wt-stat-gauge-meta">
-            <span class="wt-stat-gauge-meta-line wt-stat-mono"><?php echo e($meta); ?></span>
+        <div class="wt-stat-gauge-arc-meta">
+            <span class="wt-stat-gauge-arc-meta-line wt-stat-mono"><?php echo e($meta); ?></span>
             <?php if (($caption !== null) && ($caption !== '')) { ?>
-                <span class="wt-stat-gauge-meta-cap"><?php echo e($caption); ?></span>
+                <span class="wt-stat-gauge-arc-meta-cap"><?php echo e($caption); ?></span>
             <?php } ?>
         </div>
     <?php } ?>

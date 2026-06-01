@@ -28,16 +28,14 @@ if ($data === []) {
     return;
 }
 ?>
-<div class="wt-box-plot-container">
-    <div id="<?php echo e($identifier); ?>"
-         class="wt-box-plot-host"
-         data-widget="box-plot"
-         data-payload="<?php echo WidgetJson::encodeAttribute($data); ?>"
-         data-options="<?php echo WidgetJson::encodeAttribute([
-             'height'      => $height,
-             'orientation' => $orientation,
-             'ariaLabel'   => $ariaLabel ?? null,
-         ]); ?>"
-         data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"
-    ></div>
-</div>
+<div id="<?php echo e($identifier); ?>"
+     class="wt-stat-box-plot-container"
+     data-widget="box-plot"
+     data-payload="<?php echo WidgetJson::encodeAttribute($data); ?>"
+     data-options="<?php echo WidgetJson::encodeAttribute([
+         'height'      => $height,
+         'orientation' => $orientation,
+         'ariaLabel'   => $ariaLabel ?? null,
+     ]); ?>"
+     data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"
+></div>

@@ -129,7 +129,7 @@ async function drawWorldMap(node, data, options) {
  * @type {Object<string, (node: HTMLElement, data: unknown, options: object) => unknown>}
  */
 const WIDGETS = {
-    donut: fromChartLib(DonutChart),
+    "donut-chart": fromChartLib(DonutChart),
     "world-map": drawWorldMap,
     "stream-graph": fromChartLib(StreamGraph),
     "sankey-flow": fromChartLib(SankeyFlow),

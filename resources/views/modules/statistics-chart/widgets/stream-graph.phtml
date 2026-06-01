@@ -50,12 +50,10 @@ $streamGraphI18n = [
     'ariaBandPattern' => I18N::translate('{name}: {total}, {peak}'),
 ];
 ?>
-<div class="wt-stream-graph-container">
-    <div id="<?php echo e($identifier); ?>"
-         class="wt-stream-graph-host"
-         data-widget="stream-graph"
-         data-payload="<?php echo WidgetJson::encodeAttribute($data); ?>"
-         data-options="<?php echo WidgetJson::encodeAttribute(['height' => $height, 'i18n' => $streamGraphI18n]); ?>"
-         data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"
-    ></div>
-</div>
+<div id="<?php echo e($identifier); ?>"
+     class="wt-stat-stream-graph-container"
+     data-widget="stream-graph"
+     data-payload="<?php echo WidgetJson::encodeAttribute($data); ?>"
+     data-options="<?php echo WidgetJson::encodeAttribute(['height' => $height, 'i18n' => $streamGraphI18n]); ?>"
+     data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"
+></div>

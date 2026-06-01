@@ -36,12 +36,10 @@ $sankeyI18n = [
     'totalPlural'   => I18N::translate('{count} individuals'),
 ];
 ?>
-<div class="wt-sankey-container">
-    <div id="<?php echo e($identifier); ?>"
-         class="wt-sankey-host"
-         data-widget="sankey-flow"
-         data-payload="<?php echo WidgetJson::encodeAttribute($data); ?>"
-         data-options="<?php echo WidgetJson::encodeAttribute(['height' => $height, 'i18n' => $sankeyI18n]); ?>"
-         data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"
-    ></div>
-</div>
+<div id="<?php echo e($identifier); ?>"
+     class="wt-stat-sankey-flow-container"
+     data-widget="sankey-flow"
+     data-payload="<?php echo WidgetJson::encodeAttribute($data); ?>"
+     data-options="<?php echo WidgetJson::encodeAttribute(['height' => $height, 'i18n' => $sankeyI18n]); ?>"
+     data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"
+></div>
