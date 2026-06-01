@@ -32,10 +32,12 @@ use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 
 use function abs;
+use function array_fill_keys;
 use function count;
 use function intdiv;
 use function is_numeric;
 use function min;
+use function usort;
 
 /**
  * Marriage-related aggregations for the Family tab. Combines core's {@see
@@ -91,6 +93,22 @@ final class MarriageRepository
     private const int WIDOWHOOD_BUCKET = 5;
 
     private const int WIDOWHOOD_MAX = 50;
+
+    /**
+     * Ordered month bands for the remarriage interval after widowhood. The
+     * first mourning year is split into two halves (`<6`, `6–11`) — the window
+     * where social convention bites hardest — then whole years up to five, with
+     * a `60+` long tail. Months, not years, are the meaningful granularity: a
+     * remarriage within six months reads very differently from one after the
+     * traditional year of mourning.
+     */
+    private const array REMARRIAGE_INTERVAL_BANDS = ['<6', '6–11', '12–23', '24–35', '36–47', '48–59', '60+'];
+
+    /**
+     * Months per year used to convert the day gap into whole months for the
+     * remarriage-interval bands.
+     */
+    private const int MONTHS_PER_YEAR = 12;
 
     /**
      * Plausibility band for the spouse-at-marriage and longest-marriage
@@ -630,6 +648,126 @@ final class MarriageRepository
         }
 
         return $buckets;
+    }
+
+    /**
+     * Months between a deceased spouse's death and the survivor's next marriage,
+     * mapped onto the {@see REMARRIAGE_INTERVAL_BANDS} month bands — the
+     * {@see widowhoodYearsDistribution()} cousin that asks how soon, not how
+     * long. A person's marriages are ordered by date; for each marriage after
+     * the first, when the previous spouse had already died the gap is bucketed.
+     * Unions that ended in divorce (the previous spouse is still alive at the
+     * next marriage) and widows who never remarried contribute nothing.
+     *
+     * @return array<string, int>
+     */
+    public function remarriageIntervalDistribution(): array
+    {
+        $marriageRows = TreeScope::table($this->tree, 'families')
+            ->join('dates AS marr', static function (JoinClause $join): void {
+                DateJoin::on($join, 'marr', 'families.f_file', 'families.f_id', 'MARR', DateJoin::JD_GREATER_THAN_ZERO);
+            })
+            ->select([
+                'families.f_husb AS husb',
+                'families.f_wife AS wife',
+                DateAggregate::max('marr', 'd_julianday2', 'marr_jd'),
+            ])
+            ->groupBy('families.f_id')
+            ->get();
+
+        $deathByXref = [];
+
+        $deathRows = TreeScope::table($this->tree, 'individuals')
+            ->join('dates AS deat', static function (JoinClause $join): void {
+                DateJoin::on($join, 'deat', 'individuals.i_file', 'individuals.i_id', 'DEAT', DateJoin::JD_GREATER_THAN_ZERO);
+            })
+            ->select([
+                'individuals.i_id AS xref',
+                DateAggregate::max('deat', 'd_julianday2', 'deat_jd'),
+            ])
+            ->groupBy('individuals.i_id')
+            ->get();
+
+        foreach ($deathRows as $row) {
+            $deathByXref[RowCast::string($row, 'xref')] = RowCast::int($row, 'deat_jd');
+        }
+
+        // Group each person's marriages so consecutive ones can be paired.
+        $marriagesByPerson = [];
+
+        foreach ($marriageRows as $row) {
+            $marriageJd = RowCast::int($row, 'marr_jd');
+
+            if ($marriageJd <= 0) {
+                continue;
+            }
+
+            $husband = RowCast::string($row, 'husb');
+            $wife    = RowCast::string($row, 'wife');
+
+            if ($husband === '') {
+                continue;
+            }
+
+            if ($wife === '') {
+                continue;
+            }
+
+            $marriagesByPerson[$husband][] = ['jd' => $marriageJd, 'spouse' => $wife];
+            $marriagesByPerson[$wife][]    = ['jd' => $marriageJd, 'spouse' => $husband];
+        }
+
+        $buckets = array_fill_keys(self::REMARRIAGE_INTERVAL_BANDS, 0);
+
+        foreach ($marriagesByPerson as $marriages) {
+            if (count($marriages) < 2) {
+                continue;
+            }
+
+            usort($marriages, static fn (array $a, array $b): int => $a['jd'] <=> $b['jd']);
+
+            for ($i = 1, $count = count($marriages); $i < $count; ++$i) {
+                $previousSpouseDeath = $deathByXref[$marriages[$i - 1]['spouse']] ?? 0;
+
+                // Skip unless the previous spouse died on or before this
+                // marriage — a still-living previous spouse means the earlier
+                // union ended in divorce, not widowhood.
+                if ($previousSpouseDeath <= 0) {
+                    continue;
+                }
+
+                if ($previousSpouseDeath > $marriages[$i]['jd']) {
+                    continue;
+                }
+
+                $months = intdiv(
+                    ($marriages[$i]['jd'] - $previousSpouseDeath) * self::MONTHS_PER_YEAR,
+                    self::DAYS_PER_YEAR,
+                );
+
+                ++$buckets[$this->remarriageIntervalBand($months)];
+            }
+        }
+
+        return $buckets;
+    }
+
+    /**
+     * Map a whole-month remarriage interval onto its
+     * {@see REMARRIAGE_INTERVAL_BANDS} band: the first year split at six months,
+     * then yearly up to five years, then a 60+ tail.
+     */
+    private function remarriageIntervalBand(int $months): string
+    {
+        return match (true) {
+            $months < 6  => '<6',
+            $months < 12 => '6–11',
+            $months < 24 => '12–23',
+            $months < 36 => '24–35',
+            $months < 48 => '36–47',
+            $months < 60 => '48–59',
+            default      => '60+',
+        };
     }
 
     /**

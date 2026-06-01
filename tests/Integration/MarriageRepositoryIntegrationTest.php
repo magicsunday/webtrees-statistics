@@ -38,6 +38,12 @@ use function array_values;
  *       the marriage has no terminating event and contributes
  *       nothing to the duration histogram.
  *
+ * The remarriage-interval case uses a dedicated `remarriage-interval.ged`
+ * fixture: three widowers who married again at month-band-distinct intervals
+ * (Anton ~4 months, David ~8 months, Otto ~18 months) plus three
+ * non-qualifying people — a divorcee, a never-remarried widow, and a man who
+ * remarried while his first wife was still alive.
+ *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
@@ -141,6 +147,33 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
 
         self::assertSame(1, $result['5–9'] ?? null, 'F1: Anton outlived Berta by 5 years');
         self::assertSame(1, array_sum($result), 'F2 + F3 contribute nothing (missing DEAT)');
+    }
+
+    /**
+     * Remarriage interval after widowhood, in month bands. In the dedicated
+     * fixture Anton remarries about four months after Berta's death (<6), David
+     * about eight months after Emma's (6–11), and Otto about eighteen months
+     * after Paula's (12–23). Three cases contribute nothing: a
+     * divorce-then-remarriage (Georg, whose first wife never dies), a widow who
+     * never remarried (Josef, a single marriage), and Ludwig, who remarried in
+     * 1965 while his first wife was still alive (she dies in 1970, AFTER the
+     * remarriage) — exercising the "previous spouse died after the next
+     * marriage" guard.
+     */
+    #[Test]
+    public function remarriageIntervalAfterWidowhoodBucketsByMonths(): void
+    {
+        $tree   = $this->importFixtureTree('remarriage-interval.ged');
+        $result = $this->repository($tree)->remarriageIntervalDistribution();
+
+        self::assertSame(1, $result['<6'] ?? null, 'Anton remarried ~4 months after Berta died');
+        self::assertSame(1, $result['6–11'] ?? null, 'David remarried ~8 months after Emma died');
+        self::assertSame(1, $result['12–23'] ?? null, 'Otto remarried ~18 months after Paula died');
+        self::assertSame(
+            3,
+            array_sum($result),
+            'Divorce-remarriage, never-remarried widow, and remarriage-before-death add nothing',
+        );
     }
 
     /**

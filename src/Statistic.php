@@ -723,6 +723,19 @@ final readonly class Statistic
     }
 
     /**
+     * Remarriage-interval histogram in month bands (`<6` … `60+`) — for
+     * survivors who lost a spouse and married again, the months between that
+     * spouse's death and the next marriage. Months, not years, expose the
+     * social-convention signal around the traditional year of mourning.
+     *
+     * @return array<string, int>
+     */
+    public function getRemarriageIntervalDistribution(): array
+    {
+        return $this->marriageRepository->remarriageIntervalDistribution();
+    }
+
+    /**
      * Couple age-gap histogram as a two-sided bucket: each shared magnitude band
      * carries the count of couples where the husband is the older partner
      * (`left`) and where the wife is (`right`).

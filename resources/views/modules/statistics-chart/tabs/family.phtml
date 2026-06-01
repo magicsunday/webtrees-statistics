@@ -112,6 +112,19 @@ foreach ($widowhoodDistribution as $label => $count) {
     ];
 }
 
+$remarriageIntervalDistribution = $statistic->getRemarriageIntervalDistribution();
+
+$remarriageIntervalRows = [];
+
+foreach ($remarriageIntervalDistribution as $label => $count) {
+    $remarriageIntervalRows[] = [
+        'label'        => $label,
+        'value'        => (int) $count,
+        'tooltipLabel' => I18N::translate('%s months', $label),
+        'tooltip'      => I18N::plural('%s remarriage', '%s remarriages', $count, I18N::number($count)),
+    ];
+}
+
 $ageGapModel = CoupleAgeGapRowMapper::toModel($ageGap);
 
 $childrenPerFamilyBars = [];
@@ -549,6 +562,28 @@ echo Card::for($module, I18N::translate('Widowhood interval'))
             ->withData($widowhoodRows)
             ->with('xLabel', I18N::translate('Years'))
             ->withAriaLabel(I18N::translate('Widowhood interval'))
+            ->render()
+    )
+    ->render();
+
+echo Card::for($module, I18N::translate('Mourning period'))
+    ->withSub(I18N::translate('Months between widowhood and the next marriage'))
+    ->withEyebrow(I18N::translate('Life event'))
+    ->withAccent(Accent::Wine)
+    ->withIllustration(Illustration::Bell)
+    ->withInfo(
+        I18N::translate(
+            'For a survivor whose spouse died and who later married again, the gap in whole months between that death and the next marriage. The first mourning year is split at six months — the window where convention bites hardest — then whole years up to a 60+ tail. A short interval can hint at the social conventions of the time. Unions that ended in divorce, and widowed spouses who never married again, are excluded.'
+        ),
+        $aboutThisChart,
+        $aboutThisChart
+    )
+    ->withSpan(6)
+    ->withBodyHtml(
+        Widget::barChart($module, 'remarriage-interval-bars')
+            ->withData($remarriageIntervalRows)
+            ->with('xLabel', I18N::translate('Months'))
+            ->withAriaLabel(I18N::translate('Mourning period'))
             ->render()
     )
     ->render();
