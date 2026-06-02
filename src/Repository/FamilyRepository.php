@@ -23,23 +23,20 @@ use MagicSunday\Webtrees\Statistic\Enum\MaritalBucket;
 use MagicSunday\Webtrees\Statistic\Enum\Sex;
 use MagicSunday\Webtrees\Statistic\Model\Family\SexRatioAnomaly;
 use MagicSunday\Webtrees\Statistic\Model\FamilyRow;
+use MagicSunday\Webtrees\Statistic\Support\Database\ChildLinkJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\ChunkedWhereIn;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\RecordName;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 
 use function array_key_exists;
 use function array_slice;
 use function array_unique;
 use function array_values;
-use function html_entity_decode;
 use function is_string;
 use function max;
-use function strip_tags;
 use function usort;
-
-use const ENT_HTML5;
-use const ENT_QUOTES;
 
 /**
  * Classifies every living individual in a tree into exactly one marital state
@@ -165,10 +162,7 @@ final readonly class FamilyRepository
 
         $rows = TreeScope::table($this->tree, 'families', 'fam')
             ->join('link AS famc', static function (JoinClause $join): void {
-                $join
-                    ->on('famc.l_file', '=', 'fam.f_file')
-                    ->on('famc.l_to', '=', 'fam.f_id')
-                    ->where('famc.l_type', '=', 'FAMC');
+                ChildLinkJoin::famc($join);
             })
             ->join('individuals AS child', static function (JoinClause $join) use ($maleToken, $femaleToken): void {
                 $join
@@ -227,7 +221,7 @@ final readonly class FamilyRepository
                 continue;
             }
 
-            $label = html_entity_decode(strip_tags($family->fullName()), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            $label = RecordName::plain($family->fullName());
 
             $anomalies[] = new SexRatioAnomaly(
                 familyXref: $familyId,

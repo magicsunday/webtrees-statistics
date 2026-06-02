@@ -22,6 +22,7 @@ use Illuminate\Support\Collection;
 use MagicSunday\Webtrees\Statistic\Enum\Sex;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
+use MagicSunday\Webtrees\Statistic\Support\Database\ChildLinkJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
@@ -400,10 +401,7 @@ final readonly class NameRepository
 
         $rows = TreeScope::table($this->tree, 'families', 'fam')
             ->join('link AS famc', static function (JoinClause $join): void {
-                $join
-                    ->on('famc.l_file', '=', 'fam.f_file')
-                    ->on('famc.l_to', '=', 'fam.f_id')
-                    ->where('famc.l_type', '=', 'FAMC');
+                ChildLinkJoin::famc($join);
             })
             ->join('individuals AS child', static function (JoinClause $join) use ($childSex): void {
                 $join

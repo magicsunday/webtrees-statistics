@@ -21,6 +21,7 @@ use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
 use MagicSunday\Webtrees\Statistic\Model\Record\IndividualAgeRecord;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\IndividualAgeRecordResolver;
 use MagicSunday\Webtrees\Statistic\Support\Calc\AgeBuckets;
+use MagicSunday\Webtrees\Statistic\Support\Database\ChildLinkJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
@@ -183,10 +184,7 @@ final class ParenthoodRepository
                 DateJoin::on($join, 'parent_birth', 'fam.f_file', 'fam.' . $parentColumn, 'BIRT', DateJoin::JD_GREATER_THAN_ZERO);
             })
             ->join('link AS famc', static function (JoinClause $join): void {
-                $join
-                    ->on('famc.l_file', '=', 'fam.f_file')
-                    ->on('famc.l_to', '=', 'fam.f_id')
-                    ->where('famc.l_type', '=', 'FAMC');
+                ChildLinkJoin::famc($join);
             })
             ->join('dates AS child_birth', static function (JoinClause $join): void {
                 DateJoin::on($join, 'child_birth', 'famc.l_file', 'famc.l_from', 'BIRT', DateJoin::JD_GREATER_THAN_ZERO);

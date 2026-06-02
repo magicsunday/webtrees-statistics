@@ -19,6 +19,7 @@ use MagicSunday\Webtrees\Statistic\Model\Tree\GenerationDepthReport;
 use MagicSunday\Webtrees\Statistic\Support\Calc\GenerationDepth;
 use MagicSunday\Webtrees\Statistic\Support\Database\ChunkedWhereIn;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\RecordName;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 
 use function array_filter;
@@ -29,7 +30,6 @@ use function array_slice;
 use function count;
 use function max;
 use function strcmp;
-use function strip_tags;
 use function uksort;
 use function usort;
 
@@ -281,7 +281,7 @@ final readonly class GenerationDepthRepository
             // row's stable identity.
             $entries[] = new RankingEntry(
                 $row['xref'],
-                strip_tags($individual->fullName()),
+                RecordName::plain($individual->fullName()),
                 $row['count'],
             );
         }

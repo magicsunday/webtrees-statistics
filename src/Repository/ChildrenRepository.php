@@ -29,6 +29,7 @@ use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarPayload;
 use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarSeries;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\RecordName;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
 use MagicSunday\Webtrees\Statistic\Support\Locale\DecadeName;
@@ -37,19 +38,14 @@ use function array_combine;
 use function array_fill_keys;
 use function array_keys;
 use function count;
-use function html_entity_decode;
 use function intdiv;
 use function ksort;
 use function max;
 use function min;
 use function round;
 use function sort;
-use function strip_tags;
 use function substr;
 use function usort;
-
-use const ENT_HTML5;
-use const ENT_QUOTES;
 
 /**
  * Children-related aggregations for the Family tab. Combines core's public
@@ -782,7 +778,7 @@ final readonly class ChildrenRepository
                 continue;
             }
 
-            $plainName = html_entity_decode(strip_tags($family->fullName()), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            $plainName = RecordName::plain($family->fullName());
             $entries[] = new RankingEntry($family->xref(), $plainName, $children);
         }
 
