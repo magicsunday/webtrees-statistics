@@ -570,4 +570,25 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame(['shortest' => [], 'longest' => []], $repository->getMarriageDurationExtremes(0));
         self::assertSame(['shortest' => [], 'longest' => []], $repository->getMarriageDurationExtremes(-1));
     }
+
+    /**
+     * A divorce date recorded before the marriage date does not end the
+     * marriage and must not drop it: the marriage runs to the next terminating
+     * event after the wedding (here the husband's death two years on) and is
+     * labelled a death, not silently excluded.
+     */
+    #[Test]
+    public function getMarriageDurationExtremesIgnoresADivorceDatedBeforeTheMarriage(): void
+    {
+        $tree   = $this->importFixtureTree('marriage-divorce-before-marriage.ged');
+        $result = $this->repository($tree)->getMarriageDurationExtremes();
+
+        self::assertCount(1, $result['shortest'], 'The marriage is kept, not dropped by the pre-marriage divorce');
+
+        $marriage = $result['shortest'][0];
+
+        self::assertSame('F1', $marriage->familyXref);
+        self::assertSame(730, $marriage->durationDays, 'Measured to the husband death, not the earlier divorce');
+        self::assertSame('death', $marriage->endReason);
+    }
 }

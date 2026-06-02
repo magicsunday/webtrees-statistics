@@ -241,10 +241,11 @@ final class MarriageRepository
 
     /**
      * Shortest recorded marriage: smallest positive `(end julian-day − MARR
-     * julian-day)` delta. A divorce one day after the wedding wins; same-day
-     * end is excluded by the `endJd > marrJd` guard on the underlying iterator.
-     * Returns the duration in days rather than years so a one-week or one-month
-     * "fastest split" stays meaningful.
+     * julian-day)` delta. A divorce one day after the wedding wins; a same-day
+     * end is excluded because the underlying iterator only accepts a
+     * terminating event strictly after the marriage. Returns the duration in
+     * days rather than years so a one-week or one-month "fastest split" stays
+     * meaningful.
      */
     public function shortestMarriageRecord(): ?FamilyDurationDaysRecord
     {
@@ -565,8 +566,8 @@ final class MarriageRepository
         // lower-bound julian day — MARR at its earliest possible
         // start, the marriage-ending events (DIV / husband DEAT /
         // wife DEAT) at their earliest possible occurrence so
-        // {@see earliestPositive()} downstream still picks the
-        // first terminating event.
+        // {@see earliestAfter()} downstream still picks the
+        // first terminating event after the wedding.
         //
         // `families.f_id AS xref` carries the full alias because
         // strict `ONLY_FULL_GROUP_BY` MySQL parsers (e.g. issue #46
@@ -611,17 +612,18 @@ final class MarriageRepository
                 continue;
             }
 
-            $endJd = $this->earliestPositive([
+            // The marriage's end is the earliest terminating event recorded
+            // after the wedding. A divorce or death dated on or before the
+            // marriage cannot end it — a data-entry inversion or an event
+            // mis-attached to the family — so such a date is ignored rather
+            // than letting it drop the whole (otherwise datable) marriage.
+            $endJd = $this->earliestAfter($marrJd, [
                 $row->div_jd ?? null,
                 $row->husb_jd ?? null,
                 $row->wife_jd ?? null,
             ]);
 
             if ($endJd === null) {
-                continue;
-            }
-
-            if ($endJd <= $marrJd) {
                 continue;
             }
 
@@ -933,12 +935,15 @@ final class MarriageRepository
     }
 
     /**
-     * Earliest positive Julian-day number from a list of nullable candidates,
-     * or null when none are positive.
+     * Earliest Julian-day number strictly greater than $floor from a list of
+     * nullable candidates, or null when none qualify. A $floor of 0 selects the
+     * earliest positive value; the marriage julian-day selects the earliest
+     * terminating event after the wedding.
      *
-     * @param list<mixed> $candidates
+     * @param int         $floor      Exclusive lower bound the candidate must exceed
+     * @param list<mixed> $candidates Nullable, possibly non-numeric julian-day candidates
      */
-    private function earliestPositive(array $candidates): ?int
+    private function earliestAfter(int $floor, array $candidates): ?int
     {
         $earliest = null;
 
@@ -949,11 +954,11 @@ final class MarriageRepository
 
             $value = (int) $candidate;
 
-            if ($value <= 0) {
+            if ($value <= $floor) {
                 continue;
             }
 
-            if ($earliest === null || $value < $earliest) {
+            if (($earliest === null) || ($value < $earliest)) {
                 $earliest = $value;
             }
         }
