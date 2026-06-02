@@ -1,0 +1,83 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+use Fisharebest\Webtrees\I18N;
+use MagicSunday\Webtrees\Statistic\Model\Mortality\MortalityAnomaly;
+use MagicSunday\Webtrees\Statistic\View\EmptyStatePlaceholder;
+
+/**
+ * Mortality-anomaly list — one row per year whose recorded death count stands
+ * out against its local baseline. Each row draws a bar sized by the absolute
+ * death count with the expected baseline marked behind it, and prints the
+ * count, the baseline and the deaths-over-baseline multiplier. When any year
+ * coincides with a catalogued historical event, a note column is added showing
+ * the temporal coincidence. Pure HTML/CSS, no client-side widget; mirrors the
+ * design's `.gs-anomaly` block. Bars are scaled against the largest count in
+ * the list so the spikes read in proportion to one another.
+ *
+ * @var list<MortalityAnomaly> $data         The anomaly years, in chronological order
+ * @var string                 $emptyMessage Optional override for the "no data" placeholder
+ */
+$emptyMessage ??= EmptyStatePlaceholder::defaultMessage();
+
+if ($data === []) {
+    echo EmptyStatePlaceholder::render($emptyMessage);
+
+    return;
+}
+
+$maxDeaths = 0;
+$annotated = false;
+
+foreach ($data as $anomaly) {
+    if ($anomaly->deaths > $maxDeaths) {
+        $maxDeaths = $anomaly->deaths;
+    }
+
+    if ($anomaly->events !== []) {
+        $annotated = true;
+    }
+}
+?>
+<div class="wt-stat-mortality-anomalies<?php echo $annotated ? ' wt-stat-mortality-anomalies--annotated' : ''; ?>">
+    <?php foreach ($data as $anomaly) { ?>
+        <?php
+        $fillWidth     = $maxDeaths > 0 ? round(($anomaly->deaths / $maxDeaths) * 100, 2) : 0;
+        $baselineWidth = $maxDeaths > 0 ? round(($anomaly->baseline / $maxDeaths) * 100, 2) : 0;
+
+        $tooltip = I18N::translate(
+            '%1$s: %2$s deaths against an expected %3$s (Z-score %4$s)',
+            (string) $anomaly->year,
+            I18N::number($anomaly->deaths),
+            I18N::number($anomaly->baseline),
+            I18N::number($anomaly->zScore, 1)
+        );
+        ?>
+        <div class="wt-stat-mortality-anomalies-row" title="<?php echo e($tooltip); ?>">
+            <span class="wt-stat-mortality-anomalies-year"><?php echo e((string) $anomaly->year); ?></span>
+            <span class="wt-stat-mortality-anomalies-track">
+                <span class="wt-stat-mortality-anomalies-baseline" style="width: <?php echo $baselineWidth; ?>%;"></span>
+                <span class="wt-stat-mortality-anomalies-fill" style="width: <?php echo $fillWidth; ?>%;"></span>
+            </span>
+            <span class="wt-stat-mortality-anomalies-stats">
+                <span class="wt-stat-mortality-anomalies-count"><strong><?php echo e(I18N::number($anomaly->deaths)); ?></strong> <span class="wt-stat-mortality-anomalies-expected">(Ø <?php echo e(I18N::number($anomaly->baseline)); ?>)</span></span>
+                <span class="wt-stat-mortality-anomalies-mult">×<?php echo e(I18N::number($anomaly->multiplier, 1)); ?></span>
+            </span>
+            <?php if ($annotated) { ?>
+                <span class="wt-stat-mortality-anomalies-note"><?php
+                    if ($anomaly->events !== []) {
+                        echo e(I18N::translate('Coincides with: %s', implode(', ', $anomaly->events)));
+                    }
+                ?></span>
+            <?php } ?>
+        </div>
+    <?php } ?>
+</div>

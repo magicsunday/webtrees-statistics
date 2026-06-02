@@ -25,6 +25,7 @@ use MagicSunday\Webtrees\Statistic\Model\Metric\EndogamyRate;
 use MagicSunday\Webtrees\Statistic\Model\Metric\PlaceDispersionSummary;
 use MagicSunday\Webtrees\Statistic\Model\Metric\RateCount;
 use MagicSunday\Webtrees\Statistic\Model\Metric\WinterPeakScore;
+use MagicSunday\Webtrees\Statistic\Model\Mortality\MortalityAnomaly;
 use MagicSunday\Webtrees\Statistic\Model\Pyramid\PopulationPyramidPayload;
 use MagicSunday\Webtrees\Statistic\Model\Ranking\RankingEntry;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyFlowsPayload;
@@ -535,6 +536,21 @@ final readonly class Statistic
     public function getDeathWinterPeakScore(): ?WinterPeakScore
     {
         return $this->lifeSpanRepository->deathWinterPeakScore();
+    }
+
+    /**
+     * Years whose recorded death count stands out against the surrounding
+     * baseline — the statistical fingerprint of an epidemic, war or famine
+     * year — ranked by descending standard score.
+     *
+     * @param float $zScoreThreshold Minimum standard score for a year to count as an anomaly
+     * @param int   $topN            Maximum number of anomaly years to return
+     *
+     * @return list<MortalityAnomaly>
+     */
+    public function getMortalityAnomalies(float $zScoreThreshold = 2.0, int $topN = 10): array
+    {
+        return $this->lifeSpanRepository->mortalityAnomalies($zScoreThreshold, $topN);
     }
 
     /**

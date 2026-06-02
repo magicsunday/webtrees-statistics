@@ -3492,3 +3492,97 @@
     font-size:   11px;
     color:       var(--ink-3);
 }
+
+/* Mortality-anomaly list (life-span tab) — one bar per above-baseline death
+   year, the expected baseline marked behind the count bar. */
+.wt-statistics-chart .wt-stat-mortality-anomalies {
+    display:        flex;
+    flex-direction: column;
+}
+
+.wt-statistics-chart .wt-stat-mortality-anomalies-row {
+    display:               grid;
+    grid-template-columns: 52px 1fr auto;
+    align-items:           center;
+    gap:                   14px;
+    padding:               8px 0;
+    border-bottom:         1px solid var(--border-soft);
+    font-size:             13px;
+}
+
+.wt-statistics-chart .wt-stat-mortality-anomalies-row:last-child {
+    border-bottom: none;
+}
+
+.wt-statistics-chart .wt-stat-mortality-anomalies-year {
+    font-family: var(--mono);
+    font-size:   14px;
+    font-weight: 600;
+    color:       var(--ink);
+}
+
+.wt-statistics-chart .wt-stat-mortality-anomalies-track {
+    position:      relative;
+    /* Let the 1fr track shrink below its content so the nowrap stats cell
+       beside it cannot push the row past the card width. */
+    min-width:     0;
+    height:        10px;
+    border-radius: 2px;
+    background:    var(--border-soft);
+    overflow:      hidden;
+}
+
+.wt-statistics-chart .wt-stat-mortality-anomalies-baseline {
+    position:   absolute;
+    left:       0;
+    top:        0;
+    bottom:     0;
+    background: var(--ink-3);
+    opacity:    0.5;
+}
+
+.wt-statistics-chart .wt-stat-mortality-anomalies-fill {
+    position:      relative;
+    height:        100%;
+    border-radius: 2px;
+    background:    var(--wine);
+}
+
+.wt-statistics-chart .wt-stat-mortality-anomalies-stats {
+    display:     flex;
+    align-items: baseline;
+    gap:         8px;
+    white-space: nowrap;
+}
+
+.wt-statistics-chart .wt-stat-mortality-anomalies-count {
+    font-family: var(--mono);
+    font-size:   13px;
+    color:       var(--ink);
+}
+
+.wt-statistics-chart .wt-stat-mortality-anomalies-expected {
+    color: var(--ink-3);
+}
+
+.wt-statistics-chart .wt-stat-mortality-anomalies-mult {
+    font-family: var(--mono);
+    font-size:   13px;
+    font-weight: 700;
+    color:       var(--wine);
+}
+
+/* When at least one year coincides with a catalogued historical event, the
+   rows gain a fourth column for the temporal-coincidence note. */
+.wt-statistics-chart .wt-stat-mortality-anomalies--annotated .wt-stat-mortality-anomalies-row {
+    grid-template-columns: 52px minmax(60px, 160px) auto minmax(0, 1fr);
+}
+
+.wt-statistics-chart .wt-stat-mortality-anomalies-note {
+    min-width:     0;
+    font-size:     12px;
+    font-style:    italic;
+    text-align:    right;
+    color:         var(--ink-2);
+    overflow-wrap: anywhere;
+}

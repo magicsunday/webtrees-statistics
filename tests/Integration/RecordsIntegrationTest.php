@@ -27,6 +27,7 @@ use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
+use MagicSunday\Webtrees\Statistic\Support\Locale\IsoCountryMap;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
@@ -90,7 +91,7 @@ final class RecordsIntegrationTest extends IntegrationTestCase
     public function oldestDeceasedPicksTheLongestLifespan(): void
     {
         $tree   = $this->importFixtureTree('records.ged');
-        $record = (new LifeSpanRepository($tree, $this->statisticsData($tree)))->oldestDeceasedRecord();
+        $record = (new LifeSpanRepository($tree, $this->statisticsData($tree), new IsoCountryMap()))->oldestDeceasedRecord();
 
         self::assertNotNull($record);
         self::assertSame('I1', $record->individual->xref());

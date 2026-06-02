@@ -155,6 +155,19 @@ final readonly class Component
     }
 
     /**
+     * Start a new mortality-anomalies component (years with an above-baseline
+     * death count on the life-span tab).
+     */
+    public static function mortalityAnomalies(string $module): self
+    {
+        return new self(
+            $module,
+            'mortality-anomalies',
+            []
+        );
+    }
+
+    /**
      * Start a new sex-ratio component (families with an extreme son / daughter
      * skew on the family tab).
      */

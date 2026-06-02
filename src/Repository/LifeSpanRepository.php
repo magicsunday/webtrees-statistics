@@ -24,18 +24,24 @@ use MagicSunday\Webtrees\Statistic\Model\Heatmap\HeatmapPayload;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
 use MagicSunday\Webtrees\Statistic\Model\Metric\WinterPeakScore;
+use MagicSunday\Webtrees\Statistic\Model\Mortality\MortalityAnomaly;
 use MagicSunday\Webtrees\Statistic\Model\Pyramid\PopulationPyramidPayload;
 use MagicSunday\Webtrees\Statistic\Model\Ranking\RankingEntry;
 use MagicSunday\Webtrees\Statistic\Model\Record\IndividualAgeRecord;
 use MagicSunday\Webtrees\Statistic\Support\Calc\HistogramTrim;
+use MagicSunday\Webtrees\Statistic\Support\Calc\MortalityAnomalies;
 use MagicSunday\Webtrees\Statistic\Support\Database\BirthDeathPairsQuery;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
+use MagicSunday\Webtrees\Statistic\Support\Locale\HistoricalEventCatalog;
+use MagicSunday\Webtrees\Statistic\Support\Locale\IsoCountryMap;
 use MagicSunday\Webtrees\Statistic\Support\Locale\MonthName;
 
+use function array_column;
 use function array_fill_keys;
 use function array_key_last;
 use function array_keys;
@@ -146,12 +152,21 @@ final readonly class LifeSpanRepository
     ];
 
     /**
-     * @param Tree           $tree The tree the statistics are computed for
-     * @param StatisticsData $data Core accessor that already exposes the queries we need
+     * Minimum datable death places a country must have in an anomaly year for
+     * that year to be annotated with the country's historical events — a single
+     * emigrant record must not pull in its host country's events.
+     */
+    private const int MIN_DEATHS_PER_COUNTRY = 2;
+
+    /**
+     * @param Tree           $tree   The tree the statistics are computed for
+     * @param StatisticsData $data   Core accessor that already exposes the queries we need
+     * @param IsoCountryMap  $isoMap Resolves death-place strings to ISO-3166-1 alpha-2 country codes
      */
     public function __construct(
         private Tree $tree,
         private StatisticsData $data,
+        private IsoCountryMap $isoMap,
     ) {
     }
 
@@ -247,6 +262,154 @@ final readonly class LifeSpanRepository
         }
 
         return HistogramTrim::dropZeroEnds($dense);
+    }
+
+    /**
+     * Years whose recorded death count stands out against the surrounding
+     * baseline — the statistical fingerprint of an epidemic, war or famine
+     * year. Death counts are aggregated per year, then
+     * {@see MortalityAnomalies::detect()} compares each year against its
+     * rolling 11-year window: the window median is the expected baseline, and a
+     * year is flagged when its standard score reaches `$zScoreThreshold`. Only
+     * years with a full window on both sides are considered, so the most recent
+     * and oldest years are never falsely flagged. The anomalies are selected by
+     * descending standard score, capped at `$topN`, and returned chronologically.
+     *
+     * Each anomaly is then annotated with the broadly-documented historical
+     * events it coincides with ({@see HistoricalEventCatalog}), correlated via
+     * the countries the year's death places resolve to: only a country with at
+     * least {@see MIN_DEATHS_PER_COUNTRY} distinct individuals dying there that
+     * year counts, so a single emigrant record cannot pull in its host
+     * country's events.
+     *
+     * @param float $zScoreThreshold Minimum standard score for a year to count as an anomaly
+     * @param int   $topN            Maximum number of anomaly years to return
+     *
+     * @return list<MortalityAnomaly>
+     */
+    public function mortalityAnomalies(float $zScoreThreshold = 2.0, int $topN = 10): array
+    {
+        // Count distinct individuals per year: webtrees stores two `dates` rows
+        // for an imprecise date (its lower and upper bound), so a row count would
+        // double an individual whose death is recorded as ABT / BET … AND … .
+        $rows = TreeScope::table($this->tree, 'dates')
+            ->where('d_fact', '=', 'DEAT')
+            ->whereIn('d_type', ['@#DGREGORIAN@', '@#DJULIAN@'])
+            ->where('d_year', '>', 0)
+            ->groupBy('d_year')
+            ->select(['d_year', new Expression('COUNT(DISTINCT d_gid) AS deaths')])
+            ->get();
+
+        $deathsByYear = [];
+
+        foreach ($rows as $row) {
+            $year = RowCast::int($row, 'd_year');
+
+            if ($year <= 0) {
+                continue;
+            }
+
+            $deathsByYear[$year] = RowCast::int($row, 'deaths');
+        }
+
+        $detected        = MortalityAnomalies::detect($deathsByYear, $zScoreThreshold, $topN);
+        $countriesByYear = $this->deathPlaceCountriesByYear(array_column($detected, 'year'));
+
+        $anomalies = [];
+
+        foreach ($detected as $anomaly) {
+            $countries = $countriesByYear[$anomaly['year']] ?? [];
+
+            $anomalies[] = new MortalityAnomaly(
+                year: $anomaly['year'],
+                deaths: $anomaly['deaths'],
+                baseline: $anomaly['baseline'],
+                multiplier: $anomaly['multiplier'],
+                zScore: $anomaly['zScore'],
+                events: HistoricalEventCatalog::labelsFor($anomaly['year'], $countries),
+            );
+        }
+
+        return $anomalies;
+    }
+
+    /**
+     * The ISO-3166-1 alpha-2 countries that each of the given years' death
+     * places resolve to, restricted to countries with at least
+     * {@see MIN_DEATHS_PER_COUNTRY} *distinct individuals* whose death place that
+     * year resolves to the country. Counting individuals (not `dates` rows)
+     * keeps an imprecise date — for which webtrees stores two bound rows — from
+     * crossing the threshold on its own. Death places are read from each
+     * individual's GEDCOM (the `dates` table does not carry the place) and
+     * resolved via {@see IsoCountryMap::resolveFromPlace()}. Years with no
+     * qualifying country are omitted.
+     *
+     * Resolution relies on the death place carrying a recognisable country
+     * segment ("…, Germany"). A place recorded as bare "City, State" without a
+     * country (common in some regions) does not resolve to its country, so that
+     * year simply stays unannotated rather than being mis-attributed.
+     *
+     * @param list<int> $years The anomaly years to resolve
+     *
+     * @return array<int, list<string>> Year → list of qualifying ISO-3166-1 alpha-2 codes
+     */
+    private function deathPlaceCountriesByYear(array $years): array
+    {
+        if ($years === []) {
+            return [];
+        }
+
+        $rows = TreeScope::table($this->tree, 'dates')
+            ->where('d_fact', '=', 'DEAT')
+            ->whereIn('d_type', ['@#DGREGORIAN@', '@#DJULIAN@'])
+            ->whereIn('d_year', $years)
+            ->join('individuals', static function (JoinClause $join): void {
+                $join
+                    ->on('i_file', '=', 'd_file')
+                    ->on('i_id', '=', 'd_gid');
+            })
+            ->select(['d_year', 'd_gid', 'i_gedcom'])
+            ->get();
+
+        // [year][iso2][individualXref => true] — the inner set deduplicates the
+        // two date-bound rows webtrees writes for an imprecise death date.
+        /** @var array<int, array<string, array<string, bool>>> $individuals */
+        $individuals = [];
+
+        foreach ($rows as $row) {
+            $year  = RowCast::int($row, 'd_year');
+            $place = GedcomScanner::extractEventPlace(RowCast::string($row, 'i_gedcom'), 'DEAT');
+
+            if ($place === null) {
+                continue;
+            }
+
+            $iso2 = $this->isoMap->resolveFromPlace($place);
+
+            if ($iso2 === null) {
+                continue;
+            }
+
+            $individuals[$year][$iso2][RowCast::string($row, 'd_gid')] = true;
+        }
+
+        $countriesByYear = [];
+
+        foreach ($individuals as $year => $isoIndividuals) {
+            $countries = [];
+
+            foreach ($isoIndividuals as $iso2 => $individualSet) {
+                if (count($individualSet) >= self::MIN_DEATHS_PER_COUNTRY) {
+                    $countries[] = $iso2;
+                }
+            }
+
+            if ($countries !== []) {
+                $countriesByYear[$year] = $countries;
+            }
+        }
+
+        return $countriesByYear;
     }
 
     /**

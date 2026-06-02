@@ -26,6 +26,7 @@ use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
+use MagicSunday\Webtrees\Statistic\Support\Locale\IsoCountryMap;
 use MagicSunday\Webtrees\Statistic\Support\Locale\MonthName;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -80,6 +81,7 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
         return new LifeSpanRepository(
             $tree,
             $this->statisticsData($tree),
+            new IsoCountryMap(),
         );
     }
 

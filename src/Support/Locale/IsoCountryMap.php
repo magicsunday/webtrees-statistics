@@ -19,7 +19,9 @@ use function array_unique;
 use function mb_strtolower;
 use function preg_replace;
 use function str_replace;
+use function strrpos;
 use function strtolower;
+use function substr;
 use function trim;
 
 /**
@@ -176,6 +178,24 @@ final class IsoCountryMap
         }
 
         return $this->lookupMap()[$normalised] ?? null;
+    }
+
+    /**
+     * Resolve the country segment of a full GEDCOM PLAC string to its
+     * ISO-3166-1 alpha-2 code. The country is the last comma-separated segment
+     * by GEDCOM convention ("Hamburg, Germany" → "Germany"); a string without a
+     * comma is resolved as-is. Returns null when the segment matches no known
+     * country.
+     *
+     * @param string $place A full GEDCOM PLAC string
+     */
+    public function resolveFromPlace(string $place): ?string
+    {
+        $trimmed = trim($place);
+        $comma   = strrpos($trimmed, ',');
+        $segment = $comma === false ? $trimmed : trim(substr($trimmed, $comma + 1));
+
+        return $this->resolve($segment);
     }
 
     /**

@@ -52,6 +52,7 @@ $ageDistByCentury        = $statistic->getDeathAgeDistributionByCentury();
 $deathsByCenturyPyramid  = $statistic->getDeathsByCenturyAgeBandSex();
 $birthHeatmap            = $statistic->getBirthHeatmapByPeriodMonth();
 $deathHeatmap            = $statistic->getDeathHeatmapByPeriodMonth();
+$mortalityAnomalies      = $statistic->getMortalityAnomalies();
 
 $totalBirthsByMonth   = array_sum($birthsByMonth);
 $totalBirthsByZodiac  = array_sum($birthsByZodiacSign);
@@ -577,6 +578,31 @@ echo Card::for($module, I18N::translate('Winter-peak score'))
     ->withSpan(4)
     ->centered()
     ->withBodyHtml($winterPeakCardBody)
+    ->render();
+
+echo Section::create(I18N::translate('Mortality outliers'))
+    ->withKicker(I18N::translate('Anomaly years'))
+    ->withSub(I18N::translate('Years with markedly more deaths than the local baseline would predict'))
+    ->render();
+
+echo Card::for($module, I18N::translate('Mortality outliers'))
+    ->withSub(I18N::translate('Years that stand out against the surrounding death baseline'))
+    ->withEyebrow(I18N::translate('Extremes'))
+    ->withAccent(Accent::Wine)
+    ->withIllustration(Illustration::Moon)
+    ->withInfo(
+        I18N::translate(
+            "Each year's recorded death count is compared to the median of the surrounding eleven-year window. A year is flagged when its count stands at least two standard deviations above that local baseline, and the flagged years are ranked by how far they stand out. Only years with a full window on both sides are considered, so the most recent and oldest years are never flagged. The bar shows the death count; the marker behind it is the expected baseline. Where the death places of a year fall in a covered region and period, the year is annotated with the historical event it coincides with — a temporal note, never a stated cause of death; coverage is limited to broadly-documented events and can be extended via the project repository."
+        ),
+        $aboutThisChart,
+        $aboutThisChart
+    )
+    ->withSpan(8)
+    ->withBodyHtml(
+        Component::mortalityAnomalies($module)
+            ->withData($mortalityAnomalies)
+            ->render()
+    )
     ->render();
 
 echo Section::create(I18N::translate('Births and deaths across the year'))

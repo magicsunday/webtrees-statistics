@@ -20,8 +20,6 @@ use MagicSunday\Webtrees\Statistic\Support\Locale\IsoCountryMap;
 
 use function arsort;
 use function str_ends_with;
-use function strrpos;
-use function substr;
 use function trim;
 
 use const SORT_NUMERIC;
@@ -148,10 +146,10 @@ final readonly class CountryRepository
 
             foreach (GedcomScanner::extractAllEventPlaces($gedcom, 'RESI') as $place) {
                 // RESI PLAC strings come straight from the GEDCOM as
-                // "Hamburg, Germany" / "New York, USA"; isoMap->resolve
-                // wants the bare country segment so we peel off the
-                // last comma-separated part before the lookup.
-                $iso2 = $this->isoMap->resolve($this->countrySegment($place));
+                // "Hamburg, Germany" / "New York, USA"; resolveFromPlace
+                // peels the last comma-separated (country) segment before
+                // the lookup.
+                $iso2 = $this->isoMap->resolveFromPlace($place);
 
                 if ($iso2 === null) {
                     continue;
@@ -174,20 +172,6 @@ final readonly class CountryRepository
         }
 
         return $entries;
-    }
-
-    /**
-     * Peel the last comma-separated segment off a GEDCOM PLAC string — the
-     * country-name segment by GEDCOM convention. "Hamburg, Germany" →
-     * "Germany". Trims surrounding whitespace and returns the full input
-     * verbatim when no comma is present.
-     */
-    private function countrySegment(string $placeString): string
-    {
-        $trimmed = trim($placeString);
-        $comma   = strrpos($trimmed, ',');
-
-        return $comma === false ? $trimmed : trim(substr($trimmed, $comma + 1));
     }
 
     /**
