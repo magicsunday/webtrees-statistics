@@ -20,6 +20,7 @@ use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Enum\AgePairExtremum;
 use MagicSunday\Webtrees\Statistic\Enum\Sex;
+use MagicSunday\Webtrees\Statistic\Model\Marriage\MarriageDurationExtreme;
 use MagicSunday\Webtrees\Statistic\Model\Record\FamilyDurationDaysRecord;
 use MagicSunday\Webtrees\Statistic\Model\Record\FamilyDurationYearsRecord;
 use MagicSunday\Webtrees\Statistic\Model\Record\IndividualAgeRecord;
@@ -29,14 +30,20 @@ use MagicSunday\Webtrees\Statistic\Support\Calc\AgeBuckets;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\RecordName;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 
 use function abs;
+use function array_column;
 use function array_fill_keys;
+use function array_reverse;
+use function array_slice;
 use function count;
+use function in_array;
 use function intdiv;
 use function is_numeric;
 use function min;
+use function strcmp;
 use function usort;
 
 /**
@@ -127,7 +134,7 @@ final class MarriageRepository
      * `durationDistribution` all walk the same rows; sharing the materialised
      * list collapses three SELECTs into one.
      *
-     * @var array<int, array{marrJd: int, endJd: int, xref: string}>|null
+     * @var array<int, array{marrJd: int, endJd: int, xref: string, endReason: 'death'|'divorce'}>|null
      */
     private ?array $marriageDurationPairsCache = null;
 
@@ -264,6 +271,118 @@ final class MarriageRepository
         }
 
         return new FamilyDurationDaysRecord(family: $family, durationDays: $bestDays);
+    }
+
+    /**
+     * Top-N shortest and longest marriages, each carrying how it ended. Walks
+     * the same duration pairs as the single-record holders, ranks them by day
+     * delta, and returns the `$topN` shortest (ascending) and `$topN` longest
+     * (descending). Spans beyond {@see MAX_PLAUSIBLE_SPOUSE_AGE} years are
+     * dropped from both lists, matching {@see longestMarriageRecord()}. Only the
+     * families that actually make a list are resolved to a label, through the
+     * factory so {@see Family::fullName()} applies webtrees' own privacy
+     * filtering.
+     *
+     * @param int $topN Number of marriages to return in each list
+     *
+     * @return array{shortest: list<MarriageDurationExtreme>, longest: list<MarriageDurationExtreme>}
+     */
+    public function getMarriageDurationExtremes(int $topN = 3): array
+    {
+        if ($topN < 1) {
+            return ['shortest' => [], 'longest' => []];
+        }
+
+        $candidates = [];
+
+        foreach ($this->marriageDurationPairs() as $pair) {
+            $days  = $pair['endJd'] - $pair['marrJd'];
+            $years = intdiv($days, 365);
+
+            if ($years > self::MAX_PLAUSIBLE_SPOUSE_AGE) {
+                continue;
+            }
+
+            $candidates[] = [
+                'xref'      => $pair['xref'],
+                'days'      => $days,
+                'years'     => $years,
+                'endReason' => $pair['endReason'],
+            ];
+        }
+
+        // Rank by day delta once, with a stable XREF tiebreak so equal-duration
+        // marriages keep a reproducible order at the list cutoff. The label is
+        // resolved only for the rows that actually make a list, keeping the
+        // factory cost bounded by 2 * $topN.
+        usort(
+            $candidates,
+            static function (array $a, array $b): int {
+                $byDays = $a['days'] <=> $b['days'];
+
+                if ($byDays !== 0) {
+                    return $byDays;
+                }
+
+                return strcmp($a['xref'], $b['xref']);
+            }
+        );
+
+        $shortest      = array_slice($candidates, 0, $topN);
+        $shortestXrefs = array_column($shortest, 'xref');
+
+        // Build the longest list from the far end, skipping any marriage already
+        // shown as a shortest one — so a tree with fewer than 2 * $topN datable
+        // marriages never lists the same couple in both columns.
+        $longest = [];
+
+        foreach (array_reverse($candidates) as $candidate) {
+            if (count($longest) >= $topN) {
+                break;
+            }
+
+            if (in_array($candidate['xref'], $shortestXrefs, true)) {
+                continue;
+            }
+
+            $longest[] = $candidate;
+        }
+
+        return [
+            'shortest' => $this->toMarriageExtremes($shortest),
+            'longest'  => $this->toMarriageExtremes($longest),
+        ];
+    }
+
+    /**
+     * Resolve each ranked duration row to a {@see MarriageDurationExtreme},
+     * dropping rows whose family no longer resolves.
+     *
+     * @param list<array{xref: string, days: int, years: int, endReason: 'death'|'divorce'}> $rows
+     *
+     * @return list<MarriageDurationExtreme>
+     */
+    private function toMarriageExtremes(array $rows): array
+    {
+        $out = [];
+
+        foreach ($rows as $row) {
+            $family = Registry::familyFactory()->make($row['xref'], $this->tree);
+
+            if (!$family instanceof Family) {
+                continue;
+            }
+
+            $out[] = new MarriageDurationExtreme(
+                familyXref: $row['xref'],
+                label: RecordName::plain($family->fullName()),
+                durationDays: $row['days'],
+                durationYears: $row['years'],
+                endReason: $row['endReason'],
+            );
+        }
+
+        return $out;
     }
 
     /**
@@ -421,14 +540,16 @@ final class MarriageRepository
 
     /**
      * Every family with both a parseable MARR date AND a determinable
-     * marriage-end julian-day, returned as a `{marrJd, endJd, xref}` triple.
-     * Callers turn it into years (durationDistribution, longestMarriageRecord)
-     * or days (shortestMarriageRecord). The end julian-day is the earliest of
-     * DIV / husband-DEAT / wife-DEAT, so the row that survives is the one
-     * webtrees considers the marriage's true terminus. Memoised per instance —
-     * the three callers used to trigger three identical SELECTs.
+     * marriage-end julian-day, returned as a `{marrJd, endJd, xref, endReason}`
+     * row. Callers turn it into years (durationDistribution,
+     * longestMarriageRecord) or days (shortestMarriageRecord). The end
+     * julian-day is the earliest of DIV / husband-DEAT / wife-DEAT, so the row
+     * that survives is the one webtrees considers the marriage's true terminus;
+     * `endReason` names that same event (`divorce` only when the DIV day is the
+     * earliest). Memoised per instance — the callers used to trigger identical
+     * SELECTs.
      *
-     * @return array<int, array{marrJd: int, endJd: int, xref: string}>
+     * @return array<int, array{marrJd: int, endJd: int, xref: string, endReason: 'death'|'divorce'}>
      */
     private function marriageDurationPairs(): array
     {
@@ -504,7 +625,14 @@ final class MarriageRepository
                 continue;
             }
 
-            $out[] = ['marrJd' => $marrJd, 'endJd' => $endJd, 'xref' => $xref];
+            // The marriage ended at the earliest terminating event. Label the
+            // reason after that same event: a divorce wins only when the DIV
+            // julian-day is the earliest one (so a spouse who died before a
+            // recorded divorce still classifies as ended by death).
+            $divJd     = RowCast::int($row, 'div_jd');
+            $endReason = (($divJd > 0) && ($divJd === $endJd)) ? 'divorce' : 'death';
+
+            $out[] = ['marrJd' => $marrJd, 'endJd' => $endJd, 'xref' => $xref, 'endReason' => $endReason];
         }
 
         $this->marriageDurationPairsCache = $out;

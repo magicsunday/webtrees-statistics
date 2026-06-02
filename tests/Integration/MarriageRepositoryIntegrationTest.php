@@ -12,17 +12,21 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use Fisharebest\Webtrees\Tree;
+use MagicSunday\Webtrees\Statistic\Model\Marriage\MarriageDurationExtreme;
 use MagicSunday\Webtrees\Statistic\Repository\MarriageRepository;
 use MagicSunday\Webtrees\Statistic\Support\Calc\AgeBuckets;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\RecordName;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
 
 use function array_column;
+use function array_intersect;
+use function array_map;
 use function array_sum;
 use function array_values;
 
@@ -54,6 +58,8 @@ use function array_values;
 #[UsesClass(DateJoin::class)]
 #[UsesClass(TreeScope::class)]
 #[UsesClass(RowCast::class)]
+#[UsesClass(RecordName::class)]
+#[UsesClass(MarriageDurationExtreme::class)]
 final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
 {
     private function repository(Tree $tree): MarriageRepository
@@ -416,5 +422,152 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
         );
         self::assertSame(3, $result['30–39'] ?? 0, 'F1 + F3 + F4 land in 30-39 with MIN(husb_d.d_julianday1); a swap on F4 would peel one entry off');
         self::assertSame(1, $result['40–49'] ?? 0, 'F2 ~44y; a MIN -> MAX swap on F4 husband DEAT would inflate this bucket to 2');
+    }
+
+    /**
+     * Map the extremes to `[xref, magnitude, reason]` triples so order, reason
+     * and the duration can be asserted without depending on the resolved label.
+     * The shortest list reports days, the longest list whole years.
+     *
+     * @param list<MarriageDurationExtreme> $extremes
+     * @param 'days'|'years'                $magnitude
+     *
+     * @return list<array{string, int, string}>
+     */
+    private function extremeTriples(array $extremes, string $magnitude): array
+    {
+        return array_map(
+            static fn (MarriageDurationExtreme $e): array => [
+                $e->familyXref,
+                $magnitude === 'days' ? $e->durationDays : $e->durationYears,
+                $e->endReason,
+            ],
+            $extremes,
+        );
+    }
+
+    /**
+     * The fixture has five short marriages (F10 15d death — a divorce is
+     * recorded but the husband died first, so the earlier death wins; F1 31d
+     * divorce, F2 59d death, F3 182d divorce, F4 365d death), two equal-duration
+     * marriages (F11 and F12, both 300d death — to exercise the tiebreak), four
+     * long ones (F5 60y death, F6 55y death, F7 50y divorce, F8 40y death) and
+     * one implausible 101-year span (F9). With the default top-3, the shortest
+     * list is F10/F1/F2 ascending by days, the longest list is F5/F6/F7
+     * descending by years (F9 is rejected by the 90-year plausibility cap). The
+     * end reason is the earliest terminating event — DIV wins only when it
+     * predates both spouse deaths (F1/F3/F7); F10 carries a DIV but the earlier
+     * spouse death makes it a death.
+     */
+    #[Test]
+    public function getMarriageDurationExtremesRanksShortestAndLongestWithEndReason(): void
+    {
+        $tree   = $this->importFixtureTree('marriage-duration-extremes.ged');
+        $result = $this->repository($tree)->getMarriageDurationExtremes();
+
+        self::assertSame(
+            [
+                ['F10', 15, 'death'],
+                ['F1', 31, 'divorce'],
+                ['F2', 59, 'death'],
+            ],
+            $this->extremeTriples($result['shortest'], 'days'),
+        );
+
+        self::assertSame(
+            [
+                ['F5', 60, 'death'],
+                ['F6', 55, 'death'],
+                ['F7', 50, 'divorce'],
+            ],
+            $this->extremeTriples($result['longest'], 'years'),
+        );
+
+        self::assertNotSame('', $result['shortest'][0]->label, 'The couple label must resolve, not be empty');
+    }
+
+    /**
+     * The top-N is configurable per list.
+     */
+    #[Test]
+    public function getMarriageDurationExtremesCapsEachListToTheLimit(): void
+    {
+        $tree   = $this->importFixtureTree('marriage-duration-extremes.ged');
+        $result = $this->repository($tree)->getMarriageDurationExtremes(2);
+
+        self::assertSame([['F10', 15, 'death'], ['F1', 31, 'divorce']], $this->extremeTriples($result['shortest'], 'days'));
+        self::assertSame([['F5', 60, 'death'], ['F6', 55, 'death']], $this->extremeTriples($result['longest'], 'years'));
+    }
+
+    /**
+     * No couple may appear in both columns. When the requested top-N exceeds the
+     * number of datable marriages, every marriage ranks as a shortest one and
+     * the longest list stays empty rather than repeating those same couples.
+     */
+    #[Test]
+    public function getMarriageDurationExtremesNeverRepeatsACoupleAcrossBothLists(): void
+    {
+        $tree   = $this->importFixtureTree('marriage-duration-extremes.ged');
+        $result = $this->repository($tree)->getMarriageDurationExtremes(100);
+
+        $shortestXrefs = array_map(static fn (MarriageDurationExtreme $e): string => $e->familyXref, $result['shortest']);
+        $longestXrefs  = array_map(static fn (MarriageDurationExtreme $e): string => $e->familyXref, $result['longest']);
+
+        self::assertSame([], array_values(array_intersect($shortestXrefs, $longestXrefs)), 'No couple may appear in both lists');
+        self::assertCount(11, $result['shortest'], 'All eleven datable marriages rank as shortest (F9 is over the plausibility cap)');
+        self::assertSame([], $result['longest'], 'Nothing is left for the longest list once all couples are shown as shortest');
+    }
+
+    /**
+     * Marriages of identical duration keep a reproducible order at the list
+     * cutoff: the family XREF breaks the tie, so the ranking never depends on
+     * database row order. F11 and F12 are both exactly 300 days; F11 sorts
+     * ahead of F12 by XREF.
+     */
+    #[Test]
+    public function getMarriageDurationExtremesBreaksEqualDurationTiesByXref(): void
+    {
+        $tree   = $this->importFixtureTree('marriage-duration-extremes.ged');
+        $result = $this->repository($tree)->getMarriageDurationExtremes(6);
+
+        self::assertSame(
+            [
+                ['F10', 15, 'death'],
+                ['F1', 31, 'divorce'],
+                ['F2', 59, 'death'],
+                ['F3', 182, 'divorce'],
+                ['F11', 300, 'death'],
+                ['F12', 300, 'death'],
+            ],
+            $this->extremeTriples($result['shortest'], 'days'),
+        );
+    }
+
+    /**
+     * A tree with no datable marriages yields two empty lists, not an error or a
+     * malformed shape — the contract the facade and view depend on.
+     */
+    #[Test]
+    public function getMarriageDurationExtremesReturnsEmptyListsWithoutData(): void
+    {
+        $tree   = $this->importFixtureTree('empty-marriages.ged');
+        $result = $this->repository($tree)->getMarriageDurationExtremes();
+
+        self::assertSame(['shortest' => [], 'longest' => []], $result);
+    }
+
+    /**
+     * A non-positive top-N yields two empty lists rather than dumping the whole
+     * ranked set — guards the facade contract against a negative argument, where
+     * a negative array_slice length would otherwise return all-but-N rows.
+     */
+    #[Test]
+    public function getMarriageDurationExtremesReturnsEmptyListsForNonPositiveTopN(): void
+    {
+        $tree       = $this->importFixtureTree('marriage-duration-extremes.ged');
+        $repository = $this->repository($tree);
+
+        self::assertSame(['shortest' => [], 'longest' => []], $repository->getMarriageDurationExtremes(0));
+        self::assertSame(['shortest' => [], 'longest' => []], $repository->getMarriageDurationExtremes(-1));
     }
 }

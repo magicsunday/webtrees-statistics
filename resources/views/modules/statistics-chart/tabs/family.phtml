@@ -41,17 +41,18 @@ $divorcesByCentury = $statistic->getDivorcesByCentury();
 $divorcesByMonth   = $statistic->getDivorcesByMonth();
 $cohortRates       = $statistic->getDivorceRateByMarriageCohort();
 
-$avgChildren             = $statistic->getAverageChildrenPerFamily();
-$childrenHistogram       = $statistic->getChildrenPerFamilyDistribution();
-$familySizeStackedDecade = $statistic->getFamilySizeStackedByDecade();
-$averageFamilySizeLine   = $statistic->getAverageFamilySizeByCentury();
-$multipleBirthRate       = $statistic->getMultipleBirthRateByCentury();
-$siblingGaps             = $statistic->getSiblingAgeGapDistribution();
-$largestFamilies         = $statistic->getTopLargestFamilies(10);
-$sexRatioAnomalies       = $statistic->getSexRatioAnomalies();
-$childlessBreakdown      = $statistic->getChildlessFamiliesDistribution();
-$firstChildMonth         = $statistic->getFirstChildrenByMonth();
-$firstChildAgeByDecade   = $statistic->getAgeAtFirstChildMeanByDecade();
+$avgChildren              = $statistic->getAverageChildrenPerFamily();
+$childrenHistogram        = $statistic->getChildrenPerFamilyDistribution();
+$familySizeStackedDecade  = $statistic->getFamilySizeStackedByDecade();
+$averageFamilySizeLine    = $statistic->getAverageFamilySizeByCentury();
+$multipleBirthRate        = $statistic->getMultipleBirthRateByCentury();
+$siblingGaps              = $statistic->getSiblingAgeGapDistribution();
+$largestFamilies          = $statistic->getTopLargestFamilies(10);
+$sexRatioAnomalies        = $statistic->getSexRatioAnomalies();
+$marriageDurationExtremes = $statistic->getMarriageDurationExtremes();
+$childlessBreakdown       = $statistic->getChildlessFamiliesDistribution();
+$firstChildMonth          = $statistic->getFirstChildrenByMonth();
+$firstChildAgeByDecade    = $statistic->getAgeAtFirstChildMeanByDecade();
 
 $totalAgeM             = array_sum($ageAtMarriageM);
 $totalAgeF             = array_sum($ageAtMarriageF);
@@ -605,6 +606,31 @@ echo Card::for($module, I18N::translate('Mourning period'))
             ->withData($remarriageIntervalRows)
             ->with('xLabel', I18N::translate('Months'))
             ->withAriaLabel(I18N::translate('Mourning period'))
+            ->render()
+    )
+    ->render();
+
+echo Section::create(I18N::translate('Outlier marriages'))
+    ->withKicker(I18N::translate('Extremes'))
+    ->withSub(I18N::translate('The shortest- and longest-lasting marriages in the tree'))
+    ->render();
+
+echo Card::for($module, I18N::translate('Shortest & longest marriages'))
+    ->withSub(I18N::translate('By duration · with how each marriage ended'))
+    ->withEyebrow(I18N::translate('Extremes'))
+    ->withAccent(Accent::Wine)
+    ->withIllustration(Illustration::Rings)
+    ->withInfo(
+        I18N::translate(
+            'The shortest- and longest-lasting marriages where the end is datable — either a recorded divorce or the earlier death of a spouse. Each marriage is measured from the wedding to that first ending event and labelled with how it ended. Marriages spanning more than 90 years are treated as data errors and left out.'
+        ),
+        $aboutThisChart,
+        $aboutThisChart
+    )
+    ->withSpan(12)
+    ->withBodyHtml(
+        Component::marriageExtremes($module)
+            ->withData($marriageDurationExtremes)
             ->render()
     )
     ->render();

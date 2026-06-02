@@ -1,0 +1,66 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+use Fisharebest\Webtrees\I18N;
+use MagicSunday\Webtrees\Statistic\Model\Marriage\MarriageDurationExtreme;
+use MagicSunday\Webtrees\Statistic\View\EmptyStatePlaceholder;
+
+/**
+ * Shortest / longest marriages — two side-by-side ranked lists. Each row shows
+ * the couple, how the marriage ended (spouse death or divorce), and the
+ * duration. The duration unit is chosen per entry (whole days, or whole years
+ * beyond two) by the model, so a sub-year "longest" marriage never reads as
+ * "0 years". Pure
+ * HTML/CSS, no client-side widget; mirrors the design's `.gs-marriage-anomaly`
+ * block.
+ *
+ * @var array{shortest: list<MarriageDurationExtreme>, longest: list<MarriageDurationExtreme>} $data
+ * @var string                                                                                 $emptyMessage Optional override for the "no data" placeholder
+ */
+$emptyMessage ??= EmptyStatePlaceholder::defaultMessage();
+
+$shortest = $data['shortest'] ?? [];
+$longest  = $data['longest'] ?? [];
+
+if (($shortest === []) && ($longest === [])) {
+    echo EmptyStatePlaceholder::render($emptyMessage);
+
+    return;
+}
+
+$columns = [
+    [I18N::translate('Shortest marriages'), $shortest],
+    [I18N::translate('Longest marriages'), $longest],
+];
+?>
+<div class="wt-stat-marriage-extremes">
+    <?php foreach ($columns as [$heading, $rows]) { ?>
+        <?php if ($rows === []) {
+            continue;
+        } ?>
+        <div class="wt-stat-marriage-extremes-block">
+            <h4 class="wt-stat-marriage-extremes-heading"><?php echo e($heading); ?></h4>
+            <?php foreach ($rows as $marriage) { ?>
+                <?php $value = $marriage->displayValue(); ?>
+                <div class="wt-stat-marriage-extremes-row">
+                    <div class="wt-stat-marriage-extremes-main">
+                        <div class="wt-stat-marriage-extremes-couple"><?php echo e($marriage->label); ?></div>
+                        <div class="wt-stat-marriage-extremes-reason"><?php echo e($marriage->endReason === 'divorce' ? I18N::translate('ended by divorce') : I18N::translate('ended by death')); ?></div>
+                    </div>
+                    <div class="wt-stat-marriage-extremes-num"><?php echo e(I18N::number($value)); ?><span class="wt-stat-marriage-extremes-unit"><?php echo e(match ($marriage->displayUnit()) {
+                        'days'  => I18N::plural('day', 'days', $value),
+                        'years' => I18N::plural('year', 'years', $value),
+                    }); ?></span></div>
+                </div>
+            <?php } ?>
+        </div>
+    <?php } ?>
+</div>

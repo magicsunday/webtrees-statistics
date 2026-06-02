@@ -142,6 +142,19 @@ final readonly class Component
     }
 
     /**
+     * Start a new marriage-extremes component (shortest / longest marriages on
+     * the family tab).
+     */
+    public static function marriageExtremes(string $module): self
+    {
+        return new self(
+            $module,
+            'marriage-extremes',
+            []
+        );
+    }
+
+    /**
      * Start a new sex-ratio component (families with an extreme son / daughter
      * skew on the family tab).
      */

@@ -19,6 +19,7 @@ use MagicSunday\Webtrees\Statistic\Model\Chord\ChordMatrixPayload;
 use MagicSunday\Webtrees\Statistic\Model\Family\SexRatioAnomaly;
 use MagicSunday\Webtrees\Statistic\Model\Heatmap\HeatmapPayload;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
+use MagicSunday\Webtrees\Statistic\Model\Marriage\MarriageDurationExtreme;
 use MagicSunday\Webtrees\Statistic\Model\Metric\ChildMortalitySummary;
 use MagicSunday\Webtrees\Statistic\Model\Metric\EndogamyRate;
 use MagicSunday\Webtrees\Statistic\Model\Metric\PlaceDispersionSummary;
@@ -723,6 +724,18 @@ final readonly class Statistic
     public function getMarriageDurationDistribution(): array
     {
         return $this->marriageRepository->durationDistribution();
+    }
+
+    /**
+     * Top-N shortest and longest marriages, each with how it ended.
+     *
+     * @param int $topN Number of marriages to return in each list
+     *
+     * @return array{shortest: list<MarriageDurationExtreme>, longest: list<MarriageDurationExtreme>}
+     */
+    public function getMarriageDurationExtremes(int $topN = 3): array
+    {
+        return $this->marriageRepository->getMarriageDurationExtremes($topN);
     }
 
     /**
