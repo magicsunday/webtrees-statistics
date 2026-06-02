@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
+use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Model\StreamGraph\GivenNameTrendsPayload;
@@ -21,10 +22,16 @@ use MagicSunday\Webtrees\Statistic\Support\Gedcom\GivenNameNormalizer;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 
 use function array_keys;
+use function array_merge;
+use function array_slice;
+use function arsort;
+use function count;
+use function date;
 use function intdiv;
 use function max;
 use function min;
 use function range;
+use function usort;
 
 /**
  * Per-decade frequency of the top-N given names across the tree. Backs the
@@ -151,6 +158,105 @@ final readonly class GivenNameTrendsRepository
     }
 
     /**
+     * For each selected given name: the most recent birth year a token of that
+     * name was recorded on, its total occurrence count, and whether that year
+     * still falls inside the active window. The selection is balanced — half the
+     * `$topN` slots go to the most frequent names still in use, half to the most
+     * frequent names that have died out — so the chart always contrasts
+     * surviving names with vanished ones rather than being flooded by whichever
+     * group dominates the tree (a tree with many recent births has dozens of
+     * rare still-active names that would otherwise crowd out the common ones). A
+     * short side yields its spare slots to the other. Names still in use are
+     * listed first, then the rest by last year descending, with the name as a
+     * deterministic final tie-break.
+     *
+     * @param int      $topN              Maximum number of distinct given names to keep
+     * @param int|null $referenceYear     Reference year ("now") for the active-window test; defaults to the current year
+     * @param int      $activeWithinYears A name counts as still active when its last year is no more than this many years before the reference year
+     *
+     * @return list<array{name: string, lastYear: int, total: int, isActive: bool}>
+     */
+    public function lastYearByName(int $topN, ?int $referenceYear = null, int $activeWithinYears = 25): array
+    {
+        $rows = $this->loadIndividualNamesAndYears();
+
+        $perNameTotal    = [];
+        $perNameLastYear = [];
+
+        foreach ($rows as $entry) {
+            foreach (GivenNameNormalizer::tokens($entry['givn']) as $token) {
+                $perNameTotal[$token]    = ($perNameTotal[$token] ?? 0) + 1;
+                $perNameLastYear[$token] = max($perNameLastYear[$token] ?? $entry['year'], $entry['year']);
+            }
+        }
+
+        arsort($perNameTotal);
+
+        $threshold = ($referenceYear ?? (int) date('Y')) - $activeWithinYears;
+
+        // Partition the names — already ordered by total frequency — into those
+        // still in use (most recent bearer born within the active window) and
+        // those that have died out.
+        $activeRanked  = [];
+        $extinctRanked = [];
+
+        foreach (array_keys($perNameTotal) as $name) {
+            if ($perNameLastYear[$name] >= $threshold) {
+                $activeRanked[] = $name;
+            } else {
+                $extinctRanked[] = $name;
+            }
+        }
+
+        // Balance the list: half the slots to the most frequent still-active
+        // names, half to the most frequent extinct ones, so the chart always
+        // contrasts surviving with vanished names instead of being flooded by
+        // whichever group dominates. A short side yields its spare slots to the
+        // other, backfilling from the remaining active names, so the list still
+        // fills up to $topN.
+        $activeQuota = intdiv($topN, 2);
+        $selected    = array_slice($activeRanked, 0, $activeQuota);
+        $selected    = array_merge($selected, array_slice($extinctRanked, 0, $topN - count($selected)));
+
+        $shortfall = $topN - count($selected);
+
+        if ($shortfall > 0) {
+            $selected = array_merge($selected, array_slice($activeRanked, $activeQuota, $shortfall));
+        }
+
+        $result = [];
+
+        foreach ($selected as $name) {
+            $lastYear = $perNameLastYear[$name];
+
+            $result[] = [
+                'name'     => $name,
+                'lastYear' => $lastYear,
+                'total'    => $perNameTotal[$name],
+                'isActive' => ($lastYear >= $threshold),
+            ];
+        }
+
+        usort($result, static function (array $a, array $b): int {
+            // Still-in-use names lead the list, then the rest by last year
+            // descending, then the name for a stable final tie-break.
+            if ($a['isActive'] !== $b['isActive']) {
+                return $a['isActive'] ? -1 : 1;
+            }
+
+            $byYearDescending = $b['lastYear'] <=> $a['lastYear'];
+
+            if ($byYearDescending !== 0) {
+                return $byYearDescending;
+            }
+
+            return $a['name'] <=> $b['name'];
+        });
+
+        return $result;
+    }
+
+    /**
      * Build the dense decade range for the chart's x-axis. Starts at the first
      * decade where any top-N name actually has a birth (no pre-history pad from
      * outlier early dates) and ends at the most recent dated birth in the whole
@@ -225,7 +331,14 @@ final readonly class GivenNameTrendsRepository
         foreach ($rows as $row) {
             $givn = RowCast::string($row, 'givn');
 
+            // Skip the "no given name" placeholder (`@P.N.`); it is not a real
+            // name and would otherwise rank as a band of its own in both the
+            // decade series and the last-year aggregate.
             if ($givn === '') {
+                continue;
+            }
+
+            if ($givn === Individual::PRAENOMEN_NESCIO) {
                 continue;
             }
 

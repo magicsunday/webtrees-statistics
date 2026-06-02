@@ -1456,6 +1456,185 @@
 }
 
 /* ----------------------------------------------------------------------
+   Name-timeline widget (Names tab — given-name lifespan)
+   ----------------------------------------------------------------------
+   One row per given name: a serif label, a stem line ending in a dot on the
+   shared year axis, and a meta column with the year (or an "in use" badge) plus
+   the occurrence count. The stem `width` and the dot `left` percentage are the
+   widget's only data-driven styles; everything else is layout. Inactive marks
+   take the card accent; a still-in-use name (`.is-active`) pins to the axis end
+   and turns its dot + badge to the live (sage) tone.
+   -------------------------------------------------------------------- */
+.wt-statistics-chart .wt-stat-name-timeline-container {
+    width: 100%;
+}
+
+.wt-statistics-chart .msc-name-timeline {
+    display:        flex;
+    flex-direction: column;
+    padding:        0.5rem 0;
+}
+
+/* Axis caption strip; the left / right padding aligns the two year labels with
+   the track column (name column + gap left, meta column + gap right). */
+.wt-statistics-chart .msc-name-timeline-axis {
+    display:         flex;
+    justify-content: space-between;
+    padding-left:    112px;
+    padding-right:   122px;
+    margin-bottom:   12px;
+    padding-bottom:  6px;
+    border-bottom:   1px dashed var(--border-soft);
+    font-family:     var(--mono);
+    font-size:       11px;
+    color:           var(--ink-3);
+}
+
+.wt-statistics-chart .msc-name-timeline-rows {
+    list-style: none;
+    margin:     0;
+    padding:    0;
+}
+
+.wt-statistics-chart .msc-name-timeline-row {
+    display:               grid;
+    grid-template-columns: 100px 1fr 110px;
+    align-items:           center;
+    gap:                   12px;
+    padding:               8px 0;
+    border-bottom:         1px solid var(--border-soft);
+}
+
+.wt-statistics-chart .msc-name-timeline-row:last-child {
+    border-bottom: none;
+}
+
+.wt-statistics-chart .msc-name-timeline-label {
+    font-family:   var(--serif);
+    font-size:     18px;
+    text-align:    right;
+    color:         var(--ink);
+    overflow-wrap: anywhere;
+    line-height:   1.15;
+}
+
+.wt-statistics-chart .msc-name-timeline-track {
+    position: relative;
+    height:   8px;
+}
+
+/* The stem is a length-scaled gradient bar (faint at the axis origin, full at
+   the dot) rather than a hairline rule: an 8px-tall bar rasterises crisply at
+   any sub-pixel offset, whereas a 2px absolutely-positioned line straddles the
+   device-pixel grid and renders at visibly uneven weight from row to row. */
+.wt-statistics-chart .msc-name-timeline-line {
+    position:      absolute;
+    left:          0;
+    top:           0;
+    height:        8px;
+    border-radius: 4px;
+    background:    linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--wt-stat-card-accent, var(--sage)) 18%, transparent),
+        var(--wt-stat-card-accent, var(--sage))
+    );
+}
+
+.wt-statistics-chart .msc-name-timeline-row.is-active .msc-name-timeline-line {
+    background: linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--sage) 18%, transparent),
+        var(--sage)
+    );
+}
+
+.wt-statistics-chart .msc-name-timeline-dot {
+    position:      absolute;
+    top:           0;
+    width:         8px;
+    height:        8px;
+    border-radius: 50%;
+    transform:     translateX(-50%);
+    background:    var(--wt-stat-card-accent, var(--sage));
+    box-shadow:    0 0 0 2px var(--card);
+    transition:    background-color 240ms ease;
+}
+
+.wt-statistics-chart .msc-name-timeline-row.is-active .msc-name-timeline-dot {
+    background: var(--sage);
+}
+
+/* Entrance, driven by the widget's reveal hook: while `.msc-name-timeline
+   --animate` is present without `.is-revealed`, each stem is held collapsed at
+   the axis origin and each dot hidden; adding `.is-revealed` (inline on mount,
+   or on scroll-in via the dispatcher's playEntry) transitions them to the
+   resting state. Rows stagger via a per-row delay so the timeline unfurls top
+   to bottom; the dot of each row pops in after its own stem has grown. The
+   widget omits the `--animate` flag entirely for reduced-motion users, so no
+   held keyframe or transition applies there. */
+.wt-statistics-chart .msc-name-timeline--animate .msc-name-timeline-line {
+    transform-origin: left center;
+    transition:       transform 640ms cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: var(--msc-name-timeline-row-delay, 0ms);
+}
+
+.wt-statistics-chart .msc-name-timeline--animate .msc-name-timeline-dot {
+    transition:       opacity 320ms ease-out, transform 320ms ease-out;
+    transition-delay: calc(var(--msc-name-timeline-row-delay, 0ms) + 300ms);
+}
+
+.wt-statistics-chart .msc-name-timeline--animate:not(.is-revealed) .msc-name-timeline-line {
+    transform: scaleX(0);
+}
+
+.wt-statistics-chart .msc-name-timeline--animate:not(.is-revealed) .msc-name-timeline-dot {
+    opacity:   0;
+    transform: translateX(-50%) scale(0);
+}
+
+/* Per-row entrance stagger — the nth-child step seeds each row's delay variable
+   that the stem and dot transitions above read. Caps at the tenth row so a long
+   list does not trail off with an over-long lead-in. */
+.wt-statistics-chart .msc-name-timeline-row:nth-child(1) { --msc-name-timeline-row-delay: 0ms; }
+.wt-statistics-chart .msc-name-timeline-row:nth-child(2) { --msc-name-timeline-row-delay: 55ms; }
+.wt-statistics-chart .msc-name-timeline-row:nth-child(3) { --msc-name-timeline-row-delay: 110ms; }
+.wt-statistics-chart .msc-name-timeline-row:nth-child(4) { --msc-name-timeline-row-delay: 165ms; }
+.wt-statistics-chart .msc-name-timeline-row:nth-child(5) { --msc-name-timeline-row-delay: 220ms; }
+.wt-statistics-chart .msc-name-timeline-row:nth-child(6) { --msc-name-timeline-row-delay: 275ms; }
+.wt-statistics-chart .msc-name-timeline-row:nth-child(7) { --msc-name-timeline-row-delay: 330ms; }
+.wt-statistics-chart .msc-name-timeline-row:nth-child(8) { --msc-name-timeline-row-delay: 385ms; }
+.wt-statistics-chart .msc-name-timeline-row:nth-child(9) { --msc-name-timeline-row-delay: 440ms; }
+.wt-statistics-chart .msc-name-timeline-row:nth-child(n + 10) { --msc-name-timeline-row-delay: 495ms; }
+
+.wt-statistics-chart .msc-name-timeline-meta {
+    display:         flex;
+    flex-direction:  column;
+    align-items:     flex-end;
+    gap:             2px;
+    font-size:       12px;
+}
+
+.wt-statistics-chart .msc-name-timeline-primary {
+    font-family: var(--mono);
+    color:       var(--ink-2);
+}
+
+.wt-statistics-chart .msc-name-timeline-row.is-active .msc-name-timeline-primary {
+    font-family:    var(--sans);
+    font-size:      10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight:    600;
+    color:          var(--sage);
+}
+
+.wt-statistics-chart .msc-name-timeline-secondary {
+    font-family: var(--mono);
+    font-size:   10px;
+    color:       var(--ink-3);
+}
+
+/* ----------------------------------------------------------------------
    Records hall-of-fame grid (Overview CHRONICLE section)
    ----------------------------------------------------------------------
    5-column grid of mini-cards with category-coloured dot, label,
