@@ -1,0 +1,318 @@
+0 HEAD
+1 SOUR webtrees-statistics-fixture
+2 NAME sex-ratio-anomalies
+1 DEST ANSTFILE
+1 CHAR UTF-8
+1 SUBM @SUBM1@
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+0 @SUBM1@ SUBM
+1 NAME Fixture
+0 @H1@ INDI
+1 NAME Anton /Sons/
+1 SEX M
+1 DEAT
+2 DATE 1 JAN 1900
+1 FAMS @F1@
+0 @W1@ INDI
+1 NAME Berta /Sons/
+1 SEX F
+1 DEAT
+2 DATE 1 JAN 1905
+1 FAMS @F1@
+0 @S1A@ INDI
+1 NAME Child /Sons/
+1 SEX M
+1 FAMC @F1@
+0 @S1B@ INDI
+1 NAME Child /Sons/
+1 SEX M
+1 FAMC @F1@
+0 @S1C@ INDI
+1 NAME Child /Sons/
+1 SEX M
+1 FAMC @F1@
+0 @S1D@ INDI
+1 NAME Child /Sons/
+1 SEX M
+1 FAMC @F1@
+0 @S1E@ INDI
+1 NAME Child /Sons/
+1 SEX M
+1 FAMC @F1@
+0 @S1F@ INDI
+1 NAME Child /Sons/
+1 SEX M
+1 FAMC @F1@
+0 @S1G@ INDI
+1 NAME Child /Sons/
+1 SEX M
+1 FAMC @F1@
+0 @F1@ FAM
+1 HUSB @H1@
+1 WIFE @W1@
+1 MARR
+2 DATE 1 JAN 1880
+1 CHIL @S1A@
+1 CHIL @S1B@
+1 CHIL @S1C@
+1 CHIL @S1D@
+1 CHIL @S1E@
+1 CHIL @S1F@
+1 CHIL @S1G@
+0 @H2@ INDI
+1 NAME Carl /Daughters/
+1 SEX M
+1 DEAT
+2 DATE 1 JAN 1901
+1 FAMS @F2@
+0 @W2@ INDI
+1 NAME Clara /Daughters/
+1 SEX F
+1 DEAT
+2 DATE 1 JAN 1906
+1 FAMS @F2@
+0 @D2A@ INDI
+1 NAME Child /Daughters/
+1 SEX F
+1 FAMC @F2@
+0 @D2B@ INDI
+1 NAME Child /Daughters/
+1 SEX F
+1 FAMC @F2@
+0 @D2C@ INDI
+1 NAME Child /Daughters/
+1 SEX F
+1 FAMC @F2@
+0 @D2D@ INDI
+1 NAME Child /Daughters/
+1 SEX F
+1 FAMC @F2@
+0 @D2E@ INDI
+1 NAME Child /Daughters/
+1 SEX F
+1 FAMC @F2@
+0 @D2F@ INDI
+1 NAME Child /Daughters/
+1 SEX F
+1 FAMC @F2@
+0 @D2G@ INDI
+1 NAME Child /Daughters/
+1 SEX F
+1 FAMC @F2@
+0 @D2H@ INDI
+1 NAME Child /Daughters/
+1 SEX F
+1 FAMC @F2@
+0 @F2@ FAM
+1 HUSB @H2@
+1 WIFE @W2@
+1 MARR
+2 DATE 1 JAN 1881
+1 CHIL @D2A@
+1 CHIL @D2B@
+1 CHIL @D2C@
+1 CHIL @D2D@
+1 CHIL @D2E@
+1 CHIL @D2F@
+1 CHIL @D2G@
+1 CHIL @D2H@
+0 @H3@ INDI
+1 NAME David /Skewed/
+1 SEX M
+1 DEAT
+2 DATE 1 JAN 1902
+1 FAMS @F3@
+0 @W3@ INDI
+1 NAME Emma /Skewed/
+1 SEX F
+1 DEAT
+2 DATE 1 JAN 1907
+1 FAMS @F3@
+0 @S3A@ INDI
+1 NAME Child /Skewed/
+1 SEX M
+1 FAMC @F3@
+0 @S3B@ INDI
+1 NAME Child /Skewed/
+1 SEX M
+1 FAMC @F3@
+0 @S3C@ INDI
+1 NAME Child /Skewed/
+1 SEX M
+1 FAMC @F3@
+0 @S3D@ INDI
+1 NAME Child /Skewed/
+1 SEX M
+1 FAMC @F3@
+0 @S3E@ INDI
+1 NAME Child /Skewed/
+1 SEX M
+1 FAMC @F3@
+0 @S3F@ INDI
+1 NAME Child /Skewed/
+1 SEX M
+1 FAMC @F3@
+0 @D3A@ INDI
+1 NAME Child /Skewed/
+1 SEX F
+1 FAMC @F3@
+0 @U3A@ INDI
+1 NAME Child /Skewed/
+1 FAMC @F3@
+0 @F3@ FAM
+1 HUSB @H3@
+1 WIFE @W3@
+1 MARR
+2 DATE 1 JAN 1882
+1 CHIL @S3A@
+1 CHIL @S3B@
+1 CHIL @S3C@
+1 CHIL @S3D@
+1 CHIL @S3E@
+1 CHIL @S3F@
+1 CHIL @D3A@
+1 CHIL @U3A@
+0 @H4@ INDI
+1 NAME Georg /Balanced/
+1 SEX M
+1 DEAT
+2 DATE 1 JAN 1903
+1 FAMS @F4@
+0 @W4@ INDI
+1 NAME Frieda /Balanced/
+1 SEX F
+1 DEAT
+2 DATE 1 JAN 1908
+1 FAMS @F4@
+0 @S4A@ INDI
+1 NAME Child /Balanced/
+1 SEX M
+1 FAMC @F4@
+0 @S4B@ INDI
+1 NAME Child /Balanced/
+1 SEX M
+1 FAMC @F4@
+0 @S4C@ INDI
+1 NAME Child /Balanced/
+1 SEX M
+1 FAMC @F4@
+0 @S4D@ INDI
+1 NAME Child /Balanced/
+1 SEX M
+1 FAMC @F4@
+0 @D4A@ INDI
+1 NAME Child /Balanced/
+1 SEX F
+1 FAMC @F4@
+0 @D4B@ INDI
+1 NAME Child /Balanced/
+1 SEX F
+1 FAMC @F4@
+0 @D4C@ INDI
+1 NAME Child /Balanced/
+1 SEX F
+1 FAMC @F4@
+0 @D4D@ INDI
+1 NAME Child /Balanced/
+1 SEX F
+1 FAMC @F4@
+0 @F4@ FAM
+1 HUSB @H4@
+1 WIFE @W4@
+1 MARR
+2 DATE 1 JAN 1883
+1 CHIL @S4A@
+1 CHIL @S4B@
+1 CHIL @S4C@
+1 CHIL @S4D@
+1 CHIL @D4A@
+1 CHIL @D4B@
+1 CHIL @D4C@
+1 CHIL @D4D@
+0 @H5@ INDI
+1 NAME Heinrich /Small/
+1 SEX M
+1 DEAT
+2 DATE 1 JAN 1904
+1 FAMS @F5@
+0 @W5@ INDI
+1 NAME Hanna /Small/
+1 SEX F
+1 DEAT
+2 DATE 1 JAN 1909
+1 FAMS @F5@
+0 @S5A@ INDI
+1 NAME Child /Small/
+1 SEX M
+1 FAMC @F5@
+0 @S5B@ INDI
+1 NAME Child /Small/
+1 SEX M
+1 FAMC @F5@
+0 @S5C@ INDI
+1 NAME Child /Small/
+1 SEX M
+1 FAMC @F5@
+0 @S5D@ INDI
+1 NAME Child /Small/
+1 SEX M
+1 FAMC @F5@
+0 @F5@ FAM
+1 HUSB @H5@
+1 WIFE @W5@
+1 MARR
+2 DATE 1 JAN 1884
+1 CHIL @S5A@
+1 CHIL @S5B@
+1 CHIL @S5C@
+1 CHIL @S5D@
+0 @H6@ INDI
+1 NAME Otto /Six/
+1 SEX M
+1 DEAT
+2 DATE 1 JAN 1910
+1 FAMS @F6@
+0 @W6@ INDI
+1 NAME Paula /Six/
+1 SEX F
+1 DEAT
+2 DATE 1 JAN 1915
+1 FAMS @F6@
+0 @S6A@ INDI
+1 NAME Child /Six/
+1 SEX M
+1 FAMC @F6@
+0 @S6B@ INDI
+1 NAME Child /Six/
+1 SEX M
+1 FAMC @F6@
+0 @S6C@ INDI
+1 NAME Child /Six/
+1 SEX M
+1 FAMC @F6@
+0 @S6D@ INDI
+1 NAME Child /Six/
+1 SEX M
+1 FAMC @F6@
+0 @S6E@ INDI
+1 NAME Child /Six/
+1 SEX M
+1 FAMC @F6@
+0 @D6A@ INDI
+1 NAME Child /Six/
+1 SEX F
+1 FAMC @F6@
+0 @F6@ FAM
+1 HUSB @H6@
+1 WIFE @W6@
+1 MARR
+2 DATE 1 JAN 1885
+1 CHIL @S6A@
+1 CHIL @S6B@
+1 CHIL @S6C@
+1 CHIL @S6D@
+1 CHIL @S6E@
+1 CHIL @D6A@
+0 TRLR

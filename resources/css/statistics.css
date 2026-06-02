@@ -3366,3 +3366,64 @@
     font-family: var(--mono);
     font-weight: 500;
 }
+
+/* ----------------------------------------------------------------------
+   Sex-ratio anomaly list (Family tab) — one row per family with an extreme
+   son / daughter skew; a two-segment bar sized in proportion to the two
+   counts, reusing the shared sex-colour tokens.
+   ---------------------------------------------------------------------- */
+.wt-statistics-chart .wt-stat-sexratio {
+    display:        flex;
+    flex-direction: column;
+}
+
+.wt-statistics-chart .wt-stat-sexratio-row {
+    display:               grid;
+    grid-template-columns: 1fr 200px;
+    align-items:           center;
+    gap:                   14px;
+    padding:               10px 0;
+    border-bottom:         1px solid var(--border-soft);
+    font-size:             13px;
+}
+
+.wt-statistics-chart .wt-stat-sexratio-row:last-child {
+    border-bottom: none;
+}
+
+.wt-statistics-chart .wt-stat-sexratio-family {
+    color:         var(--ink);
+    overflow-wrap: anywhere;
+}
+
+.wt-statistics-chart .wt-stat-sexratio-bar {
+    display:       flex;
+    height:        18px;
+    border-radius: 3px;
+    overflow:      hidden;
+}
+
+.wt-statistics-chart .wt-stat-sexratio-sons,
+.wt-statistics-chart .wt-stat-sexratio-daughters {
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+    /* Honour the data-proportional width even for a narrow minority segment:
+       flex items default to min-width:auto, so the nowrap count would otherwise
+       force the segment wider than its share and break the proportions. */
+    min-width:       0;
+    overflow:        hidden;
+    color:           var(--card);
+    font-family:     var(--mono);
+    font-size:       11px;
+    font-weight:     600;
+    white-space:     nowrap;
+}
+
+.wt-statistics-chart .wt-stat-sexratio-sons {
+    background: var(--wmstats-sex-male);
+}
+
+.wt-statistics-chart .wt-stat-sexratio-daughters {
+    background: var(--wmstats-sex-female);
+}

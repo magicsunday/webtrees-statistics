@@ -11,20 +11,35 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
+use Fisharebest\Webtrees\Family;
 use Fisharebest\Webtrees\Gedcom;
+use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Enum\MaritalBucket;
+use MagicSunday\Webtrees\Statistic\Enum\Sex;
+use MagicSunday\Webtrees\Statistic\Model\Family\SexRatioAnomaly;
 use MagicSunday\Webtrees\Statistic\Model\FamilyRow;
 use MagicSunday\Webtrees\Statistic\Support\Database\ChunkedWhereIn;
+use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 
 use function array_key_exists;
+use function array_slice;
 use function array_unique;
 use function array_values;
+use function html_entity_decode;
 use function is_string;
+use function max;
+use function strip_tags;
+use function usort;
+
+use const ENT_HTML5;
+use const ENT_QUOTES;
 
 /**
  * Classifies every living individual in a tree into exactly one marital state
@@ -118,6 +133,125 @@ final readonly class FamilyRepository
         }
 
         return $counts;
+    }
+
+    /**
+     * Families whose recorded children are heavily skewed toward one sex.
+     *
+     * Counts the sons and daughters reachable through each family's CHIL links
+     * (children carrying `i_sex` M or F; a child with no recorded sex is
+     * excluded from both the dominant count and the total, so it cannot pull a
+     * family below the threshold). A family qualifies when it has at least
+     * `$minChildren` sexed children AND the dominant sex makes up at least
+     * `$skewThreshold` of them. The result is ranked by skew descending, then
+     * child count descending, then family XREF as a stable final tie-break, and
+     * capped at `$limit`.
+     *
+     * Privacy follows the project convention for ranked extremes: families are
+     * ranked from the raw counts and only resolved to a display label through
+     * the family factory, so {@see Family::fullName()} applies webtrees' own
+     * privacy filtering without this method second-guessing it.
+     *
+     * @param int   $minChildren   Minimum number of sexed children a family must have
+     * @param float $skewThreshold Minimum share (0..1) the dominant sex must reach
+     * @param int   $limit         Maximum number of families to return
+     *
+     * @return list<SexRatioAnomaly>
+     */
+    public function getSexRatioAnomalies(int $minChildren = 6, float $skewThreshold = 0.80, int $limit = 10): array
+    {
+        $maleToken   = Sex::Male->value;
+        $femaleToken = Sex::Female->value;
+
+        $rows = TreeScope::table($this->tree, 'families', 'fam')
+            ->join('link AS famc', static function (JoinClause $join): void {
+                $join
+                    ->on('famc.l_file', '=', 'fam.f_file')
+                    ->on('famc.l_to', '=', 'fam.f_id')
+                    ->where('famc.l_type', '=', 'FAMC');
+            })
+            ->join('individuals AS child', static function (JoinClause $join) use ($maleToken, $femaleToken): void {
+                $join
+                    ->on('child.i_file', '=', 'famc.l_file')
+                    ->on('child.i_id', '=', 'famc.l_from')
+                    ->whereIn('child.i_sex', [$maleToken, $femaleToken]);
+            })
+            ->groupBy('fam.f_id', 'child.i_sex')
+            ->select([
+                'fam.f_id AS f_id',
+                'child.i_sex AS sex',
+                new Expression('COUNT(*) AS cnt'),
+            ])
+            ->get();
+
+        // Tally the per-sex counts into one row per family.
+        /** @var array<string, array{sons: int, daughters: int}> $byFamily */
+        $byFamily = [];
+
+        foreach ($rows as $row) {
+            $familyId = RowCast::string($row, 'f_id');
+
+            if ($familyId === '') {
+                continue;
+            }
+
+            $byFamily[$familyId] ??= ['sons' => 0, 'daughters' => 0];
+
+            if (RowCast::string($row, 'sex') === $maleToken) {
+                $byFamily[$familyId]['sons'] = RowCast::int($row, 'cnt');
+            } else {
+                $byFamily[$familyId]['daughters'] = RowCast::int($row, 'cnt');
+            }
+        }
+
+        $anomalies = [];
+
+        foreach ($byFamily as $familyId => $counts) {
+            $sons      = $counts['sons'];
+            $daughters = $counts['daughters'];
+            $total     = $sons + $daughters;
+
+            if ($total < $minChildren) {
+                continue;
+            }
+
+            // Threshold via multiplication rather than division — avoids a
+            // divide-by-zero path and keeps the comparison exact for the counts.
+            if (max($sons, $daughters) < ($skewThreshold * $total)) {
+                continue;
+            }
+
+            $family = Registry::familyFactory()->make($familyId, $this->tree);
+
+            if (!$family instanceof Family) {
+                continue;
+            }
+
+            $label = html_entity_decode(strip_tags($family->fullName()), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+            $anomalies[] = new SexRatioAnomaly(
+                familyXref: $familyId,
+                label: $label,
+                sons: $sons,
+                daughters: $daughters,
+            );
+        }
+
+        usort($anomalies, static function (SexRatioAnomaly $a, SexRatioAnomaly $b): int {
+            // Skew descending via cross-multiplication (max_a/total_a vs
+            // max_b/total_b without floating-point division), then child count
+            // descending, then XREF ascending for a deterministic final order.
+            $bySkew = (max($b->sons, $b->daughters) * $a->total())
+                <=> (max($a->sons, $a->daughters) * $b->total());
+
+            if ($bySkew !== 0) {
+                return $bySkew;
+            }
+
+            return [$b->total(), $a->familyXref] <=> [$a->total(), $b->familyXref];
+        });
+
+        return array_slice($anomalies, 0, $limit);
     }
 
     /**

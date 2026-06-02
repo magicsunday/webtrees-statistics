@@ -48,6 +48,7 @@ $averageFamilySizeLine   = $statistic->getAverageFamilySizeByCentury();
 $multipleBirthRate       = $statistic->getMultipleBirthRateByCentury();
 $siblingGaps             = $statistic->getSiblingAgeGapDistribution();
 $largestFamilies         = $statistic->getTopLargestFamilies(10);
+$sexRatioAnomalies       = $statistic->getSexRatioAnomalies();
 $childlessBreakdown      = $statistic->getChildlessFamiliesDistribution();
 $firstChildMonth         = $statistic->getFirstChildrenByMonth();
 $firstChildAgeByDecade   = $statistic->getAgeAtFirstChildMeanByDecade();
@@ -446,6 +447,26 @@ echo Card::for($module, I18N::translate('Top 10 largest families'))
             ->with('class', 'progress-largest-families')
             ->withData($largestFamilies)
             ->with('suffix', I18N::translate('kids'))
+            ->render()
+    )
+    ->render();
+
+echo Card::for($module, I18N::translate('Sex-ratio anomalies'))
+    ->withSub(I18N::translate('Families with a strongly one-sided ratio of sons to daughters'))
+    ->withEyebrow(I18N::translate('Anomaly'))
+    ->withAccent(Accent::Slate)
+    ->withIllustration(Illustration::Family)
+    ->withInfo(
+        I18N::translate(
+            'Families with at least six recorded children where one sex makes up at least 80 %% of them. Children with no recorded sex are left out of the ratio. Each bar is split into sons and daughters in proportion to the two counts. Ranked by how lopsided the ratio is, then by the number of children.'
+        ),
+        $aboutThisChart,
+        $aboutThisChart
+    )
+    ->withSpan(6)
+    ->withBodyHtml(
+        Component::sexRatio($module)
+            ->withData($sexRatioAnomalies)
             ->render()
     )
     ->render();

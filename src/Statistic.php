@@ -16,6 +16,7 @@ use Fisharebest\Webtrees\StatisticsData;
 use MagicSunday\Webtrees\Statistic\Enum\MaritalBucket;
 use MagicSunday\Webtrees\Statistic\Enum\Sex;
 use MagicSunday\Webtrees\Statistic\Model\Chord\ChordMatrixPayload;
+use MagicSunday\Webtrees\Statistic\Model\Family\SexRatioAnomaly;
 use MagicSunday\Webtrees\Statistic\Model\Heatmap\HeatmapPayload;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Model\Metric\ChildMortalitySummary;
@@ -273,6 +274,20 @@ final readonly class Statistic
                 'class' => 'divorced',
             ],
         ];
+    }
+
+    /**
+     * Families whose recorded children are heavily skewed toward one sex.
+     *
+     * @param int   $minChildren   Minimum number of sexed children a family must have
+     * @param float $skewThreshold Minimum share (0..1) the dominant sex must reach
+     * @param int   $limit         Maximum number of families to return
+     *
+     * @return list<SexRatioAnomaly>
+     */
+    public function getSexRatioAnomalies(int $minChildren = 6, float $skewThreshold = 0.80, int $limit = 10): array
+    {
+        return $this->familyRepository->getSexRatioAnomalies($minChildren, $skewThreshold, $limit);
     }
 
     /**

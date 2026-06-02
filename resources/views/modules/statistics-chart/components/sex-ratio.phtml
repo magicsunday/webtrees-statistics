@@ -1,0 +1,50 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+use Fisharebest\Webtrees\I18N;
+use MagicSunday\Webtrees\Statistic\Model\Family\SexRatioAnomaly;
+use MagicSunday\Webtrees\Statistic\View\EmptyStatePlaceholder;
+
+/**
+ * Sex-ratio anomaly list — one row per family whose recorded children are
+ * heavily skewed toward one sex, drawn as a two-segment bar (sons then
+ * daughters) sized in proportion to the two counts. Pure HTML/CSS, no
+ * client-side widget; mirrors the design's `.gs-sexratio` block. The numbers
+ * print inside each segment so the exact counts read without a hover. A segment
+ * is omitted entirely when its count is zero.
+ *
+ * @var list<SexRatioAnomaly> $data         Families with an extreme skew, most skewed first
+ * @var string                $emptyMessage Optional override for the "no data" placeholder
+ */
+$emptyMessage ??= EmptyStatePlaceholder::defaultMessage();
+
+if ($data === []) {
+    echo EmptyStatePlaceholder::render($emptyMessage);
+
+    return;
+}
+?>
+<div class="wt-stat-sexratio">
+    <?php foreach ($data as $row) { ?>
+        <?php $total = $row->total(); ?>
+        <div class="wt-stat-sexratio-row">
+            <span class="wt-stat-sexratio-family"><?php echo e($row->label); ?></span>
+            <span class="wt-stat-sexratio-bar">
+                <?php if ($row->sons > 0) { ?>
+                    <span class="wt-stat-sexratio-sons" style="width: <?php echo ($row->sons / $total) * 100; ?>%;">♂ <?php echo e(I18N::number($row->sons)); ?></span>
+                <?php } ?>
+                <?php if ($row->daughters > 0) { ?>
+                    <span class="wt-stat-sexratio-daughters" style="width: <?php echo ($row->daughters / $total) * 100; ?>%;">♀ <?php echo e(I18N::number($row->daughters)); ?></span>
+                <?php } ?>
+            </span>
+        </div>
+    <?php } ?>
+</div>
