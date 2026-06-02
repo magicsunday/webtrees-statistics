@@ -1,0 +1,69 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+use Fisharebest\Webtrees\I18N;
+use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
+use MagicSunday\Webtrees\Statistic\View\EmptyStatePlaceholder;
+
+/**
+ * Name-timeline widget shell. Emits a `data-widget="name-timeline"` marker
+ * carrying the payload as JSON; the dispatcher (`renderWidgets` in
+ * `resources/js/modules/index.js`) hands it off to the chart-lib `NameTimeline`
+ * widget, which draws one stem-and-dot per row on a shared year axis.
+ *
+ * The chart-lib widget is domain-neutral, so the domain mapping happens here:
+ * the given name becomes the row `label`, its most recent birth year the dot
+ * `value`, the occurrence count the `meta` caption, and the still-in-use flag
+ * the `active` flag. The axis spans the oldest still-given year (less a small
+ * lead-in) to the current year, so an active name reads as "right up to today".
+ *
+ * @var array<int, array{name: string, lastYear: int, total: int, isActive: bool}> $data Top-N given names, still-in-use first
+ */
+$payload = [];
+
+foreach ($data as $row) {
+    $payload[] = [
+        'label'  => (string) ($row['name'] ?? ''),
+        'value'  => (int) ($row['lastYear'] ?? 0),
+        'active' => (bool) ($row['isActive'] ?? false),
+        'meta'   => I18N::number((int) ($row['total'] ?? 0)) . '×',
+    ];
+}
+
+if ($payload === []) {
+    echo EmptyStatePlaceholder::render();
+
+    return;
+}
+
+// Axis domain: from the oldest year a now-defunct name was last given (less a
+// 30-year lead-in so the leftmost dot is not flush against the edge) to the
+// current year, which anchors the right end at "today" so still-in-use names
+// sit at the far right.
+$defunctYears = array_column(
+    array_filter($data, static fn (array $row): bool => ($row['isActive'] ?? false) === false),
+    'lastYear'
+);
+
+$options = [
+    'valueMax'    => (int) date('Y'),
+    'activeLabel' => I18N::translate('Active'),
+];
+
+if ($defunctYears !== []) {
+    $options['valueMin'] = min($defunctYears) - 30;
+}
+?>
+<div class="wt-stat-name-timeline-container"
+     data-widget="name-timeline"
+     data-payload="<?php echo WidgetJson::encodeAttribute($payload); ?>"
+     data-options="<?php echo WidgetJson::encodeAttribute($options); ?>"
+     data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"></div>

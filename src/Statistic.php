@@ -996,6 +996,21 @@ final readonly class Statistic
     }
 
     /**
+     * For each of the top-N given names, the most recent birth year the name
+     * was recorded on, its total occurrence count, and whether it is still in
+     * use. Names are selected by total frequency; still-in-use names lead the
+     * result, then the rest by last year descending.
+     *
+     * @param int $topN Maximum number of distinct given names to keep
+     *
+     * @return list<array{name: string, lastYear: int, total: int, isActive: bool}>
+     */
+    public function getGivenNameLastYear(int $topN): array
+    {
+        return $this->givenNameTrendsRepository->lastYearByName($topN);
+    }
+
+    /**
      * Top-N occupations across the tree (`1 OCCU` facts on individuals),
      * case-folded so spelling variants merge into one bucket. Display labels
      * carry the first-seen original casing.

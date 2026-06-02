@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Statistics\n"
 "Report-Msgid-Bugs-To: https://github.com/magicsunday/webtrees-statistics/"
 "issues\n"
-"POT-Creation-Date: 2026-06-02 08:30+0000\n"
+"POT-Creation-Date: 2026-06-02 07:19+0000\n"
 "PO-Revision-Date: 2026-05-22 07:04+0000\n"
 "Last-Translator: Rico Sonntag <mail@ricosonntag.de>\n"
 "Language-Team: \n"
@@ -201,8 +201,8 @@ msgstr[1] "%s Sterbefälle"
 msgid "%s distinct causes (top 15)"
 msgstr "%s verschiedene Ursachen (Top 15)"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:67
-#: resources/views/modules/statistics-chart/tabs/names.phtml:82
+#: resources/views/modules/statistics-chart/tabs/names.phtml:72
+#: resources/views/modules/statistics-chart/tabs/names.phtml:87
 #, php-format
 msgid "%s distinct given names (top 15)"
 msgstr "%s verschiedene Vornamen (Top 15)"
@@ -236,7 +236,7 @@ msgstr[1] "%s verschiedene Religionen"
 msgid "%s distinct religions (top 15)"
 msgstr "%s verschiedene Religionen (Top 15)"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:52
+#: resources/views/modules/statistics-chart/tabs/names.phtml:57
 #, php-format
 msgid "%s distinct surnames (top 15)"
 msgstr "%s verschiedene Nachnamen (Top 15)"
@@ -707,7 +707,7 @@ msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:142
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:211
-#: resources/views/modules/statistics-chart/tabs/names.phtml:42
+#: resources/views/modules/statistics-chart/tabs/names.phtml:47
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:210
 #: resources/views/modules/statistics-chart/tabs/places.phtml:157
 #: resources/views/modules/statistics-chart/tabs/places.phtml:176
@@ -722,6 +722,10 @@ msgid "Across %s individual with at least one recorded place."
 msgid_plural "Across %s individuals with at least one recorded place."
 msgstr[0] "Über %s Person mit mindestens einem erfassten Ort."
 msgstr[1] "Über %s Personen mit mindestens einem erfassten Ort."
+
+#: resources/views/modules/statistics-chart/widgets/name-timeline.phtml:58
+msgid "Active"
+msgstr "Aktiv"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:542
 msgid "After the partner's death"
@@ -852,7 +856,7 @@ msgstr ""
 "Anzahl je Altersgruppe pro Geburtsjahrhundert, getrennt in eine männliche "
 "und eine weibliche Spalte"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:140
+#: resources/views/modules/statistics-chart/tabs/names.phtml:159
 msgid "Alliances"
 msgstr "Allianzen"
 
@@ -1035,7 +1039,7 @@ msgstr "Kinder pro datierter Familie"
 msgid "Children per family"
 msgstr "Kinder pro Familie"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:139
+#: resources/views/modules/statistics-chart/tabs/names.phtml:158
 msgid ""
 "Chord diagram: arcs = surnames, ribbons = marriages between them, loops = "
 "endogamy"
@@ -1051,11 +1055,11 @@ msgstr "Chronik"
 msgid "Common causes of death"
 msgstr "Häufige Todesursachen"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:81
+#: resources/views/modules/statistics-chart/tabs/names.phtml:86
 msgid "Common given names – female"
 msgstr "Häufige Vornamen – weiblich"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:66
+#: resources/views/modules/statistics-chart/tabs/names.phtml:71
 msgid "Common given names – male"
 msgstr "Häufige Vornamen – männlich"
 
@@ -1067,7 +1071,7 @@ msgstr "Häufige Berufe"
 msgid "Common religions"
 msgstr "Häufige Religionen"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:51
+#: resources/views/modules/statistics-chart/tabs/names.phtml:56
 msgid "Common surnames"
 msgstr "Häufige Nachnamen"
 
@@ -1239,7 +1243,7 @@ msgstr "Scheidungen pro Monat"
 msgid "Documentation"
 msgstr "Dokumentation"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:39
+#: resources/views/modules/statistics-chart/tabs/names.phtml:40
 msgid ""
 "Each arc on the circumference is one of the top surnames in the tree, ranked "
 "by how many marriages that surname appears in (as husband or wife). Ribbons "
@@ -1271,7 +1275,7 @@ msgstr ""
 "erfassten Beruf hat. Maus über ein Band zeigt den exakten Beruf des Vaters → "
 "Beruf des Sohns, die Zahl der Söhne und einige davon namentlich."
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:35
+#: resources/views/modules/statistics-chart/tabs/names.phtml:36
 msgid ""
 "Each band stands for one of the most common given names in the tree. The "
 "band's vertical thickness in a given decade shows how many individuals born "
@@ -1392,7 +1396,7 @@ msgstr "Endogamierate"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:298
 #: resources/views/modules/statistics-chart/tabs/family.phtml:460
-#: resources/views/modules/statistics-chart/tabs/names.phtml:97
+#: resources/views/modules/statistics-chart/tabs/names.phtml:102
 msgid "Evolution"
 msgstr "Entwicklung"
 
@@ -1417,7 +1421,7 @@ msgstr "Familien mit vs. ohne Kinder"
 msgid "Family"
 msgstr "Familie"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:48
+#: resources/views/modules/statistics-chart/tabs/names.phtml:53
 msgid "Family names and given names by frequency across the tree"
 msgstr "Familiennamen und Vornamen nach Verbreitung im Baum"
 
@@ -1638,7 +1642,7 @@ msgstr ""
 "sich Jahrzehnten mit sehr unterschiedlicher Anzahl an Familien direkt "
 "nebeneinander vergleichen."
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:122
+#: resources/views/modules/statistics-chart/tabs/names.phtml:141
 msgid ""
 "For every parent-child pair of the same sex (father / son and mother / "
 "daughter) where both individuals carry a recorded given name, the widget "
@@ -1659,7 +1663,7 @@ msgstr ""
 "unabhängig pro Serie unterdrückt, weil ein einzelner Treffer die Rate um "
 "mehr als 10 Prozentpunkte verschöbe."
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:47
+#: resources/views/modules/statistics-chart/tabs/names.phtml:52
 msgid "Frequencies"
 msgstr "Häufigkeiten"
 
@@ -1706,12 +1710,12 @@ msgstr "Geografische Ansicht"
 msgid "Geography"
 msgstr "Geografie"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:68
-#: resources/views/modules/statistics-chart/tabs/names.phtml:83
+#: resources/views/modules/statistics-chart/tabs/names.phtml:73
+#: resources/views/modules/statistics-chart/tabs/names.phtml:88
 msgid "Given names"
 msgstr "Vornamen"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:101
+#: resources/views/modules/statistics-chart/tabs/names.phtml:106
 msgid "Given-name popularity across decades"
 msgstr "Beliebtheit von Vornamen über Jahrzehnte"
 
@@ -1760,7 +1764,7 @@ msgstr "Wie lange der überlebende Partner den zuerst verstorbenen überlebte"
 msgid "How long was the life?"
 msgstr "Wie lang war das Leben?"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:96
+#: resources/views/modules/statistics-chart/tabs/names.phtml:101
 msgid "How names came and went over time"
 msgstr "Wie Namen über die Zeit kamen und gingen"
 
@@ -2035,6 +2039,11 @@ msgstr "Sterblichkeitsrate pro Geburtsjahrhundert"
 msgid "Most children"
 msgstr "Meiste Kinder"
 
+#: resources/views/modules/statistics-chart/tabs/names.phtml:121
+msgid "Most recent birth year per name · names still in use are highlighted"
+msgstr ""
+"Letztes Vergabejahr je Vorname · noch gebräuchliche Namen sind hervorgehoben"
+
 #: resources/views/modules/statistics-chart/components/records-grid.phtml:36
 msgid "Most spouses"
 msgstr "Meiste Ehepartner"
@@ -2253,7 +2262,7 @@ msgstr "Geburtsorte"
 msgid "Places of death"
 msgstr "Sterbeorte"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:98
+#: resources/views/modules/statistics-chart/tabs/names.phtml:103
 msgid "Popularity over decades and marriage alliances between families"
 msgstr "Beliebtheit über Jahrzehnte und Eheallianzen zwischen Familien"
 
@@ -2285,8 +2294,8 @@ msgstr "Datensätze"
 msgid "Sagittarius"
 msgstr "Schütze"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:115
-#: resources/views/modules/statistics-chart/tabs/names.phtml:133
+#: resources/views/modules/statistics-chart/tabs/names.phtml:134
+#: resources/views/modules/statistics-chart/tabs/names.phtml:152
 msgid "Same-sex name passdown"
 msgstr "Namensweitergabe innerhalb des Geschlechts"
 
@@ -2329,7 +2338,7 @@ msgstr ""
 "Anteil Kinder mit gleichem Geburtsdatum wie ein Geschwister in derselben "
 "Familie"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:116
+#: resources/views/modules/statistics-chart/tabs/names.phtml:135
 msgid ""
 "Share of children sharing at least one given name with the same-sex parent"
 msgstr ""
@@ -2414,12 +2423,12 @@ msgstr "Status"
 msgid "Structure"
 msgstr "Struktur"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:138
-#: resources/views/modules/statistics-chart/tabs/names.phtml:148
+#: resources/views/modules/statistics-chart/tabs/names.phtml:157
+#: resources/views/modules/statistics-chart/tabs/names.phtml:167
 msgid "Surname × surname marriage matrix"
 msgstr "Nachname × Nachname Eheschließungsmatrix"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:53
+#: resources/views/modules/statistics-chart/tabs/names.phtml:58
 msgid "Surnames"
 msgstr "Nachnamen"
 
@@ -2434,6 +2443,25 @@ msgstr "Überlebenskurve pro Geburtsjahrhundert"
 #: src/Support/Locale/ZodiacLabels.php:46
 msgid "Taurus"
 msgstr "Stier"
+
+#: resources/views/modules/statistics-chart/tabs/names.phtml:44
+msgid ""
+"The chart contrasts given names still in use with those that have died out, "
+"split evenly between the two groups and ranked within each by how often the "
+"name occurs in the tree. Each marker sits on the year axis at the most "
+"recent birth recorded for a person carrying that name; a name whose most "
+"recent bearer was born within the last 25 years counts as still in use and "
+"is highlighted. Read left to right, the chart separates names that fell out "
+"of use long ago from those still given today."
+msgstr ""
+"Die Darstellung stellt noch gebräuchliche Vornamen jenen gegenüber, die "
+"ausgestorben sind — zu gleichen Teilen auf beide Gruppen verteilt und "
+"innerhalb jeder Gruppe nach Häufigkeit des Namens im Baum sortiert. Jeder "
+"Marker sitzt auf der Jahr-Achse beim letzten erfassten Geburtsjahr einer "
+"Person mit diesem Namen; ein Name, dessen jüngster Träger in den letzten 25 "
+"Jahren geboren wurde, gilt als noch gebräuchlich und wird hervorgehoben. Von "
+"links nach rechts trennt die Darstellung längst verschwundene Namen von den "
+"heute noch vergebenen."
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:137
 msgid "The extremes of the tree"
@@ -2484,7 +2512,8 @@ msgstr "Zeitliche Verteilung der Geburten"
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:457
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:483
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:544
-#: resources/views/modules/statistics-chart/tabs/names.phtml:103
+#: resources/views/modules/statistics-chart/tabs/names.phtml:108
+#: resources/views/modules/statistics-chart/tabs/names.phtml:122
 msgid "Timeline"
 msgstr "Zeitleiste"
 
@@ -2492,7 +2521,7 @@ msgstr "Zeitleiste"
 msgid "Today living"
 msgstr "Heute lebend"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:102
+#: resources/views/modules/statistics-chart/tabs/names.phtml:107
 #, php-format
 msgid "Top %s given names, stacked · band thickness = share per decade"
 msgstr "Top %s Vornamen, gestapelt · Bandstärke = Anteil pro Jahrzehnt"
@@ -2513,7 +2542,7 @@ msgstr "Top 10 Älteste (verstorben)"
 msgid "Top 10 oldest (living)"
 msgstr "Top 10 Älteste (lebend)"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:117
+#: resources/views/modules/statistics-chart/tabs/names.phtml:136
 msgid "Tradition"
 msgstr "Tradition"
 
@@ -2604,6 +2633,10 @@ msgstr "Wann Ehen endeten"
 msgid "When they had children"
 msgstr "Wann sie Kinder bekamen"
 
+#: resources/views/modules/statistics-chart/tabs/names.phtml:120
+msgid "When was the name last given?"
+msgstr "Wann wurde der Name zuletzt vergeben?"
+
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:450
 msgid "When were they born?"
 msgstr "Wann sind sie geboren?"
@@ -2616,7 +2649,7 @@ msgstr "Wo der Baum Lücken hat · Ereignisse und Orte, die nicht erfasst sind"
 msgid "Where they lived and died"
 msgstr "Wo sie lebten und starben"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:46
+#: resources/views/modules/statistics-chart/tabs/names.phtml:51
 msgid "Which names return?"
 msgstr "Welche Namen kehren wieder?"
 
@@ -2898,29 +2931,11 @@ msgstr "{count} insgesamt in dieser Kategorie"
 msgid "{name}: {total}, {peak}"
 msgstr "{name}: {total}, {peak}"
 
-#~ msgid ""
-#~ "Each row is one of the most common given names. Its marker sits on the "
-#~ "year axis at the most recent birth recorded for a person carrying that "
-#~ "name. Names whose most recent bearer was born within the last 25 years "
-#~ "are flagged as still in use. Read left to right, the chart separates "
-#~ "names that fell out of use long ago from those still given today."
-#~ msgstr ""
-#~ "Jede Zeile steht für einen der häufigsten Vornamen. Der Marker sitzt auf "
-#~ "der Jahr-Achse beim letzten erfassten Geburtsjahr einer Person mit diesem "
-#~ "Namen. Namen, deren jüngster Träger in den letzten 25 Jahren geboren "
-#~ "wurde, sind als noch gebräuchlich markiert. Von links nach rechts trennt "
-#~ "die Darstellung längst verschwundene Namen von den heute noch vergebenen."
-
 #~ msgid "Given-name lifespan"
 #~ msgstr "Vornamen-Lebenszeit"
 
 #~ msgid "In use"
 #~ msgstr "In Gebrauch"
-
-#~ msgid "Most recent birth year per name · names still in use are highlighted"
-#~ msgstr ""
-#~ "Letztes Vergabejahr je Vorname · noch gebräuchliche Namen sind "
-#~ "hervorgehoben"
 
 #, php-format
 #~ msgid "%s widowed spouse who married again"

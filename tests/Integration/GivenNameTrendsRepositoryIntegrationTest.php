@@ -19,6 +19,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
 
+use function array_column;
+
 /**
  * End-to-end test of the per-decade given-name aggregator against a curated
  * fixture covering: a name peaking in one decade, a name with two peaks, a name
@@ -117,5 +119,108 @@ final class GivenNameTrendsRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame(1, $result->series['Anna'][1900]);
         self::assertSame(0, $result->series['Anna'][1950]);
         self::assertSame(3, $result->series['Hans'][1950]);
+    }
+
+    /**
+     * The last-year aggregate keeps the same top-N-by-frequency selection as the
+     * decade series, but reports each name's most recent birth year and orders
+     * the result by that year, descending. The fixture's most recent births per
+     * name are Anna 1900, Friedrich 1865, Maria 1905, Hans 1955, Lisa 1960; the
+     * undated individual is skipped. With a reference year of 1980 and the
+     * default 25-year active window, only names last seen in 1955 or later
+     * (Hans, Lisa) count as active.
+     */
+    #[Test]
+    public function lastYearByNameReportsMostRecentYearAndActiveFlag(): void
+    {
+        $tree   = $this->importFixtureTree('name-trends.ged');
+        $result = (new GivenNameTrendsRepository($tree))->lastYearByName(10, 1980);
+
+        self::assertSame(
+            [
+                ['name' => 'Lisa', 'lastYear' => 1960, 'total' => 1, 'isActive' => true],
+                ['name' => 'Hans', 'lastYear' => 1955, 'total' => 3, 'isActive' => true],
+                ['name' => 'Maria', 'lastYear' => 1905, 'total' => 2, 'isActive' => false],
+                ['name' => 'Anna', 'lastYear' => 1900, 'total' => 3, 'isActive' => false],
+                ['name' => 'Friedrich', 'lastYear' => 1865, 'total' => 2, 'isActive' => false],
+            ],
+            $result,
+        );
+    }
+
+    /**
+     * The selection is balanced between still-active and extinct names rather
+     * than taken purely by frequency. With a top-3 request and a 1980 reference
+     * year (25-year window → active from 1955), half the slots (intdiv(3, 2) = 1)
+     * go to the most frequent active name and the remaining two to the most
+     * frequent extinct names: Hans (active, 3) leads, then Anna (3) and
+     * Friedrich (2). Lisa (active but only 1 occurrence) loses the single active
+     * slot to Hans; Maria (2) loses the last extinct slot to Friedrich on the
+     * first-seen tie-break.
+     */
+    #[Test]
+    public function lastYearByNameBalancesActiveAndExtinctSlots(): void
+    {
+        $tree   = $this->importFixtureTree('name-trends.ged');
+        $result = (new GivenNameTrendsRepository($tree))->lastYearByName(3, 1980);
+
+        self::assertSame(
+            [
+                ['name' => 'Hans', 'lastYear' => 1955, 'total' => 3, 'isActive' => true],
+                ['name' => 'Anna', 'lastYear' => 1900, 'total' => 3, 'isActive' => false],
+                ['name' => 'Friedrich', 'lastYear' => 1865, 'total' => 2, 'isActive' => false],
+            ],
+            $result,
+        );
+    }
+
+    /**
+     * The balanced split surfaces a surviving name that a pure top-N-by-frequency
+     * cut would bury. With reference year 1984 (active from 1959) only Lisa
+     * (1960) is still active; Hans (1955) has now fallen extinct. A plain top-2
+     * by frequency would pick Anna (3) and Hans (3) — two extinct names, hiding
+     * every survivor. The balanced rule instead reserves one slot for the most
+     * frequent active name (Lisa) and one for the most frequent extinct name
+     * (Anna), so the contrast survivors-vs-vanished is always visible.
+     */
+    #[Test]
+    public function lastYearByNameSurfacesActiveNamesOverMoreFrequentExtinctOnes(): void
+    {
+        $tree   = $this->importFixtureTree('name-trends.ged');
+        $result = (new GivenNameTrendsRepository($tree))->lastYearByName(2, 1984);
+
+        self::assertSame(
+            [
+                ['name' => 'Lisa', 'lastYear' => 1960, 'total' => 1, 'isActive' => true],
+                ['name' => 'Anna', 'lastYear' => 1900, 'total' => 3, 'isActive' => false],
+            ],
+            $result,
+            'The reserved active slot keeps Lisa visible even though Anna and Hans are more frequent',
+        );
+    }
+
+    /**
+     * The "no given name" placeholder (`@P.N.`) is not a real name. The
+     * dedicated fixture pairs two dated "Anna" births (1900, 1910) with a third
+     * individual who has only the placeholder and a 2010 birth. The aggregator
+     * must drop the placeholder from both the decade series and the last-year
+     * list — and because it is dropped before the decade range is computed, the
+     * 2010 birth never widens the x-axis past the 1910s.
+     */
+    #[Test]
+    public function excludesTheNoGivenNamePlaceholder(): void
+    {
+        $tree = $this->importFixtureTree('given-name-placeholder.ged');
+        $repo = new GivenNameTrendsRepository($tree);
+
+        $trends = $repo->countByDecade(20);
+        self::assertSame(['Anna'], $trends->names);
+        self::assertNotContains('@P.N.', $trends->names);
+        // The placeholder's 2010 birth must not widen the range past 1910.
+        self::assertSame([1900, 1910], $trends->decades);
+
+        $lastYear = $repo->lastYearByName(20);
+        self::assertSame(['Anna'], array_column($lastYear, 'name'));
+        self::assertNotContains('@P.N.', array_column($lastYear, 'name'));
     }
 }
