@@ -109,6 +109,22 @@ final readonly class Widget
     }
 
     /**
+     * Start a new event-timeline widget host. The partial emits a
+     * `data-widget="event-timeline"` shell carrying year-keyed `{year, value}`
+     * marks; the dot accent is passed via `withAccent(...)`.
+     */
+    public static function eventTimeline(string $module, string $identifier): self
+    {
+        return new self(
+            $module,
+            'event-timeline',
+            [
+                'identifier' => $identifier,
+            ]
+        );
+    }
+
+    /**
      * Start a new gauge-arc widget host. Gauge-arc has no identifier — the
      * partial renders inline SVG directly.
      */

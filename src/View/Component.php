@@ -181,6 +181,20 @@ final readonly class Component
     }
 
     /**
+     * Start a new sibling-death-clusters component: the textual list of years
+     * in which one or more families lost several children, paired beneath the
+     * event-timeline chart on the family tab.
+     */
+    public static function siblingDeathClusters(string $module): self
+    {
+        return new self(
+            $module,
+            'sibling-death-clusters',
+            []
+        );
+    }
+
+    /**
      * Set the payload data. Shape depends on the component partial (`@var
      * header). $data`.
      */

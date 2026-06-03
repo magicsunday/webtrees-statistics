@@ -98,6 +98,9 @@ class NameBubbles {
 class GaugeArc {
     draw() {}
 }
+class EventTimeline {
+    draw() {}
+}
 class MirrorHistogram {
     draw() {}
 }
@@ -135,6 +138,7 @@ jest.unstable_mockModule("@magicsunday/webtrees-chart-lib", () => ({
     MonthRadial,
     NameBubbles,
     GaugeArc,
+    EventTimeline,
     MirrorHistogram,
     BoxPlot,
     DivergingBarChart,

@@ -17,6 +17,7 @@ use MagicSunday\Webtrees\Statistic\Enum\MaritalBucket;
 use MagicSunday\Webtrees\Statistic\Enum\Sex;
 use MagicSunday\Webtrees\Statistic\Model\Chord\ChordMatrixPayload;
 use MagicSunday\Webtrees\Statistic\Model\Family\SexRatioAnomaly;
+use MagicSunday\Webtrees\Statistic\Model\Family\SiblingDeathCluster;
 use MagicSunday\Webtrees\Statistic\Model\Heatmap\HeatmapPayload;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Model\Marriage\MarriageDurationExtreme;
@@ -290,6 +291,20 @@ final readonly class Statistic
     public function getSexRatioAnomalies(int $minChildren = 6, float $skewThreshold = 0.80, int $limit = 10): array
     {
         return $this->familyRepository->getSexRatioAnomalies($minChildren, $skewThreshold, $limit);
+    }
+
+    /**
+     * Years in which several families simultaneously lost children — a
+     * cross-family signal that can coincide with epidemic, war or famine
+     * mortality, as opposed to an isolated single-family tragedy.
+     *
+     * @param int $minFamilies Minimum distinct families that must each lose two or more children in the same year for that year to qualify
+     *
+     * @return list<SiblingDeathCluster>
+     */
+    public function getSiblingDeathClusters(int $minFamilies = 2): array
+    {
+        return $this->familyRepository->getSiblingDeathClusters($minFamilies);
     }
 
     /**

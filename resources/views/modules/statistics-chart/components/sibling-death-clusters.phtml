@@ -1,0 +1,40 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+use Fisharebest\Webtrees\I18N;
+use MagicSunday\Webtrees\Statistic\Model\Family\SiblingDeathCluster;
+
+/**
+ * Textual companion to the event-timeline chart: one row per cluster year,
+ * spelling out the exact year and the sibling / family counts the dots encode
+ * only by size and position. Pure HTML; the chart above carries the visual
+ * weight, this list makes the precise figures readable and accessible.
+ *
+ * @var list<SiblingDeathCluster> $data The cluster years, in chronological order
+ */
+if ($data === []) {
+    return;
+}
+?>
+<ol class="wt-stat-sibling-death-clusters-list">
+    <?php foreach ($data as $cluster) { ?>
+        <li class="wt-stat-sibling-death-clusters-list-row">
+            <span class="wt-stat-sibling-death-clusters-list-year wt-stat-mono"><?php echo e((string) $cluster->year); ?></span>
+            <span class="wt-stat-sibling-death-clusters-list-num"><?php
+                echo e(
+                    I18N::plural('%s sibling', '%s siblings', $cluster->siblings, I18N::number($cluster->siblings))
+                    . ' · '
+                    . I18N::plural('%s family', '%s families', $cluster->families, I18N::number($cluster->families))
+                );
+        ?></span>
+        </li>
+    <?php } ?>
+</ol>

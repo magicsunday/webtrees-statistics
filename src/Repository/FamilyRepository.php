@@ -22,9 +22,11 @@ use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Enum\MaritalBucket;
 use MagicSunday\Webtrees\Statistic\Enum\Sex;
 use MagicSunday\Webtrees\Statistic\Model\Family\SexRatioAnomaly;
+use MagicSunday\Webtrees\Statistic\Model\Family\SiblingDeathCluster;
 use MagicSunday\Webtrees\Statistic\Model\FamilyRow;
 use MagicSunday\Webtrees\Statistic\Support\Database\ChildLinkJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\ChunkedWhereIn;
+use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RecordName;
@@ -35,6 +37,7 @@ use function array_slice;
 use function array_unique;
 use function array_values;
 use function is_string;
+use function ksort;
 use function max;
 use function usort;
 
@@ -87,6 +90,14 @@ final readonly class FamilyRepository
      * are not misclassified as 'current'.
      */
     private const array DIVORCE_TAGS = ['DIV', 'ANUL'];
+
+    /**
+     * Minimum children a single family must lose in the same year for that
+     * family to count toward a sibling-death cluster. A single child death is a
+     * tragedy but not a sibling cluster; requiring a pair keeps the metric on
+     * families that lost several children at once. See {@see getSiblingDeathClusters()}.
+     */
+    private const int MIN_SIBLINGS_PER_FAMILY = 2;
 
     /**
      * @param Tree $tree The tree the statistics are computed for
@@ -246,6 +257,117 @@ final readonly class FamilyRepository
         });
 
         return array_slice($anomalies, 0, $limit);
+    }
+
+    /**
+     * Years in which several families simultaneously lost children — a
+     * cross-family signal that can coincide with epidemic, war or famine
+     * mortality, as opposed to an isolated single-family tragedy.
+     *
+     * For every family, the children reachable through its `FAMC` links are
+     * resolved to a single death year each — the earliest recorded one, so an
+     * imprecise death date, which webtrees stores as two bound rows (and as two
+     * rows in *different* years when the range crosses a year boundary), counts
+     * a child once rather than in both bound years. A family *contributes* to a
+     * year when at least {@see MIN_SIBLINGS_PER_FAMILY} of its children resolve
+     * to that year. A year *qualifies* only when at least `$minFamilies`
+     * distinct families contribute to it — that co-occurrence is the epidemic
+     * indicator; a year where a single (large) family lost children is not one.
+     * For each qualifying year the contributing families' children are summed
+     * (`siblings`) and the contributing families counted (`families`). The
+     * result is ordered by year ascending.
+     *
+     * Only death-bearing children enter the count, so a still-living sibling
+     * (no death event) never contributes; the result names no individual and
+     * no family, exposing nothing webtrees' privacy filtering would withhold.
+     *
+     * @param int $minFamilies Minimum distinct families that must each lose {@see MIN_SIBLINGS_PER_FAMILY}+ children in the same year for that year to qualify
+     *
+     * @return list<SiblingDeathCluster>
+     */
+    public function getSiblingDeathClusters(int $minFamilies = 2): array
+    {
+        $rows = TreeScope::table($this->tree, 'families', 'fam')
+            ->join('link AS famc', static function (JoinClause $join): void {
+                ChildLinkJoin::famc($join);
+            })
+            ->join('individuals AS child', static function (JoinClause $join): void {
+                $join
+                    ->on('child.i_file', '=', 'famc.l_file')
+                    ->on('child.i_id', '=', 'famc.l_from');
+            })
+            ->join('dates AS died', static function (JoinClause $join): void {
+                DateJoin::on($join, 'died', 'child.i_file', 'child.i_id', 'DEAT');
+
+                // Caller-side filter: DateJoin has no d_year parameter, and a
+                // resolved year is required to bucket the death.
+                $join->where('died.d_year', '>', 0);
+            })
+            // One row per (family, child): the child's earliest death year. This
+            // collapses the two bound rows of an imprecise date — including a
+            // range that crosses a year boundary — to a single year, so a child
+            // is never counted in two years at once.
+            ->groupBy('fam.f_id', 'child.i_id')
+            ->select([
+                'fam.f_id AS f_id',
+                // Unqualified column: `d_year` only exists on the dates table,
+                // and a table-aliased name in a raw expression would not pick up
+                // the connection's table prefix the grammar applies to the `AS`
+                // aliases.
+                new Expression('MIN(d_year) AS year'),
+            ])
+            ->get();
+
+        // Tally each family's children per resolved death year.
+        /** @var array<string, array<int, int>> $perFamily */
+        $perFamily = [];
+
+        foreach ($rows as $row) {
+            $familyId = RowCast::string($row, 'f_id');
+            $year     = RowCast::int($row, 'year');
+
+            $perFamily[$familyId][$year] ??= 0;
+            ++$perFamily[$familyId][$year];
+        }
+
+        // Accumulate contributing (family, year) tallies into one row per year:
+        // a family contributes to a year only when it lost at least
+        // MIN_SIBLINGS_PER_FAMILY children there.
+        /** @var array<int, array{siblings: int, families: int}> $byYear */
+        $byYear = [];
+
+        foreach ($perFamily as $yearCounts) {
+            foreach ($yearCounts as $year => $siblings) {
+                if ($siblings < self::MIN_SIBLINGS_PER_FAMILY) {
+                    continue;
+                }
+
+                $byYear[$year] ??= ['siblings' => 0, 'families' => 0];
+                $byYear[$year]['siblings'] += $siblings;
+                ++$byYear[$year]['families'];
+            }
+        }
+
+        ksort($byYear);
+
+        $clusters = [];
+
+        foreach ($byYear as $year => $tally) {
+            // A year is an epidemic-style cluster only when several families
+            // lost children at once — a single contributing family is an
+            // isolated tragedy, not a cross-family signal.
+            if ($tally['families'] < $minFamilies) {
+                continue;
+            }
+
+            $clusters[] = new SiblingDeathCluster(
+                year: $year,
+                siblings: $tally['siblings'],
+                families: $tally['families'],
+            );
+        }
+
+        return $clusters;
     }
 
     /**

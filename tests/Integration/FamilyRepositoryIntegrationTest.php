@@ -13,6 +13,7 @@ namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use MagicSunday\Webtrees\Statistic\Enum\MaritalBucket;
 use MagicSunday\Webtrees\Statistic\Model\Family\SexRatioAnomaly;
+use MagicSunday\Webtrees\Statistic\Model\Family\SiblingDeathCluster;
 use MagicSunday\Webtrees\Statistic\Model\FamilyRow;
 use MagicSunday\Webtrees\Statistic\Repository\FamilyRepository;
 use MagicSunday\Webtrees\Statistic\Support\Database\ChunkedWhereIn;
@@ -43,6 +44,7 @@ use function array_map;
 #[CoversClass(FamilyRepository::class)]
 #[UsesClass(FamilyRow::class)]
 #[UsesClass(SexRatioAnomaly::class)]
+#[UsesClass(SiblingDeathCluster::class)]
 #[UsesClass(ChunkedWhereIn::class)]
 #[UsesClass(TreeScope::class)]
 #[UsesClass(GedcomScanner::class)]
@@ -187,5 +189,91 @@ final class FamilyRepositoryIntegrationTest extends IntegrationTestCase
             ],
             $this->triples($result),
         );
+    }
+
+    /**
+     * Map the cluster list to `[year, siblings, families]` triples so the
+     * order and counts can be asserted directly.
+     *
+     * @param list<SiblingDeathCluster> $clusters
+     *
+     * @return list<array{int, int, int}>
+     */
+    private function clusterTriples(array $clusters): array
+    {
+        return array_map(
+            static fn (SiblingDeathCluster $cluster): array => [$cluster->year, $cluster->siblings, $cluster->families],
+            $clusters,
+        );
+    }
+
+    /**
+     * The metric is a cross-family epidemic indicator: a year qualifies only when
+     * at least two distinct families each lost at least two children that year
+     * (the per-family floor strips single losses that are not a sibling cluster).
+     * With the default minimum of two families the fixture yields three years in
+     * ascending order:
+     *
+     *  - 1850: family F1 (three children — its third recorded as an imprecise
+     *    "between Jan and Dec 1850" range that webtrees stores as two same-year
+     *    rows, so resolving each child to one death year keeps F1 at three) and
+     *    family F2 (two children) → two families, five siblings.
+     *  - 1866: families F3 (two), F4 (two) and F5 (three) → three families,
+     *    seven siblings.
+     *  - 1879: family F8 (two children, one recorded "between 1879 and 1880" —
+     *    that range crosses a year boundary, so webtrees stores two rows in
+     *    *different* years; resolving the child to its earliest year counts it
+     *    once in 1879 and never leaks a phantom 1880) and family F9 (two
+     *    children) → two families, four siblings.
+     *
+     * 1880 must NOT qualify: only family F7 lost two children there, while family
+     * F6's single 1880 child stays below the per-family floor, so just one family
+     * clears it — below the two-family requirement. That row guards both the
+     * per-family floor and the cross-family gate at once.
+     */
+    #[Test]
+    public function getSiblingDeathClustersAggregatesYearsWhereMultipleFamiliesLostChildren(): void
+    {
+        $tree   = $this->importFixtureTree('sibling-death-clusters.ged');
+        $result = (new FamilyRepository($tree))->getSiblingDeathClusters();
+
+        self::assertSame(
+            [
+                [1850, 5, 2],
+                [1866, 7, 3],
+                [1879, 4, 2],
+            ],
+            $this->clusterTriples($result),
+        );
+    }
+
+    /**
+     * Raising the minimum to three families drops the two-family years 1850 and
+     * 1879; only 1866 — where families F3, F4 and F5 each lost at least two
+     * children — still qualifies.
+     */
+    #[Test]
+    public function getSiblingDeathClustersHonoursAConfigurableMinimumFamilyCount(): void
+    {
+        $tree   = $this->importFixtureTree('sibling-death-clusters.ged');
+        $result = (new FamilyRepository($tree))->getSiblingDeathClusters(3);
+
+        self::assertSame(
+            [
+                [1866, 7, 3],
+            ],
+            $this->clusterTriples($result),
+        );
+    }
+
+    /**
+     * A tree with no qualifying cross-family cluster year yields an empty list.
+     */
+    #[Test]
+    public function getSiblingDeathClustersReturnsEmptyWhenNoClusterQualifies(): void
+    {
+        $tree = $this->importFixtureTree('empty-tree.ged');
+
+        self::assertSame([], (new FamilyRepository($tree))->getSiblingDeathClusters());
     }
 }

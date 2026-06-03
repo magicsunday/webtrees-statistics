@@ -2626,6 +2626,101 @@
 }
 
 /* ----------------------------------------------------------------------
+   Event timeline (chart-lib EventTimeline)
+   -------------------------------------------------------------------- */
+.wt-statistics-chart .wt-stat-event-timeline-container {
+    display:  block;
+    width:    100%;
+    height:   auto;
+    position: relative;
+}
+
+.wt-statistics-chart svg.msc-event-timeline {
+    width:   100%;
+    height:  auto;
+    display: block;
+}
+
+/* The horizontal rule the dots sit on — a mid-tone hairline so it reads as a
+   time axis rather than a barely-visible hint. */
+.wt-statistics-chart svg.msc-event-timeline line.msc-event-timeline-baseline {
+    stroke:       var(--ink-3);
+    stroke-width: 2px;
+}
+
+/* Dots take the card accent through the fill attribute the widget sets; the
+   card-coloured ring lifts each dot off the baseline (a white halo in light
+   mode). Hover grows the dot — `transform-box: fill-box` scales it around its
+   own centre, not the SVG origin — instead of dimming it, which would let the
+   baseline show through the translucent fill. */
+.wt-statistics-chart svg.msc-event-timeline circle.msc-event-timeline-dot {
+    stroke:           var(--card);
+    stroke-width:     3px;
+    transform-box:    fill-box;
+    transform-origin: center;
+    transition:       transform 150ms ease-out;
+    cursor:           pointer;
+}
+
+.wt-statistics-chart svg.msc-event-timeline circle.msc-event-timeline-dot:hover {
+    transform: scale(1.15);
+}
+
+/* The magnitude printed inside each dot, in a colour that reads on the
+   accent-filled circle. */
+.wt-statistics-chart svg.msc-event-timeline text.msc-event-timeline-count {
+    fill:                 #fff;
+    font-family:          var(--mono);
+    font-size:            12px;
+    font-weight:          600;
+    font-variant-numeric: tabular-nums;
+    pointer-events:       none;
+}
+
+/* Round-year tick labels on the time axis (d3 baseline + tick stubs are
+   dropped at render time). */
+.wt-statistics-chart svg.msc-event-timeline g.msc-event-timeline-axis text {
+    fill:                 var(--ink-3);
+    font-family:          var(--mono);
+    font-size:            11px;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Textual companion list beneath the timeline: year + sibling/family counts. */
+.wt-statistics-chart .wt-stat-sibling-death-clusters-list {
+    display:        flex;
+    flex-direction: column;
+    margin:         0.75rem 0 0;
+    padding:        0.75rem 0 0;
+    border-top:     1px solid var(--border-soft);
+    list-style:     none;
+    font-size:      12px;
+}
+
+.wt-statistics-chart .wt-stat-sibling-death-clusters-list-row {
+    display:               grid;
+    grid-template-columns: 60px 1fr;
+    align-items:           baseline;
+    gap:                   12px;
+    padding:               8px 0;
+    border-bottom:         1px solid var(--border-soft);
+}
+
+.wt-statistics-chart .wt-stat-sibling-death-clusters-list-row:last-child {
+    border-bottom: none;
+}
+
+.wt-statistics-chart .wt-stat-sibling-death-clusters-list-year {
+    font-weight: 600;
+    color:       var(--ink);
+}
+
+.wt-statistics-chart .wt-stat-sibling-death-clusters-list-num {
+    color:     var(--ink-3);
+    font-size: 0.85rem;
+}
+
+/* ----------------------------------------------------------------------
    Box plot (chart-lib BoxPlot)
    -------------------------------------------------------------------- */
 

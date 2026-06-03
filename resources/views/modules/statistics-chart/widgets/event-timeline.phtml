@@ -1,0 +1,40 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
+use MagicSunday\Webtrees\Statistic\View\EmptyStatePlaceholder;
+
+/**
+ * @var string                                                                                            $identifier Host element id
+ * @var array<int, array{year: int, value: int, class?: string, tooltip?: string, tooltipLabel?: string}> $data Year-keyed marks
+ * @var int|null                                                                                          $height     Optional viewport height (defaults to 130)
+ * @var string|null                                                                                       $accent     Optional dot accent colour (CSS var literal)
+ * @var string|null                                                                                       $ariaLabel  Accessible label on the host svg
+ */
+$height ??= 130;
+
+if ($data === []) {
+    echo EmptyStatePlaceholder::render();
+
+    return;
+}
+?>
+<div id="<?php echo e($identifier); ?>"
+     class="wt-stat-event-timeline-container"
+     data-widget="event-timeline"
+     data-payload="<?php echo WidgetJson::encodeAttribute($data); ?>"
+     data-options="<?php echo WidgetJson::encodeAttribute([
+         'height'    => $height,
+         'accent'    => $accent ?? null,
+         'ariaLabel' => $ariaLabel ?? null,
+     ]); ?>"
+     data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"
+></div>
