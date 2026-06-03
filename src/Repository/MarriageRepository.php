@@ -169,17 +169,40 @@ final class MarriageRepository
      */
     public function ageAtMarriageDistribution(string $sex): array
     {
-        $rows    = $this->data->statsMarrAgeQuery($sex, 0, 0);
+        $spouseColumn = Sex::from($sex)->spouseColumn();
+
+        // Ranged MARR / spouse BIRT dates produce two `dates` rows per anchor,
+        // so a FAM with a ranged MARR or ranged spouse BIRT would surface once
+        // per range bound. Grouping by `families.f_id` and collapsing the MARR
+        // onto its upper-bound julian day (MAX(d_julianday2), the maximum-
+        // possible age idiom core's statsMarrAgeQuery used) and the BIRT onto
+        // its lower-bound julian day (MIN(d_julianday1)) yields one age per
+        // family.
+        $rows = TreeScope::table($this->tree, 'families')
+            ->join('dates AS married', static function (JoinClause $join): void {
+                DateJoin::on($join, 'married', 'f_file', 'f_id', 'MARR');
+            })
+            ->join('dates AS birth', static function (JoinClause $join) use ($spouseColumn): void {
+                DateJoin::on($join, 'birth', 'f_file', $spouseColumn, 'BIRT', DateJoin::JD_GREATER_THAN_ZERO);
+            })
+            ->select([
+                DateAggregate::max('married', 'd_julianday2', 'marr_jd'),
+                DateAggregate::min('birth', 'd_julianday1', 'birth_jd'),
+            ])
+            ->groupBy('families.f_id')
+            ->get();
+
         $buckets = AgeBuckets::init(0, self::AGE_AT_MARRIAGE_MAX, self::AGE_AT_MARRIAGE_BUCKET);
 
         foreach ($rows as $row) {
-            $days = $row->age ?? 0;
+            $marrJd  = RowCast::int($row, 'marr_jd');
+            $birthJd = RowCast::int($row, 'birth_jd');
 
-            if ($days <= 0) {
+            if ($marrJd <= $birthJd) {
                 continue;
             }
 
-            $years = intdiv($days, 365);
+            $years = intdiv($marrJd - $birthJd, 365);
             $label = AgeBuckets::label($years, self::AGE_AT_MARRIAGE_MAX, self::AGE_AT_MARRIAGE_BUCKET);
 
             $buckets[$label] = ($buckets[$label] ?? 0) + 1;

@@ -99,6 +99,35 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
+     * The age-at-marriage histogram counts each husband once even when the MARR
+     * is a range date, and bins on the upper-bound (maximum-possible) age — the
+     * idiom core's statsMarrAgeQuery used. All husbands are born 1 JAN 1875/1885.
+     *  - F1 `MARR BET 1900 AND 1904`: upper bound → age 30 (30–34); the lower
+     *    bound would be age 26 (25–29), so a raw per-row count splits F1 across
+     *    both bands.
+     *  - F2 `MARR 1910` (precise) → age 25 (25–29).
+     *  - F3 `MARR BET 1898 AND 1903`: upper bound → age 29 (25–29); the lower
+     *    bound would be age 24 (20–24), so a raw count splits F3 too.
+     *  - F4 `BIRT BET 1875 AND 1879`, `MARR 1905`: a ranged BIRT collapses onto
+     *    its lower bound via `MIN(birth julian-day)` → age 30 (30–34); a raw
+     *    count would split him between 30–34 (born 1875) and 25–29 (born 1879).
+     * Deduplicated, F1 and F4 land once each in 30–34 and F3 once in 25–29;
+     * 20–24 stays empty and the grand total is four husbands, not the seven
+     * MARR×BIRT row pairs a raw count would tally.
+     */
+    #[Test]
+    public function ageAtMarriageDistributionCountsRangedMarriagesOnce(): void
+    {
+        $tree   = $this->importFixtureTree('age-at-marriage-dedup.ged');
+        $result = $this->repository($tree)->ageAtMarriageDistribution('M');
+
+        self::assertSame(2, $result['25–29'], 'Precise F2 and upper-bound F3 each count once');
+        self::assertSame(2, $result['30–34'], 'F1 (ranged MARR) and F4 (ranged BIRT) bin on their extreme bound, once each');
+        self::assertSame(0, $result['20–24'], 'No husband is split onto a lower range bound');
+        self::assertSame(4, array_sum($result), 'Four husbands, not seven MARR×BIRT row pairs');
+    }
+
+    /**
      * Duration histogram skips F3 (no end event yet) and buckets the other two
      * marriages into their decade bands. F1 1875→1920 = 45y, F2 1925→1950 =
      * 25y.
