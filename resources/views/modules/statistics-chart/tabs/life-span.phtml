@@ -41,7 +41,7 @@ $ageAtDeath              = $statistic->getAgeAtDeathDistribution();
 $topOldestDeceased       = $statistic->getTopOldestDeceased(10);
 $topOldestLiving         = $statistic->getTopOldestLiving(10);
 $livingByAgeBand         = $statistic->getLivingByAgeBand();
-$topDeathCauses          = $statistic->getTopDeathCauses(15);
+$topDeathCauses          = $statistic->getTopDeathCauses(10);
 $totalDeathCauses        = $statistic->getTotalDeathCauses();
 $winterPeakScore         = $statistic->getDeathWinterPeakScore();
 $childMortality          = $statistic->getChildMortalitySummary();
@@ -394,11 +394,15 @@ echo Section::create(I18N::translate('Causes of death and infant mortality'))
     ->render();
 
 echo Card::for($module, I18N::translate('Common causes of death'))
-    ->withSub(I18N::translate('%s distinct causes (top 15)', I18N::number($totalDeathCauses)))
+    ->withSub(
+        $totalDeathCauses > 10
+            ? I18N::translate('%s distinct causes (top 10)', I18N::number($totalDeathCauses))
+            : I18N::plural('%s distinct cause', '%s distinct causes', $totalDeathCauses, I18N::number($totalDeathCauses))
+    )
     ->withEyebrow(I18N::translate('Causes'))
     ->withAccent(Accent::Wine)
     ->withIllustration(Illustration::Candle)
-    ->withSpan(12)
+    ->withSpan(6)
     ->withBodyHtml(
         Component::progressList($module)
             ->with('class', 'progress-death-causes')
