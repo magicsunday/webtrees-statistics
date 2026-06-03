@@ -18,6 +18,7 @@ use MagicSunday\Webtrees\Statistic\Repository\MigrationRepository;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
+use MagicSunday\Webtrees\Statistic\Support\Locale\IsoCountryMap;
 use MagicSunday\Webtrees\Statistic\Support\Sankey\BipartiteSankeyAssembler;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -31,7 +32,7 @@ use function array_unique;
 /**
  * End-to-end test of the birth → death country flow aggregator. The curated
  * fixture covers the four behaviours that matter at the data layer: a country
- * pair with four individuals (Germany → USA, used to exercise the
+ * pair with four individuals (Germany → United States, used to exercise the
  * SAMPLES_PER_FLOW cap), a one-off pair (Vienna → Paris), a same-country
  * trajectory that must be dropped (Austria → Austria), and individuals missing
  * either BIRT or DEAT place (must be silently skipped).
@@ -48,33 +49,47 @@ use function array_unique;
 #[UsesClass(GedcomScanner::class)]
 #[UsesClass(RowCast::class)]
 #[UsesClass(BipartiteSankeyAssembler::class)]
+#[UsesClass(IsoCountryMap::class)]
 final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
 {
     /**
+     * Reset the IsoCountryMap lookup-map cache before each test so the
+     * locale-seeded country resolution stays deterministic.
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        IsoCountryMap::clearCache();
+    }
+
+    /**
      * Aggregates the fixture into the bipartite Sankey payload: the Germany →
-     * USA flow leads with weight 4, Germany → England, Austria → France, and
-     * Germany → Canada each weigh 1. The same-country Vienna→Vienna individual
-     * and the two with a missing BIRT or DEAT place do not contribute. Source
-     * and target sides occupy disjoint node-index ranges.
+     * United States flow leads with weight 4, Germany → United Kingdom, Austria →
+     * France, and Germany → Canada each weigh 1. The same-country Vienna→Vienna
+     * individual and the two with a missing BIRT or DEAT place do not contribute.
+     * Source and target sides occupy disjoint node-index ranges.
      */
     #[Test]
     public function flowsByCountryReturnsTheExpectedAggregation(): void
     {
         $tree   = $this->importFixtureTree('migration-flows.ged');
-        $result = (new MigrationRepository($tree))->flowsByCountry(10);
+        $result = (new MigrationRepository($tree, new IsoCountryMap()))->flowsByCountry(10);
 
-        // Four flows survive: Germany→USA (×4), Germany→England (×1),
-        // Austria→France (×1), Germany→Canada (×1).
+        // Four flows survive: Germany→United States (×4), Germany→United Kingdom
+        // (×1), Austria→France (×1), Germany→Canada (×1).
         self::assertCount(4, $result->links);
 
         // Two source nodes (Germany, Austria) then four target nodes
-        // (USA, England, France, Canada) in insertion order.
+        // (United States, United Kingdom, France, Canada) in insertion order;
+        // the raw "USA"/"England" place segments resolve to their ISO-canonical
+        // labels.
         self::assertSame(
-            ['Germany', 'Austria', 'USA', 'England', 'France', 'Canada'],
+            ['Germany', 'Austria', 'United States', 'United Kingdom', 'France', 'Canada'],
             $result->nodes,
         );
 
-        // Heaviest flow leads — Germany (source idx 0) → USA (target
+        // Heaviest flow leads — Germany (source idx 0) → United States (target
         // idx 0, shifted by sourceColumnSize=2 to absolute idx 2).
         $heaviest = $result->links[0];
         self::assertSame(0, $heaviest->source);
@@ -104,28 +119,31 @@ final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
     public function flowsByCountryRespectsTheTopLinksLimit(): void
     {
         $tree   = $this->importFixtureTree('migration-flows.ged');
-        $result = (new MigrationRepository($tree))->flowsByCountry(1);
+        $result = (new MigrationRepository($tree, new IsoCountryMap()))->flowsByCountry(1);
 
         self::assertCount(1, $result->links);
         self::assertSame(4, $result->links[0]->value);
 
-        // With only the Germany → USA flow surviving, the node table
+        // With only the Germany → United States flow surviving, the node table
         // shrinks to one source and one target.
         self::assertCount(2, $result->nodes);
         self::assertSame('Germany', $result->nodes[0]);
-        self::assertSame('USA', $result->nodes[1]);
+        self::assertSame('United States', $result->nodes[1]);
     }
 
     /**
      * A tree where every individual was born and died in the same country
      * produces no flows — the same-country guard drops every contribution and
-     * the aggregator returns its empty shape.
+     * the aggregator returns its empty shape. The fixture also pairs locale and
+     * spelling variants of one country (born "…, Germany" / died "…, Deutschland",
+     * and "…, England" / "…, Great Britain"): these must resolve to the same
+     * ISO-canonical country and therefore raise no false migration flow.
      */
     #[Test]
     public function flowsByCountryReturnsEmptyWhenEveryTrajectoryIsSameCountry(): void
     {
         $tree   = $this->importFixtureTree('migration-same-country.ged');
-        $result = (new MigrationRepository($tree))->flowsByCountry(10);
+        $result = (new MigrationRepository($tree, new IsoCountryMap()))->flowsByCountry(10);
 
         self::assertSame([], $result->nodes);
         self::assertSame([], $result->links);
@@ -137,7 +155,7 @@ final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
      * an acceptance criterion. Samples are name + xref pairs; the names come
      * straight from the GEDCOM 1 NAME line with the slashes stripped.
      *
-     * The fixture has FOUR Germany→USA contributors (Anna, Berta, Carl, Dieter
+     * The fixture has FOUR Germany→United States contributors (Anna, Berta, Carl, Dieter
      * Test) precisely to exercise the cap: the sample list must hold exactly
      * three distinct names drawn from the four candidates and the underlying
      * flow value must still reflect all four contributors. WHICH three survive
@@ -149,10 +167,10 @@ final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
     public function flowsByCountryAttachesSampleIndividualsPerLink(): void
     {
         $tree   = $this->importFixtureTree('migration-flows.ged');
-        $result = (new MigrationRepository($tree))->flowsByCountry(10);
+        $result = (new MigrationRepository($tree, new IsoCountryMap()))->flowsByCountry(10);
 
         $heaviest = $result->links[0];
-        // Germany → USA carries 4 contributors; samples cap at 3.
+        // Germany → United States carries 4 contributors; samples cap at 3.
         self::assertSame(4, $heaviest->value, 'flow weight reflects all 4 contributors');
         self::assertCount(3, $heaviest->samples, 'sample list caps at SAMPLES_PER_FLOW=3');
 
@@ -160,7 +178,7 @@ final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
             static fn (SankeySample $sample): string => $sample->name,
             $heaviest->samples,
         );
-        // Every surfaced sample must be one of the four known Germany→USA
+        // Every surfaced sample must be one of the four known Germany→United States
         // contributors — proves the cap picks from the right population.
         $candidates = ['Anna Test', 'Berta Test', 'Carl Test', 'Dieter Test'];
 
@@ -207,7 +225,7 @@ final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
     public function flowsByCountryFallsBackToPlaceholderForBlankNames(): void
     {
         $tree   = $this->importFixtureTree('migration-noname.ged');
-        $result = (new MigrationRepository($tree))->flowsByCountry(10);
+        $result = (new MigrationRepository($tree, new IsoCountryMap()))->flowsByCountry(10);
 
         self::assertCount(1, $result->links);
         self::assertCount(1, $result->links[0]->samples);
@@ -224,18 +242,18 @@ final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
     public function flowsByCountryKeepsBidirectionalCountriesOnDisjointSides(): void
     {
         $tree   = $this->importFixtureTree('migration-bidirectional.ged');
-        $result = (new MigrationRepository($tree))->flowsByCountry(10);
+        $result = (new MigrationRepository($tree, new IsoCountryMap()))->flowsByCountry(10);
 
-        // Two flows: Germany → USA (×2) and USA → Germany (×1). Both
-        // countries appear on both sides.
+        // Two flows: Germany → United States (×2) and United States → Germany
+        // (×1). Both countries appear on both sides.
         self::assertCount(2, $result->links);
 
         $names = $result->nodes;
 
-        // Germany and USA each appear twice: once on the source side,
+        // Germany and United States each appear twice: once on the source side,
         // once on the target side.
         self::assertSame(2, array_count_values($names)['Germany']);
-        self::assertSame(2, array_count_values($names)['USA']);
+        self::assertSame(2, array_count_values($names)['United States']);
 
         // No link can reference a source-index that equals its
         // target-index — would indicate a fold-back.

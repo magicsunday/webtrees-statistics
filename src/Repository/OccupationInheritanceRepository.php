@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
-/* jscpd:ignore-start — the import block is identical to the sibling bipartite-Sankey aggregator (MigrationRepository); the shared LOGIC lives in BipartiteSankeyAssembler, so this is pure import boilerplate, not a duplicate to extract. */
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyFlowsPayload;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeySample;
@@ -22,8 +21,6 @@ use MagicSunday\Webtrees\Statistic\Support\Sankey\BipartiteSankeyAssembler;
 
 use function count;
 use function mb_strtolower;
-
-/* jscpd:ignore-end */
 
 /**
  * Aggregates father → son occupation inheritance across the tree. Every male

@@ -11,21 +11,16 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
-/* jscpd:ignore-start — the import block is identical to the sibling bipartite-Sankey aggregator (OccupationInheritanceRepository); the shared LOGIC lives in BipartiteSankeyAssembler, so this is pure import boilerplate, not a duplicate to extract. */
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyFlowsPayload;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeySample;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
+use MagicSunday\Webtrees\Statistic\Support\Locale\IsoCountryMap;
 use MagicSunday\Webtrees\Statistic\Support\Sankey\BipartiteSankeyAssembler;
 
 use function count;
-use function end;
-use function explode;
-use function trim;
-
-/* jscpd:ignore-end */
 
 /**
  * Aggregates birth → death country movements across the tree's individuals.
@@ -46,10 +41,12 @@ final readonly class MigrationRepository
     private const int SAMPLES_PER_FLOW = 3;
 
     /**
-     * @param Tree $tree The tree the statistics are computed for
+     * @param Tree          $tree   The tree the statistics are computed for
+     * @param IsoCountryMap $isoMap Name → ISO-2 resolver + localised label provider
      */
     public function __construct(
         private Tree $tree,
+        private IsoCountryMap $isoMap,
     ) {
     }
 
@@ -138,17 +135,21 @@ final readonly class MigrationRepository
     }
 
     /**
-     * Pull the country segment out of a webtrees place string. Standard GEDCOM
-     * PLAC ordering is "<most specific>, ..., <country>", so the last
-     * comma-separated segment carries the country (or a single standalone token
-     * when no comma is present, which we accept as the country itself — common
-     * in small or hand-authored trees).
+     * Resolve a webtrees place string to its ISO-canonical country label. The
+     * place's country segment is mapped through {@see IsoCountryMap} so locale
+     * and spelling variants ("Germany"/"Deutschland", "England"/"Great Britain")
+     * collapse onto one country — keeping the same-country guard and the node
+     * labels consistent with the Geographic-origin card. Returns null when the
+     * segment matches no known country.
      */
     private function extractCountry(string $place): ?string
     {
-        $segments = explode(',', $place);
-        $country  = trim(end($segments));
+        $iso2 = $this->isoMap->resolveFromPlace($place);
 
-        return ($country === '') ? null : $country;
+        if ($iso2 === null) {
+            return null;
+        }
+
+        return $this->isoMap->label($iso2);
     }
 }
