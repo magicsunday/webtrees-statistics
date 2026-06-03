@@ -119,8 +119,8 @@ final class ChildMortalityRepositoryIntegrationTest extends IntegrationTestCase
      * Year-only BIRT records, BEF / AFT / ABT modifiers, and BET..AND /
      * FROM..TO ranges all land in the `dates` table with `d_day = 0` and `d_mon
      * = 0`, and webtrees still synthesises a default julian-day (typically
-     * 01.01.YYYY). The under-5 threshold (`UNDER_FIVE_THRESHOLD_DAYS = 5 * 365
-     * = 1825 days`) is day-precise, so a year-only BIRT 1872 + full-date DEAT
+     * 01.01.YYYY). The under-5 threshold (`UNDER_FIVE_THRESHOLD_DAYS = 1826
+     * days`) is day-precise, so a year-only BIRT 1872 + full-date DEAT
      * 10 JUN 1875 would be misread as a ~3-year-old death — a phantom under-5
      * entry. BET..AND and FROM..TO additionally write TWO rows per single
      * GEDCOM date, double-counting the individual in the JOIN.
@@ -187,5 +187,26 @@ final class ChildMortalityRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame(5, $byCentury[20]['total']);
         self::assertSame(0, $byCentury[20]['died']);
         self::assertSame(0.0, $byCentury[20]['rate']);
+    }
+
+    /**
+     * Boundary of the under-5 day threshold. A child who lived exactly 1825 days
+     * (1 Jan 1850 → 31 Dec 1854, four years and 364 days — still before the fifth
+     * birthday) MUST count as under-5; a child who lived 1826 days (1 Jan 1860 →
+     * 31 Dec 1864, the fifth-birthday mark) MUST NOT. The threshold therefore has
+     * to be 1826 days with a strict `<` comparison: at 1825 days the first child
+     * would be wrongly excluded, undercounting genuine under-5 deaths by a day at
+     * the edge — and the explanation copy already states "1826 days".
+     */
+    #[Test]
+    public function countsTheLastDayBeforeTheFifthBirthdayAsUnderFive(): void
+    {
+        $tree   = $this->importFixtureTree('child-mortality-boundary.ged');
+        $result = (new ChildMortalityRepository($tree))->summary();
+
+        self::assertNotNull($result);
+        self::assertSame(2, $result->total);
+        self::assertSame(1, $result->died, '1825-day child is under-5; the 1826-day child has reached five');
+        self::assertSame(50.0, $result->rate);
     }
 }

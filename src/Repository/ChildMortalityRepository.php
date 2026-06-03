@@ -23,9 +23,14 @@ use function round;
 /**
  * Child-mortality metrics for the LifeSpan tab — pairs every individual's BIRT
  * and DEAT julian-day, computes the WHO/UN under-5-mortality rate per cohort,
- * and produces both a tree-wide summary and a per-birth-century breakdown so
- * the dramatic historical decline (often 30–40 % in the 1700s, < 2 % in modern
- * cohorts) becomes visible.
+ * and produces both a tree-wide summary and a per-birth-century breakdown.
+ *
+ * The rate is a LOWER BOUND, not a true mortality rate: genealogical sources
+ * systematically under-record children who died young and left no descendants,
+ * so the per-century trend reflects documentation density at least as much as
+ * real mortality — it can stay flat or even rise into better-documented
+ * centuries where historical mortality actually fell. Do not encode an expected
+ * historical range here; the user-facing copy frames this caveat explicitly.
  *
  * Individuals with only BIRT or only DEAT are silently excluded — we can't
  * determine survival without both anchors, and including BIRT-only individuals
@@ -40,10 +45,13 @@ final readonly class ChildMortalityRepository
 {
     /**
      * WHO/UN standard "under-5 mortality" threshold expressed in julian days.
-     * Comparable across historical periods because the cut-off is age-based
+     * Five calendar years span 1826 days (5 × 365.25, rounded down), so a death
+     * strictly before day 1826 falls before the fifth birthday. A flat 5 × 365 =
+     * 1825 would wrongly exclude a child who died on the last day of their fifth
+     * year. Comparable across historical periods because the cut-off is age-based
      * rather than date-based.
      */
-    private const int UNDER_FIVE_THRESHOLD_DAYS = 5 * 365;
+    private const int UNDER_FIVE_THRESHOLD_DAYS = 1826;
 
     /**
      * Below this cohort size a single dead child swings the displayed mortality

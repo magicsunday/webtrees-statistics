@@ -145,11 +145,11 @@ $childMortalityPayload = LineChartPayload::singleSeries(
 );
 
 $childMortalityExplanation = I18N::translate(
-    'For every individual with both a birth and a death date the widget computes the number of days lived. A death within five years (1826 days) of birth counts as under-5 mortality. The line groups those children by their birth century so the historical decline becomes visible (typical 1700s value 30 to 40 percent, modern below 2 percent). Individuals with only a birth or only a death date are silently excluded, since the rate cannot be determined without both anchors. Per-century cohorts below 5 children are suppressed because a single dead child would spike the line by more than 10 percentage points.'
+    'For every individual with both a birth and a death date the widget computes the number of days lived; a death before day 1826 (the fifth birthday) counts as under-5 mortality. Children are grouped by their birth century. Read the value as a lower bound, not a true mortality rate: genealogical sources systematically under-record children who died young and left no descendants, so many early deaths never enter the tree at all. For the same reason the per-century trend reflects how completely each era is documented at least as much as real mortality — a better-recorded century can show a higher rate than a poorly-recorded earlier one, so the curve may stay flat or even rise where historical mortality actually fell. Individuals with only a birth or only a death date are excluded, since survival cannot be determined without both anchors. Per-century cohorts below 5 children are suppressed because a single dead child would swing the rate by more than 10 percentage points.'
 );
 
 $childMortalityPeakExplanation = I18N::translate(
-    'The single birth century with the highest under-5 mortality rate across the tree. Computed from the same per-individual BIRT+DEAT pairs as the per-century breakdown; cohorts below 5 children are suppressed so a single tragedy does not pin the peak.'
+    'The single birth century with the highest documented under-5 mortality rate across the tree. Computed from the same per-individual BIRT+DEAT pairs as the per-century breakdown; cohorts below 5 children are suppressed so a single tragedy does not pin the peak. Like the breakdown, this is a lower bound — early child deaths are systematically under-recorded in genealogical sources.'
 );
 
 // Cohort with the highest under-5 mortality rate — feeds the
