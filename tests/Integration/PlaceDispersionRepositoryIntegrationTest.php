@@ -102,17 +102,7 @@ final class PlaceDispersionRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('migration-distance.ged');
         $result = (new PlaceDispersionRepository($tree))->getMigrationDistanceDistribution();
 
-        self::assertSame(
-            [
-                ['band' => 'le10', 'count' => 1],
-                ['band' => '11-50', 'count' => 1],
-                ['band' => '51-200', 'count' => 1],
-                ['band' => '201-500', 'count' => 1],
-                ['band' => '501-1000', 'count' => 1],
-                ['band' => '1000+', 'count' => 1],
-            ],
-            $result,
-        );
+        self::assertSame($this->oneIndividualPerBand(), $result);
     }
 
     /**
@@ -141,17 +131,7 @@ final class PlaceDispersionRepositoryIntegrationTest extends IntegrationTestCase
 
         $result = (new PlaceDispersionRepository($tree))->getMigrationDistanceDistribution();
 
-        self::assertSame(
-            [
-                ['band' => 'le10', 'count' => 1],
-                ['band' => '11-50', 'count' => 1],
-                ['band' => '51-200', 'count' => 1],
-                ['band' => '201-500', 'count' => 1],
-                ['band' => '501-1000', 'count' => 1],
-                ['band' => '1000+', 'count' => 1],
-            ],
-            $result,
-        );
+        self::assertSame($this->oneIndividualPerBand(), $result);
     }
 
     /**
@@ -178,5 +158,24 @@ final class PlaceDispersionRepositoryIntegrationTest extends IntegrationTestCase
         $tree = $this->importFixtureTree('empty-tree.ged');
 
         self::assertSame([], (new PlaceDispersionRepository($tree))->getMigrationDistanceDistribution());
+    }
+
+    /**
+     * The expected distribution when exactly one individual falls into each
+     * distance band — the shape both the MAP-tagged and the gazetteer-resolved
+     * fixtures are built to produce.
+     *
+     * @return list<array{band: string, count: int}>
+     */
+    private function oneIndividualPerBand(): array
+    {
+        return [
+            ['band' => 'le10', 'count' => 1],
+            ['band' => '11-50', 'count' => 1],
+            ['band' => '51-200', 'count' => 1],
+            ['band' => '201-500', 'count' => 1],
+            ['band' => '501-1000', 'count' => 1],
+            ['band' => '1000+', 'count' => 1],
+        ];
     }
 }
