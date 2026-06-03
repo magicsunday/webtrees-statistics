@@ -399,9 +399,9 @@ final readonly class ChildrenRepository
      * Detection: children of the same FAM whose BIRT julian-days sit within
      * {@see MULTI_BIRTH_MAX_DAY_GAP} of each other form a multiple-birth set.
      * That subsumes exact same-day twin / triplet sets and the cross-midnight
-     * case (e.g. 31 DEC / 1 JAN) without needing an explicit INDI:ASSO link — a
-     * single mother cannot place two separate pregnancies a calendar day apart,
-     * so the FAM membership plus date proximity is the signal by itself.
+     * case (e.g. 31 DEC / 1 JAN): a single mother cannot place two separate
+     * pregnancies a calendar day apart, so the FAM membership plus date
+     * proximity is the signal by itself.
      * Centuries below {@see MIN_COHORT_MULTIPLE_BIRTH} dated births are dropped
      * to keep the curve from spiking on small denominators.
      */

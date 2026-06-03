@@ -994,7 +994,7 @@ final readonly class Statistic
      * quintuplets and above). Each series carries that multiplicity's
      * per-century share of dated births. Detection groups same-FAM siblings
      * whose BIRT dates sit within one day of each other, so cross-midnight
-     * twins count without depending on an explicit INDI:ASSO link.
+     * twins count from the shared family plus date proximity alone.
      */
     public function getMultipleBirthRateByCentury(): LineChartPayload
     {
