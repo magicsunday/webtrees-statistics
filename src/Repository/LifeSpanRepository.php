@@ -180,7 +180,17 @@ final readonly class LifeSpanRepository
      */
     public function ageAtDeathDistribution(): array
     {
-        $rows = $this->data->statsAgeQuery('ALL', 0, 0);
+        $maxAge = $this->maxPlausibleAge();
+
+        // Collapse the two-row range-date encoding to one lifespan per
+        // individual — `GROUP BY individuals.i_id` with MIN(birth julian-day)
+        // and MAX(death julian-day), the same idiom the per-century box-plot
+        // sibling uses — so a ranged BIRT/DEAT counts the person once instead
+        // of once per range bound.
+        $rows = BirthDeathPairsQuery::for($this->tree)
+            ->select($this->aggregatedPairColumns())
+            ->groupBy('individuals.i_id')
+            ->get();
 
         $buckets = [];
 
@@ -191,13 +201,13 @@ final readonly class LifeSpanRepository
         $buckets[$this->overflowLabel()] = 0;
 
         foreach ($rows as $row) {
-            $days = $row->days;
+            $cohort = $this->birthDeathCohortOrNull($row, $maxAge);
 
-            if ($days < 0) {
+            if ($cohort === null) {
                 continue;
             }
 
-            $years = intdiv($days, 365);
+            $years = $cohort['years'];
             $label = $years >= self::MAX_BUCKET
                 ? $this->overflowLabel()
                 : $this->bucketLabel(intdiv($years, self::BUCKET_WIDTH) * self::BUCKET_WIDTH);

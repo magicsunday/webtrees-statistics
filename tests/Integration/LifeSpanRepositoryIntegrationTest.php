@@ -112,6 +112,28 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
+     * The age-at-death histogram counts each deceased individual once even when
+     * a birth or death is a range date, and it bins on the upper-bound (maximum
+     * possible) lifespan. I1 (`BIRT 1850`, `DEAT BET 1920 AND 1924`) has two
+     * death rows both in the 70–79 band — a raw per-row count would tally I1
+     * twice. I3 (`BIRT 1850`, `DEAT BET 1918 AND 1922`) straddles a band edge:
+     * its lower bound is age 68 (60–69), its upper bound age 72 (70–79); the
+     * `MAX(death julian-day)` choice must land it once in 70–79, never split
+     * into 60–69. So the 70–79 band holds three people (I1, precise I2, I3) and
+     * 60–69 stays empty.
+     */
+    #[Test]
+    public function ageAtDeathDistributionCountsRangedLifespansOnce(): void
+    {
+        $tree   = $this->importFixtureTree('age-at-death-dedup.ged');
+        $result = $this->repository($tree)->ageAtDeathDistribution();
+
+        self::assertSame(3, $result['70–79'], 'I1, I2 and the band-straddling I3 each count once');
+        self::assertSame(0, $result['60–69'], 'The straddler bins on its upper bound, never splitting into 60–69');
+        self::assertSame(3, array_sum($result), 'Three deceased individuals, not five dates rows');
+    }
+
+    /**
      * topOldestDeceased returns Carl first (120y) then Berta (95y) then Anna
      * (75y); Franz is alive and never shows up.
      */
