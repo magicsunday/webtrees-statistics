@@ -377,7 +377,7 @@ final readonly class Statistic
      */
     public function getBirthsByMonth(): array
     {
-        return $this->translateMonthKeys($this->data->countEventsByMonth('BIRT', 0, 0));
+        return $this->translateMonthKeys($this->eventRepository->eventsByMonth('BIRT'));
     }
 
     /**
@@ -418,7 +418,7 @@ final readonly class Statistic
      */
     public function getDeathsByMonth(): array
     {
-        return $this->translateMonthKeys($this->data->countEventsByMonth('DEAT', 0, 0));
+        return $this->translateMonthKeys($this->eventRepository->eventsByMonth('DEAT'));
     }
 
     /**

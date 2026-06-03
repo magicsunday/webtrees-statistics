@@ -28,6 +28,7 @@ use MagicSunday\Webtrees\Statistic\Model\Mortality\MortalityAnomaly;
 use MagicSunday\Webtrees\Statistic\Model\Pyramid\PopulationPyramidPayload;
 use MagicSunday\Webtrees\Statistic\Model\Ranking\RankingEntry;
 use MagicSunday\Webtrees\Statistic\Model\Record\IndividualAgeRecord;
+use MagicSunday\Webtrees\Statistic\Support\Aggregator\EventMonthTally;
 use MagicSunday\Webtrees\Statistic\Support\Calc\HistogramTrim;
 use MagicSunday\Webtrees\Statistic\Support\Calc\MortalityAnomalies;
 use MagicSunday\Webtrees\Statistic\Support\Database\BirthDeathPairsQuery;
@@ -525,12 +526,13 @@ final readonly class LifeSpanRepository
      */
     public function deathWinterPeakScore(): ?WinterPeakScore
     {
-        $monthCounts = $this->data->countEventsByMonth('DEAT', 0, 0);
+        $monthCounts = EventMonthTally::countByMonth($this->tree, 'DEAT');
 
-        // Restrict both numerator and denominator to dated deaths —
-        // core's countEventsByMonth returns an empty-string key for
-        // deaths without a parseable month, which would otherwise
-        // inflate $total and drag the seasonality score downward.
+        // The tally already drops month-less deaths and counts each
+        // deceased individual once (a ranged DEAT would otherwise split
+        // across two months and inflate the baseline), so the GEDCOM_MONTHS
+        // whitelist below is now a defensive guard rather than the filter
+        // that keeps the seasonality numerator and denominator aligned.
         $total       = 0;
         $winterCount = 0;
 

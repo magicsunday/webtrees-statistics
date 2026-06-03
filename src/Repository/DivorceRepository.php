@@ -12,13 +12,13 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\I18N;
-use Fisharebest\Webtrees\StatisticsData;
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Enum\Sex;
 use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarPayload;
 use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarSeries;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\EventCenturyTally;
+use MagicSunday\Webtrees\Statistic\Support\Aggregator\EventMonthTally;
 use MagicSunday\Webtrees\Statistic\Support\Calc\AgeBuckets;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
@@ -80,12 +80,10 @@ final readonly class DivorceRepository
     ];
 
     /**
-     * @param Tree           $tree The tree the statistics are computed for
-     * @param StatisticsData $data Core accessor (countEventsByCentury / countEventsByMonth)
+     * @param Tree $tree The tree the statistics are computed for
      */
     public function __construct(
         private Tree $tree,
-        private StatisticsData $data,
     ) {
     }
 
@@ -102,14 +100,14 @@ final readonly class DivorceRepository
     }
 
     /**
-     * Divorces grouped by GEDCOM month abbreviation — pass-through over core's
-     * already-public accessor.
+     * Divorces grouped by GEDCOM month code. Counts each family once even when
+     * its DIV is a month-spanning range date (stored as two `dates` rows).
      *
      * @return array<string, int>
      */
     public function divorcesByMonth(): array
     {
-        return $this->data->countEventsByMonth('DIV', 0, 0);
+        return EventMonthTally::countByMonth($this->tree, 'DIV');
     }
 
     /**

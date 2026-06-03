@@ -14,6 +14,7 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\EventCenturyTally;
+use MagicSunday\Webtrees\Statistic\Support\Aggregator\EventMonthTally;
 
 use function array_keys;
 use function implode;
@@ -69,6 +70,21 @@ final readonly class EventRepository
     public function eventsByCentury(string $fact): array
     {
         return EventCenturyTally::countByCentury($this->tree, $fact);
+    }
+
+    /**
+     * Distinct-record count of the given event per calendar month, keyed by the
+     * GEDCOM three-letter month code. Used for the births- and deaths-by-month
+     * cards; deduplicates the two-row range-date encoding so a month-spanning
+     * range counts once in its lower-bound month.
+     *
+     * @param string $fact The GEDCOM fact tag (`BIRT` or `DEAT`)
+     *
+     * @return array<string, int>
+     */
+    public function eventsByMonth(string $fact): array
+    {
+        return EventMonthTally::countByMonth($this->tree, $fact);
     }
 
     /**

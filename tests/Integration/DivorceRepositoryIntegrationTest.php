@@ -56,10 +56,7 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
 {
     private function repository(Tree $tree): DivorceRepository
     {
-        return new DivorceRepository(
-            $tree,
-            $this->statisticsData($tree),
-        );
+        return new DivorceRepository($tree);
     }
 
     /**

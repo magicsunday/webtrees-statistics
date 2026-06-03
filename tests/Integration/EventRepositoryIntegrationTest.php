@@ -13,6 +13,7 @@ namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use MagicSunday\Webtrees\Statistic\Repository\EventRepository;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\EventCenturyTally;
+use MagicSunday\Webtrees\Statistic\Support\Aggregator\EventMonthTally;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
@@ -41,6 +42,7 @@ use function array_sum;
  */
 #[CoversClass(EventRepository::class)]
 #[UsesClass(EventCenturyTally::class)]
+#[UsesClass(EventMonthTally::class)]
 #[UsesClass(DedupedEventDates::class)]
 #[UsesClass(DateAggregate::class)]
 #[UsesClass(CenturyName::class)]
@@ -83,5 +85,19 @@ final class EventRepositoryIntegrationTest extends IntegrationTestCase
         $tree = $this->importFixtureTree('century-dedup.ged');
 
         self::assertSame(['19th' => 3], (new EventRepository($tree))->eventsByCentury('BIRT'));
+    }
+
+    /**
+     * The births-by-month card seam deduplicates the two-row range encoding: a
+     * month-spanning birth (`BET DEC 1880 AND JAN 1881`) counts once in its
+     * lower-bound month (December), never split into January, alongside the
+     * precise March birth; the month-less year-only birth is dropped.
+     */
+    #[Test]
+    public function eventsByMonthCountsEachRangedBirthOnce(): void
+    {
+        $tree = $this->importFixtureTree('month-dedup.ged');
+
+        self::assertSame(['MAR' => 1, 'DEC' => 1], (new EventRepository($tree))->eventsByMonth('BIRT'));
     }
 }
