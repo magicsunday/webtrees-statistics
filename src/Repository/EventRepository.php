@@ -13,6 +13,7 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
+use MagicSunday\Webtrees\Statistic\Support\Aggregator\EventCenturyTally;
 
 use function array_keys;
 use function implode;
@@ -20,9 +21,11 @@ use function is_numeric;
 use function sprintf;
 
 /**
- * Zodiac-sign grouping for birth events — the one stat in this module that
- * webtrees core's StatisticsData does not expose. Month / century / country
- * groupings delegate to StatisticsData via the Statistic aggregator.
+ * Event groupings the module renders as charts. Zodiac-sign grouping is the one
+ * stat webtrees core's StatisticsData does not expose; the per-century births /
+ * deaths histograms run a deduplicated count so a range date counts once,
+ * rather than core's raw `dates` row count. Month / country groupings delegate
+ * to StatisticsData via the Statistic aggregator.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -51,6 +54,21 @@ final readonly class EventRepository
     public function __construct(
         private Tree $tree,
     ) {
+    }
+
+    /**
+     * Distinct-individual count of the given event per century, keyed by the
+     * localised ordinal label the bar chart renders. Used for the births- and
+     * deaths-by-century histograms; deduplicates the two-row range-date
+     * encoding so each individual counts once.
+     *
+     * @param string $fact The GEDCOM fact tag (`BIRT` or `DEAT`)
+     *
+     * @return array<string, int>
+     */
+    public function eventsByCentury(string $fact): array
+    {
+        return EventCenturyTally::countByCentury($this->tree, $fact);
     }
 
     /**

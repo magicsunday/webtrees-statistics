@@ -18,6 +18,7 @@ use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Enum\Sex;
 use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarPayload;
 use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarSeries;
+use MagicSunday\Webtrees\Statistic\Support\Aggregator\EventCenturyTally;
 use MagicSunday\Webtrees\Statistic\Support\Calc\AgeBuckets;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
@@ -89,24 +90,15 @@ final readonly class DivorceRepository
     }
 
     /**
-     * Divorces grouped by century — pass-through over core's already-public
-     * accessor.
+     * Divorces grouped by century, keyed by the localised ordinal label. Counts
+     * each family once even when its DIV is a range date (stored as two `dates`
+     * rows).
      *
      * @return array<string, int>
      */
     public function divorcesByCentury(): array
     {
-        // See MarriageRepository::weddingsByCentury — core returns a
-        // 0-indexed list of `[centuryLabel, total]` tuples, not a
-        // labelled map. Iterating with `$k => $v` would collapse
-        // every count to 1 via the array → int cast.
-        $out = [];
-
-        foreach ($this->data->countEventsByCentury('DIV') as $row) {
-            $out[$row[0]] = $row[1];
-        }
-
-        return $out;
+        return EventCenturyTally::countByCentury($this->tree, 'DIV');
     }
 
     /**

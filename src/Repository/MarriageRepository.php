@@ -25,6 +25,7 @@ use MagicSunday\Webtrees\Statistic\Model\Record\FamilyDurationDaysRecord;
 use MagicSunday\Webtrees\Statistic\Model\Record\FamilyDurationYearsRecord;
 use MagicSunday\Webtrees\Statistic\Model\Record\IndividualAgeRecord;
 use MagicSunday\Webtrees\Statistic\Model\Record\IndividualCountRecord;
+use MagicSunday\Webtrees\Statistic\Support\Aggregator\EventCenturyTally;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\IndividualAgeRecordResolver;
 use MagicSunday\Webtrees\Statistic\Support\Calc\AgeBuckets;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
@@ -914,24 +915,16 @@ final class MarriageRepository
     }
 
     /**
-     * Weddings grouped by century, leaning on core's already-public accessor.
-     * Output shape is `[centuryLabel => count]`.
+     * Weddings grouped by century, keyed by the localised ordinal label.
+     * Output shape is `[centuryLabel => count]`. Counts each family once even
+     * when its MARR is a range date (which webtrees stores as two `dates`
+     * rows).
      *
      * @return array<string, int>
      */
     public function weddingsByCentury(): array
     {
-        // Core's countEventsByCentury returns a 0-indexed list of
-        // `[centuryLabel, total]` tuples — NOT an associative
-        // `centuryLabel => total` map. Iterating with `$k => $v`
-        // and casting `$v` to int would collapse every count to 1.
-        $out = [];
-
-        foreach ($this->data->countEventsByCentury('MARR') as $row) {
-            $out[$row[0]] = $row[1];
-        }
-
-        return $out;
+        return EventCenturyTally::countByCentury($this->tree, 'MARR');
     }
 
     /**

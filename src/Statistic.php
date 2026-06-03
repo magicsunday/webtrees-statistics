@@ -68,7 +68,6 @@ use MagicSunday\Webtrees\Statistic\Support\Locale\ZodiacLabels;
 
 use function array_values;
 use function count;
-use function is_array;
 
 /**
  * Aggregator service that backs the statistics-chart tab partials.
@@ -386,7 +385,7 @@ final readonly class Statistic
      */
     public function getBirthsByCentury(): array
     {
-        return $this->reshapeCenturyRows($this->data->countEventsByCentury('BIRT'));
+        return $this->eventRepository->eventsByCentury('BIRT');
     }
 
     /**
@@ -427,7 +426,7 @@ final readonly class Statistic
      */
     public function getDeathsByCentury(): array
     {
-        return $this->reshapeCenturyRows($this->data->countEventsByCentury('DEAT'));
+        return $this->eventRepository->eventsByCentury('DEAT');
     }
 
     /**
@@ -1244,30 +1243,6 @@ final readonly class Statistic
 
         foreach ($this->monthLabels() as $abbrev => $label) {
             $out[$label] = $rows[$abbrev] ?? 0;
-        }
-
-        return $out;
-    }
-
-    /**
-     * Normalise StatisticsData::countEventsByCentury output (mixed shape:
-     * either {century → count} or [[centuryLabel, count]] tuples) into the
-     * {centuryLabel => count} map the bar chart consumes.
-     *
-     * @param array<int|string, int|array<int, int|string>> $rows
-     *
-     * @return array<string, int>
-     */
-    private function reshapeCenturyRows(array $rows): array
-    {
-        $out = [];
-
-        foreach ($rows as $key => $row) {
-            if (is_array($row) && count($row) >= 2) {
-                $out[(string) $row[0]] = (int) $row[1];
-            } else {
-                $out[(string) $key] = (int) $row;
-            }
         }
 
         return $out;

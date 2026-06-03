@@ -1,0 +1,77 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+namespace MagicSunday\Webtrees\Statistic\Test\Integration;
+
+use MagicSunday\Webtrees\Statistic\Support\Aggregator\EventCenturyTally;
+use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
+use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
+use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
+
+/**
+ * Integration test for {@see EventCenturyTally}. Confirms that a range date
+ * (`BET..AND`), which webtrees stores as two `dates` rows, counts the record
+ * exactly once in its lower-bound century instead of twice.
+ *
+ * Fixture (`century-dedup.ged`):
+ *  - I1 BIRT `BET 1850 AND 1855` (19th), DEAT `BET 1910 AND 1915` (20th)
+ *  - I2 BIRT `1 JAN 1830` (19th, precise)
+ *  - I3 BIRT `BET 1890 AND 1910` (straddles the 19th/20th edge)
+ *  - F1 (I1 × I2) MARR `BET 1875 AND 1880` (19th), DIV `BET 1885 AND 1890` (19th)
+ *
+ * Births land three individuals in the 19th century: the ranged I1 once, the
+ * precise I2 once, and the century-straddling I3 once in its lower-bound (1890)
+ * century — a raw row count would report five (I1 and I3 contribute two rows
+ * each) and the upper-bound 1910 row of I3 would leak into the 20th century.
+ *
+ * @author  Rico Sonntag <mail@ricosonntag.de>
+ * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
+ * @link    https://github.com/magicsunday/webtrees-statistics/
+ */
+#[CoversClass(EventCenturyTally::class)]
+#[UsesClass(DedupedEventDates::class)]
+#[UsesClass(DateAggregate::class)]
+#[UsesClass(CenturyName::class)]
+#[UsesClass(RowCast::class)]
+final class EventCenturyTallyIntegrationTest extends IntegrationTestCase
+{
+    /**
+     * Every birth counts once in its lower-bound century: the within-century
+     * range (I1), the precise birth (I2) and the century-straddling range (I3)
+     * all land in the 19th century, and nothing leaks into the 20th. A raw row
+     * count would report five and split I3 across both centuries.
+     */
+    #[Test]
+    public function countsRangedBirthsOncePerIndividualInTheLowerBoundCentury(): void
+    {
+        $tree = $this->importFixtureTree('century-dedup.ged');
+
+        self::assertSame(['19th' => 3], EventCenturyTally::countByCentury($tree, 'BIRT'));
+    }
+
+    /**
+     * Ranged death, marriage and divorce dates each count their record once in
+     * the lower-bound century.
+     */
+    #[Test]
+    public function countsRangedDeathMarriageAndDivorceOnce(): void
+    {
+        $tree = $this->importFixtureTree('century-dedup.ged');
+
+        self::assertSame(['20th' => 1], EventCenturyTally::countByCentury($tree, 'DEAT'));
+        self::assertSame(['19th' => 1], EventCenturyTally::countByCentury($tree, 'MARR'));
+        self::assertSame(['19th' => 1], EventCenturyTally::countByCentury($tree, 'DIV'));
+    }
+}
