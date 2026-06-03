@@ -877,8 +877,9 @@ final readonly class Statistic
     }
 
     /**
-     * Weddings grouped by month (first MARR per family). Keys are the localised
-     * month names so the rendering matches the existing births-by-month card.
+     * Weddings grouped by month (each person's first marriage). Keys are the
+     * localised month names so the rendering matches the existing
+     * births-by-month card.
      *
      * @return array<string, int>
      */
@@ -924,7 +925,8 @@ final readonly class Statistic
 
     /**
      * Divorce rate per MARR-cohort (integer decade start → fraction 0.0-1.0).
-     * Cohorts with fewer than 3 marriages are filtered out.
+     * Cohorts below an adaptive sample threshold — the larger of 3 and 1 % of
+     * all marriages — are filtered out.
      *
      * @return array<int, float>
      */

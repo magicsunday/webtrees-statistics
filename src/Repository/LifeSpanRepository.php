@@ -586,11 +586,18 @@ final readonly class LifeSpanRepository
         // (not the `{individual, days}` shape `topTenOldestQuery` uses)
         // — the query has no DEAT date to compute age from, so we
         // derive age from today minus BIRT julianday ourselves.
+        //
+        // The core query applies its row cap BEFORE this privacy/parse filter,
+        // so a single unparseable birth date among the oldest rows would leave
+        // the card one entry short. Over-fetch a margin and stop once $limit
+        // valid entries are collected (the query is already oldest-first).
         $today          = getdate();
         $todayJulianDay = gregoriantojd($today['mon'], $today['mday'], $today['year']);
         $entries        = [];
 
-        foreach ($this->data->topTenOldestAliveQuery('ALL', $limit) as $individual) {
+        $overFetch = ($limit > 0) ? ($limit * 3) : $limit;
+
+        foreach ($this->data->topTenOldestAliveQuery('ALL', $overFetch) as $individual) {
             $birthDate = $individual->getBirthDate();
 
             if (!$birthDate->isOK()) {
@@ -605,6 +612,10 @@ final readonly class LifeSpanRepository
 
             $years     = intdiv($todayJulianDay - $birthJd, 365);
             $entries[] = new RankingEntry($individual->xref(), $this->plainName($individual), $years);
+
+            if (($limit > 0) && (count($entries) >= $limit)) {
+                break;
+            }
         }
 
         return $entries;

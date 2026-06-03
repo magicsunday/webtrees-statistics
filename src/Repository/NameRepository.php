@@ -70,10 +70,10 @@ use const PREG_SPLIT_NO_EMPTY;
 final readonly class NameRepository
 {
     /**
-     * Per-century sample floor for {@see fatherSonNamePassdownByCentury}.
-     * Centuries with fewer father-son pairs are suppressed because a single
-     * match would swing the rate by more than 10 percentage points and read as
-     * noise rather than signal.
+     * Per-century sample floor for {@see sameSexNamePassdownByCentury}.
+     * Centuries with fewer same-sex parent-child pairs are suppressed because a
+     * single match would swing the rate by more than 10 percentage points and
+     * read as noise rather than signal.
      */
     private const int MIN_COHORT_SIZE = 10;
 

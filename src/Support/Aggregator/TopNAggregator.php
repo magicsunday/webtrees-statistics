@@ -15,9 +15,10 @@ use Closure;
 use Illuminate\Support\Collection;
 
 use function array_slice;
-use function arsort;
 use function is_string;
 use function mb_strtolower;
+use function strcmp;
+use function uksort;
 
 /**
  * Generic Top-N counter for "iterate a row set, extract zero or more label
@@ -50,7 +51,7 @@ final readonly class TopNAggregator
      * @param Closure(string): list<string> $extract Returns the list of label values for one row's gedcom blob
      * @param int                           $limit   Maximum number of entries to return; 0 or negative returns the full list
      *
-     * @return array<string, int> Display label => count, sorted descending by count
+     * @return array<string, int> Display label => count, sorted by descending count then case-folded label
      */
     public static function topN(Collection $rows, Closure $extract, int $limit): array
     {
@@ -67,7 +68,18 @@ final readonly class TopNAggregator
             }
         }
 
-        arsort($counts);
+        // Sort by descending count, then by the case-folded key as a stable
+        // secondary tie-break so equal-frequency entries at the Top-N boundary
+        // keep a deterministic order across runs (arsort alone left ties in an
+        // input-dependent order).
+        uksort(
+            $counts,
+            static function (string $a, string $b) use ($counts): int {
+                $byCount = $counts[$b] <=> $counts[$a];
+
+                return $byCount !== 0 ? $byCount : strcmp($a, $b);
+            }
+        );
 
         $out = [];
 

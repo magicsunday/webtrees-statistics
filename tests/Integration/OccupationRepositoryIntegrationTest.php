@@ -48,8 +48,9 @@ final class OccupationRepositoryIntegrationTest extends IntegrationTestCase
      *
      * The distinct occupations are encountered in the order Blacksmith, Teacher,
      * Farmer, Carpenter — deliberately NOT count-descending — so a regression
-     * that dropped the `arsort` frequency ordering would surface Teacher above
-     * Farmer and fail this exact-order assertion.
+     * that dropped the frequency ordering would surface Teacher above Farmer.
+     * The two count-1 occupations also exercise the alphabetical tie-break:
+     * Carpenter sorts before Teacher even though Teacher was encountered first.
      */
     #[Test]
     public function topOccupationsReturnsCaseFoldedFrequencies(): void
@@ -58,7 +59,7 @@ final class OccupationRepositoryIntegrationTest extends IntegrationTestCase
         $result = (new OccupationRepository($tree))->top(10);
 
         self::assertSame(
-            ['Blacksmith' => 3, 'Farmer' => 2, 'Teacher' => 1, 'Carpenter' => 1],
+            ['Blacksmith' => 3, 'Farmer' => 2, 'Carpenter' => 1, 'Teacher' => 1],
             $result,
         );
     }
@@ -67,7 +68,7 @@ final class OccupationRepositoryIntegrationTest extends IntegrationTestCase
      * A top-N limit truncates the tail without changing the order. The cap rides
      * on the frequency ranking, not first-seen order: Teacher is encountered
      * before Farmer in the fixture, so a top-2 that kept `['Blacksmith',
-     * 'Farmer']` proves the `arsort` ran before the slice.
+     * 'Farmer']` proves the frequency sort ran before the slice.
      */
     #[Test]
     public function topOccupationsRespectsTheLimit(): void

@@ -39,7 +39,8 @@ final class ReligionRepositoryIntegrationTest extends IntegrationTestCase
     /**
      * `Catholic` appears twice (Anna + Berta with lowercase variant
      * `catholic`), `Protestant` once (Carl), `Jewish` once (Emil). The
-     * lowercase variant merges via case-folded keys.
+     * lowercase variant merges via case-folded keys. The two count-1 entries
+     * exercise the alphabetical tie-break: Jewish sorts before Protestant.
      */
     #[Test]
     public function topReligionsReturnsCaseFoldedFrequencies(): void
@@ -48,7 +49,7 @@ final class ReligionRepositoryIntegrationTest extends IntegrationTestCase
         $result = (new ReligionRepository($tree))->top(10);
 
         self::assertSame(
-            ['Catholic' => 2, 'Protestant' => 1, 'Jewish' => 1],
+            ['Catholic' => 2, 'Jewish' => 1, 'Protestant' => 1],
             $result,
         );
     }
