@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Statistics\n"
 "Report-Msgid-Bugs-To: https://github.com/magicsunday/webtrees-statistics/"
 "issues\n"
-"POT-Creation-Date: 2026-06-03 06:15+0000\n"
+"POT-Creation-Date: 2026-06-03 08:05+0000\n"
 "PO-Revision-Date: 2026-05-22 07:04+0000\n"
 "Last-Translator: Rico Sonntag <mail@ricosonntag.de>\n"
 "Language-Team: \n"
@@ -229,7 +229,7 @@ msgstr[1] "%s professions distinctes"
 msgid "%s distinct occupations (top 15)"
 msgstr "%s professions distinctes (top 15)"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:88
+#: resources/views/modules/statistics-chart/tabs/places.phtml:112
 #, php-format
 msgid "%s distinct places"
 msgstr "%s lieux distincts"
@@ -309,7 +309,7 @@ msgstr[1] "%s maris"
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:94
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:109
-#: resources/views/modules/statistics-chart/tabs/places.phtml:89
+#: resources/views/modules/statistics-chart/tabs/places.phtml:113
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:70
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:82
 #, php-format
@@ -412,8 +412,6 @@ msgstr[1] "%s mariages avec mois enregistré"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:142
 #, php-format
-#| msgid "%s mother"
-#| msgid_plural "%s mothers"
 msgid "%s months"
 msgstr ""
 
@@ -494,8 +492,6 @@ msgstr[1] "%s mariages enregistrés"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:143
 #, php-format
-#| msgid "%s marriage"
-#| msgid_plural "%s marriages"
 msgid "%s remarriage"
 msgid_plural "%s remarriages"
 msgstr[0] ""
@@ -595,6 +591,10 @@ msgctxt "CENTURY"
 msgid "11th"
 msgstr "11ᵉ"
 
+#: resources/views/modules/statistics-chart/tabs/places.phtml:78
+msgid "11–50 km"
+msgstr ""
+
 #: src/Support/Locale/CenturyName.php:74
 msgctxt "CENTURY"
 msgid "12th"
@@ -648,6 +648,10 @@ msgctxt "CENTURY"
 msgid "1st"
 msgstr "1ᵉʳ"
 
+#: resources/views/modules/statistics-chart/tabs/places.phtml:80
+msgid "201–500 km"
+msgstr ""
+
 #: src/Support/Locale/CenturyName.php:66
 msgctxt "CENTURY"
 msgid "20th"
@@ -676,6 +680,14 @@ msgstr "40 ans"
 msgctxt "CENTURY"
 msgid "4th"
 msgstr "4ᵉ"
+
+#: resources/views/modules/statistics-chart/tabs/places.phtml:81
+msgid "501–1000 km"
+msgstr ""
+
+#: resources/views/modules/statistics-chart/tabs/places.phtml:79
+msgid "51–200 km"
+msgstr ""
 
 #: src/Support/Locale/CenturyName.php:81
 msgctxt "CENTURY"
@@ -707,7 +719,7 @@ msgstr "9ᵉ"
 msgid "A fuller cell marks a busier month"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:72
+#: resources/views/modules/statistics-chart/tabs/places.phtml:96
 msgid "A sedentary population — most lived and died in the same place."
 msgstr ""
 "Une population sédentaire — la plupart ont vécu et sont morts au même "
@@ -740,14 +752,15 @@ msgstr ""
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:212
 #: resources/views/modules/statistics-chart/tabs/names.phtml:42
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:210
-#: resources/views/modules/statistics-chart/tabs/places.phtml:157
-#: resources/views/modules/statistics-chart/tabs/places.phtml:176
-#: resources/views/modules/statistics-chart/tabs/places.phtml:203
+#: resources/views/modules/statistics-chart/tabs/places.phtml:181
+#: resources/views/modules/statistics-chart/tabs/places.phtml:200
+#: resources/views/modules/statistics-chart/tabs/places.phtml:227
+#: resources/views/modules/statistics-chart/tabs/places.phtml:243
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:125
 msgid "About this chart"
 msgstr "À propos de ce graphique"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:188
+#: resources/views/modules/statistics-chart/tabs/places.phtml:212
 #, php-format
 msgid "Across %s individual with at least one recorded place."
 msgid_plural "Across %s individuals with at least one recorded place."
@@ -823,11 +836,6 @@ msgstr ""
 "(10+ years) typically reflect second marriages or long intervals."
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:224
-#| msgid ""
-#| "Age difference between spouses at marriage. Negative values mark couples "
-#| "where the husband was the older partner. Positive values mark couples "
-#| "where the wife was older. Each bar covers a 5-year range. The band "
-#| "labelled 30+ collects every gap of 30 years or more."
 msgid ""
 "Age difference between spouses at marriage. The left column counts couples "
 "where the husband is the older partner, the right column those where the "
@@ -923,7 +931,7 @@ msgstr "Août"
 msgid "Average birth-year gap parent → child"
 msgstr "Différence moyenne d'année de naissance parent → enfant"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:172
+#: resources/views/modules/statistics-chart/tabs/places.phtml:196
 msgid "Average distinct places per individual"
 msgstr "Nombre moyen de lieux distincts par individu"
 
@@ -1006,7 +1014,7 @@ msgstr "Naissances par millénaire"
 msgid "Births — 25-year period × month"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:135
+#: resources/views/modules/statistics-chart/tabs/places.phtml:159
 msgid ""
 "Births, residences and deaths by country · the geographic spread of the tree"
 msgstr ""
@@ -1017,7 +1025,7 @@ msgstr ""
 msgid "Black Death (1348–1350)"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:61
+#: resources/views/modules/statistics-chart/tabs/places.phtml:62
 msgid ""
 "Bucketed view of the per-individual place count: how many individuals have "
 "exactly 1, 2, 3, 4, or 5+ distinct recorded places. A high tail signals "
@@ -1240,8 +1248,8 @@ msgstr "Profondeur"
 msgid "Distinct ancestors up to 4 generations (max. 30)"
 msgstr "Ancêtres distincts jusqu'à 4 générations (max. 30)"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:198
-#: resources/views/modules/statistics-chart/tabs/places.phtml:209
+#: resources/views/modules/statistics-chart/tabs/places.phtml:222
+#: resources/views/modules/statistics-chart/tabs/places.phtml:233
 msgid "Distinct places per individual"
 msgstr "Lieux distincts par individu"
 
@@ -1252,7 +1260,7 @@ msgstr "Lieux distincts par individu"
 msgid "Distribution"
 msgstr "Distribution"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:199
+#: resources/views/modules/statistics-chart/tabs/places.phtml:223
 msgid "Distribution in buckets"
 msgstr "Distribution in buckets"
 
@@ -1396,7 +1404,7 @@ msgid ""
 "children"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:53
+#: resources/views/modules/statistics-chart/tabs/places.phtml:54
 msgid ""
 "Each flow shows individuals who were born in one country and died in "
 "another. The flow's thickness encodes the count: thicker bands mean more "
@@ -1409,6 +1417,17 @@ msgstr ""
 "migrations along that path. Same-country trajectories are excluded — they're "
 "not migration. Hover any band to see the exact source → destination and "
 "individual count."
+
+#: resources/views/modules/statistics-chart/tabs/places.phtml:66
+msgid ""
+"Each individual is bucketed by the great-circle distance in kilometres "
+"between their birth place and death place. Only individuals whose birth AND "
+"death place both carry map coordinates (a PLAC:MAP sub-tag) are counted — "
+"the module reads no external geocoder — so the chart covers the "
+"documentation-limited subset of records that were geocoded at all, a lower "
+"bound on real mobility rather than a complete picture. The chart is hidden "
+"when too few individuals qualify."
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:110
 msgid ""
@@ -1666,7 +1685,7 @@ msgstr ""
 "ancêtre. Le classement met en évidence les personnes dont les branches "
 "portent effectivement le reste de la lignée enregistrée."
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:57
+#: resources/views/modules/statistics-chart/tabs/places.phtml:58
 msgid ""
 "For every individual the widget collects every distinct PLAC value that "
 "appears on any of their level-1 events (BIRT, DEAT, BAPM, BURI, RESI, …) and "
@@ -1703,16 +1722,6 @@ msgstr ""
 "seul décès ferait varier la courbe de plus de trois points de pourcentage."
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:148
-#| msgid ""
-#| "For every individual with both a birth and a death date the widget "
-#| "computes the number of days lived. A death within five years (1826 days) "
-#| "of birth counts as under-5 mortality. The line groups those children by "
-#| "their birth century so the historical decline becomes visible (typical "
-#| "1700s value 30 to 40 percent, modern below 2 percent). Individuals with "
-#| "only a birth or only a death date are silently excluded, since the rate "
-#| "cannot be determined without both anchors. Per-century cohorts below 5 "
-#| "children are suppressed because a single dead child would spike the line "
-#| "by more than 10 percentage points."
 msgid ""
 "For every individual with both a birth and a death date the widget computes "
 "the number of days lived; a death before day 1826 (the fifth birthday) "
@@ -1815,11 +1824,11 @@ msgstr "Longueur de génération"
 msgid "Generations"
 msgstr "Générations"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:171
+#: resources/views/modules/statistics-chart/tabs/places.phtml:195
 msgid "Geographic dispersion"
 msgstr "Dispersion géographique"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:138
+#: resources/views/modules/statistics-chart/tabs/places.phtml:162
 msgid "Geographic origin & fate"
 msgstr "Origine géographique et destin"
 
@@ -1827,7 +1836,7 @@ msgstr "Origine géographique et destin"
 msgid "Geographic view"
 msgstr "Vue géographique"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:140
+#: resources/views/modules/statistics-chart/tabs/places.phtml:164
 msgid "Geography"
 msgstr "Géographie"
 
@@ -1872,6 +1881,11 @@ msgstr ""
 msgid "Great Smog of London (1952)"
 msgstr ""
 
+#: resources/views/modules/statistics-chart/tabs/places.phtml:239
+#| msgid "Migrations between birth and death country"
+msgid "Great-circle distance between birth and death place"
+msgstr ""
+
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:226
 msgid "Growth"
 msgstr "Croissance"
@@ -1897,7 +1911,7 @@ msgstr ""
 msgid "Heritage"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:75
+#: resources/views/modules/statistics-chart/tabs/places.phtml:99
 msgid "High mobility — strongly migrating ancestors."
 msgstr "Mobilité élevée — ancêtres fortement migrants."
 
@@ -1909,7 +1923,7 @@ msgstr "Plus élevé = recherche plus approfondie"
 msgid "How deep and branched is the tree?"
 msgstr "Quelle est la profondeur et la ramification de l'arbre ?"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:166
+#: resources/views/modules/statistics-chart/tabs/places.phtml:190
 msgid "How far they roamed"
 msgstr "Jusqu'où ils sont allés"
 
@@ -1953,7 +1967,7 @@ msgstr "Individus"
 msgid "Individuals N generations above their deepest descendant"
 msgstr "Personnes N générations au-dessus de leur descendant le plus profond"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:149
+#: resources/views/modules/statistics-chart/tabs/places.phtml:173
 msgid "Individuals born in one country and recorded as having died in another"
 msgstr "Individus nés dans un pays et recensés comme décédés dans un autre"
 
@@ -2069,7 +2083,6 @@ msgid "Longest marriage"
 msgstr "Mariage le plus long"
 
 #: resources/views/modules/statistics-chart/components/marriage-extremes.phtml:41
-#| msgid "Longest marriage"
 msgid "Longest marriages"
 msgstr ""
 
@@ -2130,11 +2143,17 @@ msgstr "Médiane, écart interquartile et moustaches par siècle de naissance"
 msgid "Men"
 msgstr "Hommes"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:148
+#: resources/views/modules/statistics-chart/tabs/places.phtml:172
+#: resources/views/modules/statistics-chart/tabs/places.phtml:240
 msgid "Migration"
 msgstr "Migration"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:152
+#: resources/views/modules/statistics-chart/tabs/places.phtml:238
+#| msgid "Migration"
+msgid "Migration distance"
+msgstr ""
+
+#: resources/views/modules/statistics-chart/tabs/places.phtml:176
 msgid "Migrations between birth and death country"
 msgstr "Migrations entre pays de naissance et de décès"
 
@@ -2166,17 +2185,17 @@ msgstr "Lieu de mariage manquant"
 msgid "Missing-event gaps"
 msgstr "Lacunes d'événements manquants"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:74
+#: resources/views/modules/statistics-chart/tabs/places.phtml:98
 msgid "Mobile population — migration and relocation were common."
 msgstr "Population mobile — migration et déménagement étaient courants."
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:167
-#: resources/views/modules/statistics-chart/tabs/places.phtml:173
-#: resources/views/modules/statistics-chart/tabs/places.phtml:200
+#: resources/views/modules/statistics-chart/tabs/places.phtml:191
+#: resources/views/modules/statistics-chart/tabs/places.phtml:197
+#: resources/views/modules/statistics-chart/tabs/places.phtml:224
 msgid "Mobility"
 msgstr "Mobilité"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:73
+#: resources/views/modules/statistics-chart/tabs/places.phtml:97
 msgid "Moderate mobility — many stayed in their region, some moved."
 msgstr ""
 "Mobilité modérée — beaucoup sont restés dans leur région, certains ont "
@@ -2205,7 +2224,6 @@ msgstr "Mortalité"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:583
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:588
-#| msgid "Mortality rate"
 msgid "Mortality outliers"
 msgstr ""
 
@@ -2239,11 +2257,11 @@ msgstr "Mères"
 msgid "Mourning period"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:154
+#: resources/views/modules/statistics-chart/tabs/places.phtml:178
 msgid "Movement"
 msgstr "Mouvement"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:147
+#: resources/views/modules/statistics-chart/tabs/places.phtml:171
 msgid "Movements"
 msgstr "Mouvements"
 
@@ -2293,7 +2311,7 @@ msgstr ""
 "Nombre d'enfants, espacement entre frères et sœurs et passage à des familles "
 "plus petites"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:168
+#: resources/views/modules/statistics-chart/tabs/places.phtml:192
 msgid ""
 "Number of distinct places per individual · sedentary vs. migrating "
 "populations"
@@ -2376,12 +2394,11 @@ msgstr ""
 "centenaires en haut. Les cohortes de moins de cinq individus sont masquées. "
 "Une seule vie ne peut représenter tout un siècle."
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:134
+#: resources/views/modules/statistics-chart/tabs/places.phtml:158
 msgid "Origin & fate"
 msgstr "Origine & destin"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:660
-#| msgid "{count} marriages"
 msgid "Outlier marriages"
 msgstr ""
 
@@ -2394,7 +2411,7 @@ msgstr "Vue d'ensemble"
 msgid "Parenthood"
 msgstr "Parentalité"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:153
+#: resources/views/modules/statistics-chart/tabs/places.phtml:177
 msgid ""
 "Paths of individuals born in one country and recorded as having died in "
 "another"
@@ -2436,16 +2453,16 @@ msgstr ""
 msgid "Pisces"
 msgstr "Poissons"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:208
+#: resources/views/modules/statistics-chart/tabs/places.phtml:232
 #: src/Module.php:275
 msgid "Places"
 msgstr "Lieux"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:99
+#: resources/views/modules/statistics-chart/tabs/places.phtml:123
 msgid "Places of birth"
 msgstr "Lieux de naissance"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:119
+#: resources/views/modules/statistics-chart/tabs/places.phtml:143
 msgid "Places of death"
 msgstr "Lieux de décès"
 
@@ -2474,7 +2491,7 @@ msgstr "Quintuplés et plus"
 msgid "Reach"
 msgstr "Portée"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:109
+#: resources/views/modules/statistics-chart/tabs/places.phtml:133
 msgid "Recorded residences"
 msgstr "Résidences enregistrées"
 
@@ -2587,7 +2604,6 @@ msgid "Shift"
 msgstr "Évolution"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:665
-#| msgid "Shortest marriage"
 msgid "Shortest & longest marriages"
 msgstr ""
 
@@ -2596,7 +2612,6 @@ msgid "Shortest marriage"
 msgstr "Mariage le plus court"
 
 #: resources/views/modules/statistics-chart/components/marriage-extremes.phtml:40
-#| msgid "Shortest marriage"
 msgid "Shortest marriages"
 msgstr ""
 
@@ -2732,11 +2747,6 @@ msgid ""
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:152
-#| msgid ""
-#| "The single birth century with the highest under-5 mortality rate across "
-#| "the tree. Computed from the same per-individual BIRT+DEAT pairs as the "
-#| "per-century breakdown; cohorts below 5 children are suppressed so a "
-#| "single tragedy does not pin the peak."
 msgid ""
 "The single birth century with the highest documented under-5 mortality rate "
 "across the tree. Computed from the same per-individual BIRT+DEAT pairs as "
@@ -2750,7 +2760,7 @@ msgstr ""
 msgid "Thirty Years’ War (1618–1648)"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:139
+#: resources/views/modules/statistics-chart/tabs/places.phtml:163
 msgid "Three views of every individual · birth, residence, death"
 msgstr "Trois vues de chaque personne · naissance, résidence, décès"
 
@@ -2780,6 +2790,14 @@ msgstr "Chronologie"
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:265
 msgid "Today living"
 msgstr "Vivants aujourd'hui"
+
+#: resources/views/modules/statistics-chart/tabs/places.phtml:251
+#| msgid "%s individual with both birth and death dates"
+#| msgid_plural "%s individuals with both birth and death dates"
+msgid ""
+"Too few individuals carry map coordinates on both their birth and death "
+"place."
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/names.phtml:102
 #, php-format
@@ -2913,7 +2931,7 @@ msgstr ""
 msgid "Where the tree has gaps · events and places not recorded"
 msgstr "Là où l'arbre a des lacunes · événements et lieux non enregistrés"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:133
+#: resources/views/modules/statistics-chart/tabs/places.phtml:157
 msgid "Where they lived and died"
 msgstr "Où ils ont vécu et sont morts"
 
@@ -3042,14 +3060,10 @@ msgid "births"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:237
-#| msgid "%s couple"
-#| msgid_plural "%s couples"
 msgid "couples"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/components/marriage-extremes.phtml:59
-#| msgid "%s day"
-#| msgid_plural "%s days"
 msgid "day"
 msgid_plural "days"
 msgstr[0] ""
@@ -3086,8 +3100,6 @@ msgid "ended by death"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/components/marriage-extremes.phtml:56
-#| msgid "%s recorded divorce"
-#| msgid_plural "%s recorded divorces"
 msgid "ended by divorce"
 msgstr ""
 
@@ -3153,8 +3165,11 @@ msgctxt "count word"
 msgid "one"
 msgstr "un"
 
+#: resources/views/modules/statistics-chart/tabs/places.phtml:82
+msgid "over 1000 km"
+msgstr ""
+
 #: resources/views/modules/statistics-chart/widgets/stream-graph.phtml:49
-#| msgid "peak in the {decade}"
 msgid "peak in the {step}"
 msgstr ""
 
@@ -3170,7 +3185,7 @@ msgstr "mois de pointe"
 msgid "peak sign"
 msgstr "signe dominant"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:184
+#: resources/views/modules/statistics-chart/tabs/places.phtml:208
 msgid "places"
 msgstr "lieux"
 
@@ -3210,7 +3225,6 @@ msgid "two"
 msgstr "deux"
 
 #: resources/views/modules/statistics-chart/components/marriage-extremes.phtml:60
-#| msgid "years"
 msgid "year"
 msgid_plural "years"
 msgstr[0] ""
@@ -3257,6 +3271,15 @@ msgstr "{name} : {total}, {peak}"
 #: src/Support/Locale/HistoricalEventCatalog.php:234
 msgid "“Year Without a Summer” (1816–1817)"
 msgstr ""
+
+#: resources/views/modules/statistics-chart/tabs/places.phtml:77
+msgid "≤ 10 km"
+msgstr ""
+
+#, php-format
+#~| msgid "%1$s of %2$s individuals"
+#~ msgid "%s%% of geocoded individuals"
+#~ msgstr "%1$s personne(s) sur %2$s"
 
 #~| msgid "%s mother"
 #~| msgid_plural "%s mothers"
@@ -3401,10 +3424,6 @@ msgstr ""
 #~ msgid_plural "%s recorded residences"
 #~ msgstr[0] "%s résidence enregistrée"
 #~ msgstr[1] "%s résidences enregistrées"
-
-#, php-format
-#~ msgid "%1$s of %2$s individuals"
-#~ msgstr "%1$s personne(s) sur %2$s"
 
 #, php-format
 #~ msgid "%s distinct migration path"

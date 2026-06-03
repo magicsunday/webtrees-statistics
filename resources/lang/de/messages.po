@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Statistics\n"
 "Report-Msgid-Bugs-To: https://github.com/magicsunday/webtrees-statistics/"
 "issues\n"
-"POT-Creation-Date: 2026-06-03 06:15+0000\n"
+"POT-Creation-Date: 2026-06-03 08:05+0000\n"
 "PO-Revision-Date: 2026-05-22 07:04+0000\n"
 "Last-Translator: Rico Sonntag <mail@ricosonntag.de>\n"
 "Language-Team: \n"
@@ -57,8 +57,8 @@ msgstr "%1$s von %2$s Kindern (%3$s %%)"
 msgid ""
 "%1$s of %2$s children died before age 5 — the darkest cohort in the tree."
 msgstr ""
-"%1$s von %2$s Kindern starben vor dem 5. Lebensjahr — das dunkelste "
-"Jahrhundert im Stammbaum."
+"%1$s von %2$s Kindern starben vor dem 5. Lebensjahr — die dunkelste Kohorte "
+"im Stammbaum."
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:336
 #, php-format
@@ -229,7 +229,7 @@ msgstr[1] "%s verschiedene Berufe"
 msgid "%s distinct occupations (top 15)"
 msgstr "%s verschiedene Berufe (Top 15)"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:88
+#: resources/views/modules/statistics-chart/tabs/places.phtml:112
 #, php-format
 msgid "%s distinct places"
 msgstr "%s verschiedene Orte"
@@ -309,7 +309,7 @@ msgstr[1] "%s Ehemänner"
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:94
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:109
-#: resources/views/modules/statistics-chart/tabs/places.phtml:89
+#: resources/views/modules/statistics-chart/tabs/places.phtml:113
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:70
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:82
 #, php-format
@@ -591,6 +591,10 @@ msgctxt "CENTURY"
 msgid "11th"
 msgstr "11."
 
+#: resources/views/modules/statistics-chart/tabs/places.phtml:78
+msgid "11–50 km"
+msgstr "11–50 km"
+
 #: src/Support/Locale/CenturyName.php:74
 msgctxt "CENTURY"
 msgid "12th"
@@ -644,6 +648,10 @@ msgctxt "CENTURY"
 msgid "1st"
 msgstr "1."
 
+#: resources/views/modules/statistics-chart/tabs/places.phtml:80
+msgid "201–500 km"
+msgstr "201–500 km"
+
 #: src/Support/Locale/CenturyName.php:66
 msgctxt "CENTURY"
 msgid "20th"
@@ -672,6 +680,14 @@ msgstr "40 J."
 msgctxt "CENTURY"
 msgid "4th"
 msgstr "4."
+
+#: resources/views/modules/statistics-chart/tabs/places.phtml:81
+msgid "501–1000 km"
+msgstr "501–1000 km"
+
+#: resources/views/modules/statistics-chart/tabs/places.phtml:79
+msgid "51–200 km"
+msgstr "51–200 km"
 
 #: src/Support/Locale/CenturyName.php:81
 msgctxt "CENTURY"
@@ -703,7 +719,7 @@ msgstr "9."
 msgid "A fuller cell marks a busier month"
 msgstr "Eine vollere Zelle markiert einen ereignisreicheren Monat"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:72
+#: resources/views/modules/statistics-chart/tabs/places.phtml:96
 msgid "A sedentary population — most lived and died in the same place."
 msgstr ""
 "Eine sesshafte Bevölkerung — die meisten lebten und starben am selben Ort."
@@ -735,14 +751,15 @@ msgstr ""
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:212
 #: resources/views/modules/statistics-chart/tabs/names.phtml:42
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:210
-#: resources/views/modules/statistics-chart/tabs/places.phtml:157
-#: resources/views/modules/statistics-chart/tabs/places.phtml:176
-#: resources/views/modules/statistics-chart/tabs/places.phtml:203
+#: resources/views/modules/statistics-chart/tabs/places.phtml:181
+#: resources/views/modules/statistics-chart/tabs/places.phtml:200
+#: resources/views/modules/statistics-chart/tabs/places.phtml:227
+#: resources/views/modules/statistics-chart/tabs/places.phtml:243
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:125
 msgid "About this chart"
 msgstr "Über dieses Diagramm"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:188
+#: resources/views/modules/statistics-chart/tabs/places.phtml:212
 #, php-format
 msgid "Across %s individual with at least one recorded place."
 msgid_plural "Across %s individuals with at least one recorded place."
@@ -921,7 +938,7 @@ msgstr "August"
 msgid "Average birth-year gap parent → child"
 msgstr "Ø Geburtsjahrabstand Eltern → Kind"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:172
+#: resources/views/modules/statistics-chart/tabs/places.phtml:196
 msgid "Average distinct places per individual"
 msgstr "Ø Anzahl unterschiedlicher Orte pro Person"
 
@@ -1002,7 +1019,7 @@ msgstr "Geburten pro Jahrtausend"
 msgid "Births — 25-year period × month"
 msgstr "Geburten — 25-Jahres-Zeitraum × Monat"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:135
+#: resources/views/modules/statistics-chart/tabs/places.phtml:159
 msgid ""
 "Births, residences and deaths by country · the geographic spread of the tree"
 msgstr ""
@@ -1012,7 +1029,7 @@ msgstr ""
 msgid "Black Death (1348–1350)"
 msgstr "Schwarzer Tod (1348–1350)"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:61
+#: resources/views/modules/statistics-chart/tabs/places.phtml:62
 msgid ""
 "Bucketed view of the per-individual place count: how many individuals have "
 "exactly 1, 2, 3, 4, or 5+ distinct recorded places. A high tail signals "
@@ -1172,9 +1189,7 @@ msgstr "Aktuelles Alter, älteste zuerst"
 
 #: src/Support/Locale/HistoricalEventCatalog.php:223
 msgid "Dano-Swedish Wars (1657–1660)"
-msgstr ""
-"Dänisch-Schwedische Kriege (1657–1660)Fällt zeitlich mit den Dänisch-"
-"Schwedischen Kriegen zusammen (1657–1660)"
+msgstr "Dänisch-Schwedische Kriege (1657–1660)"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:528
 msgid "Deaths"
@@ -1239,8 +1254,8 @@ msgstr "Tiefe"
 msgid "Distinct ancestors up to 4 generations (max. 30)"
 msgstr "Eindeutige Vorfahren bis 4 Generationen (max. 30)"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:198
-#: resources/views/modules/statistics-chart/tabs/places.phtml:209
+#: resources/views/modules/statistics-chart/tabs/places.phtml:222
+#: resources/views/modules/statistics-chart/tabs/places.phtml:233
 msgid "Distinct places per individual"
 msgstr "Unterschiedliche Orte pro Person"
 
@@ -1251,7 +1266,7 @@ msgstr "Unterschiedliche Orte pro Person"
 msgid "Distribution"
 msgstr "Verteilung"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:199
+#: resources/views/modules/statistics-chart/tabs/places.phtml:223
 msgid "Distribution in buckets"
 msgstr "Verteilung in Klassen"
 
@@ -1262,7 +1277,8 @@ msgid ""
 "count."
 msgstr ""
 "Verteilung der Kinderzahlen über Familien mit mindestens einem erfassten "
-"Kind. Maus über einen Balken zeigt die genaue Familienzahl."
+"Kind. Maus über einen Balken zeigt die Zahl der Familien mit genau dieser "
+"Kinderzahl."
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:200
 msgid ""
@@ -1318,9 +1334,7 @@ msgstr "Dokumentation"
 
 #: src/Support/Locale/HistoricalEventCatalog.php:256
 msgid "Dutch famine (1944–1945)"
-msgstr ""
-"Niederländische Hungersnot (1944–1945)Fällt zeitlich mit der "
-"niederländischen Hungersnot zusammen (1944–1945)"
+msgstr "Niederländische Hungersnot (1944–1945)"
 
 #: resources/views/modules/statistics-chart/tabs/names.phtml:39
 msgid ""
@@ -1363,11 +1377,11 @@ msgid ""
 "see absolute counts and its peak decade."
 msgstr ""
 "Jedes Band steht für einen der häufigsten Vornamen im Stammbaum. Die "
-"vertikale Dicke des Bandes in einer Jahrzehnt zeigt, wie viele in dieser "
+"vertikale Dicke des Bandes in einem Jahrzehnt zeigt, wie viele in diesem "
 "Jahrzehnt geborene Personen diesen Namen trugen. Das Silhouettenlayout "
 "zentriert jedes Band um die Nulllinie. So liest sich das Diagramm als "
-"relative Größenverhältnisse. Per Mausover über ein Band werden die absoluten "
-"Zahlen und die stärkste Jahrzehnt angezeigt."
+"relative Größenverhältnisse. Maus über ein Band zeigt die absoluten Zahlen "
+"und das stärkste Jahrzehnt."
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:619
 msgid ""
@@ -1426,7 +1440,7 @@ msgstr ""
 "Jeder Punkt markiert ein Jahr, in dem mehrere Familien je zwei oder mehr "
 "Kinder verloren"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:53
+#: resources/views/modules/statistics-chart/tabs/places.phtml:54
 msgid ""
 "Each flow shows individuals who were born in one country and died in "
 "another. The flow's thickness encodes the count: thicker bands mean more "
@@ -1439,6 +1453,26 @@ msgstr ""
 "Pfades. Bewegungen innerhalb desselben Landes sind ausgeschlossen — das ist "
 "keine Wanderung. Maus über ein Band zeigt die exakte Quelle → Ziel und die "
 "Personenzahl."
+
+#: resources/views/modules/statistics-chart/tabs/places.phtml:66
+msgid ""
+"Each individual is bucketed by the great-circle distance in kilometres "
+"between their birth place and death place. Only individuals whose birth AND "
+"death place both carry map coordinates (a PLAC:MAP sub-tag) are counted — "
+"the module reads no external geocoder — so the chart covers the "
+"documentation-limited subset of records that were geocoded at all, a lower "
+"bound on real mobility rather than a complete picture. The chart is hidden "
+"when too few individuals qualify."
+msgstr ""
+"Jede Person wird nach der Luftlinie in Kilometern zwischen ihrem Geburts- "
+"und Sterbeort eingeordnet. Gezählt werden nur Personen, bei denen sowohl für "
+"den Geburts- als auch für den Sterbeort Koordinaten hinterlegt sind (ein "
+"PLAC:MAP-"
+"Untereintrag) — das Modul fragt keinen externen Geocoder ab. Die Auswertung "
+"erfasst damit nur den dokumentierten, mit Koordinaten versehenen Teil der "
+"Personen und ist eine Untergrenze der tatsächlichen Mobilität, kein "
+"vollständiges Bild. Die Grafik wird ausgeblendet, wenn zu wenige Personen "
+"diese Bedingung erfüllen."
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:110
 msgid ""
@@ -1466,11 +1500,11 @@ msgid ""
 msgstr ""
 "Jeder Punkt zeigt das durchschnittliche Elternalter in vollen Jahren. Die "
 "beiden Linien werden getrennt für Väter und Mütter berechnet, wie die "
-"Legende ausweist. Eine Jahrzehnt wird für ein Geschlecht nur eingezeichnet, "
+"Legende ausweist. Ein Jahrzehnt wird für ein Geschlecht nur eingezeichnet, "
 "wenn dort mindestens fünf Eltern dieses Geschlechts erfasst sind. "
-"Jahrzehnten mit weniger Stichproben werden aus dieser Linie entfernt. So "
+"Jahrzehnte mit weniger Stichproben werden aus dieser Linie entfernt. So "
 "kann ein einzelner Ausreißer den Trend nicht verzerren. Die andere Linie "
-"läuft ununterbrochen weiter. Bei Mausover wird angezeigt, auf wie vielen "
+"läuft ununterbrochen weiter. Maus über einen Punkt zeigt, auf wie vielen "
 "Eltern der jeweilige Mittelwert beruht."
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:260
@@ -1543,9 +1577,7 @@ msgstr "Extreme"
 
 #: src/Support/Locale/HistoricalEventCatalog.php:218
 msgid "Fall of the Ming dynasty (1620–1644)"
-msgstr ""
-"Untergang der Ming-Dynastie (1620–1644)Fällt zeitlich mit dem Untergang der "
-"Ming-Dynastie zusammen (1620–1644)"
+msgstr "Untergang der Ming-Dynastie (1620–1644)"
 
 #: resources/views/modules/statistics-chart/components/hero.phtml:65
 msgid "Families"
@@ -1594,9 +1626,7 @@ msgstr "Zusammensetzung Familiengröße pro Jahrzehnt"
 
 #: src/Support/Locale/HistoricalEventCatalog.php:221
 msgid "Famine in eastern France (1650–1652)"
-msgstr ""
-"Hungersnot in Ostfrankreich (1650–1652)Fällt zeitlich mit der Hungersnot in "
-"Ostfrankreich zusammen (1650–1652)"
+msgstr "Hungersnot in Ostfrankreich (1650–1652)"
 
 #: src/Support/Locale/HistoricalEventCatalog.php:226
 msgid "Famine of 1693–1694"
@@ -1646,7 +1676,7 @@ msgstr ""
 "heiratete, der Abstand in vollen Monaten zwischen diesem Tod und der "
 "nächsten Eheschließung. Das erste Trauerjahr ist bei sechs Monaten geteilt — "
 "das Fenster, in dem die Konvention am stärksten wirkt — danach in ganzen "
-"Jahren bis zu einem „60+“-Schwanz. Ein kurzer Abstand kann auf die "
+"Jahren bis zu einem „60+“-Ausläufer. Ein kurzer Abstand kann auf die "
 "gesellschaftlichen Konventionen der Zeit hindeuten. Ehen, die durch "
 "Scheidung endeten, und verwitwete Personen, die nie wieder heirateten, sind "
 "ausgenommen."
@@ -1732,7 +1762,7 @@ msgstr ""
 "Rangliste zeigt jene Personen, deren Linien tatsächlich den Großteil der "
 "erfassten Verwandtschaft tragen."
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:57
+#: resources/views/modules/statistics-chart/tabs/places.phtml:58
 msgid ""
 "For every individual the widget collects every distinct PLAC value that "
 "appears on any of their level-1 events (BIRT, DEAT, BAPM, BURI, RESI, …) and "
@@ -1747,10 +1777,7 @@ msgstr ""
 "Wenn z. B. Geburt und Tod beide in Hamburg sind, zählt Hamburg nur einmal — "
 "die Zahl misst Mobilität, nicht die Zahl der Ereignisse. Der Durchschnitt "
 "rechnet nur Personen mit mindestens einer Ortsangabe; Personen ganz ohne Ort "
-"werden ausgelassen. Rechts daneben: Verteilung auf 1 / 2 / 3 / 4 / 5+ "
-"verschiedene Orte pro Person — ein hoher rechter Rand bedeutet wandernde "
-"Vorfahren, ein hoher Balken bei „1“ eine sesshafte oder spärlich erfasste "
-"Bevölkerung."
+"werden ausgelassen."
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:345
 msgid ""
@@ -1820,9 +1847,9 @@ msgid ""
 "children (0, 1, 2 … 10+). Each bar is normalised to 100 %%, so decades with "
 "very different family counts can be compared side by side."
 msgstr ""
-"Für jede Heiratsjahrzehnt wird der Balken nach Kinderzahl in Segmente "
+"Für jedes Heiratsjahrzehnt wird der Balken nach Kinderzahl in Segmente "
 "unterteilt (0, 1, 2 … 10+). Jeder Balken ist auf 100 %% normiert. So lassen "
-"sich Jahrzehnten mit sehr unterschiedlicher Anzahl an Familien direkt "
+"sich Jahrzehnte mit sehr unterschiedlicher Anzahl an Familien direkt "
 "nebeneinander vergleichen."
 
 #: resources/views/modules/statistics-chart/tabs/names.phtml:122
@@ -1848,15 +1875,11 @@ msgstr ""
 
 #: src/Support/Locale/HistoricalEventCatalog.php:241
 msgid "Franco-Prussian War (1870–1871)"
-msgstr ""
-"Deutsch-Französischer Krieg (1870–1871)Fällt zeitlich mit dem Deutsch-"
-"Französischen Krieg zusammen (1870–1871)"
+msgstr "Deutsch-Französischer Krieg (1870–1871)"
 
 #: src/Support/Locale/HistoricalEventCatalog.php:213
 msgid "French Wars of Religion (1562–1598)"
-msgstr ""
-"Französische Religionskriege (1562–1598)Fällt zeitlich mit den Französischen "
-"Religionskriegen zusammen (1562–1598)"
+msgstr "Französische Religionskriege (1562–1598)"
 
 #: resources/views/modules/statistics-chart/tabs/names.phtml:47
 msgid "Frequencies"
@@ -1889,11 +1912,11 @@ msgstr "Generationenlänge"
 msgid "Generations"
 msgstr "Generationen"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:171
+#: resources/views/modules/statistics-chart/tabs/places.phtml:195
 msgid "Geographic dispersion"
 msgstr "Geografische Streuung"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:138
+#: resources/views/modules/statistics-chart/tabs/places.phtml:162
 msgid "Geographic origin & fate"
 msgstr "Geografische Herkunft & Verbleib"
 
@@ -1901,7 +1924,7 @@ msgstr "Geografische Herkunft & Verbleib"
 msgid "Geographic view"
 msgstr "Geografische Ansicht"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:140
+#: resources/views/modules/statistics-chart/tabs/places.phtml:164
 msgid "Geography"
 msgstr "Geografie"
 
@@ -1916,15 +1939,11 @@ msgstr "Beliebtheit von Vornamen über Jahrzehnte"
 
 #: src/Support/Locale/HistoricalEventCatalog.php:259
 msgid "Great Chinese Famine (1959–1961)"
-msgstr ""
-"Große Chinesische Hungersnot (1959–1961)Fällt zeitlich mit der Großen "
-"Chinesischen Hungersnot zusammen (1959–1961)"
+msgstr "Große Chinesische Hungersnot (1959–1961)"
 
 #: src/Support/Locale/HistoricalEventCatalog.php:252
 msgid "Great Depression and Dust Bowl (1930–1939)"
-msgstr ""
-"Große Depression und Dust Bowl (1930–1939)Fällt zeitlich mit der Großen "
-"Depression und der Dust Bowl zusammen (1930–1939)"
+msgstr "Große Depression und Dust Bowl (1930–1939)"
 
 #: src/Support/Locale/HistoricalEventCatalog.php:236
 msgid "Great Famine (1845–1852)"
@@ -1949,6 +1968,10 @@ msgstr "Große Pest von Wien (1679)"
 #: src/Support/Locale/HistoricalEventCatalog.php:258
 msgid "Great Smog of London (1952)"
 msgstr "Großer Smog von London (1952)"
+
+#: resources/views/modules/statistics-chart/tabs/places.phtml:239
+msgid "Great-circle distance between birth and death place"
+msgstr "Luftlinie zwischen Geburts- und Sterbeort"
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:226
 msgid "Growth"
@@ -1975,7 +1998,7 @@ msgstr "Heatmap"
 msgid "Heritage"
 msgstr "Erbe"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:75
+#: resources/views/modules/statistics-chart/tabs/places.phtml:99
 msgid "High mobility — strongly migrating ancestors."
 msgstr "Hohe Mobilität — stark wandernde Vorfahren."
 
@@ -1987,7 +2010,7 @@ msgstr "Höher = gründlichere Forschung"
 msgid "How deep and branched is the tree?"
 msgstr "Wie tief und verzweigt ist der Stammbaum?"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:166
+#: resources/views/modules/statistics-chart/tabs/places.phtml:190
 msgid "How far they roamed"
 msgstr "Wie weit sie wanderten"
 
@@ -2031,7 +2054,7 @@ msgstr "Personen"
 msgid "Individuals N generations above their deepest descendant"
 msgstr "Personen N Generationen über ihrem tiefsten Nachkommen"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:149
+#: resources/views/modules/statistics-chart/tabs/places.phtml:173
 msgid "Individuals born in one country and recorded as having died in another"
 msgstr ""
 "Personen, die in einem Land geboren wurden und in einem anderen verstarben"
@@ -2207,11 +2230,16 @@ msgstr "Median, Interquartilsabstand und Whisker pro Geburtsjahrhundert"
 msgid "Men"
 msgstr "Männer"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:148
+#: resources/views/modules/statistics-chart/tabs/places.phtml:172
+#: resources/views/modules/statistics-chart/tabs/places.phtml:240
 msgid "Migration"
 msgstr "Migration"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:152
+#: resources/views/modules/statistics-chart/tabs/places.phtml:238
+msgid "Migration distance"
+msgstr "Migrationsdistanz"
+
+#: resources/views/modules/statistics-chart/tabs/places.phtml:176
 msgid "Migrations between birth and death country"
 msgstr "Migrationen zwischen Geburts- und Sterbeland"
 
@@ -2243,17 +2271,17 @@ msgstr "Fehlender Heiratsort"
 msgid "Missing-event gaps"
 msgstr "Lücken bei fehlenden Ereignissen"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:74
+#: resources/views/modules/statistics-chart/tabs/places.phtml:98
 msgid "Mobile population — migration and relocation were common."
 msgstr "Mobile Bevölkerung — Migration und Ortswechsel waren häufig."
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:167
-#: resources/views/modules/statistics-chart/tabs/places.phtml:173
-#: resources/views/modules/statistics-chart/tabs/places.phtml:200
+#: resources/views/modules/statistics-chart/tabs/places.phtml:191
+#: resources/views/modules/statistics-chart/tabs/places.phtml:197
+#: resources/views/modules/statistics-chart/tabs/places.phtml:224
 msgid "Mobility"
 msgstr "Mobilität"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:73
+#: resources/views/modules/statistics-chart/tabs/places.phtml:97
 msgid "Moderate mobility — many stayed in their region, some moved."
 msgstr "Mäßige Mobilität — viele blieben in ihrer Region, einige wanderten."
 
@@ -2267,7 +2295,7 @@ msgstr "Monatsuhr"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:654
 msgid "Months"
-msgstr ""
+msgstr "Monate"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:639
 msgid "Months between widowhood and the next marriage"
@@ -2313,11 +2341,11 @@ msgstr "Mütter"
 msgid "Mourning period"
 msgstr "Trauerzeit"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:154
+#: resources/views/modules/statistics-chart/tabs/places.phtml:178
 msgid "Movement"
 msgstr "Wanderung"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:147
+#: resources/views/modules/statistics-chart/tabs/places.phtml:171
 msgid "Movements"
 msgstr "Bewegungen"
 
@@ -2365,7 +2393,7 @@ msgid ""
 "Number of children, sibling spacing and the shift toward smaller families"
 msgstr "Kinderzahl, Geschwisterabstand und der Wandel zur Kleinfamilie"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:168
+#: resources/views/modules/statistics-chart/tabs/places.phtml:192
 msgid ""
 "Number of distinct places per individual · sedentary vs. migrating "
 "populations"
@@ -2445,7 +2473,7 @@ msgstr ""
 "unten, Hundertjährige oben. Kohorten kleiner als fünf Personen werden "
 "ausgeblendet. Ein einzelnes Leben kann kein Jahrhundert repräsentieren."
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:134
+#: resources/views/modules/statistics-chart/tabs/places.phtml:158
 msgid "Origin & fate"
 msgstr "Herkunft & Schicksal"
 
@@ -2462,7 +2490,7 @@ msgstr "Übersicht"
 msgid "Parenthood"
 msgstr "Elternschaft"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:153
+#: resources/views/modules/statistics-chart/tabs/places.phtml:177
 msgid ""
 "Paths of individuals born in one country and recorded as having died in "
 "another"
@@ -2516,24 +2544,22 @@ msgstr ""
 msgid "Pisces"
 msgstr "Fische"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:208
+#: resources/views/modules/statistics-chart/tabs/places.phtml:232
 #: src/Module.php:275
 msgid "Places"
 msgstr "Orte"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:99
+#: resources/views/modules/statistics-chart/tabs/places.phtml:123
 msgid "Places of birth"
 msgstr "Geburtsorte"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:119
+#: resources/views/modules/statistics-chart/tabs/places.phtml:143
 msgid "Places of death"
 msgstr "Sterbeorte"
 
 #: src/Support/Locale/HistoricalEventCatalog.php:249
 msgid "Polish-Soviet War (1919–1921)"
-msgstr ""
-"Polnisch-Sowjetischer Krieg (1919–1921)Fällt zeitlich mit dem Polnisch-"
-"Sowjetischen Krieg zusammen (1919–1921)"
+msgstr "Polnisch-Sowjetischer Krieg (1919–1921)"
 
 #: resources/views/modules/statistics-chart/tabs/names.phtml:98
 msgid "Popularity over decades and marriage alliances between families"
@@ -2555,7 +2581,7 @@ msgstr "Fünflinge und mehr"
 msgid "Reach"
 msgstr "Reichweite"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:109
+#: resources/views/modules/statistics-chart/tabs/places.phtml:133
 msgid "Recorded residences"
 msgstr "Erfasste Wohnorte"
 
@@ -2565,9 +2591,7 @@ msgstr "Datensätze"
 
 #: src/Support/Locale/HistoricalEventCatalog.php:247
 msgid "Russian Revolution and Civil War (1917–1922)"
-msgstr ""
-"Russische Revolution und Bürgerkrieg (1917–1922)Fällt zeitlich mit der "
-"Russischen Revolution und dem Bürgerkrieg zusammen (1917–1922)"
+msgstr "Russische Revolution und Bürgerkrieg (1917–1922)"
 
 #: src/Support/Locale/HistoricalEventCatalog.php:244
 msgid "Russian famine of 1891–1892"
@@ -2604,9 +2628,7 @@ msgstr "Saisonalität"
 
 #: src/Support/Locale/HistoricalEventCatalog.php:254
 msgid "Second Sino-Japanese War (1937–1945)"
-msgstr ""
-"Zweiter Japanisch-Chinesischer Krieg (1937–1945)Fällt zeitlich mit dem "
-"Zweiten Japanisch-Chinesischen Krieg zusammen (1937–1945)"
+msgstr "Zweiter Japanisch-Chinesischer Krieg (1937–1945)"
 
 #: src/Support/Locale/HistoricalEventCatalog.php:255
 msgid "Second World War (1939–1945)"
@@ -2731,9 +2753,7 @@ msgstr "Sowjetische Hungersnot von 1930–1933"
 
 #: src/Support/Locale/HistoricalEventCatalog.php:253
 msgid "Spanish Civil War and post-war years (1936–1942)"
-msgstr ""
-"Spanischer Bürgerkrieg und Nachkriegsjahre (1936–1942)Fällt zeitlich mit dem "
-"Spanischen Bürgerkrieg und den Nachkriegsjahren zusammen (1936–1942)"
+msgstr "Spanischer Bürgerkrieg und Nachkriegsjahre (1936–1942)"
 
 #: src/Module.php:108
 msgid "Statistics"
@@ -2774,7 +2794,7 @@ msgstr "Überlebenskurve pro Geburtsjahrhundert"
 
 #: src/Support/Locale/HistoricalEventCatalog.php:222
 msgid "Swedish Deluge (1655–1660)"
-msgstr "Schwedische Sintflut (1655–1660)"
+msgstr "Schwedischer Einfall in Polen (1655–1660)"
 
 #: src/Support/Locale/HistoricalEventCatalog.php:240
 msgid "Swedish famine of 1867–1869"
@@ -2845,7 +2865,7 @@ msgstr ""
 msgid "Thirty Years’ War (1618–1648)"
 msgstr "Dreißigjähriger Krieg (1618–1648)"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:139
+#: resources/views/modules/statistics-chart/tabs/places.phtml:163
 msgid "Three views of every individual · birth, residence, death"
 msgstr "Drei Ansichten jeder Person · Geburt, Wohnort, Tod"
 
@@ -2875,6 +2895,14 @@ msgstr "Zeitleiste"
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:265
 msgid "Today living"
 msgstr "Heute lebend"
+
+#: resources/views/modules/statistics-chart/tabs/places.phtml:251
+msgid ""
+"Too few individuals carry map coordinates on both their birth and death "
+"place."
+msgstr ""
+"Für zu wenige Personen sind sowohl der Geburts- als auch der Sterbeort mit "
+"Koordinaten hinterlegt."
 
 #: resources/views/modules/statistics-chart/tabs/names.phtml:102
 #, php-format
@@ -2961,9 +2989,7 @@ msgstr "Spanischer Erbfolgekrieg (1701–1714)"
 
 #: src/Support/Locale/HistoricalEventCatalog.php:220
 msgid "Wars of the Three Kingdoms (1639–1651)"
-msgstr ""
-"Kriege der Drei Königreiche (1639–1651)Fällt zeitlich mit den Kriegen der "
-"Drei Königreiche zusammen (1639–1651)"
+msgstr "Kriege der Drei Königreiche (1639–1651)"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:257
 #: resources/views/modules/statistics-chart/tabs/family.phtml:267
@@ -3010,7 +3036,7 @@ msgstr "Wenn ganze Familien zerbrachen"
 msgid "Where the tree has gaps · events and places not recorded"
 msgstr "Wo der Baum Lücken hat · Ereignisse und Orte, die nicht erfasst sind"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:133
+#: resources/views/modules/statistics-chart/tabs/places.phtml:157
 msgid "Where they lived and died"
 msgstr "Wo sie lebten und starben"
 
@@ -3258,6 +3284,10 @@ msgctxt "count word"
 msgid "one"
 msgstr "eins"
 
+#: resources/views/modules/statistics-chart/tabs/places.phtml:82
+msgid "over 1000 km"
+msgstr "über 1000 km"
+
 #: resources/views/modules/statistics-chart/widgets/stream-graph.phtml:49
 msgid "peak in the {step}"
 msgstr "Spitze in den {step}"
@@ -3274,7 +3304,7 @@ msgstr "Spitzenmonat"
 msgid "peak sign"
 msgstr "Top-Zeichen"
 
-#: resources/views/modules/statistics-chart/tabs/places.phtml:184
+#: resources/views/modules/statistics-chart/tabs/places.phtml:208
 msgid "places"
 msgstr "Orte"
 
@@ -3360,6 +3390,13 @@ msgstr "{name}: {total}, {peak}"
 #: src/Support/Locale/HistoricalEventCatalog.php:234
 msgid "“Year Without a Summer” (1816–1817)"
 msgstr "„Jahr ohne Sommer“ (1816–1817)"
+
+#: resources/views/modules/statistics-chart/tabs/places.phtml:77
+msgid "≤ 10 km"
+msgstr "≤ 10 km"
+
+#~ msgid "%s%% of geocoded individuals"
+#~ msgstr "%1$s von %2$s Personen"
 
 #, php-format
 #~ msgid "%s siblings of one family"
@@ -3535,10 +3572,6 @@ msgstr "„Jahr ohne Sommer“ (1816–1817)"
 
 #~ msgid "MONTH CLOCK"
 #~ msgstr "MONATSUHR"
-
-#, php-format
-#~ msgid "%1$s of %2$s individuals"
-#~ msgstr "%1$s von %2$s Personen"
 
 #, php-format
 #~ msgid "%s distinct migration path"
