@@ -579,6 +579,18 @@ final readonly class Statistic
     }
 
     /**
+     * Per-individual birth-to-death great-circle distance, bucketed into
+     * distance bands for the Places tab. Empty when too few individuals carry
+     * MAP coordinates on both endpoints.
+     *
+     * @return list<array{band: string, count: int}>
+     */
+    public function getMigrationDistanceDistribution(): array
+    {
+        return $this->placeDispersionRepository->getMigrationDistanceDistribution();
+    }
+
+    /**
      * Tree-wide under-5 child mortality summary: count of individuals with both
      * BIRT + DEAT julian-days, count that died before age five, and the
      * percentage. Null when no BIRT+DEAT pair exists.

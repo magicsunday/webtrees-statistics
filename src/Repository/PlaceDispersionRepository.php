@@ -13,9 +13,13 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Model\Metric\PlaceDispersionSummary;
+use MagicSunday\Webtrees\Statistic\Support\Calc\Haversine;
+use MagicSunday\Webtrees\Statistic\Support\Database\PlaceLocationGazetteer;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 
+use function array_keys;
 use function array_unique;
 use function count;
 use function preg_match_all;
@@ -48,11 +52,125 @@ final readonly class PlaceDispersionRepository
     private const int DISTRIBUTION_MAX = 5;
 
     /**
+     * Migration-distance bands as `key => inclusive upper bound in km`, in axis
+     * order. Distances above the last bound fall into {@see OVERFLOW_BAND}. The
+     * key is a stable identifier; the view maps it to a localised label.
+     */
+    private const array DISTANCE_BANDS = [
+        'le10'     => 10.0,
+        '11-50'    => 50.0,
+        '51-200'   => 200.0,
+        '201-500'  => 500.0,
+        '501-1000' => 1000.0,
+    ];
+
+    /**
+     * Band key for distances beyond the last bound in {@see DISTANCE_BANDS}.
+     */
+    private const string OVERFLOW_BAND = '1000+';
+
+    /**
+     * Below this many individuals with both endpoints geocoded the distance
+     * distribution is statistically meaningless (and, in most trees, dominated
+     * by a handful of records that happen to carry MAP coordinates), so the
+     * method returns an empty list and the view renders a "too sparse"
+     * placeholder instead of a misleading chart.
+     */
+    private const int MIN_GEOCODED_INDIVIDUALS = 5;
+
+    /**
      * @param Tree $tree The tree the statistics are computed for
      */
     public function __construct(
         private Tree $tree,
     ) {
+    }
+
+    /**
+     * Per-individual migration distance — the great-circle kilometres between
+     * the birth-place and the death-place MAP coordinates — bucketed into the
+     * {@see DISTANCE_BANDS}. Only individuals whose BIRT *and* DEAT facts both
+     * carry MAP coordinates participate; the death-place requirement means the
+     * subjects are deceased, and the bands name no individual, so no privacy
+     * gate is needed.
+     *
+     * Coordinates come from webtrees' own data, never an external geocoder: the
+     * fact-level `PLAC:MAP` sub-tag if present, otherwise the place-name
+     * gazetteer (`place_location`, populated through the control panel — the
+     * usual way places are geocoded). The cohort is therefore the
+     * documentation-limited subset of records geocoded at all, a lower bound on
+     * real mobility. Returns an empty list when fewer than
+     * {@see MIN_GEOCODED_INDIVIDUALS} qualify.
+     *
+     * @return list<array{band: string, count: int}>
+     */
+    public function getMigrationDistanceDistribution(): array
+    {
+        $rows      = TreeScope::individualGedcoms($this->tree);
+        $gazetteer = PlaceLocationGazetteer::load();
+        $bands     = $this->initDistanceBands();
+
+        $geocoded = 0;
+
+        foreach ($rows as $row) {
+            $gedcom = RowCast::string($row, 'gedcom');
+
+            $birth = $this->eventCoordinates($gedcom, 'BIRT', $gazetteer);
+            $death = $this->eventCoordinates($gedcom, 'DEAT', $gazetteer);
+
+            if ($birth === null) {
+                continue;
+            }
+
+            if ($death === null) {
+                continue;
+            }
+
+            $distanceKm = Haversine::distanceKm($birth[0], $birth[1], $death[0], $death[1]);
+
+            ++$bands[$this->bandFor($distanceKm)];
+            ++$geocoded;
+        }
+
+        if ($geocoded < self::MIN_GEOCODED_INDIVIDUALS) {
+            return [];
+        }
+
+        $distribution = [];
+
+        foreach ($bands as $band => $count) {
+            $distribution[] = [
+                'band'  => $band,
+                'count' => $count,
+            ];
+        }
+
+        return $distribution;
+    }
+
+    /**
+     * Resolve an event's coordinates from webtrees' own data: the fact-level
+     * `PLAC:MAP` sub-tag first (some trees embed coordinates per fact), then the
+     * place-name gazetteer (the usual control-panel geocoding). Returns null
+     * when neither source has coordinates for the event.
+     *
+     * @return array{0: float, 1: float}|null
+     */
+    private function eventCoordinates(string $gedcom, string $tag, PlaceLocationGazetteer $gazetteer): ?array
+    {
+        $factCoordinates = GedcomScanner::extractEventCoordinates($gedcom, $tag);
+
+        if ($factCoordinates !== null) {
+            return $factCoordinates;
+        }
+
+        $place = GedcomScanner::extractEventPlace($gedcom, $tag);
+
+        if ($place === null) {
+            return null;
+        }
+
+        return $gazetteer->resolve($place);
     }
 
     /**
@@ -141,5 +259,39 @@ final readonly class PlaceDispersionRepository
         $buckets[self::DISTRIBUTION_MAX . '+'] = 0;
 
         return $buckets;
+    }
+
+    /**
+     * Pre-seed every distance band (in axis order, overflow last) so the chart
+     * renders a continuous axis even when some bands carry zero contributions.
+     *
+     * @return array<string, int>
+     */
+    private function initDistanceBands(): array
+    {
+        $bands = [];
+
+        foreach (array_keys(self::DISTANCE_BANDS) as $key) {
+            $bands[$key] = 0;
+        }
+
+        $bands[self::OVERFLOW_BAND] = 0;
+
+        return $bands;
+    }
+
+    /**
+     * Map a distance in kilometres to its band key — the first band whose
+     * inclusive upper bound the distance does not exceed, or the overflow band.
+     */
+    private function bandFor(float $distanceKm): string
+    {
+        foreach (self::DISTANCE_BANDS as $key => $upperBoundKm) {
+            if ($distanceKm <= $upperBoundKm) {
+                return $key;
+            }
+        }
+
+        return self::OVERFLOW_BAND;
     }
 }

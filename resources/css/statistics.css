@@ -987,6 +987,16 @@
     border-bottom: none;
 }
 
+/* Rank-less variant (showRank = false): drop the rank column so the label sits
+   flush against the row's left edge instead of being indented by the empty
+   rank track and its column gap. */
+.wt-statistics-chart .wt-stat-hbars--no-rank .wt-stat-hbar-row {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+        "label value"
+        "track track";
+}
+
 .wt-statistics-chart .wt-stat-hbar-rank {
     grid-area: rank;
     width:     18px;
@@ -1895,6 +1905,11 @@
 }
 
 .wt-statistics-chart .progress-death-causes {
+    --bs-progress-label-gradient-start: color-mix(in srgb, var(--wine) 25%, var(--card));
+    --bs-progress-label-gradient-end:   var(--wine);
+}
+
+.wt-statistics-chart .progress-migration-distance {
     --bs-progress-label-gradient-start: color-mix(in srgb, var(--wine) 25%, var(--card));
     --bs-progress-label-gradient-end:   var(--wine);
 }

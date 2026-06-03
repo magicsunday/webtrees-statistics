@@ -44,7 +44,7 @@ if ($rows === []) {
 $accent = ProgressBarAccent::for($class)->value;
 $fill   = 'linear-gradient(90deg, ' . $accent . ', color-mix(in srgb, ' . $accent . ' 75%, transparent))';
 ?>
-<div class="wt-stat-hbars">
+<div class="wt-stat-hbars<?php echo $showRank ? '' : ' wt-stat-hbars--no-rank'; ?>">
     <?php foreach ($rows as $row) { ?>
         <div class="wt-stat-hbar-row">
             <?php if ($showRank) { ?>

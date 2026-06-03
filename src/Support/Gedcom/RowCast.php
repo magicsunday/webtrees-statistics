@@ -63,4 +63,17 @@ final readonly class RowCast
 
         return is_string($value) ? $value : $default;
     }
+
+    /**
+     * Read `$row->$column` as a nullable float. A missing property or a
+     * non-numeric value collapses to `null` — for optional numeric columns that
+     * are legitimately empty (e.g. gazetteer latitude/longitude), where `0.0`
+     * would be a wrong, on-the-equator coordinate rather than "no value".
+     */
+    public static function nullableFloat(object $row, string $column): ?float
+    {
+        $value = get_object_vars($row)[$column] ?? null;
+
+        return is_numeric($value) ? (float) $value : null;
+    }
 }

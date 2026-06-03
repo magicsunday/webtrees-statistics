@@ -26,6 +26,7 @@ use function str_replace;
 use function str_starts_with;
 use function strlen;
 use function strpos;
+use function strtoupper;
 use function substr;
 use function trim;
 
@@ -420,6 +421,67 @@ final readonly class GedcomScanner
         $value = trim($match[1]);
 
         return ($value === '') ? null : $value;
+    }
+
+    /**
+     * Extract the MAP coordinates (`PLAC` → `MAP` → `LATI`/`LONG`) of the first
+     * occurrence of the given level-1 event from a raw GEDCOM record. Mirrors
+     * webtrees' {@see \Fisharebest\Webtrees\Fact::latitude()} — the coordinates
+     * come from the fact's embedded MAP sub-tag, not the place-location
+     * gazetteer. Returns null unless BOTH a latitude and a longitude are present
+     * and parse to a signed decimal degree.
+     *
+     * @param string $gedcom The raw individual GEDCOM record
+     * @param string $tag    The level-1 event tag, e.g. `BIRT` or `DEAT`
+     *
+     * @return array{0: float, 1: float}|null `[latitude, longitude]` in decimal degrees, or null when either is missing
+     */
+    public static function extractEventCoordinates(string $gedcom, string $tag): ?array
+    {
+        $block = self::eventBlock($gedcom, $tag);
+
+        if ($block === null) {
+            return null;
+        }
+
+        if (preg_match('/\n4 LATI (.+)/', $block, $latitudeMatch) !== 1) {
+            return null;
+        }
+
+        if (preg_match('/\n4 LONG (.+)/', $block, $longitudeMatch) !== 1) {
+            return null;
+        }
+
+        $latitude  = self::parseCoordinate(trim($latitudeMatch[1]), 'S');
+        $longitude = self::parseCoordinate(trim($longitudeMatch[1]), 'W');
+
+        if (($latitude === null) || ($longitude === null)) {
+            return null;
+        }
+
+        return [$latitude, $longitude];
+    }
+
+    /**
+     * Parse a GEDCOM coordinate ("N51.5", "S51.5", "E0.1", "W0.1") into a signed
+     * decimal degree. The hemisphere letter that denotes the negative axis (`S`
+     * for latitude, `W` for longitude) is passed in so the same parser serves
+     * both axes.
+     *
+     * @param string $value              The raw coordinate: hemisphere letter + magnitude
+     * @param string $negativeHemisphere The letter that makes the value negative
+     *
+     * @return float|null The signed degree value, or null when the format is unrecognised
+     */
+    private static function parseCoordinate(string $value, string $negativeHemisphere): ?float
+    {
+        if (preg_match('/^([NSEW])([0-9]+(?:\.[0-9]+)?)$/i', $value, $match) !== 1) {
+            return null;
+        }
+
+        $magnitude = (float) $match[2];
+
+        return (strtoupper($match[1]) === $negativeHemisphere) ? -$magnitude : $magnitude;
     }
 
     /**

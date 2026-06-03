@@ -11,9 +11,13 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
+use Fisharebest\Webtrees\DB;
 use MagicSunday\Webtrees\Statistic\Model\Metric\PlaceDispersionSummary;
 use MagicSunday\Webtrees\Statistic\Repository\PlaceDispersionRepository;
+use MagicSunday\Webtrees\Statistic\Support\Calc\Haversine;
+use MagicSunday\Webtrees\Statistic\Support\Database\PlaceLocationGazetteer;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -41,6 +45,9 @@ use PHPUnit\Framework\Attributes\UsesClass;
 #[UsesClass(PlaceDispersionSummary::class)]
 #[UsesClass(TreeScope::class)]
 #[UsesClass(RowCast::class)]
+#[UsesClass(GedcomScanner::class)]
+#[UsesClass(Haversine::class)]
+#[UsesClass(PlaceLocationGazetteer::class)]
 final class PlaceDispersionRepositoryIntegrationTest extends IntegrationTestCase
 {
     /**
@@ -78,5 +85,98 @@ final class PlaceDispersionRepositoryIntegrationTest extends IntegrationTestCase
         // The distribution shows TWO individuals at count 1: Anna
         // (BIRT+DEAT same place, de-duped) and Emil (single BIRT).
         self::assertSame(2, $result->distribution['1']);
+    }
+
+    /**
+     * The migration-distance distribution buckets each individual by the
+     * great-circle kilometres between their birth-place and death-place MAP
+     * coordinates. The fixture places one individual in each band (I1 same place
+     * → ≤10, I2 Berlin→Potsdam ≈ 27 km → 11–50, I3 →Leipzig ≈ 149 → 51–200, I4
+     * →Hamburg ≈ 255 → 201–500, I5 →London ≈ 931 → 501–1000, I6 →New York ≈ 6385
+     * → 1000+). I7 carries a PLAC but no MAP on either endpoint and must be
+     * dropped, not counted.
+     */
+    #[Test]
+    public function getMigrationDistanceDistributionBucketsByGreatCircleKilometres(): void
+    {
+        $tree   = $this->importFixtureTree('migration-distance.ged');
+        $result = (new PlaceDispersionRepository($tree))->getMigrationDistanceDistribution();
+
+        self::assertSame(
+            [
+                ['band' => 'le10', 'count' => 1],
+                ['band' => '11-50', 'count' => 1],
+                ['band' => '51-200', 'count' => 1],
+                ['band' => '201-500', 'count' => 1],
+                ['band' => '501-1000', 'count' => 1],
+                ['band' => '1000+', 'count' => 1],
+            ],
+            $result,
+        );
+    }
+
+    /**
+     * Coordinates also resolve through the place-name gazetteer (the
+     * `place_location` table the control panel populates), not only fact-level
+     * MAP sub-tags. The fixture records PLAC names without any MAP tag; seeding
+     * the gazetteer with the matching hierarchy must reproduce the same
+     * one-per-band distribution as the MAP-tagged fixture.
+     */
+    #[Test]
+    public function getMigrationDistanceDistributionResolvesPlacesViaTheGazetteer(): void
+    {
+        $tree = $this->importFixtureTree('migration-distance-gazetteer.ged');
+
+        DB::table('place_location')->insert([
+            ['id' => 1, 'parent_id' => null, 'place' => 'Deutschland', 'latitude' => null, 'longitude' => null],
+            ['id' => 2, 'parent_id' => 1, 'place' => 'Berlin', 'latitude' => 52.52, 'longitude' => 13.405],
+            ['id' => 3, 'parent_id' => 1, 'place' => 'Potsdam', 'latitude' => 52.40, 'longitude' => 13.06],
+            ['id' => 4, 'parent_id' => 1, 'place' => 'Leipzig', 'latitude' => 51.34, 'longitude' => 12.37],
+            ['id' => 5, 'parent_id' => 1, 'place' => 'Hamburg', 'latitude' => 53.55, 'longitude' => 9.99],
+            ['id' => 6, 'parent_id' => null, 'place' => 'United Kingdom', 'latitude' => null, 'longitude' => null],
+            ['id' => 7, 'parent_id' => 6, 'place' => 'London', 'latitude' => 51.50, 'longitude' => -0.12],
+            ['id' => 8, 'parent_id' => null, 'place' => 'United States', 'latitude' => null, 'longitude' => null],
+            ['id' => 9, 'parent_id' => 8, 'place' => 'New York', 'latitude' => 40.71, 'longitude' => -74.00],
+        ]);
+
+        $result = (new PlaceDispersionRepository($tree))->getMigrationDistanceDistribution();
+
+        self::assertSame(
+            [
+                ['band' => 'le10', 'count' => 1],
+                ['band' => '11-50', 'count' => 1],
+                ['band' => '51-200', 'count' => 1],
+                ['band' => '201-500', 'count' => 1],
+                ['band' => '501-1000', 'count' => 1],
+                ['band' => '1000+', 'count' => 1],
+            ],
+            $result,
+        );
+    }
+
+    /**
+     * Below the minimum geocoded cohort the distribution is suppressed entirely
+     * (empty list → the view renders a "too sparse" placeholder). The sparse
+     * fixture carries four fully-geocoded individuals, one below the floor.
+     */
+    #[Test]
+    public function getMigrationDistanceDistributionIsEmptyBelowTheMinimumGeocodedCohort(): void
+    {
+        $tree   = $this->importFixtureTree('migration-distance-sparse.ged');
+        $result = (new PlaceDispersionRepository($tree))->getMigrationDistanceDistribution();
+
+        self::assertSame([], $result);
+    }
+
+    /**
+     * A tree where no individual carries MAP coordinates on both endpoints
+     * yields an empty distribution.
+     */
+    #[Test]
+    public function getMigrationDistanceDistributionIsEmptyWhenNoIndividualIsGeocoded(): void
+    {
+        $tree = $this->importFixtureTree('empty-tree.ged');
+
+        self::assertSame([], (new PlaceDispersionRepository($tree))->getMigrationDistanceDistribution());
     }
 }

@@ -435,4 +435,62 @@ final class GedcomScannerTest extends TestCase
     {
         self::assertSame($expected, GedcomScanner::extractAllSubTagValues($gedcom, $subTag));
     }
+
+    /**
+     * @return iterable<string, array{0: string, 1: string, 2: array{0: float, 1: float}|null}>
+     */
+    public static function eventCoordinateSamples(): iterable
+    {
+        yield 'BIRT MAP with northern/eastern hemisphere' => [
+            "\n0 @I1@ INDI\n1 BIRT\n2 PLAC Berlin\n3 MAP\n4 LATI N52.52\n4 LONG E13.405",
+            'BIRT',
+            [52.52, 13.405],
+        ];
+
+        yield 'southern/western hemisphere is negated' => [
+            "\n0 @I1@ INDI\n1 BIRT\n2 PLAC Rio\n3 MAP\n4 LATI S22.9\n4 LONG W43.2",
+            'BIRT',
+            [-22.9, -43.2],
+        ];
+
+        yield 'DEAT block resolves independently of BIRT' => [
+            "\n0 @I1@ INDI\n1 BIRT\n2 PLAC Berlin\n3 MAP\n4 LATI N52.52\n4 LONG E13.405\n1 DEAT\n2 PLAC London\n3 MAP\n4 LATI N51.5\n4 LONG W0.12",
+            'DEAT',
+            [51.5, -0.12],
+        ];
+
+        yield 'PLAC without MAP yields null' => [
+            "\n0 @I1@ INDI\n1 BIRT\n2 PLAC Berlin",
+            'BIRT',
+            null,
+        ];
+
+        yield 'latitude without longitude yields null' => [
+            "\n0 @I1@ INDI\n1 BIRT\n2 PLAC Berlin\n3 MAP\n4 LATI N52.52",
+            'BIRT',
+            null,
+        ];
+
+        yield 'malformed coordinate yields null' => [
+            "\n0 @I1@ INDI\n1 BIRT\n2 PLAC Berlin\n3 MAP\n4 LATI fifty\n4 LONG E13.405",
+            'BIRT',
+            null,
+        ];
+
+        yield 'missing event yields null' => [
+            "\n0 @I1@ INDI\n1 BIRT\n2 PLAC Berlin\n3 MAP\n4 LATI N52.52\n4 LONG E13.405",
+            'DEAT',
+            null,
+        ];
+    }
+
+    /**
+     * @param array{0: float, 1: float}|null $expected
+     */
+    #[Test]
+    #[DataProvider('eventCoordinateSamples')]
+    public function extractEventCoordinatesReadsTheMapSubTag(string $gedcom, string $tag, ?array $expected): void
+    {
+        self::assertSame($expected, GedcomScanner::extractEventCoordinates($gedcom, $tag));
+    }
 }

@@ -43,6 +43,7 @@ final readonly class ProgressBarAccent
         'progress-residences-country' => Accent::Slate,
         'progress-deaths-country'     => Accent::Wine,
         'progress-top-ancestors'      => Accent::Ochre,
+        'progress-migration-distance' => Accent::Wine,
     ];
 
     /**

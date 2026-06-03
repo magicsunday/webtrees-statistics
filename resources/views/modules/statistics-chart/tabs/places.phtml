@@ -28,6 +28,7 @@ $residencesByCountry = $statistic->getResidencesByCountry();
 $deathsByCountry     = $statistic->getDeathsByCountry();
 $migrationFlows      = $statistic->getMigrationFlows(20);
 $placeDispersion     = $statistic->getPlaceDispersionSummary();
+$migrationDistance   = $statistic->getMigrationDistanceDistribution();
 
 $totalBirths     = array_sum(array_column($birthsByCountry, 'count'));
 $totalResidences = array_sum(array_column($residencesByCountry, 'count'));
@@ -60,6 +61,29 @@ $placeDispersionExplanation = I18N::translate(
 $distinctPlacesDistributionExplanation = I18N::translate(
     'Bucketed view of the per-individual place count: how many individuals have exactly 1, 2, 3, 4, or 5+ distinct recorded places. A high tail signals migrant ancestors, a heavy bar at "1" signals a sedentary or sparsely-documented population. Same source data as the geographic-dispersion average — duplicates within the same individual collapse to one place, individuals with no place data are excluded.'
 );
+
+$migrationDistanceExplanation = I18N::translate(
+    'Each individual is bucketed by the great-circle distance in kilometres between their birth place and death place. Only individuals whose birth AND death place both carry map coordinates (a PLAC:MAP sub-tag) are counted — the module reads no external geocoder — so the chart covers the documentation-limited subset of records that were geocoded at all, a lower bound on real mobility rather than a complete picture. The chart is hidden when too few individuals qualify.'
+);
+
+// Horizontal-bar (HBars) rows for the migration-distance bands: a band-label →
+// count map in band order. The band key is mapped to a localised label here
+// (i18n at the call site so xgettext sees the literals); the list keeps the band
+// order and the bar width encodes each band's share of the largest band.
+$migrationDistanceList = [];
+
+foreach ($migrationDistance as $entry) {
+    $bandLabel = match ((string) $entry['band']) {
+        'le10'     => I18N::translate('≤ 10 km'),
+        '11-50'    => I18N::translate('11–50 km'),
+        '51-200'   => I18N::translate('51–200 km'),
+        '201-500'  => I18N::translate('201–500 km'),
+        '501-1000' => I18N::translate('501–1000 km'),
+        default    => I18N::translate('over 1000 km'),
+    };
+
+    $migrationDistanceList[$bandLabel] = (int) $entry['count'];
+}
 
 // Interpret the average distinct-places-per-individual into a
 // one-line characterisation of the population — sedentary,
@@ -207,6 +231,26 @@ echo Card::for($module, I18N::translate('Distinct places per individual'))
             ->withData($placeDispersionBars)
             ->with('xLabel', I18N::translate('Places'))
             ->withAriaLabel(I18N::translate('Distinct places per individual'))
+            ->render()
+    )
+    ->render();
+
+echo Card::for($module, I18N::translate('Migration distance'))
+    ->withSub(I18N::translate('Great-circle distance between birth and death place'))
+    ->withEyebrow(I18N::translate('Migration'))
+    ->withAccent(Accent::Wine)
+    ->withIllustration(Illustration::Boat)
+    ->withInfo($migrationDistanceExplanation, I18N::translate('About this chart'), I18N::translate('About this chart'))
+    ->withSpan(4)
+    ->withBodyHtml(
+        Component::progressList($module)
+            ->with('class', 'progress-migration-distance')
+            ->with('showRank', false)
+            ->with(
+                'emptyMessage',
+                I18N::translate('Too few individuals carry map coordinates on both their birth and death place.')
+            )
+            ->withData($migrationDistanceList)
             ->render()
     )
     ->render();
