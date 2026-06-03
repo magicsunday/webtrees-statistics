@@ -390,7 +390,7 @@ echo Card::for($module, I18N::translate('Family size composition share by decade
     ->withIllustration(Illustration::Family)
     ->withInfo(
         I18N::translate(
-            'For every marriage decade the bar is split into segments by the number of children (0, 1, 2 … 10+). Each bar is normalised to 100 %%, so decades with very different family counts can be compared side by side.'
+            'For every marriage decade the bar is split into four family-size segments: 1, 2, 3 and 4 or more children. Childless families are excluded, so each bar shows the make-up of families with at least one recorded child. Each bar is normalised to 100 %%, so decades with very different family counts can be compared side by side.'
         ),
         $aboutThisChart,
         $aboutThisChart
