@@ -3767,3 +3767,22 @@
 .wt-statistics-chart svg.msc-treemap-svg text.msc-treemap-text--on-dark {
     fill: var(--card);
 }
+
+/* Treemap hover: lift the pointed-at tile and dim the rest, mirroring the
+   bar-chart / donut hover-dim pattern. */
+.wt-statistics-chart svg.msc-treemap-svg .msc-treemap-tile {
+    cursor:     pointer;
+    transition: opacity 0.15s ease;
+}
+
+.wt-statistics-chart svg.msc-treemap-svg .msc-treemap-rect {
+    transition: filter 0.15s ease;
+}
+
+.wt-statistics-chart svg.msc-treemap-svg:has(.msc-treemap-tile:hover) .msc-treemap-tile:not(:hover) {
+    opacity: 0.45;
+}
+
+.wt-statistics-chart svg.msc-treemap-svg .msc-treemap-tile:hover .msc-treemap-rect {
+    filter: brightness(1.08);
+}

@@ -346,16 +346,16 @@ echo Card::for($module, I18N::translate('Endogamy rate'))
     ->render();
 
 $islandsExplanation = I18N::translate(
-    'Each tile is one connected sub-tree: a group of individuals tied together by parentage or marriage, with no link to any other group. The tile area is proportional to the number of members, the largest first. The label is the most common surname within that group — so the same surname can mark several separate groups when a family line is not yet connected to the rest of the tree. The final tile sums up every group beyond the ten largest.'
+    'Each tile is one connected sub-tree: a group of individuals tied together by parentage or marriage, with no link to any other sub-tree. The tile area is proportional to the number of members, the largest first. The label is the most common surname within that sub-tree — so the same surname can mark several separate sub-trees when a family line is not yet connected to the rest of the tree. The final tile sums up every sub-tree beyond the ten largest.'
 );
 
-echo Section::create(I18N::translate('Connected and unconnected islands'))
+echo Section::create(I18N::translate('Connected and unconnected sub-trees'))
     ->withKicker(I18N::translate('Structure type'))
-    ->withSub(I18N::translate('How many connected sub-trees are there? A family tree has one large island, an address book many small ones.'))
+    ->withSub(I18N::translate('How many connected sub-trees are there? A family tree has one large sub-tree, an address book many small ones.'))
     ->render();
 
-echo Card::for($module, I18N::translate('Largest unconnected islands'))
-    ->withSub(I18N::translate('%1$s islands total · the largest covers %2$s%% of all individuals', I18N::number($islands->totalIslands), I18N::number($islands->largestPercent())))
+echo Card::for($module, I18N::translate('Largest unconnected sub-trees'))
+    ->withSub(I18N::translate('%1$s sub-trees total · the largest covers %2$s%% of all individuals', I18N::number($islands->totalIslands), I18N::number($islands->largestPercent())))
     ->withEyebrow(I18N::translate('Structure'))
     ->withAccent(Accent::Slate)
     ->withIllustration(Illustration::Tree)
@@ -370,14 +370,14 @@ echo Card::for($module, I18N::translate('Largest unconnected islands'))
             ->withAccent(Accent::Slate)
             ->withHeight(360)
             ->with('valueLabel', I18N::translate('persons'))
-            ->with('restLabel', I18N::translate('other islands'))
-            ->withAriaLabel(I18N::translate('Largest unconnected islands'))
+            ->with('restLabel', I18N::translate('other sub-trees'))
+            ->withAriaLabel(I18N::translate('Largest unconnected sub-trees'))
             ->render()
     )
     ->render();
 
 echo Card::for($module, I18N::translate('Tree type'))
-    ->withSub(I18N::translate('Share of the largest island'))
+    ->withSub(I18N::translate('Share of the largest sub-tree'))
     ->withEyebrow(I18N::translate('Diagnosis'))
     ->withAccent(Accent::Sage)
     ->withIllustration(Illustration::Tree)
@@ -387,7 +387,7 @@ echo Card::for($module, I18N::translate('Tree type'))
         Component::scalar($module)
             ->with('value', I18N::number($islands->largestPercent()))
             ->with('unit', '%')
-            ->with('caption', I18N::translate('of all individuals lie in a single island. A high value is a closed family tree; a low value an address-book-like scatter of many fragments.'))
+            ->with('caption', I18N::translate('of all individuals lie in a single sub-tree. A high value is a closed family tree; a low value an address-book-like scatter of many fragments.'))
             ->render()
     )
     ->render();
