@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Statistics\n"
 "Report-Msgid-Bugs-To: https://github.com/magicsunday/webtrees-statistics/"
 "issues\n"
-"POT-Creation-Date: 2026-06-03 13:14+0000\n"
+"POT-Creation-Date: 2026-06-03 14:03+0000\n"
 "PO-Revision-Date: 2026-05-22 07:04+0000\n"
 "Last-Translator: Rico Sonntag <mail@ricosonntag.de>\n"
 "Language-Team: \n"
@@ -41,11 +41,6 @@ msgstr "%1$s Väter und %2$s Mütter mit datiertem erstem Kind"
 #, php-format
 msgid "%1$s husbands and %2$s wives with a known marriage age"
 msgstr "%1$s Ehemänner und %2$s Ehefrauen mit bekanntem Heiratsalter"
-
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:358
-#, php-format
-msgid "%1$s islands total · the largest covers %2$s%% of all individuals"
-msgstr "%1$s Inseln gesamt · größte umfasst %2$s%% aller Personen"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:171
 #, php-format
@@ -84,6 +79,11 @@ msgstr[1] ""
 #, php-format
 msgid "%1$s siblings across %2$s families"
 msgstr "%1$s Geschwister aus %2$s Familien"
+
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:358
+#, php-format
+msgid "%1$s sub-trees total · the largest covers %2$s%% of all individuals"
+msgstr "%1$s Teilbäume gesamt · größter umfasst %2$s%% aller Personen"
 
 #: src/Repository/LifeSpanRepository.php:784
 #: src/Repository/LifeSpanRepository.php:791
@@ -1177,8 +1177,8 @@ msgid "Completeness"
 msgstr "Vollständigkeit"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:352
-msgid "Connected and unconnected islands"
-msgstr "Verbundene & unverbundene Inseln"
+msgid "Connected and unconnected sub-trees"
+msgstr "Verbundene & unverbundene Teilbäume"
 
 #: src/Support/Aggregator/SiblingGapRowMapper.php:80
 msgid "Consecutive-sibling pairs"
@@ -1537,19 +1537,20 @@ msgstr "Jede Stufe ist eine Eltern-Kind-Verbindung aufwärts."
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:349
 msgid ""
 "Each tile is one connected sub-tree: a group of individuals tied together by "
-"parentage or marriage, with no link to any other group. The tile area is "
+"parentage or marriage, with no link to any other sub-tree. The tile area is "
 "proportional to the number of members, the largest first. The label is the "
-"most common surname within that group — so the same surname can mark several "
-"separate groups when a family line is not yet connected to the rest of the "
-"tree. The final tile sums up every group beyond the ten largest."
+"most common surname within that sub-tree — so the same surname can mark "
+"several separate sub-trees when a family line is not yet connected to the "
+"rest of the tree. The final tile sums up every sub-tree beyond the ten "
+"largest."
 msgstr ""
 "Jede Kachel ist ein zusammenhängender Teilbaum: eine Gruppe von Personen, "
 "die über Abstammung oder Heirat verbunden sind und keine Verknüpfung zu "
-"einer anderen Gruppe haben. Die Kachelfläche ist proportional zur "
-"Mitgliederzahl, die größte zuerst. Das Label ist der häufigste Nachname "
-"dieser Gruppe — derselbe Nachname kann daher mehrere getrennte Gruppen "
+"einem anderen Teilbaum haben. Die Kachelfläche ist proportional zur "
+"Mitgliederzahl, der größte zuerst. Das Label ist der häufigste Nachname "
+"dieses Teilbaums — derselbe Nachname kann daher mehrere getrennte Teilbäume "
 "kennzeichnen, wenn eine Linie noch nicht mit dem Rest des Baums verbunden "
-"ist. Die letzte Kachel fasst alle Gruppen jenseits der zehn größten "
+"ist. Die letzte Kachel fasst alle Teilbäume jenseits der zehn größten "
 "zusammen."
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:599
@@ -2070,11 +2071,11 @@ msgstr "Wie lang war das Leben?"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:354
 msgid ""
-"How many connected sub-trees are there? A family tree has one large island, "
-"an address book many small ones."
+"How many connected sub-trees are there? A family tree has one large sub-"
+"tree, an address book many small ones."
 msgstr ""
-"Wie viele zusammenhängende Teilbäume gibt es? Ein Familienbaum hat eine "
-"große Insel, ein Adressbuch viele kleine."
+"Wie viele zusammenhängende Teilbäume gibt es? Ein Familienbaum hat einen "
+"großen Teilbaum, ein Adressbuch viele kleine."
 
 #: resources/views/modules/statistics-chart/tabs/names.phtml:96
 msgid "How names came and went over time"
@@ -2171,8 +2172,8 @@ msgstr "Größte Familie"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:357
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:374
-msgid "Largest unconnected islands"
-msgstr "Größte unverbundene Inseln"
+msgid "Largest unconnected sub-trees"
+msgstr "Größte unverbundene Teilbäume"
 
 #: src/Support/Locale/ZodiacLabels.php:49
 msgid "Leo"
@@ -2747,8 +2748,8 @@ msgid "Share of marriages within 4 generations"
 msgstr "Anteil der Eheschließungen innerhalb 4 Generationen"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:380
-msgid "Share of the largest island"
-msgstr "Anteil der größten Insel"
+msgid "Share of the largest sub-tree"
+msgstr "Anteil des größten Teilbaums"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:388
 msgid "Shift"
@@ -3357,10 +3358,10 @@ msgstr "keine Daten (n < %s)"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:390
 msgid ""
-"of all individuals lie in a single island. A high value is a closed family "
+"of all individuals lie in a single sub-tree. A high value is a closed family "
 "tree; a low value an address-book-like scatter of many fragments."
 msgstr ""
-"der Personen liegen in einer einzigen Insel. Ein hoher Wert ist ein "
+"der Personen liegen in einem einzigen Teilbaum. Ein hoher Wert ist ein "
 "geschlossener Familienbaum, ein niedriger eine adressbuchartige Sammlung "
 "vieler Fragmente."
 
@@ -3370,8 +3371,8 @@ msgid "one"
 msgstr "eins"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:373
-msgid "other islands"
-msgstr "übrige Inseln"
+msgid "other sub-trees"
+msgstr "übrige Teilbäume"
 
 #: resources/views/modules/statistics-chart/tabs/places.phtml:82
 msgid "over 1000 km"
@@ -3487,6 +3488,9 @@ msgstr "„Jahr ohne Sommer“ (1816–1817)"
 #: resources/views/modules/statistics-chart/tabs/places.phtml:77
 msgid "≤ 10 km"
 msgstr "≤ 10 km"
+
+#~ msgid "other islands"
+#~ msgstr "übrige Inseln"
 
 #~ msgid "%s%% of geocoded individuals"
 #~ msgstr "%1$s von %2$s Personen"

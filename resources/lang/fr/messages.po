@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Statistics\n"
 "Report-Msgid-Bugs-To: https://github.com/magicsunday/webtrees-statistics/"
 "issues\n"
-"POT-Creation-Date: 2026-06-03 13:14+0000\n"
+"POT-Creation-Date: 2026-06-03 14:03+0000\n"
 "PO-Revision-Date: 2026-05-22 07:04+0000\n"
 "Last-Translator: Rico Sonntag <mail@ricosonntag.de>\n"
 "Language-Team: \n"
@@ -41,11 +41,6 @@ msgstr "%1$s pères et %2$s mères avec un premier enfant daté"
 #, php-format
 msgid "%1$s husbands and %2$s wives with a known marriage age"
 msgstr "%1$s maris et %2$s épouses avec un âge au mariage connu"
-
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:358
-#, php-format
-msgid "%1$s islands total · the largest covers %2$s%% of all individuals"
-msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:171
 #, php-format
@@ -83,6 +78,11 @@ msgstr[1] ""
 #: resources/views/modules/statistics-chart/tabs/family.phtml:115
 #, php-format
 msgid "%1$s siblings across %2$s families"
+msgstr ""
+
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:358
+#, php-format
+msgid "%1$s sub-trees total · the largest covers %2$s%% of all individuals"
 msgstr ""
 
 #: src/Repository/LifeSpanRepository.php:784
@@ -1173,7 +1173,7 @@ msgid "Completeness"
 msgstr "Complétude"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:352
-msgid "Connected and unconnected islands"
+msgid "Connected and unconnected sub-trees"
 msgstr ""
 
 #: src/Support/Aggregator/SiblingGapRowMapper.php:80
@@ -1492,11 +1492,12 @@ msgstr "Chaque étape correspond à un lien parent–enfant vers le haut."
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:349
 msgid ""
 "Each tile is one connected sub-tree: a group of individuals tied together by "
-"parentage or marriage, with no link to any other group. The tile area is "
+"parentage or marriage, with no link to any other sub-tree. The tile area is "
 "proportional to the number of members, the largest first. The label is the "
-"most common surname within that group — so the same surname can mark several "
-"separate groups when a family line is not yet connected to the rest of the "
-"tree. The final tile sums up every group beyond the ten largest."
+"most common surname within that sub-tree — so the same surname can mark "
+"several separate sub-trees when a family line is not yet connected to the "
+"rest of the tree. The final tile sums up every sub-tree beyond the ten "
+"largest."
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:599
@@ -1975,8 +1976,8 @@ msgstr "Quelle durée de vie ?"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:354
 msgid ""
-"How many connected sub-trees are there? A family tree has one large island, "
-"an address book many small ones."
+"How many connected sub-trees are there? A family tree has one large sub-"
+"tree, an address book many small ones."
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/names.phtml:96
@@ -2073,7 +2074,7 @@ msgstr "Plus grande famille"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:357
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:374
-msgid "Largest unconnected islands"
+msgid "Largest unconnected sub-trees"
 msgstr ""
 
 #: src/Support/Locale/ZodiacLabels.php:49
@@ -2644,7 +2645,7 @@ msgid "Share of marriages within 4 generations"
 msgstr "Part des mariages dans les 4 générations"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:380
-msgid "Share of the largest island"
+msgid "Share of the largest sub-tree"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:388
@@ -3225,7 +3226,7 @@ msgstr "aucune donnée (n < %s)"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:390
 msgid ""
-"of all individuals lie in a single island. A high value is a closed family "
+"of all individuals lie in a single sub-tree. A high value is a closed family "
 "tree; a low value an address-book-like scatter of many fragments."
 msgstr ""
 
@@ -3235,7 +3236,7 @@ msgid "one"
 msgstr "un"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:373
-msgid "other islands"
+msgid "other sub-trees"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/places.phtml:82
