@@ -13,6 +13,7 @@ use Fisharebest\Webtrees\I18N;
 use MagicSunday\Webtrees\Statistic\Statistic;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\CenturyBarRowMapper;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\HistogramBucketAggregator;
+use MagicSunday\Webtrees\Statistic\Support\Aggregator\MediaTypeLabeller;
 use MagicSunday\Webtrees\Statistic\View\Accent;
 use MagicSunday\Webtrees\Statistic\View\Card;
 use MagicSunday\Webtrees\Statistic\View\Component;
@@ -38,6 +39,37 @@ $topAncestors         = $statistic->getTopAncestorsByDescendantCount(10);
 $totalIndividuals     = $statistic->getTotalIndividuals();
 $islands              = $statistic->getConnectedComponents(10);
 $totalAncestorsRows   = array_sum($ancestorDistribution);
+
+$recordInventory = $statistic->getRecordInventory();
+
+// Resolve the raw source-media-type tokens to translated labels (unknown and
+// blank tokens fold into "Other"); the repository already orders by frequency.
+$mediaByType     = MediaTypeLabeller::label($statistic->getMediaByType());
+$mediaFilesTotal = array_sum($mediaByType);
+
+// Core vs. enrichment record groups for the data-set inventory. Labels are
+// resolved here so xgettext sees the literals; each group scales its bars
+// against its own largest value.
+$recordInventoryGroups = [
+    [
+        'label' => I18N::translate('Core'),
+        'data'  => [
+            I18N::translate('Individuals') => $recordInventory->individuals,
+            I18N::translate('Families')    => $recordInventory->families,
+        ],
+    ],
+    [
+        'label' => I18N::translate('Enrichment'),
+        'data'  => [
+            I18N::translate('Sources')       => $recordInventory->sources,
+            I18N::translate('Media objects') => $recordInventory->media,
+            I18N::translate('Notes')         => $recordInventory->notes,
+            I18N::translate('Shared notes')  => $recordInventory->sharedNotes,
+            I18N::translate('Repositories')  => $recordInventory->repositories,
+            I18N::translate('Shared places') => $recordInventory->locations,
+        ],
+    ],
+];
 
 // BarChart rows for generation-depth distribution + known-ancestors
 // distribution. Both render as histograms in design2 — switch from
@@ -388,6 +420,43 @@ echo Card::for($module, I18N::translate('Tree type'))
             ->with('value', I18N::number($islands->largestPercent()))
             ->with('unit', '%')
             ->with('caption', I18N::translate('of all individuals lie in a single sub-tree. A high value is a closed family tree; a low value an address-book-like scatter of many fragments.'))
+            ->render()
+    )
+    ->render();
+
+$recordInventoryExplanation = I18N::translate(
+    'Core records are the individuals and families that make up the tree itself. Enrichment records — sources, media objects, notes, repositories and shared locations — document and substantiate them. The density figure is the number of enrichment records per 100 individuals: a tree built only from names and dates sits near zero, a thoroughly sourced one well above it.'
+);
+
+echo Section::create(I18N::translate('What is the tree made of?'))
+    ->withKicker(I18N::translate('Data-set inventory'))
+    ->withSub(I18N::translate('Core records (individuals and families) against the enrichment records that document them'))
+    ->render();
+
+echo Card::for($module, I18N::translate('Data-set inventory'))
+    ->withSub(I18N::translate('%s enrichment records per 100 individuals', I18N::number($recordInventory->enrichmentDensity())))
+    ->withEyebrow(I18N::translate('Composition'))
+    ->withAccent(Accent::Slate)
+    ->withIllustration(Illustration::Book)
+    ->withInfo($recordInventoryExplanation, $aboutThisChart, $aboutThisChart)
+    ->withSpan(6)
+    ->withBodyHtml(
+        Component::recordInventory($module)
+            ->with('groups', $recordInventoryGroups)
+            ->render()
+    )
+    ->render();
+
+echo Card::for($module, I18N::translate('Media objects by type'))
+    ->withSub(I18N::plural('%s media file in total', '%s media files in total', $mediaFilesTotal, I18N::number($mediaFilesTotal)))
+    ->withEyebrow(I18N::translate('Media'))
+    ->withAccent(Accent::Ochre)
+    ->withIllustration(Illustration::Book)
+    ->withSpan(6)
+    ->withBodyHtml(
+        Component::progressList($module)
+            ->with('class', 'progress-media-types')
+            ->withData($mediaByType)
             ->render()
     )
     ->render();

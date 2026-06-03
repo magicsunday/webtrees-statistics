@@ -73,8 +73,8 @@ final class TreeScopeTest extends IntegrationTestCase
         $tree = $this->importFixtureTree('records.ged');
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Unknown per-tree table "sources"');
+        $this->expectExceptionMessage('Unknown per-tree table "source"');
 
-        TreeScope::table($tree, 'sources');
+        TreeScope::table($tree, 'source');
     }
 }

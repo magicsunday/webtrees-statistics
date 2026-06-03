@@ -116,6 +116,19 @@ final readonly class Component
     }
 
     /**
+     * Start a new record-inventory component (core-vs-enrichment grouped bar
+     * lists on the tree-health tab).
+     */
+    public static function recordInventory(string $module): self
+    {
+        return new self(
+            $module,
+            'record-inventory',
+            ['module' => $module]
+        );
+    }
+
+    /**
      * Start a new records-grid component (tree-records hall-of-fame grid on the
      * overview tab).
      */

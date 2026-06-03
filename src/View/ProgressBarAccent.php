@@ -45,6 +45,8 @@ final readonly class ProgressBarAccent
         'progress-top-ancestors'      => Accent::Ochre,
         'progress-migration-distance' => Accent::Wine,
         'progress-most-grandchildren' => Accent::Sage,
+        'progress-record-inventory'   => Accent::Slate,
+        'progress-media-types'        => Accent::Ochre,
     ];
 
     /**

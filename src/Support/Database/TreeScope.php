@@ -48,6 +48,10 @@ final readonly class TreeScope
         'dates'       => 'd_file',
         'link'        => 'l_file',
         'places'      => 'p_file',
+        'sources'     => 's_file',
+        'media'       => 'm_file',
+        'media_file'  => 'm_file',
+        'other'       => 'o_file',
     ];
 
     /**

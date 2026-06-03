@@ -1,0 +1,56 @@
+0 HEAD
+1 SOUR webtrees
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+1 CHAR UTF-8
+0 @I1@ INDI
+1 NAME John /Doe/
+1 SEX M
+1 FAMS @F1@
+0 @I2@ INDI
+1 NAME Jane /Doe/
+1 SEX F
+1 FAMS @F1@
+0 @I3@ INDI
+1 NAME Child /Doe/
+1 SEX M
+1 FAMC @F1@
+0 @F1@ FAM
+1 HUSB @I1@
+1 WIFE @I2@
+1 CHIL @I3@
+1 MARR
+0 @S1@ SOUR
+1 TITL Source One
+0 @S2@ SOUR
+1 TITL Source Two
+0 @M1@ OBJE
+1 FILE photo1.jpg
+2 FORM jpg
+3 TYPE photo
+0 @M2@ OBJE
+1 FILE stone.jpg
+2 FORM jpg
+3 TYPE tombstone
+0 @M3@ OBJE
+1 FILE photo2.jpg
+2 FORM jpg
+3 TYPE photo
+0 @M4@ OBJE
+1 FILE untyped.jpg
+2 FORM jpg
+0 @M5@ OBJE
+1 FILE photo3.jpg
+2 FORM jpg
+3 TYPE photo
+1 FILE photo4.jpg
+2 FORM jpg
+3 TYPE photo
+0 @N1@ NOTE A shared note record.
+0 @SN1@ SNOTE A shared note record in GEDCOM 7 form.
+0 @R1@ REPO
+1 NAME Archive One
+0 @L1@ _LOC
+1 NAME A shared location record
+0 TRLR

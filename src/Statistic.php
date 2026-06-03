@@ -26,6 +26,7 @@ use MagicSunday\Webtrees\Statistic\Model\Metric\EndogamyRate;
 use MagicSunday\Webtrees\Statistic\Model\Metric\IslandSummary;
 use MagicSunday\Webtrees\Statistic\Model\Metric\PlaceDispersionSummary;
 use MagicSunday\Webtrees\Statistic\Model\Metric\RateCount;
+use MagicSunday\Webtrees\Statistic\Model\Metric\RecordInventory;
 use MagicSunday\Webtrees\Statistic\Model\Metric\WinterPeakScore;
 use MagicSunday\Webtrees\Statistic\Model\Mortality\MortalityAnomaly;
 use MagicSunday\Webtrees\Statistic\Model\Pyramid\PopulationPyramidPayload;
@@ -58,6 +59,7 @@ use MagicSunday\Webtrees\Statistic\Repository\OccupationInheritanceRepository;
 use MagicSunday\Webtrees\Statistic\Repository\OccupationRepository;
 use MagicSunday\Webtrees\Statistic\Repository\ParenthoodRepository;
 use MagicSunday\Webtrees\Statistic\Repository\PlaceDispersionRepository;
+use MagicSunday\Webtrees\Statistic\Repository\RecordInventoryRepository;
 use MagicSunday\Webtrees\Statistic\Repository\ReligionRepository;
 use MagicSunday\Webtrees\Statistic\Repository\TreeHealthRepository;
 use MagicSunday\Webtrees\Statistic\Support\Calc\HistogramTrim;
@@ -110,6 +112,7 @@ final readonly class Statistic
      * @param ParenthoodRepository            $parenthoodRepository            Age-at-first-child distribution per parent sex (Family tab)
      * @param EndogamyRepository              $endogamyRepository              Cousin-marriage / shared-ancestor rate within four generations (Family tab)
      * @param MarriageMatrixRepository        $marriageMatrixRepository        Surname × surname marriage matrix for the chord diagram (Names tab)
+     * @param RecordInventoryRepository       $recordInventoryRepository       Record-type inventory (core vs. enrichment) + media-by-type for the Tree-health tab
      */
     public function __construct(
         private StatisticsData $data,
@@ -137,6 +140,7 @@ final readonly class Statistic
         private ParenthoodRepository $parenthoodRepository,
         private EndogamyRepository $endogamyRepository,
         private MarriageMatrixRepository $marriageMatrixRepository,
+        private RecordInventoryRepository $recordInventoryRepository,
     ) {
     }
 
@@ -596,6 +600,30 @@ final readonly class Statistic
     public function getConnectedComponents(int $limit): IslandSummary
     {
         return $this->islandRepository->getConnectedComponents($limit);
+    }
+
+    /**
+     * Record-type inventory for the Tree-health tab: the count of core
+     * person/family records against every enrichment record type (sources,
+     * media, notes, shared notes, repositories, shared locations), plus the
+     * enrichment density per 100 individuals — the signal that tells a bare
+     * person/family tree from a well-sourced one.
+     */
+    public function getRecordInventory(): RecordInventory
+    {
+        return $this->recordInventoryRepository->getRecordInventory();
+    }
+
+    /**
+     * Media objects grouped by their recorded source-media type, most-frequent
+     * first, keyed by the raw GEDCOM type token. The view resolves each token to
+     * a translated label.
+     *
+     * @return array<string, int> Source-media-type token → media-file count
+     */
+    public function getMediaByType(): array
+    {
+        return $this->recordInventoryRepository->getMediaByType();
     }
 
     /**

@@ -1919,6 +1919,33 @@
     --bs-progress-label-gradient-end:   var(--sage);
 }
 
+.wt-statistics-chart .progress-record-inventory {
+    --bs-progress-label-gradient-start: color-mix(in srgb, var(--slate) 25%, var(--card));
+    --bs-progress-label-gradient-end:   var(--slate);
+}
+
+.wt-statistics-chart .progress-media-types {
+    --bs-progress-label-gradient-start: color-mix(in srgb, var(--ochre) 30%, var(--card));
+    --bs-progress-label-gradient-end:   var(--ochre);
+}
+
+/* Record inventory — stacked, independently-scaled bar groups
+   (core vs. enrichment) on the tree-health tab. */
+.wt-statistics-chart .wt-stat-inventory {
+    display:        flex;
+    flex-direction: column;
+    gap:            18px;
+}
+
+.wt-statistics-chart .wt-stat-inventory-grouplab {
+    margin-bottom:  6px;
+    font-size:      10px;
+    font-weight:    600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color:          var(--ink-3);
+}
+
 .wt-statistics-chart .wt-stat-scalar {
     display:        flex;
     flex-direction: column;

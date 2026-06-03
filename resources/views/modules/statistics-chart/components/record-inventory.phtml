@@ -1,0 +1,53 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+use MagicSunday\Webtrees\Statistic\View\Component;
+use MagicSunday\Webtrees\Statistic\View\EmptyStatePlaceholder;
+
+/**
+ * Record-inventory component for the tree-health tab — stacks one labelled
+ * horizontal-bar group per record class (e.g. "Core" and "Enrichment"). Each
+ * group delegates to the {@see Component::progressList()} partial, so the bar
+ * markup stays in one place and each group scales its bars independently against
+ * its own largest value.
+ *
+ * A group with no records at all is dropped rather than shown as an empty
+ * placeholder beside a populated one (a tree with people but no sources should
+ * not advertise an empty "Enrichment" group); only when every group is empty —
+ * an empty tree — does the whole component fall back to the placeholder.
+ *
+ * @var string                                               $module Module slug (passed through to the progress-list sub-partial)
+ * @var list<array{label: string, data: array<string, int>}> $groups Ordered record-class groups, each with its display label and label → count map
+ */
+$visibleGroups = array_values(
+    array_filter($groups, static fn (array $group): bool => array_sum($group['data']) > 0)
+);
+
+if ($visibleGroups === []) {
+    echo EmptyStatePlaceholder::render();
+
+    return;
+}
+?>
+<div class="wt-stat-inventory">
+    <?php foreach ($visibleGroups as $group) { ?>
+        <div class="wt-stat-inventory-group">
+            <div class="wt-stat-inventory-grouplab"><?php echo e($group['label']); ?></div>
+            <?php
+            echo Component::progressList($module)
+                ->with('class', 'progress-record-inventory')
+                ->with('showRank', false)
+                ->withData($group['data'])
+                ->render();
+        ?>
+        </div>
+    <?php } ?>
+</div>
