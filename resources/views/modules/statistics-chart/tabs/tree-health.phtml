@@ -140,7 +140,7 @@ $sourcedPct      = ($sourceCoverage->total > 0) ? ($sourceCoverage->value / $sou
 $completenessPct = $avgPedigree * 100;
 
 $pedigreeExplanation = I18N::translate(
-    'Each person in the tree has up to 30 possible direct ancestors within four generations (2 parents + 4 grandparents + 8 great-grandparents + 16 great-great-grandparents). The pedigree-completeness index (Lacy 1989) is the fraction of those 30 slots that are actually documented for that individual. The number shown here is the average across every individual in the tree.'
+    'The pedigree-completeness index (Lacy 1989) measures how fully an individual\'s ancestry is documented across the first four generations (parents, grandparents, great-grandparents, great-great-grandparents). Each generation counts for one quarter of the score, weighted by the share of that generation\'s slots that are filled — so knowing both parents already yields 0.25, regardless of how many more distant ancestors are missing. The number shown here is the average across every individual in the tree.'
 );
 
 $generationDepthExplanation = I18N::translate(
