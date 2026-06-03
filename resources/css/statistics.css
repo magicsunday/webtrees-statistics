@@ -1914,6 +1914,11 @@
     --bs-progress-label-gradient-end:   var(--wine);
 }
 
+.wt-statistics-chart .progress-most-grandchildren {
+    --bs-progress-label-gradient-start: color-mix(in srgb, var(--sage) 25%, var(--card));
+    --bs-progress-label-gradient-end:   var(--sage);
+}
+
 .wt-statistics-chart .wt-stat-scalar {
     display:        flex;
     flex-direction: column;

@@ -14,7 +14,6 @@ namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
-use MagicSunday\Webtrees\Statistic\Model\Ranking\RankingEntry;
 use MagicSunday\Webtrees\Statistic\Repository\ChildrenRepository;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
@@ -33,7 +32,7 @@ use function array_sum;
  * GEDCOM fixtures — see each test's docblock for the family layout the
  * assertions ride on. The shared lookups (children-per- family,
  * sibling-age-gap, childless distribution, first child by month, average per
- * family, top-N families) ride on `children.ged`; the multi-birth,
+ * family) ride on `children.ged`; the multi-birth,
  * sibling-modifier-edge-case, and cross-midnight proximity paths bring their
  * own dedicated fixtures.
  *
@@ -44,7 +43,6 @@ use function array_sum;
 #[CoversClass(ChildrenRepository::class)]
 #[UsesClass(LineChartPayload::class)]
 #[UsesClass(LineChartSeries::class)]
-#[UsesClass(RankingEntry::class)]
 #[UsesClass(DateJoin::class)]
 #[UsesClass(TreeScope::class)]
 #[UsesClass(RowCast::class)]
@@ -186,27 +184,6 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
         $result = $this->repository($tree)->averageChildrenPerFamily();
 
         self::assertSame(1.5, $result);
-    }
-
-    /**
-     * Top-N largest families list F1 first (3 children); F2 with 0 children
-     * should still appear (the accessor sorts descending by child count, not
-     * "only those > 0").
-     */
-    #[Test]
-    public function topLargestFamiliesRanksByChildCount(): void
-    {
-        $tree   = $this->importFixtureTree('children.ged');
-        $result = $this->repository($tree)->topLargestFamilies(10);
-
-        // Two families in the fixture.
-        self::assertCount(2, $result);
-        // F1 wins with 3 children → first entry carries its XREF and count.
-        self::assertSame('F1', $result[0]->xref);
-        self::assertSame(3, $result[0]->value);
-        // F2 with zero children still appears as a distinct row, not filtered out.
-        self::assertSame('F2', $result[1]->xref);
-        self::assertSame(0, $result[1]->value);
     }
 
     /**

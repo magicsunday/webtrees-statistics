@@ -11,25 +11,16 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
-use Fisharebest\Webtrees\Family;
 use Fisharebest\Webtrees\I18N;
-use Fisharebest\Webtrees\Individual;
-use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\StatisticsData;
 use Fisharebest\Webtrees\Tree;
-use Illuminate\Database\Capsule\Manager as DB;
-use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
-use MagicSunday\Webtrees\Statistic\Model\Ranking\RankingEntry;
-use MagicSunday\Webtrees\Statistic\Model\Record\FamilyCountRecord;
-use MagicSunday\Webtrees\Statistic\Model\Record\IndividualCountRecord;
 use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarPayload;
 use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarSeries;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
-use MagicSunday\Webtrees\Statistic\Support\Gedcom\RecordName;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
 use MagicSunday\Webtrees\Statistic\Support\Locale\DecadeName;
@@ -50,9 +41,9 @@ use function usort;
 /**
  * Children-related aggregations for the Family tab. Combines core's public
  * accessors (averageChildrenPerFamily, statsChildrenQuery,
- * familiesWithTheMostChildren, countFamiliesWithNoChildren,
- * countFirstChildrenByMonth) with a local query for the sibling-age-gap
- * distribution.
+ * countFamiliesWithNoChildren, countFirstChildrenByMonth) with local queries
+ * for the sibling-age-gap and family-size distributions. Entity rankings and
+ * record holders live in {@see FamilyRankingRepository}.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -755,112 +746,6 @@ final readonly class ChildrenRepository
         }
 
         return $buckets;
-    }
-
-    /**
-     * Top-N largest families ranked by f_numchil. Each row carries the family
-     * XREF so two families that share a display label stay distinct in the
-     * podium.
-     *
-     * @param int $limit Maximum number of rows.
-     *
-     * @return list<RankingEntry>
-     */
-    public function topLargestFamilies(int $limit): array
-    {
-        $entries = [];
-
-        foreach ($this->data->familiesWithTheMostChildren($limit) as $entry) {
-            $family   = $entry->family ?? null;
-            $children = $entry->children ?? 0;
-
-            if (!$family instanceof Family) {
-                continue;
-            }
-
-            $plainName = RecordName::plain($family->fullName());
-            $entries[] = new RankingEntry($family->xref(), $plainName, $children);
-        }
-
-        return $entries;
-    }
-
-    /**
-     * Single individual with the highest aggregated child count across every
-     * family they participated in. Different from {@see largestFamilyRecord()}
-     * because a man married three times with 5+4+3 children wins here (12
-     * children total) but not there (largest single family was 5). Counts each
-     * FAM's `f_numchil` exactly once per spouse, so the same child does not
-     * contribute to both parents' totals across remarriages.
-     */
-    public function mostChildrenPerPersonRecord(): ?IndividualCountRecord
-    {
-        // Use the raw prefixed table name (wt_families) inside
-        // `Expression` and `orderByRaw` — Eloquent only auto-prefixes
-        // table aliases in `from` / `join`, not strings inside raw
-        // SQL fragments, so the SUM here must reference the actual
-        // physical table.
-        $familiesTable = DB::connection()->getTablePrefix() . 'families';
-
-        $row = TreeScope::table($this->tree, 'link')
-            ->where('l_type', '=', 'FAMS')
-            ->join('families', static function (JoinClause $join): void {
-                $join
-                    ->on('families.f_file', '=', 'link.l_file')
-                    ->on('families.f_id', '=', 'link.l_to');
-            })
-            ->where('families.f_numchil', '>', 0)
-            ->groupBy('link.l_from')
-            ->orderByRaw('SUM(' . $familiesTable . '.f_numchil) DESC')
-            ->select([
-                'link.l_from AS xref',
-                new Expression('SUM(' . $familiesTable . '.f_numchil) AS total_children'),
-            ])
-            ->first();
-
-        if ($row === null) {
-            return null;
-        }
-
-        $xref  = RowCast::string($row, 'xref');
-        $total = RowCast::int($row, 'total_children');
-
-        if (($xref === '') || ($total <= 0)) {
-            return null;
-        }
-
-        $individual = Registry::individualFactory()->make($xref, $this->tree);
-
-        if (!$individual instanceof Individual) {
-            return null;
-        }
-
-        return new IndividualCountRecord(individual: $individual, count: $total);
-    }
-
-    /**
-     * Single largest-family record holder: the family with the highest
-     * `f_numchil` count. Returns null when the tree has no family with at least
-     * one child.
-     */
-    public function largestFamilyRecord(): ?FamilyCountRecord
-    {
-        foreach ($this->data->familiesWithTheMostChildren(1) as $entry) {
-            $family   = $entry->family ?? null;
-            $children = $entry->children ?? 0;
-
-            if (!$family instanceof Family) {
-                continue;
-            }
-
-            if ($children <= 0) {
-                continue;
-            }
-
-            return new FamilyCountRecord(family: $family, count: $children);
-        }
-
-        return null;
     }
 
     /**

@@ -18,7 +18,7 @@ use MagicSunday\Webtrees\Statistic\Model\Record\FamilyDurationDaysRecord;
 use MagicSunday\Webtrees\Statistic\Model\Record\FamilyDurationYearsRecord;
 use MagicSunday\Webtrees\Statistic\Model\Record\IndividualAgeRecord;
 use MagicSunday\Webtrees\Statistic\Model\Record\IndividualCountRecord;
-use MagicSunday\Webtrees\Statistic\Repository\ChildrenRepository;
+use MagicSunday\Webtrees\Statistic\Repository\FamilyRankingRepository;
 use MagicSunday\Webtrees\Statistic\Repository\LifeSpanRepository;
 use MagicSunday\Webtrees\Statistic\Repository\MarriageRepository;
 use MagicSunday\Webtrees\Statistic\Repository\ParenthoodRepository;
@@ -65,7 +65,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(ChildrenRepository::class)]
+#[CoversClass(FamilyRankingRepository::class)]
 #[CoversClass(LifeSpanRepository::class)]
 #[CoversClass(MarriageRepository::class)]
 #[CoversClass(ParenthoodRepository::class)]
@@ -137,7 +137,7 @@ final class RecordsIntegrationTest extends IntegrationTestCase
     public function largestFamilyPicksTheSixChildFamily(): void
     {
         $tree   = $this->importFixtureTree('records.ged');
-        $record = (new ChildrenRepository($tree, $this->statisticsData($tree)))->largestFamilyRecord();
+        $record = (new FamilyRankingRepository($tree, $this->statisticsData($tree)))->largestFamilyRecord();
 
         self::assertNotNull($record);
         self::assertSame('F2', $record->family->xref());
@@ -155,7 +155,7 @@ final class RecordsIntegrationTest extends IntegrationTestCase
     public function mostChildrenPerPersonAggregatesAcrossAllFams(): void
     {
         $tree   = $this->importFixtureTree('records.ged');
-        $record = (new ChildrenRepository($tree, $this->statisticsData($tree)))->mostChildrenPerPersonRecord();
+        $record = (new FamilyRankingRepository($tree, $this->statisticsData($tree)))->mostChildrenPerPersonRecord();
 
         self::assertNotNull($record);
         self::assertContains($record->individual->xref(), ['I7', 'I8']);

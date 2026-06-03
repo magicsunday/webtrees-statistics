@@ -10,6 +10,7 @@
 declare(strict_types=1);
 
 use Fisharebest\Webtrees\I18N;
+use MagicSunday\Webtrees\Statistic\Model\Ranking\RankingEntry;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\ProgressBarRowMapper;
 use MagicSunday\Webtrees\Statistic\View\EmptyStatePlaceholder;
 use MagicSunday\Webtrees\Statistic\View\ProgressBarAccent;
@@ -22,18 +23,27 @@ use MagicSunday\Webtrees\Statistic\View\ProgressBarAccent;
  * every Top-N surface in the module (Occupations / Religions /
  * Death causes / Ages / Months / etc.).
  *
- * @var array<string, int|float> $data         Label → count map
- * @var string                   $class        Legacy accent-key (e.g. `progress-occupations`); mapped to a CSS accent var below
- * @var string                   $suffix       Optional unit appended to every value (e.g. "%")
- * @var string                   $emptyMessage Optional override for the "no data" placeholder
- * @var bool                     $showRank     Show the 01/02/03 rank prefix column. Defaults to true.
+ * `$data` accepts either a `[label => value]` distribution (for aggregation
+ * dimensions whose keys are inherently unique) or a `list<RankingEntry>`
+ * (for entity rankings such as largest families or most grandchildren, where
+ * two distinct entities can share a display label and a name-keyed map would
+ * silently drop a row); the latter is routed through
+ * {@see ProgressBarRowMapper::fromRankingEntries()} to keep them distinct.
+ *
+ * @var array<string, int|float>|list<RankingEntry> $data         Label → count map, or a list of ranked entries
+ * @var string                                      $class        Legacy accent-key (e.g. `progress-occupations`); mapped to a CSS accent var below
+ * @var string                                      $suffix       Optional unit appended to every value (e.g. "%")
+ * @var string                                      $emptyMessage Optional override for the "no data" placeholder
+ * @var bool                                        $showRank     Show the 01/02/03 rank prefix column. Defaults to true.
  */
 $suffix       ??= '';
 $emptyMessage ??= EmptyStatePlaceholder::defaultMessage();
 $showRank     ??= true;
 $class        ??= '';
 
-$rows = ProgressBarRowMapper::toRows($data);
+$rows = (($data !== []) && (reset($data) instanceof RankingEntry))
+    ? ProgressBarRowMapper::fromRankingEntries($data)
+    : ProgressBarRowMapper::toRows($data);
 
 if ($rows === []) {
     echo EmptyStatePlaceholder::render($emptyMessage);

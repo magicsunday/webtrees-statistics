@@ -42,6 +42,7 @@ use MagicSunday\Webtrees\Statistic\Repository\DeathCauseRepository;
 use MagicSunday\Webtrees\Statistic\Repository\DivorceRepository;
 use MagicSunday\Webtrees\Statistic\Repository\EndogamyRepository;
 use MagicSunday\Webtrees\Statistic\Repository\EventRepository;
+use MagicSunday\Webtrees\Statistic\Repository\FamilyRankingRepository;
 use MagicSunday\Webtrees\Statistic\Repository\FamilyRepository;
 use MagicSunday\Webtrees\Statistic\Repository\GenerationDepthRepository;
 use MagicSunday\Webtrees\Statistic\Repository\GivenNameTrendsRepository;
@@ -93,7 +94,8 @@ final readonly class Statistic
      * @param LifeSpanRepository              $lifeSpanRepository              Age-at-death distribution + top-N oldest individuals + living-age-band buckets
      * @param MarriageRepository              $marriageRepository              Age-at-marriage / duration / couple-age-gap aggregations for the Family tab
      * @param DivorceRepository               $divorceRepository               Divorce century / month / age / cohort-rate aggregations for the Family tab
-     * @param ChildrenRepository              $childrenRepository              Children-per-family + sibling-age-gap + top-N largest families aggregations
+     * @param ChildrenRepository              $childrenRepository              Children-per-family + sibling-age-gap + family-size aggregations
+     * @param FamilyRankingRepository         $familyRankingRepository         Top-N largest families / grandchild rankings + family / individual record holders
      * @param ChildMortalityRepository        $childMortalityRepository        Under-5 child mortality summary + per-birth-century breakdown
      * @param KinshipRepository               $kinshipRepository               Ancestor-count distribution + average pedigree-completeness (Lacy 1989)
      * @param OccupationRepository            $occupationRepository            Top-N occupations (`1 OCCU` facts) across the tree
@@ -119,6 +121,7 @@ final readonly class Statistic
         private MarriageRepository $marriageRepository,
         private DivorceRepository $divorceRepository,
         private ChildrenRepository $childrenRepository,
+        private FamilyRankingRepository $familyRankingRepository,
         private ChildMortalityRepository $childMortalityRepository,
         private KinshipRepository $kinshipRepository,
         private OccupationRepository $occupationRepository,
@@ -698,8 +701,8 @@ final readonly class Statistic
             oldestHusband: $this->marriageRepository->oldestSpouseAtMarriageRecord('M'),
             oldestWife: $this->marriageRepository->oldestSpouseAtMarriageRecord('F'),
             mostSpouses: $this->marriageRepository->mostSpousesRecord(),
-            largestFamily: $this->childrenRepository->largestFamilyRecord(),
-            mostChildrenPerPerson: $this->childrenRepository->mostChildrenPerPersonRecord(),
+            largestFamily: $this->familyRankingRepository->largestFamilyRecord(),
+            mostChildrenPerPerson: $this->familyRankingRepository->mostChildrenPerPersonRecord(),
             youngestFatherAtFirstChild: $this->parenthoodRepository->youngestParentAtFirstChildRecord('M'),
             youngestMotherAtFirstChild: $this->parenthoodRepository->youngestParentAtFirstChildRecord('F'),
             oldestFatherAtFirstChild: $this->parenthoodRepository->oldestParentAtFirstChildRecord('M'),
@@ -963,7 +966,21 @@ final readonly class Statistic
      */
     public function getTopLargestFamilies(int $limit): array
     {
-        return $this->childrenRepository->topLargestFamilies($limit);
+        return $this->familyRankingRepository->topLargestFamilies($limit);
+    }
+
+    /**
+     * Top-N families by number of grandchildren (children of the family's own
+     * children), matching webtrees core's `topTenGrandFamily`. Each row carries
+     * the family XREF, display label and grandchild count.
+     *
+     * @param int $limit Maximum number of rows.
+     *
+     * @return list<RankingEntry>
+     */
+    public function getTopGrandchildFamilies(int $limit): array
+    {
+        return $this->familyRankingRepository->topGrandchildFamilies($limit);
     }
 
     /**

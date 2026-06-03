@@ -41,13 +41,15 @@ $divorcesByCentury = $statistic->getDivorcesByCentury();
 $divorcesByMonth   = $statistic->getDivorcesByMonth();
 $cohortRates       = $statistic->getDivorceRateByMarriageCohort();
 
-$avgChildren              = $statistic->getAverageChildrenPerFamily();
-$childrenHistogram        = $statistic->getChildrenPerFamilyDistribution();
-$familySizeStackedDecade  = $statistic->getFamilySizeStackedByDecade();
-$averageFamilySizeLine    = $statistic->getAverageFamilySizeByCentury();
-$multipleBirthRate        = $statistic->getMultipleBirthRateByCentury();
-$siblingGaps              = $statistic->getSiblingAgeGapDistribution();
-$largestFamilies          = $statistic->getTopLargestFamilies(10);
+$avgChildren             = $statistic->getAverageChildrenPerFamily();
+$childrenHistogram       = $statistic->getChildrenPerFamilyDistribution();
+$familySizeStackedDecade = $statistic->getFamilySizeStackedByDecade();
+$averageFamilySizeLine   = $statistic->getAverageFamilySizeByCentury();
+$multipleBirthRate       = $statistic->getMultipleBirthRateByCentury();
+$siblingGaps             = $statistic->getSiblingAgeGapDistribution();
+$largestFamilies         = $statistic->getTopLargestFamilies(10);
+$grandchildFamilies      = $statistic->getTopGrandchildFamilies(10);
+
 $sexRatioAnomalies        = $statistic->getSexRatioAnomalies();
 $siblingDeathClusters     = $statistic->getSiblingDeathClusters();
 $marriageDurationExtremes = $statistic->getMarriageDurationExtremes();
@@ -429,7 +431,7 @@ echo Card::for($module, I18N::translate('Multiple-birth rate by century'))
         $aboutThisChart,
         $aboutThisChart
     )
-    ->withSpan(12)
+    ->withSpan(6)
     ->withBodyHtml(
         Widget::lineChart($module, 'multiple-birth-rate-line')
             ->withData($multipleBirthRate)
@@ -459,12 +461,27 @@ echo Card::for($module, I18N::translate('Top 10 largest families'))
     ->withEyebrow(I18N::translate('Extremes'))
     ->withAccent(Accent::Wine)
     ->withIllustration(Illustration::Family)
-    ->withSpan(12)
+    ->withSpan(6)
     ->withBodyHtml(
-        Component::podium($module)
+        Component::progressList($module)
             ->with('class', 'progress-largest-families')
             ->withData($largestFamilies)
-            ->with('suffix', I18N::translate('kids'))
+            ->with('suffix', ' ' . I18N::translate('kids'))
+            ->render()
+    )
+    ->render();
+
+echo Card::for($module, I18N::translate('Top 10 families with the most grandchildren'))
+    ->withSub(I18N::translate('By grandchild count'))
+    ->withEyebrow(I18N::translate('Extremes'))
+    ->withAccent(Accent::Sage)
+    ->withIllustration(Illustration::Family)
+    ->withSpan(6)
+    ->withBodyHtml(
+        Component::progressList($module)
+            ->with('class', 'progress-most-grandchildren')
+            ->withData($grandchildFamilies)
+            ->with('suffix', ' ' . I18N::translate('grandchildren'))
             ->render()
     )
     ->render();

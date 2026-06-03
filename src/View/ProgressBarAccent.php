@@ -44,6 +44,7 @@ final readonly class ProgressBarAccent
         'progress-deaths-country'     => Accent::Wine,
         'progress-top-ancestors'      => Accent::Ochre,
         'progress-migration-distance' => Accent::Wine,
+        'progress-most-grandchildren' => Accent::Sage,
     ];
 
     /**

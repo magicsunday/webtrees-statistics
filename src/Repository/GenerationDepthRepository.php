@@ -197,7 +197,7 @@ final readonly class GenerationDepthRepository
      * cardinality of the graph.
      *
      * Privacy: follows the webtrees convention used by {@see
-     * ChildrenRepository::topLargestFamilies()} and core's
+     * FamilyRankingRepository::topLargestFamilies()} and core's
      * `StatisticsData::familiesWithTheMostChildren()` — the podium row stays in
      * place for every ancestor, and `Individual::fullName()` substitutes the
      * "Private" placeholder when the current user lacks access. Filtering by
