@@ -24,6 +24,7 @@ const worldMapPlayEntrySpy = jest.fn();
 const lineChartDrawSpy = jest.fn();
 const populationPyramidDrawSpy = jest.fn();
 const heatmapDrawSpy = jest.fn();
+const treemapDrawSpy = jest.fn();
 
 class DonutChart {
     constructor(node, options) {
@@ -125,6 +126,15 @@ class Heatmap {
         heatmapDrawSpy(this.node, data, this.options);
     }
 }
+class Treemap {
+    constructor(node, options) {
+        this.node = node;
+        this.options = options;
+    }
+    draw(data) {
+        treemapDrawSpy(this.node, data, this.options);
+    }
+}
 
 jest.unstable_mockModule("@magicsunday/webtrees-chart-lib", () => ({
     DonutChart,
@@ -143,6 +153,7 @@ jest.unstable_mockModule("@magicsunday/webtrees-chart-lib", () => ({
     BoxPlot,
     DivergingBarChart,
     Heatmap,
+    Treemap,
 }));
 
 // world-map dispatch is async (geojson fetch); mock d3-fetch + d3-geo
@@ -167,6 +178,7 @@ describe("renderWidgets", () => {
         lineChartDrawSpy.mockClear();
         populationPyramidDrawSpy.mockClear();
         heatmapDrawSpy.mockClear();
+        treemapDrawSpy.mockClear();
         document.body.innerHTML = "";
     });
 
@@ -251,6 +263,27 @@ describe("renderWidgets", () => {
         });
         expect(options.accent).toBe("var(--ochre)");
         expect(options.valueLabel).toBe("Births");
+    });
+
+    test("dispatches a treemap widget when data-widget=treemap", () => {
+        document.body.innerHTML = `
+            <div id="t1"
+                 data-widget="treemap"
+                 data-payload='{"items":[{"rank":1,"members":42,"label":"Meinel"}],"restMembers":7}'
+                 data-options='{"height":360,"accent":"var(--slate)","valueLabel":"persons","restLabel":"other islands"}'></div>
+        `;
+
+        renderWidgets(document.body);
+
+        expect(treemapDrawSpy).toHaveBeenCalledTimes(1);
+        const [node, data, options] = treemapDrawSpy.mock.calls[0];
+        expect(node.id).toBe("t1");
+        expect(data).toEqual({
+            items: [{ rank: 1, members: 42, label: "Meinel" }],
+            restMembers: 7,
+        });
+        expect(options.accent).toBe("var(--slate)");
+        expect(options.restLabel).toBe("other islands");
     });
 
     test("ignores nodes without data-widget attribute", () => {

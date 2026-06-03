@@ -1,0 +1,44 @@
+0 HEAD
+1 SOUR webtrees-statistics-fixture
+2 NAME island-labels
+1 DEST ANSTFILE
+1 CHAR UTF-8
+1 SUBM @SUBM1@
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+0 @SUBM1@ SUBM
+1 NAME Fixture
+0 @Q1@ INDI
+1 NAME Anton /Alpha/
+1 SEX M
+1 FAMS @QF1@
+0 @Q2@ INDI
+1 NAME Berta /Beta/
+1 SEX F
+1 FAMS @QF1@
+0 @Q3@ INDI
+1 NAME Carl /Alpha/
+1 SEX M
+1 FAMC @QF1@
+0 @Q4@ INDI
+1 NAME Dora /Beta/
+1 SEX F
+1 FAMC @QF1@
+0 @P1@ INDI
+1 NAME Emil
+1 SEX M
+1 FAMS @PF1@
+0 @P2@ INDI
+1 NAME Frieda
+1 SEX F
+1 FAMS @PF1@
+0 @QF1@ FAM
+1 HUSB @Q1@
+1 WIFE @Q2@
+1 CHIL @Q3@
+1 CHIL @Q4@
+0 @PF1@ FAM
+1 HUSB @P1@
+1 WIFE @P2@
+0 TRLR

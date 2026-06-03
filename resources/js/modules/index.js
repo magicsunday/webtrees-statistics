@@ -24,6 +24,7 @@ import {
     SankeyFlow,
     StackedBar,
     StreamGraph,
+    Treemap,
     WorldMap,
 } from "@magicsunday/webtrees-chart-lib";
 
@@ -146,6 +147,7 @@ const WIDGETS = {
     "box-plot": fromChartLib(BoxPlot),
     "population-pyramid": fromChartLib(DivergingBarChart),
     heatmap: fromChartLib(Heatmap),
+    treemap: fromChartLib(Treemap),
 };
 
 /**

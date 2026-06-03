@@ -284,6 +284,20 @@ final readonly class Widget
     }
 
     /**
+     * Start a new treemap widget host.
+     */
+    public static function treemap(string $module, string $identifier): self
+    {
+        return new self(
+            $module,
+            'treemap',
+            [
+                'identifier' => $identifier,
+            ]
+        );
+    }
+
+    /**
      * Attach the payload data. Shape depends on the widget partial (`@var
      * header) $data` — bar-chart accepts an array of rows, line-chart accepts a
      * `LineChartPayload` or its array form, sankey-flow accepts a

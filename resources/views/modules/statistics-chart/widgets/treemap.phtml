@@ -1,0 +1,52 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
+use MagicSunday\Webtrees\Statistic\View\EmptyStatePlaceholder;
+
+/**
+ * Treemap widget shell. Emits a `data-widget="treemap"` marker carrying the
+ * `{items, restMembers}` payload — `items` an ordered `[{rank, members, label}]`
+ * list whose tile area is proportional to `members`, `restMembers` the summed
+ * weight of the omitted tail folded into one neutral tile. The accent is a CSS
+ * colour literal driving the tile tint; the value unit and the rest caption are
+ * passed in pre-translated.
+ *
+ * @var string                                                                                    $identifier Host element id
+ * @var array{items: array<int, array{rank: int, members: int, label: string}>, restMembers: int} $data Treemap payload
+ * @var int|null                                                                                  $height     Optional viewport height (defaults to 360)
+ * @var string|null                                                                               $accent     CSS colour literal for the tile tint
+ * @var string|null                                                                               $valueLabel Pre-translated unit caption for the tooltip
+ * @var string|null                                                                               $restLabel  Pre-translated caption for the aggregated rest tile
+ * @var string|null                                                                               $ariaLabel  Accessible label on the host svg
+ */
+$height ??= 360;
+
+if (($data['items'] ?? []) === []) {
+    echo EmptyStatePlaceholder::render();
+
+    return;
+}
+
+$options = [
+    'height'     => $height,
+    'accent'     => $accent ?? null,
+    'valueLabel' => $valueLabel ?? null,
+    'restLabel'  => $restLabel ?? null,
+    'ariaLabel'  => $ariaLabel ?? null,
+];
+?>
+<div class="wt-stat-treemap-container"
+     id="<?php echo e($identifier); ?>"
+     data-widget="treemap"
+     data-payload="<?php echo WidgetJson::encodeAttribute($data); ?>"
+     data-options="<?php echo WidgetJson::encodeAttribute($options); ?>"
+     data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"></div>

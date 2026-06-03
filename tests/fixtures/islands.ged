@@ -1,0 +1,79 @@
+0 HEAD
+1 SOUR webtrees-statistics-fixture
+2 NAME islands
+1 DEST ANSTFILE
+1 CHAR UTF-8
+1 SUBM @SUBM1@
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+0 @SUBM1@ SUBM
+1 NAME Fixture
+0 @A1@ INDI
+1 NAME Husband /IslandA/
+1 SEX M
+1 FAMS @FA1@
+0 @A2@ INDI
+1 NAME Wife /IslandA/
+1 SEX F
+1 FAMS @FA1@
+0 @A3@ INDI
+1 NAME Child One /IslandA/
+1 SEX M
+1 FAMC @FA1@
+1 FAMS @FA2@
+0 @A4@ INDI
+1 NAME Child Two /IslandA/
+1 SEX F
+1 FAMC @FA1@
+0 @A5@ INDI
+1 NAME Spouse /IslandA/
+1 SEX F
+1 FAMS @FA2@
+0 @A6@ INDI
+1 NAME Grandchild /IslandA/
+1 SEX M
+1 FAMC @FA2@
+0 @B1@ INDI
+1 NAME Husband /IslandB/
+1 SEX M
+1 FAMS @FB1@
+0 @B2@ INDI
+1 NAME Wife /IslandB/
+1 SEX F
+1 FAMS @FB1@
+0 @B3@ INDI
+1 NAME Child /IslandB/
+1 SEX M
+1 FAMC @FB1@
+0 @C1@ INDI
+1 NAME Husband /IslandC/
+1 SEX M
+1 FAMS @FC1@
+0 @C2@ INDI
+1 NAME Wife /IslandC/
+1 SEX F
+1 FAMS @FC1@
+0 @D1@ INDI
+1 NAME Lonely One /IslandD/
+1 SEX M
+0 @E1@ INDI
+1 NAME Lonely Two /IslandE/
+1 SEX F
+0 @FA1@ FAM
+1 HUSB @A1@
+1 WIFE @A2@
+1 CHIL @A3@
+1 CHIL @A4@
+0 @FA2@ FAM
+1 HUSB @A3@
+1 WIFE @A5@
+1 CHIL @A6@
+0 @FB1@ FAM
+1 HUSB @B1@
+1 WIFE @B2@
+1 CHIL @B3@
+0 @FC1@ FAM
+1 HUSB @C1@
+1 WIFE @C2@
+0 TRLR

@@ -23,6 +23,7 @@ use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Model\Marriage\MarriageDurationExtreme;
 use MagicSunday\Webtrees\Statistic\Model\Metric\ChildMortalitySummary;
 use MagicSunday\Webtrees\Statistic\Model\Metric\EndogamyRate;
+use MagicSunday\Webtrees\Statistic\Model\Metric\IslandSummary;
 use MagicSunday\Webtrees\Statistic\Model\Metric\PlaceDispersionSummary;
 use MagicSunday\Webtrees\Statistic\Model\Metric\RateCount;
 use MagicSunday\Webtrees\Statistic\Model\Metric\WinterPeakScore;
@@ -46,6 +47,7 @@ use MagicSunday\Webtrees\Statistic\Repository\FamilyRankingRepository;
 use MagicSunday\Webtrees\Statistic\Repository\FamilyRepository;
 use MagicSunday\Webtrees\Statistic\Repository\GenerationDepthRepository;
 use MagicSunday\Webtrees\Statistic\Repository\GivenNameTrendsRepository;
+use MagicSunday\Webtrees\Statistic\Repository\IslandRepository;
 use MagicSunday\Webtrees\Statistic\Repository\KinshipRepository;
 use MagicSunday\Webtrees\Statistic\Repository\LifeSpanRepository;
 use MagicSunday\Webtrees\Statistic\Repository\MarriageMatrixRepository;
@@ -89,6 +91,7 @@ final readonly class Statistic
      * @param NameRepository                  $nameRepository                  Top-N surnames / given names + distinct counts, restricted to whitelisted GEDCOM name forms
      * @param TreeHealthRepository            $treeHealthRepository            Data-quality metrics: source coverage, missing-event gaps, generation length
      * @param GivenNameTrendsRepository       $givenNameTrendsRepository       Per-decade frequency of the top-N given names for the stream graph
+     * @param IslandRepository                $islandRepository                Connected-component ("unconnected islands") summary for the Tree-health tab
      * @param MigrationRepository             $migrationRepository             Birth → death country flows for the Places-tab Sankey diagram
      * @param CountryRepository               $countryRepository               BIRT / DEAT counts aggregated to ISO-3166-1 alpha-2 country codes
      * @param LifeSpanRepository              $lifeSpanRepository              Age-at-death distribution + top-N oldest individuals + living-age-band buckets
@@ -115,6 +118,7 @@ final readonly class Statistic
         private NameRepository $nameRepository,
         private TreeHealthRepository $treeHealthRepository,
         private GivenNameTrendsRepository $givenNameTrendsRepository,
+        private IslandRepository $islandRepository,
         private MigrationRepository $migrationRepository,
         private CountryRepository $countryRepository,
         private LifeSpanRepository $lifeSpanRepository,
@@ -579,6 +583,19 @@ final readonly class Statistic
     public function getPlaceDispersionSummary(): PlaceDispersionSummary
     {
         return $this->placeDispersionRepository->dispersionSummary();
+    }
+
+    /**
+     * Connected-component ("unconnected islands") summary for the Tree-health
+     * tab: the largest sub-trees ranked by member count plus the share the
+     * biggest one covers — the topology signal that tells a single-family tree
+     * from an address-book-like scatter.
+     *
+     * @param int $limit Maximum number of islands to surface individually
+     */
+    public function getConnectedComponents(int $limit): IslandSummary
+    {
+        return $this->islandRepository->getConnectedComponents($limit);
     }
 
     /**

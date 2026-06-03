@@ -3701,3 +3701,69 @@
     color:         var(--ink-2);
     overflow-wrap: anywhere;
 }
+
+/* ============================================================
+   Treemap widget (unconnected islands)
+   ============================================================ */
+.wt-statistics-chart .msc-treemap {
+    width: 100%;
+}
+
+.wt-statistics-chart svg.msc-treemap-svg {
+    display: block;
+    width:   100%;
+}
+
+.wt-statistics-chart svg.msc-treemap-svg text {
+    pointer-events: none;
+}
+
+.wt-statistics-chart svg.msc-treemap-svg text.msc-treemap-rank {
+    font-family: var(--mono);
+    font-size:   12px;
+    fill:        var(--ink-3);
+}
+
+.wt-statistics-chart svg.msc-treemap-svg text.msc-treemap-label {
+    font-family: var(--serif);
+    font-size:   19px;
+    fill:        var(--ink);
+}
+
+.wt-statistics-chart svg.msc-treemap-svg text.msc-treemap-value {
+    font-family: var(--serif);
+    font-size:   26px;
+    fill:        var(--ink);
+}
+
+.wt-statistics-chart svg.msc-treemap-svg text.msc-treemap-pct {
+    font-family: var(--mono);
+    font-size:   11px;
+    fill:        var(--ink-3);
+}
+
+.wt-statistics-chart svg.msc-treemap-svg text.msc-treemap-label-sm {
+    font-family: var(--sans);
+    font-size:   11px;
+    font-weight: 500;
+    fill:        var(--ink);
+}
+
+.wt-statistics-chart svg.msc-treemap-svg text.msc-treemap-value-sm {
+    font-family: var(--mono);
+    font-size:   13px;
+    font-weight: 600;
+    fill:        var(--ink);
+}
+
+.wt-statistics-chart svg.msc-treemap-svg text.msc-treemap-value-xs {
+    font-family: var(--mono);
+    font-size:   10px;
+    fill:        var(--ink-2);
+}
+
+/* On a strongly-tinted tile the dark ink would vanish, so big/medium labels on
+   such tiles flip to the card colour. */
+.wt-statistics-chart svg.msc-treemap-svg text.msc-treemap-text--on-dark {
+    fill: var(--card);
+}
