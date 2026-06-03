@@ -117,6 +117,11 @@ final readonly class MarriageMatrixRepository
             ->whereNotIn('wn.n_surn', ['', Individual::NOMEN_NESCIO])
             ->select(['f.f_id', 'hn.n_surn AS h_surn', 'wn.n_surn AS w_surn'])
             ->distinct()
+            // Deterministic row order so the downstream surname ranking is
+            // reproducible: the top-N cap leans on `arsort` for the count
+            // ordering, but a stable input keeps the stable-sort tie-break (and
+            // the test that guards it) from depending on engine row order.
+            ->orderBy('f.f_id')
             ->get();
 
         $pairs = [];

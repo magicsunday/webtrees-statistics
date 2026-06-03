@@ -10,14 +10,14 @@
 0 @SUBM1@ SUBM
 1 NAME Fixture
 0 @1@ INDI
-1 NAME Grandparent /Test/
-1 SEX M
-1 FAMS @5@
-0 @2@ INDI
 1 NAME Parent /Test/
 1 SEX M
 1 FAMC @5@
 1 FAMS @6@
+0 @2@ INDI
+1 NAME Grandparent /Test/
+1 SEX M
+1 FAMS @5@
 0 @3@ INDI
 1 NAME Child /Test/
 1 SEX F
@@ -26,9 +26,9 @@
 1 NAME Isolated /Test/
 1 SEX M
 0 @5@ FAM
-1 HUSB @1@
-1 CHIL @2@
-0 @6@ FAM
 1 HUSB @2@
+1 CHIL @1@
+0 @6@ FAM
+1 HUSB @1@
 1 CHIL @3@
 0 TRLR

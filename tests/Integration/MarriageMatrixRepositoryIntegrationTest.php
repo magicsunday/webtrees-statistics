@@ -26,18 +26,22 @@ use function count;
  * End-to-end test of {@see MarriageMatrixRepository} against a curated fixture
  * with four surnames and five cross-surname marriages:
  *
- *   F1: Anton  /Miller/ × Berta  /Smith/
- *   F2: Carl   /Miller/ × Doris  /Weaver/
- *   F3: Emil   /Smith/  × Frieda /Miller/
- *   F4: Gustav /Klein/  × Hilde  /Weaver/
+ *   F1: Gustav /Klein/  × Hilde  /Weaver/
+ *   F2: Anton  /Miller/ × Berta  /Smith/
+ *   F3: Carl   /Miller/ × Doris  /Weaver/
+ *   F4: Emil   /Smith/  × Frieda /Miller/
  *   F5: Ingo   /Smith/  × Jutta  /Klein/
+ *
+ * The Klein×Weaver family carries the lowest f_id (F1) on purpose: paired with
+ * the repository's `ORDER BY f.f_id`, the low-count surnames head the natural
+ * row order, so the top-N cap test genuinely exercises the `arsort` ranking.
  *
  * Surname marriage counts (each marriage contributes once per partner, only
  * when the surnames differ — no endogamy in this fixture):
- *   Miller → 3 (F1 husband, F2 husband, F3 wife)
- *   Smith  → 3 (F1 wife, F3 husband, F5 husband)
- *   Klein  → 2 (F4 husband, F5 wife)
- *   Weaver → 2 (F2 wife, F4 wife)
+ *   Miller → 3 (F2 husband, F3 husband, F4 wife)
+ *   Smith  → 3 (F2 wife, F4 husband, F5 husband)
+ *   Klein  → 2 (F1 husband, F5 wife)
+ *   Weaver → 2 (F1 wife, F3 wife)
  *
  * The expected symmetric matrix (alphabetical label order — Klein, Miller,
  * Smith, Weaver):
@@ -122,9 +126,9 @@ final class MarriageMatrixRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame(0, $matrix[3][3], 'Weaver-Weaver: no endogamy');
 
         // Off-diagonal counts (already symmetric):
-        self::assertSame(2, $matrix[1][2], 'Miller × Smith = F1 + F3 = 2');
-        self::assertSame(1, $matrix[1][3], 'Miller × Weaver = F2 = 1');
-        self::assertSame(1, $matrix[0][3], 'Klein × Weaver = F4 = 1');
+        self::assertSame(2, $matrix[1][2], 'Miller × Smith = F2 + F4 = 2');
+        self::assertSame(1, $matrix[1][3], 'Miller × Weaver = F3 = 1');
+        self::assertSame(1, $matrix[0][3], 'Klein × Weaver = F1 = 1');
         self::assertSame(1, $matrix[0][2], 'Klein × Smith = F5 = 1');
         self::assertSame(0, $matrix[1][0], 'Klein × Miller: no fixture marriage');
 
@@ -145,6 +149,13 @@ final class MarriageMatrixRepositoryIntegrationTest extends IntegrationTestCase
      * `topN = 2` only the two surnames with the highest marriage involvement
      * (Miller=3, Smith=3) survive — alphabet tie-break favours
      * Miller-then-Smith.
+     *
+     * The query orders marriage pairs by f_id and the Klein×Weaver family
+     * carries the lowest f_id (F1), so the low-count surnames Klein (2) and
+     * Weaver (2) head the natural row order. A regression that dropped the
+     * `arsort` frequency ranking before the cap would slice those two off the
+     * front instead of Miller/Smith and fail this assertion (proven: removing
+     * `arsort` yields ['Klein', 'Weaver']).
      */
     #[Test]
     public function surnameMarriageMatrixHonoursTopNCap(): void
@@ -152,9 +163,13 @@ final class MarriageMatrixRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('surname-marriage-matrix.ged');
         $result = $this->repository($tree)->surnameMarriageMatrix(2);
 
-        self::assertCount(2, $result->labels);
-        self::assertContains('Miller', $result->labels);
-        self::assertContains('Smith', $result->labels);
+        // The surviving set must be EXACTLY the two highest-count surnames, in
+        // the production's alphabetical order. This catches a dropped `arsort`:
+        // the query orders pairs by f_id and the Klein×Weaver family is @F1@, so
+        // the count-2 surnames Klein and Weaver head the natural row order —
+        // without `arsort` the cap would slice them off the front, yielding
+        // ['Klein', 'Weaver'] and failing this exact-match assertion.
+        self::assertSame(['Miller', 'Smith'], $result->labels);
         self::assertCount(2, $result->matrix);
         self::assertCount(2, $result->matrix[0]);
     }

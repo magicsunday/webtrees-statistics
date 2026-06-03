@@ -92,16 +92,18 @@ final class TreeHealthRepositoryIntegrationTest extends IntegrationTestCase
 
     /**
      * source-coverage-by-century.ged seeds 12 individuals:
-     *  * five 19th-century births, three of them with `2 SOUR @S1@`
-     *  * five 20th-century births, two of them with `2 SOUR @S1@`
+     *  * five 20th-century births (the LOW xrefs I1–I5), two with `2 SOUR @S1@`
+     *  * five 19th-century births (the HIGH xrefs I6–I10), three with `2 SOUR @S1@`
      *  * one 18th-century birth, unsourced
      *  * one with no BIRT at all
      *
-     * The minimum-sample threshold is 5. Two cohorts clear it; the 18th-century
-     * cohort (n=1) is dropped. Locks both the threshold filter and the `ksort`
-     * ordering so a regression that returned the surviving cohorts in insertion
-     * order rather than ascending century would fail at `$result[0]['century']
-     * === 19`.
+     * The 20th-century cohort deliberately sits on the lower XREFs so it is
+     * encountered FIRST as the query walks `d_gid` order — the insertion order
+     * is therefore [20, 19], the opposite of the ascending-century result. Only
+     * a live `ksort` flips it back to [19, 20]; a regression that returned the
+     * surviving cohorts in insertion order would fail at
+     * `$result[0]['century'] === 19`. The minimum-sample threshold is 5: two
+     * cohorts clear it, the 18th-century cohort (n=1) is dropped.
      */
     #[Test]
     public function sourceCitationCoverageByCenturyKeepsCohortsAboveThreshold(): void

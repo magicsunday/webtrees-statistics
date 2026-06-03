@@ -41,10 +41,15 @@ final class OccupationRepositoryIntegrationTest extends IntegrationTestCase
 {
     /**
      * `Blacksmith` appears three times (Anna, Berta with lowercase variant
-     * `blacksmith`, and Gerda's first OCCU line). `Farmer` twice (Carl + Emil).
-     * `Teacher` and `Carpenter` once each. The lowercase variant `blacksmith`
-     * merges into the `Blacksmith` bucket via case-folded keys, with the
-     * first-seen casing winning as the display label.
+     * `blacksmith`, and Gerda's first OCCU line). `Farmer` twice (Doris + Emil).
+     * `Teacher` (Carl) and `Carpenter` (Gerda's second OCCU line) once each. The
+     * lowercase variant `blacksmith` merges into the `Blacksmith` bucket via
+     * case-folded keys, with the first-seen casing winning as the display label.
+     *
+     * The distinct occupations are encountered in the order Blacksmith, Teacher,
+     * Farmer, Carpenter — deliberately NOT count-descending — so a regression
+     * that dropped the `arsort` frequency ordering would surface Teacher above
+     * Farmer and fail this exact-order assertion.
      */
     #[Test]
     public function topOccupationsReturnsCaseFoldedFrequencies(): void
@@ -59,7 +64,10 @@ final class OccupationRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * A top-N limit truncates the tail without changing the order.
+     * A top-N limit truncates the tail without changing the order. The cap rides
+     * on the frequency ranking, not first-seen order: Teacher is encountered
+     * before Farmer in the fixture, so a top-2 that kept `['Blacksmith',
+     * 'Farmer']` proves the `arsort` ran before the slice.
      */
     #[Test]
     public function topOccupationsRespectsTheLimit(): void

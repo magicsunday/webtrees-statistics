@@ -30,12 +30,17 @@ use function array_search;
  * End-to-end test of {@see GenerationDepthRepository} against
  * `generation-depth.ged`:
  *
- *   I1 (grandparent) → I2 (parent) → I3 (child)
+ *   I2 (grandparent) → I1 (parent) → I3 (child)
  *   I4 — isolated individual, not in any FAMC/FAMS relationship
+ *
+ * The grandparent deliberately carries the HIGHER xref (I2) so the
+ * descendant-count ranking (I2=2, I1=1) reverses the xref order — a dropped
+ * sort would surface the parent first. The depth distribution is keyed by
+ * depth, not xref, so it is unaffected by the role/xref assignment.
  *
  * Expected:
  *   - maxDepth: 2
- *   - distribution: {0: 1 (I3), 1: 1 (I2), 2: 1 (I1)}
+ *   - distribution: {0: 1 (I3), 1: 1 (I1), 2: 1 (I2)}
  *   - I4 contributes nothing (no parentage links)
  *   - capped: false
  *
@@ -74,13 +79,15 @@ final class GenerationDepthRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Top-N ancestors podium: the grandparent (I1) carries two transitive
-     * descendants (the parent I2 plus the child I3), the parent itself one. The
+     * Top-N ancestors podium: the grandparent (I2) carries two transitive
+     * descendants (the parent I1 plus the child I3), the parent itself one. The
      * child I3 sits at zero descendants and the isolated individual I4 has no
      * parentage links at all — both are excluded because zero-descendant
      * entries do not belong on a "structural roots" podium. So the ranking is
-     * exactly two rows: Grandparent first with 2, Parent second with 1, in
-     * descending order of descendant count.
+     * exactly two rows: Grandparent (I2) first with 2, Parent (I1) second with
+     * 1. The grandparent deliberately carries the HIGHER xref, so a regression
+     * that dropped the descendant-count sort and fell back to xref order would
+     * surface the parent first and fail this test.
      */
     #[Test]
     public function topAncestorsByDescendantCountRanksGrandparentFirst(): void
@@ -91,12 +98,13 @@ final class GenerationDepthRepositoryIntegrationTest extends IntegrationTestCase
 
         self::assertCount(2, $result, 'Only the two individuals with descendants land on the podium');
 
-        // Result is an ordered list of RankingEntry, most descendants first.
-        self::assertSame('I1', $result[0]->xref);
+        // Result is an ordered list of RankingEntry, most descendants first —
+        // count order (I2, I1) is the reverse of xref order (I1, I2).
+        self::assertSame('I2', $result[0]->xref);
         self::assertSame(2, $result[0]->value, 'Grandparent leads with two descendants (parent + grandchild)');
         self::assertStringContainsString('Grandparent', $result[0]->label);
 
-        self::assertSame('I2', $result[1]->xref);
+        self::assertSame('I1', $result[1]->xref);
         self::assertSame(1, $result[1]->value, 'Parent follows with one descendant (the child)');
         self::assertStringContainsString('Parent', $result[1]->label);
     }
@@ -165,12 +173,14 @@ final class GenerationDepthRepositoryIntegrationTest extends IntegrationTestCase
 
         self::assertCount(2, $result, 'Only the two individuals with descendants land on the podium');
 
-        // Digit-only XREFs round-trip into the entry as strings.
-        self::assertSame('1', $result[0]->xref);
+        // Digit-only XREFs round-trip into the entry as strings; the grandparent
+        // ("2") carries the higher xref, so count order ("2", "1") reverses xref
+        // order — a dropped sort would surface "1" first.
+        self::assertSame('2', $result[0]->xref);
         self::assertSame(2, $result[0]->value, 'Grandparent leads with two descendants (parent + grandchild)');
         self::assertStringContainsString('Grandparent', $result[0]->label);
 
-        self::assertSame('2', $result[1]->xref);
+        self::assertSame('1', $result[1]->xref);
         self::assertSame(1, $result[1]->value, 'Parent follows with one descendant (the child)');
         self::assertStringContainsString('Parent', $result[1]->label);
     }
