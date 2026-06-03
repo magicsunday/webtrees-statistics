@@ -51,7 +51,7 @@ foreach ($deathsByCountry as $values) {
 }
 
 $sankeyExplanation = I18N::translate(
-    'Each flow shows individuals who were born in one country and died in another. The flow\'s thickness encodes the count: thicker bands mean more migrations along that path. Same-country trajectories are excluded — they\'re not migration. Hover any band to see the exact source → destination and individual count.'
+    'Each flow shows individuals who were born in one country and died in another. The flow\'s thickness encodes the count: thicker bands mean more migrations along that path. Same-country trajectories are excluded — they\'re not migration. Hover any band to see the exact source → destination and individual count. Only individuals with both a recorded birth place and a recorded death place appear, so emigrants who lost contact and have no recorded death place are missing: read the diagram as a lower bound on real migration.'
 );
 
 $placeDispersionExplanation = I18N::translate(
@@ -93,7 +93,7 @@ foreach ($migrationDistance as $entry) {
 // populations with regional migration; 2.5-4 ≈ urbanised cohorts;
 // above 4 ≈ migrant ancestors (settlers, emigrants, traders).
 $dispersionInterpretation = match (true) {
-    $placeDispersion->average < 1.5 => I18N::translate('A sedentary population — most lived and died in the same place.'),
+    $placeDispersion->average < 1.5 => I18N::translate('A sedentary or sparsely-documented population: most individuals carry only one recorded place, which is as often a gap in place documentation as a truly settled life.'),
     $placeDispersion->average < 2.5 => I18N::translate('Moderate mobility — many stayed in their region, some moved.'),
     $placeDispersion->average < 4.0 => I18N::translate('Mobile population — migration and relocation were common.'),
     default                         => I18N::translate('High mobility — strongly migrating ancestors.'),

@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Statistics\n"
 "Report-Msgid-Bugs-To: https://github.com/magicsunday/webtrees-statistics/"
 "issues\n"
-"POT-Creation-Date: 2026-06-03 16:31+0000\n"
+"POT-Creation-Date: 2026-06-03 16:53+0000\n"
 "PO-Revision-Date: 2026-05-22 07:04+0000\n"
 "Last-Translator: Rico Sonntag <mail@ricosonntag.de>\n"
 "Language-Team: \n"
@@ -776,14 +776,17 @@ msgctxt "CENTURY"
 msgid "9th"
 msgstr "9."
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:618
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:641
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:625
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:648
 msgid "A fuller cell marks a busier month"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/places.phtml:96
-msgid "A sedentary population — most lived and died in the same place."
-msgstr "A sedentary population — most lived and died in the same place."
+msgid ""
+"A sedentary or sparsely-documented population: most individuals carry only "
+"one recorded place, which is as often a gap in place documentation as a "
+"truly settled life."
+msgstr ""
 
 #: resources/views/modules/statistics-chart/components/hero.phtml:26
 #, php-format
@@ -965,7 +968,7 @@ msgstr "Предки"
 msgid "Anomaly"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:588
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:595
 msgid "Anomaly years"
 msgstr ""
 
@@ -1026,11 +1029,11 @@ msgstr "Avg. generation length"
 msgid "Births"
 msgstr "Рождения"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:612
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:619
 msgid "Births and deaths across the year"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:635
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:642
 msgid "Births by 25-year period and calendar month"
 msgstr ""
 
@@ -1068,7 +1071,7 @@ msgstr "Рождения за полтысячелетия"
 msgid "Births per millennium"
 msgstr "Рождения за тысячелетие"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:617
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:624
 msgid "Births — 25-year period × month"
 msgstr ""
 
@@ -1289,7 +1292,7 @@ msgstr "Смерти"
 msgid "Deaths are evenly spread across the year."
 msgstr "Deaths are evenly spread across the year."
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:658
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:665
 msgid "Deaths by 25-year period and calendar month"
 msgstr ""
 
@@ -1305,7 +1308,7 @@ msgstr "Смерти по месяцам"
 msgid "Deaths per century"
 msgstr "Deaths per century"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:640
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:647
 msgid "Deaths — 25-year period × month"
 msgstr ""
 
@@ -1330,7 +1333,7 @@ msgstr "Декабрь"
 msgid "Demographics"
 msgstr "Демография"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:614
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:621
 msgid "Density of recorded births and deaths by 25-year period and month"
 msgstr ""
 
@@ -1469,7 +1472,7 @@ msgstr ""
 "относительные величины. Наведите курсор на любую полосу, чтобы увидеть "
 "абсолютные цифры и пиковое десятилетие."
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:623
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:630
 msgid ""
 "Each cell counts the births recorded in one 25-year period (a row) and one "
 "calendar month (a column), with the count printed inside it. The more births "
@@ -1482,7 +1485,7 @@ msgid ""
 "band so a gap in the records is not hidden."
 msgstr ""
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:646
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:653
 msgid ""
 "Each cell counts the deaths recorded in one 25-year period (a row) and one "
 "calendar month (a column), with the count printed inside it. The more deaths "
@@ -1507,13 +1510,11 @@ msgid ""
 "another. The flow's thickness encodes the count: thicker bands mean more "
 "migrations along that path. Same-country trajectories are excluded — they're "
 "not migration. Hover any band to see the exact source → destination and "
-"individual count."
+"individual count. Only individuals with both a recorded birth place and a "
+"recorded death place appear, so emigrants who lost contact and have no "
+"recorded death place are missing: read the diagram as a lower bound on real "
+"migration."
 msgstr ""
-"Each flow shows individuals who were born in one country and died in "
-"another. The flow's thickness encodes the count: thicker bands mean more "
-"migrations along that path. Same-country trajectories are excluded — they're "
-"not migration. Hover any band to see the exact source → destination and "
-"individual count."
 
 #: resources/views/modules/statistics-chart/tabs/places.phtml:66
 msgid ""
@@ -1559,18 +1560,22 @@ msgid ""
 "largest."
 msgstr ""
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:599
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:606
 msgid ""
-"Each year's recorded death count is compared to the median of the "
-"surrounding eleven-year window. A year is flagged when its count stands at "
-"least two standard deviations above that local baseline, and the flagged "
-"years are ranked by how far they stand out. Only years with a full window on "
-"both sides are considered, so the most recent and oldest years are never "
-"flagged. The bar shows the death count; the marker behind it is the expected "
-"baseline. Where the death places of a year fall in a covered region and "
-"period, the year is annotated with the historical event it coincides with — "
-"a temporal note, never a stated cause of death; coverage is limited to "
-"broadly-documented events and can be extended via the project repository."
+"Each year's recorded death count is compared with the surrounding eleven-"
+"year window. A year is flagged when its count lies at least two standard "
+"deviations above the window's mean, and the flagged years are ranked by how "
+"far they stand out. The marker behind each bar shows the window median as "
+"the expected baseline; mean and median sit close together but are not "
+"identical. Only years with a full window on both sides are considered, so "
+"the most recent and oldest years are never flagged. Read a flagged year as "
+"one that stands out against the recorded baseline, not automatically as real "
+"excess mortality: denser record-keeping, an import batch, or round-year date "
+"clustering can lift a single year's count much as a true epidemic, war or "
+"famine would. Where the death places of a year fall in a covered region and "
+"period, the year is annotated with the historical event it coincides with: a "
+"temporal note, never a stated cause of death; coverage is limited to broadly-"
+"documented events and can be extended via the project repository."
 msgstr ""
 
 #: src/Support/Locale/HistoricalEventCatalog.php:214
@@ -1611,7 +1616,7 @@ msgstr "Extreme"
 #: resources/views/modules/statistics-chart/tabs/family.phtml:476
 #: resources/views/modules/statistics-chart/tabs/family.phtml:678
 #: resources/views/modules/statistics-chart/tabs/family.phtml:684
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:594
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:601
 msgid "Extremes"
 msgstr "Extremes"
 
@@ -1990,8 +1995,8 @@ msgstr ""
 msgid "Hall of fame across the whole tree"
 msgstr "Hall of fame across the whole tree"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:619
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:642
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:626
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:649
 msgid "Heatmap"
 msgstr ""
 
@@ -2036,10 +2041,6 @@ msgstr ""
 #: resources/views/modules/statistics-chart/tabs/names.phtml:96
 msgid "How names came and went over time"
 msgstr "How names came and went over time"
-
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:206
-msgid "How often a son took up the same trade as his father"
-msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:219
 msgid "How the tree grew"
@@ -2330,8 +2331,8 @@ msgstr ""
 msgid "Mortality"
 msgstr "Mortality"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:587
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:592
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:594
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:599
 msgid "Mortality outliers"
 msgstr ""
 
@@ -2648,7 +2649,7 @@ msgstr "Season"
 msgid "Season and century of recorded deaths"
 msgstr "Season and century of recorded deaths"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:613
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:620
 msgid "Seasonality"
 msgstr ""
 
@@ -2877,6 +2878,16 @@ msgid ""
 "number shown here is the average across every individual in the tree."
 msgstr ""
 
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:584
+msgid ""
+"The score compares the average number of deaths per winter month (December, "
+"January and February) with the average across all twelve months; a value "
+"above the annual average points to a winter concentration of deaths. The "
+"month of death is among the least reliably recorded parts of a date, and the "
+"score can rest on very few dated deaths, so read a small deviation as "
+"documentation noise rather than a real seasonal pattern."
+msgstr ""
+
 #: resources/views/modules/statistics-chart/tabs/family.phtml:679
 msgid "The shortest- and longest-lasting marriages in the tree"
 msgstr ""
@@ -3093,6 +3104,10 @@ msgstr "Where they lived and died"
 msgid "Which names return?"
 msgstr "Which names return?"
 
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:206
+msgid "Which trade a son took up relative to his father"
+msgstr ""
+
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:88
 msgid "Who is recorded?"
 msgstr "Who is recorded?"
@@ -3169,11 +3184,11 @@ msgstr ""
 msgid "Years in which several families lost children at once"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:593
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:600
 msgid "Years that stand out against the surrounding death baseline"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:589
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:596
 msgid "Years with markedly more deaths than the local baseline would predict"
 msgstr ""
 
@@ -3207,7 +3222,7 @@ msgstr "Zodiac signs"
 msgid "aggregated into %s-decade bins for readability"
 msgstr "сгруппировано по %s десятилетий для удобства чтения"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:633
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:640
 msgid "births"
 msgstr ""
 
@@ -3222,7 +3237,7 @@ msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:656
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:663
 msgid "deaths"
 msgstr ""
 
@@ -3287,6 +3302,10 @@ msgstr "husband left, wife right"
 msgid "individuals"
 msgstr "individuals"
 
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:124
+msgid "individuals without a recorded death"
+msgstr ""
+
 #: resources/views/modules/statistics-chart/tabs/family.phtml:469
 msgid "kids"
 msgstr "kids"
@@ -3294,10 +3313,6 @@ msgstr "kids"
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:272
 msgid "living"
 msgstr "living"
-
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:124
-msgid "living individuals"
-msgstr "living individuals"
 
 #: resources/views/modules/statistics-chart/components/live-dead-card.phtml:30
 msgid "living today"
@@ -3447,6 +3462,12 @@ msgstr ""
 #: resources/views/modules/statistics-chart/tabs/places.phtml:77
 msgid "≤ 10 km"
 msgstr ""
+
+#~ msgid "A sedentary population — most lived and died in the same place."
+#~ msgstr "A sedentary population — most lived and died in the same place."
+
+#~ msgid "living individuals"
+#~ msgstr "living individuals"
 
 #, php-format
 #~| msgid "%1$s of %2$s individuals"

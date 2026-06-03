@@ -121,7 +121,7 @@ echo Card::for($module, I18N::translate('Living or deceased'))
     ->render();
 
 echo Card::for($module, I18N::translate('Marital status'))
-    ->withSub(I18N::translate('living individuals'))
+    ->withSub(I18N::translate('individuals without a recorded death'))
     ->withEyebrow(I18N::translate('Status'))
     ->withAccent(Accent::Wine)
     ->withIllustration(Illustration::Rings)
@@ -203,7 +203,7 @@ $occupationInheritanceExplanation = I18N::translate(
 );
 
 echo Card::for($module, I18N::translate('Occupation inheritance from father to son'))
-    ->withSub(I18N::translate('How often a son took up the same trade as his father'))
+    ->withSub(I18N::translate('Which trade a son took up relative to his father'))
     ->withEyebrow(I18N::translate('Heritage'))
     ->withAccent(Accent::Ochre)
     ->withIllustration(Illustration::Craft)

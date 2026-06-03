@@ -579,6 +579,13 @@ echo Card::for($module, I18N::translate('Winter-peak score'))
     ->withEyebrow(I18N::translate('Season'))
     ->withAccent(Accent::Wine)
     ->withIllustration(Illustration::Moon)
+    ->withInfo(
+        I18N::translate(
+            'The score compares the average number of deaths per winter month (December, January and February) with the average across all twelve months; a value above the annual average points to a winter concentration of deaths. The month of death is among the least reliably recorded parts of a date, and the score can rest on very few dated deaths, so read a small deviation as documentation noise rather than a real seasonal pattern.'
+        ),
+        $aboutThisChart,
+        $aboutThisChart
+    )
     ->withSpan(4)
     ->centered()
     ->withBodyHtml($winterPeakCardBody)
@@ -596,7 +603,7 @@ echo Card::for($module, I18N::translate('Mortality outliers'))
     ->withIllustration(Illustration::Moon)
     ->withInfo(
         I18N::translate(
-            "Each year's recorded death count is compared to the median of the surrounding eleven-year window. A year is flagged when its count stands at least two standard deviations above that local baseline, and the flagged years are ranked by how far they stand out. Only years with a full window on both sides are considered, so the most recent and oldest years are never flagged. The bar shows the death count; the marker behind it is the expected baseline. Where the death places of a year fall in a covered region and period, the year is annotated with the historical event it coincides with — a temporal note, never a stated cause of death; coverage is limited to broadly-documented events and can be extended via the project repository."
+            "Each year's recorded death count is compared with the surrounding eleven-year window. A year is flagged when its count lies at least two standard deviations above the window's mean, and the flagged years are ranked by how far they stand out. The marker behind each bar shows the window median as the expected baseline; mean and median sit close together but are not identical. Only years with a full window on both sides are considered, so the most recent and oldest years are never flagged. Read a flagged year as one that stands out against the recorded baseline, not automatically as real excess mortality: denser record-keeping, an import batch, or round-year date clustering can lift a single year's count much as a true epidemic, war or famine would. Where the death places of a year fall in a covered region and period, the year is annotated with the historical event it coincides with: a temporal note, never a stated cause of death; coverage is limited to broadly-documented events and can be extended via the project repository."
         ),
         $aboutThisChart,
         $aboutThisChart
