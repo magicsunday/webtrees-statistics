@@ -254,8 +254,9 @@ final class ParenthoodRepository
      * year (1850, 1860, …); each series carries the per-decade mean parental
      * age in full years. Decade × sex cohorts below {@see
      * MIN_DECADE_COHORT_SIZE} samples are suppressed independently per sex —
-     * empty decades therefore surface as a zero value on the suppressed series
-     * only, while the other sex keeps its trend line continuous. Pure aggregate
+     * the suppressed series carries a `null` for that decade (rendered as a gap
+     * by the line widget, never a misleading age 0), while the other sex keeps
+     * its trend line continuous. Pure aggregate
      * over the same pair iterator the histogram and the Hall-of-Fame records
      * read from, so the new view stays in lockstep with the existing parenthood
      * numbers.
@@ -302,29 +303,34 @@ final class ParenthoodRepository
             $categories[] = DecadeName::for($decade);
             $longLabel    = DecadeName::longLabel($decade);
 
-            $fatherAverage = ($perSex['M']['n'] >= self::MIN_DECADE_COHORT_SIZE)
-                ? round($perSex['M']['sum'] / $perSex['M']['n'], 1)
-                : 0;
-            $motherAverage = ($perSex['F']['n'] >= self::MIN_DECADE_COHORT_SIZE)
-                ? round($perSex['F']['sum'] / $perSex['F']['n'], 1)
-                : 0;
-            $fatherValues[] = $fatherAverage;
-            $motherValues[] = $motherAverage;
-
-            $fatherTooltips[] = ($perSex['M']['n'] >= self::MIN_DECADE_COHORT_SIZE)
-                ? I18N::translate(
+            // Value + tooltip share the per-sex cohort-floor decision: a sex
+            // that meets the floor carries its rounded mean, a sex below it
+            // carries a null value (a gap, never age 0) and a "no data" tooltip.
+            if ($perSex['M']['n'] >= self::MIN_DECADE_COHORT_SIZE) {
+                $fatherAverage    = round($perSex['M']['sum'] / $perSex['M']['n'], 1);
+                $fatherValues[]   = $fatherAverage;
+                $fatherTooltips[] = I18N::translate(
                     '%1$s years (n = %2$s)',
                     I18N::number($fatherAverage, 1),
                     I18N::number($perSex['M']['n']),
-                )
-                : I18N::translate('no data (n < %s)', I18N::number(self::MIN_DECADE_COHORT_SIZE));
-            $motherTooltips[] = ($perSex['F']['n'] >= self::MIN_DECADE_COHORT_SIZE)
-                ? I18N::translate(
+                );
+            } else {
+                $fatherValues[]   = null;
+                $fatherTooltips[] = I18N::translate('no data (n < %s)', I18N::number(self::MIN_DECADE_COHORT_SIZE));
+            }
+
+            if ($perSex['F']['n'] >= self::MIN_DECADE_COHORT_SIZE) {
+                $motherAverage    = round($perSex['F']['sum'] / $perSex['F']['n'], 1);
+                $motherValues[]   = $motherAverage;
+                $motherTooltips[] = I18N::translate(
                     '%1$s years (n = %2$s)',
                     I18N::number($motherAverage, 1),
                     I18N::number($perSex['F']['n']),
-                )
-                : I18N::translate('no data (n < %s)', I18N::number(self::MIN_DECADE_COHORT_SIZE));
+                );
+            } else {
+                $motherValues[]   = null;
+                $motherTooltips[] = I18N::translate('no data (n < %s)', I18N::number(self::MIN_DECADE_COHORT_SIZE));
+            }
 
             $fatherTooltipLabels[] = $longLabel;
             $motherTooltipLabels[] = $longLabel;

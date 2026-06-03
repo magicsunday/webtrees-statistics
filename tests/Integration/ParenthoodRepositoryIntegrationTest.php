@@ -237,9 +237,9 @@ final class ParenthoodRepositoryIntegrationTest extends IntegrationTestCase
      * wife row is filtered upstream by the BIRT-julian-day predicate). The
      * 1940s decade must therefore survive the cohort floor — the fathers cohort
      * sits at 5 — while the mothers cohort sits at 0 and gets suppressed with
-     * the "no data" tooltip plus a zero value on the mothers line. Locks the
-     * contract that one sex below the floor does NOT drag the whole decade with
-     * it.
+     * the "no data" tooltip plus a null (gap) value on the mothers line, never a
+     * misleading age 0. Locks the contract that one sex below the floor does NOT
+     * drag the whole decade with it.
      */
     #[Test]
     public function meanByDecadeSuppressesOnlySexBelowCohortFloor(): void
@@ -261,7 +261,7 @@ final class ParenthoodRepositoryIntegrationTest extends IntegrationTestCase
         // 1940s: asymmetric — fathers pass the floor (5 with dated BIRT),
         // mothers fail (none have a recorded birth date).
         self::assertGreaterThan(0, $fathers->values[1], 'Fathers line still renders a 1940s mean');
-        self::assertSame(0, $mothers->values[1], 'Mothers line is suppressed to a zero value on the 1940s tick');
+        self::assertNull($mothers->values[1], 'Mothers line is suppressed to a null (gap) on the 1940s tick, not age 0');
         self::assertStringContainsString('no data', $mothers->tooltips[1], 'Mothers 1940s tooltip carries the suppression caption');
     }
 }

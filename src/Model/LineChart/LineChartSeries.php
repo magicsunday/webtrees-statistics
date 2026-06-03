@@ -16,10 +16,11 @@ use JsonSerializable;
 /**
  * One series in a {@see LineChartPayload}. `values` is the numeric sequence the
  * line traces, aligned positionally with the parent payload's `categories`
- * list. `tooltips` and `tooltipLabels` are optional per-point overrides that
- * the renderer surfaces on hover (`tooltipLabels` for the bold header,
- * `tooltips` for the body line); both default to the empty list when the
- * consumer leaves tooltips to chart-lib's autoformatting.
+ * list; a `null` entry marks a suppressed point that the line widget renders as
+ * a gap rather than a zero. `tooltips` and `tooltipLabels` are optional
+ * per-point overrides that the renderer surfaces on hover (`tooltipLabels` for
+ * the bold header, `tooltips` for the body line); both default to the empty list
+ * when the consumer leaves tooltips to chart-lib's autoformatting.
  *
  * Optional `class` token attaches a CSS class to the line + legend swatch —
  * useful for sex-coloured pairs (`male` / `female`) or any rate-vs-baseline
@@ -34,11 +35,11 @@ use JsonSerializable;
 final readonly class LineChartSeries implements JsonSerializable
 {
     /**
-     * @param string          $name          Series label shown in the legend
-     * @param list<int|float> $values        Numeric values aligned positionally with categories
-     * @param list<string>    $tooltips      Per-point tooltip body strings (empty list = chart-lib default)
-     * @param list<string>    $tooltipLabels Per-point tooltip header strings (empty list = chart-lib default = category label)
-     * @param string|null     $class         Optional CSS class hook (`null` = no class attribute)
+     * @param string               $name          Series label shown in the legend
+     * @param list<int|float|null> $values        Numeric values aligned positionally with categories (`null` = suppressed point, rendered as a gap)
+     * @param list<string>         $tooltips      Per-point tooltip body strings (empty list = chart-lib default)
+     * @param list<string>         $tooltipLabels Per-point tooltip header strings (empty list = chart-lib default = category label)
+     * @param string|null          $class         Optional CSS class hook (`null` = no class attribute)
      */
     public function __construct(
         public string $name,
@@ -50,7 +51,7 @@ final readonly class LineChartSeries implements JsonSerializable
     }
 
     /**
-     * @return array{name: string, values: list<int|float>, tooltips: list<string>, tooltipLabels: list<string>, class?: string}
+     * @return array{name: string, values: list<int|float|null>, tooltips: list<string>, tooltipLabels: list<string>, class?: string}
      */
     public function jsonSerialize(): array
     {
