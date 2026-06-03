@@ -781,6 +781,28 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
+     * A range date whose two bounds fall in different period rows AND different
+     * month columns counts the individual once in its lower-bound cell, never
+     * split across both. I1 (`BET DEC 1899 AND JAN 1900`) lands once in the 1875
+     * period's December column (lower bound Dec 1899); a raw per-row count would
+     * also seed the 1900 period's January column from the upper-bound row. I2
+     * (precise `15 MAR 1900`) anchors the 1900 period. So the matrix totals two,
+     * the 1900-period January cell stays empty, and no record is double-counted.
+     */
+    #[Test]
+    public function eventHeatmapByPeriodMonthCountsCrossPeriodRangeOnce(): void
+    {
+        $tree   = $this->importFixtureTree('heatmap-period-month-dedup.ged');
+        $result = $this->repository($tree)->eventHeatmapByPeriodMonth('BIRT');
+
+        self::assertSame(['1875', '1900'], $result->rows);
+        self::assertSame(1, $result->values[0][11], 'I1 lands once in the 1875 period December');
+        self::assertSame(1, $result->values[1][2], 'I2 anchors the 1900 period March');
+        self::assertSame(0, $result->values[1][0], 'No January leak from I1 upper bound into the 1900 period');
+        self::assertSame(2, $this->matrixTotal($result->values), 'Two individuals, not three dates rows');
+    }
+
+    /**
      * eventHeatmapByPeriodMonth('DEAT') bins dated deaths the same way over the
      * DEAT axis. The fixture's deaths fall in the 1950 period (two in March,
      * 1970 and 1972) and the 1975 period (one December 1980, one January 1990).

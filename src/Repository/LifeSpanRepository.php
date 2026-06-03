@@ -34,6 +34,7 @@ use MagicSunday\Webtrees\Statistic\Support\Calc\MortalityAnomalies;
 use MagicSunday\Webtrees\Statistic\Support\Database\BirthDeathPairsQuery;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
+use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
@@ -1056,19 +1057,19 @@ final readonly class LifeSpanRepository
     {
         $periodYears = 25;
 
-        // Bound the year on BOTH sides so a single out-of-range date can't blow
-        // the dense period-fill into hundreds of empty rows. `d_year > 0`
-        // excludes the year-0 sentinel and BCE (negative) years; `d_year <=`
-        // this year excludes future dates — a non-physical birth/death year, and
-        // crucially the upper bound a `BET … AND <far-future>` range writes as a
-        // second `dates` row (webtrees stores both range bounds). `d_mon BETWEEN
-        // 1 AND 12` keeps only dates with a real calendar month, so the foreach
-        // below trusts the bounds and adds no redundant in-PHP re-checks.
+        // Source from the deduplicated lower-bound rows so a range date
+        // (`BET … AND …`), which webtrees stores as two `dates` rows, counts the
+        // individual ONCE in its lower-bound period/month instead of seeding a
+        // second cell from the upper-bound row. Bound the year on BOTH sides so
+        // a single out-of-range date can't blow the dense period-fill into
+        // hundreds of empty rows: `d_year > 0` excludes BCE (negative) years
+        // (DedupedEventDates keeps them — it only drops the year-0 sentinel);
+        // `d_year <=` this year excludes a non-physical future lower bound.
+        // `d_mon BETWEEN 1 AND 12` keeps only dates with a real calendar month,
+        // so the foreach below trusts the bounds and adds no in-PHP re-checks.
         $currentYear = getdate()['year'];
 
-        $rows = TreeScope::table($this->tree, 'dates')
-            ->where('d_fact', '=', $fact)
-            ->whereIn('d_type', ['@#DGREGORIAN@', '@#DJULIAN@'])
+        $rows = DedupedEventDates::query($this->tree, $fact)
             ->where('d_year', '>', 0)
             ->where('d_year', '<=', $currentYear)
             ->where('d_mon', '>=', 1)
