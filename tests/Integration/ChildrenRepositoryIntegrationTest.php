@@ -376,6 +376,29 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
+     * BCE births fold into a negative century rather than being dropped.
+     * multi-birth-rate-bce.ged seeds 202 children all born in the 1st century
+     * BCE — 200 singletons plus one same-day twin pair — so the cohort clears
+     * the 200-child floor and the Twins series surfaces at 2/202 ≈ 0.99 %. A
+     * regression that re-introduces either `birth_year <= 0` guard (the load
+     * loop building the per-century totals, or the per-set primary-year guard)
+     * drops the whole BCE cohort and returns an empty payload.
+     */
+    #[Test]
+    public function multipleBirthRateByCenturyBucketsBceBirthsIntoNegativeCenturies(): void
+    {
+        $tree   = $this->importFixtureTree('multi-birth-rate-bce.ged');
+        $result = $this->repository($tree)->multipleBirthRateByCentury();
+
+        self::assertSame(
+            [CenturyName::compactLabel(-1)],
+            $result->categories,
+        );
+        self::assertSame('Twins', $result->series[0]->name);
+        self::assertEqualsWithDelta(0.99, $result->series[0]->values[0], 0.01);
+    }
+
+    /**
      * A tree with no dated births returns an empty payload so the widget
      * surfaces the EmptyStatePlaceholder rather than an axis scaffold with zero
      * lines.

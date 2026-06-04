@@ -355,10 +355,9 @@ final readonly class NameRepository
         $daughterTooltipLabels = [];
 
         foreach (array_keys($allCenturies) as $century) {
-            $label     = CenturyName::for($century);
-            $longLabel = CenturyName::longLabel($label);
+            $longLabel = CenturyName::longLabel($century);
 
-            $categories[] = CenturyName::compactLabel($label);
+            $categories[] = CenturyName::compactLabel($century);
 
             [$sonValues[], $sonTooltips[]]           = $this->seriesRow($fatherSon[$century] ?? null, 'son');
             $sonTooltipLabels[]                      = $longLabel;
@@ -449,7 +448,9 @@ final readonly class NameRepository
         foreach ($rows as $row) {
             $year = RowCast::int($row, 'birth_year');
 
-            if ($year <= 0) {
+            // Only the degenerate unparseable year 0 is dropped — BCE (negative)
+            // years fold into negative centuries through CenturyName::fromYear().
+            if ($year === 0) {
                 continue;
             }
 

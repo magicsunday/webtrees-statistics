@@ -89,11 +89,11 @@ final readonly class DivorceRepository
     }
 
     /**
-     * Divorces grouped by century, keyed by the localised ordinal label. Counts
-     * each family once even when its DIV is a range date (stored as two `dates`
-     * rows).
+     * Divorces grouped by century, keyed by the signed 1-based century number
+     * (negative for BCE). Counts each family once even when its DIV is a range
+     * date (stored as two `dates` rows).
      *
-     * @return array<string, int>
+     * @return array<int, int>
      */
     public function divorcesByCentury(): array
     {
@@ -191,10 +191,10 @@ final readonly class DivorceRepository
     public function divorcesByCenturyAndAgeBand(): StackedBarPayload
     {
         // Match core's `countEventsByCentury` reach — accept DIV
-        // rows with any positive year, including ones that lack a
-        // resolvable julian day (year-only DATEs). Such rows can't
-        // contribute an age but they still count in the line chart,
-        // so the Unknown catch-all keeps the totals aligned.
+        // rows with any parseable year (BCE included), including ones
+        // that lack a resolvable julian day (year-only DATEs). Such
+        // rows can't contribute an age but they still count in the
+        // line chart, so the Unknown catch-all keeps the totals aligned.
         // Ranged DIV / BIRT dates produce two `dates` rows per anchor,
         // so a FAM with ranged anchors on all three columns could
         // produce up to 2^3 = 8 rows in the JOIN. Grouping by
@@ -230,7 +230,9 @@ final readonly class DivorceRepository
             $divYear = RowCast::int($row, 'div_year');
             $divJd   = RowCast::int($row, 'div_jd');
 
-            if ($divYear <= 0) {
+            // Only the degenerate unparseable year 0 is dropped — BCE (negative)
+            // years fold into negative centuries through CenturyName::fromYear().
+            if ($divYear === 0) {
                 continue;
             }
 
@@ -286,9 +288,8 @@ final readonly class DivorceRepository
         $tooltipLabels = [];
 
         foreach (array_keys($cohorts) as $century) {
-            $short           = CenturyName::for($century);
-            $categories[]    = $short;
-            $tooltipLabels[] = CenturyName::longLabel($short);
+            $categories[]    = CenturyName::compactLabel($century);
+            $tooltipLabels[] = CenturyName::longLabel($century);
         }
 
         $series = [];

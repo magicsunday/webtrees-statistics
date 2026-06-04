@@ -20,8 +20,10 @@ use function ksort;
 
 /**
  * Counts the distinct records of a GEDCOM fact per century, keyed by the
- * localised ordinal label ("19th", "20th", …) the chart-lib `BarChart` widget
- * renders. Replaces webtrees core's `StatisticsData::countEventsByCentury()`
+ * signed 1-based century number ({@see CenturyName::fromYear()}). The view layer
+ * renders the label via {@see CenturyName::compactLabel()} / {@see
+ * CenturyName::longLabel()} so the BCE era marker composes after the century
+ * noun. Replaces webtrees core's `StatisticsData::countEventsByCentury()`
  * for the births / deaths / weddings / divorces histograms: core counts raw
  * `dates` rows, so a range date (`BET..AND` / `FROM..TO`) is double-counted and
  * may split across two centuries. Sourcing the count from
@@ -49,12 +51,12 @@ final readonly class EventCenturyTally
 
     /**
      * Distinct-record count per century for the given fact, century-ascending,
-     * keyed by the localised ordinal label.
+     * keyed by the signed 1-based century number (negative for BCE).
      *
      * @param Tree   $tree The tree whose events to count
      * @param string $fact The GEDCOM fact tag (e.g. `BIRT`, `DEAT`, `MARR`, `DIV`)
      *
-     * @return array<string, int>
+     * @return array<int, int>
      */
     public static function countByCentury(Tree $tree, string $fact): array
     {
@@ -73,12 +75,6 @@ final readonly class EventCenturyTally
 
         ksort($byCentury);
 
-        $out = [];
-
-        foreach ($byCentury as $century => $count) {
-            $out[CenturyName::for($century)] = $count;
-        }
-
-        return $out;
+        return $byCentury;
     }
 }

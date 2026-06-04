@@ -13,6 +13,7 @@ namespace MagicSunday\Webtrees\Statistic\Support\Locale;
 
 use Fisharebest\Webtrees\I18N;
 
+use function abs;
 use function intdiv;
 use function strip_tags;
 
@@ -50,7 +51,8 @@ final readonly class CenturyName
      * which would collapse 1–100 BCE into the 1st century CE and 101–200 BCE
      * into the degenerate century 0; the explicit re-sign floors toward
      * negative infinity instead, landing every BCE year in a negative century
-     * that {@see for()} wraps as "%s BCE".
+     * that {@see compactLabel()} / {@see longLabel()} render with a trailing
+     * "%s BCE" era marker.
      */
     public static function fromYear(int $year): int
     {
@@ -62,16 +64,13 @@ final readonly class CenturyName
     }
 
     /**
-     * Localise a 1-based century number (1, 2, …, 21) to the ordinal string
-     * ("1st", "21st", …) the active locale uses for centuries. Negative inputs
-     * are wrapped as "{N} BCE".
+     * Localise a positive 1-based century number to its bare ordinal string
+     * ("1st", "21st", …). The single place the per-locale ordinal table lives;
+     * {@see compactLabel()} and {@see longLabel()} both build on it so the BCE
+     * era marker can be appended LAST, after the century noun.
      */
-    public static function for(int $century): string
+    private static function ordinal(int $century): string
     {
-        if ($century < 0) {
-            return I18N::translate('%s BCE', self::for(-$century));
-        }
-
         return strip_tags(match ($century) {
             21      => I18N::translateContext('CENTURY', '21st'),
             20      => I18N::translateContext('CENTURY', '20th'),
@@ -99,25 +98,39 @@ final readonly class CenturyName
     }
 
     /**
-     * Append the localised "Century" noun to a short ordinal label, producing
-     * the long form widget tooltips use ("20th Century" / "20. Jahrhundert").
-     * Accepts either an already-formatted short label (the output of
-     * `self::for()` or core's `countEventsByCentury` map keys) so PHTML loops
-     * and repository code share the same suffix logic.
+     * Long-form century label widget tooltips use ("20th Century" / "20.
+     * Jahrhundert"). The BCE era marker is appended LAST, after the "Century"
+     * noun, so a negative century reads "2nd Century BCE" / "2. Jahrhundert
+     * v. u. Z." — never "2nd BCE Century". Takes the integer century directly so
+     * the noun and the era marker compose in the right order.
      */
-    public static function longLabel(string $short): string
+    public static function longLabel(int $century): string
     {
-        return $short . ' ' . I18N::translate('Century');
+        $label = self::ordinal(abs($century)) . ' ' . I18N::translate('Century');
+
+        if ($century < 0) {
+            return I18N::translate('%s BCE', $label);
+        }
+
+        return $label;
     }
 
     /**
      * Compact-form label for tight legend / axis tick contexts — "20th cent."
-     * in English, "20. Jh." in German. Accepts the same already-formatted short
-     * label as {@see longLabel()}; the translator owns the abbreviated suffix
-     * per locale.
+     * in English, "20. Jh." in German. The BCE era marker is appended LAST,
+     * after the abbreviated "cent." noun, so a negative century reads "2nd cent.
+     * BCE" / "2. Jh. v. u. Z." — never "2nd BCE cent.". Takes the integer
+     * century directly so the noun and the era marker compose in the right
+     * order.
      */
-    public static function compactLabel(string $short): string
+    public static function compactLabel(int $century): string
     {
-        return I18N::translate('%s cent.', $short);
+        $label = I18N::translate('%s cent.', self::ordinal(abs($century)));
+
+        if ($century < 0) {
+            return I18N::translate('%s BCE', $label);
+        }
+
+        return $label;
     }
 }

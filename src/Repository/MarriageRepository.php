@@ -935,12 +935,12 @@ final class MarriageRepository
     }
 
     /**
-     * Weddings grouped by century, keyed by the localised ordinal label.
-     * Output shape is `[centuryLabel => count]`. Counts each family once even
-     * when its MARR is a range date (which webtrees stores as two `dates`
-     * rows).
+     * Weddings grouped by century, keyed by the signed 1-based century number
+     * (negative for BCE). Output shape is `[century => count]`. Counts each
+     * family once even when its MARR is a range date (which webtrees stores as
+     * two `dates` rows).
      *
-     * @return array<string, int>
+     * @return array<int, int>
      */
     public function weddingsByCentury(): array
     {

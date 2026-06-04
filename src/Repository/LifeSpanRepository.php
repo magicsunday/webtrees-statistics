@@ -177,7 +177,10 @@ final readonly class LifeSpanRepository
     /**
      * Age-at-death distribution bucketed into 10-year bands plus a "100+"
      * overflow. Empty buckets are kept in the output so the histogram renders a
-     * continuous x-axis without gaps.
+     * continuous x-axis without gaps. Has no century axis, but shares the cohort
+     * decoder with the per-century surfaces, so BCE-born deceased contribute to
+     * their age band like any other individual (only the degenerate year-0
+     * sentinel and date-validity failures are dropped).
      *
      * @return array<string, int>
      */
@@ -429,8 +432,9 @@ final readonly class LifeSpanRepository
      * Age-at-death samples grouped by birth century. Each entry carries the raw
      * integer ages so the consumer (typically the chart-lib BoxPlot widget) can
      * compute quartiles, whiskers and outliers itself. Sub-day fractions are
-     * dropped via {@see CalendarSpan::wholeYears()}; non-positive ages, ages
-     * above the tree's plausible-age cap, and BCE birth years are filtered out.
+     * dropped via {@see CalendarSpan::wholeYears()}; non-positive ages and ages
+     * above the tree's plausible-age cap are filtered out. BCE birth years fold
+     * into negative centuries rather than being dropped.
      *
      * Cohorts below {@see self::MIN_COHORT_SIZE} samples are skipped — a
      * five-number summary on a 1-person cohort is noise.
@@ -789,8 +793,7 @@ final readonly class LifeSpanRepository
                 continue;
             }
 
-            $label        = CenturyName::for($century);
-            $categories[] = CenturyName::compactLabel($label);
+            $categories[] = CenturyName::compactLabel($century);
 
             $maleAverage = $perSex['M']['n'] >= self::MIN_COHORT_SIZE
                 ? round($perSex['M']['sum'] / $perSex['M']['n'], 1)
@@ -816,7 +819,7 @@ final readonly class LifeSpanRepository
                 )
                 : I18N::translate('no data (n < %s)', I18N::number(self::MIN_COHORT_SIZE));
 
-            $longLabel             = CenturyName::longLabel($label);
+            $longLabel             = CenturyName::longLabel($century);
             $maleTooltipLabels[]   = $longLabel;
             $femaleTooltipLabels[] = $longLabel;
         }
@@ -920,7 +923,7 @@ final readonly class LifeSpanRepository
             }
 
             $series[] = new LineChartSeries(
-                name: CenturyName::compactLabel(CenturyName::for($century)),
+                name: CenturyName::compactLabel($century),
                 values: $values,
                 tooltips: $tooltips,
                 tooltipLabels: $tooltipLabels,
@@ -1008,7 +1011,7 @@ final readonly class LifeSpanRepository
         $data      = [];
 
         foreach ($seenCenturies as $century => $_present) {
-            $centuries[] = CenturyName::compactLabel(CenturyName::for($century));
+            $centuries[] = CenturyName::compactLabel($century);
 
             $column = [];
 
@@ -1153,10 +1156,12 @@ final readonly class LifeSpanRepository
     /**
      * Decode one row from {@see BirthDeathPairsQuery} into a `[century, years]`
      * tuple, applying every date-validity guard that every cohort metric on
-     * this repository shares. Returns null when the row should be skipped —
-     * non-positive birth year, missing julian-day anchors, death-before-birth,
-     * or a lifespan above the plausibility ceiling. Caller-side filters (e.g.
-     * drop zero-day lifespans for cohort means) sit on top of the tuple value.
+     * this repository shares. Returns null when the row should be skipped — the
+     * degenerate unparseable year 0, missing julian-day anchors, death-before-
+     * birth, or a lifespan above the plausibility ceiling. BCE (negative) birth
+     * years are kept and fold into negative centuries through {@see
+     * CenturyName::fromYear()}. Caller-side filters (e.g. drop zero-day
+     * lifespans for cohort means) sit on top of the tuple value.
      *
      * @return array{century: int, years: int}|null
      */
@@ -1164,7 +1169,7 @@ final readonly class LifeSpanRepository
     {
         $year = RowCast::int($row, 'birth_year');
 
-        if ($year <= 0) {
+        if ($year === 0) {
             return null;
         }
 

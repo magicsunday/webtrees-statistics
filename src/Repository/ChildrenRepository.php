@@ -358,8 +358,7 @@ final readonly class ChildrenRepository
         $tooltipLabels = [];
 
         foreach ($perCentury as $century => $childCounts) {
-            $short       = CenturyName::for($century);
-            $longName    = CenturyName::longLabel($short);
+            $longName    = CenturyName::longLabel($century);
             $familyCount = count($childCounts);
             $totalKids   = 0;
 
@@ -368,7 +367,7 @@ final readonly class ChildrenRepository
             }
 
             $average      = $familyCount > 0 ? $totalKids / $familyCount : 0.0;
-            $categories[] = CenturyName::compactLabel($short);
+            $categories[] = CenturyName::compactLabel($century);
             $values[]     = $average;
             $tooltips[]   = I18N::translate(
                 '%1$s children per family (n = %2$s)',
@@ -444,7 +443,9 @@ final readonly class ChildrenRepository
                 continue;
             }
 
-            if ($year <= 0) {
+            // Only the degenerate unparseable year 0 is dropped — BCE (negative)
+            // years fold into negative centuries through CenturyName::fromYear().
+            if ($year === 0) {
                 continue;
             }
 
@@ -516,7 +517,9 @@ final readonly class ChildrenRepository
             $primaryChild    = $setChildren[0];
             $primaryYear     = $yearByChild[$primaryChild] ?? 0;
 
-            if ($primaryYear <= 0) {
+            // The `?? 0` fallback (unreachable in practice) plus the degenerate
+            // year 0 stay out; BCE (negative) years fold into negative centuries.
+            if ($primaryYear === 0) {
                 continue;
             }
 
@@ -558,7 +561,7 @@ final readonly class ChildrenRepository
             }
 
             $qualifyingCenturyOrder[] = $century;
-            $categories[]             = CenturyName::compactLabel(CenturyName::for($century));
+            $categories[]             = CenturyName::compactLabel($century);
         }
 
         if ($categories === []) {
@@ -579,7 +582,7 @@ final readonly class ChildrenRepository
                 $rate     = round(($count / $total) * 100, 2);
 
                 $values[]        = $rate;
-                $tooltipLabels[] = CenturyName::longLabel(CenturyName::for($century));
+                $tooltipLabels[] = CenturyName::longLabel($century);
                 $tooltips[]      = $this->multipleBirthTooltip($multiplicity, $count, $setCount, $total, $rate);
             }
 

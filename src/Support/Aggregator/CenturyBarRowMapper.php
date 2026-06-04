@@ -41,7 +41,7 @@ final readonly class CenturyBarRowMapper
      * Century-histogram rows for a births distribution. `tooltip` pluralises
      * "birth / births".
      *
-     * @param array<int|string, int> $byCentury Century → count map
+     * @param array<int, int> $byCentury Signed century number → count map
      *
      * @return list<array{label: string, value: int, tooltipLabel: string, tooltip: string}>
      */
@@ -51,9 +51,9 @@ final readonly class CenturyBarRowMapper
 
         foreach ($byCentury as $century => $count) {
             $rows[] = [
-                'label'        => CenturyName::compactLabel((string) $century),
+                'label'        => CenturyName::compactLabel($century),
                 'value'        => $count,
-                'tooltipLabel' => CenturyName::longLabel((string) $century),
+                'tooltipLabel' => CenturyName::longLabel($century),
                 'tooltip'      => I18N::plural('%s birth', '%s births', $count, I18N::number($count)),
             ];
         }
@@ -65,7 +65,7 @@ final readonly class CenturyBarRowMapper
      * Century-histogram rows for a deaths distribution. `tooltip` pluralises
      * "death / deaths".
      *
-     * @param array<int|string, int> $byCentury
+     * @param array<int, int> $byCentury
      *
      * @return list<array{label: string, value: int, tooltipLabel: string, tooltip: string}>
      */
@@ -75,9 +75,9 @@ final readonly class CenturyBarRowMapper
 
         foreach ($byCentury as $century => $count) {
             $rows[] = [
-                'label'        => CenturyName::compactLabel((string) $century),
+                'label'        => CenturyName::compactLabel($century),
                 'value'        => $count,
-                'tooltipLabel' => CenturyName::longLabel((string) $century),
+                'tooltipLabel' => CenturyName::longLabel($century),
                 'tooltip'      => I18N::plural('%s death', '%s deaths', $count, I18N::number($count)),
             ];
         }
@@ -89,7 +89,7 @@ final readonly class CenturyBarRowMapper
      * Century-histogram rows for a marriages distribution. `tooltip` pluralises
      * "marriage / marriages".
      *
-     * @param array<int|string, int> $byCentury
+     * @param array<int, int> $byCentury
      *
      * @return list<array{label: string, value: int, tooltipLabel: string, tooltip: string}>
      */
@@ -99,9 +99,9 @@ final readonly class CenturyBarRowMapper
 
         foreach ($byCentury as $century => $count) {
             $rows[] = [
-                'label'        => CenturyName::compactLabel((string) $century),
+                'label'        => CenturyName::compactLabel($century),
                 'value'        => $count,
-                'tooltipLabel' => CenturyName::longLabel((string) $century),
+                'tooltipLabel' => CenturyName::longLabel($century),
                 'tooltip'      => I18N::plural('%s marriage', '%s marriages', $count, I18N::number($count)),
             ];
         }
@@ -113,7 +113,7 @@ final readonly class CenturyBarRowMapper
      * Century-histogram rows for a divorces distribution. `tooltip` pluralises
      * "divorce / divorces".
      *
-     * @param array<int|string, int> $byCentury
+     * @param array<int, int> $byCentury
      *
      * @return list<array{label: string, value: int, tooltipLabel: string, tooltip: string}>
      */
@@ -123,9 +123,9 @@ final readonly class CenturyBarRowMapper
 
         foreach ($byCentury as $century => $count) {
             $rows[] = [
-                'label'        => CenturyName::compactLabel((string) $century),
+                'label'        => CenturyName::compactLabel($century),
                 'value'        => $count,
-                'tooltipLabel' => CenturyName::longLabel((string) $century),
+                'tooltipLabel' => CenturyName::longLabel($century),
                 'tooltip'      => I18N::plural('%s divorce', '%s divorces', $count, I18N::number($count)),
             ];
         }
@@ -141,12 +141,10 @@ final readonly class CenturyBarRowMapper
      * the tooltip carries the full "X% — N of M individuals sourced" prose for
      * context.
      *
-     * Unlike the events-by-century mappers above, the source-coverage
-     * repository returns the raw 1-based integer century rather than the
-     * localised ordinal string core's `countEventsByCentury()` already
-     * produces. The label conversion via {@see CenturyName::for()} happens here
-     * so the rendered bar matches the "19th" / "20th" tick format used by every
-     * sibling per-century chart.
+     * The source-coverage repository returns the signed 1-based integer century;
+     * {@see CenturyName::compactLabel()} / {@see CenturyName::longLabel()} build
+     * the "19th cent." / "20th Century" labels (and the BCE era marker, composed
+     * last) directly from it, matching every sibling per-century chart.
      *
      * @param list<array{century: int, total: int, sourced: int, percentage: float}> $perCentury Repository output
      *
@@ -157,12 +155,11 @@ final readonly class CenturyBarRowMapper
         $rows = [];
 
         foreach ($perCentury as $entry) {
-            $centuryLabel      = CenturyName::for($entry['century']);
             $percentageRounded = (int) round($entry['percentage']);
             $rows[]            = [
-                'label'        => CenturyName::compactLabel($centuryLabel),
+                'label'        => CenturyName::compactLabel($entry['century']),
                 'value'        => $percentageRounded,
-                'tooltipLabel' => CenturyName::longLabel($centuryLabel),
+                'tooltipLabel' => CenturyName::longLabel($entry['century']),
                 'tooltip'      => I18N::translate(
                     '%1$s%% — %2$s of %3$s individuals sourced',
                     I18N::number($percentageRounded),

@@ -130,18 +130,14 @@ foreach ($childMortalityByCentury as $entry) {
 $childMortalityPayload = LineChartPayload::singleSeries(
     seriesName: I18N::translate('Mortality rate'),
     countsByCategory: $mortalityByCentury,
-    project: static function (int|string $century, int|float $rate) use ($mortalityTooltips): array {
-        $label = CenturyName::for((int) $century);
-
-        return [
-            // Append the locale-specific "Jh." abbreviation so the x-axis
-            // reads "16. Jh." instead of just "16." (DE) / "16th cent."
-            // instead of "16th" (EN), matching the mockup tick style.
-            'categoryLabel' => I18N::translate('%s cent.', $label),
-            'tooltipBody'   => $mortalityTooltips[$century] ?? '',
-            'tooltipLabel'  => CenturyName::longLabel($label),
-        ];
-    },
+    project: static fn (int|string $century, int|float $rate): array => [
+        // compactLabel carries the locale-specific "Jh." / "cent." noun so
+        // the x-axis reads "16. Jh." / "16th cent.", and composes the BCE
+        // era marker last ("2. Jh. v. u. Z.") for negative centuries.
+        'categoryLabel' => CenturyName::compactLabel((int) $century),
+        'tooltipBody'   => $mortalityTooltips[$century] ?? '',
+        'tooltipLabel'  => CenturyName::longLabel((int) $century),
+    ],
 );
 
 $childMortalityExplanation = I18N::translate(
@@ -201,10 +197,9 @@ $deathsByCenturyBars = CenturyBarRowMapper::deaths($deathsByCentury);
 $ageDistBoxes = [];
 
 foreach ($ageDistByCentury as $entry) {
-    $centuryLabel   = CenturyName::for($entry['century']);
     $ageDistBoxes[] = [
-        'category'     => $centuryLabel,
-        'tooltipLabel' => CenturyName::longLabel($centuryLabel),
+        'category'     => CenturyName::compactLabel($entry['century']),
+        'tooltipLabel' => CenturyName::longLabel($entry['century']),
         'values'       => $entry['values'],
     ];
 }
@@ -429,7 +424,7 @@ echo Card::for($module, I18N::translate('Child mortality (under 5)'))
 
 echo Card::for($module, I18N::translate('Peak value'))
     ->withSub($childMortalityPeak !== null
-        ? I18N::translate('Child mortality %s century', CenturyName::for((int) $childMortalityPeak['century']))
+        ? I18N::translate('Child mortality %s', CenturyName::compactLabel((int) $childMortalityPeak['century']))
         : null)
     ->withEyebrow(I18N::translate('Extreme'))
     ->withAccent(Accent::Wine)

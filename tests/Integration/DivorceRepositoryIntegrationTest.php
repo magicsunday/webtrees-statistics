@@ -159,7 +159,7 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('divorce.ged');
         $result = $this->repository($tree)->divorcesByCenturyAndAgeBand();
 
-        self::assertSame(['20th', '21st'], $result->categories);
+        self::assertSame(['20th cent.', '21st cent.'], $result->categories);
         self::assertSame(['20th Century', '21st Century'], $result->tooltipLabels);
 
         // Every band must appear in the legend regardless of zeros.
@@ -185,6 +185,32 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame([0, 0], $perBand['80–89']);
         self::assertSame([0, 0], $perBand['90+']);
         self::assertSame([0, 0], $perBand['Unknown']);
+    }
+
+    /**
+     * BCE divorces fold into a negative century instead of being dropped.
+     * divorce-age-bands-bce.ged seeds two families that divorce in the 1st
+     * century BCE, each husband born 80 B.C. and divorced 40 B.C. (age 40 → the
+     * 40–49 band). A regression that re-introduces the `div_year <= 0` guard
+     * would return an empty payload. `CenturyName::compactLabel(-1)` labels the
+     * lone negative-century column "1st cent. BCE".
+     */
+    #[Test]
+    public function divorcesByCenturyAndAgeBandBucketsBceDivorcesIntoNegativeCenturies(): void
+    {
+        $tree   = $this->importFixtureTree('divorce-age-bands-bce.ged');
+        $result = $this->repository($tree)->divorcesByCenturyAndAgeBand();
+
+        self::assertSame([CenturyName::compactLabel(-1)], $result->categories);
+
+        $perBand = array_combine(
+            array_map(static fn (StackedBarSeries $series): string => $series->name, $result->series),
+            array_map(static fn (StackedBarSeries $series): array => $series->data, $result->series),
+        );
+
+        self::assertSame([2], $perBand['40–49'], 'Both BCE husbands divorced at age 40');
+        self::assertSame([0], $perBand['Unknown']);
+        self::assertSame([0], $perBand['50–59']);
     }
 
     /**
@@ -234,7 +260,7 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('divorce-age-bands.ged');
         $result = $this->repository($tree)->divorcesByCenturyAndAgeBand();
 
-        self::assertSame(['19th', '20th', '21st'], $result->categories);
+        self::assertSame(['19th cent.', '20th cent.', '21st cent.'], $result->categories);
 
         $perBand = array_combine(
             array_map(static fn (StackedBarSeries $series): string => $series->name, $result->series),

@@ -60,13 +60,13 @@ final readonly class EventRepository
 
     /**
      * Distinct-individual count of the given event per century, keyed by the
-     * localised ordinal label the bar chart renders. Used for the births- and
+     * signed 1-based century number (negative for BCE). Used for the births- and
      * deaths-by-century histograms; deduplicates the two-row range-date
      * encoding so each individual counts once.
      *
      * @param string $fact The GEDCOM fact tag (`BIRT` or `DEAT`)
      *
-     * @return array<string, int>
+     * @return array<int, int>
      */
     public function eventsByCentury(string $fact): array
     {

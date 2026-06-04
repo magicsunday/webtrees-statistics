@@ -171,6 +171,26 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
+     * BCE-born children fold into a negative century instead of being dropped.
+     * name-passdown-bce.ged seeds 10 families whose sons all share the father's
+     * given name and whose daughters all share the mother's, every child born
+     * in the 1st century BCE — clearing MIN_COHORT_SIZE (10) for both series at
+     * a 100 % match rate. A regression that re-introduces the `birth_year <= 0`
+     * guard in `passdownPairsByCentury` would drop the whole cohort and return
+     * an empty payload.
+     */
+    #[Test]
+    public function sameSexNamePassdownByCenturyBucketsBceBirthsIntoNegativeCenturies(): void
+    {
+        $tree   = $this->importFixtureTree('name-passdown-bce.ged');
+        $result = $this->repository($tree)->sameSexNamePassdownByCentury();
+
+        self::assertSame([CenturyName::compactLabel(-1)], $result->categories);
+        self::assertEqualsWithDelta(100.0, $result->series[0]->values[0], 0.05, 'Father → son: 10/10 match');
+        self::assertEqualsWithDelta(100.0, $result->series[1]->values[0], 0.05, 'Mother → daughter: 10/10 match');
+    }
+
+    /**
      * The existing `name-trends.ged` fixture carries no FAMC links, so the
      * per-century passdown query yields zero parent-child pairs of either sex
      * pairing and the method short-circuits to an empty payload.

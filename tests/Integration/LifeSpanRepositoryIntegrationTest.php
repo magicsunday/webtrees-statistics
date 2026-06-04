@@ -915,6 +915,87 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
+     * Every per-birth-century LifeSpan metric folds BCE (negative) birth years
+     * into negative centuries instead of dropping them. life-span-bce.ged seeds
+     * 36 individuals (18 male, 18 female) all born AND deceased in the 1st
+     * century BCE, with lifespans varied enough to clear both the ordinary
+     * cohort floor (5) and the survival-curve floor (30). A regression that
+     * re-introduces the `birth_year <= 0` guard in the shared cohort decoder
+     * would drop the whole population and collapse every one of these four
+     * surfaces back to its empty state.
+     */
+    #[Test]
+    public function perCenturyMetricsBucketBceBirthsIntoNegativeCenturies(): void
+    {
+        $tree       = $this->importFixtureTree('life-span-bce.ged');
+        $repository = $this->repository($tree);
+        $bceCentury = -1;
+        $bceLabel   = CenturyName::compactLabel($bceCentury);
+
+        // Box-plot distribution: a single negative-century cohort of all 36.
+        $distribution = $repository->deathAgeDistributionByCentury();
+        self::assertCount(1, $distribution, 'Only the 1st-century-BCE cohort exists');
+        self::assertSame($bceCentury, $distribution[0]['century']);
+        self::assertSame(36, $distribution[0]['n']);
+
+        // Sex/century means: one BCE category, both sexes above the floor.
+        $means = $repository->averageLifespanBySexAndCentury();
+        self::assertSame([$bceLabel], $means->categories);
+        self::assertStringContainsString('n = 18', $means->series[0]->tooltips[0]);
+        self::assertStringContainsString('n = 18', $means->series[1]->tooltips[0]);
+
+        // Survival curve: the BCE cohort (n=36) clears the 30-sample floor.
+        $survival = $repository->survivalFunctionByCentury();
+        self::assertCount(1, $survival->series);
+        self::assertSame($bceLabel, $survival->series[0]->name);
+        self::assertSame(100.0, $survival->series[0]->values[0], 'Everyone is alive at the age-0 anchor');
+        // Discriminator: the cohort's lifespans (30–74 years) mean nobody
+        // reached the age-100 threshold, so the curve's last point is a real
+        // 0.0 computed from BCE ages — not just the trivial age-0 anchor.
+        self::assertSame(0.0, $survival->series[0]->values[10], 'No BCE individual reached age 100');
+
+        // Population pyramid: a single BCE column holding all 36 deaths.
+        $pyramid = $repository->deathsByCenturyAgeBandSex();
+        self::assertSame([$bceLabel], $pyramid->groups);
+        self::assertSame(36, $this->columnTotal($pyramid->data[0]));
+
+        // Shared-decoder side effect: the tree-wide age-at-death histogram has
+        // no century axis, but it routes through the same cohort decoder, so
+        // relaxing the guard also lets all 36 BCE-born deceased into their age
+        // bands (previously dropped as "non-positive birth year").
+        self::assertSame(36, array_sum($repository->ageAtDeathDistribution()));
+    }
+
+    /**
+     * On a tree straddling the Common-Era boundary the per-century fold orders
+     * the negative (BCE) century AHEAD of the positive (CE) one and inserts no
+     * degenerate century-0 cohort between them. life-span-bce-ce.ged seeds 6
+     * deceased born in the 1st century BCE and 6 in the 1st century CE. The
+     * box-plot keys carry the signed century directly (so we pin the integer
+     * order `-1, 1`); the pyramid groups carry the rendered labels (so we pin
+     * "1st cent. BCE" sorting before "1st cent.", era marker composed last).
+     */
+    #[Test]
+    public function perCenturyMetricsOrderBceCohortsAheadOfCe(): void
+    {
+        $tree       = $this->importFixtureTree('life-span-bce-ce.ged');
+        $repository = $this->repository($tree);
+
+        $distribution = $repository->deathAgeDistributionByCentury();
+        self::assertSame([-1, 1], array_map(
+            static fn (array $entry): int => $entry['century'],
+            $distribution,
+        ));
+        self::assertSame(6, $distribution[0]['n']);
+        self::assertSame(6, $distribution[1]['n']);
+
+        self::assertSame(
+            [CenturyName::compactLabel(-1), CenturyName::compactLabel(1)],
+            $repository->deathsByCenturyAgeBandSex()->groups,
+        );
+    }
+
+    /**
      * Sum every count across a period × month value matrix.
      *
      * @param list<list<int>> $values

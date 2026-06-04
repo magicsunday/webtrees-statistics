@@ -58,7 +58,7 @@ final class EventCenturyTallyIntegrationTest extends IntegrationTestCase
     {
         $tree = $this->importFixtureTree('century-dedup.ged');
 
-        self::assertSame(['19th' => 3], EventCenturyTally::countByCentury($tree, 'BIRT'));
+        self::assertSame([19 => 3], EventCenturyTally::countByCentury($tree, 'BIRT'));
     }
 
     /**
@@ -70,15 +70,15 @@ final class EventCenturyTallyIntegrationTest extends IntegrationTestCase
     {
         $tree = $this->importFixtureTree('century-dedup.ged');
 
-        self::assertSame(['20th' => 1], EventCenturyTally::countByCentury($tree, 'DEAT'));
-        self::assertSame(['19th' => 1], EventCenturyTally::countByCentury($tree, 'MARR'));
-        self::assertSame(['19th' => 1], EventCenturyTally::countByCentury($tree, 'DIV'));
+        self::assertSame([20 => 1], EventCenturyTally::countByCentury($tree, 'DEAT'));
+        self::assertSame([19 => 1], EventCenturyTally::countByCentury($tree, 'MARR'));
+        self::assertSame([19 => 1], EventCenturyTally::countByCentury($tree, 'DIV'));
     }
 
     /**
-     * BCE births fold into negative centuries the histogram labels as "%s BCE",
-     * sorted ahead of the CE cohorts with no degenerate century-0 bar between
-     * them. The fixture seeds:
+     * BCE births fold into negative century numbers, sorted ahead of the CE
+     * cohorts with no degenerate century-0 key between them (the view layer
+     * renders the "%s BCE" label). The fixture seeds:
      *  - I1 BIRT `BET 90 B.C. AND 70 B.C.` — a 1st-century-BCE range that, like
      *    its CE siblings, must count once in its lower-bound century (-90), not
      *    twice; the most-negative `d_year` is the chronological lower bound.
@@ -96,7 +96,7 @@ final class EventCenturyTallyIntegrationTest extends IntegrationTestCase
         $tree = $this->importFixtureTree('century-dedup-bce.ged');
 
         self::assertSame(
-            ['2nd BCE' => 1, '1st BCE' => 2, '1st' => 1],
+            [-2 => 1, -1 => 2, 1 => 1],
             EventCenturyTally::countByCentury($tree, 'BIRT'),
         );
     }

@@ -381,7 +381,7 @@ final readonly class Statistic
     }
 
     /**
-     * @return array<string, int>
+     * @return array<int, int>
      */
     public function getBirthsByCentury(): array
     {
@@ -422,7 +422,7 @@ final readonly class Statistic
     }
 
     /**
-     * @return array<string, int>
+     * @return array<int, int>
      */
     public function getDeathsByCentury(): array
     {
@@ -868,7 +868,7 @@ final readonly class Statistic
     /**
      * Weddings grouped by century.
      *
-     * @return array<string, int>
+     * @return array<int, int>
      */
     public function getWeddingsByCentury(): array
     {
@@ -890,7 +890,7 @@ final readonly class Statistic
     /**
      * Divorces grouped by century.
      *
-     * @return array<string, int>
+     * @return array<int, int>
      */
     public function getDivorcesByCentury(): array
     {

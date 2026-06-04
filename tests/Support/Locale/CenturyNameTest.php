@@ -25,8 +25,8 @@ use PHPUnit\Framework\TestCase;
  * still belongs to the 1st century and the 2nd century begins at year 101, so
  * the boundary tests pin the `-1 / +1` shift that the inline formula was prone
  * to fat-finger before the helper extraction. The BCE rows additionally pin the
- * floor-toward-negative-infinity fold, asserting the full year → century →
- * label path renders "%s BCE" rather than collapsing into the CE ordinals.
+ * floor-toward-negative-infinity fold, and the compact / long label tests pin
+ * the era marker composing LAST ("2nd cent. BCE", never "2nd BCE cent.").
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -54,8 +54,9 @@ final class CenturyNameTest extends TestCase
             'year 2001 starts the 21st'       => [2001, 21],
 
             // BCE years must floor toward negative infinity so they land in a
-            // negative century that `for()` wraps as "%s BCE"; truncate-toward-
-            // zero would collapse 1–100 BCE into the 1st century CE.
+            // negative century that the label builders render with a trailing
+            // "%s BCE" era marker; truncate-toward-zero would collapse 1–100 BCE
+            // into the 1st century CE.
             'year -1 is the 1st century BCE'       => [-1, -1],
             'year -100 is the 1st century BCE'     => [-100, -1],
             'year -101 starts the 2nd century BCE' => [-101, -2],
@@ -76,34 +77,64 @@ final class CenturyNameTest extends TestCase
     }
 
     /**
-     * Each row pins the full year → century → label path for a BCE-dated event,
-     * proving the fold lands in a negative century that `for()` wraps as
-     * "{ordinal} BCE" rather than silently merging it into the CE ordinals.
+     * The era marker must be the FINAL token of every label form, after the
+     * century noun. A BCE compact label reads "2nd cent. BCE" (German "2. Jh.
+     * v. u. Z."), never "2nd BCE cent." — the bug that surfaced when `for()`
+     * baked the era marker in before `compactLabel()` appended the noun.
      *
      * @return array<string, array{int, string}>
      */
-    public static function bceLabelProvider(): array
+    public static function compactLabelProvider(): array
     {
         return [
-            'year -1 labels as 1st BCE'   => [-1, '1st BCE'],
-            'year -100 labels as 1st BCE' => [-100, '1st BCE'],
-            'year -101 labels as 2nd BCE' => [-101, '2nd BCE'],
-            'year -150 labels as 2nd BCE' => [-150, '2nd BCE'],
-            'year -201 labels as 3rd BCE' => [-201, '3rd BCE'],
+            'CE 20th'  => [20, '20th cent.'],
+            'CE 1st'   => [1, '1st cent.'],
+            'BCE 1st'  => [-1, '1st cent. BCE'],
+            'BCE 2nd'  => [-2, '2nd cent. BCE'],
+            'BCE 21st' => [-21, '21st cent. BCE'],
         ];
     }
 
     /**
-     * A BCE event year routed through `fromYear()` then `for()` must render the
-     * BCE ordinal, not a CE ordinal nor the degenerate "0 century" fall-through.
+     * Compact century label composes the era marker last, after the abbreviated
+     * "cent." noun.
      */
     #[Test]
-    #[DataProvider('bceLabelProvider')]
-    public function bceYearsLabelAsBceOrdinals(int $year, string $expectedLabel): void
+    #[DataProvider('compactLabelProvider')]
+    public function compactLabelComposesEraMarkerLast(int $century, string $expected): void
     {
         (new Webtrees())->bootstrap();
         I18N::init('en-US', true);
 
-        self::assertSame($expectedLabel, CenturyName::for(CenturyName::fromYear($year)));
+        self::assertSame($expected, CenturyName::compactLabel($century));
+    }
+
+    /**
+     * Long century label likewise carries the era marker after the full
+     * "Century" noun: "2nd Century BCE" (German "2. Jahrhundert v. u. Z.").
+     *
+     * @return array<string, array{int, string}>
+     */
+    public static function longLabelProvider(): array
+    {
+        return [
+            'CE 20th' => [20, '20th Century'],
+            'CE 1st'  => [1, '1st Century'],
+            'BCE 1st' => [-1, '1st Century BCE'],
+            'BCE 2nd' => [-2, '2nd Century BCE'],
+        ];
+    }
+
+    /**
+     * Long century label composes the era marker last, after the "Century" noun.
+     */
+    #[Test]
+    #[DataProvider('longLabelProvider')]
+    public function longLabelComposesEraMarkerLast(int $century, string $expected): void
+    {
+        (new Webtrees())->bootstrap();
+        I18N::init('en-US', true);
+
+        self::assertSame($expected, CenturyName::longLabel($century));
     }
 }

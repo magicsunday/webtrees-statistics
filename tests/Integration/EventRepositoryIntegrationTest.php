@@ -105,7 +105,7 @@ final class EventRepositoryIntegrationTest extends IntegrationTestCase
     {
         $tree = $this->importFixtureTree('century-dedup.ged');
 
-        self::assertSame(['19th' => 3], (new EventRepository($tree))->eventsByCentury('BIRT'));
+        self::assertSame([19 => 3], (new EventRepository($tree))->eventsByCentury('BIRT'));
     }
 
     /**
