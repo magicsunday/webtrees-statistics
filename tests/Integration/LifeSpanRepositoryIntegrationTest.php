@@ -23,6 +23,7 @@ use MagicSunday\Webtrees\Statistic\Support\Calc\HistogramTrim;
 use MagicSunday\Webtrees\Statistic\Support\Database\BirthDeathPairsQuery;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
+use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
@@ -65,6 +66,7 @@ use function sprintf;
 #[UsesClass(BirthDeathPairsQuery::class)]
 #[UsesClass(DateAggregate::class)]
 #[UsesClass(DateJoin::class)]
+#[UsesClass(DedupedEventDates::class)]
 #[UsesClass(TreeScope::class)]
 #[UsesClass(RowCast::class)]
 #[UsesClass(CenturyName::class)]
@@ -286,6 +288,42 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
         $result = $this->repository($tree)->cumulativeBirthsByDecade();
 
         self::assertSame([1900 => 1], $result);
+    }
+
+    /**
+     * A `BET 1909 AND 1911` birth is written as two `dates` rows — a 1909
+     * lower-bound and a 1911 upper-bound — straddling the 1900s/1910s decade
+     * boundary. The raw aggregation would tally the individual once in the
+     * 1900s (lower bound) and once in the 1910s (upper bound), inventing a
+     * phantom 1910s decade and inflating the total to three. Collapsing to one
+     * representative (lower-bound) row per individual keeps the two fixture
+     * births in the single 1900s bucket: both DecadeStraddle and Precise land
+     * in the 1900s, so the series is exactly `[1900 => 2]` with no 1910s key.
+     */
+    #[Test]
+    public function birthsByDecadeCollapsesRangedBirthToOneDecade(): void
+    {
+        $tree   = $this->importFixtureTree('births-by-decade-dedup.ged');
+        $result = $this->repository($tree)->birthsByDecade();
+
+        // Both births fall in the 1900s; the ranged birth never spills into a
+        // phantom 1910s bucket, so the whole series is this single entry.
+        self::assertSame([1900 => 2], $result);
+    }
+
+    /**
+     * The cumulative series rides on top of the deduplicated per-decade tally,
+     * so the same ranged birth that must not spill into the 1910s must not add
+     * a phantom cumulative step there either: the running total tops out at two
+     * in the 1900s with no trailing 1910s entry.
+     */
+    #[Test]
+    public function cumulativeBirthsByDecadeInheritsRangedBirthDeduplication(): void
+    {
+        $tree   = $this->importFixtureTree('births-by-decade-dedup.ged');
+        $result = $this->repository($tree)->cumulativeBirthsByDecade();
+
+        self::assertSame([1900 => 2], $result);
     }
 
     /**

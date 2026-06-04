@@ -221,11 +221,13 @@ final readonly class LifeSpanRepository
 
     /**
      * Births grouped by decade across the entire tree — the
-     * "Stammbaum-Wachstum" indicator for the TreeHealth tab. Each BIRT date
-     * contributes one tick to its decade bucket. Leading and trailing
-     * zero-decades are trimmed via {@see HistogramTrim::dropZeroEnds()} so the
-     * visible range starts at the first decade with a recorded birth and ends
-     * at the last; inner zero-decades stay so a gap in the recorded history
+     * family-tree growth indicator for the TreeHealth tab. Births are
+     * deduplicated to one representative row per individual first, so an
+     * imprecise `BET`/`FROM` birth contributes a single tick to its lower-bound
+     * decade rather than one tick to each of its two stored bounds. Leading and
+     * trailing zero-decades are trimmed via {@see HistogramTrim::dropZeroEnds()}
+     * so the visible range starts at the first decade with a recorded birth and
+     * ends at the last; inner zero-decades stay so a gap in the recorded history
      * remains visible.
      *
      * Decade keys are integer starts (e.g. `1900` for the 1900s); the display
@@ -236,10 +238,7 @@ final readonly class LifeSpanRepository
      */
     public function birthsByDecade(): array
     {
-        $rows = TreeScope::table($this->tree, 'dates')
-            ->where('d_fact', '=', 'BIRT')
-            ->whereIn('d_type', ['@#DGREGORIAN@', '@#DJULIAN@'])
-            ->where('d_year', '<>', 0)
+        $rows = DedupedEventDates::query($this->tree, 'BIRT')
             ->select(['d_year'])
             ->get();
 
