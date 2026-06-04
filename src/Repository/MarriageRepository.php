@@ -28,13 +28,13 @@ use MagicSunday\Webtrees\Statistic\Model\Record\IndividualCountRecord;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\EventCenturyTally;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\IndividualAgeRecordResolver;
 use MagicSunday\Webtrees\Statistic\Support\Calc\AgeBuckets;
+use MagicSunday\Webtrees\Statistic\Support\Calc\CalendarSpan;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RecordName;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 
-use function abs;
 use function array_column;
 use function array_fill_keys;
 use function array_reverse;
@@ -81,11 +81,6 @@ final class MarriageRepository
     private const int AGE_GAP_BUCKET = 5;
 
     /**
-     * Julian days per year used to turn a birth-day difference into whole years.
-     */
-    private const int DAYS_PER_YEAR = 365;
-
-    /**
      * The seven shared age-gap magnitude bands, both sides read against these.
      *
      * @var list<string>
@@ -111,12 +106,6 @@ final class MarriageRepository
      * traditional year of mourning.
      */
     private const array REMARRIAGE_INTERVAL_BANDS = ['<6', '6–11', '12–23', '24–35', '36–47', '48–59', '60+'];
-
-    /**
-     * Months per year used to convert the day gap into whole months for the
-     * remarriage-interval bands.
-     */
-    private const int MONTHS_PER_YEAR = 12;
 
     /**
      * Plausibility band for the spouse-at-marriage and longest-marriage
@@ -202,7 +191,7 @@ final class MarriageRepository
                 continue;
             }
 
-            $years = intdiv($marrJd - $birthJd, 365);
+            $years = CalendarSpan::wholeYears($birthJd, $marrJd);
             $label = AgeBuckets::label($years, self::AGE_AT_MARRIAGE_MAX, self::AGE_AT_MARRIAGE_BUCKET);
 
             $buckets[$label] = ($buckets[$label] ?? 0) + 1;
@@ -222,7 +211,7 @@ final class MarriageRepository
         $buckets = AgeBuckets::init(0, self::DURATION_MAX, self::DURATION_BUCKET);
 
         foreach ($this->marriageDurationPairs() as $pair) {
-            $years           = intdiv($pair['endJd'] - $pair['marrJd'], 365);
+            $years           = CalendarSpan::wholeYears($pair['marrJd'], $pair['endJd']);
             $label           = AgeBuckets::label($years, self::DURATION_MAX, self::DURATION_BUCKET);
             $buckets[$label] = ($buckets[$label] ?? 0) + 1;
         }
@@ -242,7 +231,7 @@ final class MarriageRepository
         $bestXref  = null;
 
         foreach ($this->marriageDurationPairs() as $pair) {
-            $years = intdiv($pair['endJd'] - $pair['marrJd'], 365);
+            $years = CalendarSpan::wholeYears($pair['marrJd'], $pair['endJd']);
 
             if ($years > $bestYears) {
                 $bestYears = $years;
@@ -322,7 +311,7 @@ final class MarriageRepository
 
         foreach ($this->marriageDurationPairs() as $pair) {
             $days  = $pair['endJd'] - $pair['marrJd'];
-            $years = intdiv($days, 365);
+            $years = CalendarSpan::wholeYears($pair['marrJd'], $pair['endJd']);
 
             if ($years > self::MAX_PLAUSIBLE_SPOUSE_AGE) {
                 continue;
@@ -565,7 +554,7 @@ final class MarriageRepository
                 continue;
             }
 
-            $out[] = ['years' => intdiv($marrJd - $birthJd, 365), 'xref' => $xref];
+            $out[] = ['years' => CalendarSpan::wholeYears($birthJd, $marrJd), 'xref' => $xref];
         }
 
         $this->spouseAgeAtMarriageCache[$sex] = $out;
@@ -736,7 +725,7 @@ final class MarriageRepository
                 continue;
             }
 
-            $years = intdiv(abs($diff), self::DAYS_PER_YEAR);
+            $years = CalendarSpan::wholeYears($hbJd, $wbJd);
             $rank  = min(count($bands) - 1, intdiv($years, self::AGE_GAP_BUCKET));
             $band  = $bands[$rank];
 
@@ -802,10 +791,11 @@ final class MarriageRepository
                 continue;
             }
 
-            // abs() so the band reads as widowhood length regardless
-            // of which spouse outlived the other — the histogram is
-            // about the gap, not the sex of the survivor.
-            $years = intdiv(abs($husbJd - $wifeJd), 365);
+            // The span is read as widowhood length regardless of which spouse
+            // outlived the other — the histogram is about the gap between the
+            // two deaths, not the sex of the survivor — so the endpoint order
+            // is immaterial.
+            $years = CalendarSpan::wholeYears($husbJd, $wifeJd);
 
             $label           = AgeBuckets::label($years, self::WIDOWHOOD_MAX, self::WIDOWHOOD_BUCKET);
             $buckets[$label] = ($buckets[$label] ?? 0) + 1;
@@ -904,10 +894,7 @@ final class MarriageRepository
                     continue;
                 }
 
-                $months = intdiv(
-                    ($marriages[$i]['jd'] - $previousSpouseDeath) * self::MONTHS_PER_YEAR,
-                    self::DAYS_PER_YEAR,
-                );
+                $months = CalendarSpan::wholeMonths($previousSpouseDeath, $marriages[$i]['jd']);
 
                 ++$buckets[$this->remarriageIntervalBand($months)];
             }

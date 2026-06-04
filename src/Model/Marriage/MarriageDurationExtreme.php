@@ -25,12 +25,12 @@ namespace MagicSunday\Webtrees\Statistic\Model\Marriage;
 final readonly class MarriageDurationExtreme
 {
     /**
-     * Durations of more than this many whole days read as years; up to and
-     * including this many days stay in days. Two years, so a marriage only
-     * switches to a year count once it spans at least two full years (where the
-     * whole-year value is already 2, never a misleading "1 year").
+     * The whole-year count at which a duration starts reading in years rather
+     * than days. Below two whole years a marriage reads in days, so a sub-year
+     * or just-over-a-year "longest" entry never shows a misleading "0 years" or
+     * "1 year".
      */
-    private const int MAX_DAYS_AS_DAYS = 365 * 2;
+    private const int MIN_YEARS_AS_YEARS = 2;
 
     /**
      * @param string            $familyXref    The family's XREF, kept so equal labels stay distinct
@@ -49,15 +49,15 @@ final readonly class MarriageDurationExtreme
     }
 
     /**
-     * The unit the duration reads best in for this marriage: whole days up to
-     * two years, whole years beyond that. Picked per entry so a sub-year
+     * The unit the duration reads best in for this marriage: whole days below
+     * two years, whole years from two years on. Picked per entry so a sub-year
      * "longest" marriage never shows as "0 years".
      *
      * @return 'days'|'years'
      */
     public function displayUnit(): string
     {
-        return $this->durationDays > self::MAX_DAYS_AS_DAYS ? 'years' : 'days';
+        return $this->durationYears >= self::MIN_YEARS_AS_YEARS ? 'years' : 'days';
     }
 
     /**

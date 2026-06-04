@@ -21,6 +21,7 @@ use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
 use MagicSunday\Webtrees\Statistic\Model\Record\IndividualAgeRecord;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\IndividualAgeRecordResolver;
 use MagicSunday\Webtrees\Statistic\Support\Calc\AgeBuckets;
+use MagicSunday\Webtrees\Statistic\Support\Calc\CalendarSpan;
 use MagicSunday\Webtrees\Statistic\Support\Database\ChildLinkJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
@@ -234,7 +235,7 @@ final class ParenthoodRepository
                 continue;
             }
 
-            $years = intdiv($childJd - $parentJd, 365);
+            $years = CalendarSpan::wholeYears($parentJd, $childJd);
 
             if ($years < self::MIN_PLAUSIBLE_AGE) {
                 continue;

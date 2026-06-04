@@ -20,6 +20,7 @@ use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarSeries;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\EventCenturyTally;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\EventMonthTally;
 use MagicSunday\Webtrees\Statistic\Support\Calc\AgeBuckets;
+use MagicSunday\Webtrees\Statistic\Support\Calc\CalendarSpan;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
@@ -159,7 +160,7 @@ final readonly class DivorceRepository
                 continue;
             }
 
-            $years = intdiv($divJd - $birthJd, 365);
+            $years = CalendarSpan::wholeYears($birthJd, $divJd);
             $label = AgeBuckets::label($years, self::AGE_AT_DIVORCE_MAX, self::AGE_AT_DIVORCE_BUCKET);
 
             $buckets[$label] = ($buckets[$label] ?? 0) + 1;
@@ -247,10 +248,14 @@ final readonly class DivorceRepository
 
             $classified = false;
 
-            if (($divJd > 0) && ($birthJd > 0)) {
-                $years = intdiv($divJd - $birthJd, 365);
+            // Require divorce strictly after birth — an inverted (typo) pair
+            // would otherwise read as a plausible positive age via the
+            // order-independent span and land in a real band instead of the
+            // Unknown bucket. Mirrors the guard in ageAtDivorceDistribution().
+            if (($divJd > 0) && ($birthJd > 0) && ($divJd > $birthJd)) {
+                $years = CalendarSpan::wholeYears($birthJd, $divJd);
 
-                if (($years >= 0) && ($years <= self::AGE_AT_DIVORCE_TYPO_CAP)) {
+                if ($years <= self::AGE_AT_DIVORCE_TYPO_CAP) {
                     foreach (self::DIVORCE_AGE_BANDS as $bandIndex => $band) {
                         if ($bandIndex === $unknownBandIndex) {
                             continue;

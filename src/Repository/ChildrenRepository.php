@@ -19,6 +19,7 @@ use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
 use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarPayload;
 use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarSeries;
+use MagicSunday\Webtrees\Statistic\Support\Calc\CalendarSpan;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
@@ -734,7 +735,7 @@ final readonly class ChildrenRepository
             $counter = count($jds);
 
             for ($i = 1; $i < $counter; ++$i) {
-                $gap = intdiv($jds[$i] - $jds[$i - 1], 365);
+                $gap = CalendarSpan::wholeYears($jds[$i - 1], $jds[$i]);
 
                 if ($gap < 0) {
                     continue;

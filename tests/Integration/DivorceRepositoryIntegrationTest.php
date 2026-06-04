@@ -217,13 +217,16 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
      * Husband-missing, wife-only and no-BIRT-at-all rows must still count
      * toward the per-century totals — via the wife-fallback branch and the
      * Unknown catch-all, respectively. The 150-year age in F4 is a data-entry
-     * typo and lands in Unknown rather than being silently dropped.
+     * typo and lands in Unknown; F5's divorce predates its husband's birth (an
+     * inverted-date typo) and must also land in Unknown rather than reading as a
+     * plausible positive age through the order-independent span.
      *
      * Fixture (divorce-age-bands.ged):
      *   F1 Hugo 1900 + Hilde 1903, DIV 1990 → husband 90 → 90+
      *   F2 Walter (no BIRT) + Wilma 1955, DIV 1995 → wife 40 → 40–49
      *   F3 Mark + Mira (no BIRT), DIV 2010 → Unknown
      *   F4 Otto 1700 + Olga 1705, DIV 1850 → age 150 typo → Unknown
+     *   F5 Paul 1970 (born after the DIV) + Paula, DIV 1950 → inverted → Unknown
      */
     #[Test]
     public function divorcesByCenturyAndAgeBandRoutesMissingAgesToUnknown(): void
@@ -242,15 +245,16 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame([0, 1, 0], $perBand['90+']);
         self::assertSame([0, 1, 0], $perBand['40–49']);
 
-        // F3 (no BIRT) → 21st Unknown; F4 (age 150 typo) → 19th Unknown.
-        self::assertSame([1, 0, 1], $perBand['Unknown']);
+        // F4 (age 150 typo) → 19th Unknown; F5 (DIV before birth) → 20th
+        // Unknown; F3 (no BIRT) → 21st Unknown.
+        self::assertSame([1, 1, 1], $perBand['Unknown']);
     }
 
     /**
      * Grand-total invariant on the sparsely-dated fixture: every row that
      * `divorcesByCentury` counts must end up in some band (no-BIRT rows in
      * Unknown, age typos in Unknown, valid ages in the matching life-stage
-     * band). 4 divorces → 4 ticks total.
+     * band, inverted dates in Unknown). 5 divorces → 5 ticks total.
      */
     #[Test]
     public function divorcesByCenturyAndAgeBandReconcilesGrandTotalOnSparseTree(): void
@@ -264,8 +268,8 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
             $stacked->series,
         ));
 
-        self::assertSame(4, array_sum($repo->divorcesByCentury()));
-        self::assertSame(4, $stackedGrandTotal);
+        self::assertSame(5, array_sum($repo->divorcesByCentury()));
+        self::assertSame(5, $stackedGrandTotal);
     }
 
     /**
@@ -313,10 +317,8 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
      *
      * * F1 — full-date BIRT for both spouses + full-date MARR + DIV
      *   (control); husband age at divorce 45 → bucket `40–49`,
-     *   wife age 40 → `40–49` (BIRT 22.9.1865 → DIV 14.9.1905 is
-     *   8 days short of 40 calendar years but the integer-year
-     *   bucket math via `intdiv(days, 365)` and the 9 leap days
-     *   between the dates land it at exactly 40);
+     *   wife age 40 → `40–49` (BIRT 10.6.1865 → DIV 14.9.1905, her
+     *   40th birthday that year already passed);
      * * F2 — full-date BIRT + MARR, DIV `BET 1925 AND 1928` — the
      *   DIV ranges drives the dedup on the divorce side. Post-MIN
      *   anchor: 01.01.1925, husband age 54 → `50–59`, wife age 52
@@ -342,7 +344,7 @@ final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
 
         self::assertSame(3, array_sum($husbands), 'F1 + F2 + F3 = 3 men; without dedup F2+F3 contribute 2 each and the sum climbs to 5');
         self::assertSame(2, $husbands['40–49'] ?? 0, 'F1 (45) + F3 (45 via MIN BIRT) — a MIN -> MAX swap on F3 husband BIRT would drop the entry into 40–49 still, but the row count via husbands sum would surface the missing GROUP BY');
-        self::assertSame(1, $husbands['50–59'] ?? 0, 'F2 husband (54 via MIN DIV) — a MIN -> MAX swap would push F2 to 57 (still in 50–59 here)');
+        self::assertSame(1, $husbands['50–59'] ?? 0, 'F2 husband (54 via MIN DIV) — a MIN -> MAX swap would push F2 to 58 (still in 50–59 here)');
 
         self::assertSame(3, array_sum($wives), 'F1 + F2 + F3 = 3 women; without dedup F2 doubles and the sum climbs to 4');
         self::assertSame(2, $wives['40–49'] ?? 0, 'F1 wife (40) + F3 wife (43)');

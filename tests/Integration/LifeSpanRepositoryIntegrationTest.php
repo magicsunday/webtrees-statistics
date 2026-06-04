@@ -146,7 +146,15 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
         $result = $this->repository($tree)->topOldestDeceased(10);
 
         self::assertGreaterThanOrEqual(120, $result[0]->value);
-        self::assertGreaterThanOrEqual($result[1]->value, $result[0]->value);
+
+        // The displayed age is calendar-aware and not monotonic in the raw day
+        // span the core query orders by, so the shaper must re-rank: every
+        // adjacent pair has to read non-increasing.
+        $counter = count($result);
+
+        for ($i = 1; $i < $counter; ++$i) {
+            self::assertGreaterThanOrEqual($result[$i]->value, $result[$i - 1]->value);
+        }
     }
 
     /**

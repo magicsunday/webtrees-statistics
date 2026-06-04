@@ -29,6 +29,7 @@ use MagicSunday\Webtrees\Statistic\Model\Pyramid\PopulationPyramidPayload;
 use MagicSunday\Webtrees\Statistic\Model\Ranking\RankingEntry;
 use MagicSunday\Webtrees\Statistic\Model\Record\IndividualAgeRecord;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\EventMonthTally;
+use MagicSunday\Webtrees\Statistic\Support\Calc\CalendarSpan;
 use MagicSunday\Webtrees\Statistic\Support\Calc\HistogramTrim;
 use MagicSunday\Webtrees\Statistic\Support\Calc\MortalityAnomalies;
 use MagicSunday\Webtrees\Statistic\Support\Database\BirthDeathPairsQuery;
@@ -56,6 +57,7 @@ use function is_numeric;
 use function ksort;
 use function max;
 use function round;
+use function usort;
 
 /**
  * Life-span aggregations for the LifeSpan tab. Wraps the public accessors
@@ -427,7 +429,7 @@ final readonly class LifeSpanRepository
      * Age-at-death samples grouped by birth century. Each entry carries the raw
      * integer ages so the consumer (typically the chart-lib BoxPlot widget) can
      * compute quartiles, whiskers and outliers itself. Sub-day fractions are
-     * dropped via `intdiv(deathJd − birthJd, 365)`; non-positive ages, ages
+     * dropped via {@see CalendarSpan::wholeYears()}; non-positive ages, ages
      * above the tree's plausible-age cap, and BCE birth years are filtered out.
      *
      * Cohorts below {@see self::MIN_COHORT_SIZE} samples are skipped — a
@@ -603,8 +605,7 @@ final readonly class LifeSpanRepository
         // so a single unparseable birth date among the oldest rows would leave
         // the card one entry short. Over-fetch a margin and stop once $limit
         // valid entries are collected (the query is already oldest-first).
-        $today          = getdate();
-        $todayJulianDay = gregoriantojd($today['mon'], $today['mday'], $today['year']);
+        $todayJulianDay = $this->todayJulianDay();
         $entries        = [];
 
         $overFetch = ($limit > 0) ? ($limit * 3) : $limit;
@@ -622,7 +623,7 @@ final readonly class LifeSpanRepository
                 continue;
             }
 
-            $years     = intdiv($todayJulianDay - $birthJd, 365);
+            $years     = CalendarSpan::wholeYears($birthJd, $todayJulianDay);
             $entries[] = new RankingEntry($individual->xref(), $this->plainName($individual), $years);
 
             if (($limit > 0) && (count($entries) >= $limit)) {
@@ -647,14 +648,13 @@ final readonly class LifeSpanRepository
         // slot. Scan depth 10 is enough — real outliers always
         // have a real record-holder just below them.
         foreach ($this->data->topTenOldestQuery('ALL', 10) as $entry) {
-            $individual = $entry->individual ?? null;
-            $days       = $entry->days ?? 0;
+            $span = $this->resolveDeceasedSpan($entry);
 
-            if (!$individual instanceof Individual) {
+            if ($span === null) {
                 continue;
             }
 
-            $years = intdiv($days, 365);
+            $years = CalendarSpan::wholeYears($span['birthJd'], $span['deathJd']);
 
             if ($years <= 0) {
                 continue;
@@ -664,7 +664,7 @@ final readonly class LifeSpanRepository
                 continue;
             }
 
-            return new IndividualAgeRecord(individual: $individual, ageYears: $years);
+            return new IndividualAgeRecord(individual: $span['individual'], ageYears: $years);
         }
 
         return null;
@@ -677,8 +677,7 @@ final readonly class LifeSpanRepository
      */
     public function oldestLivingRecord(): ?IndividualAgeRecord
     {
-        $today          = getdate();
-        $todayJulianDay = gregoriantojd($today['mon'], $today['mday'], $today['year']);
+        $todayJulianDay = $this->todayJulianDay();
         $maxAge         = $this->maxPlausibleAge();
 
         // Same walk-until-plausible loop as oldestDeceasedRecord —
@@ -696,7 +695,7 @@ final readonly class LifeSpanRepository
                 continue;
             }
 
-            $years = intdiv($todayJulianDay - $birthJd, 365);
+            $years = CalendarSpan::wholeYears($birthJd, $todayJulianDay);
 
             if ($years <= 0) {
                 continue;
@@ -749,7 +748,7 @@ final readonly class LifeSpanRepository
             }
 
             // Mean-lifespan excludes rows that round to zero years
-            // (any lifespan under 365 days) because their `years`
+            // (any lifespan under one calendar year) because their `years`
             // contribution would drag the numerator without adding
             // to the lived-years total. The survival-curve sibling
             // keeps these rows since they count at the age-0 anchor.
@@ -1180,7 +1179,7 @@ final readonly class LifeSpanRepository
             return null;
         }
 
-        $years = intdiv($deathJd - $birthJd, 365);
+        $years = CalendarSpan::wholeYears($birthJd, $deathJd);
 
         if ($years < 0) {
             return null;
@@ -1241,26 +1240,38 @@ final readonly class LifeSpanRepository
                     ->where('d_fact', '=', 'DEAT');
             })
             ->join('dates AS birth', static function (JoinClause $join): void {
-                DateJoin::on($join, 'birth', 'i_file', 'i_id', 'BIRT');
+                // Require a usable birth Julian day so the literal-zero sentinel
+                // of a date-less BIRT row cannot win the MIN and drop a person
+                // who also carries a parseable birth date.
+                DateJoin::on($join, 'birth', 'i_file', 'i_id', 'BIRT', DateJoin::JD_GREATER_THAN_ZERO);
             })
             ->groupBy('individuals.i_id')
             ->select([
                 new Expression(
-                    'FLOOR((' . $this->julianTodayExpression()
-                    . ' - MIN(' . DB::connection()->getTablePrefix() . 'birth.d_julianday1)) / 365) AS age',
+                    'MIN(' . DB::connection()->getTablePrefix() . 'birth.d_julianday1) AS birth_jd',
                 ),
             ])
             ->get();
+
+        $todayJulianDay = $this->todayJulianDay();
 
         $bandCounts = array_fill_keys(
             array_map(static fn (array $b): string => $b['label'], self::LIVING_AGE_BANDS),
             0,
         );
 
+        // Age each individual calendar-aware against today. The join already
+        // guarantees a positive birth Julian day; only a future-dated birth
+        // (typo) has no meaningful band and drops. A birth exactly today is a
+        // valid age-0 individual and stays.
         foreach ($rows as $row) {
-            $rawAge = RowCast::int($row, 'age');
-            $age    = max(0, $rawAge);
-            ++$bandCounts[$this->bandLabel($age)];
+            $birthJd = RowCast::int($row, 'birth_jd');
+
+            if ($birthJd > $todayJulianDay) {
+                continue;
+            }
+
+            ++$bandCounts[$this->bandLabel(CalendarSpan::wholeYears($birthJd, $todayJulianDay))];
         }
 
         $palette = ['age-band-0', 'age-band-1', 'age-band-2', 'age-band-3'];
@@ -1280,28 +1291,76 @@ final readonly class LifeSpanRepository
     }
 
     /**
-     * @param iterable<object> $individuals Core query result ({individual, days} rows).
+     * Resolve a core oldest-query row to the individual and the birth/death
+     * Julian days an age-at-death span is measured between, or null when the row
+     * carries no individual or a non-positive / inverted span. Shared by the
+     * single-record holder and the ranking list so the deceased-span rule —
+     * earliest birth to latest death, both strictly positive — lives once.
+     *
+     * @param object $entry A `{individual, …}` row from {@see StatisticsData::topTenOldestQuery()}
+     *
+     * @return array{individual: Individual, birthJd: int, deathJd: int}|null
+     */
+    private function resolveDeceasedSpan(object $entry): ?array
+    {
+        $individual = $entry->individual ?? null;
+
+        if (!$individual instanceof Individual) {
+            return null;
+        }
+
+        $birthJd = $individual->getBirthDate()->minimumJulianDay();
+        $deathJd = $individual->getDeathDate()->maximumJulianDay();
+
+        if ($birthJd <= 0) {
+            return null;
+        }
+
+        if ($deathJd <= $birthJd) {
+            return null;
+        }
+
+        return ['individual' => $individual, 'birthJd' => $birthJd, 'deathJd' => $deathJd];
+    }
+
+    /**
+     * @param iterable<object> $individuals Core query result (rows carrying an `individual`).
      *
      * @return list<RankingEntry>
      */
     private function shapeOldest(iterable $individuals): array
     {
-        $entries = [];
+        $ranked = [];
 
         foreach ($individuals as $entry) {
-            $individual = $entry->individual ?? null;
-            $rawDays    = $entry->days ?? 0;
-            $days       = is_numeric($rawDays) ? (int) $rawDays : 0;
+            $span = $this->resolveDeceasedSpan($entry);
 
-            if (!$individual instanceof Individual) {
+            if ($span === null) {
                 continue;
             }
 
-            $years     = intdiv($days, 365);
-            $entries[] = new RankingEntry($individual->xref(), $this->plainName($individual), $years);
+            $ranked[] = [
+                'entry' => new RankingEntry(
+                    $span['individual']->xref(),
+                    $this->plainName($span['individual']),
+                    CalendarSpan::wholeYears($span['birthJd'], $span['deathJd']),
+                ),
+                'span' => $span['deathJd'] - $span['birthJd'],
+            ];
         }
 
-        return $entries;
+        // The core query ranks by raw day span, but the displayed age is a
+        // calendar-aware whole-year count which is not monotonic in that span
+        // (two spans a few days apart can floor to different years). Re-rank by
+        // the shown age, then the exact span, then XREF, so the ranking reads
+        // monotonically and stays deterministic on ties.
+        usort(
+            $ranked,
+            static fn (array $a, array $b): int => [$b['entry']->value, $b['span'], $a['entry']->xref]
+                <=> [$a['entry']->value, $a['span'], $b['entry']->xref],
+        );
+
+        return array_map(static fn (array $row): RankingEntry => $row['entry'], $ranked);
     }
 
     /**
@@ -1381,18 +1440,14 @@ final readonly class LifeSpanRepository
     }
 
     /**
-     * SQL expression that yields today's Julian-day-number for the current
-     * calendar date. Lives in a helper so the driver difference (SQLite vs
-     * MySQL/MariaDB) stays in one place.
+     * Today's date as a Julian day, the "now" endpoint for ages of the living.
+     * One place owns the conversion so every still-alive age span measures
+     * against the same reference day.
      */
-    private function julianTodayExpression(): string
+    private function todayJulianDay(): int
     {
-        $driver = DB::connection()->getDriverName();
+        $today = getdate();
 
-        if ($driver === 'sqlite') {
-            return "CAST(julianday('now') AS INTEGER)";
-        }
-
-        return 'TO_DAYS(CURDATE()) + 1721060';
+        return gregoriantojd($today['mon'], $today['mday'], $today['year']);
     }
 }

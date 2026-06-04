@@ -18,9 +18,9 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Branch coverage for the per-entry duration-unit logic: marriages up to two
- * years read in whole days, longer ones in whole years, with the two-year
- * (730-day) boundary pinned on both sides.
+ * Branch coverage for the per-entry duration-unit logic: marriages below two
+ * whole years read in days, two years and beyond read in whole years, with the
+ * one-year/two-year boundary pinned on both sides.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -35,11 +35,11 @@ final class MarriageDurationExtremeTest extends TestCase
     public static function durationProvider(): array
     {
         return [
-            'a few weeks reads in days'             => ['durationDays' => 31, 'durationYears' => 0, 'expectedUnit' => 'days', 'expectedValue' => 31],
-            'over a year still reads in days'       => ['durationDays' => 400, 'durationYears' => 1, 'expectedUnit' => 'days', 'expectedValue' => 400],
-            'exactly two years stays in days'       => ['durationDays' => 730, 'durationYears' => 2, 'expectedUnit' => 'days', 'expectedValue' => 730],
-            'just over two years switches to years' => ['durationDays' => 731, 'durationYears' => 2, 'expectedUnit' => 'years', 'expectedValue' => 2],
-            'a long marriage reads in years'        => ['durationDays' => 21900, 'durationYears' => 60, 'expectedUnit' => 'years', 'expectedValue' => 60],
+            'a few weeks reads in days'          => ['durationDays' => 31, 'durationYears' => 0, 'expectedUnit' => 'days', 'expectedValue' => 31],
+            'over a year still reads in days'    => ['durationDays' => 400, 'durationYears' => 1, 'expectedUnit' => 'days', 'expectedValue' => 400],
+            'just under two years reads in days' => ['durationDays' => 730, 'durationYears' => 1, 'expectedUnit' => 'days', 'expectedValue' => 730],
+            'two full years switches to years'   => ['durationDays' => 731, 'durationYears' => 2, 'expectedUnit' => 'years', 'expectedValue' => 2],
+            'a long marriage reads in years'     => ['durationDays' => 21915, 'durationYears' => 60, 'expectedUnit' => 'years', 'expectedValue' => 60],
         ];
     }
 
