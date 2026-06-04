@@ -94,9 +94,9 @@ foreach ($migrationDistance as $entry) {
 // above 4 ≈ migrant ancestors (settlers, emigrants, traders).
 $dispersionInterpretation = match (true) {
     $placeDispersion->average < 1.5 => I18N::translate('A sedentary or sparsely-documented population: most individuals carry only one recorded place, which is as often a gap in place documentation as a truly settled life.'),
-    $placeDispersion->average < 2.5 => I18N::translate('Moderate mobility — many stayed in their region, some moved.'),
-    $placeDispersion->average < 4.0 => I18N::translate('Mobile population — migration and relocation were common.'),
-    default                         => I18N::translate('High mobility — strongly migrating ancestors.'),
+    $placeDispersion->average < 2.5 => I18N::translate('Moderate mobility: many stayed in their region, some moved.'),
+    $placeDispersion->average < 4.0 => I18N::translate('Mobile population: migration and relocation were common.'),
+    default                         => I18N::translate('High mobility: strongly migrating ancestors.'),
 };
 
 // BarChart rows for the distinct-places-per-individual histogram —

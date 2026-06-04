@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Statistics\n"
 "Report-Msgid-Bugs-To: https://github.com/magicsunday/webtrees-statistics/"
 "issues\n"
-"POT-Creation-Date: 2026-06-03 16:53+0000\n"
+"POT-Creation-Date: 2026-06-04 07:50+0000\n"
 "PO-Revision-Date: 2026-05-22 07:04+0000\n"
 "Last-Translator: Rico Sonntag <mail@ricosonntag.de>\n"
 "Language-Team: \n"
@@ -22,7 +22,7 @@ msgstr ""
 "X-Poedit-SearchPath-0: src\n"
 "X-Poedit-SearchPath-1: resources/views\n"
 
-#: src/Repository/LifeSpanRepository.php:893
+#: src/Repository/LifeSpanRepository.php:916
 #, php-format
 msgid "%1$s %% (%2$s of %3$s individuals reached this age)"
 msgstr "%1$s %% (%2$s von %3$s Personen erreichten dieses Alter)"
@@ -55,9 +55,9 @@ msgstr "%1$s von %2$s Kindern (%3$s %%)"
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:447
 #, php-format
 msgid ""
-"%1$s of %2$s children died before age 5 — the darkest cohort in the tree."
+"%1$s of %2$s children died before age 5: the darkest cohort in the tree."
 msgstr ""
-"%1$s von %2$s Kindern starben vor dem 5. Lebensjahr — die dunkelste Kohorte "
+"%1$s von %2$s Kindern starben vor dem 5. Lebensjahr: die dunkelste Kohorte "
 "im Stammbaum."
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:369
@@ -85,10 +85,10 @@ msgstr "%1$s Geschwister aus %2$s Familien"
 msgid "%1$s sub-trees total · the largest covers %2$s%% of all individuals"
 msgstr "%1$s Teilbäume gesamt · größter umfasst %2$s%% aller Personen"
 
-#: src/Repository/LifeSpanRepository.php:784
-#: src/Repository/LifeSpanRepository.php:791
-#: src/Repository/ParenthoodRepository.php:316
-#: src/Repository/ParenthoodRepository.php:323
+#: src/Repository/LifeSpanRepository.php:807
+#: src/Repository/LifeSpanRepository.php:814
+#: src/Repository/ParenthoodRepository.php:317
+#: src/Repository/ParenthoodRepository.php:330
 #, php-format
 msgid "%1$s years (n = %2$s)"
 msgstr "%1$s Jahre (n = %2$s)"
@@ -98,7 +98,7 @@ msgstr "%1$s Jahre (n = %2$s)"
 msgid "%1$s%% — %2$s of %3$s children died before age 5"
 msgstr "%1$s%% — %2$s von %3$s Kindern starben vor dem 5. Lebensjahr"
 
-#: src/Repository/NameRepository.php:504
+#: src/Repository/NameRepository.php:511
 #, php-format
 msgid ""
 "%1$s%% — %2$s of %3$s daughters share at least one given name with the mother"
@@ -110,7 +110,7 @@ msgstr ""
 msgid "%1$s%% — %2$s of %3$s individuals sourced"
 msgstr "%1$s %% — %2$s von %3$s Personen mit Quelle"
 
-#: src/Repository/NameRepository.php:498
+#: src/Repository/NameRepository.php:505
 #, php-format
 msgid ""
 "%1$s%% — %2$s of %3$s sons share at least one given name with the father"
@@ -756,24 +756,24 @@ msgstr ""
 #: resources/views/modules/statistics-chart/components/hero.phtml:26
 #, php-format
 msgid ""
-"A statistical overview of a single century — births, marriages, migrations "
+"A statistical overview of a single century: births, marriages, migrations "
 "and gaps in the archive."
 msgid_plural ""
-"A statistical overview of %s centuries — births, marriages, migrations and "
+"A statistical overview of %s centuries: births, marriages, migrations and "
 "gaps in the archive."
 msgstr[0] ""
-"Ein statistischer Überblick über ein Jahrhundert — Geburten, Heiraten, "
+"Ein statistischer Überblick über ein Jahrhundert: Geburten, Heiraten, "
 "Wanderungen und Lücken im Archiv."
 msgstr[1] ""
-"Ein statistischer Überblick über %s Jahrhunderte — Geburten, Heiraten, "
+"Ein statistischer Überblick über %s Jahrhunderte: Geburten, Heiraten, "
 "Wanderungen und Lücken im Archiv."
 
 #: resources/views/modules/statistics-chart/components/hero.phtml:31
 msgid ""
-"A statistical overview — births, marriages, migrations and gaps in the "
+"A statistical overview: births, marriages, migrations and gaps in the "
 "archive."
 msgstr ""
-"Ein statistischer Überblick — Geburten, Heiraten, Wanderungen und Lücken im "
+"Ein statistischer Überblick: Geburten, Heiraten, Wanderungen und Lücken im "
 "Archiv."
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:163
@@ -805,7 +805,7 @@ msgstr "Nach dem Tod des Partners"
 msgid "Age"
 msgstr "Alter"
 
-#: src/Repository/LifeSpanRepository.php:891
+#: src/Repository/LifeSpanRepository.php:914
 #, php-format
 msgid "Age %s"
 msgstr "Alter %s"
@@ -1010,6 +1010,10 @@ msgstr "Geburten und Sterbefälle im Jahresverlauf"
 msgid "Births by 25-year period and calendar month"
 msgstr "Geburten nach 25-Jahres-Zeitraum und Kalendermonat"
 
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:624
+msgid "Births by 25-year period × month"
+msgstr "Geburten nach 25-Jahres-Zeitraum × Monat"
+
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:486
 msgid "Births by century"
 msgstr "Geburten pro Jahrhundert"
@@ -1044,10 +1048,6 @@ msgstr "Geburten pro Halbjahrtausend"
 msgid "Births per millennium"
 msgstr "Geburten pro Jahrtausend"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:624
-msgid "Births — 25-year period × month"
-msgstr "Geburten — 25-Jahres-Zeitraum × Monat"
-
 #: resources/views/modules/statistics-chart/tabs/places.phtml:159
 msgid ""
 "Births, residences and deaths by country · the geographic spread of the tree"
@@ -1071,7 +1071,7 @@ msgstr ""
 "unterschiedliche erfasste Orte haben. Ein langer Tail signalisiert wandernde "
 "Vorfahren, ein hoher Balken bei \"1\" eine sesshafte oder spärlich "
 "dokumentierte Bevölkerung. Gleiche Datenquelle wie der Mittelwert der "
-"geografischen Streuung — Duplikate innerhalb derselben Person werden zu "
+"geografischen Streuung. Duplikate innerhalb derselben Person werden zu "
 "einem Ort zusammengefasst, Personen ohne Ortsdaten werden ausgeschlossen."
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:683
@@ -1225,8 +1225,8 @@ msgid ""
 "dates sits near zero, a thoroughly sourced one well above it."
 msgstr ""
 "Die Grunddaten sind die Personen und Familien, aus denen der Stammbaum "
-"besteht. Ergänzungen — Quellen, Medienobjekte, Notizen, Archive und "
-"gemeinsame Orte — belegen und untermauern diese Angaben. Der Wert zeigt, wie "
+"besteht. Ergänzungen sind Quellen, Medienobjekte, Notizen, Archive und "
+"gemeinsame Orte. Sie belegen und untermauern diese Angaben. Der Wert zeigt, wie "
 "viele Ergänzungen auf 100 Personen kommen: Ein Stammbaum aus bloßen Namen "
 "und Daten liegt nahe null, ein gut belegter deutlich darüber."
 
@@ -1274,6 +1274,10 @@ msgstr "Sterbefälle sind gleichmäßig übers Jahr verteilt."
 msgid "Deaths by 25-year period and calendar month"
 msgstr "Sterbefälle nach 25-Jahres-Zeitraum und Kalendermonat"
 
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:647
+msgid "Deaths by 25-year period × month"
+msgstr "Sterbefälle nach 25-Jahres-Zeitraum × Monat"
+
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:547
 msgid "Deaths by century"
 msgstr "Sterbefälle pro Jahrhundert"
@@ -1286,15 +1290,7 @@ msgstr "Sterbefälle pro Monat"
 msgid "Deaths per century"
 msgstr "Sterbefälle pro Jahrhundert"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:647
-msgid "Deaths — 25-year period × month"
-msgstr "Sterbefälle — 25-Jahres-Zeitraum × Monat"
-
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:578
-msgid "Dec – Feb vs. baseline"
-msgstr "Dez – Feb vs. Basislinie"
-
-#: src/Statistic.php:250
+#: src/Statistic.php:249
 msgid "Deceased"
 msgstr "Verstorben"
 
@@ -1302,6 +1298,10 @@ msgstr "Verstorben"
 msgctxt "NOMINATIVE"
 msgid "December"
 msgstr "Dezember"
+
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:578
+msgid "Dec–Feb vs. baseline"
+msgstr "Dez–Feb vs. Basislinie"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:424
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:341
@@ -1384,7 +1384,7 @@ msgstr ""
 "Scheidungsrate, Jahreszeit und Lebensphase der Geschiedenen · eine seltene "
 "Kategorie im Stammbaum"
 
-#: src/Statistic.php:286
+#: src/Statistic.php:285
 msgid "Divorced"
 msgstr "Geschieden"
 
@@ -1548,7 +1548,7 @@ msgstr ""
 "Jede Person wird nach der Luftlinie in Kilometern zwischen ihrem Geburts- "
 "und Sterbeort eingeordnet. Gezählt werden nur Personen, bei denen sowohl für "
 "den Geburts- als auch für den Sterbeort Koordinaten hinterlegt sind (ein "
-"PLAC:MAP-Untereintrag) — das Modul fragt keinen externen Geocoder ab. Die "
+"PLAC:MAP-Untereintrag). Das Modul fragt keinen externen Geocoder ab. Die "
 "Auswertung erfasst damit nur den dokumentierten, mit Koordinaten versehenen "
 "Teil der Personen und ist eine Untergrenze der tatsächlichen Mobilität, kein "
 "vollständiges Bild. Die Grafik wird ausgeblendet, wenn zu wenige Personen "
@@ -1591,7 +1591,7 @@ msgstr ""
 "die über Abstammung oder Heirat verbunden sind und keine Verknüpfung zu "
 "einem anderen Teilbaum haben. Die Kachelfläche ist proportional zur "
 "Mitgliederzahl, der größte zuerst. Das Label ist der häufigste Nachname "
-"dieses Teilbaums — derselbe Nachname kann daher mehrere getrennte Teilbäume "
+"dieses Teilbaums. Derselbe Nachname kann daher mehrere getrennte Teilbäume "
 "kennzeichnen, wenn eine Linie noch nicht mit dem Rest des Baums verbunden "
 "ist. Die letzte Kachel fasst alle Teilbäume jenseits der zehn größten "
 "zusammen."
@@ -1736,7 +1736,7 @@ msgid "Father → son"
 msgstr "Vater → Sohn"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:296
-#: src/Repository/ParenthoodRepository.php:345
+#: src/Repository/ParenthoodRepository.php:355
 msgid "Fathers"
 msgstr "Väter"
 
@@ -1750,7 +1750,7 @@ msgid "February"
 msgstr "Februar"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:314
-#: src/Repository/LifeSpanRepository.php:813 src/Statistic.php:226
+#: src/Repository/LifeSpanRepository.php:836 src/Statistic.php:225
 msgid "Female"
 msgstr "weiblich"
 
@@ -1773,9 +1773,9 @@ msgid ""
 msgstr ""
 "Für eine hinterbliebene Person, deren Partner starb und die später erneut "
 "heiratete, der Abstand in vollen Monaten zwischen diesem Tod und der "
-"nächsten Eheschließung. Das erste Trauerjahr ist bei sechs Monaten geteilt — "
-"das Fenster, in dem die Konvention am stärksten wirkt — danach in ganzen "
-"Jahren bis zu einem „60+“-Ausläufer. Ein kurzer Abstand kann auf die "
+"nächsten Eheschließung. Das erste Trauerjahr ist bei sechs Monaten geteilt, "
+"dem Fenster, in dem die Konvention am stärksten wirkt. Danach folgen ganze "
+"Jahre bis zu einem „60+“-Ausläufer. Ein kurzer Abstand kann auf die "
 "gesellschaftlichen Konventionen der Zeit hindeuten. Ehen, die durch "
 "Scheidung endeten, und verwitwete Personen, die nie wieder heirateten, sind "
 "ausgenommen."
@@ -1876,8 +1876,8 @@ msgid ""
 msgstr ""
 "Für jede Person werden alle erfassten Orte aus den Hauptereignissen (Geburt, "
 "Tod, Taufe, Beerdigung, Wohnort, …) gesammelt und doppelte zusammengefasst. "
-"Wenn z. B. Geburt und Tod beide in Hamburg sind, zählt Hamburg nur einmal — "
-"die Zahl misst Mobilität, nicht die Zahl der Ereignisse. Der Durchschnitt "
+"Wenn z. B. Geburt und Tod beide in Hamburg sind, zählt Hamburg nur einmal. "
+"Die Zahl misst Mobilität, nicht die Zahl der Ereignisse. Der Durchschnitt "
 "rechnet nur Personen mit mindestens einer Ortsangabe; Personen ganz ohne Ort "
 "werden ausgelassen."
 
@@ -1922,7 +1922,7 @@ msgstr ""
 "Kinder ohne Nachkommen systematisch unvollständig, viele frühe Todesfälle "
 "gelangen also gar nicht erst in den Baum. Aus demselben Grund spiegelt der "
 "Verlauf über die Jahrhunderte mindestens ebenso sehr den Erfassungsgrad "
-"einer Epoche wie die tatsächliche Sterblichkeit — ein besser dokumentiertes "
+"einer Epoche wie die tatsächliche Sterblichkeit. Ein besser dokumentiertes "
 "Jahrhundert kann eine höhere Rate zeigen als ein schlecht dokumentiertes "
 "früheres, sodass die Kurve flach bleiben oder sogar steigen kann, wo die "
 "historische Sterblichkeit tatsächlich fiel. Personen mit nur einem der "
@@ -2105,8 +2105,8 @@ msgid "Heritage"
 msgstr "Erbe"
 
 #: resources/views/modules/statistics-chart/tabs/places.phtml:99
-msgid "High mobility — strongly migrating ancestors."
-msgstr "Hohe Mobilität — stark wandernde Vorfahren."
+msgid "High mobility: strongly migrating ancestors."
+msgstr "Hohe Mobilität: stark wandernde Vorfahren."
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:223
 msgid "Higher = more thorough research"
@@ -2265,7 +2265,7 @@ msgstr "Lebensphase zum Scheidungszeitpunkt · Männer vs. Frauen"
 msgid "Lifespan"
 msgstr "Lebensdauer"
 
-#: src/Statistic.php:245
+#: src/Statistic.php:244
 msgid "Living"
 msgstr "Lebt"
 
@@ -2295,7 +2295,7 @@ msgid "Longevity"
 msgstr "Langlebigkeit"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:313
-#: src/Repository/LifeSpanRepository.php:806 src/Statistic.php:221
+#: src/Repository/LifeSpanRepository.php:829 src/Statistic.php:220
 msgid "Male"
 msgstr "männlich"
 
@@ -2319,7 +2319,7 @@ msgstr "Heirat"
 msgid "Marriage duration"
 msgstr "Ehedauer"
 
-#: src/Statistic.php:271
+#: src/Statistic.php:270
 msgid "Married"
 msgstr "Verheiratet"
 
@@ -2400,8 +2400,8 @@ msgid "Missing-event gaps"
 msgstr "Lücken bei fehlenden Ereignissen"
 
 #: resources/views/modules/statistics-chart/tabs/places.phtml:98
-msgid "Mobile population — migration and relocation were common."
-msgstr "Mobile Bevölkerung — Migration und Ortswechsel waren häufig."
+msgid "Mobile population: migration and relocation were common."
+msgstr "Mobile Bevölkerung: Migration und Ortswechsel waren häufig."
 
 #: resources/views/modules/statistics-chart/tabs/places.phtml:191
 #: resources/views/modules/statistics-chart/tabs/places.phtml:197
@@ -2410,8 +2410,8 @@ msgid "Mobility"
 msgstr "Mobilität"
 
 #: resources/views/modules/statistics-chart/tabs/places.phtml:97
-msgid "Moderate mobility — many stayed in their region, some moved."
-msgstr "Mäßige Mobilität — viele blieben in ihrer Region, einige wanderten."
+msgid "Moderate mobility: many stayed in their region, some moved."
+msgstr "Mäßige Mobilität: Viele blieben in ihrer Region, einige wanderten."
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:246
 #: resources/views/modules/statistics-chart/tabs/family.phtml:304
@@ -2460,7 +2460,7 @@ msgid "Mother → daughter"
 msgstr "Mutter → Tochter"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:297
-#: src/Repository/ParenthoodRepository.php:352
+#: src/Repository/ParenthoodRepository.php:362
 msgid "Mothers"
 msgstr "Mütter"
 
@@ -2869,7 +2869,7 @@ msgstr "Altersabstand Geschwister"
 msgid "Sibling deaths in the same year"
 msgstr "Geschwistersterblichkeit im selben Jahr"
 
-#: src/Statistic.php:276
+#: src/Statistic.php:275
 msgid "Single"
 msgstr "Ledig"
 
@@ -3013,7 +3013,14 @@ msgid ""
 "month of death is among the least reliably recorded parts of a date, and the "
 "score can rest on very few dated deaths, so read a small deviation as "
 "documentation noise rather than a real seasonal pattern."
-msgstr "Der Wert vergleicht die durchschnittliche Zahl der Sterbefälle pro Wintermonat (Dezember, Januar und Februar) mit dem Durchschnitt über alle zwölf Monate; ein Wert über dem Jahresdurchschnitt deutet auf eine winterliche Häufung der Sterbefälle hin. Der Sterbemonat gehört zu den am unzuverlässigsten erfassten Teilen eines Datums, und der Wert kann auf sehr wenigen datierten Sterbefällen beruhen. Lies eine kleine Abweichung daher eher als Dokumentations-Rauschen denn als echtes saisonales Muster."
+msgstr ""
+"Der Wert vergleicht die durchschnittliche Zahl der Sterbefälle pro "
+"Wintermonat (Dezember, Januar und Februar) mit dem Durchschnitt über alle "
+"zwölf Monate; ein Wert über dem Jahresdurchschnitt deutet auf eine "
+"winterliche Häufung der Sterbefälle hin. Der Sterbemonat gehört zu den am "
+"unzuverlässigsten erfassten Teilen eines Datums, und der Wert kann auf sehr "
+"wenigen datierten Sterbefällen beruhen. Lies eine kleine Abweichung daher "
+"eher als Dokumentations-Rauschen denn als echtes saisonales Muster."
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:679
 msgid "The shortest- and longest-lasting marriages in the tree"
@@ -3027,7 +3034,7 @@ msgid ""
 "it ended. Marriages spanning more than 90 years are treated as data errors "
 "and left out."
 msgstr ""
-"Die kürzesten und längsten Ehen mit datierbarem Ende — entweder eine "
+"Die kürzesten und längsten Ehen mit datierbarem Ende: entweder eine "
 "erfasste Scheidung oder der frühere Tod eines Partners. Jede Ehe wird von "
 "der Eheschließung bis zu diesem ersten beendenden Ereignis gemessen und "
 "danach beschriftet, wie sie endete. Ehen mit mehr als 90 Jahren Dauer werden "
@@ -3047,7 +3054,7 @@ msgstr ""
 "BIRT+DEAT-Paaren pro Person wie die Aufschlüsselung pro Jahrhundert; "
 "Kohorten unter 5 Kindern werden unterdrückt, damit eine einzelne Tragödie "
 "nicht den Höchstwert prägt. Wie die Aufschlüsselung ist auch dies eine "
-"untere Schranke — früh verstorbene Kinder werden in genealogischen Quellen "
+"untere Schranke. Früh verstorbene Kinder werden in genealogischen Quellen "
 "systematisch unvollständig erfasst."
 
 #: src/Support/Locale/HistoricalEventCatalog.php:217
@@ -3150,7 +3157,7 @@ msgstr "Zwillinge"
 msgid "Typical range"
 msgstr "Typischer Bereich"
 
-#: src/Statistic.php:231
+#: src/Statistic.php:230
 msgid "Unknown"
 msgstr "Unbekannt"
 
@@ -3177,7 +3184,7 @@ msgid ""
 "Walk reached the safety cap (100 generations) — check the tree for cyclic "
 "FAMC/FAMS edits."
 msgstr ""
-"Sicherheitsgrenze erreicht (100 Generationen) — den Stammbaum auf Zyklen in "
+"Sicherheitsgrenze erreicht (100 Generationen). Den Stammbaum auf Zyklen in "
 "Eltern-Kind-Verknüpfungen prüfen."
 
 #: src/Support/Locale/HistoricalEventCatalog.php:228
@@ -3253,7 +3260,7 @@ msgstr "Welchen Beruf ein Sohn im Verhältnis zu seinem Vater ergriff"
 msgid "Who is recorded?"
 msgstr "Wer ist erfasst?"
 
-#: src/Statistic.php:281
+#: src/Statistic.php:280
 msgid "Widowed"
 msgstr "Verwitwet"
 
@@ -3325,7 +3332,7 @@ msgstr ""
 "Jahre, in denen mehrere Familien je zwei oder mehr Kinder verloren, "
 "ermittelt aus den erfassten Sterbejahren der Kinder. Treffen solche Verluste "
 "in mehreren Familien im selben Jahr zusammen, kann das zeitlich mit "
-"Sterblichkeit durch Epidemien, Krieg oder Hungersnot zusammenfallen — eine "
+"Sterblichkeit durch Epidemien, Krieg oder Hungersnot zusammenfallen. Eine "
 "einzelne Familie, die Kinder verliert, ist eine isolierte Tragödie und wird "
 "hier nicht gezeigt. Jeder Punkt markiert ein qualifiziertes Jahr und wächst "
 "mit der Gesamtzahl der über die beitragenden Familien verlorenen "
@@ -3479,11 +3486,11 @@ msgctxt "count word"
 msgid "nine"
 msgstr "neun"
 
-#: src/Repository/LifeSpanRepository.php:788
-#: src/Repository/LifeSpanRepository.php:795
-#: src/Repository/NameRepository.php:487 src/Repository/NameRepository.php:491
-#: src/Repository/ParenthoodRepository.php:320
-#: src/Repository/ParenthoodRepository.php:327
+#: src/Repository/LifeSpanRepository.php:811
+#: src/Repository/LifeSpanRepository.php:818
+#: src/Repository/NameRepository.php:494 src/Repository/NameRepository.php:498
+#: src/Repository/ParenthoodRepository.php:323
+#: src/Repository/ParenthoodRepository.php:336
 #, php-format
 msgid "no data (n < %s)"
 msgstr "keine Daten (n < %s)"

@@ -444,7 +444,7 @@ echo Card::for($module, I18N::translate('Peak value'))
                  ->with('value', I18N::number((float) $childMortalityPeak['rate'], 1))
                  ->with('unit', '%')
                  ->with('caption', I18N::translate(
-                     '%1$s of %2$s children died before age 5 — the darkest cohort in the tree.',
+                     '%1$s of %2$s children died before age 5: the darkest cohort in the tree.',
                      I18N::number((int) $childMortalityPeak['died']),
                      I18N::number((int) $childMortalityPeak['total']),
                  ))
@@ -575,7 +575,7 @@ echo Card::for($module, I18N::translate('Deaths by month'))
     ->render();
 
 echo Card::for($module, I18N::translate('Winter-peak score'))
-    ->withSub(I18N::translate('Dec – Feb vs. baseline'))
+    ->withSub(I18N::translate('Dec–Feb vs. baseline'))
     ->withEyebrow(I18N::translate('Season'))
     ->withAccent(Accent::Wine)
     ->withIllustration(Illustration::Moon)
@@ -621,7 +621,7 @@ echo Section::create(I18N::translate('Births and deaths across the year'))
     ->withSub(I18N::translate('Density of recorded births and deaths by 25-year period and month'))
     ->render();
 
-echo Card::for($module, I18N::translate('Births — 25-year period × month'))
+echo Card::for($module, I18N::translate('Births by 25-year period × month'))
     ->withSub(I18N::translate('A fuller cell marks a busier month'))
     ->withEyebrow(I18N::translate('Heatmap'))
     ->withAccent(Accent::Ochre)
@@ -644,7 +644,7 @@ echo Card::for($module, I18N::translate('Births — 25-year period × month'))
     )
     ->render();
 
-echo Card::for($module, I18N::translate('Deaths — 25-year period × month'))
+echo Card::for($module, I18N::translate('Deaths by 25-year period × month'))
     ->withSub(I18N::translate('A fuller cell marks a busier month'))
     ->withEyebrow(I18N::translate('Heatmap'))
     ->withAccent(Accent::Wine)
