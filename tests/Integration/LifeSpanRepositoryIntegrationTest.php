@@ -193,6 +193,35 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
+     * A living individual with an imprecise `BET 1940 AND 1950` birth is stored
+     * as two `dates` rows — a 1940 lower-bound and a 1950 upper-bound. Without a
+     * per-individual collapse the BIRT join matches both rows, so the one person
+     * is tallied twice into the same 65+ band. The fixture pairs that ranged
+     * birth with a precise-birth control so the band must hold exactly two
+     * living individuals, not three: the dedup must fold the two stored bounds
+     * to one representative without also collapsing the two distinct people.
+     * Both births sit in the open-ended 65+ band, so the assertion stays stable
+     * as the test-run year advances.
+     */
+    #[Test]
+    public function livingByAgeBandCollapsesRangedBirthPerIndividual(): void
+    {
+        $tree   = $this->importFixtureTree('living-age-band-dedup.ged');
+        $result = $this->repository($tree)->livingByAgeBand();
+
+        $totals = [];
+
+        foreach ($result as $entry) {
+            $totals[$entry['label']] = $entry['value'];
+        }
+
+        // Two distinct living individuals, both 65+ — the ranged birth counts
+        // once, not twice, and the precise control is not folded into it.
+        self::assertSame(2, $totals['65+'] ?? null, 'Ranged I1 counts once, precise I2 once — never the pre-fix three');
+        self::assertSame(2, array_sum($totals), 'Exactly two living individuals');
+    }
+
+    /**
      * birthsByDecade aggregates every BIRT date across the tree into a decade
      * bucket, fills inner zero-decades so gaps stay visible, and trims leading
      * / trailing zeroes via HistogramTrim. The fixture's six dated births are

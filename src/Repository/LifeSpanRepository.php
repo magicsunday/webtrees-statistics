@@ -1223,6 +1223,11 @@ final readonly class LifeSpanRepository
      * `class` slot is wired through to the SVG slice so the CSS palette can
      * colour them consistently with the existing donut widgets.
      *
+     * The BIRT join is collapsed to one row per individual via `GROUP BY i_id`
+     * with `MIN(birth.d_julianday1)`, so an imprecise `BET`/`FROM` birth — two
+     * stored rows — contributes its lower-bound (oldest) age once instead of
+     * being tallied into a band for each of its two bounds.
+     *
      * @return list<array{label: string, value: int, class: string}>
      */
     public function livingByAgeBand(): array
@@ -1238,10 +1243,11 @@ final readonly class LifeSpanRepository
             ->join('dates AS birth', static function (JoinClause $join): void {
                 DateJoin::on($join, 'birth', 'i_file', 'i_id', 'BIRT');
             })
+            ->groupBy('individuals.i_id')
             ->select([
                 new Expression(
                     'FLOOR((' . $this->julianTodayExpression()
-                    . ' - ' . DB::connection()->getTablePrefix() . 'birth.d_julianday1) / 365) AS age',
+                    . ' - MIN(' . DB::connection()->getTablePrefix() . 'birth.d_julianday1)) / 365) AS age',
                 ),
             ])
             ->get();
