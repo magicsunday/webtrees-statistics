@@ -1084,8 +1084,8 @@ final readonly class Statistic
      * historical eras carry their share of source-backed documentation and
      * which rely on family lore. Centuries below the repository's
      * minimum-sample threshold are dropped from the breakdown to keep the bar
-     * from spiking on a single sourced ancestor; BCE birth years are excluded
-     * entirely.
+     * from spiking on a single sourced ancestor; BCE birth years fold into
+     * negative centuries the view layer labels as "%s BCE".
      *
      * @return list<array{century: int, total: int, sourced: int, percentage: float}>
      */

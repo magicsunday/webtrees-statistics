@@ -1,0 +1,41 @@
+0 HEAD
+1 SOUR webtrees-statistics-fixture
+2 NAME source-coverage-bce
+1 DEST ANSTFILE
+1 CHAR UTF-8
+1 SUBM @SUBM1@
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+0 @SUBM1@ SUBM
+1 NAME Fixture
+0 @S1@ SOUR
+1 TITL Ancient Register
+0 @I1@ INDI
+1 NAME One /FirstBce/
+1 SEX M
+1 BIRT
+2 DATE @#DJULIAN@ 1 JAN 90 B.C.
+2 SOUR @S1@
+0 @I2@ INDI
+1 NAME Two /FirstBce/
+1 SEX F
+1 BIRT
+2 DATE @#DJULIAN@ 1 JAN 70 B.C.
+2 SOUR @S1@
+0 @I3@ INDI
+1 NAME Three /FirstBce/
+1 SEX M
+1 BIRT
+2 DATE @#DJULIAN@ 1 JAN 50 B.C.
+0 @I4@ INDI
+1 NAME Four /FirstBce/
+1 SEX F
+1 BIRT
+2 DATE @#DJULIAN@ 1 JAN 30 B.C.
+0 @I5@ INDI
+1 NAME Five /FirstBce/
+1 SEX M
+1 BIRT
+2 DATE @#DJULIAN@ 1 JAN 10 B.C.
+0 TRLR

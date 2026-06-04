@@ -1,0 +1,32 @@
+0 HEAD
+1 SOUR webtrees-statistics-fixture
+2 NAME century-dedup-bce
+1 DEST ANSTFILE
+1 CHAR UTF-8
+1 SUBM @SUBM1@
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+0 @SUBM1@ SUBM
+1 NAME Fixture
+0 @I1@ INDI
+1 NAME Ranged /FirstBce/
+1 SEX M
+1 BIRT
+2 DATE BET 90 B.C. AND 70 B.C.
+0 @I2@ INDI
+1 NAME Precise /FirstBce/
+1 SEX F
+1 BIRT
+2 DATE @#DJULIAN@ 1 JAN 50 B.C.
+0 @I3@ INDI
+1 NAME Older /SecondBce/
+1 SEX M
+1 BIRT
+2 DATE @#DJULIAN@ 1 JAN 150 B.C.
+0 @I4@ INDI
+1 NAME Common /FirstCe/
+1 SEX F
+1 BIRT
+2 DATE 1 JAN 50
+0 TRLR

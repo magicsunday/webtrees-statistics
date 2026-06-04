@@ -97,11 +97,11 @@ final readonly class TreeHealthRepository
      * filtered out — the breakdown is about individuals, not
      * records-with-citations.
      *
-     * BCE / B.C. years are excluded (`d_year > 0` rather than `<> 0`). {@see
-     * CenturyName::fromYear()} truncates toward zero for negative input, which
-     * collapses 100 BCE..1 CE into century 0 and renders the bar with an
-     * unlabelled ordinal — better to keep ancient ancestors off the chart than
-     * to silently misbucket them.
+     * BCE births bucket alongside CE ones: {@see CenturyName::fromYear()} folds
+     * negative years toward negative infinity, so an ancient cohort lands in a
+     * negative century the view layer labels as "%s BCE" rather than merging
+     * into the 1st-century-CE bar. Only the degenerate `d_year = 0` (an
+     * unparseable year) is excluded.
      *
      * Centuries with fewer than {@see self::MIN_CENTURY_SAMPLE} dated births
      * are dropped: a single sourced ancestor would otherwise pin the bar to 0 %
@@ -114,7 +114,7 @@ final readonly class TreeHealthRepository
         $birthRows = TreeScope::table($this->tree, 'dates')
             ->where('d_fact', '=', 'BIRT')
             ->whereIn('d_type', ['@#DGREGORIAN@', '@#DJULIAN@'])
-            ->where('d_year', '>', 0)
+            ->where('d_year', '<>', 0)
             ->select(['d_gid', new Expression('MIN(d_year) AS year')])
             ->groupBy('d_gid')
             ->get();
@@ -145,10 +145,6 @@ final readonly class TreeHealthRepository
 
         foreach ($birthRows as $birthRow) {
             $birthYear = RowCast::int($birthRow, 'year');
-
-            if ($birthYear <= 0) {
-                continue;
-            }
 
             $individualId = RowCast::string($birthRow, 'd_gid');
             $century      = CenturyName::fromYear($birthYear);

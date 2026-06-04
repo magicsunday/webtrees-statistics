@@ -39,14 +39,25 @@ final readonly class CenturyName
     }
 
     /**
-     * Map a 4-digit year to its 1-based century number using the Gregorian
-     * convention where year 1 lives in the 1st century and year 100 still does,
-     * but year 101 starts the 2nd. The formula `intdiv(year - 1, 100) + 1` is
-     * the single source of truth that every century-bucketing repository call
-     * site routes through.
+     * Map a year to its 1-based century number using the Gregorian convention
+     * where year 1 lives in the 1st century and year 100 still does, but year
+     * 101 starts the 2nd. This is the single source of truth that every
+     * century-bucketing repository call site routes through.
+     *
+     * BCE (negative) years are folded symmetrically — the century is derived
+     * from the absolute year and re-signed — so that 1–100 BCE map to century
+     * -1, 101–200 BCE to -2, and so on. `intdiv()` alone truncates toward zero,
+     * which would collapse 1–100 BCE into the 1st century CE and 101–200 BCE
+     * into the degenerate century 0; the explicit re-sign floors toward
+     * negative infinity instead, landing every BCE year in a negative century
+     * that {@see for()} wraps as "%s BCE".
      */
     public static function fromYear(int $year): int
     {
+        if ($year < 0) {
+            return -self::fromYear(-$year);
+        }
+
         return intdiv($year - 1, 100) + 1;
     }
 

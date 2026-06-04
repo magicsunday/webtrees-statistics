@@ -137,4 +137,27 @@ final class TreeHealthRepositoryIntegrationTest extends IntegrationTestCase
 
         self::assertSame([], (new TreeHealthRepository($tree))->sourceCitationCoverageByCentury());
     }
+
+    /**
+     * source-coverage-bce.ged seeds five Julian B.C. births in the 1st century
+     * BCE (90, 70, 50, 30, 10 B.C.), two carrying `2 SOUR @S1@`. The fold must
+     * land them in century -1 — `CenturyName::fromYear()` floors BCE years
+     * toward negative infinity — so the breakdown surfaces a single cohort that
+     * the per-century minimum sample (5) clears. A regression that truncates
+     * toward zero, or one that re-introduces the `d_year > 0` exclusion, would
+     * either misbucket the cohort into the CE ordinals or drop it entirely.
+     */
+    #[Test]
+    public function sourceCitationCoverageByCenturyBucketsBceBirthsIntoNegativeCenturies(): void
+    {
+        $tree   = $this->importFixtureTree('source-coverage-bce.ged');
+        $result = (new TreeHealthRepository($tree))->sourceCitationCoverageByCentury();
+
+        self::assertCount(1, $result, 'Only the 1st-century-BCE cohort (n=5) clears the minimum sample; no CE cohorts exist');
+
+        self::assertSame(-1, $result[0]['century']);
+        self::assertSame(5, $result[0]['total']);
+        self::assertSame(2, $result[0]['sourced']);
+        self::assertEqualsWithDelta(40.0, $result[0]['percentage'], 0.001);
+    }
 }

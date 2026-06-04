@@ -31,8 +31,8 @@ use function ksort;
  * single source of truth for the year→century convention — so these histograms
  * bucket identically to the sibling per-century cards (source coverage, child
  * mortality). The convention matches core's own banding for every positive
- * year; negative (BCE) years inherit `CenturyName::fromYear()`'s documented
- * truncate-toward-zero behaviour.
+ * year; negative (BCE) years fold toward negative infinity, landing in a
+ * negative century the view layer labels as "%s BCE".
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0

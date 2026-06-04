@@ -74,4 +74,30 @@ final class EventCenturyTallyIntegrationTest extends IntegrationTestCase
         self::assertSame(['19th' => 1], EventCenturyTally::countByCentury($tree, 'MARR'));
         self::assertSame(['19th' => 1], EventCenturyTally::countByCentury($tree, 'DIV'));
     }
+
+    /**
+     * BCE births fold into negative centuries the histogram labels as "%s BCE",
+     * sorted ahead of the CE cohorts with no degenerate century-0 bar between
+     * them. The fixture seeds:
+     *  - I1 BIRT `BET 90 B.C. AND 70 B.C.` — a 1st-century-BCE range that, like
+     *    its CE siblings, must count once in its lower-bound century (-90), not
+     *    twice; the most-negative `d_year` is the chronological lower bound.
+     *  - I2 BIRT `1 JAN 50 B.C.` — a precise 1st-century-BCE birth.
+     *  - I3 BIRT `1 JAN 150 B.C.` — a 2nd-century-BCE birth.
+     *  - I4 BIRT `1 JAN 50` — a 1st-century-CE birth that pins the ordering.
+     *
+     * A truncate-toward-zero fold would merge the BCE births into the CE
+     * ordinals (or the degenerate "0 century"); a missing range dedup would
+     * report the 1st-century-BCE cohort as three rather than two.
+     */
+    #[Test]
+    public function bucketsBceBirthsIntoNegativeCenturiesOrderedAheadOfCe(): void
+    {
+        $tree = $this->importFixtureTree('century-dedup-bce.ged');
+
+        self::assertSame(
+            ['2nd BCE' => 1, '1st BCE' => 2, '1st' => 1],
+            EventCenturyTally::countByCentury($tree, 'BIRT'),
+        );
+    }
 }
