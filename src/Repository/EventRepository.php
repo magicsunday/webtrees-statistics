@@ -15,6 +15,7 @@ use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\EventCenturyTally;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\EventMonthTally;
+use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
 
 use function array_keys;
 use function implode;
@@ -91,6 +92,13 @@ final readonly class EventRepository
      * Group birth events by zodiac sign. Returns all 12 keys even when the
      * dataset has none of a given sign so the chart layout stays stable.
      *
+     * Counts run over the deduplicated lower-bound representative row per
+     * individual, so a day-precise range birth (`BET 10 JAN AND 25 JAN`) — two
+     * stored rows that can fall in different signs — is tallied once in its
+     * lower-bound sign rather than in both. The sign needs the month and day of
+     * the same row; the lower-bound row supplies both coherently for the common
+     * range case, where the two bounds carry distinct julian days.
+     *
      * @return array<string, int>
      */
     public function getBirthsByZodiacSign(): array
@@ -110,11 +118,10 @@ final readonly class EventRepository
             );
         }
 
-        $row = (array) DB::table('dates')
+        $row = (array) DB::connection()
+            ->query()
+            ->fromSub(DedupedEventDates::query($this->tree, 'BIRT'), 'birth_dates')
             ->selectRaw(implode(', ', $columns))
-            ->where('d_file', '=', $this->tree->id())
-            ->where('d_fact', '=', 'BIRT')
-            ->whereIn('d_type', ['@#DGREGORIAN@', '@#DJULIAN@'])
             ->first();
 
         $out = [];

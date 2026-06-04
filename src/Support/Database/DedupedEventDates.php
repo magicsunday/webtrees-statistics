@@ -46,8 +46,14 @@ use Illuminate\Database\Query\JoinClause;
  * remove. For a single-row individual the `GROUP BY` is a no-op. On a genuine
  * cross-calendar tie the surviving `d_year` / `d_mon` / `d_day` are the
  * per-column minima of the tied rows and may therefore be drawn from different
- * rows; this is benign because every count card buckets on a single column and
- * the individual still lands in exactly one bucket, counted once.
+ * rows. The exact-once cardinality holds regardless — the `GROUP BY` emits one
+ * row per individual, so every consumer counts each record once. A consumer
+ * that reads a single column (century, year, month) is fully correct; a
+ * consumer that combines `d_mon` and `d_day` from the same row (the zodiac
+ * card) is also correct for the common range case, where the two bounds carry
+ * distinct julian days and the join-back matches one whole row, and on the rare
+ * tie could at worst place the still-counted-once individual in an adjacent
+ * bucket.
  *
  * The returned builder reads like a virtual `event_dates` table with columns
  * `d_gid, d_year, d_mon, d_day`; consumers chain their own `select()` /
@@ -107,7 +113,9 @@ final readonly class DedupedEventDates
                 DateAggregate::min('d', 'd_day', 'd_day'),
             ]);
 
-        return DB::connection()->query()->fromSub($representativeRows, 'event_dates');
+        return DB::connection()
+            ->query()
+            ->fromSub($representativeRows, 'event_dates');
     }
 
     /**

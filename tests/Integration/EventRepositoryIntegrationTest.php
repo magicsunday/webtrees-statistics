@@ -74,6 +74,27 @@ final class EventRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
+     * The zodiac card deduplicates the two-row range encoding. A day-precise
+     * `BET 10 JAN 1900 AND 25 JAN 1900` birth is stored as two rows — a 10 JAN
+     * lower-bound (Capricornus) and a 25 JAN upper-bound (Aquarius). The raw
+     * per-row count tallied the one individual into both signs; collapsing to
+     * the lower-bound representative keeps it in Capricornus alone. The precise
+     * 15 MAR control (Pisces) confirms the dedup folds the two stored bounds
+     * without merging the two distinct individuals.
+     */
+    #[Test]
+    public function getBirthsByZodiacSignCountsEachRangedBirthOnce(): void
+    {
+        $tree   = $this->importFixtureTree('zodiac-dedup.ged');
+        $result = (new EventRepository($tree))->getBirthsByZodiacSign();
+
+        self::assertSame(1, $result['Capricornus'] ?? null, 'Ranged birth counts once in its lower-bound sign');
+        self::assertSame(0, $result['Aquarius'] ?? null, 'Upper bound never spawns a second tally');
+        self::assertSame(1, $result['Pisces'] ?? null, 'Precise control individual');
+        self::assertSame(2, array_sum($result), 'Two distinct individuals, two births');
+    }
+
+    /**
      * The births-by-century card seam deduplicates the two-row range encoding:
      * the fixture's three births (a within-century range, a precise date and a
      * century-straddling range) all count once in the 19th century. A regression
