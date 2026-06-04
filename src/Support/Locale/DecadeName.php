@@ -40,9 +40,19 @@ final readonly class DecadeName
      * Short decade-suffix label used on chart X-axes and as the primary
      * category label across every per-decade widget. Reuses the existing core
      * PO translation `'%ss'`, so no new translation strings are introduced.
+     *
+     * A negative decade-start key is a BCE decade grouped by magnitude — `-50`
+     * is the "50s BCE" decade (years 50–59 BCE) — and the BCE era marker is
+     * appended LAST so it reads "50s BCE" / "50er v. u. Z.", never "-50s". The
+     * degenerate key `0` (years 1–9, where BCE and CE collide because there is
+     * no year 0) renders as the plain "0s" decade.
      */
     public static function for(int $decadeStart): string
     {
+        if ($decadeStart < 0) {
+            return I18N::translate('%s BCE', I18N::translate('%ss', (string) (-$decadeStart)));
+        }
+
         return I18N::translate('%ss', (string) $decadeStart);
     }
 
@@ -57,9 +67,25 @@ final readonly class DecadeName
      * binning in life-span.phtml). With `$decadeCount = 5`, `longLabel(1900,
      * 5)` reads "Period: 1900–1949" — the span covers the five decades 1900s,
      * 1910s, 1920s, 1930s, 1940s, i.e. years 1900 through 1949 inclusive.
+     *
+     * A negative `$decadeStart` is a BCE decade key; BCE years count DOWN, so
+     * the range runs from the earliest (most-negative) year to the latest and
+     * the era marker is appended LAST. `longLabel(-50)` reads "Period: 59–50
+     * BCE" (the 50s-BCE decade, years 50–59 BCE); a five-decade bin keyed at
+     * the most-negative `-90` reads "Period: 99–50 BCE".
      */
     public static function longLabel(int $decadeStart, int $decadeCount = 1): string
     {
+        if ($decadeStart < 0) {
+            $firstYear = -$decadeStart + 9;
+            $lastYear  = -$decadeStart - (($decadeCount - 1) * 10);
+
+            return I18N::translate(
+                '%s BCE',
+                I18N::translate('Period: %1$s–%2$s', (string) $firstYear, (string) $lastYear),
+            );
+        }
+
         $lastYear = $decadeStart + ($decadeCount * 10) - 1;
 
         return I18N::translate(

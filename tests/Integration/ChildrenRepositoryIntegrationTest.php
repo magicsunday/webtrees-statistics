@@ -431,28 +431,38 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * The decade-axis family-size chart stays CE-only for now: BCE marriages
-     * fold into the century chart but the decade axis needs deliberate
-     * negative-decade labelling and adaptive binning, addressed with the rest
-     * of the decade-axis BCE work. So family-size-bce.ged surfaces only the
-     * single 1900s bar from the four CE families, never a negative decade from
-     * the BCE families — whose presence in the tree is proven by the sibling
-     * {@see averageFamilySizeByCenturyBucketsBceMarriagesIntoNegativeCenturies}
-     * on the same fixture, so "absent from the decade chart" means dropped, not
-     * never-imported. The four CE families (1 / 2 / 3 / 5 children) populate one
-     * of each stacked bucket (1 / 2 / 3 / 4+).
+     * The decade-axis family-size chart folds BCE marriages into negative
+     * decade keys, labelled "60s BCE" / "40s BCE" / "30s BCE" and ordered ahead
+     * of the CE bar. family-size-bce.ged seeds BCE families at 60 / 40 / 30 B.C.
+     * (decades −60 / −40 / −30, with 2 / 4 / 2 children) and four CE families
+     * collapsed onto the 1900s bar (1 / 2 / 3 / 5 children → one of each
+     * bucket). The chart is sparse, so only populated decades become bars.
      */
     #[Test]
-    public function familySizeStackedByDecadeStaysCeOnly(): void
+    public function familySizeStackedByDecadeIncludesBceDecades(): void
     {
         $tree   = $this->importFixtureTree('family-size-bce.ged');
         $result = $this->repository($tree)->familySizeStackedByDecade();
 
-        self::assertSame([DecadeName::for(1900)], $result->categories);
-
-        // One CE family in each of the four buckets (1 / 2 / 3 / 4+ children).
         self::assertSame(
-            [[1], [1], [1], [1]],
+            [
+                DecadeName::for(-60),
+                DecadeName::for(-40),
+                DecadeName::for(-30),
+                DecadeName::for(1900),
+            ],
+            $result->categories,
+        );
+
+        // Stacked buckets per decade: 1 / 2 / 3 / 4+ children. Columns line up
+        // with the categories above (−60s, −40s, −30s, 1900s).
+        self::assertSame(
+            [
+                [0, 0, 0, 1], // 1 child:  F6 (1900s)
+                [1, 0, 1, 1], // 2 child:  F1 (−60s), F4 (−30s), F7 (1900s)
+                [0, 0, 0, 1], // 3 child:  F3 (1900s)
+                [0, 1, 0, 1], // 4+ child: F2 (−40s), F8 (1900s)
+            ],
             array_map(static fn (StackedBarSeries $series): array => $series->data, $result->series),
         );
     }

@@ -260,13 +260,10 @@ final readonly class ChildrenRepository
         $perDecade = [];
 
         foreach ($this->familiesByEarliestMarriageYear() as $entry) {
-            // BCE marriages fold into the per-century chart; the decade axis
-            // stays CE-only until negative-decade labelling and adaptive
-            // binning land with the rest of the decade-axis BCE work.
-            if ($entry['year'] <= 0) {
-                continue;
-            }
-
+            // `intdiv` groups a BCE year by magnitude toward zero (−55 → −50),
+            // so a negative key is the matching BCE decade; DecadeName::for()
+            // labels it "50s BCE". The chart is sparse (only populated decades
+            // become bars), so a BCE-straddling tree never explodes the axis.
             $periodStart               = intdiv($entry['year'], 10) * 10;
             $perDecade[$periodStart][] = $entry['n'];
         }
