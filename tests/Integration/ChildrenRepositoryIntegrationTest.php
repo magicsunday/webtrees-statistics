@@ -14,12 +14,15 @@ namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
+use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarPayload;
+use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarSeries;
 use MagicSunday\Webtrees\Statistic\Repository\ChildrenRepository;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
+use MagicSunday\Webtrees\Statistic\Support\Locale\DecadeName;
 use MagicSunday\Webtrees\Statistic\Support\Locale\MonthName;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -45,6 +48,9 @@ use function array_sum;
 #[CoversClass(ChildrenRepository::class)]
 #[UsesClass(LineChartPayload::class)]
 #[UsesClass(LineChartSeries::class)]
+#[UsesClass(StackedBarPayload::class)]
+#[UsesClass(StackedBarSeries::class)]
+#[UsesClass(DecadeName::class)]
 #[UsesClass(DateAggregate::class)]
 #[UsesClass(DateJoin::class)]
 #[UsesClass(MonthName::class)]
@@ -396,6 +402,59 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
         );
         self::assertSame('Twins', $result->series[0]->name);
         self::assertEqualsWithDelta(0.99, $result->series[0]->values[0], 0.01);
+    }
+
+    /**
+     * Average family size by century folds BCE marriages into negative
+     * centuries and picks the chronologically EARLIEST marriage per family
+     * across the sign boundary (a more-negative year is earlier).
+     * family-size-bce.ged seeds three 1st-century-BCE families (F1 2 children @
+     * 60 B.C., F2 4 @ 40 B.C., F4 2 @ its earliest of two MARR dates, 30 B.C.)
+     * and four 20th-century CE families (F3 3 @ 1905, F6 1 @ 1901, F7 2 @ 1902,
+     * F8 5 @ 1903). F5 carries a MARR with no parseable date and drops out. The
+     * BCE century averages 8/3 ≈ 2.667 and sorts ahead of the CE cohort (11/4 =
+     * 2.75). A regression that clamped BCE years to 0 (the old `max($year, 0)`)
+     * or kept the `<= 0` filter would drop every BCE family.
+     */
+    #[Test]
+    public function averageFamilySizeByCenturyBucketsBceMarriagesIntoNegativeCenturies(): void
+    {
+        $tree   = $this->importFixtureTree('family-size-bce.ged');
+        $result = $this->repository($tree)->averageFamilySizeByCentury();
+
+        self::assertSame(
+            [CenturyName::compactLabel(-1), CenturyName::compactLabel(20)],
+            $result->categories,
+        );
+        self::assertEqualsWithDelta(2.667, $result->series[0]->values[0], 0.001, 'BCE: (2+4+2)/3 families');
+        self::assertEqualsWithDelta(2.75, $result->series[0]->values[1], 0.001, 'CE: (3+1+2+5)/4 families');
+    }
+
+    /**
+     * The decade-axis family-size chart stays CE-only for now: BCE marriages
+     * fold into the century chart but the decade axis needs deliberate
+     * negative-decade labelling and adaptive binning, addressed with the rest
+     * of the decade-axis BCE work. So family-size-bce.ged surfaces only the
+     * single 1900s bar from the four CE families, never a negative decade from
+     * the BCE families — whose presence in the tree is proven by the sibling
+     * {@see averageFamilySizeByCenturyBucketsBceMarriagesIntoNegativeCenturies}
+     * on the same fixture, so "absent from the decade chart" means dropped, not
+     * never-imported. The four CE families (1 / 2 / 3 / 5 children) populate one
+     * of each stacked bucket (1 / 2 / 3 / 4+).
+     */
+    #[Test]
+    public function familySizeStackedByDecadeStaysCeOnly(): void
+    {
+        $tree   = $this->importFixtureTree('family-size-bce.ged');
+        $result = $this->repository($tree)->familySizeStackedByDecade();
+
+        self::assertSame([DecadeName::for(1900)], $result->categories);
+
+        // One CE family in each of the four buckets (1 / 2 / 3 / 4+ children).
+        self::assertSame(
+            [[1], [1], [1], [1]],
+            array_map(static fn (StackedBarSeries $series): array => $series->data, $result->series),
+        );
     }
 
     /**

@@ -163,8 +163,10 @@ final readonly class ChildrenRepository
 
     /**
      * Reads the raw `f_numchil` per family aggregated to one row per family at
-     * its earliest MARR year, then groups by century. Shared backing for the
-     * century-bucketed cards (stacked share, average line).
+     * its earliest MARR year, then groups by century. Backs the
+     * average-children-per-family line ({@see averageFamilySizeByCentury()});
+     * BCE marriages fold into negative centuries through {@see
+     * CenturyName::fromYear()}.
      *
      * @return array<int, list<int>>
      */
@@ -196,7 +198,7 @@ final readonly class ChildrenRepository
             ->select(['f_id', 'f_numchil AS n', 'marr.d_year AS year'])
             ->get();
 
-        /** @var array<string, array{n: int, year: int}> $perFamily */
+        /** @var array<string, array{n: int, year: int|null}> $perFamily */
         $perFamily = [];
 
         foreach ($rows as $row) {
@@ -206,31 +208,41 @@ final readonly class ChildrenRepository
                 continue;
             }
 
-            $year = RowCast::int($row, 'year');
-
             if (!isset($perFamily[$familyId])) {
                 $childCount           = RowCast::int($row, 'n');
                 $perFamily[$familyId] = [
                     'n'    => max($childCount, 0),
-                    'year' => max($year, 0),
+                    'year' => null,
                 ];
-
-                continue;
             }
 
-            if (($year > 0) && (($perFamily[$familyId]['year'] === 0) || ($year < $perFamily[$familyId]['year']))) {
-                $perFamily[$familyId]['year'] = $year;
+            // Track the chronologically earliest MARR year per family. There is
+            // no year 0 in the calendar, so a zero d_year is the degenerate
+            // "no parseable year" value and never competes; a BCE year is
+            // negative and a more-negative year is earlier, so the MIN spans the
+            // sign boundary correctly (30 B.C. wins over 20 B.C., and any BCE
+            // year wins over a CE one).
+            $year = RowCast::int($row, 'year');
+
+            if ($year !== 0) {
+                $current = $perFamily[$familyId]['year'];
+
+                if (($current === null) || ($year < $current)) {
+                    $perFamily[$familyId]['year'] = $year;
+                }
             }
         }
 
         $entries = [];
 
         foreach ($perFamily as $family) {
-            if ($family['year'] <= 0) {
+            $year = $family['year'];
+
+            if ($year === null) {
                 continue;
             }
 
-            $entries[] = $family;
+            $entries[] = ['n' => $family['n'], 'year' => $year];
         }
 
         return $entries;
@@ -248,6 +260,13 @@ final readonly class ChildrenRepository
         $perDecade = [];
 
         foreach ($this->familiesByEarliestMarriageYear() as $entry) {
+            // BCE marriages fold into the per-century chart; the decade axis
+            // stays CE-only until negative-decade labelling and adaptive
+            // binning land with the rest of the decade-axis BCE work.
+            if ($entry['year'] <= 0) {
+                continue;
+            }
+
             $periodStart               = intdiv($entry['year'], 10) * 10;
             $perDecade[$periodStart][] = $entry['n'];
         }
