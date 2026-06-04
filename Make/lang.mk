@@ -47,8 +47,9 @@ $(POT_FILE): $(shell find src resources/views -type f \( -name '*.php' -o -name 
 			$$(find src resources/views -type f \( -name "*.php" -o -name "*.phtml" \) | sort) && \
 		echo "  ✔ Extracted $(POT_FILE) ($$(grep -c ^msgid $(POT_FILE)) strings)"'
 
-# `--no-obsolete` drops `#~` entries whose msgid left the source rather than
-# letting them accumulate in the catalogue; git history retains them if a
+# The follow-up `msgattrib --no-obsolete` pass drops `#~` entries whose msgid
+# left the source rather than letting them accumulate in the catalogue
+# (msgmerge itself only marks them obsolete); git history retains them if a
 # removed string ever needs its old translation back.
 lang-merge: $(POT_FILE) ## Update each locale's PO from the latest POT (drops obsolete entries, seeds missing locales).
 	@$(COMPOSE_RUN) sh -c 'apk add --no-cache gettext >/dev/null 2>&1; \
@@ -59,7 +60,8 @@ lang-merge: $(POT_FILE) ## Update each locale's PO from the latest POT (drops ob
 				msginit --no-translator --locale="$$loc" --input=$(POT_FILE) --output-file="$$po" >/dev/null 2>&1 && \
 					echo "  + Seeded $$po from POT"; \
 			else \
-				msgmerge --quiet --previous --update --no-obsolete --backup=none "$$po" $(POT_FILE) && \
+				msgmerge --quiet --previous --update --backup=none "$$po" $(POT_FILE) && \
+					msgattrib --no-obsolete --output-file="$$po" "$$po" && \
 					echo "  ↻ Merged $$po"; \
 			fi; \
 		done'
