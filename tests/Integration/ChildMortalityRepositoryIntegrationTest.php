@@ -14,6 +14,7 @@ namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 use MagicSunday\Webtrees\Statistic\Model\Metric\ChildMortalitySummary;
 use MagicSunday\Webtrees\Statistic\Repository\ChildMortalityRepository;
 use MagicSunday\Webtrees\Statistic\Support\Database\BirthDeathPairsQuery;
+use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
@@ -47,6 +48,7 @@ use function array_column;
 #[CoversClass(ChildMortalityRepository::class)]
 #[UsesClass(ChildMortalitySummary::class)]
 #[UsesClass(BirthDeathPairsQuery::class)]
+#[UsesClass(DateAggregate::class)]
 #[UsesClass(DateJoin::class)]
 #[UsesClass(TreeScope::class)]
 #[UsesClass(RowCast::class)]
@@ -156,6 +158,29 @@ final class ChildMortalityRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame(11, $result->total, '5 (19th control) + 5 (20th control) + 1 (16th singleton); modifier rows excluded');
         self::assertSame(4, $result->died, '3 (19th under-5) + 0 (20th survived) + 1 (16th under-5)');
         self::assertSame(36.4, $result->rate);
+    }
+
+    /**
+     * A day-precise `BET 5 JAN 1900 AND 20 JAN 1900` birth survives the
+     * full-date filter — both stored rows carry a non-zero day and month — so
+     * it slips past the year-only / modifier guard that catches the coarser
+     * ranges. Without a per-individual collapse the BIRT-to-DEAT self-join then
+     * pairs the one child's death against both birth rows, counting the
+     * under-five death twice and inflating the cohort. The deduplicated fixture
+     * pairs that ranged child (died at three) with a precise survivor, so the
+     * summary must read two individuals, one death, 50 % — not the pre-fix
+     * three / two / 66.7 %.
+     */
+    #[Test]
+    public function summaryCollapsesDayPreciseRangedBirthPerIndividual(): void
+    {
+        $tree   = $this->importFixtureTree('child-mortality-day-range-dedup.ged');
+        $result = (new ChildMortalityRepository($tree))->summary();
+
+        self::assertNotNull($result);
+        self::assertSame(2, $result->total, 'Two individuals — the ranged birth counts once');
+        self::assertSame(1, $result->died, 'One under-five death, not two');
+        self::assertSame(50.0, $result->rate);
     }
 
     /**

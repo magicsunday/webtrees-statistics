@@ -53,9 +53,14 @@ final readonly class BirthDeathPairsQuery
      * `d_day = 0` plus a synthesised default julian-day — the modifier rows
      * would otherwise produce phantom under-5 entries from the 01.01.YYYY
      * anchor, and BET..AND / FROM..TO would additionally double-count the same
-     * individual via their two-row encoding. Year-granularity consumers (mean
-     * lifespan, age distribution) leave the flag at its `false` default so
-     * their cohorts keep the historical-era modifier rows.
+     * individual via their two-row encoding. The flag only catches the
+     * `d_day = 0` ranges, though: a DAY-precise range (`BET 5 JAN AND 20 JAN`)
+     * writes two rows that both carry a non-zero day and survive it, so a
+     * consumer that joins this template still has to collapse per individual
+     * (e.g. `GROUP BY i_id` with `MIN(d_julianday1)`) to avoid the
+     * double-count. Year-granularity consumers (mean lifespan, age
+     * distribution) leave the flag at its `false` default so their cohorts keep
+     * the historical-era modifier rows.
      */
     public static function for(Tree $tree, bool $requireFullDate = false): Builder
     {

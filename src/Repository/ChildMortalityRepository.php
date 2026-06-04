@@ -14,6 +14,7 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Model\Metric\ChildMortalitySummary;
 use MagicSunday\Webtrees\Statistic\Support\Database\BirthDeathPairsQuery;
+use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
 
@@ -189,21 +190,29 @@ final readonly class ChildMortalityRepository
 
     /**
      * Pull every individual's BIRT julian-day, DEAT julian-day, and BIRT year
-     * from the `dates` table via a self-join. Only julian/gregorian dates
-     * participate — Hebrew / French-Rep / etc. dates exist in the table but
-     * their `d_julianday1` values are normalised, and mixing them in would
-     * dilute the cohort split with calendars the user did not intend to compare
-     * against.
+     * from the `dates` table via a self-join, one row per individual. Only
+     * julian/gregorian dates participate — Hebrew / French-Rep / etc. dates
+     * exist in the table but their `d_julianday1` values are normalised, and
+     * mixing them in would dilute the cohort split with calendars the user did
+     * not intend to compare against. A `GROUP BY` on the individual collapses
+     * the two-row encoding of a day-precise range so the cohort counts each
+     * child once.
      *
      * @return list<array{birthJd: int, deathJd: int, birthYear: int}>
      */
     private function fetchBirthDeathPairs(): array
     {
+        // A day-precise `BET`/`FROM` range survives the full-date filter — both
+        // stored rows carry a non-zero day — so the self-join would pair the
+        // one child against both birth (and both death) rows. Group by the
+        // individual and collapse each anchor onto its lower-bound julian day
+        // so every child contributes a single BIRT/DEAT pair.
         $rows = BirthDeathPairsQuery::for($this->tree, true)
+            ->groupBy('individuals.i_id')
             ->select([
-                'birth.d_julianday1 AS birth_jd',
-                'birth.d_year AS birth_year',
-                'death.d_julianday1 AS death_jd',
+                DateAggregate::min('birth', 'd_julianday1', 'birth_jd'),
+                DateAggregate::min('birth', 'd_year', 'birth_year'),
+                DateAggregate::min('death', 'd_julianday1', 'death_jd'),
             ])
             ->get();
 
