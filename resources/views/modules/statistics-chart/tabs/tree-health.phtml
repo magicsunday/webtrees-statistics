@@ -447,7 +447,7 @@ echo Card::for($module, I18N::translate('Data-set inventory'))
     )
     ->render();
 
-echo Card::for($module, I18N::translate('Media objects by type'))
+echo Card::for($module, I18N::translate('Media files by type'))
     ->withSub(I18N::plural('%s media file in total', '%s media files in total', $mediaFilesTotal, I18N::number($mediaFilesTotal)))
     ->withEyebrow(I18N::translate('Media'))
     ->withAccent(Accent::Ochre)

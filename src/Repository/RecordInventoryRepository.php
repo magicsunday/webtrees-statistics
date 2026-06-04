@@ -21,7 +21,7 @@ use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
  * Counts the tree's records by GEDCOM type for the Tree-health tab's data-set
  * inventory: how many core person/family records the tree holds against how
  * many enrichment records (sources, media objects, notes, shared notes,
- * repositories, shared locations), plus the breakdown of media objects by their
+ * repositories, shared locations), plus the breakdown of media files by their
  * recorded source-media type (photo, tombstone, map, …).
  *
  * All counts come straight from the normalised webtrees tables — `individuals`,
@@ -68,7 +68,7 @@ final readonly class RecordInventoryRepository
     }
 
     /**
-     * Media objects grouped by their recorded source-media type, most-frequent
+     * Media files grouped by their recorded source-media type, most-frequent
      * first. The key is the raw GEDCOM type token (e.g. `photo`, `tombstone`);
      * an empty token marks media without a recorded type. Ties on the count
      * resolve alphabetically by token so the ordering is deterministic.
