@@ -289,4 +289,45 @@ final class RecordsIntegrationTest extends IntegrationTestCase
         self::assertSame('I6', $record->individual->xref());
         self::assertSame(25, $record->ageYears);
     }
+
+    /**
+     * Oldest-husband record deduplicates the two-row range encoding of a
+     * marriage date. I2's `MARR BET 1920 AND 1960` is stored as two `dates`
+     * rows; counting raw rows yields two ages for the one spouse — 20 (lower
+     * bound) and 60 (upper bound) — and the spurious 60 would steal the
+     * oldest-husband record. Collapsing the marriage to its lower-bound
+     * representative per family gives I2 a single age of 20, so the precise
+     * I1 (married 1930 at 30) is the genuine oldest.
+     */
+    #[Test]
+    public function oldestHusbandRecordIgnoresRangedMarriageUpperBound(): void
+    {
+        $tree   = $this->importFixtureTree('spouse-record-ranged-marriage.ged');
+        $record = (new MarriageRepository($tree, $this->statisticsData($tree)))->oldestSpouseAtMarriageRecord('M');
+
+        self::assertNotNull($record);
+        self::assertSame('I1', $record->individual->xref(), 'The ranged marriage must not invent a 60-year-old husband');
+        self::assertSame(30, $record->ageYears);
+    }
+
+    /**
+     * Youngest-parent record deduplicates the two-row range encoding of the
+     * parent's birth. I1's `BIRT BET 1900 AND 1910` is stored as two `dates`
+     * rows; grouping the parent on the raw birth julian-day surfaced the parent
+     * twice — once per bound — yielding two ages at the 1950 first child (50
+     * and 40), and the spurious upper-bound 40 would have made I1 the youngest
+     * parent. The precise control father I3 (born 1903, first child 1948 → 45)
+     * is the genuine youngest once I1 collapses to its lower-bound age of 50,
+     * so both the xref and the age flip relative to the pre-fix result.
+     */
+    #[Test]
+    public function youngestParentRecordIgnoresRangedBirthUpperBound(): void
+    {
+        $tree   = $this->importFixtureTree('parent-record-ranged-birth.ged');
+        $record = (new ParenthoodRepository($tree))->youngestParentAtFirstChildRecord('M');
+
+        self::assertNotNull($record);
+        self::assertSame('I3', $record->individual->xref(), 'The ranged birth must not invent a younger 40-year-old I1');
+        self::assertSame(45, $record->ageYears);
+    }
 }

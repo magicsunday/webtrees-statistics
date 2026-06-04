@@ -162,10 +162,14 @@ final class ParenthoodRepository
      * dated child across all FAMS they appear in plus the child's birth year
      * (the trend X-anchor for the per-decade aggregate). Groups by the parent
      * xref so a man married three times yields one row referencing whichever
-     * family produced his first child. Ages outside the plausibility band are
-     * dropped at source. `MIN(d_year)` is monotone-equivalent to the year-of
-     * `MIN(d_julianday1)` within the same parent's children, so the two MIN
-     * aggregates always describe the same birth event.
+     * family produced his first child; a ranged parent BIRT — two `dates`
+     * rows — is collapsed onto its lower-bound julian day via
+     * `MIN(d_julianday1)` so the parent surfaces once rather than once per
+     * bound. Ages outside the
+     * plausibility band are dropped at source. `MIN(d_year)` is
+     * monotone-equivalent to the year-of `MIN(d_julianday1)` within the same
+     * parent's children, so the two child MIN aggregates always describe the
+     * same birth event.
      *
      * @param string $sex 'M' for fathers, 'F' for mothers
      *
@@ -197,10 +201,10 @@ final class ParenthoodRepository
             // sibling, and the downstream `if ($childYear <= 0)` filter
             // would drop the whole parent row.
             ->where('child_birth.d_year', '<>', 0)
-            ->groupBy('fam.' . $parentColumn, 'parent_birth.d_julianday1')
+            ->groupBy('fam.' . $parentColumn)
             ->select([
                 'fam.' . $parentColumn . ' AS parent_xref',
-                'parent_birth.d_julianday1 AS parent_birth_jd',
+                DateAggregate::min('parent_birth', 'd_julianday1', 'parent_birth_jd'),
                 DateAggregate::min('child_birth', 'd_julianday1', 'first_child_jd'),
                 DateAggregate::min('child_birth', 'd_year', 'first_child_year'),
             ])

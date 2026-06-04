@@ -500,11 +500,15 @@ final class MarriageRepository
     }
 
     /**
-     * Per-spouse age at marriage. Loops the existing core query once per row
-     * and looks up the parent FAM's husband or wife xref so the same row
-     * contributes to both age-at-marriage histograms AND the
-     * youngest/oldest-spouse records. Result is memoised per `$sex` so the
-     * Overview tab's young/old extreme pair shares a single SELECT per sex.
+     * Per-spouse age at marriage, one row per family, carrying the husband or
+     * wife xref so the youngest / oldest-spouse records can resolve the
+     * individual. Ranged dates are collapsed onto their lower-bound julian day
+     * (MIN(d_julianday1)) so a single spouse never surfaces twice. This is
+     * deliberately the lower bound, unlike {@see ageAtMarriageDistribution()}
+     * which collapses the marriage onto its upper bound (MAX(d_julianday2), the
+     * maximum-possible-age idiom): the record path reports the conservative
+     * extreme, so the two must not be merged. Result is memoised per `$sex` so
+     * the Overview tab's young/old extreme pair shares a single SELECT per sex.
      *
      * @param string $sex 'M' or 'F'
      *
@@ -525,10 +529,16 @@ final class MarriageRepository
             ->join('dates AS birth', static function (JoinClause $join) use ($spouseColumn): void {
                 DateJoin::on($join, 'birth', 'fam.f_file', 'fam.' . $spouseColumn, 'BIRT', DateJoin::JD_GREATER_THAN_ZERO);
             })
+            // Ranged MARR / spouse BIRT dates produce two `dates` rows per
+            // anchor, so a FAM with a ranged date would surface once per range
+            // bound and invent a phantom extreme. Group by the family and
+            // collapse both anchors onto their lower-bound julian day
+            // (MIN(d_julianday1)) so each spouse contributes one age.
+            ->groupBy('fam.f_id', 'fam.' . $spouseColumn)
             ->select([
                 'fam.' . $spouseColumn . ' AS xref',
-                'marr.d_julianday1 AS marr_jd',
-                'birth.d_julianday1 AS birth_jd',
+                DateAggregate::min('marr', 'd_julianday1', 'marr_jd'),
+                DateAggregate::min('birth', 'd_julianday1', 'birth_jd'),
             ])
             ->get();
 
