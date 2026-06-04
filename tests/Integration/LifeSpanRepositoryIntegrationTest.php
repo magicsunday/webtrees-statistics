@@ -809,22 +809,68 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * A BCE (negative-year) date is excluded entirely: it must not seed a
-     * negative period row that would balloon the dense period-fill into hundreds
-     * of empty rows reaching back to antiquity. The fixture's I7 has a BCE birth
-     * (1 MAR 50 B.C.); the births matrix still starts at the 1900 period and
-     * totals five.
+     * BCE births fold into negative period rows the axis labels with the era
+     * marker. event-heatmap-bce.ged seeds four 1st-century-BCE births that the
+     * 25-year base period groups into the 100-BCE band (two January births, I1
+     * + I2 at 90 / 80 B.C., years 76–100 BCE) and the 75-BCE band (July I3 at 60
+     * B.C., December I4 at 51 B.C., years 51–75 BCE). The span is tight, so the
+     * period stays at the base width and the rows read "100 BCE" / "75 BCE",
+     * oldest first. A regression that re-introduced the `d_year > 0` exclusion
+     * would return an empty matrix.
      */
     #[Test]
-    public function eventHeatmapByPeriodMonthExcludesBceDates(): void
+    public function eventHeatmapByPeriodMonthIncludesBceDatesWithEraLabels(): void
     {
-        $tree   = $this->importFixtureTree('event-heatmap.ged');
+        $tree   = $this->importFixtureTree('event-heatmap-bce.ged');
         $result = $this->repository($tree)->eventHeatmapByPeriodMonth('BIRT');
 
-        // No pre-CE / antiquity rows — the first row is still the 1900 period.
-        self::assertSame('1900', $result->rows[0]);
-        self::assertSame(['1900', '1925'], $result->rows);
-        self::assertSame(5, $this->matrixTotal($result->values), 'the BCE birth is not counted');
+        self::assertSame(['100 BCE', '75 BCE'], $result->rows);
+        self::assertSame(2, $result->values[0][0], '100-BCE period January holds I1 + I2');
+        self::assertSame(1, $result->values[1][6], '75-BCE period July holds I3');
+        self::assertSame(1, $result->values[1][11], '75-BCE period December holds I4');
+        self::assertSame(4, $this->matrixTotal($result->values));
+    }
+
+    /**
+     * A span too wide for the 25-year base period widens up the ladder so the
+     * matrix stays legible. event-heatmap-wide.ged seeds six births a century
+     * apart from 1500 to 2000 — 21 rows at the base width, over the 20-row cap —
+     * so the period widens to 50 years (11 dense rows, 1500…2000 in 50-year
+     * steps). Every birth is still counted; the widening merges, never drops.
+     */
+    #[Test]
+    public function eventHeatmapByPeriodMonthWidensThePeriodForAWideSpan(): void
+    {
+        $tree   = $this->importFixtureTree('event-heatmap-wide.ged');
+        $result = $this->repository($tree)->eventHeatmapByPeriodMonth('BIRT');
+
+        self::assertCount(11, $result->rows, 'eleven 50-year rows, not twenty-one 25-year rows');
+        self::assertSame('1500', $result->rows[0]);
+        self::assertSame('1550', $result->rows[1], 'rows step by the widened 50-year period');
+        self::assertSame('2000', $result->rows[10]);
+        self::assertSame(6, $this->matrixTotal($result->values), 'all six births counted, none dropped');
+    }
+
+    /**
+     * A tree straddling the Common-Era boundary keeps its BCE and CE events in
+     * SEPARATE rows even near year 0: the period floor sends a near-zero BCE
+     * year to a negative (era-marked) period, not the CE-side period 0.
+     * event-heatmap-straddle.ged seeds one March birth in 10 B.C. and one June
+     * birth in 10 C.E. — both within a period of year 0, where a toward-zero
+     * fold would have merged them into a single unmarked "0" row. The floor
+     * instead yields the "25 BCE" band (years 1–25 BCE) and the "0" band (years
+     * 1–24 CE), each carrying its own birth.
+     */
+    #[Test]
+    public function eventHeatmapByPeriodMonthKeepsBceAndCeApartAcrossYearZero(): void
+    {
+        $tree   = $this->importFixtureTree('event-heatmap-straddle.ged');
+        $result = $this->repository($tree)->eventHeatmapByPeriodMonth('BIRT');
+
+        self::assertSame(['25 BCE', '0'], $result->rows);
+        self::assertSame(1, $result->values[0][2], '25-BCE band holds the March 10 B.C. birth');
+        self::assertSame(1, $result->values[1][5], 'the CE "0" band holds the June 10 C.E. birth');
+        self::assertSame(2, $this->matrixTotal($result->values));
     }
 
     /**

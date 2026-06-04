@@ -30,6 +30,7 @@ use MagicSunday\Webtrees\Statistic\Model\Ranking\RankingEntry;
 use MagicSunday\Webtrees\Statistic\Model\Record\IndividualAgeRecord;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\EventMonthTally;
 use MagicSunday\Webtrees\Statistic\Support\Calc\CalendarSpan;
+use MagicSunday\Webtrees\Statistic\Support\Calc\HeatmapPeriodBinner;
 use MagicSunday\Webtrees\Statistic\Support\Calc\HistogramTrim;
 use MagicSunday\Webtrees\Statistic\Support\Calc\MortalityAnomalies;
 use MagicSunday\Webtrees\Statistic\Support\Database\BirthDeathPairsQuery;
@@ -56,6 +57,7 @@ use function intdiv;
 use function is_numeric;
 use function ksort;
 use function max;
+use function min;
 use function round;
 use function usort;
 
@@ -1056,55 +1058,69 @@ final readonly class LifeSpanRepository
      */
     public function eventHeatmapByPeriodMonth(string $fact): HeatmapPayload
     {
-        $periodYears = 25;
-
         // Source from the deduplicated lower-bound rows so a range date
         // (`BET … AND …`), which webtrees stores as two `dates` rows, counts the
         // individual ONCE in its lower-bound period/month instead of seeding a
-        // second cell from the upper-bound row. Bound the year on BOTH sides so
-        // a single out-of-range date can't blow the dense period-fill into
-        // hundreds of empty rows: `d_year > 0` excludes BCE (negative) years
-        // (DedupedEventDates keeps them — it only drops the year-0 sentinel);
-        // `d_year <=` this year excludes a non-physical future lower bound.
-        // `d_mon BETWEEN 1 AND 12` keeps only dates with a real calendar month,
-        // so the foreach below trusts the bounds and adds no in-PHP re-checks.
+        // second cell from the upper-bound row. Only the degenerate year-0
+        // sentinel is dropped (`d_year <> 0`) — BCE (negative) years are kept and
+        // the adaptive period width below stops a far-back event from ballooning
+        // the matrix into hundreds of empty rows. `d_year <=` this year excludes
+        // a non-physical future lower bound. `d_mon BETWEEN 1 AND 12` keeps only
+        // dates with a real calendar month, so the foreach below trusts the
+        // bounds and adds no in-PHP re-checks.
         $currentYear = getdate()['year'];
 
         $rows = DedupedEventDates::query($this->tree, $fact)
-            ->where('d_year', '>', 0)
+            ->where('d_year', '<>', 0)
             ->where('d_year', '<=', $currentYear)
             ->where('d_mon', '>=', 1)
             ->where('d_mon', '<=', 12)
             ->select(['d_year', 'd_mon'])
             ->get();
 
+        /** @var list<array{year: int, month: int}> $events */
+        $events = [];
+        $years  = [];
+
+        foreach ($rows as $row) {
+            $year     = RowCast::int($row, 'd_year');
+            $events[] = ['year' => $year, 'month' => RowCast::int($row, 'd_mon')];
+            $years[]  = $year;
+        }
+
+        if ($years === []) {
+            return new HeatmapPayload(rows: [], cols: [], values: []);
+        }
+
+        // Widen the 25-year base period up the ladder until the dense fill from
+        // the earliest to the latest event fits the row cap — so a BCE-to-modern
+        // tree collapses into a legible matrix instead of millennia of blanks.
+        $periodYears = HeatmapPeriodBinner::pickPeriodYears(min($years), max($years));
+
         /** @var array<int, array<int, int>> $byPeriodMonth Period start year → month index (0-11) → count */
         $byPeriodMonth = [];
 
-        foreach ($rows as $row) {
-            $year  = RowCast::int($row, 'd_year');
-            $month = RowCast::int($row, 'd_mon');
-
-            $period     = intdiv($year, $periodYears) * $periodYears;
-            $monthIndex = $month - 1;
+        foreach ($events as $event) {
+            $period     = HeatmapPeriodBinner::periodStart($event['year'], $periodYears);
+            $monthIndex = $event['month'] - 1;
 
             $byPeriodMonth[$period][$monthIndex] = ($byPeriodMonth[$period][$monthIndex] ?? 0) + 1;
-        }
-
-        if ($byPeriodMonth === []) {
-            return new HeatmapPayload(rows: [], cols: [], values: []);
         }
 
         ksort($byPeriodMonth);
         $periodKeys  = array_keys($byPeriodMonth);
         $firstPeriod = $periodKeys[0];
-        $lastPeriod  = $periodKeys[array_key_last($periodKeys)];
+        $lastPeriod  = $periodKeys[count($periodKeys) - 1];
 
         $rowLabels = [];
         $values    = [];
 
         for ($period = $firstPeriod; $period <= $lastPeriod; $period += $periodYears) {
-            $rowLabels[] = (string) $period;
+            // BCE period rows carry the era marker; CE rows stay the bare
+            // period-start year the existing axis renders.
+            $rowLabels[] = ($period < 0)
+                ? I18N::translate('%s BCE', (string) (-$period))
+                : (string) $period;
 
             $monthCounts = $byPeriodMonth[$period] ?? [];
             $rowValues   = [];
