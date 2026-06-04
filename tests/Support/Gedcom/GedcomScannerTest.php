@@ -116,15 +116,87 @@ final class GedcomScannerTest extends TestCase
             'BIRT',
             null,
         ];
+        yield 'a DATE line with no digit run returns null' => [
+            "\n0 @I1@ INDI\n1 BIRT\n2 DATE UNKNOWN",
+            'BIRT',
+            null,
+        ];
+        yield 'two-digit Julian B.C. year is negated' => [
+            "\n0 @I1@ INDI\n1 BIRT\n2 DATE @#DJULIAN@ 1 JAN 50 B.C.",
+            'BIRT',
+            -50,
+        ];
+        yield 'three-digit B.C. year is negated' => [
+            "\n0 @I1@ INDI\n1 BIRT\n2 DATE @#DJULIAN@ 1 JAN 150 B.C.",
+            'BIRT',
+            -150,
+        ];
+        yield 'month-less B.C. year is negated via the first digit run' => [
+            "\n0 @I1@ INDI\n1 BIRT\n2 DATE ABT 90 B.C.",
+            'BIRT',
+            -90,
+        ];
+        yield 'BET ... B.C. range returns the negated lower bound' => [
+            "\n0 @I1@ INDI\n1 BIRT\n2 DATE BET 90 B.C. AND 70 B.C.",
+            'BIRT',
+            -90,
+        ];
+        yield 'short CE year after the month is captured (no longer dropped)' => [
+            "\n0 @I1@ INDI\n1 BIRT\n2 DATE 1 JAN 50",
+            'BIRT',
+            50,
+        ];
+        yield 'non-Gregorian calendar year is read as the last token, not the day' => [
+            "\n0 @I1@ INDI\n1 BIRT\n2 DATE @#DHEBREW@ 1 TSH 5700",
+            'BIRT',
+            5700,
+        ];
+        yield 'dual date resolves to the new-style year core stores' => [
+            "\n0 @I1@ INDI\n1 BIRT\n2 DATE 1 JAN 1900/01",
+            'BIRT',
+            1901,
+        ];
+        yield 'dual date across a century boundary carries the +1 (1699/00 → 1700)' => [
+            "\n0 @I1@ INDI\n1 BIRT\n2 DATE 1 JAN 1699/00",
+            'BIRT',
+            1700,
+        ];
+        yield 'dotless BCE is NOT negated (core stores it positive)' => [
+            "\n0 @I1@ INDI\n1 BIRT\n2 DATE 1 JAN 50 BCE",
+            'BIRT',
+            50,
+        ];
+        yield 'a dotless inline BC does not negate a CE year (core stores it positive)' => [
+            "\n0 @I1@ INDI\n1 BIRT\n2 DATE 1 JAN 1850 BC",
+            'BIRT',
+            1850,
+        ];
+        yield 'an interpreted-date phrase with a digit does not hijack the year' => [
+            "\n0 @I1@ INDI\n1 BIRT\n2 DATE INT 1850 (about 30 years old)",
+            'BIRT',
+            1850,
+        ];
+        yield 'an unterminated phrase (lost closing paren) still does not hijack the year' => [
+            "\n0 @I1@ INDI\n1 BIRT\n2 DATE INT 1850 (per the 1700 census",
+            'BIRT',
+            1850,
+        ];
+        yield 'a sub-1000 slash date collapses to its primary year (no fractional suffix)' => [
+            "\n0 @I1@ INDI\n1 BIRT\n2 DATE 1 JAN 500/01",
+            'BIRT',
+            500,
+        ];
     }
 
     /**
-     * The first four-digit token on the `2 DATE` line wins; range markers like
-     * `BET 1900 AND 1910` therefore resolve to the start year (1900).
+     * The year is the last 1–4 digit run of the date's lower bound (so short
+     * BCE/CE years and non-Gregorian calendars parse, range markers resolve to
+     * the start year and a leading day is never mistaken for the year); only the
+     * literal Julian `B.C.` token negates it, matching what core stores.
      */
     #[Test]
     #[DataProvider('eventYearSamples')]
-    public function extractEventYearGrabsTheFirstFourDigitToken(string $gedcom, string $tag, ?int $expected): void
+    public function extractEventYearReadsTheYearAndNegatesBce(string $gedcom, string $tag, ?int $expected): void
     {
         self::assertSame($expected, GedcomScanner::extractEventYear($gedcom, $tag));
     }

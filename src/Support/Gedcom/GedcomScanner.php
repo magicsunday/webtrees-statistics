@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Support\Gedcom;
 
+use function end;
 use function explode;
 use function implode;
 use function in_array;
@@ -20,6 +21,7 @@ use function preg_match;
 use function preg_match_all;
 use function preg_quote;
 use function preg_replace;
+use function preg_split;
 use function str_contains;
 use function str_ends_with;
 use function str_replace;
@@ -117,11 +119,23 @@ final readonly class GedcomScanner
     }
 
     /**
-     * Pull a four-digit year out of the first `2 DATE` sub-line of the given
-     * event block. Range markers (`BEF`, `AFT`, `ABT`, `EST`, `CAL`, `INT`) are
-     * stripped before the year capture so the first concrete `\d{4}` token
-     * wins; `BET 1900 AND 1910` returns 1900, `FROM 1900 TO 1910` also returns
-     * 1900.
+     * Pull the year out of the first `2 DATE` sub-line of the given event
+     * block. The year is the LAST 1–4 digit run of the date's lower bound,
+     * which is calendar-agnostic — Gregorian, Julian, Hebrew and
+     * French-Republican all put the year after the day and month, so short
+     * (2–3 digit) years parse and a leading day is never mistaken for the year.
+     * A range date resolves to its lower bound (`BET 1900 AND 1910` → 1900,
+     * `FROM 1900 TO 1910` → 1900). An interpreted-date phrase is stripped first
+     * so its digits cannot win (`INT 1850 (about 30 years old)` → 1850). A dual
+     * date resolves to the new-style year core stores (old-style + 1), so
+     * `1 JAN 1900/01` → 1901, matching `MIN(d_year)`.
+     *
+     * A literal Julian `B.C.` token makes the year negative so the regex
+     * shortcut agrees EXACTLY with how webtrees stores a negative `d_year`
+     * (`1 JAN 50 B.C.` → -50). The dotless `BC` / `BCE` spellings are NOT
+     * honoured — core does not parse them as an era marker either, so a stray
+     * "BC" (e.g. a place abbreviation in an interpreted-date phrase) cannot flip
+     * a CE year negative.
      *
      * @param string $gedcom Raw GEDCOM record body
      * @param string $tag    Level-1 event tag whose first sub-date to read
@@ -138,11 +152,32 @@ final readonly class GedcomScanner
             return null;
         }
 
-        if (preg_match('/\b(\d{4})\b/', $dateMatch[1], $yearMatch) !== 1) {
+        // Drop any interpreted-date phrase — everything from the first "(" to
+        // the end of the (single) line — so its digits never win, even when the
+        // closing ")" was lost in a legacy import. Then keep only the lower
+        // bound of a range date.
+        $segment  = (string) preg_replace('/\(.*/', '', $dateMatch[1]);
+        $segments = preg_split('/\s+(?:AND|TO)\s+/', $segment, 2);
+        $segment  = ($segments === false) ? $segment : $segments[0];
+
+        // A four-digit dual date ("1900/01") is the Gregorian-reform Julian
+        // convention; core stores the new-style year (old-style + 1). Record
+        // that +1 offset, then collapse ANY slash to its primary part so the
+        // digit scan sees a single year token, not the old-/new-style suffix.
+        $dualOffset = (preg_match('#\d{4}/\d{1,4}#', $segment) === 1) ? 1 : 0;
+        $segment    = (string) preg_replace('#(\d+)/\d+#', '$1', $segment);
+
+        if (preg_match_all('/(?<!\d)(\d{1,4})(?!\d)/', $segment, $yearMatches) < 1) {
             return null;
         }
 
-        return (int) $yearMatch[1];
+        $year = (int) end($yearMatches[1]) + $dualOffset;
+
+        if (preg_match('/\bB\.C\./', $segment) === 1) {
+            return -$year;
+        }
+
+        return $year;
     }
 
     /**

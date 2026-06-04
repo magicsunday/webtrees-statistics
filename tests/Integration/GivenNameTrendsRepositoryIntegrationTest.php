@@ -93,6 +93,26 @@ final class GivenNameTrendsRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
+     * BCE given-name births fold into negative decade keys now that
+     * GedcomScanner reads the `B.C.` marker and short years. name-trends-bce.ged
+     * seeds five "Gaius" in the 50s B.C. (decade −50) and three "Marcus" in the
+     * 40s B.C. (decade −40); both clear top-N so the dense decade axis stays
+     * BCE-bounded (−50…−40, oldest first) with no CE-straddle. The view renders
+     * the keys through DecadeName as "50s BCE" / "40s BCE".
+     */
+    #[Test]
+    public function countByDecadeBucketsBceBirthsIntoNegativeDecades(): void
+    {
+        $tree   = $this->importFixtureTree('name-trends-bce.ged');
+        $result = (new GivenNameTrendsRepository($tree))->countByDecade(10);
+
+        self::assertSame([-50, -40], $result->decades);
+        self::assertSame(['Gaius', 'Marcus'], $result->names);
+        self::assertSame([-50 => 5, -40 => 0], $result->series['Gaius']);
+        self::assertSame([-50 => 0, -40 => 3], $result->series['Marcus']);
+    }
+
+    /**
      * Asking for a top-N smaller than the distinct-name count truncates the
      * result to exactly that many bands and to the decades where at least one
      * of those bands actually has data. Within each kept decade the series rows

@@ -91,6 +91,24 @@ final class TreeHealthRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
+     * The generation-length scan reads parent / child BIRT years through
+     * GedcomScanner, which now negates B.C. years, so a BCE lineage is counted
+     * instead of silently dropped (its short 2-digit years used to fail the
+     * old four-digit-only regex). parenthood-bce.ged seeds five fathers born
+     * ~75 B.C. each with a child 25 years younger (in the 50s B.C.), so every
+     * delta is a clean 25 and the average comes back 25.0 rather than null.
+     */
+    #[Test]
+    public function averageGenerationLengthCountsBceLineages(): void
+    {
+        $tree    = $this->importFixtureTree('parenthood-bce.ged');
+        $average = (new TreeHealthRepository($tree))->averageGenerationLength();
+
+        self::assertNotNull($average);
+        self::assertEqualsWithDelta(25.0, $average, 0.001);
+    }
+
+    /**
      * source-coverage-by-century.ged seeds 12 individuals:
      *  * five 20th-century births (the LOW xrefs I1–I5), two with `2 SOUR @S1@`
      *  * five 19th-century births (the HIGH xrefs I6–I10), three with `2 SOUR @S1@`
