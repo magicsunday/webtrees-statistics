@@ -1,0 +1,37 @@
+0 HEAD
+1 SOUR webtrees-statistics-fixture
+2 NAME first-children-month-range-dedup
+1 DEST ANSTFILE
+1 CHAR UTF-8
+1 SUBM @SUBM1@
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+0 @SUBM1@ SUBM
+1 NAME Fixture
+0 @I1@ INDI
+1 NAME Father /Family/
+1 SEX M
+1 FAMS @F1@
+0 @I2@ INDI
+1 NAME Mother /Family/
+1 SEX F
+1 FAMS @F1@
+0 @I3@ INDI
+1 NAME FirstRanged /Child/
+1 SEX M
+1 BIRT
+2 DATE BET 25 DEC 1899 AND 5 JAN 1900
+1 FAMC @F1@
+0 @I4@ INDI
+1 NAME Second /Child/
+1 SEX F
+1 BIRT
+2 DATE 1 JUN 1905
+1 FAMC @F1@
+0 @F1@ FAM
+1 HUSB @I1@
+1 WIFE @I2@
+1 CHIL @I3@
+1 CHIL @I4@
+0 TRLR

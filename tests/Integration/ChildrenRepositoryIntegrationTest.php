@@ -204,6 +204,28 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
+     * The first child's birth may itself be an imprecise `BET 25 DEC 1899 AND
+     * 5 JAN 1900` range, stored as two `dates` rows that straddle the December
+     * / January month boundary. The card must count that first child once, in
+     * its lower-bound month (December), not once per stored bound. webtrees'
+     * own first-child query already collapses the range — it picks each
+     * family's earliest child by `MIN(d_julianday1)` and joins back on that
+     * single lower bound — so the pass-through stays range-safe; this test
+     * locks that contract so a future re-implementation cannot silently
+     * reintroduce the split.
+     */
+    #[Test]
+    public function firstChildrenByMonthCountsARangedFirstBirthOnce(): void
+    {
+        $tree   = $this->importFixtureTree('first-children-month-range-dedup.ged');
+        $result = $this->repository($tree)->firstChildrenByMonth();
+
+        self::assertSame(1, $result['DEC'] ?? null, 'The ranged first birth counts once in its lower-bound month');
+        self::assertSame(0, $result['JAN'] ?? null, 'The upper bound never spawns a second January tally');
+        self::assertSame(1, array_sum($result), 'One family, one first child');
+    }
+
+    /**
      * Multiple-birth rate histogram emits one series per multiplicity that
      * actually occurs in the tree. The dedicated fixture carries:
      *
