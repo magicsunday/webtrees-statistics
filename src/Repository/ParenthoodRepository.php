@@ -199,7 +199,7 @@ final class ParenthoodRepository
             // guard a child whose import path wrote a positive julian-day
             // but a zero d_year would let MIN(d_year) collapse to 0 while
             // MIN(d_julianday1) returned a real JD from a different
-            // sibling, and the downstream `if ($childYear <= 0)` filter
+            // sibling, and the downstream `if ($childYear === 0)` filter
             // would drop the whole parent row.
             ->where('child_birth.d_year', '<>', 0)
             ->groupBy('fam.' . $parentColumn)
@@ -231,7 +231,10 @@ final class ParenthoodRepository
                 continue;
             }
 
-            if ($childYear <= 0) {
+            // Only the degenerate unparseable year 0 is dropped (the SQL
+            // `d_year <> 0` already excludes it); a BCE child-birth year is
+            // negative and folds into a negative decade through DecadeName.
+            if ($childYear === 0) {
                 continue;
             }
 

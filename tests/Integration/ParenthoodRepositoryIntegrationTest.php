@@ -204,6 +204,27 @@ final class ParenthoodRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
+     * Parental-age-at-first-child folds BCE child births into a negative decade
+     * instead of dropping them — the SQL admitted them (`d_year <> 0`) but the
+     * PHP `childYear <= 0` guard used to re-drop the whole parent row.
+     * parenthood-bce.ged seeds five fathers born ~75 B.C. whose first child is
+     * born in the 50s B.C. (decade −50) at age 25, clearing the per-sex cohort
+     * floor (5). The mother series stays a gap (no mothers recorded). The decade
+     * renders as "50s BCE" through DecadeName.
+     */
+    #[Test]
+    public function ageAtFirstChildMeanByDecadeBucketsBceBirthsIntoNegativeDecades(): void
+    {
+        $tree   = $this->importFixtureTree('parenthood-bce.ged');
+        $result = (new ParenthoodRepository($tree))->ageAtFirstChildMeanByDecade();
+
+        self::assertSame([DecadeName::for(-50)], $result->categories);
+        self::assertSame('Fathers', $result->series[0]->name);
+        self::assertEqualsWithDelta(25.0, $result->series[0]->values[0], 0.05, 'Five BCE fathers, age 25');
+        self::assertNull($result->series[1]->values[0], 'No mothers recorded — gap, not age 0');
+    }
+
+    /**
      * Cache-sharing safety check: the same per-instance pair cache now serves
      * both the bucket-histogram consumer ({@see
      * ParenthoodRepository::ageAtFirstChildDistribution()}) and the per-decade

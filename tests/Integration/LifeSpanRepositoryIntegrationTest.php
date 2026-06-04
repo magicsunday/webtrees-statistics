@@ -996,6 +996,29 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
+     * Births-by-decade buckets BCE births into negative decade keys (the view
+     * renders them through DecadeName as "90s BCE" …). life-span-bce.ged seeds
+     * 36 births across the 1st century BCE (years 61–90 B.C.), so every decade
+     * key is negative, the dense range runs −90…−60 with no gaps, and the count
+     * is preserved. The cumulative variant ends at the full population. A
+     * regression re-excluding BCE would empty both.
+     */
+    #[Test]
+    public function birthsByDecadeBucketsBceBirthsIntoNegativeDecades(): void
+    {
+        $tree       = $this->importFixtureTree('life-span-bce.ged');
+        $repository = $this->repository($tree);
+
+        $byDecade = $repository->birthsByDecade();
+        self::assertSame([-90, -80, -70, -60], array_keys($byDecade), 'Dense BCE decade range, oldest first');
+        self::assertSame(36, array_sum($byDecade), 'Every dated BCE birth counted once');
+
+        $cumulative = $repository->cumulativeBirthsByDecade();
+        self::assertSame(array_keys($byDecade), array_keys($cumulative), 'Cumulative shares the per-decade keys');
+        self::assertSame(36, $cumulative[-60], 'Running total reaches the full population at the latest decade');
+    }
+
+    /**
      * Sum every count across a period × month value matrix.
      *
      * @param list<list<int>> $values
