@@ -15,10 +15,12 @@ use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
 use MagicSunday\Webtrees\Statistic\Repository\ChildrenRepository;
+use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
+use MagicSunday\Webtrees\Statistic\Support\Locale\MonthName;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
@@ -43,7 +45,9 @@ use function array_sum;
 #[CoversClass(ChildrenRepository::class)]
 #[UsesClass(LineChartPayload::class)]
 #[UsesClass(LineChartSeries::class)]
+#[UsesClass(DateAggregate::class)]
 #[UsesClass(DateJoin::class)]
+#[UsesClass(MonthName::class)]
 #[UsesClass(TreeScope::class)]
 #[UsesClass(RowCast::class)]
 #[UsesClass(CenturyName::class)]
@@ -223,6 +227,89 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame(1, $result['DEC'] ?? null, 'The ranged first birth counts once in its lower-bound month');
         self::assertSame(0, $result['JAN'] ?? null, 'The upper bound never spawns a second January tally');
         self::assertSame(1, array_sum($result), 'One family, one first child');
+    }
+
+    /**
+     * The first-child anchor must be the child's BIRT fact, not the earliest of
+     * *any* dated fact on the child record. The Anchor family's only child
+     * carries an (erroneous) `RESI 10 JAN 1900` fact dated before its `BIRT 15
+     * JUN 1900`; anchoring on the residence would mis-attribute the family to
+     * January. The Control family's lone child is born cleanly in March and
+     * pins the tally so the assertions cannot pass by zeroing every month.
+     */
+    #[Test]
+    public function firstChildrenByMonthAnchorsOnTheBirthFactNotAnEarlierEvent(): void
+    {
+        $tree   = $this->importFixtureTree('first-children-month-nonbirth-anchor.ged');
+        $result = $this->repository($tree)->firstChildrenByMonth();
+
+        self::assertSame(1, $result['JUN'] ?? null, 'The first child is anchored on its June birth fact');
+        self::assertSame(0, $result['JAN'] ?? null, 'The earlier non-birth fact never anchors the family');
+        self::assertSame(1, $result['MAR'] ?? null, 'The control family is anchored on its March birth');
+        self::assertSame(2, array_sum($result), 'Two families, two first children');
+    }
+
+    /**
+     * Two children of one family may be born on the exact same julian day
+     * (twins), so both birth rows share the family's minimum `d_julianday1`.
+     * The card must count that family once in the shared month, not once per
+     * tied child. The Twins family's twins are both born 1 JUN 1900; the
+     * Control family's lone March child pins the tally so the assertions cannot
+     * pass by zeroing every month.
+     */
+    #[Test]
+    public function firstChildrenByMonthCountsSameDayTwinsOnce(): void
+    {
+        $tree   = $this->importFixtureTree('first-children-month-same-day-twins.ged');
+        $result = $this->repository($tree)->firstChildrenByMonth();
+
+        self::assertSame(1, $result['JUN'] ?? null, 'The same-day twins collapse to one June tally');
+        self::assertSame(1, $result['MAR'] ?? null, 'The control family is anchored on its March birth');
+        self::assertSame(2, array_sum($result), 'Two families, two first children');
+    }
+
+    /**
+     * The family must be anchored on the month of its earliest-born child, not
+     * on the lowest month number across all its children. The Mixed family's
+     * first child is born June 1900; two later twins are born March 1905. The
+     * join-back keys the family on the earliest julian day (June), so a
+     * regression that aggregated the month across every child — or that dropped
+     * the `min_birth_jd` correlation and tallied the later twins — would surface
+     * March instead. A no-op double-count of the later twins would likewise
+     * break the single-family total.
+     */
+    #[Test]
+    public function firstChildrenByMonthAnchorsOnTheEarliestChildsMonth(): void
+    {
+        $tree   = $this->importFixtureTree('first-children-month-earliest-vs-later-twins.ged');
+        $result = $this->repository($tree)->firstChildrenByMonth();
+
+        self::assertSame(1, $result['JUN'] ?? null, 'The family is anchored on its June-born first child');
+        self::assertSame(0, $result['MAR'] ?? null, 'The later March twins never anchor or double-count the family');
+        self::assertSame(1, array_sum($result), 'One family, one first child');
+    }
+
+    /**
+     * A year-only birth carries no month, so it cannot anchor a month tally —
+     * the family falls through to its earliest *month-dated* child instead,
+     * exactly as in webtrees core's first-child query. The YearOnly family's
+     * first child is dated `1900` (no month) and its second child `4 JUL 1901`;
+     * the family must anchor on July, not on the undated earlier child. Were the
+     * month-known filter dropped, the year-only child's synthesised julian day
+     * would win the family minimum and the family would land in no bucket — so
+     * asserting July (not an empty result) discriminates that filter. The
+     * Control family's March birth pins a clean single-child family alongside.
+     */
+    #[Test]
+    public function firstChildrenByMonthFallsThroughAYearOnlyBirthToTheNextDatedChild(): void
+    {
+        $tree   = $this->importFixtureTree('first-children-month-year-only-fallthrough.ged');
+        $result = $this->repository($tree)->firstChildrenByMonth();
+
+        self::assertSame(1, $result['JUL'] ?? null, 'The family anchors on its earliest month-dated child, skipping the year-only birth');
+        self::assertSame(0, $result['JAN'] ?? null, 'The year-only birth never anchors a (synthesised January) bucket');
+        self::assertSame(1, $result['MAR'] ?? null, 'The month-precise control family is still counted');
+        self::assertSame(2, array_sum($result), 'Two families, two first children');
     }
 
     /**

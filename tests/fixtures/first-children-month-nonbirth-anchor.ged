@@ -1,0 +1,50 @@
+0 HEAD
+1 SOUR webtrees-statistics-fixture
+2 NAME first-children-month-nonbirth-anchor
+1 DEST ANSTFILE
+1 CHAR UTF-8
+1 SUBM @SUBM1@
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+0 @SUBM1@ SUBM
+1 NAME Fixture
+0 @I1@ INDI
+1 NAME Father /Anchor/
+1 SEX M
+1 FAMS @F1@
+0 @I2@ INDI
+1 NAME Mother /Anchor/
+1 SEX F
+1 FAMS @F1@
+0 @I3@ INDI
+1 NAME OnlyChild /Anchor/
+1 SEX M
+1 RESI
+2 DATE 10 JAN 1900
+1 BIRT
+2 DATE 15 JUN 1900
+1 FAMC @F1@
+0 @I5@ INDI
+1 NAME Father /Control/
+1 SEX M
+1 FAMS @F2@
+0 @I6@ INDI
+1 NAME Mother /Control/
+1 SEX F
+1 FAMS @F2@
+0 @I7@ INDI
+1 NAME OnlyChild /Control/
+1 SEX F
+1 BIRT
+2 DATE 4 MAR 1900
+1 FAMC @F2@
+0 @F1@ FAM
+1 HUSB @I1@
+1 WIFE @I2@
+1 CHIL @I3@
+0 @F2@ FAM
+1 HUSB @I5@
+1 WIFE @I6@
+1 CHIL @I7@
+0 TRLR

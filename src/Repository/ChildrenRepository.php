@@ -15,16 +15,19 @@ use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\StatisticsData;
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Query\JoinClause;
+use Illuminate\Support\Collection;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
 use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarPayload;
 use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarSeries;
 use MagicSunday\Webtrees\Statistic\Support\Calc\CalendarSpan;
+use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
 use MagicSunday\Webtrees\Statistic\Support\Locale\DecadeName;
+use MagicSunday\Webtrees\Statistic\Support\Locale\MonthName;
 
 use function array_combine;
 use function array_fill_keys;
@@ -42,8 +45,8 @@ use function usort;
 /**
  * Children-related aggregations for the Family tab. Combines core's public
  * accessors (averageChildrenPerFamily, statsChildrenQuery,
- * countFamiliesWithNoChildren, countFirstChildrenByMonth) with local queries
- * for the sibling-age-gap and family-size distributions. Entity rankings and
+ * countFamiliesWithNoChildren) with local queries for the sibling-age-gap,
+ * family-size and first-child-by-month distributions. Entity rankings and
  * record holders live in {@see FamilyRankingRepository}.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
@@ -92,7 +95,7 @@ final readonly class ChildrenRepository
 
     /**
      * @param Tree           $tree The tree the statistics are computed for
-     * @param StatisticsData $data Core accessor (averageChildrenPerFamily, familiesWithTheMostChildren, countFamiliesWithNoChildren, countFirstChildrenByMonth)
+     * @param StatisticsData $data Core accessor (averageChildrenPerFamily, familiesWithTheMostChildren, countFamiliesWithNoChildren)
      */
     public function __construct(
         private Tree $tree,
@@ -768,26 +771,95 @@ final readonly class ChildrenRepository
     }
 
     /**
-     * First-children by GEDCOM month abbreviation — pass-through over core's
-     * already-public accessor, prefilled with all twelve months at zero so the
-     * view layer can render a continuous month axis even on sparse trees.
-     * Matches the empty-contract sibling repositories use for `*byMonth`
-     * aggregations.
+     * First-children by GEDCOM month abbreviation, prefilled with all twelve
+     * months at zero so the view layer can render a continuous month axis even
+     * on sparse trees. Matches the empty-contract sibling repositories use for
+     * `*byMonth` aggregations.
+     *
+     * Reimplements webtrees core's first-child query with two corrections that
+     * the pass-through could not make: it anchors each family's earliest child
+     * on the `BIRT` fact only (core's subquery picks the minimum julian day
+     * across *every* dated fact on the child, so an erroneous earlier non-birth
+     * fact would mis-attribute the family's first-child month), and it collapses
+     * the family to a single row before the month tally (core joins back on
+     * `MIN(d_julianday1) = d_julianday1`, so two children born on the same
+     * julian day — twins — both satisfy the equality and count the family
+     * twice). A boundary-straddling `BET..AND` first birth still counts once in
+     * its lower-bound month, exactly as before.
      *
      * @return array<string, int>
      */
     public function firstChildrenByMonth(): array
     {
-        $buckets = array_fill_keys(
-            ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'],
-            0,
-        );
+        $codes   = MonthName::codes();
+        $buckets = array_fill_keys($codes, 0);
 
-        foreach ($this->data->countFirstChildrenByMonth(0, 0) as $month => $count) {
-            $buckets[$month] = $count;
+        foreach ($this->firstChildBirthMonthByFamily() as $row) {
+            // The query yields the numeric month (1–12); map it to the GEDCOM
+            // abbreviation through the canonical lookup rather than aggregating
+            // the string column, which would order lexicographically on a
+            // cross-calendar julian-day tie.
+            $abbreviation = $codes[RowCast::int($row, 'month')] ?? null;
+
+            if ($abbreviation !== null) {
+                ++$buckets[$abbreviation];
+            }
         }
 
         return $buckets;
+    }
+
+    /**
+     * One row per family carrying the numeric birth month (1–12) of that
+     * family's earliest-born child's `BIRT` fact. Mirrors webtrees core's
+     * first-child query — children are reached through their family's `CHIL`
+     * links (`l_from` = family, `l_to` = child) — with two corrections: the
+     * earliest child is anchored on the `BIRT` fact only, and the join-back to
+     * that single minimum julian day is collapsed by family so same-julian-day
+     * twins contribute one row, not two. The `BIRT` predicate is repeated on
+     * the outer join on purpose — without it a non-birth row sharing the
+     * representative julian day would join back and re-introduce the very
+     * anchor defect this query exists to remove. The month is exposed as the
+     * numeric `d_mon` (never the GEDCOM string `d_month`): on the rare
+     * cross-calendar julian-day tie a string `MIN` would pick the ASCII-smallest
+     * abbreviation rather than the chronological one, the same reason
+     * {@see DedupedEventDates} exposes the numeric column.
+     *
+     * @return Collection<int, object>
+     */
+    private function firstChildBirthMonthByFamily(): Collection
+    {
+        // A BIRT fact with a known month; a year-only birth (`d_mon = 0`) is
+        // dropped on both the subquery and the join-back, exactly as in core's
+        // first-child query, so a family anchors on its earliest month-dated
+        // child rather than an undated earlier one.
+        $birthJoin = static function (JoinClause $join): void {
+            DateJoin::on($join, 'birth', 'chil.l_file', 'chil.l_to', 'BIRT', DateJoin::JD_NOT_EQUAL_ZERO);
+            $join->where('birth.d_mon', '>', 0);
+        };
+
+        $earliestBirth = TreeScope::table($this->tree, 'link', 'chil')
+            ->where('chil.l_type', '=', 'CHIL')
+            ->join('dates AS birth', $birthJoin)
+            ->groupBy('chil.l_from')
+            ->select([
+                'chil.l_from AS family_id',
+                DateAggregate::min('birth', 'd_julianday1', 'min_birth_jd'),
+            ]);
+
+        return TreeScope::table($this->tree, 'link', 'chil')
+            ->where('chil.l_type', '=', 'CHIL')
+            ->join('dates AS birth', $birthJoin)
+            ->joinSub($earliestBirth, 'first', static function (JoinClause $join): void {
+                $join
+                    ->on('first.family_id', '=', 'chil.l_from')
+                    ->on('first.min_birth_jd', '=', 'birth.d_julianday1');
+            })
+            ->groupBy('chil.l_from')
+            ->select([
+                DateAggregate::min('birth', 'd_mon', 'month'),
+            ])
+            ->get();
     }
 
     /**
