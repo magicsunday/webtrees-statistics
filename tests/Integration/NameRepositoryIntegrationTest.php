@@ -16,7 +16,8 @@ use MagicSunday\Webtrees\Statistic\Enum\Sex;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
 use MagicSunday\Webtrees\Statistic\Repository\NameRepository;
-use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
+use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
+use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
@@ -44,7 +45,8 @@ use function array_unique;
 #[UsesClass(Sex::class)]
 #[UsesClass(LineChartPayload::class)]
 #[UsesClass(LineChartSeries::class)]
-#[UsesClass(DateJoin::class)]
+#[UsesClass(DateAggregate::class)]
+#[UsesClass(DedupedEventDates::class)]
 #[UsesClass(TreeScope::class)]
 #[UsesClass(RowCast::class)]
 #[UsesClass(CenturyName::class)]
@@ -181,6 +183,26 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
 
         self::assertSame([], $result->categories);
         self::assertSame([], $result->series);
+    }
+
+    /**
+     * The passdown query deduplicates the two-row range encoding of a child's
+     * birth. A son born `BET 1890 AND 1910` is stored as two `dates` rows — an
+     * 1890 lower-bound (19th century) and a 1910 upper-bound (20th century).
+     * Counting raw rows tallied the one father-son pair into both centuries,
+     * inventing a phantom 20th-century x-axis slot. Collapsing the birth to its
+     * lower-bound representative keeps the pair in the 19th century alone, so
+     * only that single category survives. The match rate is sub-threshold here
+     * (one pair, MIN_COHORT_SIZE is 10), so the category set — not the suppressed
+     * value — is the contract the dedup must hold.
+     */
+    #[Test]
+    public function sameSexNamePassdownByCenturyCountsEachRangedBirthOnce(): void
+    {
+        $tree   = $this->importFixtureTree('passdown-century-dedup.ged');
+        $result = $this->repository($tree)->sameSexNamePassdownByCentury();
+
+        self::assertSame(['19th cent.'], $result->categories, 'Ranged birth never spawns a phantom 20th-century slot');
     }
 
     /**

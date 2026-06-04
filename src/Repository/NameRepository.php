@@ -23,7 +23,7 @@ use MagicSunday\Webtrees\Statistic\Enum\Sex;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
 use MagicSunday\Webtrees\Statistic\Support\Database\ChildLinkJoin;
-use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
+use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
@@ -393,6 +393,12 @@ final readonly class NameRepository
      * (`f_husb` for fathers, `f_wife` for mothers); `$childSex` is the GEDCOM
      * SEX token the CHIL is filtered to (`M` for sons, `F` for daughters).
      *
+     * The child's birth is taken from the deduplicated lower-bound
+     * representative row per individual, so an imprecise `BET`/`FROM` birth — two
+     * stored rows — places the pair in its lower-bound century once rather than
+     * counting it twice and, on a century-straddling range, inventing a phantom
+     * second-century slot.
+     *
      * @return array<int, array{matches: int, total: int}>
      */
     private function passdownPairsByCentury(string $parentColumn, string $childSex): array
@@ -409,8 +415,10 @@ final readonly class NameRepository
                     ->on('child.i_id', '=', 'famc.l_from')
                     ->where('child.i_sex', '=', $childSex);
             })
-            ->join('dates AS child_birth', static function (JoinClause $join): void {
-                DateJoin::on($join, 'child_birth', 'famc.l_file', 'famc.l_from', 'BIRT', DateJoin::JD_GREATER_THAN_ZERO);
+            // The subquery is already tree-scoped, so matching the child xref
+            // alone is sufficient — d_gid is unique within a single tree.
+            ->joinSub(DedupedEventDates::query($this->tree, 'BIRT'), 'child_birth', static function (JoinClause $join): void {
+                $join->on('child_birth.d_gid', '=', 'famc.l_from');
             })
             ->join('name AS parent_name', static function (JoinClause $join) use ($treeId, $parentColumn): void {
                 $join
@@ -428,7 +436,6 @@ final readonly class NameRepository
             })
             ->whereNotNull('fam.' . $parentColumn)
             ->where('fam.' . $parentColumn, '<>', '')
-            ->where('child_birth.d_year', '<>', 0)
             ->select([
                 'child_birth.d_year AS birth_year',
                 'parent_name.n_givn AS parent_givn',
