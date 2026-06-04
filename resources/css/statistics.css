@@ -3004,6 +3004,21 @@
     background:   color-mix(in srgb, var(--pyramid-accent) 8%, transparent);
 }
 
+/* A single-group dataset has no picker to switch between; the lone group label
+   is printed as a static caption so the chart still names the cohort (e.g. the
+   century) it shows. Shares the picker's bottom rule so the header reads the
+   same whether one or many groups are present. */
+.wt-statistics-chart .msc-diverging-bar-chart-caption {
+    margin-bottom:        18px;
+    padding-bottom:       12px;
+    border-bottom:        1px solid var(--border-soft);
+    font-family:          var(--sans);
+    font-size:            13px;
+    font-variant-numeric: tabular-nums;
+    font-weight:          600;
+    color:                var(--ink);
+}
+
 /* Pyramid text inherits the sans family from the SVG root; the numeric and
    eyebrow groups below override only what differs (mono family, tracking,
    per-cell fill) rather than re-declaring the shared base on every class. */
