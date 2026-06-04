@@ -15,6 +15,7 @@ use MagicSunday\Webtrees\Statistic\Support\Aggregator\EventMonthTally;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
+use MagicSunday\Webtrees\Statistic\Support\Locale\MonthName;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
@@ -38,6 +39,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
 #[CoversClass(EventMonthTally::class)]
 #[UsesClass(DedupedEventDates::class)]
 #[UsesClass(DateAggregate::class)]
+#[UsesClass(MonthName::class)]
 #[UsesClass(RowCast::class)]
 final class EventMonthTallyIntegrationTest extends IntegrationTestCase
 {

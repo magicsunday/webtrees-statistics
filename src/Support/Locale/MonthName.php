@@ -33,10 +33,47 @@ use function mb_substr;
 final readonly class MonthName
 {
     /**
+     * The canonical GEDCOM three-letter month code per `dates.d_mon` integer
+     * (1–12), in calendar order. The single source a numeric-month tally folds
+     * onto — both {@see codes()} consumers and the abbreviation-keyed name map
+     * below share this `1 => 'JAN'` association rather than re-declaring it.
+     *
+     * @var array<int, string>
+     */
+    private const array CODES = [
+        1  => 'JAN',
+        2  => 'FEB',
+        3  => 'MAR',
+        4  => 'APR',
+        5  => 'MAY',
+        6  => 'JUN',
+        7  => 'JUL',
+        8  => 'AUG',
+        9  => 'SEP',
+        10 => 'OCT',
+        11 => 'NOV',
+        12 => 'DEC',
+    ];
+
+    /**
      * Prevent instantiation — static-only utility.
      */
     private function __construct()
     {
+    }
+
+    /**
+     * The GEDCOM three-letter month codes keyed by their `dates.d_mon` integer
+     * (1–12), in calendar order. A query that selects the numeric month maps it
+     * to the abbreviation through this lookup instead of aggregating the GEDCOM
+     * string column, which would order lexicographically rather than
+     * chronologically on a cross-calendar julian-day tie.
+     *
+     * @return array<int, string>
+     */
+    public static function codes(): array
+    {
+        return self::CODES;
     }
 
     /**

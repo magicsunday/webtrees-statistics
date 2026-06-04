@@ -14,6 +14,7 @@ namespace MagicSunday\Webtrees\Statistic\Support\Aggregator;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
+use MagicSunday\Webtrees\Statistic\Support\Locale\MonthName;
 
 use function ksort;
 
@@ -30,7 +31,7 @@ use function ksort;
  * Month-less records (year-only / `ABT` dates carry `d_mon = 0`) are dropped, so
  * the result keys are exactly the months that actually occur — matching the
  * `JAN`..`DEC` whitelist every month consumer already applies. The output folds
- * straight onto {@see \MagicSunday\Webtrees\Statistic\Support\Locale\MonthName::byAbbreviation()}.
+ * straight onto {@see MonthName::byAbbreviation()}.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -38,26 +39,6 @@ use function ksort;
  */
 final readonly class EventMonthTally
 {
-    /**
-     * GEDCOM three-letter month code per `dates.d_mon` integer (1–12).
-     *
-     * @var array<int, string>
-     */
-    private const array MONTH_CODES = [
-        1  => 'JAN',
-        2  => 'FEB',
-        3  => 'MAR',
-        4  => 'APR',
-        5  => 'MAY',
-        6  => 'JUN',
-        7  => 'JUL',
-        8  => 'AUG',
-        9  => 'SEP',
-        10 => 'OCT',
-        11 => 'NOV',
-        12 => 'DEC',
-    ];
-
     /**
      * Prevent instantiation — static-only utility.
      */
@@ -91,10 +72,11 @@ final readonly class EventMonthTally
 
         ksort($byMonth);
 
-        $out = [];
+        $codes = MonthName::codes();
+        $out   = [];
 
         foreach ($byMonth as $month => $count) {
-            $out[self::MONTH_CODES[$month]] = $count;
+            $out[$codes[$month]] = $count;
         }
 
         return $out;
