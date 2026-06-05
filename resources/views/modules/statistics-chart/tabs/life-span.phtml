@@ -222,13 +222,15 @@ if ($winterPeakScore === null) {
         default => I18N::translate('Deaths are evenly spread across the year.'),
     };
 
-    // Multiplier sigil stays inline with the serif value so the
-    // "× 0,84" reads as a single ratio token; Scalar's optional
-    // `unit` slot is reserved for trailing units (e.g. years, %),
-    // not leading sigils.
+    // The score is winter's mortality density as a share of the annual
+    // average: 100 % means winter matches the yearly mean, anything above it
+    // points to a winter concentration of deaths. Rendered as a percentage
+    // through the Scalar `unit` slot so it stays consistent with the tab's
+    // other percentage metrics (e.g. child mortality) rather than a bespoke
+    // leading multiplier sigil.
     $winterPeakCardBody = Component::scalar($module)
-        ->with('value', '× ' . I18N::number($winterPeakScore->score, 2))
-        ->with('unit', null)
+        ->with('value', I18N::number($winterPeakScore->score * 100.0, 0))
+        ->with('unit', '%')
         ->with('caption', $winterPeakCaption)
         ->render();
 }
