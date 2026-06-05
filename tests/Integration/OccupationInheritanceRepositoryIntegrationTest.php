@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
+use Fisharebest\Webtrees\Auth;
+use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyFlowsPayload;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyLink;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeySample;
@@ -18,8 +20,10 @@ use MagicSunday\Webtrees\Statistic\Repository\OccupationInheritanceRepository;
 use MagicSunday\Webtrees\Statistic\Repository\ParentMapRepository;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\RecordName;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Sankey\BipartiteSankeyAssembler;
+use MagicSunday\Webtrees\Statistic\Support\Sankey\SankeySampleResolver;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
@@ -50,6 +54,8 @@ use function in_array;
 #[UsesClass(GedcomScanner::class)]
 #[UsesClass(RowCast::class)]
 #[UsesClass(BipartiteSankeyAssembler::class)]
+#[UsesClass(SankeySampleResolver::class)]
+#[UsesClass(RecordName::class)]
 final class OccupationInheritanceRepositoryIntegrationTest extends IntegrationTestCase
 {
     /**
@@ -248,5 +254,102 @@ final class OccupationInheritanceRepositoryIntegrationTest extends IntegrationTe
 
         self::assertSame([], $result->nodes);
         self::assertSame([], $result->links);
+    }
+
+    /**
+     * Hover samples are resolved through the record factory, so a sample son
+     * the current user cannot see is dropped and the next deterministic son
+     * takes its slot — the private name never reaches the tooltip. The fixture
+     * has one Blacksmith → Blacksmith flow with FOUR sons in xref order (Anton,
+     * Bernd, Carl, Dirk); Bernd carries `1 RESN confidential`. As the importing
+     * admin all four are visible, so the cap of three holds the first three
+     * (Anton, Bernd, Carl) — this proves Bernd sits inside the cap window,
+     * making the visitor assertion a real discriminator rather than a
+     * fixture-ordering artefact. As an anonymous visitor Bernd is skipped and
+     * Dirk is promoted into the freed slot, while the flow weight stays at four.
+     */
+    #[Test]
+    public function occupationInheritanceDropsSamplesTheUserCannotSeeAndPromotesTheNext(): void
+    {
+        $tree = $this->importFixtureTree('occupation-inheritance-privacy.ged');
+        $tree->setPreference('HIDE_LIVE_PEOPLE', '1');
+        $tree->setPreference('SHOW_DEAD_PEOPLE', (string) Auth::PRIV_PRIVATE);
+
+        // Control: as the importing admin every son is visible, so the
+        // confidential Bernd occupies a cap slot.
+        $adminNames = $this->blacksmithFlowSampleNames($tree);
+        self::assertContains('Bernd Secret', $adminNames, 'the confidential sample sits inside the cap window for an admin');
+
+        // Drop to an anonymous visitor so the `1 RESN confidential` marker
+        // actually restricts visibility.
+        Auth::logout();
+
+        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree)))
+            ->occupationInheritance(10);
+        $heaviest = $result->links[0];
+
+        // The flow weight still reflects all four sons — dropping a private
+        // sample must not distort the aggregate.
+        self::assertSame(4, $heaviest->value, 'the flow weight is counted independently of the samples');
+        self::assertCount(3, $heaviest->samples, 'the cap still holds three samples after the private one is skipped');
+
+        $names = array_map(static fn (SankeySample $sample): string => $sample->name, $heaviest->samples);
+
+        self::assertNotContains('Bernd Secret', $names, 'a sample the visitor cannot see must not leak into the tooltip');
+        self::assertContains('Dirk Public', $names, 'the next deterministic son is promoted into the freed slot');
+        self::assertSame(['Anton Public', 'Carl Public', 'Dirk Public'], $names);
+    }
+
+    /**
+     * A flow whose every contributing son is hidden from the current user keeps
+     * its full weight but surfaces no sample names — the weight is counted from
+     * the son scan, independent of whether any representative can be shown. The
+     * fixture's Tailor → Tailor flow has two sons, both `1 RESN confidential`,
+     * so an anonymous visitor sees a weight of two with an empty sample list
+     * rather than a leaked name or a dropped flow.
+     */
+    #[Test]
+    public function occupationInheritanceKeepsTheWeightButOmitsSamplesWhenEveryContributorIsPrivate(): void
+    {
+        $tree = $this->importFixtureTree('occupation-inheritance-privacy.ged');
+        $tree->setPreference('HIDE_LIVE_PEOPLE', '1');
+        $tree->setPreference('SHOW_DEAD_PEOPLE', (string) Auth::PRIV_PRIVATE);
+
+        Auth::logout();
+
+        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree)))
+            ->occupationInheritance(10);
+
+        $tailorToTailor = null;
+
+        foreach ($result->links as $link) {
+            if ($result->nodes[$link->target] === 'Tailor') {
+                $tailorToTailor = $link;
+
+                break;
+            }
+        }
+
+        self::assertNotNull($tailorToTailor, 'the all-private flow is still present');
+        self::assertSame(2, $tailorToTailor->value, 'the weight counts both private contributors');
+        self::assertSame([], $tailorToTailor->samples, 'no private name leaks into the sample list');
+    }
+
+    /**
+     * Resolve the Blacksmith → Blacksmith flow's sample names for the current
+     * user. Helper for the privacy discriminator above so the admin control and
+     * the visitor assertion read the same flow the same way.
+     *
+     * @return list<string>
+     */
+    private function blacksmithFlowSampleNames(Tree $tree): array
+    {
+        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree)))
+            ->occupationInheritance(10);
+
+        return array_map(
+            static fn (SankeySample $sample): string => $sample->name,
+            $result->links[0]->samples,
+        );
     }
 }

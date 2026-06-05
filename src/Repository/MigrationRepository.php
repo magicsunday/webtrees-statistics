@@ -19,6 +19,7 @@ use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Locale\IsoCountryMap;
 use MagicSunday\Webtrees\Statistic\Support\Sankey\BipartiteSankeyAssembler;
+use MagicSunday\Webtrees\Statistic\Support\Sankey\SankeySampleResolver;
 
 use function count;
 
@@ -121,11 +122,15 @@ final readonly class MigrationRepository
             $linkWeight[$key] = ($linkWeight[$key] ?? 0) + 1;
             $linkSamples[$key] ??= [];
 
+            // Resolve the sample through the privacy layer; a null result (a
+            // record the user cannot see) is skipped and the next contributor
+            // fills the slot — see SankeySampleResolver::resolve().
             if (count($linkSamples[$key]) < self::SAMPLES_PER_FLOW) {
-                $linkSamples[$key][] = new SankeySample(
-                    name: GedcomScanner::extractPrimaryName($gedcom),
-                    xref: $xref,
-                );
+                $sample = SankeySampleResolver::resolve($this->tree, $xref, $gedcom);
+
+                if ($sample instanceof SankeySample) {
+                    $linkSamples[$key][] = $sample;
+                }
             }
         }
 

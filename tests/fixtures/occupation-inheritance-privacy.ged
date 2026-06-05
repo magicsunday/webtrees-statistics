@@ -1,0 +1,81 @@
+0 HEAD
+1 SOUR webtrees-statistics-fixture
+2 NAME occupation-inheritance-privacy
+1 DEST ANSTFILE
+1 CHAR UTF-8
+1 SUBM @SUBM1@
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+0 @SUBM1@ SUBM
+1 NAME Fixture
+0 @I1@ INDI
+1 NAME Hans /Smith/
+1 SEX M
+1 OCCU Blacksmith
+1 DEAT
+2 DATE 1 FEB 1900
+1 FAMS @F1@
+0 @I2@ INDI
+1 NAME Anton /Public/
+1 SEX M
+1 OCCU Blacksmith
+1 DEAT
+2 DATE 1 FEB 1925
+1 FAMC @F1@
+0 @I3@ INDI
+1 NAME Bernd /Secret/
+1 SEX M
+1 RESN confidential
+1 OCCU Blacksmith
+1 DEAT
+2 DATE 1 FEB 1926
+1 FAMC @F1@
+0 @I4@ INDI
+1 NAME Carl /Public/
+1 SEX M
+1 OCCU Blacksmith
+1 DEAT
+2 DATE 1 FEB 1927
+1 FAMC @F1@
+0 @I5@ INDI
+1 NAME Dirk /Public/
+1 SEX M
+1 OCCU Blacksmith
+1 DEAT
+2 DATE 1 FEB 1928
+1 FAMC @F1@
+0 @I6@ INDI
+1 NAME Gustav /Tailor/
+1 SEX M
+1 OCCU Tailor
+1 DEAT
+2 DATE 1 FEB 1905
+1 FAMS @F2@
+0 @I7@ INDI
+1 NAME Heinrich /Secret/
+1 SEX M
+1 RESN confidential
+1 OCCU Tailor
+1 DEAT
+2 DATE 1 FEB 1930
+1 FAMC @F2@
+0 @I8@ INDI
+1 NAME Ingo /Secret/
+1 SEX M
+1 RESN confidential
+1 OCCU Tailor
+1 DEAT
+2 DATE 1 FEB 1931
+1 FAMC @F2@
+0 @F1@ FAM
+1 HUSB @I1@
+1 CHIL @I2@
+1 CHIL @I3@
+1 CHIL @I4@
+1 CHIL @I5@
+0 @F2@ FAM
+1 HUSB @I6@
+1 CHIL @I7@
+1 CHIL @I8@
+0 TRLR

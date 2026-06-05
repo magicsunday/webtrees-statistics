@@ -18,9 +18,10 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Verifies that {@see RecordName::plain()} both strips the markup webtrees wraps
- * names in AND decodes HTML entities, so a ranked label never keeps an `&amp;`
- * or `&#039;` form.
+ * Verifies that {@see RecordName::plain()} strips the markup webtrees wraps
+ * names in, decodes HTML entities, and trims the edges, so a ranked label never
+ * keeps an `&amp;` / `&#039;` form nor the trailing space an empty surname or an
+ * unknown-name placeholder leaves behind.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -41,6 +42,11 @@ final class RecordNameTest extends TestCase
             'apostrophe entity is decoded'   => ['<span>O&#039;Brien</span>', "O'Brien"],
             'angle-bracket entities decoded' => ['van &lt;Berg&gt;', 'van <Berg>'],
             'tags and entities together'     => ['<bdo dir="auto">Müller &amp; Co.</bdo>', 'Müller & Co.'],
+            // An empty surname renders as a trailing space (and the unknown-name
+            // placeholder as a bare ellipsis with one); both must be trimmed so
+            // no edge whitespace leaks into a label or a hover sample.
+            'trailing space from empty surname'   => ['<span>Anton </span>', 'Anton'],
+            'unknown-name placeholder is trimmed' => ['… ', '…'],
         ];
     }
 

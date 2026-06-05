@@ -13,6 +13,7 @@ namespace MagicSunday\Webtrees\Statistic\Support\Gedcom;
 
 use function html_entity_decode;
 use function strip_tags;
+use function trim;
 
 use const ENT_HTML5;
 use const ENT_QUOTES;
@@ -41,12 +42,15 @@ final readonly class RecordName
 
     /**
      * Strip the markup from a record's `fullName()` HTML and decode the HTML
-     * entities, returning a plain-text label suitable for a ranked list.
+     * entities, returning a plain-text label suitable for a ranked list. The
+     * edges are trimmed because a record with an empty surname (or an
+     * unknown-name placeholder) renders with a trailing space that must not
+     * leak into a label or a hover sample.
      *
      * @param string $fullNameHtml The HTML returned by `GedcomRecord::fullName()`
      */
     public static function plain(string $fullNameHtml): string
     {
-        return html_entity_decode(strip_tags($fullNameHtml), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        return trim(html_entity_decode(strip_tags($fullNameHtml), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
     }
 }

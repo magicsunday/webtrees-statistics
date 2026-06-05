@@ -11,15 +11,19 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
+use Fisharebest\Webtrees\Auth;
+use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyFlowsPayload;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyLink;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeySample;
 use MagicSunday\Webtrees\Statistic\Repository\MigrationRepository;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\RecordName;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Locale\IsoCountryMap;
 use MagicSunday\Webtrees\Statistic\Support\Sankey\BipartiteSankeyAssembler;
+use MagicSunday\Webtrees\Statistic\Support\Sankey\SankeySampleResolver;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
@@ -50,6 +54,8 @@ use function array_unique;
 #[UsesClass(RowCast::class)]
 #[UsesClass(BipartiteSankeyAssembler::class)]
 #[UsesClass(IsoCountryMap::class)]
+#[UsesClass(SankeySampleResolver::class)]
+#[UsesClass(RecordName::class)]
 final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
 {
     /**
@@ -215,11 +221,14 @@ final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * `extractPrimaryName`'s "(no name)" fallback fires when the raw GEDCOM `1
-     * NAME` line yields nothing after the slash strip (e.g. `1 NAME / /` —
-     * empty given AND empty surname). The tooltip must still surface a
+     * A contributor whose `1 NAME` line yields nothing after the slash strip
+     * (e.g. `1 NAME / /` — empty given AND empty surname) still surfaces a
      * meaningful placeholder rather than an empty entry that visually
-     * disappears.
+     * disappears. Because the sample is now resolved through the record
+     * factory, the placeholder is webtrees' own unknown-name rendering (the
+     * "Unknown given name" / "Unknown surname" ellipsis) instead of a
+     * module-local string — so the tooltip stays consistent with how the rest
+     * of the UI names a person with no recorded name.
      */
     #[Test]
     public function flowsByCountryFallsBackToPlaceholderForBlankNames(): void
@@ -229,7 +238,11 @@ final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
 
         self::assertCount(1, $result->links);
         self::assertCount(1, $result->links[0]->samples);
-        self::assertSame('(no name)', $result->links[0]->samples[0]->name);
+
+        // webtrees renders an empty name as its translated unknown-name
+        // placeholder; en-US resolves both the unknown given name and the
+        // unknown surname to a horizontal ellipsis.
+        self::assertSame('…', $result->links[0]->samples[0]->name);
     }
 
     /**
@@ -260,5 +273,100 @@ final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
         foreach ($result->links as $link) {
             self::assertNotSame($link->source, $link->target);
         }
+    }
+
+    /**
+     * Hover samples are resolved through the record factory, so a sample whose
+     * individual the current user cannot see is dropped and the next
+     * deterministic contributor takes its slot — the private name never reaches
+     * the tooltip. The fixture has FOUR Germany → United States contributors in
+     * xref order (Anton, Berta, Carl, Dieter); Berta carries `1 RESN
+     * confidential`. As the importing admin all four are visible, so the cap of
+     * three holds the first three (Anton, Berta, Carl) — this proves Berta sits
+     * inside the cap window, making the visitor assertion a real discriminator
+     * rather than a fixture-ordering artefact. As an anonymous visitor Berta is
+     * skipped and Dieter is promoted into the freed slot, while the flow weight
+     * stays at four because the weight is counted independently of the samples.
+     */
+    #[Test]
+    public function flowsByCountryDropsSamplesTheUserCannotSeeAndPromotesTheNext(): void
+    {
+        $tree = $this->importFixtureTree('migration-flows-privacy.ged');
+        $tree->setPreference('HIDE_LIVE_PEOPLE', '1');
+        $tree->setPreference('SHOW_DEAD_PEOPLE', (string) Auth::PRIV_PRIVATE);
+
+        // Control: as the importing admin every contributor is visible, so the
+        // confidential Berta occupies a cap slot.
+        $adminNames = $this->germanyToUnitedStatesSampleNames($tree);
+        self::assertContains('Berta Secret', $adminNames, 'the confidential sample sits inside the cap window for an admin');
+
+        // Drop to an anonymous visitor so the `1 RESN confidential` marker
+        // actually restricts visibility.
+        Auth::logout();
+
+        $result   = (new MigrationRepository($tree, new IsoCountryMap()))->flowsByCountry(10);
+        $heaviest = $result->links[0];
+
+        // The flow weight still reflects all four contributors — dropping a
+        // private sample must not distort the aggregate.
+        self::assertSame(4, $heaviest->value, 'the flow weight is counted independently of the samples');
+        self::assertCount(3, $heaviest->samples, 'the cap still holds three samples after the private one is skipped');
+
+        $names = array_map(static fn (SankeySample $sample): string => $sample->name, $heaviest->samples);
+
+        self::assertNotContains('Berta Secret', $names, 'a sample the visitor cannot see must not leak into the tooltip');
+        self::assertContains('Dieter Public', $names, 'the next deterministic contributor is promoted into the freed slot');
+        self::assertSame(['Anton Public', 'Carl Public', 'Dieter Public'], $names);
+    }
+
+    /**
+     * A flow whose every contributor is hidden from the current user keeps its
+     * full weight but surfaces no sample names — the weight is counted from the
+     * raw row scan, independent of whether any representative can be shown. The
+     * fixture's Austria → France flow has two contributors, both `1 RESN
+     * confidential`, so an anonymous visitor sees a weight of two with an empty
+     * sample list rather than a leaked name or a dropped flow.
+     */
+    #[Test]
+    public function flowsByCountryKeepsTheWeightButOmitsSamplesWhenEveryContributorIsPrivate(): void
+    {
+        $tree = $this->importFixtureTree('migration-flows-privacy.ged');
+        $tree->setPreference('HIDE_LIVE_PEOPLE', '1');
+        $tree->setPreference('SHOW_DEAD_PEOPLE', (string) Auth::PRIV_PRIVATE);
+
+        Auth::logout();
+
+        $result = (new MigrationRepository($tree, new IsoCountryMap()))->flowsByCountry(10);
+
+        $austriaToFrance = null;
+
+        foreach ($result->links as $link) {
+            if ($result->nodes[$link->target] === 'France') {
+                $austriaToFrance = $link;
+
+                break;
+            }
+        }
+
+        self::assertNotNull($austriaToFrance, 'the all-private flow is still present');
+        self::assertSame(2, $austriaToFrance->value, 'the weight counts both private contributors');
+        self::assertSame([], $austriaToFrance->samples, 'no private name leaks into the sample list');
+    }
+
+    /**
+     * Resolve the Germany → United States flow's sample names for the current
+     * user. Helper for the privacy discriminator above so the admin control and
+     * the visitor assertion read the same flow the same way.
+     *
+     * @return list<string>
+     */
+    private function germanyToUnitedStatesSampleNames(Tree $tree): array
+    {
+        $result = (new MigrationRepository($tree, new IsoCountryMap()))->flowsByCountry(10);
+
+        return array_map(
+            static fn (SankeySample $sample): string => $sample->name,
+            $result->links[0]->samples,
+        );
     }
 }

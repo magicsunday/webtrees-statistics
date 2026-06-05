@@ -18,6 +18,7 @@ use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Sankey\BipartiteSankeyAssembler;
+use MagicSunday\Webtrees\Statistic\Support\Sankey\SankeySampleResolver;
 
 use function count;
 use function mb_strtolower;
@@ -146,11 +147,15 @@ final readonly class OccupationInheritanceRepository
             $linkWeight[$key] = ($linkWeight[$key] ?? 0) + 1;
             $linkSamples[$key] ??= [];
 
+            // Resolve the sample son through the privacy layer; a null result (a
+            // record the user cannot see) is skipped and the next son fills the
+            // slot — see SankeySampleResolver::resolve().
             if (count($linkSamples[$key]) < self::SAMPLES_PER_FLOW) {
-                $linkSamples[$key][] = new SankeySample(
-                    name: GedcomScanner::extractPrimaryName($sonGedcom),
-                    xref: $sonXref,
-                );
+                $sample = SankeySampleResolver::resolve($this->tree, $sonXref, $sonGedcom);
+
+                if ($sample instanceof SankeySample) {
+                    $linkSamples[$key][] = $sample;
+                }
             }
         }
 
