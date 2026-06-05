@@ -75,9 +75,14 @@
     --hero-border:  rgb(250 250 250 / 0.18);
 
     /* Geometry (Editorial aesthetic — softer, larger radii than Modern) */
-    --card-radius:  12px;
-    --hero-radius:  18px;
-    --shadow-card:  0 1px 0 rgb(0 0 0 / 0.04);
+    --card-radius:   12px;
+    --hero-radius:   18px;
+    --shadow-card:   0 1px 0 rgb(0 0 0 / 0.04);
+    /* Drop shadow under the sticky tab strip — gives the strip depth
+       as page content scrolls behind it (the flat hairline of
+       `--shadow-card` reads as no separation once the strip detaches
+       from the hero). */
+    --shadow-sticky: 0 6px 18px -10px rgb(0 0 0 / 0.25);
 
     /* Typography */
     --serif: 'Instrument Serif', 'EB Garamond', Georgia, serif;
@@ -195,7 +200,8 @@
     --hero-fg-faint: rgb(250 250 250 / 0.55);
     --hero-border:  rgb(250 250 250 / 0.16);
 
-    --shadow-card:  0 1px 0 rgb(0 0 0 / 0.45);
+    --shadow-card:   0 1px 0 rgb(0 0 0 / 0.45);
+    --shadow-sticky: 0 8px 22px -8px rgb(0 0 0 / 0.6);
 
     /* Family-size palette (dark mode) — mid-band gradient on dark
        cards keeps contrast against the dark background and
@@ -267,10 +273,16 @@
     position:      relative;
     overflow:      hidden;
     isolation:     isolate;
-    margin:        0 0 18px;
+    margin:        0;
     padding:       48px 56px 56px;
     background:    linear-gradient(170deg, var(--hero-bg-from), var(--hero-bg-to));
-    border-radius: var(--hero-radius);
+    /* Hero and the tab strip below it read as one unit: the hero owns
+       the rounded top corners, the strip owns the rounded bottom. They
+       sit flush (no gap), so the strip's square top edge butts cleanly
+       against the hero — and once the strip sticks, its square top means
+       scrolling content passes behind a full rectangle with no corner
+       gap. */
+    border-radius: var(--hero-radius) var(--hero-radius) 0 0;
     color:         var(--hero-fg);
 }
 
@@ -405,7 +417,7 @@
 @media (max-width: 760px) {
     .wt-statistics-chart .wt-stat-hero {
         padding:       28px 20px;
-        border-radius: 14px;
+        border-radius: 14px 14px 0 0;
     }
 
     .wt-statistics-chart .wt-stat-hero-title {
@@ -453,7 +465,12 @@
 
 .wt-statistics-chart .wt-stat-nav {
     position:                sticky;
-    top:                     0;
+    /* Dock below any theme-level sticky header. Themes without a sticky
+       header leave this unset, so the strip sticks to the viewport top
+       (`0px`); a theme with its own sticky top bar sets
+       `--wt-sticky-offset` to that bar's height so the tab strip parks
+       flush beneath it instead of vanishing behind it. */
+    top:                     var(--wt-sticky-offset, 0px);
     z-index:                 50;
     display:                 flex;
     align-items:             stretch;
@@ -466,14 +483,20 @@
        card surface — the chart wrapper itself stays transparent
        so the webtrees-core theme backdrop shows around the
        nav + cards. The strip stays inside the app padding
-       (no negative side margin), so the rounded border lines
-       up with the card column. */
+       (no negative side margin), so the bottom rounded corners
+       line up with the card column. */
     background:              color-mix(in srgb, var(--paper) 92%, transparent);
     border:                  1px solid var(--border);
-    border-radius:           var(--card-radius);
+    /* Square top corners so the strip butts flush against the hero
+       above it (one continuous unit) and, once stuck to the viewport
+       top, presents a full rectangle to the content scrolling behind
+       it — no sharp corner gap outside a rounded arc. Only the bottom
+       corners round, forming the foot of the hero+strip unit. */
+    border-radius:           0 0 var(--card-radius) var(--card-radius);
+    box-shadow:              var(--shadow-sticky);
     /* The active tab paints a 2-px wine line on its bottom
        edge that sits flush against the strip's outer border;
-       `overflow: hidden` clips that line to the rounded
+       `overflow: hidden` clips that line to the rounded bottom
        corners so it never spikes outside the radius on the
        first / last tab. */
     overflow:                hidden;
