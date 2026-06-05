@@ -131,15 +131,13 @@
     --wmstats-widowed:                     var(--deceased);
     --wmstats-divorced:                    var(--ochre);
 
-    /* LifeSpan age-band donut + Divorce-by-century × age-band stack.
-       Mockup palette: light-to-bold gradient sageSoft → sage → ochre →
-       wine that walks the band index from youngest to oldest. */
+    /* LifeSpan age-band donut. Mockup palette: light-to-bold gradient
+       sageSoft → sage → ochre → wine that walks the band index from
+       youngest to oldest. */
     --wmstats-age-band-0:                  var(--sage-soft);
     --wmstats-age-band-1:                  var(--sage);
     --wmstats-age-band-2:                  var(--ochre);
     --wmstats-age-band-3:                  var(--wine);
-    --wmstats-age-band-4:                  var(--rose);
-    --wmstats-age-band-unknown:            var(--mute);
 
     /* Family-size palette — warm OKLCH ramp from cream (0 children)
        through ochre into wine (10+). Replaces the original blue
@@ -1705,16 +1703,6 @@
 .wt-statistics-chart .age-band-3 {
     fill:             var(--wmstats-age-band-3);
     background-color: var(--wmstats-age-band-3);
-}
-
-.wt-statistics-chart .age-band-4 {
-    fill:             var(--wmstats-age-band-4);
-    background-color: var(--wmstats-age-band-4);
-}
-
-.wt-statistics-chart .age-band-unknown {
-    fill:             var(--wmstats-age-band-unknown);
-    background-color: var(--wmstats-age-band-unknown);
 }
 
 .wt-statistics-chart .with-children {
@@ -3414,7 +3402,7 @@
 
 /*
  * Legend row below the x-axis. The swatch picks up its fill from
- * the matching `.age-band-N` rule so band-colour and legend stay
+ * the matching `.family-size-N` rule so band-colour and legend stay
  * in lockstep.
  */
 .wt-statistics-chart svg.msc-stacked-bar .msc-stacked-bar-stack-legend .msc-stacked-bar-legend-swatch {

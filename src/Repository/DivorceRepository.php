@@ -11,12 +11,9 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
-use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Enum\Sex;
-use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarPayload;
-use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarSeries;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\EventCenturyTally;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\EventMonthTally;
 use MagicSunday\Webtrees\Statistic\Support\Calc\AgeBuckets;
@@ -25,9 +22,7 @@ use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
-use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
 
-use function array_key_last;
 use function array_keys;
 use function array_slice;
 use function intdiv;
@@ -50,35 +45,6 @@ final readonly class DivorceRepository
     private const int AGE_AT_DIVORCE_BUCKET = 10;
 
     private const int AGE_AT_DIVORCE_MAX = 80;
-
-    private const int AGE_AT_DIVORCE_TYPO_CAP = 110;
-
-    /**
-     * Five life-stage age bands plus an Unknown catch-all so the per-century
-     * totals of `divorcesByCenturyAndAgeBand` stay equal to `divorcesByCentury`
-     * even when BIRT records are sparse. The Unknown row carries the literal
-     * English name so the const stays constant-expression-only; the legend
-     * translates it via `I18N::translate(...)` at series-build time.
-     *
-     * The `I18N::translate('Unknown')` call below registers the key for static
-     * extractors that scan literal arguments — the runtime translation happens
-     * through `$band['name']` in the series-build loop.
-     *
-     * @see I18N::translate('Unknown')
-     */
-    private const array DIVORCE_AGE_BANDS = [
-        ['name' => '0–9', 'class' => 'age-band-0', 'lo' => 0, 'hi' => 9],
-        ['name' => '10–19', 'class' => 'age-band-1', 'lo' => 10, 'hi' => 19],
-        ['name' => '20–29', 'class' => 'age-band-2', 'lo' => 20, 'hi' => 29],
-        ['name' => '30–39', 'class' => 'age-band-3', 'lo' => 30, 'hi' => 39],
-        ['name' => '40–49', 'class' => 'age-band-4', 'lo' => 40, 'hi' => 49],
-        ['name' => '50–59', 'class' => 'age-band-5', 'lo' => 50, 'hi' => 59],
-        ['name' => '60–69', 'class' => 'age-band-6', 'lo' => 60, 'hi' => 69],
-        ['name' => '70–79', 'class' => 'age-band-7', 'lo' => 70, 'hi' => 79],
-        ['name' => '80–89', 'class' => 'age-band-8', 'lo' => 80, 'hi' => 89],
-        ['name' => '90+', 'class' => 'age-band-9', 'lo' => 90, 'hi' => self::AGE_AT_DIVORCE_TYPO_CAP],
-        ['name' => 'Unknown', 'class' => 'age-band-unknown', 'lo' => null, 'hi' => null],
-    ];
 
     /**
      * @param Tree $tree The tree the statistics are computed for
@@ -167,161 +133,6 @@ final readonly class DivorceRepository
         }
 
         return $buckets;
-    }
-
-    /**
-     * Divorces cross-tabulated by divorce century and age-at-divorce band.
-     * Returns the unified `{categories, series}` payload so the result feeds
-     * straight into the chart-lib StackedBar widget. Categories are the
-     * localised century labels of the DIV event in chronological order; series
-     * are the age bands (`0–24`, `25–34`, `35–44`, `45–54`, `55+`), each
-     * carrying one count per century. The bands are coarser than the
-     * `ageAtDivorceDistribution` 5-year buckets — a 10-band stack reads as
-     * visual noise, the broader life-stage bands let the "younger / older at
-     * divorce" story come through.
-     *
-     * Counts one tick per divorce so the per-century totals match the
-     * `divorcesByCentury` LineChart side-by-side. The husband's BIRT classifies
-     * the cohort when present; the wife's BIRT is the fallback when his is
-     * missing. Divorces with no usable BIRT on either spouse, with a BIRT that
-     * places the spouse after the divorce, or with an age outside the [0, 110]
-     * sanity window fall into a sixth "Unknown" band so the per-century totals
-     * stay equal to `divorcesByCentury` even on sparsely dated trees.
-     */
-    public function divorcesByCenturyAndAgeBand(): StackedBarPayload
-    {
-        // Match core's `countEventsByCentury` reach — accept DIV
-        // rows with any parseable year (BCE included), including ones
-        // that lack a resolvable julian day (year-only DATEs). Such
-        // rows can't contribute an age but they still count in the
-        // line chart, so the Unknown catch-all keeps the totals aligned.
-        // Ranged DIV / BIRT dates produce two `dates` rows per anchor,
-        // so a FAM with ranged anchors on all three columns could
-        // produce up to 2^3 = 8 rows in the JOIN. Grouping by
-        // `families.f_id` and aggregating each anchor with
-        // `MIN(d_julianday1)` collapses the duplicates onto the
-        // lower-bound julian day. `MIN(divr.d_year)` keeps the
-        // century classification aligned with the picked DIV anchor.
-        $rows = TreeScope::table($this->tree, 'families')
-            ->join('dates AS divr', static function (JoinClause $join): void {
-                DateJoin::on($join, 'divr', 'f_file', 'f_id', 'DIV');
-            })
-            ->leftJoin('dates AS hb', static function (JoinClause $join): void {
-                DateJoin::on($join, 'hb', 'f_file', 'f_husb', 'BIRT', DateJoin::JD_GREATER_THAN_ZERO);
-            })
-            ->leftJoin('dates AS wb', static function (JoinClause $join): void {
-                DateJoin::on($join, 'wb', 'f_file', 'f_wife', 'BIRT', DateJoin::JD_GREATER_THAN_ZERO);
-            })
-            ->select([
-                DateAggregate::min('divr', 'd_year', 'div_year'),
-                DateAggregate::min('divr', 'd_julianday1', 'div_jd'),
-                DateAggregate::min('hb', 'd_julianday1', 'hb_jd'),
-                DateAggregate::min('wb', 'd_julianday1', 'wb_jd'),
-            ])
-            ->groupBy('families.f_id')
-            ->get();
-
-        $unknownBandIndex = array_key_last(self::DIVORCE_AGE_BANDS);
-
-        /** @var array<int, array<int, int>> $cohorts century => bandIndex => count */
-        $cohorts = [];
-
-        foreach ($rows as $row) {
-            $divYear = RowCast::int($row, 'div_year');
-            $divJd   = RowCast::int($row, 'div_jd');
-
-            // Only the degenerate unparseable year 0 is dropped — BCE (negative)
-            // years fold into negative centuries through CenturyName::fromYear().
-            if ($divYear === 0) {
-                continue;
-            }
-
-            $century = CenturyName::fromYear($divYear);
-
-            // Husband first, wife fallback — one tick per divorce
-            // so the per-century totals match `divorcesByCentury`
-            // exactly. Counting both spouses would render twice the
-            // sample size and confuse cross-card comparison.
-            $birthJd = RowCast::int($row, 'hb_jd');
-
-            if ($birthJd <= 0) {
-                $birthJd = RowCast::int($row, 'wb_jd');
-            }
-
-            $classified = false;
-
-            // Require divorce strictly after birth — an inverted (typo) pair
-            // would otherwise read as a plausible positive age via the
-            // order-independent span and land in a real band instead of the
-            // Unknown bucket. Mirrors the guard in ageAtDivorceDistribution().
-            if (($divJd > 0) && ($birthJd > 0) && ($divJd > $birthJd)) {
-                $years = CalendarSpan::wholeYears($birthJd, $divJd);
-
-                if ($years <= self::AGE_AT_DIVORCE_TYPO_CAP) {
-                    foreach (self::DIVORCE_AGE_BANDS as $bandIndex => $band) {
-                        if ($bandIndex === $unknownBandIndex) {
-                            continue;
-                        }
-
-                        if (($years >= $band['lo']) && ($years <= $band['hi'])) {
-                            $cohorts[$century][$bandIndex] = ($cohorts[$century][$bandIndex] ?? 0) + 1;
-                            $classified                    = true;
-
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if (!$classified) {
-                $cohorts[$century][$unknownBandIndex] = ($cohorts[$century][$unknownBandIndex] ?? 0) + 1;
-            }
-        }
-
-        if ($cohorts === []) {
-            return new StackedBarPayload(categories: [], tooltipLabels: [], series: []);
-        }
-
-        ksort($cohorts);
-
-        $categories    = [];
-        $tooltipLabels = [];
-
-        foreach (array_keys($cohorts) as $century) {
-            $categories[]    = CenturyName::compactLabel($century);
-            $tooltipLabels[] = CenturyName::longLabel($century);
-        }
-
-        $series = [];
-
-        foreach (self::DIVORCE_AGE_BANDS as $bandIndex => $band) {
-            $values = [];
-
-            foreach ($cohorts as $perBand) {
-                $values[] = $perBand[$bandIndex] ?? 0;
-            }
-
-            // Keep every band in the result — a band with zero
-            // counts everywhere still belongs in the legend so the
-            // reader sees the full age scale and understands which
-            // life stage is absent from the recorded divorces. The
-            // Unknown name is the only translatable label; the age-
-            // range labels stay locale-neutral.
-            $displayName = $bandIndex === $unknownBandIndex
-                ? I18N::translate($band['name'])
-                : $band['name'];
-            $series[] = new StackedBarSeries(
-                name: $displayName,
-                data: $values,
-                class: $band['class'],
-            );
-        }
-
-        return new StackedBarPayload(
-            categories: $categories,
-            tooltipLabels: $tooltipLabels,
-            series: $series,
-        );
     }
 
     /**

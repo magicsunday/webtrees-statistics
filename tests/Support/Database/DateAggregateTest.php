@@ -53,9 +53,9 @@ final class DateAggregateTest extends TestCase
 
     /**
      * `DateAggregate::min()` renders `MIN(prefix_alias.column) AS as`. Used by
-     * ageGapDistribution, marriageDurationPairs, ageAtDivorceDistribution,
-     * divorcesByCenturyAndAgeBand and divorceRateByMarriageCohort to collapse
-     * ranged-date double rows onto the lower-bound anchor.
+     * ageGapDistribution, marriageDurationPairs, ageAtDivorceDistribution and
+     * divorceRateByMarriageCohort to collapse ranged-date double rows onto the
+     * lower-bound anchor.
      */
     #[Test]
     public function minRendersPrefixedMinExpression(): void
