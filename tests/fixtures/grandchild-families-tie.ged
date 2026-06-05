@@ -1,0 +1,80 @@
+0 HEAD
+1 SOUR webtrees-statistics-fixture
+2 NAME grandchild-families-tie
+1 DEST ANSTFILE
+1 CHAR UTF-8
+1 SUBM @SUBM1@
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+0 @SUBM1@ SUBM
+1 NAME Fixture
+0 @FBH@ INDI
+1 NAME Grandfather /Bravo/
+1 SEX M
+1 FAMS @FB@
+0 @FBW@ INDI
+1 NAME Grandmother /Bravo/
+1 SEX F
+1 FAMS @FB@
+0 @FBC@ INDI
+1 NAME Child /Bravo/
+1 SEX M
+1 FAMC @FB@
+1 FAMS @FBCF@
+0 @FBCS@ INDI
+1 NAME Spouse /Bravo/
+1 SEX F
+1 FAMS @FBCF@
+0 @FBG1@ INDI
+1 NAME Grandchild A /Bravo/
+1 SEX M
+1 FAMC @FBCF@
+0 @FBG2@ INDI
+1 NAME Grandchild B /Bravo/
+1 SEX F
+1 FAMC @FBCF@
+0 @FAH@ INDI
+1 NAME Grandfather /Alpha/
+1 SEX M
+1 FAMS @FA@
+0 @FAW@ INDI
+1 NAME Grandmother /Alpha/
+1 SEX F
+1 FAMS @FA@
+0 @FAC@ INDI
+1 NAME Child /Alpha/
+1 SEX M
+1 FAMC @FA@
+1 FAMS @FACF@
+0 @FACS@ INDI
+1 NAME Spouse /Alpha/
+1 SEX F
+1 FAMS @FACF@
+0 @FAG1@ INDI
+1 NAME Grandchild A /Alpha/
+1 SEX M
+1 FAMC @FACF@
+0 @FAG2@ INDI
+1 NAME Grandchild B /Alpha/
+1 SEX F
+1 FAMC @FACF@
+0 @FB@ FAM
+1 HUSB @FBH@
+1 WIFE @FBW@
+1 CHIL @FBC@
+0 @FBCF@ FAM
+1 HUSB @FBC@
+1 WIFE @FBCS@
+1 CHIL @FBG1@
+1 CHIL @FBG2@
+0 @FA@ FAM
+1 HUSB @FAH@
+1 WIFE @FAW@
+1 CHIL @FAC@
+0 @FACF@ FAM
+1 HUSB @FAC@
+1 WIFE @FACS@
+1 CHIL @FAG1@
+1 CHIL @FAG2@
+0 TRLR

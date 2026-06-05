@@ -1,0 +1,66 @@
+0 HEAD
+1 SOUR webtrees-statistics-fixture
+2 NAME grandchild-families-privacy
+1 DEST ANSTFILE
+1 CHAR UTF-8
+1 SUBM @SUBM1@
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+0 @SUBM1@ SUBM
+1 NAME Fixture
+0 @GPH@ INDI
+1 NAME Grandfather /Privacy/
+1 SEX M
+1 DEAT
+2 DATE 1950
+1 FAMS @GP@
+0 @GPW@ INDI
+1 NAME Grandmother /Privacy/
+1 SEX F
+1 DEAT
+2 DATE 1955
+1 FAMS @GP@
+0 @C@ INDI
+1 NAME Child /Privacy/
+1 SEX M
+1 DEAT
+2 DATE 1980
+1 FAMC @GP@
+1 FAMS @CF@
+0 @CS@ INDI
+1 NAME Spouse /Privacy/
+1 SEX F
+1 DEAT
+2 DATE 1985
+1 FAMS @CF@
+0 @GCA@ INDI
+1 NAME Grandchild A /Privacy/
+1 SEX M
+1 DEAT
+2 DATE 2010
+1 FAMC @CF@
+0 @GCB@ INDI
+1 NAME Grandchild B /Privacy/
+1 SEX F
+1 DEAT
+2 DATE 2012
+1 FAMC @CF@
+0 @GCC@ INDI
+1 NAME Grandchild C /Privacy/
+1 SEX M
+1 DEAT
+2 DATE 2014
+1 FAMC @CF@
+0 @GP@ FAM
+1 HUSB @GPH@
+1 WIFE @GPW@
+1 CHIL @C@
+0 @CF@ FAM
+1 RESN confidential
+1 HUSB @C@
+1 WIFE @CS@
+1 CHIL @GCA@
+1 CHIL @GCB@
+1 CHIL @GCC@
+0 TRLR

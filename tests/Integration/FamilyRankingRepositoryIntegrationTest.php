@@ -11,6 +11,10 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
+use Fisharebest\Webtrees\Auth;
+use Fisharebest\Webtrees\DB;
+use Fisharebest\Webtrees\Individual;
+use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Model\Ranking\RankingEntry;
 use MagicSunday\Webtrees\Statistic\Repository\FamilyRankingRepository;
@@ -21,6 +25,7 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
 
 use function array_map;
+use function count;
 
 /**
  * Integration tests for {@see FamilyRankingRepository} — the top-N largest
@@ -132,5 +137,123 @@ final class FamilyRankingRepositoryIntegrationTest extends IntegrationTestCase
         $xrefs = array_map(static fn (RankingEntry $entry): string => $entry->xref, $result);
 
         self::assertNotContains('G4', $xrefs);
+    }
+
+    /**
+     * The grandchild count must come from a single grouped aggregation, not from
+     * a per-family record-layer re-count (children → spouse families →
+     * grandchildren), which issued one deep traversal per candidate family and
+     * scaled with the grandchild population (GH-115). Asserting a tight upper
+     * bound on the query count guards against a regression to that N+1 pattern:
+     * the only follow-up work is resolving each returned family's record for its
+     * display name, which is bounded by the limit, not by how many grandchildren
+     * the tree holds.
+     */
+    #[Test]
+    public function topGrandchildFamiliesDoesNotReCountPerFamily(): void
+    {
+        $tree = $this->importFixtureTree('grandchild-families.ged');
+
+        DB::connection()->flushQueryLog();
+        DB::connection()->enableQueryLog();
+
+        $result     = $this->repository($tree)->topGrandchildFamilies(10);
+        $queryCount = count(DB::connection()->getQueryLog());
+
+        DB::connection()->disableQueryLog();
+
+        // The cost is O(returned families), never O(grandchildren): one ranking
+        // query, plus at most ~6 record-resolution queries per returned family
+        // (member preload + a handful of tree-preference reads for the display
+        // name) and one shared pending-changes lookup. The removed per-family
+        // re-count traversal (children → spouse families → grandchildren) issued
+        // ~52 queries for this very fixture, so the bound separates the two.
+        self::assertLessThanOrEqual(
+            (6 * count($result)) + 2,
+            $queryCount,
+            'Query count must scale with the returned-family count, not the grandchild population',
+        );
+    }
+
+    /**
+     * When two families share the same grandchild count and the limit cuts
+     * through the tie, the deterministic `f_id ASC` tie-break keeps the
+     * lexicographically smaller XREF so the capped Top-N is stable across runs.
+     * The fixture declares family FB before FA, both with exactly two
+     * grandchildren, and a limit of one cuts the tie; the ASC ordering keeps FA.
+     *
+     * Note on engine coverage: this asserts the tie-break DIRECTION (flipping it
+     * to `f_id DESC` surfaces FB and fails here). It cannot prove a fully removed
+     * tie-break on the SQLite test engine, whose `GROUP BY` happens to emit rows
+     * in grouping-key (`f_id`) order; on MySQL an absent `ORDER BY f_id` is the
+     * real non-determinism the production clause guards against.
+     */
+    #[Test]
+    public function topGrandchildFamiliesBreaksCountTiesByXref(): void
+    {
+        $tree   = $this->importFixtureTree('grandchild-families-tie.ged');
+        $result = $this->repository($tree)->topGrandchildFamilies(1);
+
+        self::assertCount(1, $result);
+        self::assertSame('FA', $result[0]->xref, 'The f_id ASC tie-break keeps the smaller XREF despite FB being declared first');
+        self::assertSame(2, $result[0]->value);
+    }
+
+    /**
+     * The displayed grandchild figure is the raw grandchild-link count, not a
+     * privacy-filtered record-layer re-count. The fixture's grandparent family
+     * GP reaches its three grandchildren through one intermediate spouse-family
+     * CF that is marked `1 RESN confidential`. With privacy enabled and private
+     * relationships hidden, the old per-family re-count walked
+     * `Individual::spouseFamilies()`, which drops CF for an anonymous visitor
+     * (`Family::canShow()` is false), so it would have reported zero
+     * grandchildren. The raw link `COUNT(*)` is privacy-blind and reports three
+     * under both the importing admin and the visitor — asserting that pins the
+     * module's raw-rank stance and guards against a regression that
+     * re-introduces privacy filtering into the count.
+     */
+    #[Test]
+    public function topGrandchildFamiliesCountsRawAndIgnoresGrandchildPrivacy(): void
+    {
+        $tree = $this->importFixtureTree('grandchild-families-privacy.ged');
+        $tree->setPreference('HIDE_LIVE_PEOPLE', '1');
+        $tree->setPreference('SHOW_DEAD_PEOPLE', (string) Auth::PRIV_PRIVATE);
+        // Without this the relationship walk bypasses privacy (access level
+        // PRIV_HIDE), so the confidential spouse-family would stay visible and
+        // the record-layer/raw divergence could not be exercised.
+        $tree->setPreference('SHOW_PRIVATE_RELATIONSHIPS', '0');
+
+        // Control: as the importing admin everything is visible, so the raw
+        // count and a privacy-filtered re-count would both read three.
+        $asAdmin = $this->repository($tree)->topGrandchildFamilies(1);
+
+        self::assertCount(1, $asAdmin);
+        self::assertSame('GP', $asAdmin[0]->xref);
+        self::assertSame(3, $asAdmin[0]->value);
+
+        // Drop to an anonymous visitor: the confidential intermediate
+        // spouse-family is invisible at the record layer (a re-count would yield
+        // zero), but the raw grandchild-link count still reports three.
+        Auth::logout();
+
+        // Guard the precondition so the RESN marker is a real discriminator and
+        // not silently inert: as the visitor the confidential spouse-family must
+        // genuinely drop out of the record-layer relationship walk. Remove the
+        // `1 RESN confidential` line from the fixture and this assertion fails,
+        // proving the raw/record-layer divergence below is actually exercised.
+        $child = Registry::individualFactory()->make('C', $tree);
+
+        self::assertInstanceOf(Individual::class, $child);
+        self::assertCount(
+            0,
+            $child->spouseFamilies(),
+            'The confidential spouse-family must be hidden from the visitor — otherwise the raw-vs-re-count divergence is not exercised',
+        );
+
+        $asVisitor = $this->repository($tree)->topGrandchildFamilies(1);
+
+        self::assertCount(1, $asVisitor);
+        self::assertSame('GP', $asVisitor[0]->xref);
+        self::assertSame(3, $asVisitor[0]->value, 'The raw grandchild-link count is privacy-blind; a record-layer re-count would drop the confidential branch to zero');
     }
 }

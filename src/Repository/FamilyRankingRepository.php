@@ -29,11 +29,10 @@ use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 /**
  * Entity rankings and single-record holders for the Family tab — the top-N
  * largest families, the top-N families by grandchild count, and the
- * individual / family record holders. These share the
- * {@see RankingEntry}/record-recount idiom and a raw-rank privacy stance (rank
- * the candidates, resolve via the record factory, render the full name), kept
- * apart from the per-family distribution and chart-payload aggregations in
- * {@see ChildrenRepository}.
+ * individual / family record holders. These share the {@see RankingEntry}
+ * shape and a raw-rank privacy stance (rank the candidates, resolve via the
+ * record factory, render the full name), kept apart from the per-family
+ * distribution and chart-payload aggregations in {@see ChildrenRepository}.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -81,12 +80,20 @@ final readonly class FamilyRankingRepository
 
     /**
      * Top-N families ranked by their number of grandchildren — the children of
-     * the family's own children. Replicates webtrees core's `topTenGrandFamily`
-     * statistic so the figures match the built-in module: candidates are ranked
-     * by the families → CHIL → FAMS → CHIL link count, and the displayed count
-     * is then recomputed over the record layer (every child's spouse-families'
-     * children), exactly as core does. Each row carries the family XREF so two
-     * families sharing a display label stay distinct in the podium.
+     * the family's own children. The ranking mirrors webtrees core's
+     * `topTenGrandFamily` join (families → CHIL → FAMS → CHIL), and the
+     * grandchild-link `COUNT(*)` is taken straight from that grouped
+     * aggregation as both the ranking key and the displayed figure. Core
+     * instead re-counts the value over the record layer (every child's
+     * spouse-families' children), which is one deep traversal per candidate
+     * family — an N+1 on large trees (GH-115). The two agree tuple-for-tuple on
+     * a fully visible, well-formed tree, but the raw link `COUNT(*)` is
+     * privacy-blind and also counts dangling CHIL links, so it can read higher
+     * than core's privacy-filtered list for a restricted viewer. That is this
+     * module's raw-rank stance (rank raw, privatise only the label via
+     * {@see RecordName}), matching the sibling {@see topLargestFamilies()} card
+     * which likewise displays the raw `f_numchil`. Each row carries the family
+     * XREF so two families sharing a display label stay distinct in the podium.
      *
      * @param int $limit Maximum number of rows
      *
@@ -118,7 +125,7 @@ final readonly class FamilyRankingRepository
             // Deterministic tie-break so the limit picks a stable subset when
             // several families share the same grandchild-link count.
             ->orderBy('f_id')
-            ->select(['families.*'])
+            ->select(['families.*', new Expression('COUNT(*) AS grandchildren')])
             ->limit($limit)
             ->get();
 
@@ -135,21 +142,10 @@ final readonly class FamilyRankingRepository
                 continue;
             }
 
-            // Re-count over the record layer exactly as core does: every child's
-            // spouse-families' children. This is the figure shown to the user;
-            // the SQL COUNT(*) above only orders the candidates for the limit.
-            $grandchildren = 0;
-
-            foreach ($family->children() as $child) {
-                foreach ($child->spouseFamilies() as $spouseFamily) {
-                    $grandchildren += $spouseFamily->children()->count();
-                }
-            }
-
             $entries[] = new RankingEntry(
                 $family->xref(),
                 RecordName::plain($family->fullName()),
-                $grandchildren,
+                RowCast::int($row, 'grandchildren'),
             );
         }
 
