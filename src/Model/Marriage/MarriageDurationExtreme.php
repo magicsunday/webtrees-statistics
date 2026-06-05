@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Model\Marriage;
 
+use MagicSunday\Webtrees\Statistic\Enum\MarriageEndReason;
+
 /**
  * One marriage at an extreme of the duration distribution (a shortest or a
  * longest marriage). Carries the family XREF so equal labels stay distinct, the
@@ -33,18 +35,19 @@ final readonly class MarriageDurationExtreme
     private const int MIN_YEARS_AS_YEARS = 2;
 
     /**
-     * @param string            $familyXref    The family's XREF, kept so equal labels stay distinct
-     * @param string            $label         The human-readable couple label (both spouses' names)
-     * @param int               $durationDays  Whole days between marriage and its end
-     * @param int               $durationYears Whole years between marriage and its end
-     * @param 'death'|'divorce' $endReason     How the marriage ended (earliest terminating event)
+     * @param string                 $familyXref    The family's XREF, kept so equal labels stay distinct
+     * @param string                 $label         The human-readable couple label (both spouses' names)
+     * @param int                    $durationDays  Whole days between marriage and its end
+     * @param int                    $durationYears Whole years between marriage and its end
+     * @param MarriageEndReason|null $endReason     How the marriage ended (earliest terminating event), or null when
+     *                                              suppressed because the record is not visible to the current user
      */
     public function __construct(
         public string $familyXref,
         public string $label,
         public int $durationDays,
         public int $durationYears,
-        public string $endReason,
+        public ?MarriageEndReason $endReason,
     ) {
     }
 

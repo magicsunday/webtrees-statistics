@@ -1,0 +1,31 @@
+0 HEAD
+1 SOUR webtrees-statistics-fixture
+2 NAME marriage-extremes-privacy-living
+1 DEST ANSTFILE
+1 CHAR UTF-8
+1 SUBM @SUBM1@
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+0 @SUBM1@ SUBM
+1 NAME Fixture
+0 @H1@ INDI
+1 NAME Emil /Hidden/
+1 SEX M
+1 BIRT
+2 DATE 1 JAN 1990
+1 FAMS @F1@
+0 @W1@ INDI
+1 NAME Frieda /Hidden/
+1 SEX F
+1 BIRT
+2 DATE 1 JAN 1992
+1 FAMS @F1@
+0 @F1@ FAM
+1 HUSB @H1@
+1 WIFE @W1@
+1 MARR
+2 DATE 1 JAN 2015
+1 DIV
+2 DATE 16 JAN 2015
+0 TRLR

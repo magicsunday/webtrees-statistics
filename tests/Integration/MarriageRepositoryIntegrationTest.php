@@ -11,7 +11,9 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
+use Fisharebest\Webtrees\Auth;
 use Fisharebest\Webtrees\Tree;
+use MagicSunday\Webtrees\Statistic\Enum\MarriageEndReason;
 use MagicSunday\Webtrees\Statistic\Model\Marriage\MarriageDurationExtreme;
 use MagicSunday\Webtrees\Statistic\Repository\MarriageRepository;
 use MagicSunday\Webtrees\Statistic\Support\Calc\AgeBuckets;
@@ -60,6 +62,7 @@ use function array_values;
 #[UsesClass(RowCast::class)]
 #[UsesClass(RecordName::class)]
 #[UsesClass(MarriageDurationExtreme::class)]
+#[UsesClass(MarriageEndReason::class)]
 final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
 {
     private function repository(Tree $tree): MarriageRepository
@@ -462,7 +465,7 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
      * @param list<MarriageDurationExtreme> $extremes
      * @param 'days'|'years'                $magnitude
      *
-     * @return list<array{string, int, string}>
+     * @return list<array{string, int, MarriageEndReason|null}>
      */
     private function extremeTriples(array $extremes, string $magnitude): array
     {
@@ -497,18 +500,18 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
 
         self::assertSame(
             [
-                ['F10', 15, 'death'],
-                ['F1', 31, 'divorce'],
-                ['F2', 59, 'death'],
+                ['F10', 15, MarriageEndReason::Death],
+                ['F1', 31, MarriageEndReason::Divorce],
+                ['F2', 59, MarriageEndReason::Death],
             ],
             $this->extremeTriples($result['shortest'], 'days'),
         );
 
         self::assertSame(
             [
-                ['F5', 60, 'death'],
-                ['F6', 55, 'death'],
-                ['F7', 50, 'divorce'],
+                ['F5', 60, MarriageEndReason::Death],
+                ['F6', 55, MarriageEndReason::Death],
+                ['F7', 50, MarriageEndReason::Divorce],
             ],
             $this->extremeTriples($result['longest'], 'years'),
         );
@@ -525,8 +528,8 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('marriage-duration-extremes.ged');
         $result = $this->repository($tree)->getMarriageDurationExtremes(2);
 
-        self::assertSame([['F10', 15, 'death'], ['F1', 31, 'divorce']], $this->extremeTriples($result['shortest'], 'days'));
-        self::assertSame([['F5', 60, 'death'], ['F6', 55, 'death']], $this->extremeTriples($result['longest'], 'years'));
+        self::assertSame([['F10', 15, MarriageEndReason::Death], ['F1', 31, MarriageEndReason::Divorce]], $this->extremeTriples($result['shortest'], 'days'));
+        self::assertSame([['F5', 60, MarriageEndReason::Death], ['F6', 55, MarriageEndReason::Death]], $this->extremeTriples($result['longest'], 'years'));
     }
 
     /**
@@ -562,12 +565,12 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
 
         self::assertSame(
             [
-                ['F10', 15, 'death'],
-                ['F1', 31, 'divorce'],
-                ['F2', 59, 'death'],
-                ['F3', 182, 'divorce'],
-                ['F11', 300, 'death'],
-                ['F12', 300, 'death'],
+                ['F10', 15, MarriageEndReason::Death],
+                ['F1', 31, MarriageEndReason::Divorce],
+                ['F2', 59, MarriageEndReason::Death],
+                ['F3', 182, MarriageEndReason::Divorce],
+                ['F11', 300, MarriageEndReason::Death],
+                ['F12', 300, MarriageEndReason::Death],
             ],
             $this->extremeTriples($result['shortest'], 'days'),
         );
@@ -619,6 +622,80 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
 
         self::assertSame('F1', $marriage->familyXref);
         self::assertSame(730, $marriage->durationDays, 'Measured to the husband death, not the earlier divorce');
-        self::assertSame('death', $marriage->endReason);
+        self::assertSame(MarriageEndReason::Death, $marriage->endReason);
+    }
+
+    /**
+     * Module-wide privacy policy: a ranked record the current user cannot see
+     * keeps its podium row and its ranked metric (the duration), but the
+     * end-cause — a sensitive attribute beyond the ranked metric — is
+     * suppressed rather than relying on name privatisation alone. The fixture
+     * carries two couples with deceased (and therefore publicly named) spouses;
+     * F2's marriage record is marked `1 RESN confidential`, so an anonymous
+     * visitor sees F1's death cause but not F2's divorce cause. F2 proves the
+     * gate keys on the family record's own visibility, independent of whether
+     * the spouse names happen to be public.
+     */
+    #[Test]
+    public function getMarriageDurationExtremesSuppressesEndReasonForRecordsNotVisibleToTheUser(): void
+    {
+        $tree = $this->importFixtureTree('marriage-extremes-privacy.ged');
+        $tree->setPreference('HIDE_LIVE_PEOPLE', '1');
+        $tree->setPreference('SHOW_DEAD_PEOPLE', (string) Auth::PRIV_PRIVATE);
+
+        // Drop from the importing admin to an anonymous visitor so the
+        // family-level RESN confidential marker actually restricts visibility.
+        Auth::logout();
+
+        $shortest = $this->repository($tree)->getMarriageDurationExtremes()['shortest'];
+
+        self::assertCount(2, $shortest, 'A hidden record keeps its podium row; the list is not collapsed');
+
+        [$hidden, $visible] = $shortest;
+
+        // F2's marriage record is confidential: the ranked duration stays and
+        // the sensitive end-cause is suppressed to null, even though the
+        // deceased spouses remain publicly named.
+        self::assertSame('F2', $hidden->familyXref);
+        self::assertSame(15, $hidden->durationDays, 'The ranked metric stays visible even when the record is hidden');
+        self::assertNull($hidden->endReason, 'The end-cause is suppressed for a record the user cannot see');
+        self::assertStringContainsString('Carl', $hidden->label);
+        self::assertStringContainsString('Doris', $hidden->label, 'The spouses are public; only the marriage record is confidential');
+
+        // F1 is an ordinary visible marriage: cause and real label remain.
+        self::assertSame('F1', $visible->familyXref);
+        self::assertSame(31, $visible->durationDays);
+        self::assertSame(MarriageEndReason::Death, $visible->endReason);
+        self::assertStringContainsString('Anton', $visible->label);
+    }
+
+    /**
+     * The same suppression holds when the record is hidden because its spouses
+     * are living (not via an explicit RESN). A living couple's divorce is the
+     * canonical case the policy protects: an anonymous visitor sees the ranked
+     * duration but neither the divorce cause nor the spouse names — the couple
+     * label privatises to webtrees' placeholder rather than leaking the names.
+     */
+    #[Test]
+    public function getMarriageDurationExtremesSuppressesEndReasonForALivingCouple(): void
+    {
+        $tree = $this->importFixtureTree('marriage-extremes-privacy-living.ged');
+        $tree->setPreference('HIDE_LIVE_PEOPLE', '1');
+        $tree->setPreference('SHOW_DEAD_PEOPLE', (string) Auth::PRIV_PRIVATE);
+
+        Auth::logout();
+
+        $shortest = $this->repository($tree)->getMarriageDurationExtremes()['shortest'];
+
+        self::assertCount(1, $shortest);
+
+        $hidden = $shortest[0];
+
+        self::assertSame('F1', $hidden->familyXref);
+        self::assertSame(15, $hidden->durationDays, 'The ranked metric stays visible');
+        self::assertNull($hidden->endReason, 'A living couple is hidden, so the divorce cause is suppressed');
+        self::assertNotSame('', $hidden->label, "The label renders as webtrees' privatised placeholder, not an empty string");
+        self::assertStringNotContainsString('Emil', $hidden->label, 'A living spouse name must not leak');
+        self::assertStringNotContainsString('Hidden', $hidden->label, 'A living spouse surname must not leak');
     }
 }

@@ -11,10 +11,12 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Unit\Model\Marriage;
 
+use MagicSunday\Webtrees\Statistic\Enum\MarriageEndReason;
 use MagicSunday\Webtrees\Statistic\Model\Marriage\MarriageDurationExtreme;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -27,6 +29,7 @@ use PHPUnit\Framework\TestCase;
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
 #[CoversClass(MarriageDurationExtreme::class)]
+#[UsesClass(MarriageEndReason::class)]
 final class MarriageDurationExtremeTest extends TestCase
 {
     /**
@@ -59,10 +62,30 @@ final class MarriageDurationExtremeTest extends TestCase
             label: 'Anton & Berta',
             durationDays: $durationDays,
             durationYears: $durationYears,
-            endReason: 'death',
+            endReason: MarriageEndReason::Death,
         );
 
         self::assertSame($expectedUnit, $extreme->displayUnit());
         self::assertSame($expectedValue, $extreme->displayValue());
+    }
+
+    /**
+     * The end-cause is null when suppressed because the record is not visible
+     * to the current user. The duration — the ranked metric — is unaffected.
+     */
+    #[Test]
+    public function endReasonIsNullWhenSuppressedForAHiddenRecord(): void
+    {
+        $extreme = new MarriageDurationExtreme(
+            familyXref: 'F1',
+            label: 'Private',
+            durationDays: 15,
+            durationYears: 0,
+            endReason: null,
+        );
+
+        self::assertNull($extreme->endReason);
+        self::assertSame('days', $extreme->displayUnit());
+        self::assertSame(15, $extreme->displayValue());
     }
 }

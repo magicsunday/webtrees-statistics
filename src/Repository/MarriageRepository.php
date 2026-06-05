@@ -19,6 +19,7 @@ use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Enum\AgePairExtremum;
+use MagicSunday\Webtrees\Statistic\Enum\MarriageEndReason;
 use MagicSunday\Webtrees\Statistic\Enum\Sex;
 use MagicSunday\Webtrees\Statistic\Model\Marriage\MarriageDurationExtreme;
 use MagicSunday\Webtrees\Statistic\Model\Record\FamilyDurationDaysRecord;
@@ -124,7 +125,7 @@ final class MarriageRepository
      * `durationDistribution` all walk the same rows; sharing the materialised
      * list collapses three SELECTs into one.
      *
-     * @var array<int, array{marrJd: int, endJd: int, xref: string, endReason: 'death'|'divorce'}>|null
+     * @var array<int, array{marrJd: int, endJd: int, xref: string, endReason: MarriageEndReason}>|null
      */
     private ?array $marriageDurationPairsCache = null;
 
@@ -372,7 +373,7 @@ final class MarriageRepository
      * Resolve each ranked duration row to a {@see MarriageDurationExtreme},
      * dropping rows whose family no longer resolves.
      *
-     * @param list<array{xref: string, days: int, years: int, endReason: 'death'|'divorce'}> $rows
+     * @param list<array{xref: string, days: int, years: int, endReason: MarriageEndReason}> $rows
      *
      * @return list<MarriageDurationExtreme>
      */
@@ -387,12 +388,20 @@ final class MarriageRepository
                 continue;
             }
 
+            // Ranked metric and label follow the module's raw-rank convention
+            // (see GenerationDepthRepository::topAncestorsByDescendantCount):
+            // the podium row stays for every ranked marriage, the duration is
+            // always rendered, and fullName() applies webtrees' own name
+            // privacy to the couple label. The end-cause is an extra sensitive
+            // attribute on top of the ranked metric, so it alone is gated on
+            // the family record's visibility — suppressed to null when the
+            // current user cannot see the record (AGENTS.md, Privacy).
             $out[] = new MarriageDurationExtreme(
                 familyXref: $row['xref'],
                 label: RecordName::plain($family->fullName()),
                 durationDays: $row['days'],
                 durationYears: $row['years'],
-                endReason: $row['endReason'],
+                endReason: $family->canShow() ? $row['endReason'] : null,
             );
         }
 
@@ -573,7 +582,7 @@ final class MarriageRepository
      * earliest). Memoised per instance — the callers used to trigger identical
      * SELECTs.
      *
-     * @return array<int, array{marrJd: int, endJd: int, xref: string, endReason: 'death'|'divorce'}>
+     * @return array<int, array{marrJd: int, endJd: int, xref: string, endReason: MarriageEndReason}>
      */
     private function marriageDurationPairs(): array
     {
@@ -655,7 +664,7 @@ final class MarriageRepository
             // julian-day is the earliest one (so a spouse who died before a
             // recorded divorce still classifies as ended by death).
             $divJd     = RowCast::int($row, 'div_jd');
-            $endReason = (($divJd > 0) && ($divJd === $endJd)) ? 'divorce' : 'death';
+            $endReason = (($divJd > 0) && ($divJd === $endJd)) ? MarriageEndReason::Divorce : MarriageEndReason::Death;
 
             $out[] = ['marrJd' => $marrJd, 'endJd' => $endJd, 'xref' => $xref, 'endReason' => $endReason];
         }

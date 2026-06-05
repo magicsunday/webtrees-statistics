@@ -10,6 +10,7 @@
 declare(strict_types=1);
 
 use Fisharebest\Webtrees\I18N;
+use MagicSunday\Webtrees\Statistic\Enum\MarriageEndReason;
 use MagicSunday\Webtrees\Statistic\Model\Marriage\MarriageDurationExtreme;
 use MagicSunday\Webtrees\Statistic\View\EmptyStatePlaceholder;
 
@@ -53,7 +54,12 @@ $columns = [
                 <div class="wt-stat-marriage-extremes-row">
                     <div class="wt-stat-marriage-extremes-main">
                         <div class="wt-stat-marriage-extremes-couple"><?php echo e($marriage->label); ?></div>
-                        <div class="wt-stat-marriage-extremes-reason"><?php echo e($marriage->endReason === 'divorce' ? I18N::translate('ended by divorce') : I18N::translate('ended by death')); ?></div>
+                        <?php if ($marriage->endReason !== null) { ?>
+                            <div class="wt-stat-marriage-extremes-reason"><?php echo e(match ($marriage->endReason) {
+                                MarriageEndReason::Divorce => I18N::translate('ended by divorce'),
+                                MarriageEndReason::Death   => I18N::translate('ended by death'),
+                            }); ?></div>
+                        <?php } ?>
                     </div>
                     <div class="wt-stat-marriage-extremes-num"><?php echo e(I18N::number($value)); ?><span class="wt-stat-marriage-extremes-unit"><?php echo e(match ($marriage->displayUnit()) {
                         'days'  => I18N::plural('day', 'days', $value),
