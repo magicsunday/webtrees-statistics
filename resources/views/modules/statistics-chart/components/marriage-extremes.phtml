@@ -54,12 +54,14 @@ $columns = [
                 <div class="wt-stat-marriage-extremes-row">
                     <div class="wt-stat-marriage-extremes-main">
                         <div class="wt-stat-marriage-extremes-couple"><?php echo e($marriage->label); ?></div>
-                        <?php if ($marriage->endReason !== null) { ?>
-                            <div class="wt-stat-marriage-extremes-reason"><?php echo e(match ($marriage->endReason) {
-                                MarriageEndReason::Divorce => I18N::translate('ended by divorce'),
-                                MarriageEndReason::Death   => I18N::translate('ended by death'),
-                            }); ?></div>
-                        <?php } ?>
+                        <?php // Always render the reason line — empty when the end-cause is
+                              // suppressed for privacy — so every row reserves the same height
+                              // and the column does not jump.?>
+                        <div class="wt-stat-marriage-extremes-reason"><?php echo e(match ($marriage->endReason) {
+                            MarriageEndReason::Divorce => I18N::translate('ended by divorce'),
+                            MarriageEndReason::Death   => I18N::translate('ended by death'),
+                            null                       => '',
+                        }); ?></div>
                     </div>
                     <div class="wt-stat-marriage-extremes-num"><?php echo e(I18N::number($value)); ?><span class="wt-stat-marriage-extremes-unit"><?php echo e(match ($marriage->displayUnit()) {
                         'days'  => I18N::plural('day', 'days', $value),

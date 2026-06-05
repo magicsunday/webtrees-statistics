@@ -335,8 +335,17 @@ final readonly class NameRepository
      */
     public function sameSexNamePassdownByCentury(): LineChartPayload
     {
-        $fatherSon      = $this->passdownPairsByCentury(Sex::Male->spouseColumn(), Sex::Male->value);
-        $motherDaughter = $this->passdownPairsByCentury(Sex::Female->spouseColumn(), Sex::Female->value);
+        // Resolve every child's lower-bound birth year once, keyed by xref, and
+        // look the century up in PHP. Joining DedupedEventDates as a secondary
+        // derived table on the single key `d_gid = famc.l_from` made MariaDB
+        // re-evaluate the whole two-level birth-dedup aggregation per probed
+        // family row (split_materialized / LATERAL DERIVED), turning a ~60 ms
+        // card into a multi-second one on a real tree. One materialised lookup
+        // sidesteps the trap while preserving the lower-bound dedup semantics.
+        $birthYears = $this->childBirthYearsByXref();
+
+        $fatherSon      = $this->passdownPairsByCentury(Sex::Male->spouseColumn(), Sex::Male->value, $birthYears);
+        $motherDaughter = $this->passdownPairsByCentury(Sex::Female->spouseColumn(), Sex::Female->value, $birthYears);
 
         $allCenturies = $fatherSon + $motherDaughter;
 
@@ -392,15 +401,22 @@ final readonly class NameRepository
      * (`f_husb` for fathers, `f_wife` for mothers); `$childSex` is the GEDCOM
      * SEX token the CHIL is filtered to (`M` for sons, `F` for daughters).
      *
-     * The child's birth is taken from the deduplicated lower-bound
-     * representative row per individual, so an imprecise `BET`/`FROM` birth — two
+     * The child's birth century is resolved from `$birthYears` — the
+     * deduplicated lower-bound year per individual built by
+     * {@see childBirthYearsByXref()} — so an imprecise `BET`/`FROM` birth — two
      * stored rows — places the pair in its lower-bound century once rather than
      * counting it twice and, on a century-straddling range, inventing a phantom
-     * second-century slot.
+     * second-century slot. A child whose xref is absent from the map has no
+     * Gregorian / Julian dated birth and is skipped, mirroring the inner join on
+     * the birth subquery this method used to carry.
+     *
+     * @param string             $parentColumn `families` column holding the parent xref (`f_husb` / `f_wife`)
+     * @param string             $childSex     GEDCOM SEX token the child is filtered to (`M` / `F`)
+     * @param array<string, int> $birthYears   Child xref → lower-bound birth year (deduped, never 0)
      *
      * @return array<int, array{matches: int, total: int}>
      */
-    private function passdownPairsByCentury(string $parentColumn, string $childSex): array
+    private function passdownPairsByCentury(string $parentColumn, string $childSex, array $birthYears): array
     {
         $treeId = $this->tree->id();
 
@@ -413,11 +429,6 @@ final readonly class NameRepository
                     ->on('child.i_file', '=', 'famc.l_file')
                     ->on('child.i_id', '=', 'famc.l_from')
                     ->where('child.i_sex', '=', $childSex);
-            })
-            // The subquery is already tree-scoped, so matching the child xref
-            // alone is sufficient — d_gid is unique within a single tree.
-            ->joinSub(DedupedEventDates::query($this->tree, 'BIRT'), 'child_birth', static function (JoinClause $join): void {
-                $join->on('child_birth.d_gid', '=', 'famc.l_from');
             })
             ->join('name AS parent_name', static function (JoinClause $join) use ($treeId, $parentColumn): void {
                 $join
@@ -436,7 +447,7 @@ final readonly class NameRepository
             ->whereNotNull('fam.' . $parentColumn)
             ->where('fam.' . $parentColumn, '<>', '')
             ->select([
-                'child_birth.d_year AS birth_year',
+                'famc.l_from AS child_xref',
                 'parent_name.n_givn AS parent_givn',
                 'child_name.n_givn AS child_givn',
             ])
@@ -446,13 +457,18 @@ final readonly class NameRepository
         $byCentury = [];
 
         foreach ($rows as $row) {
-            $year = RowCast::int($row, 'birth_year');
+            $childXref = RowCast::string($row, 'child_xref');
 
-            // Only the degenerate unparseable year 0 is dropped — BCE (negative)
-            // years fold into negative centuries through CenturyName::fromYear().
-            if ($year === 0) {
+            // No deduped, dated birth for this child — drop the pair, exactly as
+            // the former inner join on the birth subquery did. The map never
+            // carries year 0 (DedupedEventDates filters `d_year <> 0`), and BCE
+            // (negative) years fold into negative centuries via
+            // CenturyName::fromYear().
+            if (!isset($birthYears[$childXref])) {
                 continue;
             }
+
+            $year = $birthYears[$childXref];
 
             $parentTokens = $this->givenNameTokens(RowCast::string($row, 'parent_givn'));
             $childTokens  = $this->givenNameTokens(RowCast::string($row, 'child_givn'));
@@ -475,6 +491,35 @@ final readonly class NameRepository
         }
 
         return $byCentury;
+    }
+
+    /**
+     * Resolve every individual's deduplicated lower-bound birth year, keyed by
+     * xref, in a single materialised query. {@see DedupedEventDates} collapses
+     * webtrees' two-row range encoding to one representative row per individual
+     * and already restricts to Gregorian / Julian dated births with a known
+     * year, so the map never carries year 0.
+     *
+     * Built once per {@see sameSexNamePassdownByCentury()} call and shared by
+     * both sex pairings, this replaces a per-row derived-table join that the
+     * MariaDB optimiser re-evaluated for every probed family row.
+     *
+     * @return array<string, int> Individual xref → lower-bound birth year
+     */
+    private function childBirthYearsByXref(): array
+    {
+        $rows = DedupedEventDates::query($this->tree, 'BIRT')
+            ->select(['d_gid', 'd_year'])
+            ->get();
+
+        /** @var array<string, int> $birthYears */
+        $birthYears = [];
+
+        foreach ($rows as $row) {
+            $birthYears[RowCast::string($row, 'd_gid')] = RowCast::int($row, 'd_year');
+        }
+
+        return $birthYears;
     }
 
     /**

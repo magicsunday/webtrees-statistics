@@ -253,6 +253,41 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
+     * A child without a Gregorian / Julian dated birth carries no birth century
+     * and must be dropped from the passdown aggregation entirely — never crash
+     * and never spawn a phantom category. The fixture pairs ten 1850-born sons
+     * (all matching their father's name → a 100 %% 19th-century cohort) with one
+     * extra father-son pair whose son has no `BIRT` date. The query no longer
+     * inner-joins the birth subquery; the lower-bound year is resolved from the
+     * deduplicated per-individual map and an absent xref is skipped.
+     *
+     * The undated son carries a *non-matching* given name (father "Wilhelm",
+     * son "Friedrich") on purpose: it makes the 100 %% rate a discriminator for
+     * the whole "silently include the undated child" regression class, not just
+     * the array-key crash. Dropping the gate raises an undefined-key error;
+     * defaulting the undated child into the 19th century instead would fold a
+     * non-matching pair into the cohort and drop the rate to 10/11 ≈ 90.9 %,
+     * tripping the delta assertion.
+     */
+    #[Test]
+    public function sameSexNamePassdownByCenturyDropsChildrenWithoutADatedBirth(): void
+    {
+        $tree   = $this->importFixtureTree('passdown-undated-child-excluded.ged');
+        $result = $this->repository($tree)->sameSexNamePassdownByCentury();
+
+        self::assertSame(['19th cent.'], $result->categories, 'Undated child never spawns a phantom century slot');
+
+        $fatherSon = $result->series[0];
+        self::assertSame('Father → son', $fatherSon->name);
+        self::assertEqualsWithDelta(
+            100.0,
+            $fatherSon->values[0],
+            0.05,
+            'Ten dated 19th-century sons all match; the non-matching undated son is excluded from the cohort'
+        );
+    }
+
+    /**
      * Regression for the "common given names" leak (issue #75). A `1 NAME` with
      * a level-2 custom sub-tag (`2 _LAST 05 May 2001`) is indexed by core as a
      * separate `name` row whose `n_givn` is the literal sub-tag value. Core's

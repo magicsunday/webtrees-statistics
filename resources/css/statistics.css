@@ -3653,9 +3653,12 @@
     overflow-wrap: anywhere;
 }
 
+/* Reserve one line even when the end-cause is empty (privacy-suppressed), so a
+   suppressed row keeps the same height as a row that shows its cause. */
 .wt-statistics-chart .wt-stat-marriage-extremes-reason {
-    font-size: 11px;
-    color:     var(--ink-3);
+    min-height: 1lh;
+    font-size:  11px;
+    color:      var(--ink-3);
 }
 
 .wt-statistics-chart .wt-stat-marriage-extremes-num {

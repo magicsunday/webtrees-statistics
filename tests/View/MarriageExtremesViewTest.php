@@ -26,11 +26,12 @@ use function substr_count;
 /**
  * Renders the `marriage-extremes` partial against the privacy-suppression
  * contract: a row whose end-cause was suppressed to null (because the family
- * record is not visible) must render its couple and duration but omit the
- * end-cause line entirely, while a visible row still shows the localised cause.
- * The repository side of the null is covered by the integration suite; this
- * locks the view's consumption of it so a dropped null-guard (which would throw
- * an UnhandledMatchError) or an inverted condition is caught.
+ * record is not visible) must render its couple and duration, and still emit an
+ * empty end-cause line so every row keeps the same height and the column layout
+ * does not jump; a visible row shows the localised cause in that same line. The
+ * repository side of the null is covered by the integration suite; this locks
+ * the view's consumption of it so a dropped null-arm (which would throw an
+ * UnhandledMatchError) or an inverted condition is caught.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -74,10 +75,12 @@ final class MarriageExtremesViewTest extends TestCase
 
     /**
      * A row whose end-cause was suppressed to null keeps its couple label and
-     * its ranked duration, but emits no reason line and no cause label.
+     * its ranked duration, and still emits an empty reason line — same element,
+     * no cause label — so its height matches a visible row and the column does
+     * not jump.
      */
     #[Test]
-    public function suppressedRowOmitsTheEndCauseButKeepsCoupleAndDuration(): void
+    public function suppressedRowRendersEmptyReasonPlaceholderToKeepRowHeight(): void
     {
         $html = $this->render([
             'shortest' => [
@@ -91,10 +94,44 @@ final class MarriageExtremesViewTest extends TestCase
         self::assertStringContainsString('Private + Private', $html);
         self::assertStringContainsString('wt-stat-marriage-extremes-num">15<', $html);
 
-        // Exactly one reason line (the visible F1 death), none for the null row.
-        self::assertSame(1, substr_count($html, 'wt-stat-marriage-extremes-reason'));
+        // Both rows emit the reason line so their heights match; the suppressed
+        // row's line is an empty placeholder carrying no cause label.
+        self::assertSame(2, substr_count($html, 'wt-stat-marriage-extremes-reason'));
+        self::assertStringContainsString('<div class="wt-stat-marriage-extremes-reason"></div>', $html);
         self::assertStringContainsString('ended by death', $html);
         self::assertStringNotContainsString('ended by divorce', $html);
+    }
+
+    /**
+     * With both columns populated, a suppressed row in the second (longest)
+     * column also emits its empty reason placeholder — the per-column loop
+     * reserves equal row height on both sides, not just the first column.
+     */
+    #[Test]
+    public function suppressedRowInTheSecondColumnAlsoRendersAnEmptyPlaceholder(): void
+    {
+        $html = $this->render([
+            'shortest' => [
+                new MarriageDurationExtreme('F1', 'Anton + Berta', 31, 0, MarriageEndReason::Death),
+            ],
+            'longest' => [
+                new MarriageDurationExtreme('F2', 'Carl + Doris', 50, 0, MarriageEndReason::Divorce),
+                new MarriageDurationExtreme('F3', 'Private + Private', 45, 0, null),
+            ],
+        ]);
+
+        // Both columns render.
+        self::assertSame(2, substr_count($html, 'wt-stat-marriage-extremes-block'));
+
+        // One reason line per row across both columns (1 + 2 = 3), and the
+        // suppressed longest row carries the empty placeholder.
+        self::assertSame(3, substr_count($html, 'wt-stat-marriage-extremes-reason'));
+        self::assertStringContainsString('<div class="wt-stat-marriage-extremes-reason"></div>', $html);
+        self::assertStringContainsString('Private + Private', $html);
+
+        // The visible causes both render (death in column one, divorce in two).
+        self::assertStringContainsString('ended by death', $html);
+        self::assertStringContainsString('ended by divorce', $html);
     }
 
     /**
