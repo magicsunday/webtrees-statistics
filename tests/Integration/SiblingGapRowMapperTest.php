@@ -52,9 +52,9 @@ final class SiblingGapRowMapperTest extends IntegrationTestCase
     }
 
     /**
-     * Regular "Ny" labels become category strings and the parallel `values`
-     * array carries the counts at the same indices. The pluralised tooltip
-     * header reflects the gap size.
+     * Regular "Ny" labels become bare numeric category strings (the unit lives
+     * in the chart's x-axis caption, not on every tick) and the parallel
+     * `values` array carries the counts at the same indices.
      */
     #[Test]
     public function toLineChartPayloadCarriesParallelCategoriesAndValues(): void
@@ -65,14 +65,15 @@ final class SiblingGapRowMapperTest extends IntegrationTestCase
             '2y' => 7,
         ]);
 
-        self::assertSame(['0y', '1y', '2y'], $payload->categories);
+        self::assertSame(['0', '1', '2'], $payload->categories);
         self::assertSame([5, 12, 7], $payload->series[0]->values);
     }
 
     /**
      * The overflow label ("Ny+") is identified by the trailing "+" so the
      * mapper stays decoupled from the repository's SIBLING_GAP_MAX constant.
-     * The overflow header reads "N or more years" rather than "N-year gap".
+     * The category keeps the bare-number-plus form ("10+"); the overflow
+     * tooltip header reads "N or more years" rather than "N-year gap".
      */
     #[Test]
     public function toLineChartPayloadMarksOverflowBucketByTrailingPlus(): void
@@ -82,7 +83,7 @@ final class SiblingGapRowMapperTest extends IntegrationTestCase
             '10y+' => 8,
         ]);
 
-        self::assertSame(['9y', '10y+'], $payload->categories);
+        self::assertSame(['9', '10+'], $payload->categories);
         self::assertStringContainsString('9-year', $payload->series[0]->tooltipLabels[0]);
         self::assertStringContainsString('10', $payload->series[0]->tooltipLabels[1]);
         self::assertStringContainsString('more', $payload->series[0]->tooltipLabels[1]);
@@ -101,7 +102,7 @@ final class SiblingGapRowMapperTest extends IntegrationTestCase
             '15y+' => 11,
         ]);
 
-        self::assertSame(['14y', '15y+'], $payload->categories);
+        self::assertSame(['14', '15+'], $payload->categories);
         self::assertStringContainsString('15', $payload->series[0]->tooltipLabels[1]);
         self::assertStringContainsString('more', $payload->series[0]->tooltipLabels[1]);
     }

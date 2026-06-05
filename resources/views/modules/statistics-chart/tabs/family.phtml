@@ -378,6 +378,7 @@ echo Card::for($module, I18N::translate('Sibling age gap'))
     ->withBodyHtml(
         Widget::lineChart($module, 'sibling-age-gap-line')
             ->withData(SiblingGapRowMapper::toLineChartPayload($siblingGaps))
+            ->with('xLabel', I18N::translate('Years'))
             ->withAriaLabel(I18N::translate('Sibling age gap'))
             ->render()
     )

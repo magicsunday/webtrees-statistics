@@ -45,11 +45,12 @@ final readonly class SiblingGapRowMapper
 
     /**
      * Map the sibling-age-gap histogram into a LineChart payload: categories
-     * carry the bucket labels in display order (matches the repository's emit
-     * order), the single series carries the counts plus per-point tooltip
-     * overrides. Headers spell out "N-year gap" / "N or more years"; bodies
-     * pluralise the "%s pairs" metric so the tooltip reads as a sentence rather
-     * than a bare integer.
+     * carry the bare gap size in display order (the year unit lives in the
+     * chart's x-axis caption, not on every tick; the overflow bucket keeps a
+     * trailing "+"), the single series carries the counts plus per-point
+     * tooltip overrides. Headers spell out "N-year gap" / "N or more years";
+     * bodies pluralise the "%s pairs" metric so the tooltip reads as a sentence
+     * rather than a bare integer.
      *
      * @param array<string, int> $histogram Bucketed `{label: count}` map
      */
@@ -65,8 +66,8 @@ final readonly class SiblingGapRowMapper
             $isOverflow          = str_ends_with($label, '+');
             $year                = (int) rtrim(rtrim($label, '+'), 'y');
             $displayCategories[] = $isOverflow
-                ? I18N::translate('%sy+', I18N::number($year))
-                : I18N::translate('%sy', I18N::number($year));
+                ? I18N::number($year) . '+'
+                : I18N::number($year);
             $tooltips[]      = I18N::plural('%s pair', '%s pairs', $count, I18N::number($count));
             $tooltipLabels[] = $isOverflow
                 ? I18N::translate('%s or more years', I18N::number($year))
