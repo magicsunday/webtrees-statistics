@@ -20,9 +20,10 @@
 # Statistics
 This module provides a six-tab statistics dashboard for the [webtrees](https://www.webtrees.net) genealogy application.
 Above the tabs a dark hero strip carries the tree title and six headline metrics; the tabs themselves group cards
-thematically per topic (Overview, Names, Tree health, Life span, Family, Places) and render their data through donut /
-line / bar / stacked / diverging / chord / sankey / stream / world-map / name-bubbles / month-radial / mirror-histogram /
-gauge widgets from the shared [`@magicsunday/webtrees-chart-lib`](https://github.com/magicsunday/webtrees-chart-lib).
+thematically per topic (Overview, Names, Life span, Family, Places, Tree health) and render their data through donut /
+line / bar / stacked / population-pyramid / chord / sankey / stream / world-map / name-bubbles / month-radial /
+mirror-histogram / gauge / box-plot / heatmap / treemap / event-timeline widgets from the shared
+[`@magicsunday/webtrees-chart-lib`](https://github.com/magicsunday/webtrees-chart-lib).
 
 
 ## Installation
@@ -132,12 +133,12 @@ The module renders six tabs that aggregate tree-wide data into widget cards:
 
 | Tab         | What it shows |
 |-------------|---------------|
-| **Overview**    | Demographics (sex / living / marital donuts), tree-records hall-of-fame, top occupations and religions, cumulative tree growth over time |
-| **Names**       | Surname / male / female name bubbles, given-name popularity stream graph, surname × surname marriage chord matrix |
-| **Tree health** | Source-citation coverage (tree-wide + per birth century), pedigree completeness, average generation length, missing-event gaps, generation-depth distribution, known-ancestors distribution, endogamy rate |
-| **Life span**   | Age-at-death histogram + boxplot per century, living life-stages, lifespan by sex × century, top-10 oldest deceased and living, death causes, child mortality + peak century, births by decade (adaptive bin-collapse), births by century / month / zodiac, deaths by century / month, winter-peak score |
-| **Family**      | Age at marriage M+F, marriage duration, couple age gap, weddings by century and month, age at first child, first children by month, children per family, sibling age gap, family-size distribution by decade, average family size, top-10 largest families, divorce cohort rate, divorces by century / month, age at divorce M+F |
-| **Places**      | Birth / residence / death countries with top-10 list and choropleth world map, birth → death migration sankey, geographic dispersion and distinct-places-per-individual metrics |
+| **Overview**    | Demographics (sex / living / marital donuts), cumulative tree growth over time, top occupations and religions, father → son occupation-inheritance sankey, tree-records hall-of-fame |
+| **Names**       | Surname / male / female name bubbles, given-name popularity stream graph, same-sex name passdown, surname × surname marriage chord matrix |
+| **Life span**   | Births by century / month / zodiac, age-at-death bands + boxplot per century, living life-stages, lifespan by sex × century, survival curve, top-10 oldest deceased and living, deaths by century / month, winter-peak score, death causes, child mortality (under 5) + peak century, mortality-outlier years, same-year sibling deaths, births / deaths by 25-year period × month heatmaps |
+| **Family**      | Age at marriage M+F, marriage duration, couple age gap, weddings by century / month, age at first child + mean by decade, first children by month, children per family, sibling age gap, family-size composition by decade, average family size, multiple-birth rate, childless donut, top-10 largest families, top-10 by grandchildren, sex-ratio anomalies, divorce cohort rate, divorces by century / month / age band, widowhood interval, shortest & longest marriages |
+| **Places**      | Birth / residence / death countries with top-10 list and choropleth world map, birth → death migration sankey, geographic dispersion, distinct-places-per-individual and migration-distance metrics |
+| **Tree health** | Core-vs-enrichment data-set inventory + media files by type, source-citation coverage (tree-wide + per birth century), pedigree completeness, average generation length, missing-event gaps, max generation depth + distribution, known-ancestors distribution, endogamy rate, most-influential ancestors, largest unconnected sub-trees, tree type |
 
 The marital-status donut counts each living individual exactly once — precedence follows the same per-family decision order webtrees core uses in `\Fisharebest\Webtrees\Census\AbstractCensusColumnCondition`: an active divorce tag classes the survivor as `divorced`, a deceased partner as `widowed`, an active marriage with a living partner as `current`. Anything else falls into `single`.
 

@@ -134,21 +134,23 @@ echo Card::for($module, I18N::translate('Marital status'))
     )
     ->render();
 
-echo Section::create(I18N::translate('The extremes of the tree'))
-    ->withKicker(I18N::translate('Chronicle'))
-    ->withSub(I18N::translate('Oldest, longest marriages, largest families · records that anchor the dataset'))
+echo Section::create(I18N::translate('How the tree grew'))
+    ->withKicker(I18N::translate('Population'))
+    ->withSub(I18N::translate('Cumulative number of recorded individuals across the documented birth window'))
     ->render();
 
-echo Card::for($module, I18N::translate('Tree records'))
-    ->withSub(I18N::translate('Hall of fame across the whole tree'))
-    ->withEyebrow(I18N::translate('Records'))
-    ->withAccent(Accent::Ochre)
-    ->withIllustration(Illustration::Laurel)
+echo Card::for($module, I18N::translate('Tree growth over time'))
+    ->withSub($cumulativeBirthsCardSub)
+    ->withEyebrow(I18N::translate('Growth'))
+    ->withAccent(Accent::Sage)
+    ->withIllustration(Illustration::Tree)
     ->withSpan(12)
     ->withoutFooter()
     ->withBodyHtml(
-        Component::recordsGrid($module)
-            ->with('treeRecords', $treeRecords)
+        Widget::lineChart($module, 'cumulative-births-line')
+            ->withData($cumulativeBirthsPayload)
+            ->withHeight(260)
+            ->with('showArea', true)
             ->render()
     )
     ->render();
@@ -216,23 +218,21 @@ echo Card::for($module, I18N::translate('Occupation inheritance from father to s
     )
     ->render();
 
-echo Section::create(I18N::translate('How the tree grew'))
-    ->withKicker(I18N::translate('Population'))
-    ->withSub(I18N::translate('Cumulative number of recorded individuals across the documented birth window'))
+echo Section::create(I18N::translate('The extremes of the tree'))
+    ->withKicker(I18N::translate('Chronicle'))
+    ->withSub(I18N::translate('Oldest, longest marriages, largest families · records that anchor the dataset'))
     ->render();
 
-echo Card::for($module, I18N::translate('Tree growth over time'))
-    ->withSub($cumulativeBirthsCardSub)
-    ->withEyebrow(I18N::translate('Growth'))
-    ->withAccent(Accent::Sage)
-    ->withIllustration(Illustration::Tree)
+echo Card::for($module, I18N::translate('Tree records'))
+    ->withSub(I18N::translate('Hall of fame across the whole tree'))
+    ->withEyebrow(I18N::translate('Records'))
+    ->withAccent(Accent::Ochre)
+    ->withIllustration(Illustration::Laurel)
     ->withSpan(12)
     ->withoutFooter()
     ->withBodyHtml(
-        Widget::lineChart($module, 'cumulative-births-line')
-            ->withData($cumulativeBirthsPayload)
-            ->withHeight(260)
-            ->with('showArea', true)
+        Component::recordsGrid($module)
+            ->with('treeRecords', $treeRecords)
             ->render()
     )
     ->render();

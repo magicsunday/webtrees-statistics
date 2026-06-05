@@ -51,7 +51,6 @@ $largestFamilies         = $statistic->getTopLargestFamilies(10);
 $grandchildFamilies      = $statistic->getTopGrandchildFamilies(10);
 
 $sexRatioAnomalies        = $statistic->getSexRatioAnomalies();
-$siblingDeathClusters     = $statistic->getSiblingDeathClusters();
 $marriageDurationExtremes = $statistic->getMarriageDurationExtremes();
 $childlessBreakdown       = $statistic->getChildlessFamiliesDistribution();
 $firstChildMonth          = $statistic->getFirstChildrenByMonth();
@@ -100,22 +99,6 @@ foreach ($duration as $label => $count) {
         'value'        => (int) $count,
         'tooltipLabel' => I18N::translate('%s years', $label),
         'tooltip'      => I18N::plural('%s marriage', '%s marriages', $count, I18N::number($count)),
-    ];
-}
-
-$siblingDeathClusterRows = [];
-
-foreach ($siblingDeathClusters as $cluster) {
-    $siblingDeathClusterRows[] = [
-        'year'  => $cluster->year,
-        'value' => $cluster->siblings,
-        // The tooltip header defaults to the year in the widget; the body adds
-        // the cross-family dimension that makes the year an epidemic signal.
-        'tooltip' => I18N::translate(
-            '%1$s siblings across %2$s families',
-            I18N::number($cluster->siblings),
-            I18N::number($cluster->families)
-        ),
     ];
 }
 
@@ -418,7 +401,7 @@ echo Card::for($module, I18N::translate('Average family size by century'))
         $aboutThisChart,
         $aboutThisChart
     )
-    ->withSpan(6)
+    ->withSpan(12)
     ->withBodyHtml(
         Widget::lineChart($module, 'average-family-size-line')
             ->withData($averageFamilySizeLine)
@@ -439,7 +422,7 @@ echo Card::for($module, I18N::translate('Multiple-birth rate by century'))
         $aboutThisChart,
         $aboutThisChart
     )
-    ->withSpan(6)
+    ->withSpan(8)
     ->withBodyHtml(
         Widget::lineChart($module, 'multiple-birth-rate-line')
             ->withData($multipleBirthRate)
@@ -454,7 +437,7 @@ echo Card::for($module, I18N::translate('Families with vs without children'))
     ->withEyebrow(I18N::translate('Structure'))
     ->withAccent(Accent::Sage)
     ->withIllustration(Illustration::Family)
-    ->withSpan(6)
+    ->withSpan(4)
     ->withBodyHtml(
         Widget::donutChart($module, 'childless-families-donut')
             ->withData($childlessBreakdown)
@@ -506,40 +489,10 @@ echo Card::for($module, I18N::translate('Sex-ratio anomalies'))
         $aboutThisChart,
         $aboutThisChart
     )
-    ->withSpan(6)
+    ->withSpan(12)
     ->withBodyHtml(
         Component::sexRatio($module)
             ->withData($sexRatioAnomalies)
-            ->render()
-    )
-    ->render();
-
-echo Section::create(I18N::translate('When whole families broke apart'))
-    ->withKicker(I18N::translate('Epidemics'))
-    ->withSub(I18N::translate('Years in which several families lost children at once'))
-    ->render();
-
-echo Card::for($module, I18N::translate('Sibling deaths in the same year'))
-    ->withSub(I18N::translate('Each dot marks a year in which several families each lost two or more children'))
-    ->withEyebrow(I18N::translate('Epidemic'))
-    ->withAccent(Accent::Wine)
-    ->withIllustration(Illustration::Moon)
-    ->withInfo(
-        I18N::translate(
-            'Years in which several families each lost two or more children, read from the recorded death years of the children. When several families suffer such losses in the same year, the co-occurrence can coincide with epidemic, war or famine mortality — a single family losing children is an isolated tragedy and is not shown here. Each dot marks a qualifying year and grows with the total number of siblings lost across the contributing families; the list below names the exact years and counts. Read it as a sparse signal: genuine cross-family clusters within a single tree are rare, and genealogical sources under-record early child deaths, so quiet years do not mean none occurred. Only children with a recorded death are counted, so the chart names no living individual.'
-        ),
-        $aboutThisChart,
-        $aboutThisChart
-    )
-    ->withSpan(12)
-    ->withBodyHtml(
-        Widget::eventTimeline($module, 'sibling-death-clusters-timeline')
-            ->withData($siblingDeathClusterRows)
-            ->withAccent(Accent::Wine)
-            ->withAriaLabel(I18N::translate('Sibling deaths in the same year'))
-            ->render()
-        . Component::siblingDeathClusters($module)
-            ->withData($siblingDeathClusters)
             ->render()
     )
     ->render();

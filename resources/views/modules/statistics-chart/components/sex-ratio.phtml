@@ -36,7 +36,7 @@ if ($data === []) {
     <?php foreach ($data as $row) { ?>
         <?php $total = $row->total(); ?>
         <div class="wt-stat-sexratio-row">
-            <span class="wt-stat-sexratio-family"><?php echo e($row->label); ?></span>
+            <span class="wt-stat-sexratio-family" title="<?php echo e($row->label); ?>"><?php echo e($row->label); ?></span>
             <span class="wt-stat-sexratio-bar">
                 <?php if ($row->sons > 0) { ?>
                     <span class="wt-stat-sexratio-sons" style="width: <?php echo ($row->sons / $total) * 100; ?>%;">♂ <?php echo e(I18N::number($row->sons)); ?></span>

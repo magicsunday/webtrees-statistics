@@ -3548,7 +3548,13 @@
 
 .wt-statistics-chart .wt-stat-sexratio-row {
     display:               grid;
-    grid-template-columns: 1fr 200px;
+    /* Fallback for engines without subgrid: a fixed label column keeps every
+       bar identical in length (long names ellipsis-truncate). The subgrid rule
+       below sizes the label to the widest name instead, so full names show on
+       one line while the bars stay equal; the bar keeps a 120 px floor and
+       otherwise grows with the card width. Below the narrow breakpoint the bar
+       stacks under the name (see the media query) for the full row width. */
+    grid-template-columns: 240px minmax(120px, 1fr);
     align-items:           center;
     gap:                   14px;
     padding:               10px 0;
@@ -3562,7 +3568,13 @@
 
 .wt-statistics-chart .wt-stat-sexratio-family {
     color:         var(--ink);
-    overflow-wrap: anywhere;
+    /* Keep the family label on a single line; ellipsis-truncate rather than
+       wrap when the side-by-side column gets tight (the full name stays
+       available through the title attribute, and the narrow breakpoint stacks
+       the bar under the name so it regains the full row width). */
+    white-space:   nowrap;
+    overflow:      hidden;
+    text-overflow: ellipsis;
 }
 
 .wt-statistics-chart .wt-stat-sexratio-bar {
@@ -3595,6 +3607,34 @@
 
 .wt-statistics-chart .wt-stat-sexratio-daughters {
     background: var(--wmstats-sex-female);
+}
+
+/* Subgrid: every row shares one column-track set, so the label column is sized
+   to the widest couple name across all rows — full names stay on one line AND
+   each proportional bar is the same length and left-aligned. The bar column
+   grows with the card width above its 120 px floor. */
+@supports (grid-template-columns: subgrid) {
+    .wt-statistics-chart .wt-stat-sexratio {
+        display:               grid;
+        grid-template-columns: minmax(0, max-content) minmax(120px, 1fr);
+    }
+
+    .wt-statistics-chart .wt-stat-sexratio-row {
+        grid-column:           1 / -1;
+        grid-template-columns: subgrid;
+    }
+}
+
+/* On the narrow breakpoint the bar slides under the family label: the row
+   collapses to a single column so the name keeps the full row width (one
+   line, no truncation) and the proportional bar spans edge to edge below it.
+   Placed after the @supports block so it also overrides the subgrid rows. */
+@media (max-width: 760px) {
+    .wt-statistics-chart .wt-stat-sexratio-row {
+        grid-template-columns: 1fr;
+        align-items:           start;
+        gap:                   6px;
+    }
 }
 
 /* ----------------------------------------------------------------------

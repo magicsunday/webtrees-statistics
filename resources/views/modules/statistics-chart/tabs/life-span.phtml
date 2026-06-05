@@ -53,6 +53,7 @@ $deathsByCenturyPyramid  = $statistic->getDeathsByCenturyAgeBandSex();
 $birthHeatmap            = $statistic->getBirthHeatmapByPeriodMonth();
 $deathHeatmap            = $statistic->getDeathHeatmapByPeriodMonth();
 $mortalityAnomalies      = $statistic->getMortalityAnomalies();
+$siblingDeathClusters    = $statistic->getSiblingDeathClusters();
 
 $totalBirthsByMonth   = array_sum($birthsByMonth);
 $totalBirthsByZodiac  = array_sum($birthsByZodiacSign);
@@ -204,6 +205,23 @@ foreach ($ageDistByCentury as $entry) {
     ];
 }
 
+// Event-timeline rows for the cross-family child-death clusters. The
+// tooltip body adds the cross-family dimension that makes a year an
+// epidemic signal; the widget defaults the tooltip header to the year.
+$siblingDeathClusterRows = [];
+
+foreach ($siblingDeathClusters as $cluster) {
+    $siblingDeathClusterRows[] = [
+        'year'    => $cluster->year,
+        'value'   => $cluster->siblings,
+        'tooltip' => I18N::translate(
+            '%1$s siblings across %2$s families',
+            I18N::number($cluster->siblings),
+            I18N::number($cluster->families)
+        ),
+    ];
+}
+
 $aboutThisChart = I18N::translate('About this chart');
 
 if ($winterPeakScore === null) {
@@ -237,6 +255,82 @@ if ($winterPeakScore === null) {
 ?>
 <div class="wt-stat-grid">
 <?php
+echo Section::create(I18N::translate('When were they born?'))
+    ->withKicker(I18N::translate('Births'))
+    ->withSub(I18N::translate('Time-distribution of births'))
+    ->render();
+
+echo Card::for($module, $birthsByDecadeCardTitle)
+    ->withSub($birthsByDecadeCardSub)
+    ->withEyebrow(I18N::translate('Timeline'))
+    ->withAccent(Accent::Ochre)
+    ->withIllustration(Illustration::Sunrise)
+    ->withSpan(12)
+    ->withBodyHtml(
+        Widget::lineChart($module, 'births-decade-line')
+            ->withData($birthsByDecadePayload)
+            ->withHeight(240)
+            ->with('showArea', true)
+            ->render()
+    )
+    ->render();
+
+$birthsByCenturySub = I18N::plural('%s individual with a recorded birth year', '%s individuals with a recorded birth year', $totalBirthsByCentury, I18N::number($totalBirthsByCentury));
+
+if ($birthsByCenturyDropped > 0) {
+    $birthsByCenturySub .= ' — ' . I18N::plural(
+        '%s outlier century not shown',
+        '%s outlier centuries not shown',
+        $birthsByCenturyDropped,
+        I18N::number($birthsByCenturyDropped),
+    );
+}
+
+echo Card::for($module, I18N::translate('Births by century'))
+    ->withSub($birthsByCenturySub)
+    ->withEyebrow(I18N::translate('Timeline'))
+    ->withAccent(Accent::Ochre)
+    ->withIllustration(Illustration::Sunrise)
+    ->withSpan(4)
+    ->withBodyHtml(
+        Widget::barChart($module, 'births-century-bars')
+            ->withData($birthsByCenturyBars)
+            ->withHeight(200)
+            ->withAriaLabel(I18N::translate('Births per century'))
+            ->render()
+    )
+    ->render();
+
+echo Card::for($module, I18N::translate('Births by month'))
+    ->withSub(I18N::plural('%s individual with a recorded birth month', '%s individuals with a recorded birth month', $totalBirthsByMonth, I18N::number($totalBirthsByMonth)))
+    ->withEyebrow(I18N::translate('Month clock'))
+    ->withAccent(Accent::Ochre)
+    ->withIllustration(Illustration::Sunrise)
+    ->withSpan(4)
+    ->withBodyHtml(
+        Widget::monthRadial($module)
+            ->withData($birthsByMonth)
+            ->withAccent(Accent::Ochre)
+            ->with('centerLabel', I18N::translate('peak month'))
+            ->render()
+    )
+    ->render();
+
+echo Card::for($module, I18N::translate('Zodiac signs'))
+    ->withSub(I18N::plural('%s individual with a known zodiac sign', '%s individuals with a known zodiac sign', $totalBirthsByZodiac, I18N::number($totalBirthsByZodiac)))
+    ->withEyebrow(I18N::translate('Zodiac'))
+    ->withAccent(Accent::Slate)
+    ->withIllustration(Illustration::Zodiac)
+    ->withSpan(4)
+    ->withBodyHtml(
+        Widget::monthRadial($module)
+            ->withData($birthsByZodiacSign)
+            ->withAccent(Accent::Slate)
+            ->with('centerLabel', I18N::translate('peak sign'))
+            ->render()
+    )
+    ->render();
+
 echo Section::create(I18N::translate('How long was the life?'))
     ->withKicker(I18N::translate('Lifespan'))
     ->withSub(I18N::translate('Age at death, longevity and life-stage of the living'))
@@ -282,7 +376,7 @@ echo Card::for($module, I18N::translate('Age-at-death distribution by century'))
         $aboutThisChart,
         $aboutThisChart,
     )
-    ->withSpan(8)
+    ->withSpan(12)
     ->withBodyHtml(
         Widget::boxPlot($module, 'age-at-death-boxplot')
             ->withData($ageDistBoxes)
@@ -302,7 +396,7 @@ echo Card::for($module, I18N::translate('Age-at-death distribution by sex and ce
         $aboutThisChart,
         $aboutThisChart,
     )
-    ->withSpan(8)
+    ->withSpan(12)
     ->withBodyHtml(
         Widget::populationPyramid($module, 'deaths-by-century-pyramid')
             ->withData($deathsByCenturyPyramid)
@@ -385,146 +479,6 @@ echo Card::for($module, I18N::translate('Top 10 oldest (living)'))
     )
     ->render();
 
-echo Section::create(I18N::translate('Causes of death and infant mortality'))
-    ->withKicker(I18N::translate('Mortality'))
-    ->withSub(I18N::translate('What the recorded individuals died of'))
-    ->render();
-
-echo Card::for($module, I18N::translate('Common causes of death'))
-    ->withSub(
-        $totalDeathCauses > 10
-            ? I18N::translate('%s distinct causes (top 10)', I18N::number($totalDeathCauses))
-            : I18N::plural('%s distinct cause', '%s distinct causes', $totalDeathCauses, I18N::number($totalDeathCauses))
-    )
-    ->withEyebrow(I18N::translate('Causes'))
-    ->withAccent(Accent::Wine)
-    ->withIllustration(Illustration::Candle)
-    ->withSpan(6)
-    ->withBodyHtml(
-        Component::progressList($module)
-            ->with('class', 'progress-death-causes')
-            ->withData($topDeathCauses)
-            ->render()
-    )
-    ->render();
-
-echo Card::for($module, I18N::translate('Child mortality (under 5)'))
-    ->withSub(I18N::translate('Mortality rate per birth century'))
-    ->withEyebrow(I18N::translate('Mortality'))
-    ->withAccent(Accent::Wine)
-    ->withIllustration(Illustration::Child)
-    ->withInfo($childMortalityExplanation, $aboutThisChart, $aboutThisChart)
-    ->withSpan(8)
-    ->withBodyHtml(
-        (($childMortality === null) || ($childMortalityPayload->categories === []))
-            ? EmptyStatePlaceholder::render()
-            : Widget::lineChart($module, 'child-mortality-century-line')
-                 ->withData($childMortalityPayload)
-                 ->render()
-    )
-    ->render();
-
-echo Card::for($module, I18N::translate('Peak value'))
-    ->withSub($childMortalityPeak !== null
-        ? I18N::translate('Child mortality %s', CenturyName::compactLabel((int) $childMortalityPeak['century']))
-        : null)
-    ->withEyebrow(I18N::translate('Extreme'))
-    ->withAccent(Accent::Wine)
-    ->withIllustration(Illustration::Candle)
-    ->withInfo($childMortalityPeakExplanation, $aboutThisChart, $aboutThisChart)
-    ->withSpan(4)
-    ->centered()
-    ->withBodyHtml(
-        ($childMortalityPeak === null)
-            ? EmptyStatePlaceholder::render()
-            : Component::scalar($module)
-                 ->with('value', I18N::number((float) $childMortalityPeak['rate'], 1))
-                 ->with('unit', '%')
-                 ->with('caption', I18N::translate(
-                     '%1$s of %2$s children died before age 5: the darkest cohort in the tree.',
-                     I18N::number((int) $childMortalityPeak['died']),
-                     I18N::number((int) $childMortalityPeak['total']),
-                 ))
-                 ->render()
-    )
-    ->render();
-
-echo Section::create(I18N::translate('When were they born?'))
-    ->withKicker(I18N::translate('Births'))
-    ->withSub(I18N::translate('Time-distribution of births'))
-    ->render();
-
-echo Card::for($module, $birthsByDecadeCardTitle)
-    ->withSub($birthsByDecadeCardSub)
-    ->withEyebrow(I18N::translate('Timeline'))
-    ->withAccent(Accent::Ochre)
-    ->withIllustration(Illustration::Sunrise)
-    ->withSpan(12)
-    ->withBodyHtml(
-        Widget::lineChart($module, 'births-decade-line')
-            ->withData($birthsByDecadePayload)
-            ->withHeight(240)
-            ->with('showArea', true)
-            ->render()
-    )
-    ->render();
-
-$birthsByCenturySub = I18N::plural('%s individual with a recorded birth year', '%s individuals with a recorded birth year', $totalBirthsByCentury, I18N::number($totalBirthsByCentury));
-
-if ($birthsByCenturyDropped > 0) {
-    $birthsByCenturySub .= ' — ' . I18N::plural(
-        '%s outlier century not shown',
-        '%s outlier centuries not shown',
-        $birthsByCenturyDropped,
-        I18N::number($birthsByCenturyDropped),
-    );
-}
-
-echo Card::for($module, I18N::translate('Births by century'))
-    ->withSub($birthsByCenturySub)
-    ->withEyebrow(I18N::translate('Timeline'))
-    ->withAccent(Accent::Ochre)
-    ->withIllustration(Illustration::Sunrise)
-    ->withSpan(4)
-    ->withBodyHtml(
-        Widget::barChart($module, 'births-century-bars')
-            ->withData($birthsByCenturyBars)
-            ->withHeight(200)
-            ->withAriaLabel(I18N::translate('Births per century'))
-            ->render()
-    )
-    ->render();
-
-echo Card::for($module, I18N::translate('Births by month'))
-    ->withSub(I18N::plural('%s individual with a recorded birth month', '%s individuals with a recorded birth month', $totalBirthsByMonth, I18N::number($totalBirthsByMonth)))
-    ->withEyebrow(I18N::translate('Month clock'))
-    ->withAccent(Accent::Ochre)
-    ->withIllustration(Illustration::Sunrise)
-    ->withSpan(4)
-    ->withBodyHtml(
-        Widget::monthRadial($module)
-            ->withData($birthsByMonth)
-            ->withAccent(Accent::Ochre)
-            ->with('centerLabel', I18N::translate('peak month'))
-            ->render()
-    )
-    ->render();
-
-echo Card::for($module, I18N::translate('Zodiac signs'))
-    ->withSub(I18N::plural('%s individual with a known zodiac sign', '%s individuals with a known zodiac sign', $totalBirthsByZodiac, I18N::number($totalBirthsByZodiac)))
-    ->withEyebrow(I18N::translate('Zodiac'))
-    ->withAccent(Accent::Slate)
-    ->withIllustration(Illustration::Zodiac)
-    ->withSpan(4)
-    ->withBodyHtml(
-        Widget::monthRadial($module)
-            ->withData($birthsByZodiacSign)
-            ->withAccent(Accent::Slate)
-            ->with('centerLabel', I18N::translate('peak sign'))
-            ->render()
-    )
-    ->render();
-
 echo Section::create(I18N::translate('When did they die?'))
     ->withKicker(I18N::translate('Deaths'))
     ->withSub(I18N::translate('Season and century of recorded deaths'))
@@ -588,9 +542,73 @@ echo Card::for($module, I18N::translate('Winter-peak score'))
     ->withBodyHtml($winterPeakCardBody)
     ->render();
 
-echo Section::create(I18N::translate('Mortality outliers'))
+echo Section::create(I18N::translate('Causes of death and infant mortality'))
+    ->withKicker(I18N::translate('Mortality'))
+    ->withSub(I18N::translate('What the recorded individuals died of'))
+    ->render();
+
+echo Card::for($module, I18N::translate('Common causes of death'))
+    ->withSub(
+        $totalDeathCauses > 10
+            ? I18N::translate('%s distinct causes (top 10)', I18N::number($totalDeathCauses))
+            : I18N::plural('%s distinct cause', '%s distinct causes', $totalDeathCauses, I18N::number($totalDeathCauses))
+    )
+    ->withEyebrow(I18N::translate('Causes'))
+    ->withAccent(Accent::Wine)
+    ->withIllustration(Illustration::Candle)
+    ->withSpan(12)
+    ->withBodyHtml(
+        Component::progressList($module)
+            ->with('class', 'progress-death-causes')
+            ->withData($topDeathCauses)
+            ->render()
+    )
+    ->render();
+
+echo Card::for($module, I18N::translate('Child mortality (under 5)'))
+    ->withSub(I18N::translate('Mortality rate per birth century'))
+    ->withEyebrow(I18N::translate('Mortality'))
+    ->withAccent(Accent::Wine)
+    ->withIllustration(Illustration::Child)
+    ->withInfo($childMortalityExplanation, $aboutThisChart, $aboutThisChart)
+    ->withSpan(8)
+    ->withBodyHtml(
+        (($childMortality === null) || ($childMortalityPayload->categories === []))
+            ? EmptyStatePlaceholder::render()
+            : Widget::lineChart($module, 'child-mortality-century-line')
+                 ->withData($childMortalityPayload)
+                 ->render()
+    )
+    ->render();
+
+echo Card::for($module, I18N::translate('Peak value'))
+    ->withSub($childMortalityPeak !== null
+        ? I18N::translate('Child mortality %s', CenturyName::compactLabel((int) $childMortalityPeak['century']))
+        : null)
+    ->withEyebrow(I18N::translate('Extreme'))
+    ->withAccent(Accent::Wine)
+    ->withIllustration(Illustration::Candle)
+    ->withInfo($childMortalityPeakExplanation, $aboutThisChart, $aboutThisChart)
+    ->withSpan(4)
+    ->centered()
+    ->withBodyHtml(
+        ($childMortalityPeak === null)
+            ? EmptyStatePlaceholder::render()
+            : Component::scalar($module)
+                 ->with('value', I18N::number((float) $childMortalityPeak['rate'], 1))
+                 ->with('unit', '%')
+                 ->with('caption', I18N::translate(
+                     '%1$s of %2$s children died before age 5: the darkest cohort in the tree.',
+                     I18N::number((int) $childMortalityPeak['died']),
+                     I18N::number((int) $childMortalityPeak['total']),
+                 ))
+                 ->render()
+    )
+    ->render();
+
+echo Section::create(I18N::translate('Mortality anomalies and clusters'))
     ->withKicker(I18N::translate('Anomaly years'))
-    ->withSub(I18N::translate('Years with markedly more deaths than the local baseline would predict'))
+    ->withSub(I18N::translate('Years with markedly more deaths than the baseline · years when several families lost children at once'))
     ->render();
 
 echo Card::for($module, I18N::translate('Mortality outliers'))
@@ -605,10 +623,35 @@ echo Card::for($module, I18N::translate('Mortality outliers'))
         $aboutThisChart,
         $aboutThisChart
     )
-    ->withSpan(8)
+    ->withSpan(12)
     ->withBodyHtml(
         Component::mortalityAnomalies($module)
             ->withData($mortalityAnomalies)
+            ->render()
+    )
+    ->render();
+
+echo Card::for($module, I18N::translate('Sibling deaths in the same year'))
+    ->withSub(I18N::translate('Each dot marks a year in which several families each lost two or more children'))
+    ->withEyebrow(I18N::translate('Epidemic'))
+    ->withAccent(Accent::Wine)
+    ->withIllustration(Illustration::Moon)
+    ->withInfo(
+        I18N::translate(
+            'Years in which several families each lost two or more children, read from the recorded death years of the children. When several families suffer such losses in the same year, the co-occurrence can coincide with epidemic, war or famine mortality — a single family losing children is an isolated tragedy and is not shown here. Each dot marks a qualifying year and grows with the total number of siblings lost across the contributing families; the list below names the exact years and counts. Read it as a sparse signal: genuine cross-family clusters within a single tree are rare, and genealogical sources under-record early child deaths, so quiet years do not mean none occurred. Only children with a recorded death are counted, so the chart names no living individual.'
+        ),
+        $aboutThisChart,
+        $aboutThisChart
+    )
+    ->withSpan(12)
+    ->withBodyHtml(
+        Widget::eventTimeline($module, 'sibling-death-clusters-timeline')
+            ->withData($siblingDeathClusterRows)
+            ->withAccent(Accent::Wine)
+            ->withAriaLabel(I18N::translate('Sibling deaths in the same year'))
+            ->render()
+        . Component::siblingDeathClusters($module)
+            ->withData($siblingDeathClusters)
             ->render()
     )
     ->render();
