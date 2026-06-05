@@ -653,7 +653,7 @@ msgstr "17."
 
 #: src/Support/Locale/HistoricalEventCatalog.php:243
 msgid "1889–1890 influenza pandemic"
-msgstr "Grippe-Pandemie von 1889–1890"
+msgstr "Grippepandemie von 1889–1890"
 
 #: src/Support/Locale/CenturyName.php:78
 msgctxt "CENTURY"
@@ -662,7 +662,7 @@ msgstr "18."
 
 #: src/Support/Locale/HistoricalEventCatalog.php:248
 msgid "1918–1920 influenza pandemic"
-msgstr "Grippe-Pandemie von 1918–1920"
+msgstr "Grippepandemie von 1918–1920"
 
 #: src/Support/Locale/CenturyName.php:77
 msgctxt "CENTURY"
@@ -876,7 +876,7 @@ msgstr ""
 "Altersunterschied zwischen den Ehepartnern bei der Hochzeit. Die linke "
 "Spalte zählt Paare, in denen der Ehemann der ältere Partner ist, die rechte "
 "Spalte jene, in denen die Ehefrau älter ist. Beide Seiten teilen sich "
-"dieselben Fünf-Jahres-Klassen, sodass sich die beiden Verteilungen auf einen "
+"dieselben Fünfjahresklassen, sodass sich die beiden Verteilungen auf einen "
 "Blick vergleichen lassen. Das Band „30+“ fasst alle Unterschiede ab 30 "
 "Jahren zusammen."
 
@@ -945,7 +945,7 @@ msgstr "Anomalie"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:590
 msgid "Anomaly years"
-msgstr "Anomalie-Jahre"
+msgstr "Anomaliejahre"
 
 #: src/Support/Locale/MonthName.php:93
 msgctxt "NOMINATIVE"
@@ -1143,11 +1143,11 @@ msgstr "Chinesischer Bürgerkrieg (1945–1949)"
 
 #: src/Support/Locale/HistoricalEventCatalog.php:245
 msgid "Cholera outbreak of 1892"
-msgstr "Cholera-Epidemie von 1892"
+msgstr "Choleraepidemie von 1892"
 
 #: src/Support/Locale/HistoricalEventCatalog.php:235
 msgid "Cholera pandemic of 1831–1832"
-msgstr "Cholera-Pandemie von 1831–1832"
+msgstr "Cholerapandemie von 1831–1832"
 
 #: resources/views/modules/statistics-chart/tabs/names.phtml:139
 msgid ""
@@ -1303,7 +1303,7 @@ msgstr "Dezember"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:573
 msgid "Dec–Feb vs. baseline"
-msgstr "Dez–Feb vs. Basislinie"
+msgstr "Dezember–Februar vs. Basislinie"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:424
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:336
@@ -1615,8 +1615,8 @@ msgid ""
 "temporal note, never a stated cause of death; coverage is limited to broadly-"
 "documented events and can be extended via the project repository."
 msgstr ""
-"Die erfasste Sterbezahl jedes Jahres wird mit dem umgebenden Elf-Jahres-"
-"Fenster verglichen. Ein Jahr wird markiert, wenn seine Zahl mindestens zwei "
+"Die erfasste Sterbezahl jedes Jahres wird mit dem umgebenden Elfjahresfenster "
+"verglichen. Ein Jahr wird markiert, wenn seine Zahl mindestens zwei "
 "Standardabweichungen über dem Mittelwert des Fensters liegt; die markierten "
 "Jahre werden danach gereiht, wie stark sie herausragen. Die Markierung "
 "hinter jedem Balken zeigt den Median des Fensters als erwartete Basislinie; "
@@ -1625,7 +1625,7 @@ msgstr ""
 "daher werden die jüngsten und ältesten Jahre nie markiert. Lies ein "
 "markiertes Jahr als eines, das sich von der erfassten Basislinie abhebt, "
 "nicht automatisch als echte Übersterblichkeit: Dichtere Erfassung, ein "
-"Import-Stapel oder eine Häufung runder Jahreszahlen kann die Zahl eines "
+"Importstapel oder eine Häufung runder Jahreszahlen kann die Zahl eines "
 "einzelnen Jahres ebenso anheben wie eine echte Epidemie, ein Krieg oder eine "
 "Hungersnot. Liegen die Sterbeorte eines Jahres in einer abgedeckten Region "
 "und Zeit, wird das Jahr mit dem historischen Ereignis annotiert, mit dem es "
@@ -1816,7 +1816,7 @@ msgid ""
 msgstr ""
 "Für jedes Paar, bei dem beide Ehepartner mindestens einen erfassten "
 "Elternteil haben, durchläuft das Modul die Vorfahrenliste beider Partner bis "
-"zur vierten Generation und schneidet die beiden Mengen. Eine nicht-leere "
+"zur vierten Generation und schneidet die beiden Mengen. Eine nicht leere "
 "Schnittmenge bedeutet, dass das Paar mindestens einen gemeinsamen Vorfahren "
 "hat. Das ist die klassische Signatur einer Cousinheirat und des "
 "Ahnenschwunds."
@@ -1838,10 +1838,11 @@ msgid ""
 "children are dropped to keep the curve from spiking on small denominators."
 msgstr ""
 "Für jedes vollständig datierte Kind im Baum (BIRT mit Tag und Monat) fasst "
-"das Widget Geschwister derselben FAM, deren BIRT-Julianische-Tage höchstens "
-"einen Tag auseinander liegen, zu einem Mehrlings-Set zusammen. Weil nicht "
-"der exakte Tag, sondern die zeitliche Nähe zählt, werden auch Mitternachts-"
-"Zwillinge (z. B. 31. Dezember / 1. Januar) erfasst: Eine Mutter kann nicht "
+"das Widget Geschwister derselben FAM, deren julianische BIRT-Tage höchstens "
+"einen Tag auseinander liegen, zu einem Mehrlingsset zusammen. Weil nicht "
+"der exakte Tag, sondern die zeitliche Nähe zählt, werden auch "
+"Mitternachtszwillinge (z. B. 31. Dezember / 1. Januar) erfasst: Eine Mutter "
+"kann nicht "
 "zwei getrennte Schwangerschaften einen Kalendertag auseinander legen, daher "
 "genügen die gemeinsame Familie und die dicht beieinander liegenden "
 "Geburtsdaten als Signal. Pro Vielfachheit, die im Baum tatsächlich vorkommt, "
@@ -1849,7 +1850,7 @@ msgstr ""
 "Fünflinge und mehr); jede Linie zeigt den Anteil dieser Vielfachheit an "
 "allen datierten Geburten des Jahrhunderts. Geburtsdaten mit nur Jahr (Tag "
 "und Monat leer) werden absichtlich ausgeschlossen, sonst würde jede „0 0 "
-"1829“-Geschwistergruppe als Phantom-Mehrlingsset erscheinen. Jahrhunderte "
+"1829“-Geschwistergruppe als Phantommehrlingsset erscheinen. Jahrhunderte "
 "unter 200 vollständig datierten Kindern werden ausgeblendet, damit die Kurve "
 "bei kleinen Nennern nicht ausschlägt."
 
@@ -2439,7 +2440,7 @@ msgstr "Mortalität"
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:589
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:594
 msgid "Mortality outliers"
-msgstr "Sterblichkeits-Ausreißer"
+msgstr "Sterblichkeitsausreißer"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:131
 msgid "Mortality rate"
@@ -2613,7 +2614,7 @@ msgstr "Sonstige"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:677
 msgid "Outlier marriages"
-msgstr "Ausreißer-Ehen"
+msgstr "Ausreißerehen"
 
 #: src/Module.php:271
 msgid "Overview"
@@ -2873,7 +2874,7 @@ msgstr "Ledig"
 
 #: src/Support/Locale/HistoricalEventCatalog.php:242
 msgid "Smallpox epidemic of 1870–1873"
-msgstr "Pocken-Epidemie von 1870–1873"
+msgstr "Pockenepidemie von 1870–1873"
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:157
 msgid "Socio-economics"
@@ -2932,7 +2933,7 @@ msgstr "Struktur"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:384
 msgid "Structure type"
-msgstr "Struktur-Typ"
+msgstr "Strukturtyp"
 
 #: resources/views/modules/statistics-chart/tabs/names.phtml:138
 #: resources/views/modules/statistics-chart/tabs/names.phtml:148
@@ -3018,7 +3019,7 @@ msgstr ""
 "winterliche Häufung der Sterbefälle hin. Der Sterbemonat gehört zu den am "
 "unzuverlässigsten erfassten Teilen eines Datums, und der Wert kann auf sehr "
 "wenigen datierten Sterbefällen beruhen. Lies eine kleine Abweichung daher "
-"eher als Dokumentations-Rauschen denn als echtes saisonales Muster."
+"eher als Dokumentationsrauschen denn als echtes saisonales Muster."
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:679
 msgid "The shortest- and longest-lasting marriages in the tree"
@@ -3141,7 +3142,7 @@ msgstr "Stammbaumdatensätze"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:410
 msgid "Tree type"
-msgstr "Baum-Typ"
+msgstr "Baumtyp"
 
 #: src/Repository/ChildrenRepository.php:633
 msgid "Triplets"
@@ -3347,12 +3348,12 @@ msgstr "Jahre, in denen mehrere Familien zugleich Kinder verloren"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:595
 msgid "Years that stand out against the surrounding death baseline"
-msgstr "Jahre, die sich von der umgebenden Sterbefall-Baseline abheben"
+msgstr "Jahre, die sich von der umgebenden Sterbefallbasislinie abheben"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:591
 msgid "Years with markedly more deaths than the local baseline would predict"
 msgstr ""
-"Jahre mit deutlich mehr Sterbefällen, als die lokale Baseline erwarten lässt"
+"Jahre mit deutlich mehr Sterbefällen, als die lokale Basislinie erwarten lässt"
 
 #: resources/views/modules/statistics-chart/components/records-grid.phtml:39
 msgid "Youngest father"
@@ -3529,7 +3530,7 @@ msgstr "Spitzenmonat"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:521
 msgid "peak sign"
-msgstr "Top-Zeichen"
+msgstr "Spitzenzeichen"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:403
 msgid "persons"
