@@ -24,15 +24,20 @@ use PHPUnit\Framework\Attributes\UsesClass;
  * `record-inventory.ged`, which carries a known mix of record types:
  *
  *   Core        — 3 individuals, 1 family.
- *   Enrichment  — 2 sources, 5 media objects, 1 note, 1 shared note, 1
- *                 repository, 1 shared location.
+ *   Enrichment  — 2 sources, 5 media objects, 3 shared notes (one top-level
+ *                 NOTE record + two GEDCOM 7 SNOTE records, all shared notes in
+ *                 webtrees), 1 repository, 1 shared location.
+ *
+ * The shared-note pool is deliberately asymmetric (1 NOTE + 2 SNOTE = 3) so the
+ * count proves a true NOTE+SNOTE sum rather than a single token counted twice —
+ * both a symmetric 1+1 and a doubled single token would land on 2.
  *
  * One of the five media objects carries two photo files, so the tree holds 5
  * media objects but 6 media files: a tombstone, an untyped file, and four photos
  * (two standalone + two on the multi-file object). This is the object-vs-file
  * divergence the by-type card surfaces — `getRecordInventory()->media` counts
- * objects, `getMediaByType()` counts files. Expected enrichment total 11 over 3
- * individuals → density 367 per 100.
+ * objects, `getMediaByType()` counts files. Expected enrichment total 12 over 3
+ * individuals → density 400 per 100.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -45,9 +50,11 @@ use PHPUnit\Framework\Attributes\UsesClass;
 final class RecordInventoryRepositoryIntegrationTest extends IntegrationTestCase
 {
     /**
-     * Every record type is counted from its own normalised table, the four
-     * enrichment `other` types are split by `o_type`, and the serialised shape
-     * is the wire contract the inventory card consumes.
+     * Every record type is counted from its own normalised table. Both top-level
+     * NOTE and SNOTE records are shared notes in webtrees, so the two `o_type`
+     * tokens fold into a single `sharedNotes` count; the remaining enrichment
+     * `other` types are split by `o_type`. The serialised shape is the wire
+     * contract the inventory card consumes.
      */
     #[Test]
     public function countsCoreAndEnrichmentRecordsByType(): void
@@ -59,13 +66,12 @@ final class RecordInventoryRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame(1, $inventory->families);
         self::assertSame(2, $inventory->sources);
         self::assertSame(5, $inventory->media, 'OBJE records, counted regardless of how many files each carries');
-        self::assertSame(1, $inventory->notes);
-        self::assertSame(1, $inventory->sharedNotes);
+        self::assertSame(3, $inventory->sharedNotes, 'One top-level NOTE + two SNOTE records, all shared notes in webtrees');
         self::assertSame(1, $inventory->repositories);
         self::assertSame(1, $inventory->locations);
 
-        // 2 + 5 + 1 + 1 + 1 + 1 = 11 enrichment records over 3 individuals → 367 per 100.
-        self::assertSame(367, $inventory->enrichmentDensity());
+        // 2 + 5 + 3 + 1 + 1 = 12 enrichment records over 3 individuals → 400 per 100.
+        self::assertSame(400, $inventory->enrichmentDensity());
 
         self::assertSame(
             [
@@ -73,11 +79,10 @@ final class RecordInventoryRepositoryIntegrationTest extends IntegrationTestCase
                 'families'          => 1,
                 'sources'           => 2,
                 'media'             => 5,
-                'notes'             => 1,
-                'sharedNotes'       => 1,
+                'sharedNotes'       => 3,
                 'repositories'      => 1,
                 'locations'         => 1,
-                'enrichmentDensity' => 367,
+                'enrichmentDensity' => 400,
             ],
             $inventory->jsonSerialize(),
         );

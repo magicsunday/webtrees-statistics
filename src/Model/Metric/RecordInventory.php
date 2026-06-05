@@ -18,10 +18,9 @@ use function round;
 /**
  * Record-type inventory for the Tree-health tab: how many core records
  * (individuals, families) the tree holds versus how many enrichment records
- * (sources, media objects, notes, shared notes, repositories, shared
- * locations). `enrichmentDensity()` expresses the enrichment total per 100
- * individuals — the signal that tells a bare person/family tree from a
- * well-sourced one.
+ * (sources, media objects, shared notes, repositories, shared locations).
+ * `enrichmentDensity()` expresses the enrichment total per 100 individuals — the
+ * signal that tells a bare person/family tree from a well-sourced one.
  *
  * Counts are i18n-free; the view maps each field to a translated label at the
  * call site. Serialises to a flat `{type => count}` map plus
@@ -38,8 +37,7 @@ final readonly class RecordInventory implements JsonSerializable
      * @param int $families     Core: FAM records
      * @param int $sources      Enrichment: SOUR records
      * @param int $media        Enrichment: OBJE records
-     * @param int $notes        Enrichment: top-level NOTE records
-     * @param int $sharedNotes  Enrichment: SNOTE (shared note) records
+     * @param int $sharedNotes  Enrichment: shared-note records — top-level NOTE plus GEDCOM 7 SNOTE, both shared notes in webtrees
      * @param int $repositories Enrichment: REPO records
      * @param int $locations    Enrichment: _LOC (shared location) records
      */
@@ -48,7 +46,6 @@ final readonly class RecordInventory implements JsonSerializable
         public int $families,
         public int $sources,
         public int $media,
-        public int $notes,
         public int $sharedNotes,
         public int $repositories,
         public int $locations,
@@ -63,7 +60,6 @@ final readonly class RecordInventory implements JsonSerializable
     {
         return $this->sources
             + $this->media
-            + $this->notes
             + $this->sharedNotes
             + $this->repositories
             + $this->locations;
@@ -83,7 +79,7 @@ final readonly class RecordInventory implements JsonSerializable
     }
 
     /**
-     * @return array{individuals: int, families: int, sources: int, media: int, notes: int, sharedNotes: int, repositories: int, locations: int, enrichmentDensity: int}
+     * @return array{individuals: int, families: int, sources: int, media: int, sharedNotes: int, repositories: int, locations: int, enrichmentDensity: int}
      */
     public function jsonSerialize(): array
     {
@@ -92,7 +88,6 @@ final readonly class RecordInventory implements JsonSerializable
             'families'          => $this->families,
             'sources'           => $this->sources,
             'media'             => $this->media,
-            'notes'             => $this->notes,
             'sharedNotes'       => $this->sharedNotes,
             'repositories'      => $this->repositories,
             'locations'         => $this->locations,

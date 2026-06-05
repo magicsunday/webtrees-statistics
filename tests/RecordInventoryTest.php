@@ -35,9 +35,9 @@ final class RecordInventoryTest extends TestCase
     #[Test]
     public function densityIsEnrichmentRecordsPerHundredIndividuals(): void
     {
-        $inventory = new RecordInventory(100, 40, 50, 30, 20, 5, 3, 10);
+        $inventory = new RecordInventory(100, 40, 50, 30, 25, 3, 10);
 
-        // 50 + 30 + 20 + 5 + 3 + 10 = 118 enrichment records over 100 individuals.
+        // 50 + 30 + 25 + 3 + 10 = 118 enrichment records over 100 individuals.
         self::assertSame(118, $inventory->enrichmentDensity());
     }
 
@@ -48,8 +48,9 @@ final class RecordInventoryTest extends TestCase
     #[Test]
     public function densityRoundsToTheNearestWholeNumber(): void
     {
-        $inventory = new RecordInventory(3, 1, 2, 4, 1, 1, 1, 1);
+        $inventory = new RecordInventory(3, 1, 2, 4, 2, 1, 1);
 
+        // 2 + 4 + 2 + 1 + 1 = 10 enrichment records over 3 individuals → 333.33 → 333.
         self::assertSame(333, $inventory->enrichmentDensity());
     }
 
@@ -62,7 +63,7 @@ final class RecordInventoryTest extends TestCase
     #[Test]
     public function densityGuardsAgainstZeroIndividualsWithEnrichmentPresent(): void
     {
-        $inventory = new RecordInventory(0, 0, 2, 4, 1, 1, 1, 1);
+        $inventory = new RecordInventory(0, 0, 2, 4, 1, 1, 1);
 
         self::assertSame(0, $inventory->enrichmentDensity());
     }
@@ -74,7 +75,7 @@ final class RecordInventoryTest extends TestCase
     #[Test]
     public function serialisesEveryCountPlusTheDerivedDensity(): void
     {
-        $inventory = new RecordInventory(100, 40, 50, 30, 20, 5, 3, 10);
+        $inventory = new RecordInventory(100, 40, 50, 30, 25, 3, 10);
 
         self::assertSame(
             [
@@ -82,8 +83,7 @@ final class RecordInventoryTest extends TestCase
                 'families'          => 40,
                 'sources'           => 50,
                 'media'             => 30,
-                'notes'             => 20,
-                'sharedNotes'       => 5,
+                'sharedNotes'       => 25,
                 'repositories'      => 3,
                 'locations'         => 10,
                 'enrichmentDensity' => 118,

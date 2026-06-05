@@ -604,9 +604,9 @@ final readonly class Statistic
     /**
      * Record-type inventory for the Tree-health tab: the count of core
      * person/family records against every enrichment record type (sources,
-     * media, notes, shared notes, repositories, shared locations), plus the
-     * enrichment density per 100 individuals — the signal that tells a bare
-     * person/family tree from a well-sourced one.
+     * media, shared notes, repositories, shared locations), plus the enrichment
+     * density per 100 individuals — the signal that tells a bare person/family
+     * tree from a well-sourced one.
      */
     public function getRecordInventory(): RecordInventory
     {

@@ -63,7 +63,6 @@ $recordInventoryGroups = [
         'data'  => [
             I18N::translate('Sources')       => $recordInventory->sources,
             I18N::translate('Media objects') => $recordInventory->media,
-            I18N::translate('Notes')         => $recordInventory->notes,
             I18N::translate('Shared notes')  => $recordInventory->sharedNotes,
             I18N::translate('Repositories')  => $recordInventory->repositories,
             I18N::translate('Shared places') => $recordInventory->locations,
@@ -425,7 +424,7 @@ echo Card::for($module, I18N::translate('Tree type'))
     ->render();
 
 $recordInventoryExplanation = I18N::translate(
-    'Core records are the individuals and families that make up the tree itself. Enrichment records — sources, media objects, notes, repositories and shared locations — document and substantiate them. The density figure is the number of enrichment records per 100 individuals: a tree built only from names and dates sits near zero, a thoroughly sourced one well above it.'
+    'Core records are the individuals and families that make up the tree itself. Enrichment records — sources, media objects, shared notes, repositories and shared locations — document and substantiate them. The density figure is the number of enrichment records per 100 individuals: a tree built only from names and dates sits near zero, a thoroughly sourced one well above it.'
 );
 
 echo Section::create(I18N::translate('What is the tree made of?'))

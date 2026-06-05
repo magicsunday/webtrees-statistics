@@ -20,9 +20,9 @@ use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 /**
  * Counts the tree's records by GEDCOM type for the Tree-health tab's data-set
  * inventory: how many core person/family records the tree holds against how
- * many enrichment records (sources, media objects, notes, shared notes,
- * repositories, shared locations), plus the breakdown of media files by their
- * recorded source-media type (photo, tombstone, map, …).
+ * many enrichment records (sources, media objects, shared notes, repositories,
+ * shared locations), plus the breakdown of media files by their recorded
+ * source-media type (photo, tombstone, map, …).
  *
  * All counts come straight from the normalised webtrees tables — `individuals`,
  * `families`, `sources`, `media` and the `other` catch-all keyed by `o_type` —
@@ -47,9 +47,11 @@ final readonly class RecordInventoryRepository
 
     /**
      * Count the tree's records by type and bundle them into the core-versus-
-     * enrichment inventory. The enrichment record types (notes, shared notes,
+     * enrichment inventory. The enrichment record types (shared notes,
      * repositories, shared locations) all live in the `other` table keyed by
-     * `o_type`, so a single grouped pass yields every count.
+     * `o_type`, so a single grouped pass yields every count. Top-level NOTE and
+     * GEDCOM 7 SNOTE records are both shared notes in webtrees, so their two
+     * tokens fold into one shared-note count.
      */
     public function getRecordInventory(): RecordInventory
     {
@@ -60,8 +62,7 @@ final readonly class RecordInventoryRepository
             TreeScope::table($this->tree, 'families')->count(),
             TreeScope::table($this->tree, 'sources')->count(),
             TreeScope::table($this->tree, 'media')->count(),
-            $other['NOTE'] ?? 0,
-            $other['SNOTE'] ?? 0,
+            ($other['NOTE'] ?? 0) + ($other['SNOTE'] ?? 0),
             $other['REPO'] ?? 0,
             $other['_LOC'] ?? 0,
         );
