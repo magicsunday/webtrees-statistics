@@ -408,13 +408,16 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
      * Average family size by century folds BCE marriages into negative
      * centuries and picks the chronologically EARLIEST marriage per family
      * across the sign boundary (a more-negative year is earlier).
-     * family-size-bce.ged seeds three 1st-century-BCE families (F1 2 children @
-     * 60 B.C., F2 4 @ 40 B.C., F4 2 @ its earliest of two MARR dates, 30 B.C.)
-     * and four 20th-century CE families (F3 3 @ 1905, F6 1 @ 1901, F7 2 @ 1902,
-     * F8 5 @ 1903). F5 carries a MARR with no parseable date and drops out. The
-     * BCE century averages 8/3 ≈ 2.667 and sorts ahead of the CE cohort (11/4 =
-     * 2.75). A regression that clamped BCE years to 0 (the old `max($year, 0)`)
-     * or kept the `<= 0` filter would drop every BCE family.
+     * family-size-bce.ged seeds five 1st-century-BCE families (F1 2 children @
+     * 60 B.C., F9 3 @ 50 B.C., F2 4 @ 40 B.C., F4 2 @ its earliest of two MARR
+     * dates, 30 B.C., F10 1 @ 10 B.C.) and five 20th-century CE families (F3 3 @
+     * 1905, F6 1 @ 1901, F7 2 @ 1902, F8 5 @ 1903, F11 2 @ 1906). Both centuries
+     * sit exactly at the five-family cohort floor so this test isolates the
+     * BCE-bucketing behaviour rather than the floor (see the dedicated
+     * floor-straddle test for that). F5 carries a MARR with no parseable date
+     * and drops out. The BCE century averages 12/5 = 2.4 and sorts ahead of the
+     * CE cohort (13/5 = 2.6). A regression that clamped BCE years to 0 (the old
+     * `max($year, 0)`) or kept the `<= 0` filter would drop every BCE family.
      */
     #[Test]
     public function averageFamilySizeByCenturyBucketsBceMarriagesIntoNegativeCenturies(): void
@@ -426,17 +429,51 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
             [CenturyName::compactLabel(-1), CenturyName::compactLabel(20)],
             $result->categories,
         );
-        self::assertEqualsWithDelta(2.667, $result->series[0]->values[0], 0.001, 'BCE: (2+4+2)/3 families');
-        self::assertEqualsWithDelta(2.75, $result->series[0]->values[1], 0.001, 'CE: (3+1+2+5)/4 families');
+        self::assertEqualsWithDelta(2.4, $result->series[0]->values[0], 0.001, 'BCE: (2+3+4+2+1)/5 families');
+        self::assertEqualsWithDelta(2.6, $result->series[0]->values[1], 0.001, 'CE: (3+1+2+5+2)/5 families');
+    }
+
+    /**
+     * A century backed by fewer than {@see ChildrenRepository::MIN_COHORT_FAMILY_SIZE}
+     * dated families is dropped from the line so a one- or two-family century
+     * cannot render a spiky, statistically unrepresentative mean with the same
+     * visual weight as a century backed by thousands — the same five-sample
+     * cohort floor the child-mortality and tree-health per-century timelines
+     * apply. family-size-cohort-floor.ged straddles the threshold: the 17th
+     * century is backed by four families (below the floor of five → dropped)
+     * and the 19th century by five (at the floor → kept). The dropped century
+     * carries a distinct mean of 1.0, so a regression that removed the floor
+     * would surface it as an extra leading point rather than silently agreeing.
+     */
+    #[Test]
+    public function averageFamilySizeByCenturyDropsCenturiesBelowTheCohortFloor(): void
+    {
+        $tree   = $this->importFixtureTree('family-size-cohort-floor.ged');
+        $result = $this->repository($tree)->averageFamilySizeByCentury();
+
+        self::assertSame(
+            [CenturyName::compactLabel(19)],
+            $result->categories,
+            'The four-family 17th century is below the floor and must not appear.',
+        );
+        self::assertCount(1, $result->series[0]->values);
+        self::assertEqualsWithDelta(
+            2.4,
+            $result->series[0]->values[0],
+            0.001,
+            '19th century: (2+2+2+2+4)/5 families',
+        );
     }
 
     /**
      * The decade-axis family-size chart folds BCE marriages into negative
-     * decade keys, labelled "60s BCE" / "40s BCE" / "30s BCE" and ordered ahead
-     * of the CE bar. family-size-bce.ged seeds BCE families at 60 / 40 / 30 B.C.
-     * (decades −60 / −40 / −30, with 2 / 4 / 2 children) and four CE families
-     * collapsed onto the 1900s bar (1 / 2 / 3 / 5 children → one of each
-     * bucket). The chart is sparse, so only populated decades become bars.
+     * decade keys, labelled "60s BCE" … "10s BCE" and ordered ahead of the CE
+     * bar. The decade chart applies NO cohort floor (it is a composition chart,
+     * not a per-cohort mean), so every populated decade becomes a bar.
+     * family-size-bce.ged seeds BCE families at 60 / 50 / 40 / 30 / 10 B.C.
+     * (decades −60 / −50 / −40 / −30 / −10, with 2 / 3 / 4 / 2 / 1 children) and
+     * five CE families collapsed onto the 1900s bar (1 / 2 / 2 / 3 / 5 children).
+     * The chart is sparse, so only populated decades become bars.
      */
     #[Test]
     public function familySizeStackedByDecadeIncludesBceDecades(): void
@@ -447,21 +484,23 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame(
             [
                 DecadeName::for(-60),
+                DecadeName::for(-50),
                 DecadeName::for(-40),
                 DecadeName::for(-30),
+                DecadeName::for(-10),
                 DecadeName::for(1900),
             ],
             $result->categories,
         );
 
         // Stacked buckets per decade: 1 / 2 / 3 / 4+ children. Columns line up
-        // with the categories above (−60s, −40s, −30s, 1900s).
+        // with the categories above (−60s, −50s, −40s, −30s, −10s, 1900s).
         self::assertSame(
             [
-                [0, 0, 0, 1], // 1 child:  F6 (1900s)
-                [1, 0, 1, 1], // 2 child:  F1 (−60s), F4 (−30s), F7 (1900s)
-                [0, 0, 0, 1], // 3 child:  F3 (1900s)
-                [0, 1, 0, 1], // 4+ child: F2 (−40s), F8 (1900s)
+                [0, 0, 0, 0, 1, 1], // 1 child:  F10 (−10s), F6 (1900s)
+                [1, 0, 0, 1, 0, 2], // 2 child:  F1 (−60s), F4 (−30s), F7 + F11 (1900s)
+                [0, 1, 0, 0, 0, 1], // 3 child:  F9 (−50s), F3 (1900s)
+                [0, 0, 1, 0, 0, 1], // 4+ child: F2 (−40s), F8 (1900s)
             ],
             array_map(static fn (StackedBarSeries $series): array => $series->data, $result->series),
         );

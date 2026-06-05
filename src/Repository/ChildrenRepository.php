@@ -77,6 +77,17 @@ final readonly class ChildrenRepository
     private const int MIN_COHORT_MULTIPLE_BIRTH = 200;
 
     /**
+     * Minimum per-century family count for the average-family-size line. Mirrors
+     * the five-sample cohort floor the other timeline charts apply (child
+     * mortality and tree health gate five per century, parental age five per
+     * decade): below five dated families a single large or childless family
+     * swings the mean by tenths of a child, so a thinner century would render a
+     * spiky, unrepresentative point with the same visual weight as one backed by
+     * thousands.
+     */
+    private const int MIN_COHORT_FAMILY_SIZE = 5;
+
+    /**
      * Multiplicity cap for the per-century breakdown — twin / triplet /
      * quadruplet sets each get their own series, sets of five and above
      * collapse onto a single "quintuplet+" bucket so the chart stays readable
@@ -356,7 +367,10 @@ final readonly class ChildrenRepository
      * Average children per family by century — single LineChart series tracking
      * the central tendency over time. Computed as `total_children /
      * family_count` per century from the same MARR-anchored aggregation as the
-     * stacked share charts.
+     * stacked share charts. Centuries backed by fewer than
+     * {@see self::MIN_COHORT_FAMILY_SIZE} dated families are dropped so a thin
+     * cohort cannot spike the line — the same five-sample cohort floor the
+     * child-mortality and tree-health per-century timelines apply.
      */
     public function averageFamilySizeByCentury(): LineChartPayload
     {
@@ -374,15 +388,23 @@ final readonly class ChildrenRepository
         $tooltipLabels = [];
 
         foreach ($perCentury as $century => $childCounts) {
-            $longName    = CenturyName::longLabel($century);
             $familyCount = count($childCounts);
-            $totalKids   = 0;
+
+            // Drop centuries below the cohort floor — a handful of families
+            // yields a spiky mean that would carry the same visual weight as a
+            // century backed by thousands.
+            if ($familyCount < self::MIN_COHORT_FAMILY_SIZE) {
+                continue;
+            }
+
+            $longName  = CenturyName::longLabel($century);
+            $totalKids = 0;
 
             foreach ($childCounts as $count) {
                 $totalKids += $count;
             }
 
-            $average      = $familyCount > 0 ? $totalKids / $familyCount : 0.0;
+            $average      = $totalKids / $familyCount;
             $categories[] = CenturyName::compactLabel($century);
             $values[]     = $average;
             $tooltips[]   = I18N::translate(
@@ -391,6 +413,10 @@ final readonly class ChildrenRepository
                 I18N::number($familyCount),
             );
             $tooltipLabels[] = $longName;
+        }
+
+        if ($categories === []) {
+            return new LineChartPayload(categories: [], series: []);
         }
 
         return new LineChartPayload(

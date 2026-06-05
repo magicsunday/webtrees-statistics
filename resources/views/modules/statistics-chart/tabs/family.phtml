@@ -410,6 +410,13 @@ echo Card::for($module, I18N::translate('Average family size by century'))
     ->withEyebrow(I18N::translate('Timeline'))
     ->withAccent(Accent::Sage)
     ->withIllustration(Illustration::Family)
+    ->withInfo(
+        I18N::translate(
+            'Each point is the average number of children per family for that century, computed from every family whose earliest marriage falls in it. Hover a point to see how many families the average is based on. A century is only drawn once at least five dated families back it; below that a single large or childless family would swing the mean by tenths of a child and render a spiky, unrepresentative point.'
+        ),
+        $aboutThisChart,
+        $aboutThisChart
+    )
     ->withSpan(6)
     ->withBodyHtml(
         Widget::lineChart($module, 'average-family-size-line')
