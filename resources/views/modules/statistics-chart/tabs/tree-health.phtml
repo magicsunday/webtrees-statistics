@@ -13,6 +13,7 @@ use Fisharebest\Webtrees\I18N;
 use MagicSunday\Webtrees\Statistic\Statistic;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\CenturyBarRowMapper;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\HistogramBucketAggregator;
+use MagicSunday\Webtrees\Statistic\Support\Aggregator\LabelSorter;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\MediaTypeLabeller;
 use MagicSunday\Webtrees\Statistic\View\Accent;
 use MagicSunday\Webtrees\Statistic\View\Card;
@@ -43,30 +44,35 @@ $totalAncestorsRows   = array_sum($ancestorDistribution);
 $recordInventory = $statistic->getRecordInventory();
 
 // Resolve the raw source-media-type tokens to translated labels (unknown and
-// blank tokens fold into "Other"); the repository already orders by frequency.
-$mediaByType     = MediaTypeLabeller::label($statistic->getMediaByType());
+// blank tokens fold into "Other"), then order the list by label with the
+// catch-all "Other" bucket pinned to the end.
+$mediaByType = LabelSorter::byLabel(
+    MediaTypeLabeller::label($statistic->getMediaByType()),
+    I18N::translate('Other'),
+);
 $mediaFilesTotal = array_sum($mediaByType);
 
 // Core vs. enrichment record groups for the data-set inventory. Labels are
 // resolved here so xgettext sees the literals; each group scales its bars
-// against its own largest value.
+// against its own largest value. Each group's rows are ordered by label rather
+// than by count so the list reads by name.
 $recordInventoryGroups = [
     [
         'label' => I18N::translate('Core'),
-        'data'  => [
+        'data'  => LabelSorter::byLabel([
             I18N::translate('Individuals') => $recordInventory->individuals,
             I18N::translate('Families')    => $recordInventory->families,
-        ],
+        ]),
     ],
     [
         'label' => I18N::translate('Enrichment'),
-        'data'  => [
+        'data'  => LabelSorter::byLabel([
             I18N::translate('Sources')       => $recordInventory->sources,
             I18N::translate('Media objects') => $recordInventory->media,
             I18N::translate('Shared notes')  => $recordInventory->sharedNotes,
             I18N::translate('Repositories')  => $recordInventory->repositories,
             I18N::translate('Shared places') => $recordInventory->locations,
-        ],
+        ]),
     ],
 ];
 
@@ -455,6 +461,7 @@ echo Card::for($module, I18N::translate('Media files by type'))
     ->withBodyHtml(
         Component::progressList($module)
             ->with('class', 'progress-media-types')
+            ->with('showRank', false)
             ->withData($mediaByType)
             ->render()
     )
