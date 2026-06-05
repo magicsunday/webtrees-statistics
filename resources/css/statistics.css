@@ -3612,10 +3612,21 @@
    Shortest / longest marriages (Family tab) — two side-by-side ranked
    lists; each row pairs the couple + how it ended with a serif duration.
    ---------------------------------------------------------------------- */
+/* Mobile-first: a single column by default, so on a narrow viewport the longest
+   list stacks below the shortest one instead of being squeezed beside it. The
+   two side-by-side columns return just past the 760px stack breakpoint the rest
+   of this file uses — `min-width: 761px` keeps the range disjoint from the
+   sibling `max-width: 760px` rules, so 760px stays single-column everywhere. */
 .wt-statistics-chart .wt-stat-marriage-extremes {
     display:               grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap:                   24px;
+}
+
+@media (min-width: 761px) {
+    .wt-statistics-chart .wt-stat-marriage-extremes {
+        grid-template-columns: 1fr 1fr;
+    }
 }
 
 .wt-statistics-chart .wt-stat-marriage-extremes-heading {
