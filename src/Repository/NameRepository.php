@@ -570,13 +570,20 @@ final readonly class NameRepository
      * GEDCOM markers do not appear in `n_givn` (those live on `n_surn` /
      * `n_full`), so a simple whitespace split is sufficient.
      *
+     * webtrees never stores an empty `n_givn` for a primary NAME: when a record
+     * carries no given name (`1 NAME /Surname/`) the importer substitutes the
+     * whole-value placeholder `@P.N.` ({@see Individual::PRAENOMEN_NESCIO}). An
+     * unknown given name carries no real token and must neither dilute a passdown
+     * cohort nor falsely match another unknown name, so the placeholder collapses
+     * to an empty token set here — which the passdown guards then drop.
+     *
      * @return list<string>
      */
     private function givenNameTokens(string $givn): array
     {
         $trimmed = trim($givn);
 
-        if ($trimmed === '') {
+        if (($trimmed === '') || ($trimmed === Individual::PRAENOMEN_NESCIO)) {
             return [];
         }
 

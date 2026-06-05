@@ -288,6 +288,48 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
+     * A parent or child whose primary `NAME` carries no given name
+     * (`1 NAME /Last/`) is NOT stored with an empty `n_givn`: webtrees
+     * substitutes the whole-value placeholder `@P.N.`
+     * ({@see \Fisharebest\Webtrees\Individual::PRAENOMEN_NESCIO}). `givenNameTokens()`
+     * collapses that placeholder to an empty token set, so the two `continue`
+     * guards in `passdownPairsByCentury()` drop the pair instead of folding an
+     * unknown name into the cohort. Both guards run *after* the dated-birth gate,
+     * so every discriminator child carries an 1850 birth — proving the drop is the
+     * empty-token guard, not a missing date.
+     *
+     * The fixture seeds ten dated father-son pairs that all share the name
+     * "Johann" → a clean 100 %% 19th-century cohort, plus three extra dated pairs
+     * exercising every failure mode of the placeholder bug:
+     *
+     * - empty *father* given name → the parent guard must drop it (else 10/11);
+     * - empty *son* given name → the child guard must drop it (else 10/11);
+     * - empty *both* → without the placeholder fix `@P.N.` matches `@P.N.`, a
+     *   phantom MATCH that *inflates* the rate (11/13 ≈ 84.6 %).
+     *
+     * With the placeholder collapsed all three pairs drop and the cohort stays
+     * 10/10 = 100 %. Treating `@P.N.` as a real token instead lands anywhere from
+     * 84.6 % to 76.9 %, every variant tripping the delta assertion.
+     */
+    #[Test]
+    public function sameSexNamePassdownByCenturyDropsPairsWithEmptyGivenName(): void
+    {
+        $tree   = $this->importFixtureTree('passdown-empty-given-name-excluded.ged');
+        $result = $this->repository($tree)->sameSexNamePassdownByCentury();
+
+        self::assertSame(['19th cent.'], $result->categories, 'Empty-given-name pairs never spawn a phantom century slot');
+
+        $fatherSon = $result->series[0];
+        self::assertSame('Father → son', $fatherSon->name);
+        self::assertEqualsWithDelta(
+            100.0,
+            $fatherSon->values[0],
+            0.05,
+            'Ten matching dated pairs form the cohort; the unknown-given-name (@P.N.) father, son and both-empty pairs are all dropped'
+        );
+    }
+
+    /**
      * Regression for the "common given names" leak (issue #75). A `1 NAME` with
      * a level-2 custom sub-tag (`2 _LAST 05 May 2001`) is indexed by core as a
      * separate `name` row whose `n_givn` is the literal sub-tag value. Core's
