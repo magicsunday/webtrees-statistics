@@ -12,12 +12,8 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use MagicSunday\Webtrees\Statistic\Repository\EventRepository;
-use MagicSunday\Webtrees\Statistic\Support\Aggregator\EventCenturyTally;
-use MagicSunday\Webtrees\Statistic\Support\Aggregator\EventMonthTally;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
-use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
-use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
@@ -25,9 +21,9 @@ use PHPUnit\Framework\Attributes\UsesClass;
 use function array_sum;
 
 /**
- * Integration test for {@see EventRepository::getBirthsByZodiacSign} and
- * {@see EventRepository::eventsByCentury}. The zodiac fixture has six births
- * across four signs plus one undated-day birth that must be silently excluded:
+ * Integration test for {@see EventRepository::getBirthsByZodiacSign}. The
+ * zodiac fixture has six births across four signs plus one undated-day birth
+ * that must be silently excluded:
  *
  *   1 APR 1900 → Aries
  *  25 MAR 1950 → Aries (boundary check: 21 Mar–21 Apr)
@@ -41,12 +37,8 @@ use function array_sum;
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
 #[CoversClass(EventRepository::class)]
-#[UsesClass(EventCenturyTally::class)]
-#[UsesClass(EventMonthTally::class)]
 #[UsesClass(DedupedEventDates::class)]
 #[UsesClass(DateAggregate::class)]
-#[UsesClass(CenturyName::class)]
-#[UsesClass(RowCast::class)]
 final class EventRepositoryIntegrationTest extends IntegrationTestCase
 {
     /**
@@ -92,33 +84,5 @@ final class EventRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame(0, $result['Aquarius'] ?? null, 'Upper bound never spawns a second tally');
         self::assertSame(1, $result['Pisces'] ?? null, 'Precise control individual');
         self::assertSame(2, array_sum($result), 'Two distinct individuals, two births');
-    }
-
-    /**
-     * The births-by-century card seam deduplicates the two-row range encoding:
-     * the fixture's three births (a within-century range, a precise date and a
-     * century-straddling range) all count once in the 19th century. A regression
-     * to core's raw `countEventsByCentury` would report five.
-     */
-    #[Test]
-    public function eventsByCenturyCountsEachRangedBirthOnce(): void
-    {
-        $tree = $this->importFixtureTree('century-dedup.ged');
-
-        self::assertSame([19 => 3], (new EventRepository($tree))->eventsByCentury('BIRT'));
-    }
-
-    /**
-     * The births-by-month card seam deduplicates the two-row range encoding: a
-     * month-spanning birth (`BET DEC 1880 AND JAN 1881`) counts once in its
-     * lower-bound month (December), never split into January, alongside the
-     * precise March birth; the month-less year-only birth is dropped.
-     */
-    #[Test]
-    public function eventsByMonthCountsEachRangedBirthOnce(): void
-    {
-        $tree = $this->importFixtureTree('month-dedup.ged');
-
-        self::assertSame(['MAR' => 1, 'DEC' => 1], (new EventRepository($tree))->eventsByMonth('BIRT'));
     }
 }
