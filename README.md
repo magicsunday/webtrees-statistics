@@ -136,7 +136,7 @@ The module renders six tabs that aggregate tree-wide data into widget cards:
 | **Overview**    | Demographics (sex / living / marital donuts), cumulative tree growth over time, top occupations and religions, father → son occupation-inheritance sankey, tree-records hall-of-fame |
 | **Names**       | Surname / male / female name bubbles, given-name popularity stream graph, same-sex name passdown, surname × surname marriage chord matrix |
 | **Life span**   | Births by century / month / zodiac, age-at-death bands + boxplot per century, living life-stages, lifespan by sex × century, survival curve, top-10 oldest deceased and living, deaths by century / month, winter-peak score, death causes, child mortality (under 5) + peak century, mortality-outlier years, same-year sibling deaths, births / deaths by 25-year period × month heatmaps |
-| **Family**      | Age at marriage M+F, marriage duration, couple age gap, weddings by century / month, age at first child + mean by decade, first children by month, children per family, sibling age gap, family-size composition by decade, average family size, multiple-birth rate, childless donut, top-10 largest families, top-10 by grandchildren, sex-ratio anomalies, divorce cohort rate, divorces by century / month / age band, widowhood interval, shortest & longest marriages |
+| **Family**      | Age at marriage M+F, marriage duration, couple age gap, weddings by century / month, age at first child + mean by decade, first children by month, children per family, sibling age gap, family-size composition by decade, average family size, multiple-birth rate, childless donut, top-10 largest families, top-10 by grandchildren, sex-ratio anomalies, divorce cohort rate, divorces by month / century / age band, widowhood interval, mourning period, shortest & longest marriages |
 | **Places**      | Birth / residence / death countries with top-10 list and choropleth world map, birth → death migration sankey, geographic dispersion, distinct-places-per-individual and migration-distance metrics |
 | **Tree health** | Core-vs-enrichment data-set inventory + media files by type, source-citation coverage (tree-wide + per birth century), pedigree completeness, average generation length, missing-event gaps, max generation depth + distribution, known-ancestors distribution, endogamy rate, most-influential ancestors, largest unconnected sub-trees, tree type |
 
@@ -157,7 +157,7 @@ The dashboard ships with light- and dark-mode visuals; the module reads `data-bs
 
 **Charts do not render / tabs are empty**
 - Clear your browser cache and reload the page.
-- Open the browser developer console — a missing widget bundle usually surfaces as a `MIME type` or `404` error on `/index.php?route=…&module=…&asset=js/statistics-<version>.min.js`.
+- Open the browser developer console — a missing widget bundle usually surfaces as a `MIME type` or `404` error on `/index.php?route=…&asset=js/statistics-<version>.min.js`.
 
 **The world map shows every country in the empty colour**
 - Make sure the tree's place data uses recognisable country names — the world-map widget matches free-text country labels to ISO-3166-1 alpha-2 codes across nine pre-seeded locales plus the active webtrees language; unmatched labels fall back to the empty fill.
