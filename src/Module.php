@@ -279,8 +279,8 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
 
     /**
      * Shared renderer for every tab action. The template name matches the
-     * action key one-to-one so adding a tab is a two-line change (catalog entry
-     * + action method).
+     * action key one-to-one so adding a tab is a three-place change (catalog
+     * entry + action method + the `tabs/<kebab-name>.phtml` body).
      *
      * @param string $template Template file name under tabs/ without extension (kebab-case)
      */
