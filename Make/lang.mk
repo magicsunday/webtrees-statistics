@@ -6,13 +6,12 @@
 
 .PHONY: lang lang-extract lang-merge lang-resolve-fuzzy lang-compile setup-hooks
 
-# Locales the module ships translations for. Add a new entry here +
-# `make lang` once to seed the locale's messages.po from the POT.
-# Selection follows the dev.webtrees.net installation share — the
-# top 10 most-used locales plus en-US as the editor-template source
-# (en-US's msgstr usually mirrors the msgid; Poedit consumers use it
-# as the canonical English reference when filling other languages).
-LOCALES := cs da de en-US fr it nb nl pl ru zh-Hans
+# Locales the module ships translations for. Auto-discovered from the
+# existing per-locale directories rather than a hardcoded list, so a
+# community pull request that adds resources/lang/<new>/messages.po is
+# merged and compiled by `make lang` with no Makefile edit. The seed
+# branch in lang-merge still covers a directory created without a PO.
+LOCALES := $(notdir $(patsubst %/,%,$(wildcard resources/lang/*/)))
 
 POT_FILE  := resources/lang/messages.pot
 PO_FILES  := $(foreach loc,$(LOCALES),resources/lang/$(loc)/messages.po)
@@ -28,7 +27,11 @@ lang-extract: $(POT_FILE) ## Extract translatable strings from src/ + resources/
 
 # xgettext walks every PHP / PHTML source for the I18N::translate
 # family. The keyword list mirrors webtrees core's helpers — adding
-# a new context-aware variant means extending this list.
+# a new context-aware variant means extending this list. POT-Creation-Date
+# is pinned to a fixed sentinel afterwards: xgettext stamps "now", which
+# msgmerge would otherwise copy into every PO header on each run, producing
+# a spurious diff. Pinning it keeps the catalogue byte-stable so the CI
+# diff-gate fires only on real string drift.
 $(POT_FILE): $(shell find src resources/views -type f \( -name '*.php' -o -name '*.phtml' \) 2>/dev/null)
 	@$(COMPOSE_RUN) sh -c 'apk add --no-cache gettext >/dev/null 2>&1; \
 		mkdir -p resources/lang; \
@@ -45,6 +48,7 @@ $(POT_FILE): $(shell find src resources/views -type f \( -name '*.php' -o -name 
 			--sort-output \
 			--output=$(POT_FILE) \
 			$$(find src resources/views -type f \( -name "*.php" -o -name "*.phtml" \) | sort) && \
+		sed -i "s/POT-Creation-Date: [0-9-]* [0-9:+]*/POT-Creation-Date: 1970-01-01 00:00+0000/" $(POT_FILE) && \
 		echo "  ✔ Extracted $(POT_FILE) ($$(grep -c ^msgid $(POT_FILE)) strings)"'
 
 # The follow-up `msgattrib --no-obsolete` pass drops `#~` entries whose msgid
