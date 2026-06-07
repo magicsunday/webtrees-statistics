@@ -135,3 +135,69 @@ jobs:
                   make dist
                   make dist-smoke
                   rm -f *.zip
+
+    # The `build` job runs the test suite against in-memory SQLite, which does
+    # not implement ONLY_FULL_GROUP_BY and so silently tolerates a grouped
+    # SELECT with a non-aggregated column. This job re-runs the DB-touching
+    # integration tests against a real MySQL 8 — where webtrees' ANSI sql_mode
+    # implies ONLY_FULL_GROUP_BY (with functional-dependency detection), exactly
+    # the reporting environment — making it the gate for the whole error-1055
+    # bug class (e.g. #46, #126). MySQL, not MariaDB: MariaDB's OFGB lacks the
+    # functional-dependency detection and would reject the standard full-PK
+    # GROUP BY idiom that MySQL and core webtrees rely on. One PHP version is
+    # enough: the failure is engine-specific, not PHP-version-specific.
+    integration-mysql:
+        name: Integration tests (MySQL 8, ONLY_FULL_GROUP_BY)
+        runs-on: ubuntu-latest
+
+        services:
+            mysql:
+                image: mysql:8.4
+                env:
+                    MYSQL_ROOT_PASSWORD: ci-test
+                    MYSQL_DATABASE: webtrees_test
+                ports:
+                    - 3306:3306
+                options: >-
+                    --health-cmd="mysqladmin ping -h localhost -uroot -pci-test"
+                    --health-interval=10s
+                    --health-timeout=5s
+                    --health-retries=10
+
+        steps:
+            - id: checkout
+              name: Checkout
+              uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+              with:
+                  persist-credentials: false
+
+            - id: setup_php
+              name: Set up PHP version 8.4
+              uses: shivammathur/setup-php@7c071dfe9dc99bdf297fa79cb49ea005b9fcadbc # v2
+              with:
+                  php-version: '8.4'
+                  extensions: pdo_mysql
+                  tools: composer:v2
+
+            - id: install
+              name: Install dependencies
+              env:
+                  COMPOSER_NO_AUDIT: "1"
+                  COMPOSER_NO_INTERACTION: "1"
+              run: |
+                  composer install --no-progress
+
+            - id: integration
+              name: Integration tests against MySQL
+              env:
+                  # Per-test schema resets against a real server outrun
+                  # Composer's default 300 s process timeout.
+                  COMPOSER_PROCESS_TIMEOUT: "0"
+                  WT_TEST_DB_DRIVER: mysql
+                  WT_TEST_DB_HOST: 127.0.0.1
+                  WT_TEST_DB_PORT: "3306"
+                  WT_TEST_DB_NAME: webtrees_test
+                  WT_TEST_DB_USER: root
+                  WT_TEST_DB_PASSWORD: ci-test
+              run: |
+                  composer ci:test:php:integration
