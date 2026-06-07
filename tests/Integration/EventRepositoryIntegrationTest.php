@@ -14,6 +14,7 @@ namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 use MagicSunday\Webtrees\Statistic\Repository\EventRepository;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
+use MagicSunday\Webtrees\Statistic\Support\ZodiacSigns;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
@@ -26,7 +27,7 @@ use function array_sum;
  * that must be silently excluded:
  *
  *   1 APR 1900 → Aries
- *  25 MAR 1950 → Aries (boundary check: 21 Mar–21 Apr)
+ *  25 MAR 1950 → Aries (boundary check: 21 Mar–20 Apr)
  *   1 MAY 1900 → Taurus
  *  25 DEC 1900 → Capricornus (>= 21 Dec)
  *  15 JAN 1901 → Capricornus (<= 19 Jan)
@@ -39,6 +40,7 @@ use function array_sum;
 #[CoversClass(EventRepository::class)]
 #[UsesClass(DedupedEventDates::class)]
 #[UsesClass(DateAggregate::class)]
+#[UsesClass(ZodiacSigns::class)]
 final class EventRepositoryIntegrationTest extends IntegrationTestCase
 {
     /**
@@ -83,6 +85,24 @@ final class EventRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame(1, $result['Capricornus'] ?? null, 'Ranged birth counts once in its lower-bound sign');
         self::assertSame(0, $result['Aquarius'] ?? null, 'Upper bound never spawns a second tally');
         self::assertSame(1, $result['Pisces'] ?? null, 'Precise control individual');
+        self::assertSame(2, array_sum($result), 'Two distinct individuals, two births');
+    }
+
+    /**
+     * The Aries/Taurus boundary follows the Wikipedia tropical-zodiac table: 20
+     * April is the last Aries day, 21 April the first Taurus day. The fixture
+     * straddles exactly that edge so the test discriminates the boundary — an
+     * off-by-one table that ends Aries on 21 April (the value shipped before
+     * GH-127) would tally 21 April into Aries and fail this assertion.
+     */
+    #[Test]
+    public function getBirthsByZodiacSignPlacesTheAriesTaurusBoundaryPerWikipedia(): void
+    {
+        $tree   = $this->importFixtureTree('zodiac-boundary.ged');
+        $result = (new EventRepository($tree))->getBirthsByZodiacSign();
+
+        self::assertSame(1, $result['Aries'] ?? null, '20 April is the last Aries day');
+        self::assertSame(1, $result['Taurus'] ?? null, '21 April is the first Taurus day');
         self::assertSame(2, array_sum($result), 'Two distinct individuals, two births');
     }
 }

@@ -1395,6 +1395,13 @@
     font-weight: 500;
 }
 
+.wt-statistics-chart .msc-month-radial-sublab {
+    font-family: var(--sans);
+    font-size:   9px;
+    font-weight: 400;
+    fill:        var(--ink-3);
+}
+
 .wt-statistics-chart .msc-month-radial-center {
     font-family: var(--serif);
     font-size:   20px;
@@ -2272,13 +2279,15 @@
     line-height:     1.4;
     box-shadow:      none;
     transition:      opacity 120ms ease-out;
-    /* Wrap when long localised strings exceed max-width instead of
-       bleeding off-screen. The mockup uses nowrap for its short
-       label:value tooltips, but the live tooltips carry multi-line
-       headers ("Kindern mit bekanntem Geburts- und Sterbedatum") so
-       we keep wrapping enabled with a max-width clamp. */
+    /* Size to the content: the box widens to its longest line so short
+       label/value tooltips never wrap. The viewport-relative `max-width`
+       only kicks in for an exceptionally long single line (e.g. a verbose
+       country/header label) — there it wraps inside the clamp instead of
+       bleeding off-screen, since `tooltip.move()` repositions but never
+       shrinks the box. `overflow-wrap: anywhere` lets an unbreakable run
+       break rather than overflow. */
     width:           max-content;
-    max-width:       25rem;
+    max-width:       90vw;
     white-space:     normal;
     overflow-wrap:   anywhere;
 }
@@ -2294,6 +2303,10 @@
 
 .msc-chart-tooltip__stat {
     color: var(--paper, #fafafa);
+}
+
+.msc-chart-tooltip__sub {
+    color: color-mix(in srgb, var(--paper, #fafafa) 80%, transparent);
 }
 
 .msc-chart-tooltip__meta {
@@ -2315,6 +2328,10 @@
 [data-bs-theme="dark"] .msc-chart-tooltip strong,
 [data-bs-theme="dark"] .msc-chart-tooltip__stat {
     color: #0d0d0d;
+}
+
+[data-bs-theme="dark"] .msc-chart-tooltip__sub {
+    color: color-mix(in srgb, #0d0d0d 80%, transparent);
 }
 
 [data-bs-theme="dark"] .msc-chart-tooltip__meta {

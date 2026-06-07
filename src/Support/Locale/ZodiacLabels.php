@@ -30,14 +30,18 @@ final class ZodiacLabels
     }
 
     /**
-     * Rebuild `[zodiacKey => count]` with the keys passed through
-     * I18N::translate(). Unknown keys (callers must not invent any, but
-     * defensively guard anyway) flow through unchanged so no data row goes
-     * missing.
+     * Rebuild a `[zodiacKey => value]` map with the keys passed through
+     * I18N::translate(), leaving the values untouched. The counts the chart
+     * tallies and the period labels printed beside each sign both reuse this one
+     * remap, so the value type stays generic. Unknown keys (callers must not
+     * invent any, but defensively guard anyway) flow through unchanged so no row
+     * goes missing.
      *
-     * @param array<string, int> $data Counts keyed by English zodiac sign
+     * @template TValue
      *
-     * @return array<string, int> Counts keyed by translated zodiac sign
+     * @param array<string, TValue> $data Values keyed by English zodiac sign
+     *
+     * @return array<string, TValue> Values keyed by translated zodiac sign
      */
     public static function translateKeys(array $data): array
     {
