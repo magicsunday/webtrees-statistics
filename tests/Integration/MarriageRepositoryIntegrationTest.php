@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use Fisharebest\Webtrees\Auth;
+use Fisharebest\Webtrees\DB;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Enum\MarriageEndReason;
 use MagicSunday\Webtrees\Statistic\Model\Marriage\MarriageDurationExtreme;
@@ -31,6 +32,9 @@ use function array_intersect;
 use function array_map;
 use function array_sum;
 use function array_values;
+use function str_contains;
+use function strpos;
+use function substr;
 
 /**
  * End-to-end test of {@see MarriageRepository} against a curated fixture
@@ -213,6 +217,59 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
             array_sum($result),
             'Divorce-remarriage, never-remarried widow, and remarriage-before-death add nothing',
         );
+    }
+
+    /**
+     * Regression guard for GH-126: the marriage-collapse query underlying
+     * {@see MarriageRepository::remarriageIntervalDistribution()} selects the
+     * non-aggregated `f_husb` / `f_wife` spouse columns alongside a `MAX()`
+     * aggregate, so both spouse columns must appear in the GROUP BY clause.
+     * SQLite tolerates a bare non-aggregated column, but MySQL and MariaDB
+     * reject it under `ONLY_FULL_GROUP_BY` (default since MySQL 5.7 / MariaDB
+     * 10.5) — which crashed the Family tab in production. The query itself
+     * still runs on SQLite, so the guard inspects the compiled SQL to fail
+     * here too rather than only on a live MySQL instance.
+     */
+    #[Test]
+    public function remarriageIntervalQueryGroupsBySelectedSpouseColumns(): void
+    {
+        $tree = $this->importFixtureTree('remarriage-interval.ged');
+
+        DB::connection()->enableQueryLog();
+
+        try {
+            $this->repository($tree)->remarriageIntervalDistribution();
+        } finally {
+            $queries = DB::connection()->getQueryLog();
+            DB::connection()->disableQueryLog();
+        }
+
+        $spouseQuery = '';
+
+        foreach ($queries as $query) {
+            $sql = $query['query'];
+
+            if (str_contains($sql, 'f_husb') && str_contains($sql, 'group by')) {
+                $spouseQuery = $sql;
+
+                break;
+            }
+        }
+
+        self::assertNotSame('', $spouseQuery, 'Marriage-collapse query selecting f_husb not found in the query log');
+
+        // Slice from the GROUP BY keyword onward so the spouse columns in the
+        // SELECT list cannot satisfy the assertions — without the offset guard
+        // a missing `group by` token would fold the whole statement back in and
+        // turn this regression check into a tautology.
+        $groupByPosition = strpos($spouseQuery, 'group by');
+
+        self::assertNotFalse($groupByPosition, 'Compiled SQL has no GROUP BY clause');
+
+        $groupBy = substr($spouseQuery, $groupByPosition);
+
+        self::assertStringContainsString('f_husb', $groupBy, 'f_husb must appear in GROUP BY for ONLY_FULL_GROUP_BY compliance');
+        self::assertStringContainsString('f_wife', $groupBy, 'f_wife must appear in GROUP BY for ONLY_FULL_GROUP_BY compliance');
     }
 
     /**

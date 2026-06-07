@@ -835,7 +835,11 @@ final class MarriageRepository
                 'families.f_wife AS wife',
                 DateAggregate::max('marr', 'd_julianday2', 'marr_jd'),
             ])
-            ->groupBy('families.f_id')
+            // `f_husb` / `f_wife` are non-aggregated, so they must join `f_id`
+            // in the GROUP BY: MySQL / MariaDB reject a bare selected column
+            // under `ONLY_FULL_GROUP_BY`. Both are functionally determined by
+            // the unique `f_id`, so the grouping unit stays one row per family.
+            ->groupBy('families.f_id', 'families.f_husb', 'families.f_wife')
             ->get();
 
         $deathByXref = [];
