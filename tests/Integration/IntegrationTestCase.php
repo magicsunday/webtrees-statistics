@@ -29,18 +29,33 @@ use Fisharebest\Webtrees\Webtrees;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use Throwable;
 
 use function basename;
 use function file_get_contents;
+use function getenv;
 use function preg_split;
 
 /**
- * Minimal in-memory SQLite bootstrap for tests that exercise repositories
- * against a real GEDCOM tree. Mirrors the production schema (no test-only
- * fixtures) so the assertions read the same tables the live module reads.
+ * Bootstrap for tests that exercise repositories against a real GEDCOM tree.
+ * Mirrors the production schema (no test-only fixtures) so the assertions read
+ * the same tables the live module reads.
  *
- * Each test class gets its own fresh database via {@see setUp()} and an
- * importer that loads any GEDCOM file from `tests/fixtures/`.
+ * The database engine is selected via the `WT_TEST_DB_DRIVER` environment
+ * variable and defaults to in-memory SQLite, which keeps the common test run
+ * dependency-free. Setting it to `mysql` (with the matching `WT_TEST_DB_HOST` /
+ * `_PORT` / `_NAME` / `_USER` / `_PASSWORD`) points the suite at a real MySQL
+ * server instead. webtrees sets `sql_mode = 'ANSI,STRICT_ALL_TABLES'` on
+ * connect, and on MySQL ANSI implies `ONLY_FULL_GROUP_BY` with functional-
+ * dependency detection — so the MySQL run is the gate for the whole
+ * `ONLY_FULL_GROUP_BY` class of bugs (error 1055), which SQLite silently
+ * tolerates and therefore cannot catch. MySQL (not MariaDB) is the target: it
+ * matches the reporting environment, and MariaDB's ANSI omits
+ * `ONLY_FULL_GROUP_BY` while its OFGB lacks MySQL's functional-dependency
+ * detection, so it would false-positive the standard full-PK `GROUP BY` idiom.
+ *
+ * Each test gets a fresh schema via {@see setUp()} and an importer that loads
+ * any GEDCOM file from `tests/fixtures/`.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -49,8 +64,17 @@ use function preg_split;
 abstract class IntegrationTestCase extends TestCase
 {
     /**
-     * Connect to an in-memory SQLite database and run every webtrees migration
-     * so the production schema is in place before any test body runs.
+     * Whether the persistent-server schema has already been built this process.
+     * A real MySQL / MariaDB keeps its schema across tests, so the expensive
+     * migration runs once and every later test only truncates the data; the
+     * throwaway in-memory SQLite database is rebuilt per test instead, which is
+     * effectively free.
+     */
+    private static bool $persistentSchemaReady = false;
+
+    /**
+     * Put a freshly-seeded production schema in front of each test, then log in
+     * an administrator so the GEDCOM import path stores real names.
      */
     protected function setUp(): void
     {
@@ -58,8 +82,7 @@ abstract class IntegrationTestCase extends TestCase
 
         // Drop any site preferences cached from a previous test —
         // MigrationService reads WT_SCHEMA_VERSION from this static and
-        // a stale value would skip the schema build, leaving us with an
-        // empty :memory: database that the seed phase then can't query.
+        // a stale value would skip the schema build.
         Site::$preferences = [];
 
         // Boot webtrees' DI container so Registry::container() resolves —
@@ -68,23 +91,16 @@ abstract class IntegrationTestCase extends TestCase
         (new Webtrees())->bootstrap();
         I18N::init('en-US', true);
 
-        DB::connect(
-            driver: DB::SQLITE,
-            host: '',
-            port: '',
-            database: ':memory:',
-            username: '',
-            password: '',
-            prefix: 'wt_',
-            key: '',
-            certificate: '',
-            ca: '',
-            verify_certificate: false,
-        );
+        $this->prepareDatabase();
 
-        $migrationService = new MigrationService();
-        $migrationService->updateSchema('\Fisharebest\Webtrees\Schema', 'WT_SCHEMA_VERSION', Webtrees::SCHEMA_VERSION);
-        $migrationService->seedDatabase();
+        // Reset the query-log state every test. The SQLite path reconnects per
+        // test and so always starts with an empty, disabled log; the persistent
+        // MySQL / MariaDB connection survives across tests, so a prior test that
+        // left logging on (or rows in the log) would otherwise leak into the
+        // next test's getQueryLog() read — making a SQL-inspecting assertion
+        // match a query emitted by a different test.
+        DB::connection()->flushQueryLog();
+        DB::connection()->disableQueryLog();
 
         I18N::init('en-US');
 
@@ -102,14 +118,211 @@ abstract class IntegrationTestCase extends TestCase
         Auth::login($admin);
     }
 
+    /**
+     * Hand the test a freshly-seeded schema. The throwaway SQLite path connects
+     * and migrates anew per test (cheap, in-memory). The persistent MySQL /
+     * MariaDB path migrates once per process and afterwards only truncates and
+     * re-seeds, because re-running the full migration against a real server
+     * costs roughly twenty seconds per test.
+     */
+    private function prepareDatabase(): void
+    {
+        if ($this->resolvedDriver() === DB::SQLITE) {
+            $this->connectDatabase();
+            $this->migrateAndSeed();
+
+            return;
+        }
+
+        if (!self::$persistentSchemaReady) {
+            $this->connectDatabase();
+
+            // Clear any schema left behind by an earlier run before the
+            // one-time migration rebuilds it from scratch.
+            DB::connection()->getSchemaBuilder()->dropAllTables();
+            $this->migrateAndSeed();
+
+            self::$persistentSchemaReady = true;
+
+            return;
+        }
+
+        $this->emptyAllTables();
+
+        // Restore the sentinel DEFAULT_USER / DEFAULT_TREE / default_resn rows
+        // the wipe removed (all three seeders are idempotent upserts).
+        (new MigrationService())->seedDatabase();
+    }
+
+    /**
+     * Run every webtrees migration and seed the default data.
+     */
+    private function migrateAndSeed(): void
+    {
+        $migrationService = new MigrationService();
+        $migrationService->updateSchema('\Fisharebest\Webtrees\Schema', 'WT_SCHEMA_VERSION', Webtrees::SCHEMA_VERSION);
+        $migrationService->seedDatabase();
+    }
+
+    /**
+     * Empty every table on the persistent connection so the next test starts
+     * from a clean slate without paying for a full schema rebuild. Foreign-key
+     * checks are suspended for the duration so the order does not matter.
+     *
+     * Uses `DELETE` rather than `TRUNCATE`: the fixtures are tiny, and on MySQL
+     * each `TRUNCATE` recreates the table's tablespace file — orders of
+     * magnitude slower than deleting a handful of rows across the suite.
+     */
+    private function emptyAllTables(): void
+    {
+        $connection = DB::connection();
+        $tables     = $connection->getSchemaBuilder()->getTableListing(null, false);
+
+        $connection->statement('SET FOREIGN_KEY_CHECKS = 0');
+
+        try {
+            foreach ($tables as $table) {
+                $connection->statement('DELETE FROM `' . $table . '`');
+            }
+        } finally {
+            // Restore enforcement even if a DELETE throws: the persistent
+            // connection is reused across the whole suite (never reconnected
+            // on the MySQL path), so a leaked `FOREIGN_KEY_CHECKS = 0` would
+            // silently disable referential-integrity for every later test —
+            // masking the very engine-strictness bugs this lane exists to
+            // catch.
+            $connection->statement('SET FOREIGN_KEY_CHECKS = 1');
+        }
+    }
+
+    /**
+     * Open the configured test connection. Defaults to a throwaway in-memory
+     * SQLite database; honours `WT_TEST_DB_DRIVER` (plus the matching
+     * `WT_TEST_DB_HOST` / `_PORT` / `_NAME` / `_USER` / `_PASSWORD`) to target a
+     * real MySQL / MariaDB server instead.
+     */
+    private function connectDatabase(): void
+    {
+        $driver = $this->resolvedDriver();
+
+        if ($driver === DB::SQLITE) {
+            DB::connect(
+                driver: DB::SQLITE,
+                host: '',
+                port: '',
+                database: ':memory:',
+                username: '',
+                password: '',
+                prefix: 'wt_',
+                key: '',
+                certificate: '',
+                ca: '',
+                verify_certificate: false,
+            );
+
+            return;
+        }
+
+        DB::connect(
+            driver: $driver,
+            host: $this->databaseEnv('WT_TEST_DB_HOST', '127.0.0.1'),
+            port: $this->databaseEnv('WT_TEST_DB_PORT', '3306'),
+            database: $this->databaseEnv('WT_TEST_DB_NAME', 'webtrees_test'),
+            username: $this->databaseEnv('WT_TEST_DB_USER', 'root'),
+            password: $this->databaseEnv('WT_TEST_DB_PASSWORD', ''),
+            prefix: 'wt_',
+            key: '',
+            certificate: '',
+            ca: '',
+            verify_certificate: false,
+        );
+
+        // webtrees sets `sql_mode = 'ANSI,STRICT_ALL_TABLES'` on connect, and on
+        // MySQL ANSI implies ONLY_FULL_GROUP_BY with full functional-dependency
+        // detection — the exact behaviour that surfaced the error-1055 class in
+        // production. (MariaDB is deliberately NOT a target here: its ANSI omits
+        // ONLY_FULL_GROUP_BY, and forcing it on makes MariaDB reject the
+        // standard `GROUP BY <full PK> + SELECT t.*` idiom that MySQL and core
+        // webtrees both rely on — false positives, not real bugs.)
+        $this->tuneThrowawayDatabase();
+    }
+
+    /**
+     * Trade durability for speed on the throwaway CI database. The container is
+     * discarded after the run and the per-test wipe commits often, so skipping
+     * the redo-log and binlog fsyncs cuts the suite's wall-clock sharply.
+     * Best-effort: ignored when the account lacks SYSTEM_VARIABLES_ADMIN.
+     */
+    private function tuneThrowawayDatabase(): void
+    {
+        try {
+            DB::connection()->statement('SET GLOBAL innodb_flush_log_at_trx_commit = 2');
+            DB::connection()->statement('SET GLOBAL sync_binlog = 0');
+        } catch (Throwable) {
+            // Non-fatal — the suite still runs, just slower.
+        }
+    }
+
+    /**
+     * Resolve the configured database driver, defaulting to SQLite when the
+     * `WT_TEST_DB_DRIVER` environment variable is unset or empty.
+     */
+    private function resolvedDriver(): string
+    {
+        return $this->databaseEnv('WT_TEST_DB_DRIVER', DB::SQLITE);
+    }
+
+    /**
+     * Skip the calling test unless the suite runs against SQLite. Tests that
+     * assert on the exact compiled-SQL string are tied to SQLite's identifier
+     * quoting (double quotes vs MySQL's backticks); the engine-portable runtime
+     * behaviour is covered by the other tests on every driver.
+     *
+     * @param string $reason Why the test only applies to the SQLite grammar
+     */
+    final protected function skipUnlessSqlite(string $reason): void
+    {
+        if ($this->resolvedDriver() !== DB::SQLITE) {
+            self::markTestSkipped($reason);
+        }
+    }
+
+    /**
+     * Read a database connection setting from the environment, falling back to
+     * the supplied default when the variable is unset or empty.
+     *
+     * @param string $name    Name of the environment variable to read
+     * @param string $default Value to use when the variable is unset or empty
+     */
+    private function databaseEnv(string $name, string $default): string
+    {
+        $value = getenv($name);
+
+        if (($value === false) || ($value === '')) {
+            return $default;
+        }
+
+        return $value;
+    }
+
+    /**
+     * Reset the per-test auth/session state and drop only the throwaway SQLite
+     * connection; the persistent MySQL / MariaDB connection and its one-time
+     * schema survive for the next test.
+     */
     protected function tearDown(): void
     {
         Auth::logout();
         Session::clear();
-        DB::connection()->disconnect();
 
-        // Wipe the static site-preferences cache so the next test's
-        // fresh :memory: database does not see this run's schema version.
+        // Keep the persistent connection (and its one-time schema) alive for
+        // the next test; only the throwaway SQLite database is dropped per run.
+        if ($this->resolvedDriver() === DB::SQLITE) {
+            DB::connection()->disconnect();
+        }
+
+        // Wipe the static site-preferences cache so the next test does not see
+        // this run's schema version.
         Site::$preferences = [];
 
         parent::tearDown();

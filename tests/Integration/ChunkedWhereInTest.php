@@ -47,6 +47,11 @@ final class ChunkedWhereInTest extends IntegrationTestCase
      */
     private function seedProbeTable(int $count): array
     {
+        // Drop first so the helper is idempotent on a persistent connection:
+        // the in-memory SQLite path gets a fresh database per test, but the
+        // MySQL / MariaDB path reuses one schema across the suite, so a probe
+        // table left by an earlier test would otherwise collide here.
+        Capsule::schema()->dropIfExists('chunk_probe');
         Capsule::schema()->create('chunk_probe', static function (Blueprint $table): void {
             $table->string('xref');
         });
@@ -186,6 +191,10 @@ final class ChunkedWhereInTest extends IntegrationTestCase
     #[Test]
     public function preservesBaseQueryConstraintsAcrossChunks(): void
     {
+        // Drop first for the same reason as `seedProbeTable()`: the MySQL /
+        // MariaDB path reuses one schema across the suite, so a table left by
+        // an earlier run would otherwise collide on create.
+        Capsule::schema()->dropIfExists('chunk_keep');
         Capsule::schema()->create('chunk_keep', static function (Blueprint $table): void {
             $table->string('xref');
             $table->integer('keep');

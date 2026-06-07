@@ -39,8 +39,15 @@ final class TreeScopeTest extends IntegrationTestCase
         $tree    = $this->importFixtureTree('records.ged');
         $builder = TreeScope::table($tree, 'individuals');
 
-        self::assertSame('select * from "wt_individuals" where "i_file" = ?', $builder->toSql());
+        // Portable: the tree-id binding is identical on every driver, so assert
+        // it on the MySQL lane too — it proves the per-tree filter binds the
+        // right tree id, the cross-tree-leak class this lane exists to guard.
         self::assertSame([$tree->id()], $builder->getBindings());
+
+        // Driver-specific: only the SQLite grammar double-quotes identifiers.
+        $this->skipUnlessSqlite('Asserts the SQLite-quoted compiled SQL string');
+
+        self::assertSame('select * from "wt_individuals" where "i_file" = ?', $builder->toSql());
     }
 
     /**
@@ -54,11 +61,17 @@ final class TreeScopeTest extends IntegrationTestCase
         $tree    = $this->importFixtureTree('records.ged');
         $builder = TreeScope::table($tree, 'families', 'fam');
 
+        // Portable: assert the alias overload binds the right tree id on every
+        // driver before skipping the SQLite-specific string checks below.
+        self::assertSame([$tree->id()], $builder->getBindings());
+
+        // Driver-specific: only the SQLite grammar double-quotes identifiers.
+        $this->skipUnlessSqlite('Asserts the SQLite-quoted compiled SQL string');
+
         $sql = $builder->toSql();
 
         self::assertStringContainsString('from "wt_families" as "wt_fam"', $sql);
         self::assertStringContainsString('where "wt_fam"."f_file" = ?', $sql);
-        self::assertSame([$tree->id()], $builder->getBindings());
     }
 
     /**
