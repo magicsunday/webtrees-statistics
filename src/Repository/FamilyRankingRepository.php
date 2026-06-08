@@ -121,7 +121,7 @@ final readonly class FamilyRankingRepository
                     ->where('gchildren.l_type', '=', 'CHIL');
             })
             ->groupBy(['f_id', 'f_file'])
-            ->orderBy(new Expression('COUNT(*)'), 'DESC')
+            ->orderBy(new Expression('COUNT(*)'), 'desc')
             // Deterministic tie-break so the limit picks a stable subset when
             // several families share the same grandchild-link count.
             ->orderBy('f_id')

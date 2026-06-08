@@ -36,6 +36,39 @@ parameters:
             identifier: function.nameCase
             path: src/Repository/LifeSpanRepository.php
 
+        # illuminate 13.13+ narrowed the raw-SQL builder surface to
+        # `literal-string`: `Expression::__construct()`, `Builder::selectRaw()`
+        # and `Builder::orderByRaw()` now reject runtime-built strings. Our
+        # aggregate fragments deliberately embed the connection table prefix
+        # (`DB::connection()->getTablePrefix()`) and the physical table name so
+        # the MIN/MAX/SUM references the actual prefixed table — trusted, but
+        # provably non-literal. Released webtrees still ships illuminate 12.x
+        # without the narrowing; this only fires against the `dev-main` probe.
+        -
+            message: '#expects (literal-string|TValue of float\|int\|literal-string)#'
+            identifier: argument.type
+            paths:
+                - src/Repository/EventRepository.php
+                - src/Repository/FamilyRankingRepository.php
+                - src/Repository/LifeSpanRepository.php
+                - src/Support/Database/DateAggregate.php
+
+        # Same root cause surfacing on the `@return Expression<…>` generics: the
+        # illuminate 13 Expression template bound became
+        # `float|int|literal-string`, so a runtime-string Expression no longer
+        # satisfies the documented generic argument.
+        -
+            message: '#generic type Illuminate.+Expression#'
+            identifier: generics.notSubtype
+            paths:
+                - src/Repository/LifeSpanRepository.php
+                - src/Support/Database/DateAggregate.php
+
+        -
+            message: '#should return Illuminate.+Expression<non-falsy-string>#'
+            identifier: return.type
+            path: src/Support/Database/DateAggregate.php
+
     phpat:
         show_rule_names: true
 
