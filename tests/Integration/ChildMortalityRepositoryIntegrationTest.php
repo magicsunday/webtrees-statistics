@@ -234,4 +234,34 @@ final class ChildMortalityRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame(1, $result->died, '1825-day child is under-5; the 1826-day child has reached five');
         self::assertSame(50.0, $result->rate);
     }
+
+    /**
+     * The reported-bug class for the cohort cards (issue #135): a child whose
+     * birth is written in the French Republican calendar (An XII = 1803) must
+     * land in the 19th-century cohort instead of being excluded as the module
+     * did before. child-mortality-non-gregorian.ged seeds five An-XII births —
+     * three dead before five, two survivors with Gregorian death dates — so the
+     * cohort proves both the Gregorian-century conversion AND that the
+     * under-five julian-day span is correct across a French birth and a
+     * Gregorian death. Under the old Gregorian/Julian-only filter the whole
+     * cohort was dropped, so `$byCentury[19]` would not exist at all.
+     */
+    #[Test]
+    public function byBirthCenturyConvertsNonGregorianBirthsToTheirGregorianCentury(): void
+    {
+        $tree   = $this->importFixtureTree('child-mortality-non-gregorian.ged');
+        $result = (new ChildMortalityRepository($tree))->byBirthCentury();
+
+        $byCentury = [];
+
+        foreach ($result as $entry) {
+            $byCentury[$entry['century']] = $entry;
+        }
+
+        self::assertArrayHasKey(19, $byCentury, 'French Republican An XII births form a 19th-century cohort.');
+        self::assertArrayNotHasKey(1, $byCentury, 'The native An-XII year (12) is not read as the 1st century.');
+        self::assertSame(5, $byCentury[19]['total']);
+        self::assertSame(3, $byCentury[19]['died']);
+        self::assertSame(60.0, $byCentury[19]['rate']);
+    }
 }
