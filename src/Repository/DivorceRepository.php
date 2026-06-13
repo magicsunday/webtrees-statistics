@@ -159,13 +159,13 @@ final readonly class DivorceRepository
      */
     public function divorceRateByMarriageCohort(): array
     {
-        // Ranged MARR / DIV dates produce two `dates` rows per anchor,
-        // so a FAM with a ranged MARR or DIV would surface multiple
-        // times and inflate both `total` and `divorced` within the
-        // affected cohort. Grouping by `families.f_id` and
-        // aggregating each year with `MIN(d_year)` collapses the
-        // duplicates onto the lower-bound year so each FAM
-        // contributes exactly one tick to its decade cohort.
+        // Ranged MARR / DIV dates produce two `dates` rows per anchor, so a FAM
+        // with a ranged MARR (or DIV) surfaces multiple times. Collapse to one
+        // tick per FAM in PHP onto its earliest marriage: the lower-bound MARR
+        // row is resolved row-coherently (its d_type, d_year and d_julianday1
+        // taken together) so a FAM whose two marriages are dated in different
+        // calendars still converts the cohort year from the earlier one. A FAM
+        // counts as divorced when any DIV row is present.
         $rows = TreeScope::table($this->tree, 'families')
             ->join('dates AS marr', static function (JoinClause $join): void {
                 DateJoin::on($join, 'marr', 'f_file', 'f_id', 'MARR');
@@ -178,24 +178,55 @@ final readonly class DivorceRepository
                     ->where('divr.d_fact', '=', 'DIV');
             })
             ->select([
-                DateAggregate::min('marr', 'd_type', 'marr_type'),
-                DateAggregate::min('marr', 'd_julianday1', 'marr_jd'),
-                DateAggregate::min('marr', 'd_year', 'marr_year'),
-                DateAggregate::min('divr', 'd_year', 'div_year'),
+                'families.f_id AS family_id',
+                'marr.d_type AS marr_type',
+                'marr.d_year AS marr_year',
+                'marr.d_julianday1 AS marr_jd',
+                'divr.d_gid AS divorced',
             ])
-            ->groupBy('families.f_id')
             ->get();
+
+        /** @var array<string, array{marrJd: int, marrType: string, marrYear: int, divorced: bool}> $perFamily */
+        $perFamily = [];
+
+        foreach ($rows as $row) {
+            $familyId = RowCast::string($row, 'family_id');
+            $marrJd   = RowCast::int($row, 'marr_jd');
+
+            if (($familyId === '') || ($marrJd <= 0)) {
+                continue;
+            }
+
+            $divorced = ($row->divorced ?? null) !== null;
+
+            if (!isset($perFamily[$familyId])) {
+                $perFamily[$familyId] = [
+                    'marrJd'   => $marrJd,
+                    'marrType' => RowCast::string($row, 'marr_type'),
+                    'marrYear' => RowCast::int($row, 'marr_year'),
+                    'divorced' => $divorced,
+                ];
+
+                continue;
+            }
+
+            if ($marrJd < $perFamily[$familyId]['marrJd']) {
+                $perFamily[$familyId]['marrJd']   = $marrJd;
+                $perFamily[$familyId]['marrType'] = RowCast::string($row, 'marr_type');
+                $perFamily[$familyId]['marrYear'] = RowCast::int($row, 'marr_year');
+            }
+
+            if ($divorced) {
+                $perFamily[$familyId]['divorced'] = true;
+            }
+        }
 
         $perCohort = [];
 
-        foreach ($rows as $row) {
+        foreach ($perFamily as $family) {
             // Bucket by the GREGORIAN marriage year: native d_year for
             // Gregorian/Julian, the lower-bound julian day converted otherwise.
-            $marrYear = GregorianDate::year(
-                RowCast::string($row, 'marr_type'),
-                RowCast::int($row, 'marr_year'),
-                RowCast::int($row, 'marr_jd'),
-            );
+            $marrYear = GregorianDate::year($family['marrType'], $family['marrYear'], $family['marrJd']);
 
             if ($marrYear === 0) {
                 continue;
@@ -209,7 +240,7 @@ final readonly class DivorceRepository
 
             ++$perCohort[$cohort]['total'];
 
-            if (($row->div_year ?? null) !== null) {
+            if ($family['divorced']) {
                 ++$perCohort[$cohort]['divorced'];
             }
         }

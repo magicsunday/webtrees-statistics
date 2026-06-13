@@ -18,6 +18,7 @@ use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Model\Metric\RateCount;
 use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
+use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
@@ -112,17 +113,12 @@ final readonly class TreeHealthRepository
      */
     public function sourceCitationCoverageByCentury(): array
     {
-        $birthRows = TreeScope::table($this->tree, 'dates')
-            ->where('d_fact', '=', 'BIRT')
-            ->where('d_year', '<>', 0)
-            ->where('d_julianday1', '<>', 0)
-            ->select([
-                'd_gid',
-                new Expression('MIN(d_type) AS d_type'),
-                new Expression('MIN(d_year) AS year'),
-                new Expression('MIN(d_julianday1) AS jd'),
-            ])
-            ->groupBy('d_gid')
+        // Source from DedupedEventDates so each individual's birth collapses to
+        // its single lower-bound representative row — the d_type, d_year and
+        // d_julianday1 are then coherent (taken from one row), which independent
+        // `MIN()`s over a multi-calendar individual would not guarantee.
+        $birthRows = DedupedEventDates::query($this->tree, 'BIRT')
+            ->select(['d_gid', 'd_type', 'd_year', 'd_julianday1'])
             ->get();
 
         // SOUR links anchored at individuals only — join filters out
@@ -154,8 +150,8 @@ final readonly class TreeHealthRepository
             // Gregorian/Julian, the lower-bound julian day converted otherwise.
             $birthYear = GregorianDate::year(
                 RowCast::string($birthRow, 'd_type'),
-                RowCast::int($birthRow, 'year'),
-                RowCast::int($birthRow, 'jd'),
+                RowCast::int($birthRow, 'd_year'),
+                RowCast::int($birthRow, 'd_julianday1'),
             );
 
             $individualId = RowCast::string($birthRow, 'd_gid');

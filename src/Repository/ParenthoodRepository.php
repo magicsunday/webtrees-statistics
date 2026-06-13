@@ -24,7 +24,6 @@ use MagicSunday\Webtrees\Statistic\Support\Calc\AgeBuckets;
 use MagicSunday\Webtrees\Statistic\Support\Calc\CalendarSpan;
 use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
 use MagicSunday\Webtrees\Statistic\Support\Database\ChildLinkJoin;
-use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
@@ -165,13 +164,12 @@ final class ParenthoodRepository
      * (the trend X-anchor for the per-decade aggregate). Groups by the parent
      * xref so a man married three times yields one row referencing whichever
      * family produced his first child; a ranged parent BIRT — two `dates`
-     * rows — is collapsed onto its lower-bound julian day via
-     * `MIN(d_julianday1)` so the parent surfaces once rather than once per
-     * bound. Ages outside the
-     * plausibility band are dropped at source. `MIN(d_year)` is
-     * monotone-equivalent to the year-of `MIN(d_julianday1)` within the same
-     * parent's children, so the two child MIN aggregates always describe the
-     * same birth event.
+     * rows — is collapsed onto its lower-bound julian day in PHP so the parent
+     * surfaces once rather than once per bound. Ages outside the plausibility
+     * band are dropped at source. The earliest child is resolved row-coherently
+     * (its `d_type`, `d_year` and `d_julianday1` taken together from the
+     * minimum-julian-day row), so a parent whose children are dated in different
+     * calendars still converts the bucket year from the correct child.
      *
      * @param string $sex 'M' for fathers, 'F' for mothers
      *
@@ -195,70 +193,88 @@ final class ParenthoodRepository
             ->join('dates AS child_birth', static function (JoinClause $join): void {
                 DateJoin::on($join, 'child_birth', 'famc.l_file', 'famc.l_from', 'BIRT', DateJoin::JD_GREATER_THAN_ZERO);
             })
-            // Enforce d_year populated alongside d_julianday1 so the two
-            // MIN aggregates below describe the same row. Without this
-            // guard a child whose import path wrote a positive julian-day
-            // but a zero d_year would let MIN(d_year) collapse to 0 while
-            // MIN(d_julianday1) returned a real JD from a different
-            // sibling, and the downstream `if ($childYear === 0)` filter
-            // would drop the whole parent row.
+            // Drop year-less children at source; the PHP collapse below trusts a
+            // non-zero d_year on every surviving row.
             ->where('child_birth.d_year', '<>', 0)
-            ->groupBy('fam.' . $parentColumn)
             ->select([
                 'fam.' . $parentColumn . ' AS parent_xref',
-                DateAggregate::min('parent_birth', 'd_julianday1', 'parent_birth_jd'),
-                DateAggregate::min('child_birth', 'd_julianday1', 'first_child_jd'),
-                DateAggregate::min('child_birth', 'd_type', 'first_child_type'),
-                DateAggregate::min('child_birth', 'd_year', 'first_child_year'),
+                'parent_birth.d_julianday1 AS parent_birth_jd',
+                'child_birth.d_julianday1 AS child_jd',
+                'child_birth.d_type AS child_type',
+                'child_birth.d_year AS child_year',
             ])
             ->get();
 
-        $out = [];
+        // Collapse to one row per parent in PHP rather than via independent SQL
+        // MIN()s. The earliest child must contribute its OWN d_type + d_year +
+        // d_julianday1 COHERENTLY: column-wise minima could draw the calendar
+        // from one child and the year from a different one when a parent's
+        // children are dated in different calendars, mis-converting the bucket
+        // ({@see GregorianDate} picks its branch from d_type but returns the
+        // native d_year for Gregorian/Julian).
+        /** @var array<string, array{xref: string, parentJd: int, childJd: int, childType: string, childYear: int}> $earliest */
+        $earliest = [];
 
         foreach ($rows as $row) {
             $xref     = RowCast::string($row, 'parent_xref');
             $parentJd = RowCast::int($row, 'parent_birth_jd');
-            $childJd  = RowCast::int($row, 'first_child_jd');
+            $childJd  = RowCast::int($row, 'child_jd');
 
-            if ($xref === '') {
+            if (($xref === '') || ($parentJd <= 0) || ($childJd <= 0)) {
                 continue;
             }
 
-            if ($parentJd <= 0) {
+            if (!isset($earliest[$xref])) {
+                $earliest[$xref] = [
+                    'xref'      => $xref,
+                    'parentJd'  => $parentJd,
+                    'childJd'   => $childJd,
+                    'childType' => RowCast::string($row, 'child_type'),
+                    'childYear' => RowCast::int($row, 'child_year'),
+                ];
+
                 continue;
             }
+
+            if ($parentJd < $earliest[$xref]['parentJd']) {
+                $earliest[$xref]['parentJd'] = $parentJd;
+            }
+
+            // Keep the whole earliest-child row together (type + year + jd).
+            if ($childJd < $earliest[$xref]['childJd']) {
+                $earliest[$xref]['childJd']   = $childJd;
+                $earliest[$xref]['childType'] = RowCast::string($row, 'child_type');
+                $earliest[$xref]['childYear'] = RowCast::int($row, 'child_year');
+            }
+        }
+
+        $out = [];
+
+        foreach ($earliest as $pair) {
+            $parentJd = $pair['parentJd'];
+            $childJd  = $pair['childJd'];
 
             if ($childJd <= $parentJd) {
                 continue;
             }
 
-            // Bucket by the GREGORIAN birth year of the earliest child: native
-            // d_year for Gregorian/Julian, the earliest child's julian day
-            // converted otherwise. Only the degenerate unparseable year 0 is
-            // then dropped (the SQL `d_year <> 0` already excludes it); a BCE
-            // child-birth year is negative and folds into a negative decade
-            // through DecadeName.
-            $childYear = GregorianDate::year(
-                RowCast::string($row, 'first_child_type'),
-                RowCast::int($row, 'first_child_year'),
-                $childJd,
-            );
+            $years = CalendarSpan::wholeYears($parentJd, $childJd);
+
+            if (($years < self::MIN_PLAUSIBLE_AGE) || ($years > self::MAX_PLAUSIBLE_AGE)) {
+                continue;
+            }
+
+            // The earliest child's bucket year, from the one coherent row above:
+            // native d_year for Gregorian/Julian, the child's julian day
+            // converted otherwise. The SQL `d_year <> 0` already dropped the
+            // unparseable year 0; a BCE year stays negative for DecadeName.
+            $childYear = GregorianDate::year($pair['childType'], $pair['childYear'], $childJd);
 
             if ($childYear === 0) {
                 continue;
             }
 
-            $years = CalendarSpan::wholeYears($parentJd, $childJd);
-
-            if ($years < self::MIN_PLAUSIBLE_AGE) {
-                continue;
-            }
-
-            if ($years > self::MAX_PLAUSIBLE_AGE) {
-                continue;
-            }
-
-            $out[] = ['xref' => $xref, 'years' => $years, 'childBirthYear' => $childYear];
+            $out[] = ['xref' => $pair['xref'], 'years' => $years, 'childBirthYear' => $childYear];
         }
 
         $this->ageAtFirstChildPairsCache[$sex] = $out;
