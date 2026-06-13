@@ -193,7 +193,11 @@ final readonly class DivorceRepository
             $familyId = RowCast::string($row, 'family_id');
             $marrJd   = RowCast::int($row, 'marr_jd');
 
-            if (($familyId === '') || ($marrJd <= 0)) {
+            if ($familyId === '') {
+                continue;
+            }
+
+            if ($marrJd <= 0) {
                 continue;
             }
 

@@ -220,7 +220,15 @@ final class ParenthoodRepository
             $parentJd = RowCast::int($row, 'parent_birth_jd');
             $childJd  = RowCast::int($row, 'child_jd');
 
-            if (($xref === '') || ($parentJd <= 0) || ($childJd <= 0)) {
+            if ($xref === '') {
+                continue;
+            }
+
+            if ($parentJd <= 0) {
+                continue;
+            }
+
+            if ($childJd <= 0) {
                 continue;
             }
 
@@ -260,7 +268,11 @@ final class ParenthoodRepository
 
             $years = CalendarSpan::wholeYears($parentJd, $childJd);
 
-            if (($years < self::MIN_PLAUSIBLE_AGE) || ($years > self::MAX_PLAUSIBLE_AGE)) {
+            if ($years < self::MIN_PLAUSIBLE_AGE) {
+                continue;
+            }
+
+            if ($years > self::MAX_PLAUSIBLE_AGE) {
                 continue;
             }
 
