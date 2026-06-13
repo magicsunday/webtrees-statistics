@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Support\Aggregator;
 
 use Fisharebest\Webtrees\Tree;
+use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
@@ -27,7 +28,10 @@ use function ksort;
  * for the births / deaths / weddings / divorces histograms: core counts raw
  * `dates` rows, so a range date (`BET..AND` / `FROM..TO`) is double-counted and
  * may split across two centuries. Sourcing the count from
- * {@see DedupedEventDates} collapses each record to its lower-bound row first.
+ * {@see DedupedEventDates} collapses each record to its lower-bound row first,
+ * and {@see GregorianDate} converts a non-Gregorian/Julian date (French
+ * Republican, Hebrew, …) to its Gregorian year so it lands in the century it
+ * actually occurred in rather than being excluded.
  *
  * The per-century fold reuses {@see CenturyName::fromYear()} — the module's
  * single source of truth for the year→century convention — so these histograms
@@ -61,16 +65,21 @@ final readonly class EventCenturyTally
     public static function countByCentury(Tree $tree, string $fact): array
     {
         $rows = DedupedEventDates::query($tree, $fact)
-            ->selectRaw('d_year, COUNT(*) AS total')
-            ->groupBy('d_year')
+            ->select(['d_type', 'd_year', 'd_julianday1'])
             ->get();
 
         $byCentury = [];
 
         foreach ($rows as $row) {
-            $century = CenturyName::fromYear(RowCast::int($row, 'd_year'));
+            $year = GregorianDate::year(
+                RowCast::string($row, 'd_type'),
+                RowCast::int($row, 'd_year'),
+                RowCast::int($row, 'd_julianday1'),
+            );
 
-            $byCentury[$century] = ($byCentury[$century] ?? 0) + RowCast::int($row, 'total');
+            $century = CenturyName::fromYear($year);
+
+            $byCentury[$century] = ($byCentury[$century] ?? 0) + 1;
         }
 
         ksort($byCentury);

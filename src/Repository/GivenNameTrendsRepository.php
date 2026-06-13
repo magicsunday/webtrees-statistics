@@ -12,11 +12,10 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
-use Illuminate\Database\Capsule\Manager as DB;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Model\StreamGraph\GivenNameTrendsPayload;
-use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
+use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
+use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 
 use function array_keys;
@@ -168,49 +167,57 @@ final readonly class GivenNameTrendsRepository
     }
 
     /**
-     * Load every individual's primary given name plus a parseable birth year.
-     * Skips rows where either piece is missing.
+     * Load every individual's primary given name plus its Gregorian birth year.
+     *
+     * The birth year comes from the `dates` table via {@see DedupedEventDates}
+     * (one deduplicated lower-bound row per individual) rather than a raw-GEDCOM
+     * scan, so a non-Gregorian/Julian birth (French Republican, Hebrew, …) is
+     * {@see GregorianDate}-converted to the decade it actually occurred in
+     * instead of being read in its native calendar's year (An XII → decade 10).
+     * Only individuals carrying both a primary given name and a dated birth
+     * contribute; the join drops the rest.
      *
      * @return list<array{givn: string, year: int}>
      */
     private function loadIndividualNamesAndYears(): array
     {
-        $rows = DB::table('individuals')
-            ->join('name', static function (JoinClause $join): void {
+        $treeId = $this->tree->id();
+
+        $rows = DedupedEventDates::query($this->tree, 'BIRT')
+            ->join('name', static function (JoinClause $join) use ($treeId): void {
                 $join
-                    ->on('name.n_file', '=', 'individuals.i_file')
-                    ->on('name.n_id', '=', 'individuals.i_id')
+                    ->on('name.n_id', '=', 'event_dates.d_gid')
+                    ->where('name.n_file', '=', $treeId)
                     ->where('name.n_num', '=', 0)
                     ->where('name.n_type', '<>', '_MARNM');
             })
-            ->where('individuals.i_file', '=', $this->tree->id())
-            ->where(static function (Builder $query): void {
-                $query
-                    ->whereNotNull('name.n_givn')
-                    ->where('name.n_givn', '<>', '');
-            })
-            ->select(
+            ->whereNotNull('name.n_givn')
+            ->where('name.n_givn', '<>', '')
+            ->select([
                 'name.n_givn AS givn',
-                'individuals.i_gedcom AS gedcom',
-            )
+                'event_dates.d_type AS d_type',
+                'event_dates.d_year AS d_year',
+                'event_dates.d_julianday1 AS d_julianday1',
+            ])
             ->get();
 
         $out = [];
 
         foreach ($rows as $row) {
-            $givn   = RowCast::string($row, 'givn');
-            $gedcom = RowCast::string($row, 'gedcom');
-            $year   = GedcomScanner::extractEventYear($gedcom, 'BIRT');
+            $givn = RowCast::string($row, 'givn');
 
             if ($givn === '') {
                 continue;
             }
 
-            if ($year === null) {
-                continue;
-            }
-
-            $out[] = ['givn' => $givn, 'year' => $year];
+            $out[] = [
+                'givn' => $givn,
+                'year' => GregorianDate::year(
+                    RowCast::string($row, 'd_type'),
+                    RowCast::int($row, 'd_year'),
+                    RowCast::int($row, 'd_julianday1'),
+                ),
+            ];
         }
 
         return $out;

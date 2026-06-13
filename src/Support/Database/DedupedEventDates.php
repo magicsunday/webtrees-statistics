@@ -56,16 +56,23 @@ use Illuminate\Database\Query\JoinClause;
  * bucket.
  *
  * The returned builder reads like a virtual `event_dates` table with columns
- * `d_gid, d_year, d_mon, d_day`; consumers chain their own `select()` /
- * `groupBy()` to bucket it, and `->count()` reports the number of distinct
- * individuals. The month is exposed as the numeric `d_mon` (1–12, or 0 when the
- * date carries no month); consumers translate it to a label, so the numeric and
- * string month columns can never disagree. Only Gregorian / Julian dated events
- * with a known year are included, matching webtrees core's
- * `StatisticsData::countEventQuery()` universe. Julian-day columns are
- * deliberately not exposed: for a range date the lower-bound row's
- * `d_julianday2` is that row's own span, not the record's upper bound, so
- * surfacing it would invite mis-bucketing.
+ * `d_gid, d_type, d_year, d_mon, d_day, d_julianday1`; consumers chain their own
+ * `select()` / `groupBy()` to bucket it, and `->count()` reports the number of
+ * distinct individuals. The month is exposed as the numeric `d_mon` (1–12, or 0
+ * when the date carries no month); consumers translate it to a label, so the
+ * numeric and string month columns can never disagree.
+ *
+ * Every dated event with a known year is included regardless of calendar — wider
+ * than webtrees core's Gregorian/Julian-only `StatisticsData::countEventQuery()`
+ * universe. A non-Gregorian/Julian date (French Republican, Hebrew, …) carries a
+ * native `d_year` meaningless on the Gregorian scale, so consumers that bucket by
+ * period MUST convert it through {@see \MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate}
+ * using the exposed `d_type` and lower-bound `d_julianday1`; for Gregorian/Julian
+ * that conversion is a no-op and the native `d_year`/`d_mon`/`d_day` win. The
+ * lower-bound `d_julianday1` is exposed for exactly this conversion; `d_julianday2`
+ * is not, because for a range date the lower-bound row's `d_julianday2` is that
+ * row's own span, not the record's upper bound, so surfacing it would invite
+ * mis-bucketing.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -73,12 +80,6 @@ use Illuminate\Database\Query\JoinClause;
  */
 final readonly class DedupedEventDates
 {
-    /**
-     * Calendar date types core counts — the synthesised julian-days are only
-     * meaningful for Gregorian and Julian dates.
-     */
-    private const array DATED_TYPES = ['@#DGREGORIAN@', '@#DJULIAN@'];
-
     /**
      * Prevent instantiation — static-only utility.
      */
@@ -108,9 +109,11 @@ final readonly class DedupedEventDates
             ->groupBy('d.d_gid')
             ->select([
                 'd.d_gid',
+                DateAggregate::min('d', 'd_type', 'd_type'),
                 DateAggregate::min('d', 'd_year', 'd_year'),
                 DateAggregate::min('d', 'd_mon', 'd_mon'),
                 DateAggregate::min('d', 'd_day', 'd_day'),
+                DateAggregate::min('d', 'd_julianday1', 'd_julianday1'),
             ]);
 
         return DB::connection()
@@ -119,11 +122,17 @@ final readonly class DedupedEventDates
     }
 
     /**
-     * Restrict a `dates` query to the count universe core's `countEventQuery()`
-     * uses — the given fact, a Gregorian or Julian calendar type, and a known
-     * year. Both the lower-bound subquery and the join-back query share these
-     * predicates; the outer copy is load-bearing, not redundant, because a
-     * foreign-fact / off-calendar / year-less row sharing the representative's
+     * Restrict a `dates` query to the resolvable-event universe — the given
+     * fact, a known year (`d_year <> 0`), and a usable lower-bound julian day
+     * (`d_julianday1 <> 0`) so every calendar can be converted to a Gregorian
+     * period. Calendar type is deliberately NOT filtered: unlike core's
+     * Gregorian/Julian-only `countEventQuery()`, this universe keeps every
+     * calendar and leaves the conversion to the consumer. The `d_julianday1`
+     * predicate is a no-op for Gregorian/Julian dated rows (the import always
+     * synthesises a julian day for a known year), so their universe is
+     * unchanged. Both the lower-bound subquery and the join-back query share
+     * these predicates; the outer copy is load-bearing, not redundant, because a
+     * foreign-fact / year-less / julian-day-less row sharing the representative's
      * julian day would otherwise join back and corrupt the collapse.
      *
      * @param Builder $query  The `dates` query to constrain
@@ -134,7 +143,7 @@ final readonly class DedupedEventDates
     {
         return $query
             ->where($prefix . 'd_fact', '=', $fact)
-            ->whereIn($prefix . 'd_type', self::DATED_TYPES)
-            ->where($prefix . 'd_year', '<>', 0);
+            ->where($prefix . 'd_year', '<>', 0)
+            ->where($prefix . 'd_julianday1', '<>', 0);
     }
 }

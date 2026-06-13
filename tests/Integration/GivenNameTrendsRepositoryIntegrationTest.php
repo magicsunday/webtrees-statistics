@@ -113,6 +113,32 @@ final class GivenNameTrendsRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
+     * The reported bug (issue #135): a birth written in a non-Gregorian calendar
+     * must bucket into the Gregorian decade it actually occurred in, not its
+     * native-calendar year. name-trends-non-gregorian.ged seeds three "Napoleon"
+     * born `@#DFRENCH R@ 1 VEND 12` (An XII = 1803) and two "Moses" born
+     * `@#DHEBREW@ 1 TSH 5661` (= 1900). The former must land in the 1800s decade
+     * (NOT decade 10, the literal An-XII year the old raw-GEDCOM scan produced)
+     * and the latter in the 1900s (NOT decade 5660).
+     */
+    #[Test]
+    public function countByDecadeConvertsNonGregorianBirthsToTheirGregorianDecade(): void
+    {
+        $tree   = $this->importFixtureTree('name-trends-non-gregorian.ged');
+        $result = (new GivenNameTrendsRepository($tree))->countByDecade(10);
+
+        self::assertSame(range(1800, 1900, 10), $result->decades);
+        self::assertSame(['Napoleon', 'Moses'], $result->names);
+
+        self::assertSame(3, $result->series['Napoleon'][1800], 'French Republican An XII → the 1800s decade.');
+        self::assertSame(2, $result->series['Moses'][1900], 'Hebrew 5661 → the 1900s decade.');
+
+        // The native-year buckets the old raw-GEDCOM scan produced must not exist.
+        self::assertArrayNotHasKey(10, $result->series['Napoleon'], 'An XII is not bucketed as Gregorian year 12.');
+        self::assertArrayNotHasKey(5660, $result->series['Moses'], 'Hebrew 5661 is not bucketed as year 5661.');
+    }
+
+    /**
      * Asking for a top-N smaller than the distinct-name count truncates the
      * result to exactly that many bands and to the decades where at least one
      * of those bands actually has data. Within each kept decade the series rows

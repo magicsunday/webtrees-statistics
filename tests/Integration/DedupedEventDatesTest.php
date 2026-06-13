@@ -13,6 +13,7 @@ namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use Fisharebest\Webtrees\DB;
 use Fisharebest\Webtrees\Tree;
+use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
@@ -36,10 +37,13 @@ use PHPUnit\Framework\Attributes\UsesClass;
  *  - I4 `BET DEC 1880 AND JAN 1881`→ two rows (Dec 1880 / Jan 1881)
  *  - I5 `MAR 1900`                 → month-only → ONE row (year 1900, month 3)
  *  - I6 `1 JAN 1910` BIRT + `1 JAN 1980` DEAT → exercises fact scoping
- *  - I7 `@#DHEBREW@ 1 TSH 5661`    → non-Gregorian → excluded (d_type filter)
+ *  - I7 `@#DHEBREW@ 1 TSH 5661`    → non-Gregorian → KEPT (native year 5661,
+ *                                    julian day 2415287, converts to 1900)
  *  - I8 `(uncertain)`              → no parseable year → excluded (d_year<>0 filter)
  *
- * So `query(tree, 'BIRT')` yields six individuals (I1–I6); I7 and I8 drop out.
+ * So `query(tree, 'BIRT')` yields seven individuals (I1–I7); only the year-less
+ * I8 drops out. The Hebrew I7 is no longer filtered by calendar — consumers
+ * convert its lower-bound julian day to a Gregorian period via {@see GregorianDate}.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -47,16 +51,18 @@ use PHPUnit\Framework\Attributes\UsesClass;
  */
 #[CoversClass(DedupedEventDates::class)]
 #[UsesClass(DateAggregate::class)]
+#[UsesClass(GregorianDate::class)]
 #[UsesClass(RowCast::class)]
 final class DedupedEventDatesTest extends IntegrationTestCase
 {
     /**
      * The raw table carries the doubled rows (guards the premise); the helper
-     * collapses them to one row per individual and drops the off-calendar
-     * (Hebrew) and year-less rows that core's count universe also excludes.
+     * collapses them to one row per individual, keeps every calendar (the Hebrew
+     * birth is no longer dropped — consumers convert it), and still excludes the
+     * year-less row that has no parseable period at all.
      */
     #[Test]
-    public function collapsesDoubledRowsAndExcludesOffCalendarAndYearlessRows(): void
+    public function collapsesDoubledRowsKeepsEveryCalendarAndExcludesYearlessRows(): void
     {
         $tree = $this->importFixtureTree('deduped-event-dates.ged');
 
@@ -70,9 +76,46 @@ final class DedupedEventDatesTest extends IntegrationTestCase
 
         $gids = $this->birthGids($tree);
 
-        self::assertSame(['I1', 'I2', 'I3', 'I4', 'I5', 'I6'], $gids);
-        self::assertNotContains('I7', $gids, 'Hebrew (non-Gregorian/Julian) birth is excluded.');
+        self::assertSame(['I1', 'I2', 'I3', 'I4', 'I5', 'I6', 'I7'], $gids);
+        self::assertContains('I7', $gids, 'Hebrew (non-Gregorian) birth is kept, not excluded.');
         self::assertNotContains('I8', $gids, 'Year-less birth is excluded.');
+    }
+
+    /**
+     * A non-Gregorian representative row exposes the inputs a period-bucketing
+     * consumer needs to convert it: its native `d_year` plus the calendar
+     * `d_type` and lower-bound `d_julianday1`. The Hebrew birth `1 TSH 5661`
+     * keeps native year 5661 here, and {@see GregorianDate} converts it to the
+     * Gregorian year 1900.
+     */
+    #[Test]
+    public function nonGregorianRowExposesConversionInputs(): void
+    {
+        $tree = $this->importFixtureTree('deduped-event-dates.ged');
+
+        $row = null;
+
+        foreach (DedupedEventDates::query($tree, 'BIRT')->get() as $candidate) {
+            if (RowCast::string($candidate, 'd_gid') === 'I7') {
+                $row = $candidate;
+
+                break;
+            }
+        }
+
+        self::assertNotNull($row, 'The Hebrew birth surfaces as a representative row.');
+        self::assertSame('@#DHEBREW@', RowCast::string($row, 'd_type'));
+        self::assertSame(5661, RowCast::int($row, 'd_year'), 'Native Hebrew year is exposed unconverted.');
+        self::assertSame(2415287, RowCast::int($row, 'd_julianday1'), 'Lower-bound julian day for the conversion.');
+        self::assertSame(
+            1900,
+            GregorianDate::year(
+                RowCast::string($row, 'd_type'),
+                RowCast::int($row, 'd_year'),
+                RowCast::int($row, 'd_julianday1'),
+            ),
+            'Hebrew 5661 converts to Gregorian 1900.',
+        );
     }
 
     /**
@@ -158,7 +201,7 @@ final class DedupedEventDatesTest extends IntegrationTestCase
     {
         $tree = $this->importFixtureTree('deduped-event-dates.ged');
 
-        self::assertSame(['I1', 'I2', 'I3', 'I4', 'I5', 'I6'], $this->birthGids($tree));
+        self::assertSame(['I1', 'I2', 'I3', 'I4', 'I5', 'I6', 'I7'], $this->birthGids($tree));
 
         // I1's Gregorian birth is 1 JAN 1900 (d_julianday1 = 2415021, month 1).
         // Every poison row below shares that julian day, so the join-back admits
@@ -173,8 +216,12 @@ final class DedupedEventDatesTest extends IntegrationTestCase
         // (b) Off-fact (DEAT): the outer d_fact filter must reject it.
         DB::table('dates')->insert($this->dateRow($tree, 'DEAT', '@#DGREGORIAN@', 1, 1));
 
-        // (c) Off-calendar (Hebrew): the outer d_type filter must reject it.
-        DB::table('dates')->insert($this->dateRow($tree, 'BIRT', '@#DHEBREW@', 1, 1));
+        // (c) A Hebrew BIRT tie row is no longer rejected by calendar — it joins
+        // I1's collapse. Its native Hebrew year (5661) sits far above the
+        // Gregorian 1900, so the year minimum still surfaces 1900 and the
+        // Gregorian d_type (G < H) wins the type minimum: the cross-calendar tie
+        // stays one coherent row and does not corrupt the survivor.
+        DB::table('dates')->insert($this->dateRow($tree, 'BIRT', '@#DHEBREW@', 1, 5661));
 
         // (d) Year-less (d_year = 0): the outer d_year<>0 filter must reject it.
         DB::table('dates')->insert($this->dateRow($tree, 'BIRT', '@#DGREGORIAN@', 1, 0));
@@ -189,11 +236,11 @@ final class DedupedEventDatesTest extends IntegrationTestCase
         }
 
         self::assertSame(
-            ['I1', 'I2', 'I3', 'I4', 'I5', 'I6'],
+            ['I1', 'I2', 'I3', 'I4', 'I5', 'I6', 'I7'],
             $this->birthGids($tree),
             'The shared-julian-day tie stays one row per individual.',
         );
-        self::assertSame(1900, $yearByGid['I1'], 'No off-fact, off-calendar or year-less tie row joins the collapse.');
+        self::assertSame(1900, $yearByGid['I1'], 'No off-fact or year-less tie row corrupts the survivor, and the kept Hebrew tie keeps the lower Gregorian-scale year.');
         self::assertSame(1, $monByGid['I1'], 'The numeric month minimum wins the Gregorian tie.');
     }
 
