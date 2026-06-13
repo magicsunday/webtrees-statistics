@@ -21,6 +21,7 @@ use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
 use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarPayload;
 use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarSeries;
 use MagicSunday\Webtrees\Statistic\Support\Calc\CalendarSpan;
+use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
@@ -206,10 +207,16 @@ final readonly class ChildrenRepository
             ->leftJoin('dates AS marr', static function (JoinClause $join): void {
                 DateJoin::on($join, 'marr', 'f_file', 'f_id', 'MARR');
             })
-            ->select(['f_id', 'f_numchil AS n', 'marr.d_year AS year'])
+            ->select([
+                'f_id',
+                'f_numchil AS n',
+                'marr.d_type AS type',
+                'marr.d_year AS year',
+                'marr.d_julianday1 AS jd',
+            ])
             ->get();
 
-        /** @var array<string, array{n: int, year: int|null}> $perFamily */
+        /** @var array<string, array{n: int, jd: int|null, type: string, year: int}> $perFamily */
         $perFamily = [];
 
         foreach ($rows as $row) {
@@ -223,23 +230,28 @@ final readonly class ChildrenRepository
                 $childCount           = RowCast::int($row, 'n');
                 $perFamily[$familyId] = [
                     'n'    => max($childCount, 0),
-                    'year' => null,
+                    'jd'   => null,
+                    'type' => '',
+                    'year' => 0,
                 ];
             }
 
-            // Track the chronologically earliest MARR year per family. There is
-            // no year 0 in the calendar, so a zero d_year is the degenerate
-            // "no parseable year" value and never competes; a BCE year is
-            // negative and a more-negative year is earlier, so the MIN spans the
-            // sign boundary correctly (30 B.C. wins over 20 B.C., and any BCE
-            // year wins over a CE one).
-            $year = RowCast::int($row, 'year');
+            // Track the chronologically earliest MARR per family by its
+            // calendar-neutral julian day, not the native d_year (a Hebrew 5784
+            // is not comparable to a Gregorian 1900). The leftJoin's no-MARR
+            // rows carry jd 0 and never compete; a matched row always has jd > 0
+            // (DateJoin filters `d_julianday1 <> 0`). Smaller julian day = earlier,
+            // across the BCE/CE boundary too. The earliest row's own type + year
+            // are kept coherently for the later Gregorian conversion.
+            $jd = RowCast::int($row, 'jd');
 
-            if ($year !== 0) {
-                $current = $perFamily[$familyId]['year'];
+            if ($jd > 0) {
+                $current = $perFamily[$familyId]['jd'];
 
-                if (($current === null) || ($year < $current)) {
-                    $perFamily[$familyId]['year'] = $year;
+                if (($current === null) || ($jd < $current)) {
+                    $perFamily[$familyId]['jd']   = $jd;
+                    $perFamily[$familyId]['type'] = RowCast::string($row, 'type');
+                    $perFamily[$familyId]['year'] = RowCast::int($row, 'year');
                 }
             }
         }
@@ -247,13 +259,16 @@ final readonly class ChildrenRepository
         $entries = [];
 
         foreach ($perFamily as $family) {
-            $year = $family['year'];
+            $jd = $family['jd'];
 
-            if ($year === null) {
+            if ($jd === null) {
                 continue;
             }
 
-            $entries[] = ['n' => $family['n'], 'year' => $year];
+            $entries[] = [
+                'n'    => $family['n'],
+                'year' => GregorianDate::year($family['type'], $family['year'], $jd),
+            ];
         }
 
         return $entries;
@@ -460,6 +475,7 @@ final readonly class ChildrenRepository
             ->select([
                 'l_from AS child_id',
                 'l_to AS family_id',
+                'birth.d_type AS birth_type',
                 'birth.d_year AS birth_year',
                 'birth.d_julianday1 AS birth_jd',
             ])
@@ -474,7 +490,6 @@ final readonly class ChildrenRepository
         foreach ($rows as $row) {
             $childId = RowCast::string($row, 'child_id');
             $famId   = RowCast::string($row, 'family_id');
-            $year    = RowCast::int($row, 'birth_year');
             $birthJd = RowCast::int($row, 'birth_jd');
 
             if ($childId === '') {
@@ -485,13 +500,23 @@ final readonly class ChildrenRepository
                 continue;
             }
 
-            // Only the degenerate unparseable year 0 is dropped — BCE (negative)
-            // years fold into negative centuries through CenturyName::fromYear().
-            if ($year === 0) {
+            // The julian day is the date-presence guard (positive for every real
+            // date, BCE included; 0 is the date-less sentinel).
+            if ($birthJd <= 0) {
                 continue;
             }
 
-            if ($birthJd <= 0) {
+            // Bucket by the GREGORIAN birth year: native d_year for
+            // Gregorian/Julian, the julian day converted otherwise. Only the
+            // degenerate unparseable year 0 is then dropped — BCE (negative)
+            // years fold into negative centuries through CenturyName::fromYear().
+            $year = GregorianDate::year(
+                RowCast::string($row, 'birth_type'),
+                RowCast::int($row, 'birth_year'),
+                $birthJd,
+            );
+
+            if ($year === 0) {
                 continue;
             }
 

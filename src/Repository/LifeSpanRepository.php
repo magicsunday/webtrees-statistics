@@ -1175,6 +1175,7 @@ final readonly class LifeSpanRepository
     private function aggregatedPairColumns(): array
     {
         return [
+            DateAggregate::min('birth', 'd_type', 'birth_type'),
             DateAggregate::min('birth', 'd_year', 'birth_year'),
             DateAggregate::min('birth', 'd_julianday1', 'birth_jd'),
             DateAggregate::max('death', 'd_julianday2', 'death_jd'),
@@ -1195,16 +1196,24 @@ final readonly class LifeSpanRepository
      */
     private function birthDeathCohortOrNull(object $row, int $maxAge): ?array
     {
-        $year = RowCast::int($row, 'birth_year');
-
-        if ($year === 0) {
-            return null;
-        }
-
         $birthJd = RowCast::int($row, 'birth_jd');
         $deathJd = RowCast::int($row, 'death_jd');
 
         if ($birthJd <= 0) {
+            return null;
+        }
+
+        // The century key is the GREGORIAN birth year: native d_year for
+        // Gregorian/Julian, the lower-bound julian day converted for every other
+        // calendar. The year-0 guard then still catches the unparseable
+        // Gregorian/Julian sentinel (a converted non-Gregorian year is never 0).
+        $year = GregorianDate::year(
+            RowCast::string($row, 'birth_type'),
+            RowCast::int($row, 'birth_year'),
+            $birthJd,
+        );
+
+        if ($year === 0) {
             return null;
         }
 

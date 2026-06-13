@@ -22,6 +22,7 @@ use MagicSunday\Webtrees\Statistic\Model\Record\IndividualAgeRecord;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\IndividualAgeRecordResolver;
 use MagicSunday\Webtrees\Statistic\Support\Calc\AgeBuckets;
 use MagicSunday\Webtrees\Statistic\Support\Calc\CalendarSpan;
+use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
 use MagicSunday\Webtrees\Statistic\Support\Database\ChildLinkJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
@@ -207,6 +208,7 @@ final class ParenthoodRepository
                 'fam.' . $parentColumn . ' AS parent_xref',
                 DateAggregate::min('parent_birth', 'd_julianday1', 'parent_birth_jd'),
                 DateAggregate::min('child_birth', 'd_julianday1', 'first_child_jd'),
+                DateAggregate::min('child_birth', 'd_type', 'first_child_type'),
                 DateAggregate::min('child_birth', 'd_year', 'first_child_year'),
             ])
             ->get();
@@ -214,10 +216,9 @@ final class ParenthoodRepository
         $out = [];
 
         foreach ($rows as $row) {
-            $xref      = RowCast::string($row, 'parent_xref');
-            $parentJd  = RowCast::int($row, 'parent_birth_jd');
-            $childJd   = RowCast::int($row, 'first_child_jd');
-            $childYear = RowCast::int($row, 'first_child_year');
+            $xref     = RowCast::string($row, 'parent_xref');
+            $parentJd = RowCast::int($row, 'parent_birth_jd');
+            $childJd  = RowCast::int($row, 'first_child_jd');
 
             if ($xref === '') {
                 continue;
@@ -231,9 +232,18 @@ final class ParenthoodRepository
                 continue;
             }
 
-            // Only the degenerate unparseable year 0 is dropped (the SQL
-            // `d_year <> 0` already excludes it); a BCE child-birth year is
-            // negative and folds into a negative decade through DecadeName.
+            // Bucket by the GREGORIAN birth year of the earliest child: native
+            // d_year for Gregorian/Julian, the earliest child's julian day
+            // converted otherwise. Only the degenerate unparseable year 0 is
+            // then dropped (the SQL `d_year <> 0` already excludes it); a BCE
+            // child-birth year is negative and folds into a negative decade
+            // through DecadeName.
+            $childYear = GregorianDate::year(
+                RowCast::string($row, 'first_child_type'),
+                RowCast::int($row, 'first_child_year'),
+                $childJd,
+            );
+
             if ($childYear === 0) {
                 continue;
             }
