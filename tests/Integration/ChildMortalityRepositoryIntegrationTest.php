@@ -264,4 +264,35 @@ final class ChildMortalityRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame(3, $byCentury[19]['died']);
         self::assertSame(60.0, $byCentury[19]['rate']);
     }
+
+    /**
+     * Coherence across calendars on the BirthDeathPairs seam (issue #135 audit):
+     * an individual carrying TWO BIRT facts in different calendars at DISTINCT
+     * julian days must be bucketed by its representative (lower-julian-day)
+     * birth. child-mortality-multi-calendar.ged gives five individuals each an
+     * earlier Hebrew birth (`1 TSH 5560` = 1799, 18th century) and a later
+     * Gregorian birth (`1 JAN 1801`, 19th century). The representative is the
+     * Hebrew one, so the cohort is the 18th century — the former independent-MIN
+     * read `MIN(d_type) = @#DGREGORIAN@` with `MIN(d_year) = 1801` and
+     * mis-bucketed them into the 19th. This pins the `BirthDeathPairsQuery`
+     * representative-birth join-back; removing it would turn the cohort 19th.
+     */
+    #[Test]
+    public function byBirthCenturyBucketsAMultiCalendarBirthByItsRepresentativeRow(): void
+    {
+        $tree   = $this->importFixtureTree('child-mortality-multi-calendar.ged');
+        $result = (new ChildMortalityRepository($tree))->byBirthCentury();
+
+        $byCentury = [];
+
+        foreach ($result as $entry) {
+            $byCentury[$entry['century']] = $entry;
+        }
+
+        self::assertArrayHasKey(18, $byCentury, 'The earlier Hebrew (1799) birth is the representative, so the cohort is the 18th century.');
+        self::assertArrayNotHasKey(19, $byCentury, 'The later Gregorian (1801) birth must not drive the cohort.');
+        self::assertSame(5, $byCentury[18]['total']);
+        self::assertSame(3, $byCentury[18]['died']);
+        self::assertSame(60.0, $byCentury[18]['rate']);
+    }
 }

@@ -87,10 +87,13 @@ final readonly class BirthDeathPairsQuery
                 // Pin the birth alias to the individual's lower-bound BIRT row,
                 // so a consumer's `MIN(birth.d_year)` / `MIN(birth.d_type)` are
                 // read from ONE coherent row — not column-wise from different
-                // rows — when an individual carries BIRT facts in more than one
-                // calendar. On the rare exact julian-day tie the surviving rows
-                // share the julian day, so the converted year is identical
-                // either way.
+                // rows — when an individual carries BIRT facts with DISTINCT
+                // julian days in more than one calendar. The residual exact
+                // julian-day cross-calendar tie (e.g. a Gregorian and a Julian
+                // transcription of the same physical day, whose native `d_year`
+                // differ by one) admits both rows and is NOT resolved here; it is
+                // the same documented per-column-MIN limitation as
+                // {@see DedupedEventDates} and is tracked separately.
                 $join->on('birth.d_julianday1', '=', 'birth_rep.min_jd');
             })
             ->join('dates AS death', static function (JoinClause $join) use ($requireFullDate): void {
