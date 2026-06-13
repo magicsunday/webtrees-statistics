@@ -13,6 +13,7 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Model\Metric\ChildMortalitySummary;
+use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
 use MagicSunday\Webtrees\Statistic\Support\Database\BirthDeathPairsQuery;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
@@ -190,13 +191,13 @@ final readonly class ChildMortalityRepository
 
     /**
      * Pull every individual's BIRT julian-day, DEAT julian-day, and BIRT year
-     * from the `dates` table via a self-join, one row per individual. Only
-     * julian/gregorian dates participate — Hebrew / French-Rep / etc. dates
-     * exist in the table but their `d_julianday1` values are normalised, and
-     * mixing them in would dilute the cohort split with calendars the user did
-     * not intend to compare against. A `GROUP BY` on the individual collapses
-     * the two-row encoding of a day-precise range so the cohort counts each
-     * child once.
+     * from the `dates` table via a self-join, one row per individual. Every
+     * calendar participates: the julian days are calendar-neutral so the
+     * under-five span is correct whatever calendar each date was written in, and
+     * the birth year is converted to its Gregorian value via {@see GregorianDate}
+     * so a non-Gregorian birth lands in the cohort century it actually belongs
+     * to. A `GROUP BY` on the individual collapses the two-row encoding of a
+     * day-precise range so the cohort counts each child once.
      *
      * @return list<array{birthJd: int, deathJd: int, birthYear: int}>
      */
@@ -210,6 +211,7 @@ final readonly class ChildMortalityRepository
         $rows = BirthDeathPairsQuery::for($this->tree, true)
             ->groupBy('individuals.i_id')
             ->select([
+                DateAggregate::min('birth', 'd_type', 'birth_type'),
                 DateAggregate::min('birth', 'd_julianday1', 'birth_jd'),
                 DateAggregate::min('birth', 'd_year', 'birth_year'),
                 DateAggregate::min('death', 'd_julianday1', 'death_jd'),
@@ -221,7 +223,11 @@ final readonly class ChildMortalityRepository
         foreach ($rows as $row) {
             $birthJd   = RowCast::int($row, 'birth_jd');
             $deathJd   = RowCast::int($row, 'death_jd');
-            $birthYear = RowCast::int($row, 'birth_year');
+            $birthYear = GregorianDate::year(
+                RowCast::string($row, 'birth_type'),
+                RowCast::int($row, 'birth_year'),
+                $birthJd,
+            );
 
             $pairs[] = [
                 'birthJd'   => $birthJd,

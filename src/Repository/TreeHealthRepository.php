@@ -17,6 +17,7 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Model\Metric\RateCount;
+use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
@@ -113,9 +114,14 @@ final readonly class TreeHealthRepository
     {
         $birthRows = TreeScope::table($this->tree, 'dates')
             ->where('d_fact', '=', 'BIRT')
-            ->whereIn('d_type', ['@#DGREGORIAN@', '@#DJULIAN@'])
             ->where('d_year', '<>', 0)
-            ->select(['d_gid', new Expression('MIN(d_year) AS year')])
+            ->where('d_julianday1', '<>', 0)
+            ->select([
+                'd_gid',
+                new Expression('MIN(d_type) AS d_type'),
+                new Expression('MIN(d_year) AS year'),
+                new Expression('MIN(d_julianday1) AS jd'),
+            ])
             ->groupBy('d_gid')
             ->get();
 
@@ -144,7 +150,13 @@ final readonly class TreeHealthRepository
         $perCentury = [];
 
         foreach ($birthRows as $birthRow) {
-            $birthYear = RowCast::int($birthRow, 'year');
+            // The century key is the GREGORIAN birth year: native d_year for
+            // Gregorian/Julian, the lower-bound julian day converted otherwise.
+            $birthYear = GregorianDate::year(
+                RowCast::string($birthRow, 'd_type'),
+                RowCast::int($birthRow, 'year'),
+                RowCast::int($birthRow, 'jd'),
+            );
 
             $individualId = RowCast::string($birthRow, 'd_gid');
             $century      = CenturyName::fromYear($birthYear);

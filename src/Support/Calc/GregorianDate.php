@@ -80,12 +80,20 @@ final class GregorianDate
         int $lowerBoundJulianDay,
     ): array {
         if (in_array($calendar, self::GREGORIAN_SCALE_TYPES, true)) {
-            return [$nativeYear, $nativeMonth, $nativeDay];
+            return [
+                $nativeYear,
+                $nativeMonth,
+                $nativeDay,
+            ];
         }
 
         [$year, $month, $day] = (new GregorianCalendar())->jdToYmd($lowerBoundJulianDay);
 
-        return [$year, $month, $day];
+        return [
+            $year,
+            $month,
+            $day,
+        ];
     }
 
     /**
@@ -100,6 +108,12 @@ final class GregorianDate
      */
     public static function year(string $calendar, int $nativeYear, int $lowerBoundJulianDay): int
     {
-        return self::fromEventRow($calendar, $nativeYear, 0, 0, $lowerBoundJulianDay)[0];
+        return self::fromEventRow(
+            $calendar,
+            $nativeYear,
+            0,
+            0,
+            $lowerBoundJulianDay
+        )[0];
     }
 }

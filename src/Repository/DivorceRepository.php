@@ -18,6 +18,7 @@ use MagicSunday\Webtrees\Statistic\Support\Aggregator\EventCenturyTally;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\EventMonthTally;
 use MagicSunday\Webtrees\Statistic\Support\Calc\AgeBuckets;
 use MagicSunday\Webtrees\Statistic\Support\Calc\CalendarSpan;
+use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
@@ -177,6 +178,8 @@ final readonly class DivorceRepository
                     ->where('divr.d_fact', '=', 'DIV');
             })
             ->select([
+                DateAggregate::min('marr', 'd_type', 'marr_type'),
+                DateAggregate::min('marr', 'd_julianday1', 'marr_jd'),
                 DateAggregate::min('marr', 'd_year', 'marr_year'),
                 DateAggregate::min('divr', 'd_year', 'div_year'),
             ])
@@ -186,7 +189,13 @@ final readonly class DivorceRepository
         $perCohort = [];
 
         foreach ($rows as $row) {
-            $marrYear = RowCast::int($row, 'marr_year');
+            // Bucket by the GREGORIAN marriage year: native d_year for
+            // Gregorian/Julian, the lower-bound julian day converted otherwise.
+            $marrYear = GregorianDate::year(
+                RowCast::string($row, 'marr_type'),
+                RowCast::int($row, 'marr_year'),
+                RowCast::int($row, 'marr_jd'),
+            );
 
             if ($marrYear === 0) {
                 continue;
