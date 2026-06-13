@@ -228,11 +228,13 @@ final class DedupedEventDatesTest extends IntegrationTestCase
 
         $yearByGid = [];
         $monByGid  = [];
+        $typeByGid = [];
 
         foreach (DedupedEventDates::query($tree, 'BIRT')->get() as $row) {
             $gid             = RowCast::string($row, 'd_gid');
             $yearByGid[$gid] = RowCast::int($row, 'd_year');
             $monByGid[$gid]  = RowCast::int($row, 'd_mon');
+            $typeByGid[$gid] = RowCast::string($row, 'd_type');
         }
 
         self::assertSame(
@@ -242,6 +244,11 @@ final class DedupedEventDatesTest extends IntegrationTestCase
         );
         self::assertSame(1900, $yearByGid['I1'], 'No off-fact or year-less tie row corrupts the survivor, and the kept Hebrew tie keeps the lower Gregorian-scale year.');
         self::assertSame(1, $monByGid['I1'], 'The numeric month minimum wins the Gregorian tie.');
+        self::assertSame(
+            '@#DGREGORIAN@',
+            $typeByGid['I1'],
+            'The Gregorian calendar wins the cross-calendar type minimum (G < H), so a consumer converts I1 by the native Gregorian year, not the Hebrew julian day.',
+        );
     }
 
     /**

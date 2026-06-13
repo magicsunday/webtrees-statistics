@@ -285,4 +285,31 @@ final class ParenthoodRepositoryIntegrationTest extends IntegrationTestCase
         self::assertNull($mothers->values[1], 'Mothers line is suppressed to a null (gap) on the 1940s tick, not age 0');
         self::assertStringContainsString('no data', $mothers->tooltips[1], 'Mothers 1940s tooltip carries the suppression caption');
     }
+
+    /**
+     * Coherence across calendars (issue #135 audit): when a parent's children
+     * are dated in DIFFERENT calendars, the earliest child must set the decade
+     * with its OWN year. parenthood-mixed-calendar.ged gives five fathers (born
+     * 1800) each an earlier Hebrew child (`1 TSH 5585` = 1824, the 1820s) and a
+     * later Gregorian child (`1 JAN 1830`, the 1830s). The earliest child is the
+     * Hebrew one, so the cohort is the 1820s. The former independent-MIN
+     * aggregation picked the calendar from one child (`MIN(d_type)` =
+     * `@#DGREGORIAN@`) and the year from another, bucketing the cohort into the
+     * 1830s instead.
+     */
+    #[Test]
+    public function meanByDecadeResolvesTheEarliestChildAcrossCalendarsCoherently(): void
+    {
+        $tree   = $this->importFixtureTree('parenthood-mixed-calendar.ged');
+        $result = (new ParenthoodRepository($tree))->ageAtFirstChildMeanByDecade();
+
+        self::assertSame(
+            [DecadeName::for(1820)],
+            $result->categories,
+            'The earliest (Hebrew 1824) child sets the 1820s decade, not the later Gregorian 1830 child',
+        );
+        self::assertSame('Fathers', $result->series[0]->name);
+        self::assertEqualsWithDelta(24.0, $result->series[0]->values[0], 0.05, 'Five fathers, age 24 at their earliest child');
+        self::assertNull($result->series[1]->values[0], 'No mothers recorded — gap, not age 0');
+    }
 }
