@@ -105,4 +105,25 @@ final class EventRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame(1, $result['Taurus'] ?? null, '21 April is the first Taurus day');
         self::assertSame(2, array_sum($result), 'Two distinct individuals, two births');
     }
+
+    /**
+     * The reported-bug class for the month/day cards (issue #135): a birth
+     * written in the French Republican calendar must be classified by its
+     * GREGORIAN month and day, not the foreign calendar's index.
+     * zodiac-non-gregorian.ged seeds two births on `1 VEND 12` (1 Vendémiaire
+     * An XII = 24 September 1803) — Libra. Reading the native fields (month 1,
+     * day 1) would mis-classify them as Capricornus, and the old
+     * Gregorian/Julian-only filter dropped them entirely; both failures are
+     * pinned here.
+     */
+    #[Test]
+    public function getBirthsByZodiacSignConvertsNonGregorianDatesToTheirGregorianSign(): void
+    {
+        $tree   = $this->importFixtureTree('zodiac-non-gregorian.ged');
+        $result = (new EventRepository($tree))->getBirthsByZodiacSign();
+
+        self::assertSame(2, $result['Libra'] ?? null, '24 September 1803 (1 Vendémiaire An XII) is Libra');
+        self::assertSame(0, $result['Capricornus'] ?? null, 'The native month/day (1/1) is not read as Capricornus');
+        self::assertSame(2, array_sum($result), 'Both French Republican births are counted');
+    }
 }
