@@ -22,7 +22,7 @@ msgstr ""
 "X-Poedit-SearchPath-0: src\n"
 "X-Poedit-SearchPath-1: resources/views\n"
 
-#: src/Repository/LifeSpanRepository.php:920
+#: src/Repository/LifeSpanRepository.php:921
 #, php-format
 msgid "%1$s %% (%2$s of %3$s individuals reached this age)"
 msgstr "%1$s %% (%2$s su %3$s persone hanno raggiunto questa età)"
@@ -32,7 +32,7 @@ msgstr "%1$s %% (%2$s su %3$s persone hanno raggiunto questa età)"
 msgid "%1$s %2$s – %3$s %4$s"
 msgstr ""
 
-#: src/Repository/ChildrenRepository.php:411
+#: src/Repository/ChildrenRepository.php:426
 #, php-format
 msgid "%1$s children per family (n = %2$s)"
 msgstr "%1$s figli per famiglia (n = %2$s)"
@@ -52,7 +52,7 @@ msgstr "%1$s mariti e %2$s mogli con un'età al matrimonio nota"
 msgid "%1$s of %2$s"
 msgstr "%1$s su %2$s"
 
-#: src/Repository/ChildrenRepository.php:694
+#: src/Repository/ChildrenRepository.php:719
 #, php-format
 msgid "%1$s of %2$s children (%3$s %%)"
 msgstr "%1$s di %2$s bambini (%3$s %%)"
@@ -90,10 +90,10 @@ msgstr ""
 msgid "%1$s sub-trees total · the largest covers %2$s%% of all individuals"
 msgstr ""
 
-#: src/Repository/LifeSpanRepository.php:811
-#: src/Repository/LifeSpanRepository.php:818
-#: src/Repository/ParenthoodRepository.php:321
-#: src/Repository/ParenthoodRepository.php:334
+#: src/Repository/LifeSpanRepository.php:812
+#: src/Repository/LifeSpanRepository.php:819
+#: src/Repository/ParenthoodRepository.php:359
+#: src/Repository/ParenthoodRepository.php:372
 #, php-format
 msgid "%1$s years (n = %2$s)"
 msgstr "%1$s anni (n = %2$s)"
@@ -103,7 +103,7 @@ msgstr "%1$s anni (n = %2$s)"
 msgid "%1$s%% — %2$s of %3$s children died before age 5"
 msgstr "%1$s%% — %2$s di %3$s bambini sono morti prima dei 5 anni"
 
-#: src/Repository/NameRepository.php:557
+#: src/Repository/NameRepository.php:563
 #, php-format
 msgid ""
 "%1$s%% — %2$s of %3$s daughters share at least one given name with the mother"
@@ -114,7 +114,7 @@ msgstr "%1$s %% — %2$s di %3$s figlie condividono almeno un nome con la madre"
 msgid "%1$s%% — %2$s of %3$s individuals sourced"
 msgstr "%1$s %% — %2$s su %3$s individui con fonte"
 
-#: src/Repository/NameRepository.php:551
+#: src/Repository/NameRepository.php:557
 #, php-format
 msgid ""
 "%1$s%% — %2$s of %3$s sons share at least one given name with the father"
@@ -125,7 +125,7 @@ msgstr "%1$s %% — %2$s di %3$s figli condividono almeno un nome con il padre"
 msgid "%1$s: %2$s deaths against an expected %3$s (Z-score %4$s)"
 msgstr ""
 
-#: src/Repository/LifeSpanRepository.php:1122
+#: src/Repository/LifeSpanRepository.php:1134
 #: src/Support/Locale/CenturyName.php:112
 #: src/Support/Locale/CenturyName.php:131 src/Support/Locale/DecadeName.php:53
 #: src/Support/Locale/DecadeName.php:84
@@ -151,9 +151,9 @@ msgstr "%s sec."
 msgid "%s century"
 msgstr "%s° secolo"
 
-#: src/Repository/ChildrenRepository.php:322
-#: src/Repository/ChildrenRepository.php:327
-#: src/Repository/ChildrenRepository.php:332
+#: src/Repository/ChildrenRepository.php:337
+#: src/Repository/ChildrenRepository.php:342
+#: src/Repository/ChildrenRepository.php:347
 #: src/Support/Aggregator/RecordRowMapper.php:144
 #: src/Support/Aggregator/RecordRowMapper.php:164
 #, php-format
@@ -451,7 +451,7 @@ msgid_plural "%s mothers"
 msgstr[0] "%s madre"
 msgstr[1] "%s madri"
 
-#: src/Repository/ChildrenRepository.php:337
+#: src/Repository/ChildrenRepository.php:352
 #, php-format
 msgid "%s or more children"
 msgstr "%s o più figli"
@@ -485,14 +485,14 @@ msgid_plural "%s persons"
 msgstr[0] "%s persona"
 msgstr[1] "%s persone"
 
-#: src/Repository/ChildrenRepository.php:716
+#: src/Repository/ChildrenRepository.php:741
 #, php-format
 msgid "%s quadruplet set"
 msgid_plural "%s quadruplet sets"
 msgstr[0] "%s gruppo di quadrigemini"
 msgstr[1] "%s gruppi di quadrigemini"
 
-#: src/Repository/ChildrenRepository.php:706
+#: src/Repository/ChildrenRepository.php:731
 #, php-format
 msgid "%s quintuplet+ set"
 msgid_plural "%s quintuplet+ sets"
@@ -534,14 +534,14 @@ msgid_plural "%s siblings"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Repository/ChildrenRepository.php:715
+#: src/Repository/ChildrenRepository.php:740
 #, php-format
 msgid "%s triplet set"
 msgid_plural "%s triplet sets"
 msgstr[0] "%s gruppo di trigemini"
 msgstr[1] "%s gruppi di trigemini"
 
-#: src/Repository/ChildrenRepository.php:714
+#: src/Repository/ChildrenRepository.php:739
 #, php-format
 msgid "%s twin set"
 msgid_plural "%s twin sets"
@@ -798,7 +798,7 @@ msgstr "Dopo la morte del partner"
 msgid "Age"
 msgstr "Età"
 
-#: src/Repository/LifeSpanRepository.php:918
+#: src/Repository/LifeSpanRepository.php:919
 #, php-format
 msgid "Age %s"
 msgstr "Età %s"
@@ -1118,7 +1118,7 @@ msgstr "Figli per famiglia datata"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:326
 #: resources/views/modules/statistics-chart/tabs/family.phtml:343
-#: src/Repository/ChildrenRepository.php:426
+#: src/Repository/ChildrenRepository.php:441
 msgid "Children per family"
 msgstr "Figli per famiglia"
 
@@ -1637,12 +1637,12 @@ msgstr ""
 msgid "Famine of 1693–1694"
 msgstr ""
 
-#: src/Repository/NameRepository.php:381
+#: src/Repository/NameRepository.php:382
 msgid "Father → son"
 msgstr "Padre → figlio"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:279
-#: src/Repository/ParenthoodRepository.php:359
+#: src/Repository/ParenthoodRepository.php:397
 msgid "Fathers"
 msgstr "Padri"
 
@@ -1656,7 +1656,7 @@ msgid "February"
 msgstr "Febbraio"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:421
-#: src/Repository/LifeSpanRepository.php:840 src/Statistic.php:225
+#: src/Repository/LifeSpanRepository.php:841 src/Statistic.php:225
 msgid "Female"
 msgstr "Femmina"
 
@@ -2160,7 +2160,7 @@ msgid "Longevity"
 msgstr "Longevità"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:420
-#: src/Repository/LifeSpanRepository.php:833 src/Statistic.php:220
+#: src/Repository/LifeSpanRepository.php:834 src/Statistic.php:220
 msgid "Male"
 msgstr "Maschio"
 
@@ -2325,12 +2325,12 @@ msgstr "Più figli"
 msgid "Most spouses"
 msgstr "Maggior numero di coniugi"
 
-#: src/Repository/NameRepository.php:388
+#: src/Repository/NameRepository.php:389
 msgid "Mother → daughter"
 msgstr "Madre → figlia"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:280
-#: src/Repository/ParenthoodRepository.php:366
+#: src/Repository/ParenthoodRepository.php:404
 msgid "Mothers"
 msgstr "Madri"
 
@@ -2347,7 +2347,7 @@ msgstr "Movimento"
 msgid "Movements"
 msgstr "Movimenti"
 
-#: src/Repository/ChildrenRepository.php:661
+#: src/Repository/ChildrenRepository.php:686
 msgid "Multiple births"
 msgstr "Parti plurigemellari"
 
@@ -2563,11 +2563,11 @@ msgstr "Popolarità nei decenni e alleanze matrimoniali tra famiglie"
 msgid "Population"
 msgstr "Popolazione"
 
-#: src/Repository/ChildrenRepository.php:660
+#: src/Repository/ChildrenRepository.php:685
 msgid "Quadruplets"
 msgstr "Quadrigemini"
 
-#: src/Repository/ChildrenRepository.php:654
+#: src/Repository/ChildrenRepository.php:679
 msgid "Quintuplets and above"
 msgstr "Cinquegemini e più"
 
@@ -2972,11 +2972,11 @@ msgstr "Registri dell'albero"
 msgid "Tree type"
 msgstr ""
 
-#: src/Repository/ChildrenRepository.php:659
+#: src/Repository/ChildrenRepository.php:684
 msgid "Triplets"
 msgstr "Trigemini"
 
-#: src/Repository/ChildrenRepository.php:658
+#: src/Repository/ChildrenRepository.php:683
 msgid "Twins"
 msgstr "Gemelli"
 
@@ -3120,11 +3120,11 @@ msgstr ""
 msgid "Winter-peak score"
 msgstr "Punteggio di picco invernale"
 
-#: src/Repository/ChildrenRepository.php:813
+#: src/Repository/ChildrenRepository.php:838
 msgid "With children"
 msgstr "Con figli"
 
-#: src/Repository/ChildrenRepository.php:814
+#: src/Repository/ChildrenRepository.php:839
 msgid "Without children"
 msgstr "Senza figli"
 
@@ -3294,11 +3294,11 @@ msgctxt "count word"
 msgid "nine"
 msgstr "nove"
 
-#: src/Repository/LifeSpanRepository.php:815
-#: src/Repository/LifeSpanRepository.php:822
-#: src/Repository/NameRepository.php:540 src/Repository/NameRepository.php:544
-#: src/Repository/ParenthoodRepository.php:327
-#: src/Repository/ParenthoodRepository.php:340
+#: src/Repository/LifeSpanRepository.php:816
+#: src/Repository/LifeSpanRepository.php:823
+#: src/Repository/NameRepository.php:546 src/Repository/NameRepository.php:550
+#: src/Repository/ParenthoodRepository.php:365
+#: src/Repository/ParenthoodRepository.php:378
 #, php-format
 msgid "no data (n < %s)"
 msgstr "nessun dato (n < %s)"

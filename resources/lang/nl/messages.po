@@ -22,7 +22,7 @@ msgstr ""
 "X-Poedit-SearchPath-0: src\n"
 "X-Poedit-SearchPath-1: resources/views\n"
 
-#: src/Repository/LifeSpanRepository.php:920
+#: src/Repository/LifeSpanRepository.php:921
 #, php-format
 msgid "%1$s %% (%2$s of %3$s individuals reached this age)"
 msgstr "%1$s %% (%2$s van %3$s personen bereikten deze leeftijd)"
@@ -32,7 +32,7 @@ msgstr "%1$s %% (%2$s van %3$s personen bereikten deze leeftijd)"
 msgid "%1$s %2$s – %3$s %4$s"
 msgstr ""
 
-#: src/Repository/ChildrenRepository.php:411
+#: src/Repository/ChildrenRepository.php:426
 #, php-format
 msgid "%1$s children per family (n = %2$s)"
 msgstr "%1$s kinderen per gezin (n = %2$s)"
@@ -52,7 +52,7 @@ msgstr "%1$s echtgenoten en %2$s echtgenotes met een bekende huwelijksleeftijd"
 msgid "%1$s of %2$s"
 msgstr "%1$s van %2$s"
 
-#: src/Repository/ChildrenRepository.php:694
+#: src/Repository/ChildrenRepository.php:719
 #, php-format
 msgid "%1$s of %2$s children (%3$s %%)"
 msgstr "%1$s van %2$s kinderen (%3$s %%)"
@@ -90,10 +90,10 @@ msgstr "%1$s broers/zussen uit %2$s gezinnen"
 msgid "%1$s sub-trees total · the largest covers %2$s%% of all individuals"
 msgstr "%1$s deelbomen totaal · de grootste omvat %2$s%% van alle personen"
 
-#: src/Repository/LifeSpanRepository.php:811
-#: src/Repository/LifeSpanRepository.php:818
-#: src/Repository/ParenthoodRepository.php:321
-#: src/Repository/ParenthoodRepository.php:334
+#: src/Repository/LifeSpanRepository.php:812
+#: src/Repository/LifeSpanRepository.php:819
+#: src/Repository/ParenthoodRepository.php:359
+#: src/Repository/ParenthoodRepository.php:372
 #, php-format
 msgid "%1$s years (n = %2$s)"
 msgstr "%1$s jaar (n = %2$s)"
@@ -103,7 +103,7 @@ msgstr "%1$s jaar (n = %2$s)"
 msgid "%1$s%% — %2$s of %3$s children died before age 5"
 msgstr "%1$s%% — %2$s van %3$s kinderen overleden vóór de leeftijd van 5 jaar"
 
-#: src/Repository/NameRepository.php:557
+#: src/Repository/NameRepository.php:563
 #, php-format
 msgid ""
 "%1$s%% — %2$s of %3$s daughters share at least one given name with the mother"
@@ -115,7 +115,7 @@ msgstr ""
 msgid "%1$s%% — %2$s of %3$s individuals sourced"
 msgstr "%1$s %% — %2$s van %3$s personen met bron"
 
-#: src/Repository/NameRepository.php:551
+#: src/Repository/NameRepository.php:557
 #, php-format
 msgid ""
 "%1$s%% — %2$s of %3$s sons share at least one given name with the father"
@@ -127,7 +127,7 @@ msgstr ""
 msgid "%1$s: %2$s deaths against an expected %3$s (Z-score %4$s)"
 msgstr "%1$s: %2$s overlijdens tegenover een verwachte %3$s (Z-score %4$s)"
 
-#: src/Repository/LifeSpanRepository.php:1122
+#: src/Repository/LifeSpanRepository.php:1134
 #: src/Support/Locale/CenturyName.php:112
 #: src/Support/Locale/CenturyName.php:131 src/Support/Locale/DecadeName.php:53
 #: src/Support/Locale/DecadeName.php:84
@@ -153,9 +153,9 @@ msgstr "%s eeuw"
 msgid "%s century"
 msgstr "%se eeuw"
 
-#: src/Repository/ChildrenRepository.php:322
-#: src/Repository/ChildrenRepository.php:327
-#: src/Repository/ChildrenRepository.php:332
+#: src/Repository/ChildrenRepository.php:337
+#: src/Repository/ChildrenRepository.php:342
+#: src/Repository/ChildrenRepository.php:347
 #: src/Support/Aggregator/RecordRowMapper.php:144
 #: src/Support/Aggregator/RecordRowMapper.php:164
 #, php-format
@@ -453,7 +453,7 @@ msgid_plural "%s mothers"
 msgstr[0] "%s moeder"
 msgstr[1] "%s moeders"
 
-#: src/Repository/ChildrenRepository.php:337
+#: src/Repository/ChildrenRepository.php:352
 #, php-format
 msgid "%s or more children"
 msgstr "%s of meer kinderen"
@@ -487,14 +487,14 @@ msgid_plural "%s persons"
 msgstr[0] "%s persoon"
 msgstr[1] "%s personen"
 
-#: src/Repository/ChildrenRepository.php:716
+#: src/Repository/ChildrenRepository.php:741
 #, php-format
 msgid "%s quadruplet set"
 msgid_plural "%s quadruplet sets"
 msgstr[0] "%s vierlingset"
 msgstr[1] "%s vierlingsets"
 
-#: src/Repository/ChildrenRepository.php:706
+#: src/Repository/ChildrenRepository.php:731
 #, php-format
 msgid "%s quintuplet+ set"
 msgid_plural "%s quintuplet+ sets"
@@ -536,14 +536,14 @@ msgid_plural "%s siblings"
 msgstr[0] "%s broer/zus"
 msgstr[1] "%s broers/zussen"
 
-#: src/Repository/ChildrenRepository.php:715
+#: src/Repository/ChildrenRepository.php:740
 #, php-format
 msgid "%s triplet set"
 msgid_plural "%s triplet sets"
 msgstr[0] "%s drielingset"
 msgstr[1] "%s drielingsets"
 
-#: src/Repository/ChildrenRepository.php:714
+#: src/Repository/ChildrenRepository.php:739
 #, php-format
 msgid "%s twin set"
 msgid_plural "%s twin sets"
@@ -803,7 +803,7 @@ msgstr "Na het overlijden van de partner"
 msgid "Age"
 msgstr "Leeftijd"
 
-#: src/Repository/LifeSpanRepository.php:918
+#: src/Repository/LifeSpanRepository.php:919
 #, php-format
 msgid "Age %s"
 msgstr "Leeftijd %s"
@@ -1134,7 +1134,7 @@ msgstr "Kinderen per gedateerd gezin"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:326
 #: resources/views/modules/statistics-chart/tabs/family.phtml:343
-#: src/Repository/ChildrenRepository.php:426
+#: src/Repository/ChildrenRepository.php:441
 msgid "Children per family"
 msgstr "Kinderen per gezin"
 
@@ -1756,12 +1756,12 @@ msgstr "Hongersnood in Oost-Frankrijk (1650–1652)"
 msgid "Famine of 1693–1694"
 msgstr "Hongersnood van 1693–1694"
 
-#: src/Repository/NameRepository.php:381
+#: src/Repository/NameRepository.php:382
 msgid "Father → son"
 msgstr "Vader → zoon"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:279
-#: src/Repository/ParenthoodRepository.php:359
+#: src/Repository/ParenthoodRepository.php:397
 msgid "Fathers"
 msgstr "Vaders"
 
@@ -1775,7 +1775,7 @@ msgid "February"
 msgstr "Februari"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:421
-#: src/Repository/LifeSpanRepository.php:840 src/Statistic.php:225
+#: src/Repository/LifeSpanRepository.php:841 src/Statistic.php:225
 msgid "Female"
 msgstr "Vrouw"
 
@@ -2327,7 +2327,7 @@ msgid "Longevity"
 msgstr "Levensduur"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:420
-#: src/Repository/LifeSpanRepository.php:833 src/Statistic.php:220
+#: src/Repository/LifeSpanRepository.php:834 src/Statistic.php:220
 msgid "Male"
 msgstr "Man"
 
@@ -2490,12 +2490,12 @@ msgstr "Meeste kinderen"
 msgid "Most spouses"
 msgstr "Meeste echtgenoten"
 
-#: src/Repository/NameRepository.php:388
+#: src/Repository/NameRepository.php:389
 msgid "Mother → daughter"
 msgstr "Moeder → dochter"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:280
-#: src/Repository/ParenthoodRepository.php:366
+#: src/Repository/ParenthoodRepository.php:404
 msgid "Mothers"
 msgstr "Moeders"
 
@@ -2512,7 +2512,7 @@ msgstr "Beweging"
 msgid "Movements"
 msgstr "Bewegingen"
 
-#: src/Repository/ChildrenRepository.php:661
+#: src/Repository/ChildrenRepository.php:686
 msgid "Multiple births"
 msgstr "Meerlinggeboorten"
 
@@ -2742,11 +2742,11 @@ msgstr "Populariteit per decennium en huwelijksbanden tussen gezinnen"
 msgid "Population"
 msgstr "Bevolking"
 
-#: src/Repository/ChildrenRepository.php:660
+#: src/Repository/ChildrenRepository.php:685
 msgid "Quadruplets"
 msgstr "Vierlingen"
 
-#: src/Repository/ChildrenRepository.php:654
+#: src/Repository/ChildrenRepository.php:679
 msgid "Quintuplets and above"
 msgstr "Vijflingen en meer"
 
@@ -3182,11 +3182,11 @@ msgstr "Stamboomgegevens"
 msgid "Tree type"
 msgstr "Boomtype"
 
-#: src/Repository/ChildrenRepository.php:659
+#: src/Repository/ChildrenRepository.php:684
 msgid "Triplets"
 msgstr "Drielingen"
 
-#: src/Repository/ChildrenRepository.php:658
+#: src/Repository/ChildrenRepository.php:683
 msgid "Twins"
 msgstr "Tweelingen"
 
@@ -3332,11 +3332,11 @@ msgstr ""
 msgid "Winter-peak score"
 msgstr "Winterpiekscore"
 
-#: src/Repository/ChildrenRepository.php:813
+#: src/Repository/ChildrenRepository.php:838
 msgid "With children"
 msgstr "Met kinderen"
 
-#: src/Repository/ChildrenRepository.php:814
+#: src/Repository/ChildrenRepository.php:839
 msgid "Without children"
 msgstr "Zonder kinderen"
 
@@ -3522,11 +3522,11 @@ msgctxt "count word"
 msgid "nine"
 msgstr "negen"
 
-#: src/Repository/LifeSpanRepository.php:815
-#: src/Repository/LifeSpanRepository.php:822
-#: src/Repository/NameRepository.php:540 src/Repository/NameRepository.php:544
-#: src/Repository/ParenthoodRepository.php:327
-#: src/Repository/ParenthoodRepository.php:340
+#: src/Repository/LifeSpanRepository.php:816
+#: src/Repository/LifeSpanRepository.php:823
+#: src/Repository/NameRepository.php:546 src/Repository/NameRepository.php:550
+#: src/Repository/ParenthoodRepository.php:365
+#: src/Repository/ParenthoodRepository.php:378
 #, php-format
 msgid "no data (n < %s)"
 msgstr "geen gegevens (n < %s)"
