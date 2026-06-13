@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Support\Aggregator;
 
 use Fisharebest\Webtrees\Tree;
+use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Locale\MonthName;
@@ -26,7 +27,9 @@ use function ksort;
  * score: core counts raw `dates` rows, so a month-spanning range date
  * (`BET DEC … AND JAN …`) is double-counted and split across two months.
  * Sourcing the count from {@see DedupedEventDates} collapses each record to its
- * lower-bound row first.
+ * lower-bound row first, and {@see GregorianDate} converts a non-Gregorian/Julian
+ * date to its Gregorian month so it is counted in the month it actually occurred
+ * in rather than being excluded or read in the foreign calendar's month index.
  *
  * Month-less records (year-only / `ABT` dates carry `d_mon = 0`) are dropped, so
  * the result keys are exactly the months that actually occur — matching the
@@ -59,15 +62,22 @@ final readonly class EventMonthTally
     public static function countByMonth(Tree $tree, string $fact): array
     {
         $rows = DedupedEventDates::query($tree, $fact)
-            ->selectRaw('d_mon, COUNT(*) AS total')
             ->where('d_mon', '<>', 0)
-            ->groupBy('d_mon')
+            ->select(['d_type', 'd_year', 'd_mon', 'd_day', 'd_julianday1'])
             ->get();
 
         $byMonth = [];
 
         foreach ($rows as $row) {
-            $byMonth[RowCast::int($row, 'd_mon')] = RowCast::int($row, 'total');
+            [, $month] = GregorianDate::fromEventRow(
+                RowCast::string($row, 'd_type'),
+                RowCast::int($row, 'd_year'),
+                RowCast::int($row, 'd_mon'),
+                RowCast::int($row, 'd_day'),
+                RowCast::int($row, 'd_julianday1'),
+            );
+
+            $byMonth[$month] = ($byMonth[$month] ?? 0) + 1;
         }
 
         ksort($byMonth);

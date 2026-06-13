@@ -13,6 +13,7 @@ namespace MagicSunday\Webtrees\Statistic\Test\Support;
 
 use MagicSunday\Webtrees\Statistic\Support\ZodiacSigns;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -85,6 +86,38 @@ final class ZodiacSignsTest extends TestCase
                 'Gap or overlap between consecutive signs',
             );
         }
+    }
+
+    /**
+     * @return array<string, array{int, int, string}>
+     */
+    public static function signForProvider(): array
+    {
+        return [
+            // name => [month, day, expectedSign]
+            'last Aries day (boundary, to-month tail)'   => [4, 20, 'Aries'],
+            'first Taurus day (boundary, from-month)'    => [4, 21, 'Taurus'],
+            'mid-sign Libra (24 Sep, the conversion pt)' => [9, 24, 'Libra'],
+            'first Pisces day (19 Feb)'                  => [2, 19, 'Pisces'],
+            // Capricornus wraps the year-end — both tails resolve to it, and the
+            // day after its tail flips to Aquarius.
+            'Capricornus before year-end (21 Dec)'  => [12, 21, 'Capricornus'],
+            'Capricornus after year-start (19 Jan)' => [1, 19, 'Capricornus'],
+            'first Aquarius day (20 Jan)'           => [1, 20, 'Aquarius'],
+        ];
+    }
+
+    /**
+     * A Gregorian month/day maps to exactly the sign whose contiguous range
+     * covers it, including the two boundary tails and the year-end wrap that
+     * Capricornus straddles. This is the classification the births-by-sign tally
+     * applies after converting a non-Gregorian date to its Gregorian month/day.
+     */
+    #[Test]
+    #[DataProvider('signForProvider')]
+    public function signForClassifiesACalendarDay(int $month, int $day, string $expected): void
+    {
+        self::assertSame($expected, ZodiacSigns::signFor($month, $day));
     }
 
     /**

@@ -48,7 +48,6 @@ parameters:
             message: '#expects (literal-string|TValue of float\|int\|literal-string)#'
             identifier: argument.type
             paths:
-                - src/Repository/EventRepository.php
                 - src/Repository/FamilyRankingRepository.php
                 - src/Repository/LifeSpanRepository.php
                 - src/Support/Database/DateAggregate.php

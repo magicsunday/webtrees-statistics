@@ -12,15 +12,14 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
-use Illuminate\Database\Capsule\Manager as DB;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\EventCenturyTally;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\EventMonthTally;
+use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\ZodiacSigns;
 
-use function implode;
-use function is_numeric;
-use function sprintf;
+use function array_fill_keys;
 
 /**
  * Event groupings the module renders as charts. Zodiac-sign grouping is the one
@@ -84,38 +83,38 @@ final readonly class EventRepository
      * the same row; the lower-bound row supplies both coherently for the common
      * range case, where the two bounds carry distinct julian days.
      *
+     * Only births that carry a real day AND month qualify (`d_day`/`d_mon` are
+     * filtered on the NATIVE columns, so a year- or month-only date — including a
+     * non-Gregorian one — is excluded before conversion rather than picking up a
+     * spurious sign from the import's synthesised first-of-month julian day). A
+     * non-Gregorian/Julian birth is then converted to its Gregorian month/day via
+     * {@see GregorianDate} so it is classified by {@see ZodiacSigns::signFor()}
+     * on the same scale as a Gregorian birth.
+     *
      * @return array<string, int>
      */
     public function getBirthsByZodiacSign(): array
     {
-        $columns = [];
+        $rows = DedupedEventDates::query($this->tree, 'BIRT')
+            ->where('d_mon', '<>', 0)
+            ->where('d_day', '<>', 0)
+            ->select(['d_type', 'd_year', 'd_mon', 'd_day', 'd_julianday1'])
+            ->get();
 
-        foreach (ZodiacSigns::ranges() as $name => $range) {
-            [$fromMonth, $fromDay] = $range['from'];
-            [$toMonth,   $toDay]   = $range['to'];
-            $columns[]             = sprintf(
-                'COUNT(CASE WHEN (d_day != 0 AND d_mon != 0 AND ((d_mon = %d AND d_day >= %d) OR (d_mon = %d AND d_day <= %d))) THEN 1 END) AS %s',
-                $fromMonth,
-                $fromDay,
-                $toMonth,
-                $toDay,
-                $name,
+        $counts = array_fill_keys(ZodiacSigns::keys(), 0);
+
+        foreach ($rows as $row) {
+            [, $month, $day] = GregorianDate::fromEventRow(
+                RowCast::string($row, 'd_type'),
+                RowCast::int($row, 'd_year'),
+                RowCast::int($row, 'd_mon'),
+                RowCast::int($row, 'd_day'),
+                RowCast::int($row, 'd_julianday1'),
             );
+
+            ++$counts[ZodiacSigns::signFor($month, $day)];
         }
 
-        $row = (array) DB::connection()
-            ->query()
-            ->fromSub(DedupedEventDates::query($this->tree, 'BIRT'), 'birth_dates')
-            ->selectRaw(implode(', ', $columns))
-            ->first();
-
-        $out = [];
-
-        foreach (ZodiacSigns::keys() as $name) {
-            $value      = $row[$name] ?? 0;
-            $out[$name] = is_numeric($value) ? (int) $value : 0;
-        }
-
-        return $out;
+        return $counts;
     }
 }

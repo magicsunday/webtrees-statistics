@@ -30,6 +30,7 @@ use MagicSunday\Webtrees\Statistic\Model\Ranking\RankingEntry;
 use MagicSunday\Webtrees\Statistic\Model\Record\IndividualAgeRecord;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\EventMonthTally;
 use MagicSunday\Webtrees\Statistic\Support\Calc\CalendarSpan;
+use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
 use MagicSunday\Webtrees\Statistic\Support\Calc\HeatmapPeriodBinner;
 use MagicSunday\Webtrees\Statistic\Support\Calc\HistogramTrim;
 use MagicSunday\Webtrees\Statistic\Support\Calc\MortalityAnomalies;
@@ -246,17 +247,17 @@ final readonly class LifeSpanRepository
     public function birthsByDecade(): array
     {
         $rows = DedupedEventDates::query($this->tree, 'BIRT')
-            ->select(['d_year'])
+            ->select(['d_type', 'd_year', 'd_julianday1'])
             ->get();
 
         $byDecade = [];
 
         foreach ($rows as $row) {
-            $year = RowCast::int($row, 'd_year');
-
-            if ($year === 0) {
-                continue;
-            }
+            $year = GregorianDate::year(
+                RowCast::string($row, 'd_type'),
+                RowCast::int($row, 'd_year'),
+                RowCast::int($row, 'd_julianday1'),
+            );
 
             $decade            = intdiv($year, 10) * 10;
             $byDecade[$decade] = ($byDecade[$decade] ?? 0) + 1;
@@ -1064,18 +1065,16 @@ final readonly class LifeSpanRepository
         // second cell from the upper-bound row. Only the degenerate year-0
         // sentinel is dropped (`d_year <> 0`) — BCE (negative) years are kept and
         // the adaptive period width below stops a far-back event from ballooning
-        // the matrix into hundreds of empty rows. `d_year <=` this year excludes
-        // a non-physical future lower bound. `d_mon BETWEEN 1 AND 12` keeps only
-        // dates with a real calendar month, so the foreach below trusts the
-        // bounds and adds no in-PHP re-checks.
+        // the matrix into hundreds of empty rows. `d_mon >= 1` keeps only dates
+        // that carry a calendar month (a non-Gregorian month index is converted,
+        // not read literally). The future-lower-bound cut-off moves into PHP
+        // below: it compares the GREGORIAN year, and a non-Gregorian native
+        // `d_year` (Hebrew 5784, An XII) is not comparable to `$currentYear`.
         $currentYear = getdate()['year'];
 
         $rows = DedupedEventDates::query($this->tree, $fact)
-            ->where('d_year', '<>', 0)
-            ->where('d_year', '<=', $currentYear)
             ->where('d_mon', '>=', 1)
-            ->where('d_mon', '<=', 12)
-            ->select(['d_year', 'd_mon'])
+            ->select(['d_type', 'd_year', 'd_mon', 'd_day', 'd_julianday1'])
             ->get();
 
         /** @var list<array{year: int, month: int}> $events */
@@ -1083,8 +1082,21 @@ final readonly class LifeSpanRepository
         $years  = [];
 
         foreach ($rows as $row) {
-            $year     = RowCast::int($row, 'd_year');
-            $events[] = ['year' => $year, 'month' => RowCast::int($row, 'd_mon')];
+            [$year, $month] = GregorianDate::fromEventRow(
+                RowCast::string($row, 'd_type'),
+                RowCast::int($row, 'd_year'),
+                RowCast::int($row, 'd_mon'),
+                RowCast::int($row, 'd_day'),
+                RowCast::int($row, 'd_julianday1'),
+            );
+
+            // Drop a non-physical future lower bound (a typo dated past today),
+            // measured on the converted Gregorian year.
+            if ($year > $currentYear) {
+                continue;
+            }
+
+            $events[] = ['year' => $year, 'month' => $month];
             $years[]  = $year;
         }
 

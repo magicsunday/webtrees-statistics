@@ -11,7 +11,10 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Support;
 
+use InvalidArgumentException;
+
 use function array_keys;
+use function sprintf;
 
 /**
  * The single source of truth for the twelve tropical-zodiac sign boundaries.
@@ -83,5 +86,43 @@ final class ZodiacSigns
     public static function keys(): array
     {
         return array_keys(self::RANGES);
+    }
+
+    /**
+     * The zodiac sign a Gregorian calendar day falls into. Each sign occupies
+     * the tail of its `from` month (day ≥ from-day) and the head of its `to`
+     * month (day ≤ to-day); the ranges are contiguous and gap-free, so every
+     * real calendar day maps to exactly one sign. Capricornus wraps the
+     * year-end (21 Dec – 19 Jan), which the two-clause test handles without a
+     * special case because the wrap is expressed as two separate month tails.
+     *
+     * Mirrors the boundary test the births-by-sign tally used to inline as a SQL
+     * `CASE`; lifting it here lets a non-Gregorian birth be converted to its
+     * Gregorian month/day first and then classified by the same rule.
+     *
+     * @param int $month The Gregorian month (1–12)
+     * @param int $day   The Gregorian day of month (1–31)
+     *
+     * @return string The canonical English sign key
+     */
+    public static function signFor(int $month, int $day): string
+    {
+        foreach (self::RANGES as $name => $range) {
+            [$fromMonth, $fromDay] = $range['from'];
+            [$toMonth, $toDay]     = $range['to'];
+
+            if ((($month === $fromMonth) && ($day >= $fromDay))
+                || (($month === $toMonth) && ($day <= $toDay))
+            ) {
+                return $name;
+            }
+        }
+
+        // Unreachable for a real calendar day: the twelve ranges tile every
+        // (month, day) with no gap. A caller that reaches here passed a
+        // non-calendar day (e.g. month 0), which the event queries exclude.
+        throw new InvalidArgumentException(
+            sprintf('No zodiac sign for month %d day %d', $month, $day),
+        );
     }
 }

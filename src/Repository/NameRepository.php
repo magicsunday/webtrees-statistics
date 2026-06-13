@@ -22,6 +22,7 @@ use Illuminate\Support\Collection;
 use MagicSunday\Webtrees\Statistic\Enum\Sex;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
+use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
 use MagicSunday\Webtrees\Statistic\Support\Database\ChildLinkJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
@@ -497,26 +498,31 @@ final readonly class NameRepository
      * Resolve every individual's deduplicated lower-bound birth year, keyed by
      * xref, in a single materialised query. {@see DedupedEventDates} collapses
      * webtrees' two-row range encoding to one representative row per individual
-     * and already restricts to Gregorian / Julian dated births with a known
-     * year, so the map never carries year 0.
+     * and restricts to dated births with a known year; {@see GregorianDate}
+     * converts a non-Gregorian/Julian birth to its Gregorian year. The map never
+     * carries year 0.
      *
      * Built once per {@see sameSexNamePassdownByCentury()} call and shared by
      * both sex pairings, this replaces a per-row derived-table join that the
      * MariaDB optimiser re-evaluated for every probed family row.
      *
-     * @return array<string, int> Individual xref → lower-bound birth year
+     * @return array<string, int> Individual xref → lower-bound Gregorian birth year
      */
     private function childBirthYearsByXref(): array
     {
         $rows = DedupedEventDates::query($this->tree, 'BIRT')
-            ->select(['d_gid', 'd_year'])
+            ->select(['d_gid', 'd_type', 'd_year', 'd_julianday1'])
             ->get();
 
         /** @var array<string, int> $birthYears */
         $birthYears = [];
 
         foreach ($rows as $row) {
-            $birthYears[RowCast::string($row, 'd_gid')] = RowCast::int($row, 'd_year');
+            $birthYears[RowCast::string($row, 'd_gid')] = GregorianDate::year(
+                RowCast::string($row, 'd_type'),
+                RowCast::int($row, 'd_year'),
+                RowCast::int($row, 'd_julianday1'),
+            );
         }
 
         return $birthYears;
