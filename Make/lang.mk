@@ -23,6 +23,14 @@ MO_FILES  := $(PO_FILES:.po=.mo)
 lang: .logo lang-extract lang-merge lang-resolve-fuzzy lang-compile ## Extract POT, merge PO, auto-resolve fuzzy, compile MO (full i18n pipeline).
 	@echo "  ✔ Translations up to date for: $(LOCALES)"
 
+lang-check: lang ## Fail if the committed catalogue is stale (local mirror of the CI Pipeline-freshness gate); the pre-push hook runs this.
+	@if [ -n "$$(git status --porcelain -- resources/lang)" ]; then \
+		echo "  ✘ catalogue stale — run 'make lang' and commit the result:"; \
+		git status --porcelain -- resources/lang; \
+		exit 1; \
+	fi; \
+	echo "  ✔ catalogue fresh — make lang is a no-op"
+
 lang-extract: $(POT_FILE) ## Extract translatable strings from src/ + resources/ into the POT.
 
 # xgettext walks every PHP / PHTML source for the I18N::translate
