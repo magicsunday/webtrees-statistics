@@ -283,22 +283,20 @@ final readonly class NameRepository
         // de-duplicated per individual in a single pass — no O(individuals)
         // membership map (only the n_id ORDER is used; the limit-slice
         // tie-break is made engine-independent in PHP below).
-        // lazy() (a chunked LazyCollection) rather than get(): the rows are
-        // consumed once, sequentially, so streaming them keeps memory constant
-        // instead of materialising every (n_id, n_givn) pair on a large tree.
-        // lazy() paginates with LIMIT/OFFSET, re-running the query per chunk, so
-        // it needs a TOTAL order — ordering by n_id alone is not unique (an
-        // individual has several (n_id, n_givn) rows) and a chunk seam landing
-        // inside one individual's rows could otherwise re-order or split them,
-        // breaking the per-individual single-pass dedup. (n_id, n_givn) is
-        // unique after DISTINCT, so it pins a deterministic order that keeps
-        // each individual's rows contiguous across chunks.
+        // cursor() streams a SINGLE query via a database cursor: one row is
+        // hydrated in PHP at a time, so the PHP-object memory stays constant
+        // (the driver may still buffer the raw rows client-side). The real win
+        // is avoiding lazy()'s LIMIT/OFFSET pagination, which re-runs the query
+        // per chunk and re-sorts the whole DISTINCT set on each deep offset
+        // (O(N²) on a large tree). A single ordered query also makes adjacency
+        // trivial — ORDER BY n_id groups each individual's rows contiguously for
+        // the single-pass dedup below, with no chunk seam to split them. The
+        // loop issues no further DB queries, so holding the cursor open is safe.
         $rows = $query
             ->select(['n_id', 'n_givn'])
             ->distinct()
             ->orderBy('n_id')
-            ->orderBy('n_givn')
-            ->lazy();
+            ->cursor();
 
         /** @var array<string, int> $countsByKey */
         $countsByKey = [];
