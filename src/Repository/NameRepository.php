@@ -307,7 +307,7 @@ final readonly class NameRepository
             // flush the previous individual's distinct fold keys (one count
             // each) and reset.
             if ($xref !== $currentXref) {
-                foreach ($currentKeys as $key => $true) {
+                foreach (array_keys($currentKeys) as $key) {
                     $countsByKey[$key] = ($countsByKey[$key] ?? 0) + 1;
                 }
 
@@ -327,7 +327,7 @@ final readonly class NameRepository
         }
 
         // Flush the final individual.
-        foreach ($currentKeys as $key => $true) {
+        foreach (array_keys($currentKeys) as $key) {
             $countsByKey[$key] = ($countsByKey[$key] ?? 0) + 1;
         }
 

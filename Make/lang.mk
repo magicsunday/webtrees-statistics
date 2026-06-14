@@ -4,7 +4,7 @@
 
 #### Language & Translations
 
-.PHONY: lang lang-extract lang-merge lang-resolve-fuzzy lang-compile setup-hooks
+.PHONY: lang lang-check lang-extract lang-merge lang-resolve-fuzzy lang-compile setup-hooks
 
 # Locales the module ships translations for. Auto-discovered from the
 # existing per-locale directories rather than a hardcoded list, so a
