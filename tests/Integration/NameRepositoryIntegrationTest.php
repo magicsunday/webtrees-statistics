@@ -19,6 +19,7 @@ use MagicSunday\Webtrees\Statistic\Repository\NameRepository;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\GivenNameNormalizer;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -50,6 +51,7 @@ use function array_unique;
 #[UsesClass(TreeScope::class)]
 #[UsesClass(RowCast::class)]
 #[UsesClass(CenturyName::class)]
+#[UsesClass(GivenNameNormalizer::class)]
 final class NameRepositoryIntegrationTest extends IntegrationTestCase
 {
     private function repository(Tree $tree): NameRepository
@@ -435,5 +437,110 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
         // All tokens tie at one occurrence, so the n_givn-ascending tie-break
         // decides: the three lowest n_givn rows yield Edgar / Fred / Greta.
         self::assertSame(['Edgar', 'Fred', 'Greta'], $labels);
+    }
+
+    /**
+     * Spelling variants that differ only by diacritics or case fold into one
+     * given-name entry whose count is the sum across variants, labelled with the
+     * most frequent raw spelling. The fixture pairs José (×2) + Jose (×1) and
+     * Sofia (×2) + Sofía (×1) with the unique control name Wilhelm, so a folded
+     * aggregation yields three entries (José=3, Sofia=3, Wilhelm=1) while the
+     * old raw-grouping would leak five (José=2, Jose=1, Sofia=2, Sofía=1,
+     * Wilhelm=1).
+     */
+    #[Test]
+    public function topGivenNamesFoldsSpellingVariantsAndLabelsWithDominantForm(): void
+    {
+        $tree    = $this->importFixtureTree('given-name-fold.ged');
+        $entries = $this->repository($tree)->topGivenNames(NameRepository::SEX_ALL, 1, 100);
+        $labels  = array_column($entries, 'label');
+
+        // The dominant raw spelling becomes the label; the folded-away variants
+        // never surface as their own entry.
+        self::assertContains('José', $labels);
+        self::assertContains('Sofia', $labels);
+        self::assertContains('Wilhelm', $labels);
+        self::assertNotContains('Jose', $labels);
+        self::assertNotContains('Sofía', $labels);
+
+        // The label's count is the sum across the folded variants.
+        $byLabel = array_column($entries, 'value', 'label');
+        self::assertSame(3, $byLabel['José']);
+        self::assertSame(3, $byLabel['Sofia']);
+        self::assertSame(1, $byLabel['Wilhelm']);
+    }
+
+    /**
+     * The distinct-count uses the same folded aggregation, so the five raw
+     * spellings in the fixture collapse to three distinct given names.
+     */
+    #[Test]
+    public function countDistinctGivenNamesCountsFoldedVariantsOnce(): void
+    {
+        $tree = $this->importFixtureTree('given-name-fold.ged');
+
+        self::assertSame(3, $this->repository($tree)->countDistinctGivenNames(NameRepository::SEX_ALL));
+    }
+
+    /**
+     * The Top-N limit slice breaks equal-count ties on the fold key in PHP byte
+     * order, independent of the database row order (which collates differently
+     * across SQLite and MySQL). The fixture has three count-1 names in rowid
+     * order Charlie, Alice, Bob; with limit 2 the byte-order-lowest two —
+     * Alice, Bob — must survive, never the rowid-first Charlie. A regression to
+     * a row-order-dependent slice would let Charlie through on one engine.
+     */
+    #[Test]
+    public function topGivenNamesBreaksEqualCountTiesByLabelNotRowOrder(): void
+    {
+        $tree   = $this->importFixtureTree('given-name-tiebreak.ged');
+        $labels = array_column(
+            $this->repository($tree)->topGivenNames(NameRepository::SEX_ALL, 1, 2),
+            'label',
+        );
+
+        self::assertSame(['Alice', 'Bob'], $labels);
+    }
+
+    /**
+     * An individual is counted once per fold key even when the same name is
+     * recorded in several forms (primary NAME + a ROMN/FONE transliteration that
+     * Latin-folds onto it). The fixture: I1 = NAME "José" + ROMN "Jose", I2 =
+     * NAME "José", I3 = NAME "Wilhelm". Two distinct individuals carry fold key
+     * "jose", so the bubble value is 2 — not 3, which a naive sum of the
+     * per-n_givn COUNT(DISTINCT n_id) over the folded keys would yield.
+     */
+    #[Test]
+    public function topGivenNamesCountsAnIndividualOncePerFoldKeyAcrossNameForms(): void
+    {
+        $tree    = $this->importFixtureTree('given-name-transliteration.ged');
+        $byLabel = array_column(
+            $this->repository($tree)->topGivenNames(NameRepository::SEX_ALL, 1, 100),
+            'value',
+            'label',
+        );
+
+        self::assertSame(2, $byLabel['José']);
+        self::assertSame(1, $byLabel['Wilhelm']);
+        self::assertArrayNotHasKey('Jose', $byLabel);
+    }
+
+    /**
+     * The passdown token comparison folds spelling variants too: ten
+     * 19th-century families each pair a father "José" with a son "Jose". The
+     * diacritic variant folds to the same name, so all ten count as a passdown
+     * (100 %). Without folding the tokens differ and the rate would read 0 %.
+     */
+    #[Test]
+    public function sameSexNamePassdownByCenturyMatchesAcrossSpellingVariants(): void
+    {
+        $tree   = $this->importFixtureTree('passdown-spelling-variant.ged');
+        $result = $this->repository($tree)->sameSexNamePassdownByCentury();
+
+        self::assertSame(['19th cent.'], $result->categories);
+
+        $fatherSon = $result->series[0];
+        self::assertSame('Father → son', $fatherSon->name);
+        self::assertEqualsWithDelta(100.0, $fatherSon->values[0], 0.05);
     }
 }

@@ -16,19 +16,17 @@ use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Model\StreamGraph\GivenNameTrendsPayload;
 use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\GivenNameNormalizer;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 
 use function array_keys;
 use function array_slice;
 use function arsort;
 use function intdiv;
+use function ksort;
 use function max;
 use function min;
-use function preg_match;
-use function preg_split;
 use function range;
-
-use const PREG_SPLIT_NO_EMPTY;
 
 /**
  * Per-decade frequency of the top-N given names across the tree. Backs the
@@ -42,13 +40,6 @@ use const PREG_SPLIT_NO_EMPTY;
  */
 final readonly class GivenNameTrendsRepository
 {
-    /**
-     * Regex used to strip given-name particles and initials (matches webtrees
-     * core's commonGivenNames tokenisation: single capital letter, or
-     * one-to-three lowercase letters).
-     */
-    private const string PARTICLE_REGEX = '/^([A-Z]|[a-z]{1,3})$/';
-
     /**
      * @param Tree $tree The tree the statistics are computed for
      */
@@ -68,39 +59,69 @@ final readonly class GivenNameTrendsRepository
     {
         $rows = $this->loadIndividualNamesAndYears();
 
-        // First pass — collect total counts per name to identify the top-N.
-        $perNameTotal = [];
+        // Single tokenisation pass — ICU normalisation is not free, so decode
+        // each individual's fold keys once: accumulate per-key totals plus the
+        // raw spellings backing each key (for the dominant-spelling label), and
+        // remember each row's decade + keys so the bucketing pass below reuses
+        // them instead of re-tokenising.
+        /** @var array<string, int> $perKeyTotal */
+        $perKeyTotal = [];
+
+        /** @var array<string, array<string, int>> $rawByKey */
+        $rawByKey = [];
+
+        /** @var list<array{decade: int, keys: list<string>}> $decoded */
+        $decoded = [];
 
         foreach ($rows as $entry) {
-            foreach ($this->splitTokens($entry['givn']) as $token) {
-                $perNameTotal[$token] = ($perNameTotal[$token] ?? 0) + 1;
+            $keys = [];
+
+            foreach (GivenNameNormalizer::tokens($entry['givn']) as $token) {
+                $key                    = GivenNameNormalizer::foldKey($token);
+                $keys[]                 = $key;
+                $perKeyTotal[$key]      = ($perKeyTotal[$key] ?? 0) + 1;
+                $rawByKey[$key][$token] = ($rawByKey[$key][$token] ?? 0) + 1;
             }
+
+            $decoded[] = ['decade' => intdiv($entry['year'], 10) * 10, 'keys' => $keys];
         }
 
-        arsort($perNameTotal);
-        $topNames = array_slice(array_keys($perNameTotal), 0, $topN);
+        // Order by count descending, then by fold key ascending, for an
+        // engine-independent top-N: ksort() first (fold keys are folded ASCII,
+        // sorted by PHP in byte order), then the stable arsort() preserves that
+        // key order within equal counts. Relying on the DB row order instead
+        // would diverge (n_givn collates differently across SQLite and MySQL).
+        ksort($perKeyTotal);
+        arsort($perKeyTotal);
+        $topKeys = array_slice(array_keys($perKeyTotal), 0, $topN);
 
-        if ($topNames === []) {
+        if ($topKeys === []) {
             return new GivenNameTrendsPayload(decades: [], names: [], series: []);
         }
 
-        // Second pass — bucket the same individuals by decade for the top names.
-        $byDecade   = [];
-        $topNameSet = [];
+        // Resolve each surviving fold key to its display label (dominant raw
+        // spelling) and build the membership set for the decade pass.
+        /** @var array<string, string> $labelByKey */
+        $labelByKey = [];
 
-        foreach ($topNames as $name) {
-            $topNameSet[$name] = true;
+        $topKeySet = [];
+
+        foreach ($topKeys as $key) {
+            $labelByKey[$key] = GivenNameNormalizer::dominantForm($rawByKey[$key]);
+            $topKeySet[$key]  = true;
         }
 
-        foreach ($rows as $entry) {
-            $decade = intdiv($entry['year'], 10) * 10;
+        // Bucket the decoded rows by decade, keyed by fold key (reusing the
+        // first pass's keys), so a variant's birth counts under the same band.
+        $byDecade = [];
 
-            foreach ($this->splitTokens($entry['givn']) as $token) {
-                if (!isset($topNameSet[$token])) {
+        foreach ($decoded as $row) {
+            foreach ($row['keys'] as $key) {
+                if (!isset($topKeySet[$key])) {
                     continue;
                 }
 
-                $byDecade[$decade][$token] = ($byDecade[$decade][$token] ?? 0) + 1;
+                $byDecade[$row['decade']][$key] = ($byDecade[$row['decade']][$key] ?? 0) + 1;
             }
         }
 
@@ -112,21 +133,24 @@ final readonly class GivenNameTrendsRepository
         // names).
         $decades = $this->buildDecadeRange($rows, $byDecade);
 
-        // Materialise dense rows so the renderer always sees every name
-        // for every decade (missing entries default to zero).
+        // Materialise dense rows under the display label so the renderer always
+        // sees every name for every decade (missing entries default to zero).
+        $names  = [];
         $series = [];
 
-        foreach ($topNames as $name) {
+        foreach ($topKeys as $key) {
+            $name          = $labelByKey[$key];
+            $names[]       = $name;
             $series[$name] = [];
 
             foreach ($decades as $decade) {
-                $series[$name][$decade] = $byDecade[$decade][$name] ?? 0;
+                $series[$name][$decade] = $byDecade[$decade][$key] ?? 0;
             }
         }
 
         return new GivenNameTrendsPayload(
             decades: $decades,
-            names: $topNames,
+            names: $names,
             series: $series,
         );
     }
@@ -221,35 +245,5 @@ final readonly class GivenNameTrendsRepository
         }
 
         return $out;
-    }
-
-    /**
-     * Split a given-name string on Unicode whitespace into countable tokens,
-     * dropping initials and short particles using the same regex webtrees
-     * core's `StatisticsData::commonGivenNames()` applies.
-     * `preg_split('/\s+/u', …)` recognises tabs and NBSP as separators too, so
-     * a hand-edited name with stray whitespace still tokenises cleanly.
-     *
-     * @return list<string>
-     */
-    private function splitTokens(string $givn): array
-    {
-        $rawTokens = preg_split('/\s+/u', $givn, -1, PREG_SPLIT_NO_EMPTY);
-
-        if ($rawTokens === false) {
-            return [];
-        }
-
-        $tokens = [];
-
-        foreach ($rawTokens as $token) {
-            if (preg_match(self::PARTICLE_REGEX, $token) === 1) {
-                continue;
-            }
-
-            $tokens[] = $token;
-        }
-
-        return $tokens;
     }
 }
