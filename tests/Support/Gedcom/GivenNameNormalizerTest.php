@@ -96,6 +96,7 @@ final class GivenNameNormalizerTest extends TestCase
         yield 'unknown-name placeholder collapses' => ['@P.N.', []];
         yield 'empty string' => ['', []];
         yield 'whitespace only' => ['   ', []];
+        yield 'invalid utf-8 fails soft to a byte split' => ["Jos\xE9", ["Jos\xE9"]];
     }
 
     /**

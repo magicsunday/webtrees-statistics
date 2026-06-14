@@ -104,12 +104,14 @@ final readonly class GivenNameNormalizer
             $normalised = $trimmed;
         }
 
-        $rawTokens = preg_split(
-            '/\s+/u',
-            $normalised,
-            -1,
-            PREG_SPLIT_NO_EMPTY
-        );
+        $rawTokens = preg_split('/\s+/u', $normalised, -1, PREG_SPLIT_NO_EMPTY);
+
+        if ($rawTokens === false) {
+            // Invalid UTF-8 makes the /u split fail; fall back to a byte-wise
+            // split so a corrupt name still tokenises (foldKey() then fails soft
+            // on it) rather than being silently dropped.
+            $rawTokens = preg_split('/\s+/', $normalised, -1, PREG_SPLIT_NO_EMPTY);
+        }
 
         if ($rawTokens === false) {
             return [];

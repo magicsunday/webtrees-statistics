@@ -283,11 +283,22 @@ final readonly class NameRepository
         // de-duplicated per individual in a single pass — no O(individuals)
         // membership map (only the n_id ORDER is used; the limit-slice
         // tie-break is made engine-independent in PHP below).
+        // lazy() (a chunked LazyCollection) rather than get(): the rows are
+        // consumed once, sequentially, so streaming them keeps memory constant
+        // instead of materialising every (n_id, n_givn) pair on a large tree.
+        // lazy() paginates with LIMIT/OFFSET, re-running the query per chunk, so
+        // it needs a TOTAL order — ordering by n_id alone is not unique (an
+        // individual has several (n_id, n_givn) rows) and a chunk seam landing
+        // inside one individual's rows could otherwise re-order or split them,
+        // breaking the per-individual single-pass dedup. (n_id, n_givn) is
+        // unique after DISTINCT, so it pins a deterministic order that keeps
+        // each individual's rows contiguous across chunks.
         $rows = $query
             ->select(['n_id', 'n_givn'])
             ->distinct()
             ->orderBy('n_id')
-            ->get();
+            ->orderBy('n_givn')
+            ->lazy();
 
         /** @var array<string, int> $countsByKey */
         $countsByKey = [];
