@@ -14,6 +14,7 @@ namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 use MagicSunday\Webtrees\Statistic\Model\StreamGraph\GivenNameTrendsPayload;
 use MagicSunday\Webtrees\Statistic\Repository\GivenNameTrendsRepository;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\GivenNameNormalizer;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -33,6 +34,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
 #[UsesClass(GivenNameTrendsPayload::class)]
 #[UsesClass(GedcomScanner::class)]
 #[UsesClass(RowCast::class)]
+#[UsesClass(GivenNameNormalizer::class)]
 final class GivenNameTrendsRepositoryIntegrationTest extends IntegrationTestCase
 {
     /**
@@ -58,11 +60,11 @@ final class GivenNameTrendsRepositoryIntegrationTest extends IntegrationTestCase
             $result->decades,
         );
 
-        // Top-N order: arsort is stable, so within a tie the first-seen
-        // name wins. The fixture insertion order is Anna, Friedrich,
-        // Maria, Hans, Lisa, but Anna and Hans both end with count 3 so
-        // Anna leads, Hans follows. Friedrich and Maria both have 2 in
-        // first-seen order. Lisa is the only count-1 entry.
+        // Top-N order: ksort (fold key ascending) then a stable arsort (count
+        // descending), so ties break on the fold key, engine-independently.
+        // Fold keys sort anna < friedrich < hans < lisa < maria; the count-3
+        // pair (Anna, Hans) leads in that key order, then the count-2 pair
+        // (Friedrich, Maria), then the lone count-1 Lisa.
         self::assertSame(
             ['Anna', 'Hans', 'Friedrich', 'Maria', 'Lisa'],
             $result->names,
@@ -163,5 +165,30 @@ final class GivenNameTrendsRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame(1, $result->series['Anna'][1900]);
         self::assertSame(0, $result->series['Anna'][1950]);
         self::assertSame(3, $result->series['Hans'][1950]);
+    }
+
+    /**
+     * Spelling variants fold into one stream band labelled with the dominant
+     * spelling. The fixture's José (1850, 1860) and Jose (1870) share a fold
+     * key, so the band is labelled "José" and carries the 1870 birth too —
+     * proving the variant's decade counts under the dominant name rather than
+     * splitting into its own band.
+     */
+    #[Test]
+    public function countByDecadeFoldsSpellingVariantsUnderTheDominantName(): void
+    {
+        $tree   = $this->importFixtureTree('given-name-fold.ged');
+        $result = (new GivenNameTrendsRepository($tree))->countByDecade(10);
+
+        self::assertContains('José', $result->names);
+        self::assertContains('Sofia', $result->names);
+        self::assertNotContains('Jose', $result->names);
+        self::assertNotContains('Sofía', $result->names);
+
+        // The folded band spans the variant's decade: José in the 1850s/1860s
+        // plus the folded-in Jose in the 1870s, each a single birth.
+        self::assertSame(1, $result->series['José'][1850]);
+        self::assertSame(1, $result->series['José'][1860]);
+        self::assertSame(1, $result->series['José'][1870]);
     }
 }

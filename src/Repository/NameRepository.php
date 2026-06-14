@@ -26,23 +26,19 @@ use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
 use MagicSunday\Webtrees\Statistic\Support\Database\ChildLinkJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\GivenNameNormalizer;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
 
 use function array_intersect;
 use function array_keys;
 use function array_map;
-use function explode;
 use function ksort;
-use function mb_strtolower;
-use function preg_match;
-use function preg_split;
 use function round;
-use function trim;
 use function usort;
 
 use const PHP_INT_MAX;
-use const PREG_SPLIT_NO_EMPTY;
+use const SORT_STRING;
 
 /**
  * Top-N lists and total counts for surnames and given names. Both the lists
@@ -246,15 +242,17 @@ final readonly class NameRepository
 
     /**
      * Tokenised given-name frequency map, restricted to the whitelisted name
-     * forms. Mirrors webtrees core's tokenisation 1:1 — split each `n_givn` on
-     * spaces, drop initials and particles via the `/^([A-Z]|[a-z]{1,3})$/`
-     * filter, and accumulate the per-name `COUNT(DISTINCT n_id)` against every
-     * surviving token — but swaps core's `n_type <> '_MARNM'` blacklist for the
-     * whitelist so arbitrary custom sub-tags never reach the tokeniser.
+     * forms. Each name is split into tokens and folded to a grouping key by
+     * {@see GivenNameNormalizer} (mirroring webtrees core's particle/initial
+     * filter, plus case + diacritics folding), and every individual is counted
+     * once per fold key — so a person carrying the same name in several forms
+     * (a primary NAME plus a ROMN/FONE transliteration that folds onto it) is
+     * not double-counted. Core's `n_type <> '_MARNM'` blacklist is swapped for
+     * the whitelist so arbitrary custom sub-tags never reach the tokeniser.
      *
      * @param string $sex       GEDCOM sex token — a {@see Sex} case value or {@see SEX_ALL} for every sex
-     * @param int    $threshold Lower bound on the occurrences a token must reach
-     * @param int    $limit     Maximum number of tokens to keep, by descending count
+     * @param int    $threshold Lower bound on the individuals a folded name must reach
+     * @param int    $limit     Maximum number of folded names to keep, by descending count
      *
      * @return Collection<string, int>
      */
@@ -276,33 +274,87 @@ final readonly class NameRepository
                 ->where('i_sex', '=', $sex);
         }
 
+        // Select the distinct (individual, name) pairs rather than a
+        // GROUP BY n_givn + COUNT(DISTINCT n_id): folding happens per token in
+        // PHP, and a person carrying the same name in several forms (a primary
+        // NAME plus a ROMN/FONE transliteration that Latin-folds onto it) must
+        // be counted ONCE per fold key, not once per name form. Ordering by
+        // n_id groups an individual's rows adjacently, so the fold keys can be
+        // de-duplicated per individual in a single pass — no O(individuals)
+        // membership map (only the n_id ORDER is used; the limit-slice
+        // tie-break is made engine-independent in PHP below).
+        // cursor() streams a SINGLE query via a database cursor: one row is
+        // hydrated in PHP at a time, so the PHP-object memory stays constant
+        // (the driver may still buffer the raw rows client-side). The real win
+        // is avoiding lazy()'s LIMIT/OFFSET pagination, which re-runs the query
+        // per chunk and re-sorts the whole DISTINCT set on each deep offset
+        // (O(N²) on a large tree). A single ordered query also makes adjacency
+        // trivial — ORDER BY n_id groups each individual's rows contiguously for
+        // the single-pass dedup below, with no chunk seam to split them. The
+        // loop issues no further DB queries, so holding the cursor open is safe.
         $rows = $query
-            ->groupBy(['n_givn'])
-            ->select(['n_givn', new Expression('COUNT(DISTINCT n_id) AS total')])
-            // Deterministic source order so the count-sorted slice below breaks
-            // equal-count ties the same way on every engine: PHP's sort is
-            // stable, so first-seen token order (driven by this ORDER BY)
-            // settles which equal-count tokens survive the limit.
-            ->orderBy('n_givn')
-            ->get();
+            ->select(['n_id', 'n_givn'])
+            ->distinct()
+            ->orderBy('n_id')
+            ->cursor();
+
+        /** @var array<string, int> $countsByKey */
+        $countsByKey = [];
+
+        /** @var array<string, array<string, int>> $rawByFold */
+        $rawByFold = [];
+
+        $currentXref = null;
+
+        /** @var array<string, true> $currentKeys */
+        $currentKeys = [];
+
+        foreach ($rows as $row) {
+            $xref = RowCast::string($row, 'n_id');
+
+            // Adjacent rows belong to the same individual; on the boundary,
+            // flush the previous individual's distinct fold keys (one count
+            // each) and reset.
+            if ($xref !== $currentXref) {
+                foreach (array_keys($currentKeys) as $key) {
+                    $countsByKey[$key] = ($countsByKey[$key] ?? 0) + 1;
+                }
+
+                $currentXref = $xref;
+                $currentKeys = [];
+            }
+
+            // Split "John Thomas" into "John" / "Thomas" and fold each token's
+            // spelling variants (diacritics / case) into one group, so
+            // "José"/"Jose" count once. The dominant raw spelling becomes the
+            // display label.
+            foreach (GivenNameNormalizer::tokens(RowCast::string($row, 'n_givn')) as $token) {
+                $key                     = GivenNameNormalizer::foldKey($token);
+                $currentKeys[$key]       = true;
+                $rawByFold[$key][$token] = ($rawByFold[$key][$token] ?? 0) + 1;
+            }
+        }
+
+        // Flush the final individual.
+        foreach (array_keys($currentKeys) as $key) {
+            $countsByKey[$key] = ($countsByKey[$key] ?? 0) + 1;
+        }
 
         /** @var array<string, int> $givenNames */
         $givenNames = [];
 
-        foreach ($rows as $row) {
-            $count = RowCast::int($row, 'total');
-
-            // Split "John Thomas" into "John" and "Thomas" and count each.
-            foreach (explode(' ', RowCast::string($row, 'n_givn')) as $token) {
-                // Exclude initials and particles.
-                if (preg_match('/^([A-Z]|[a-z]{1,3})$/', $token) !== 1) {
-                    $givenNames[$token] ??= 0;
-                    $givenNames[$token] += $count;
-                }
-            }
+        foreach ($countsByKey as $key => $count) {
+            $givenNames[GivenNameNormalizer::dominantForm($rawByFold[$key])] = $count;
         }
 
+        // Order by count descending, then by label ascending, before the limit
+        // slice: sortKeys(SORT_STRING) first (PHP sorts in byte order,
+        // independent of the database collation, and treats a digit-only label
+        // as a string not an int), then the stable sortDesc() preserves that
+        // label order within equal counts, so the surviving Top-N is identical
+        // across database engines.
         return (new Collection($givenNames))
+            ->sortKeys(SORT_STRING)
             ->sortDesc()
             ->slice(0, $limit)
             ->filter(static fn (int $count): bool => $count >= $threshold);
@@ -313,9 +365,10 @@ final readonly class NameRepository
      * series on the same X axis: father → son and mother → daughter. For every
      * same-sex parent-child pair where both individuals carry an indexed
      * primary NAME record and the child carries a dated BIRT, the widget
-     * collects every given-name token from each `n_givn` column (case-folded)
-     * and counts the pair as a match when at least one token appears on both
-     * sides. Order and position do not matter — a father named "Johann
+     * collects every given-name token from each `n_givn` column (folded on case
+     * and diacritics via {@see GivenNameNormalizer}, so a father "José" matches a
+     * son "Jose") and counts the pair as a match when at least one token appears
+     * on both sides. Order and position do not matter — a father named "Johann
      * Friedrich" matches a son named "Wilhelm Friedrich" because "Friedrich"
      * appears in both names. That mirrors the historical naming-tradition
      * pattern in German-speaking regions, where the leading token was often a
@@ -570,35 +623,22 @@ final readonly class NameRepository
     }
 
     /**
-     * Split a `n_givn` column into the case-folded set of given-name tokens,
-     * dropping empty pieces. Used to detect set-overlap between a father's and
-     * a son's given names regardless of order or position. Slashes and other
-     * GEDCOM markers do not appear in `n_givn` (those live on `n_surn` /
-     * `n_full`), so a simple whitespace split is sufficient.
-     *
-     * webtrees never stores an empty `n_givn` for a primary NAME: when a record
-     * carries no given name (`1 NAME /Surname/`) the importer substitutes the
-     * whole-value placeholder `@P.N.` ({@see Individual::PRAENOMEN_NESCIO}). An
-     * unknown given name carries no real token and must neither dilute a passdown
-     * cohort nor falsely match another unknown name, so the placeholder collapses
-     * to an empty token set here — which the passdown guards then drop.
+     * Reduce a `n_givn` column to the folded set of given-name keys, so a
+     * father and child sharing a name match regardless of spelling drift
+     * (diacritics / case): "José" and "Jose" fold to the same key. Built on the
+     * shared {@see GivenNameNormalizer}, the keys also drop initials and
+     * particles, and the unknown-name placeholder ({@see
+     * Individual::PRAENOMEN_NESCIO}) collapses to an empty set — which the
+     * passdown guards then drop so it neither dilutes a cohort nor falsely
+     * matches another unknown name.
      *
      * @return list<string>
      */
     private function givenNameTokens(string $givn): array
     {
-        $trimmed = trim($givn);
-
-        if (($trimmed === '') || ($trimmed === Individual::PRAENOMEN_NESCIO)) {
-            return [];
-        }
-
-        $tokens = preg_split('/\s+/', $trimmed, -1, PREG_SPLIT_NO_EMPTY);
-
-        if ($tokens === false) {
-            return [];
-        }
-
-        return array_map(mb_strtolower(...), $tokens);
+        return array_map(
+            GivenNameNormalizer::foldKey(...),
+            GivenNameNormalizer::tokens($givn),
+        );
     }
 }
