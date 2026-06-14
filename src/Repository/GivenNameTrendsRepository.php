@@ -28,6 +28,8 @@ use function max;
 use function min;
 use function range;
 
+use const SORT_STRING;
+
 /**
  * Per-decade frequency of the top-N given names across the tree. Backs the
  * Names tab's stream graph: each individual contributes one count for every
@@ -87,11 +89,12 @@ final readonly class GivenNameTrendsRepository
         }
 
         // Order by count descending, then by fold key ascending, for an
-        // engine-independent top-N: ksort() first (fold keys are folded ASCII,
-        // sorted by PHP in byte order), then the stable arsort() preserves that
-        // key order within equal counts. Relying on the DB row order instead
-        // would diverge (n_givn collates differently across SQLite and MySQL).
-        ksort($perKeyTotal);
+        // engine-independent top-N: ksort(SORT_STRING) first (compare fold keys
+        // as strings — a digit-only key must not sort numerically — in PHP byte
+        // order), then the stable arsort() preserves that key order within equal
+        // counts. Relying on the DB row order instead would diverge (n_givn
+        // collates differently across SQLite and MySQL).
+        ksort($perKeyTotal, SORT_STRING);
         arsort($perKeyTotal);
         $topKeys = array_slice(array_keys($perKeyTotal), 0, $topN);
 

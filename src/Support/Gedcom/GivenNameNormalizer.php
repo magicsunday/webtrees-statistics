@@ -23,6 +23,7 @@ use function preg_split;
 use function trim;
 
 use const PREG_SPLIT_NO_EMPTY;
+use const SORT_STRING;
 
 /**
  * Pure helper that owns the single source of truth for "Level-1" given-name
@@ -182,7 +183,9 @@ final readonly class GivenNameNormalizer
      */
     public static function dominantForm(array $rawCounts): string
     {
-        ksort($rawCounts);
+        // Compare keys as strings (a digit-only spelling is an int array key)
+        // so the alphabetical tie-break is deterministic across PHP versions.
+        ksort($rawCounts, SORT_STRING);
 
         $label = '';
         $best  = -1;

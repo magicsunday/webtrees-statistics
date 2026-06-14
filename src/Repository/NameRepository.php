@@ -33,12 +33,12 @@ use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
 use function array_intersect;
 use function array_keys;
 use function array_map;
-use function count;
 use function ksort;
 use function round;
 use function usort;
 
 use const PHP_INT_MAX;
+use const SORT_STRING;
 
 /**
  * Top-N lists and total counts for surnames and given names. Both the lists
@@ -278,48 +278,74 @@ final readonly class NameRepository
         // GROUP BY n_givn + COUNT(DISTINCT n_id): folding happens per token in
         // PHP, and a person carrying the same name in several forms (a primary
         // NAME plus a ROMN/FONE transliteration that Latin-folds onto it) must
-        // be counted ONCE per fold key, not once per name form. (The limit-slice
-        // tie-break is made engine-independent in PHP below, not via this order
-        // — n_givn collates differently across SQLite and MySQL.)
+        // be counted ONCE per fold key, not once per name form. Ordering by
+        // n_id groups an individual's rows adjacently, so the fold keys can be
+        // de-duplicated per individual in a single pass — no O(individuals)
+        // membership map (only the n_id ORDER is used; the limit-slice
+        // tie-break is made engine-independent in PHP below).
         $rows = $query
             ->select(['n_id', 'n_givn'])
             ->distinct()
+            ->orderBy('n_id')
             ->get();
 
-        /** @var array<string, array<string, bool>> $individualsByKey */
-        $individualsByKey = [];
+        /** @var array<string, int> $countsByKey */
+        $countsByKey = [];
 
         /** @var array<string, array<string, int>> $rawByFold */
         $rawByFold = [];
 
+        $currentXref = null;
+
+        /** @var array<string, true> $currentKeys */
+        $currentKeys = [];
+
         foreach ($rows as $row) {
             $xref = RowCast::string($row, 'n_id');
 
+            // Adjacent rows belong to the same individual; on the boundary,
+            // flush the previous individual's distinct fold keys (one count
+            // each) and reset.
+            if ($xref !== $currentXref) {
+                foreach ($currentKeys as $key => $true) {
+                    $countsByKey[$key] = ($countsByKey[$key] ?? 0) + 1;
+                }
+
+                $currentXref = $xref;
+                $currentKeys = [];
+            }
+
             // Split "John Thomas" into "John" / "Thomas" and fold each token's
             // spelling variants (diacritics / case) into one group, so
-            // "José"/"Jose" count once. Each individual is recorded once per
-            // fold key; the dominant raw spelling becomes the display label.
+            // "José"/"Jose" count once. The dominant raw spelling becomes the
+            // display label.
             foreach (GivenNameNormalizer::tokens(RowCast::string($row, 'n_givn')) as $token) {
-                $key                           = GivenNameNormalizer::foldKey($token);
-                $individualsByKey[$key][$xref] = true;
-                $rawByFold[$key][$token]       = ($rawByFold[$key][$token] ?? 0) + 1;
+                $key                     = GivenNameNormalizer::foldKey($token);
+                $currentKeys[$key]       = true;
+                $rawByFold[$key][$token] = ($rawByFold[$key][$token] ?? 0) + 1;
             }
+        }
+
+        // Flush the final individual.
+        foreach ($currentKeys as $key => $true) {
+            $countsByKey[$key] = ($countsByKey[$key] ?? 0) + 1;
         }
 
         /** @var array<string, int> $givenNames */
         $givenNames = [];
 
-        foreach ($individualsByKey as $key => $individuals) {
-            $givenNames[GivenNameNormalizer::dominantForm($rawByFold[$key])] = count($individuals);
+        foreach ($countsByKey as $key => $count) {
+            $givenNames[GivenNameNormalizer::dominantForm($rawByFold[$key])] = $count;
         }
 
         // Order by count descending, then by label ascending, before the limit
-        // slice: sortKeys() first (PHP sorts in byte order, independent of the
-        // database collation), then the stable sortDesc() preserves that label
-        // order within equal counts, so the surviving Top-N is identical across
-        // database engines.
+        // slice: sortKeys(SORT_STRING) first (PHP sorts in byte order,
+        // independent of the database collation, and treats a digit-only label
+        // as a string not an int), then the stable sortDesc() preserves that
+        // label order within equal counts, so the surviving Top-N is identical
+        // across database engines.
         return (new Collection($givenNames))
-            ->sortKeys()
+            ->sortKeys(SORT_STRING)
             ->sortDesc()
             ->slice(0, $limit)
             ->filter(static fn (int $count): bool => $count >= $threshold);
