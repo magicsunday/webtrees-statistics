@@ -147,9 +147,16 @@ final readonly class GivenNameNormalizer
 
         // Build the ICU transliterator once and reuse it; the string-id form of
         // transliterator_transliterate() re-resolves the rule set on every call,
-        // and this runs per token across the whole tree.
+        // and this runs per token across the whole tree. A separate resolved
+        // flag means a null create() (ICU unavailable) is attempted only once,
+        // not re-tried on every token.
         static $transliterator = null;
-        $transliterator ??= Transliterator::create(self::FOLD_TRANSFORM);
+        static $resolved       = false;
+
+        if (!$resolved) {
+            $transliterator = Transliterator::create(self::FOLD_TRANSFORM);
+            $resolved       = true;
+        }
 
         if ($transliterator instanceof Transliterator) {
             $folded = $transliterator->transliterate($normalised);
