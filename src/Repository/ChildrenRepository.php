@@ -932,18 +932,20 @@ final readonly class ChildrenRepository
      * family's earliest-born child, from which the consumer derives the Gregorian
      * month. Mirrors webtrees core's first-child query — children are reached
      * through their family's `CHIL` links (`l_from` = family, `l_to` = child) —
-     * with three corrections: the earliest child is anchored on the `BIRT` fact
-     * only; the join-back to that single minimum julian day is collapsed by
-     * family so same-julian-day twins contribute one row, not two; and the
-     * representative is pinned to ONE coherent calendar row (the lexicographically
-     * smallest `d_type` among the rows at the lower-bound julian day) so an exact
-     * same-julian-day cross-calendar tie cannot read the month of one calendar
-     * with the year of another. The `BIRT` predicate is repeated on every outer
-     * join on purpose — without it a non-birth row sharing the representative
-     * julian day would join back and re-introduce the very anchor defect this
-     * query exists to remove. The numeric `d_mon` is exposed (never the GEDCOM
-     * string `d_month`) so the consumer's {@see GregorianDate} conversion stays
-     * chronological rather than lexicographic.
+     * with two corrections: the earliest child is anchored on the `BIRT` fact
+     * only, and the join-back to that single minimum julian day is collapsed by
+     * family so same-julian-day twins contribute one row, not two. The `BIRT`
+     * predicate is repeated on the outer join on purpose — without it a non-birth
+     * row sharing the representative julian day would join back and re-introduce
+     * the very anchor defect this query exists to remove. The full numeric date
+     * fields are exposed (never the GEDCOM string `d_month`) so the consumer's
+     * {@see GregorianDate} conversion stays chronological rather than
+     * lexicographic — converting a non-Gregorian first birth to the Gregorian
+     * month it actually fell in. The rare exact same-julian-day cross-calendar
+     * tie (one physical day dual-dated in two calendars whose native months
+     * differ) keeps the documented per-column-`MIN()` limitation: its month may
+     * be read from a different tied row than its type — a low-severity bucket
+     * shift not worth the per-row re-aggregation a SQL tie-break would cost.
      *
      * @return Collection<int, object>
      */
@@ -967,34 +969,13 @@ final readonly class ChildrenRepository
                 DateAggregate::min('birth', 'd_julianday1', 'min_birth_jd'),
             ]);
 
-        // Among the rows at that lower-bound julian day, pick a single calendar
-        // deterministically — the lexicographically smallest `d_type` — so an
-        // exact same-julian-day cross-calendar tie reads ONE coherent row rather
-        // than mixing one calendar's month with another's year. Mirrors
-        // {@see \MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates}.
-        $representative = TreeScope::table($this->tree, 'link', 'chil')
+        return TreeScope::table($this->tree, 'link', 'chil')
             ->where('chil.l_type', '=', 'CHIL')
             ->join('dates AS birth', $birthJoin)
             ->joinSub($earliestBirth, 'first', static function (JoinClause $join): void {
                 $join
                     ->on('first.family_id', '=', 'chil.l_from')
                     ->on('first.min_birth_jd', '=', 'birth.d_julianday1');
-            })
-            ->groupBy('chil.l_from')
-            ->select([
-                'chil.l_from AS family_id',
-                DateAggregate::min('birth', 'd_julianday1', 'min_birth_jd'),
-                DateAggregate::min('birth', 'd_type', 'rep_type'),
-            ]);
-
-        return TreeScope::table($this->tree, 'link', 'chil')
-            ->where('chil.l_type', '=', 'CHIL')
-            ->join('dates AS birth', $birthJoin)
-            ->joinSub($representative, 'first', static function (JoinClause $join): void {
-                $join
-                    ->on('first.family_id', '=', 'chil.l_from')
-                    ->on('first.min_birth_jd', '=', 'birth.d_julianday1')
-                    ->on('first.rep_type', '=', 'birth.d_type');
             })
             ->groupBy('chil.l_from')
             ->select([
