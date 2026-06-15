@@ -14,6 +14,7 @@ namespace MagicSunday\Webtrees\Statistic\Support\Aggregator;
 use Closure;
 use Illuminate\Support\Collection;
 
+use function array_keys;
 use function array_slice;
 use function is_string;
 use function mb_strtolower;
@@ -68,6 +69,25 @@ final readonly class TopNAggregator
             }
         }
 
+        return self::rank($counts, static fn (string $key): string => $display[$key], $limit);
+    }
+
+    /**
+     * Order a `fold key => count` map by descending count, breaking equal-count
+     * ties on the fold key ascending (byte order, engine-independent), and
+     * return the surviving keys in that order. This is the single source of
+     * truth for the Top-N tie-break shared across the given-name, surname and
+     * OCCU / RELI / CAUS aggregations — relying on the database row order
+     * instead would diverge because `n_givn` / value columns collate differently
+     * across SQLite and MySQL.
+     *
+     * @param array<string, int> $counts Fold key => merged count
+     * @param int                $limit  Maximum number of keys to return; 0 or negative returns the full list
+     *
+     * @return list<string> The fold keys ordered by descending count then ascending key
+     */
+    public static function rankKeys(array $counts, int $limit): array
+    {
         // Sort by descending count, then by the case-folded key as a stable
         // secondary tie-break so equal-frequency entries at the Top-N boundary
         // keep a deterministic order across runs (arsort alone left ties in an
@@ -81,16 +101,36 @@ final readonly class TopNAggregator
             }
         );
 
-        $out = [];
-
-        foreach ($counts as $key => $count) {
-            $out[$display[$key]] = $count;
-        }
+        $keys = array_keys($counts);
 
         if ($limit <= 0) {
-            return $out;
+            return $keys;
         }
 
-        return array_slice($out, 0, $limit, true);
+        return array_slice($keys, 0, $limit);
+    }
+
+    /**
+     * Rank a `fold key => count` map with {@see rankKeys()} and map each
+     * surviving key to its display label via the caller's resolution strategy
+     * (first-seen casing, frequency-dominant spelling, …), preserving the
+     * ranked order and the counts. The tie-break is decided on the fold key, not
+     * on the resolved display label.
+     *
+     * @param array<string, int>      $counts  Fold key => merged count
+     * @param Closure(string): string $display Resolves a fold key to its display label
+     * @param int                     $limit   Maximum number of entries to return; 0 or negative returns the full list
+     *
+     * @return array<string, int> Display label => count, ordered by descending count then ascending fold key
+     */
+    public static function rank(array $counts, Closure $display, int $limit): array
+    {
+        $out = [];
+
+        foreach (self::rankKeys($counts, $limit) as $key) {
+            $out[$display($key)] = $counts[$key];
+        }
+
+        return $out;
     }
 }

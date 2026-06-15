@@ -16,13 +16,11 @@ use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Model\Chord\ChordMatrixPayload;
+use MagicSunday\Webtrees\Statistic\Support\Aggregator\TopNAggregator;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 
 use function array_flip;
-use function array_keys;
-use function array_slice;
 use function array_values;
-use function arsort;
 use function count;
 use function sort;
 
@@ -115,13 +113,13 @@ final readonly class MarriageMatrixRepository
             ->where('f.f_wife', '<>', '')
             ->whereNotIn('hn.n_surn', ['', Individual::NOMEN_NESCIO])
             ->whereNotIn('wn.n_surn', ['', Individual::NOMEN_NESCIO])
+            // `f.f_id` is selected so the DISTINCT keeps one row per family:
+            // without it two separate families sharing the same surname pair
+            // would collapse into a single row and undercount. The surname
+            // ranking no longer depends on the row order — the Top-N tie-break
+            // is resolved in PHP byte order by TopNAggregator::rankKeys().
             ->select(['f.f_id', 'hn.n_surn AS h_surn', 'wn.n_surn AS w_surn'])
             ->distinct()
-            // Deterministic row order so the downstream surname ranking is
-            // reproducible: the top-N cap leans on `arsort` for the count
-            // ordering, but a stable input keeps the stable-sort tie-break (and
-            // the test that guards it) from depending on engine row order.
-            ->orderBy('f.f_id')
             ->get();
 
         $pairs = [];
@@ -166,9 +164,12 @@ final readonly class MarriageMatrixRepository
             }
         }
 
-        arsort($totals);
-
-        $top = array_slice(array_keys($totals), 0, $topN);
+        // Rank by descending count, breaking equal-count ties on the surname in
+        // PHP byte order via the shared {@see TopNAggregator::rankKeys()}, so the
+        // surviving Top-N is identical across SQLite and MySQL rather than
+        // leaning on the database row order. The surname is its own grouping key
+        // here (no case folding), so no display-resolution step is needed.
+        $top = TopNAggregator::rankKeys($totals, $topN);
         sort($top);
 
         return $top;

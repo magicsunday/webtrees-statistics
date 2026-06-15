@@ -22,6 +22,7 @@ use Illuminate\Support\Collection;
 use MagicSunday\Webtrees\Statistic\Enum\Sex;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
+use MagicSunday\Webtrees\Statistic\Support\Aggregator\TopNAggregator;
 use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
 use MagicSunday\Webtrees\Statistic\Support\Database\ChildLinkJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
@@ -38,7 +39,6 @@ use function round;
 use function usort;
 
 use const PHP_INT_MAX;
-use const SORT_STRING;
 
 /**
  * Top-N lists and total counts for surnames and given names. Both the lists
@@ -340,23 +340,19 @@ final readonly class NameRepository
             $countsByKey[$key] = ($countsByKey[$key] ?? 0) + 1;
         }
 
-        /** @var array<string, int> $givenNames */
-        $givenNames = [];
+        // Order by count descending, then by fold key ascending, before the
+        // limit slice — the shared {@see TopNAggregator::rankKeys()} tie-break
+        // (PHP byte order, independent of the database collation), so the
+        // surviving Top-N is identical across database engines. The dominant raw
+        // spelling of each surviving fold key becomes its display label. The
+        // threshold filter runs after the slice, matching the prior order.
+        $givenNames = TopNAggregator::rank(
+            $countsByKey,
+            static fn (string $key): string => GivenNameNormalizer::dominantForm($rawByFold[$key]),
+            $limit,
+        );
 
-        foreach ($countsByKey as $key => $count) {
-            $givenNames[GivenNameNormalizer::dominantForm($rawByFold[$key])] = $count;
-        }
-
-        // Order by count descending, then by label ascending, before the limit
-        // slice: sortKeys(SORT_STRING) first (PHP sorts in byte order,
-        // independent of the database collation, and treats a digit-only label
-        // as a string not an int), then the stable sortDesc() preserves that
-        // label order within equal counts, so the surviving Top-N is identical
-        // across database engines.
         return (new Collection($givenNames))
-            ->sortKeys(SORT_STRING)
-            ->sortDesc()
-            ->slice(0, $limit)
             ->filter(static fn (int $count): bool => $count >= $threshold);
     }
 

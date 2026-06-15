@@ -14,21 +14,17 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Model\StreamGraph\GivenNameTrendsPayload;
+use MagicSunday\Webtrees\Statistic\Support\Aggregator\TopNAggregator;
 use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GivenNameNormalizer;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 
 use function array_keys;
-use function array_slice;
-use function arsort;
 use function intdiv;
-use function ksort;
 use function max;
 use function min;
 use function range;
-
-use const SORT_STRING;
 
 /**
  * Per-decade frequency of the top-N given names across the tree. Backs the
@@ -89,14 +85,10 @@ final readonly class GivenNameTrendsRepository
         }
 
         // Order by count descending, then by fold key ascending, for an
-        // engine-independent top-N: ksort(SORT_STRING) first (compare fold keys
-        // as strings — a digit-only key must not sort numerically — in PHP byte
-        // order), then the stable arsort() preserves that key order within equal
-        // counts. Relying on the DB row order instead would diverge (n_givn
-        // collates differently across SQLite and MySQL).
-        ksort($perKeyTotal, SORT_STRING);
-        arsort($perKeyTotal);
-        $topKeys = array_slice(array_keys($perKeyTotal), 0, $topN);
+        // engine-independent top-N. The shared {@see TopNAggregator::rankKeys()}
+        // owns this tie-break: relying on the DB row order instead would diverge
+        // (n_givn collates differently across SQLite and MySQL).
+        $topKeys = TopNAggregator::rankKeys($perKeyTotal, $topN);
 
         if ($topKeys === []) {
             return new GivenNameTrendsPayload(decades: [], names: [], series: []);

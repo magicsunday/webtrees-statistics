@@ -32,9 +32,10 @@ use function count;
  *   F4: Emil   /Smith/  × Frieda /Miller/
  *   F5: Ingo   /Smith/  × Jutta  /Klein/
  *
- * The Klein×Weaver family carries the lowest f_id (F1) on purpose: paired with
- * the repository's `ORDER BY f.f_id`, the low-count surnames head the natural
- * row order, so the top-N cap test genuinely exercises the `arsort` ranking.
+ * The Klein×Weaver family carries the lowest f_id (F1) on purpose, so the
+ * count-2 surnames head the natural row order: the top-N cap test thus genuinely
+ * exercises the frequency ranking (which must put the count-3 Miller/Smith
+ * ahead) rather than passing on row order alone.
  *
  * Surname marriage counts (each marriage contributes once per partner, only
  * when the surnames differ — no endogamy in this fixture):
@@ -147,15 +148,14 @@ final class MarriageMatrixRepositoryIntegrationTest extends IntegrationTestCase
     /**
      * Top-N truncation keeps the top-ranked surnames and drops the tail. With
      * `topN = 2` only the two surnames with the highest marriage involvement
-     * (Miller=3, Smith=3) survive — alphabet tie-break favours
+     * (Miller=3, Smith=3) survive — the alphabetical display sort favours
      * Miller-then-Smith.
      *
-     * The query orders marriage pairs by f_id and the Klein×Weaver family
-     * carries the lowest f_id (F1), so the low-count surnames Klein (2) and
-     * Weaver (2) head the natural row order. A regression that dropped the
-     * `arsort` frequency ranking before the cap would slice those two off the
-     * front instead of Miller/Smith and fail this assertion (proven: removing
-     * `arsort` yields ['Klein', 'Weaver']).
+     * The Klein×Weaver family carries the lowest f_id (F1), so the count-2
+     * surnames Klein and Weaver head the natural row order. A regression that
+     * dropped the frequency ranking in {@see TopNAggregator::rankKeys()} before
+     * the cap would slice those two off the front instead of Miller/Smith and
+     * fail this assertion.
      */
     #[Test]
     public function surnameMarriageMatrixHonoursTopNCap(): void
@@ -164,10 +164,10 @@ final class MarriageMatrixRepositoryIntegrationTest extends IntegrationTestCase
         $result = $this->repository($tree)->surnameMarriageMatrix(2);
 
         // The surviving set must be EXACTLY the two highest-count surnames, in
-        // the production's alphabetical order. This catches a dropped `arsort`:
-        // the query orders pairs by f_id and the Klein×Weaver family is @F1@, so
-        // the count-2 surnames Klein and Weaver head the natural row order —
-        // without `arsort` the cap would slice them off the front, yielding
+        // the production's alphabetical order. This catches a dropped frequency
+        // ranking: the Klein×Weaver family is @F1@, so the count-2 surnames
+        // Klein and Weaver head the natural row order — without the count-first
+        // ranking the cap would slice them off the front, yielding
         // ['Klein', 'Weaver'] and failing this exact-match assertion.
         self::assertSame(['Miller', 'Smith'], $result->labels);
         self::assertCount(2, $result->matrix);
@@ -187,5 +187,26 @@ final class MarriageMatrixRepositoryIntegrationTest extends IntegrationTestCase
 
         self::assertSame([], $result->labels);
         self::assertSame([], $result->matrix);
+    }
+
+    /**
+     * Equal-count surnames at the Top-N boundary are broken on the surname in
+     * PHP byte order via the shared {@see TopNAggregator::rankKeys()}, never on
+     * the database row order. The fixture has Zander (×2) plus the count-1 pair
+     * Zulu (family @F1@, the lower f_id) and Alpha (family @F2@). At Top-2 the
+     * tie between Zulu and Alpha decides the second slot: byte order keeps the
+     * lower "Alpha" — yielding the alphabetical labels ['Alpha', 'Zander'] —
+     * whereas a row-order tie-break would keep the f_id-first "Zulu" and produce
+     * ['Zander', 'Zulu']. This pins the engine-independent tie-break across
+     * SQLite (CI) and MySQL.
+     */
+    #[Test]
+    public function surnameMarriageMatrixBreaksTopNTiesByByteOrderNotRowOrder(): void
+    {
+        $tree   = $this->importFixtureTree('surname-marriage-matrix-tiebreak.ged');
+        $result = $this->repository($tree)->surnameMarriageMatrix(2);
+
+        self::assertSame(['Alpha', 'Zander'], $result->labels);
+        self::assertCount(2, $result->matrix);
     }
 }

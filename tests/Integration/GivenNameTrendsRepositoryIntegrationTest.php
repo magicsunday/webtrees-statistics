@@ -60,11 +60,12 @@ final class GivenNameTrendsRepositoryIntegrationTest extends IntegrationTestCase
             $result->decades,
         );
 
-        // Top-N order: ksort (fold key ascending) then a stable arsort (count
-        // descending), so ties break on the fold key, engine-independently.
-        // Fold keys sort anna < friedrich < hans < lisa < maria; the count-3
-        // pair (Anna, Hans) leads in that key order, then the count-2 pair
-        // (Friedrich, Maria), then the lone count-1 Lisa.
+        // Top-N order comes from the shared TopNAggregator::rankKeys() (count
+        // descending, then fold key ascending in PHP byte order), so ties break
+        // on the fold key, engine-independently. Fold keys sort
+        // anna < friedrich < hans < lisa < maria; the count-3 pair (Anna, Hans)
+        // leads in that key order, then the count-2 pair (Friedrich, Maria),
+        // then the lone count-1 Lisa.
         self::assertSame(
             ['Anna', 'Hans', 'Friedrich', 'Maria', 'Lisa'],
             $result->names,

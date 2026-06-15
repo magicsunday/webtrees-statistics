@@ -417,12 +417,12 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
      * Deterministic tie-break when the limit caps the Top-N list. Every
      * whitelisted given-name token in the fixture occurs exactly once, so all
      * counts tie; which tokens survive a sub-pool limit is therefore decided
-     * solely by the tie-break. The aggregation orders its source rows by
-     * `n_givn` and relies on PHP's stable sort, so the survivors must be the
-     * tokens from the alphabetically-first `n_givn` rows — `Edgar`, `Fred`,
-     * `Greta`. Without the deterministic ordering the survivors would follow
-     * arbitrary database row order, so this pins the contract that the
-     * `ORDER BY n_givn` tie-break exists to guarantee.
+     * solely by the tie-break. The aggregation delegates the ordering to the
+     * shared {@see TopNAggregator::rankKeys()} (count descending, then fold key
+     * ascending in PHP byte order), so the survivors must be the three
+     * byte-order-lowest fold keys — `Edgar`, `Fred`, `Greta`. Without the
+     * deterministic tie-break the survivors would follow the arbitrary database
+     * row order, so this pins the contract that `rankKeys()` guarantees.
      */
     #[Test]
     public function topGivenNamesBreaksEqualCountTiesDeterministicallyUnderLimit(): void
@@ -434,8 +434,9 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
         self::assertCount(3, $labels);
         self::assertSame($labels, array_unique($labels));
 
-        // All tokens tie at one occurrence, so the n_givn-ascending tie-break
-        // decides: the three lowest n_givn rows yield Edgar / Fred / Greta.
+        // All tokens tie at one occurrence, so the fold-key-ascending tie-break
+        // in rankKeys() decides: the three byte-order-lowest fold keys yield
+        // Edgar / Fred / Greta.
         self::assertSame(['Edgar', 'Fred', 'Greta'], $labels);
     }
 
