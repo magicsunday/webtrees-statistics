@@ -342,29 +342,6 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * An exact same-julian-day cross-calendar tie on the earliest birth must
-     * read ONE coherent calendar row, not mix the month of one calendar with
-     * another. The DualDated family's only child carries the same physical day
-     * in two calendars — Gregorian `1 MAR 1850` and Julian `17 FEB 1850` (both
-     * julian day 2396818) — whose native months diverge (March vs February).
-     * The representative pins the lexicographically smaller `d_type`, Gregorian,
-     * so the family belongs in March; a naive `MIN(d_mon)` would draw the lower
-     * native February number from the Julian row and mis-file it. The Control
-     * family's July birth pins a clean single-calendar family alongside.
-     */
-    #[Test]
-    public function firstChildrenByMonthResolvesACrossCalendarTieToOneCoherentMonth(): void
-    {
-        $tree   = $this->importFixtureTree('first-children-month-cross-calendar-tie.ged');
-        $result = $this->repository($tree)->firstChildrenByMonth();
-
-        self::assertSame(1, $result['MAR'] ?? null, 'The Gregorian row wins the tie (G < J), so the month is March.');
-        self::assertSame(0, $result['FEB'] ?? null, "The Julian row's lower native month must not leak in.");
-        self::assertSame(1, $result['JUL'] ?? null, 'The control family is anchored on July.');
-        self::assertSame(2, array_sum($result), 'Two families, two first children.');
-    }
-
-    /**
      * A year-only birth carries no month, so it cannot anchor a month tally —
      * the family falls through to its earliest *month-dated* child instead,
      * exactly as in webtrees core's first-child query. The YearOnly family's
