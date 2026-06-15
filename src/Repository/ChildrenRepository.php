@@ -484,7 +484,7 @@ final readonly class ChildrenRepository
         /** @var array<string, int> $yearByChild */
         $yearByChild = [];
 
-        /** @var array<string, list<array{id: string, jd: int}>> $perFamily */
+        /** @var array<string, array<string, int>> $perFamily Family id → child id → lower-bound birth julian day */
         $perFamily = [];
 
         foreach ($rows as $row) {
@@ -506,6 +506,17 @@ final readonly class ChildrenRepository
                 continue;
             }
 
+            // Collapse to one BIRT row per child: a child dated in two calendars
+            // (a same-day Gregorian/Julian transcription) or with a day-precise
+            // `BET`/`FROM` range writes more than one row, and without this the
+            // cluster walk below would read those rows as separate siblings and
+            // fabricate a multiple birth out of a singleton. Keep the lower-bound
+            // (minimum julian day) row so each child clusters once and its bucket
+            // year is read from that same row.
+            if (isset($perFamily[$famId][$childId]) && ($birthJd >= $perFamily[$famId][$childId])) {
+                continue;
+            }
+
             // Bucket by the GREGORIAN birth year: native d_year for
             // Gregorian/Julian, the julian day converted otherwise. Only the
             // degenerate unparseable year 0 is then dropped — BCE (negative)
@@ -520,8 +531,8 @@ final readonly class ChildrenRepository
                 continue;
             }
 
-            $yearByChild[$childId] = $year;
-            $perFamily[$famId][]   = ['id' => $childId, 'jd' => $birthJd];
+            $yearByChild[$childId]       = $year;
+            $perFamily[$famId][$childId] = $birthJd;
         }
 
         /** @var array<int, int> $totalsByCentury */
@@ -541,7 +552,15 @@ final readonly class ChildrenRepository
         /** @var list<list<string>> $clusters */
         $clusters = [];
 
-        foreach ($perFamily as $children) {
+        foreach ($perFamily as $childJds) {
+            // One entry per child (the per-child collapse above), reshaped into
+            // the {id, jd} pairs the walk sorts on.
+            $children = [];
+
+            foreach ($childJds as $id => $jd) {
+                $children[] = ['id' => $id, 'jd' => $jd];
+            }
+
             // Order this FAM's children by birth julian-day, then a
             // single forward walk groups every sibling sitting within
             // MULTI_BIRTH_MAX_DAY_GAP of the cluster's earliest birth
@@ -756,15 +775,17 @@ final readonly class ChildrenRepository
      * dated children contribute nothing.
      *
      * Children whose BIRT is year-only or carries a `BEF` / `AFT` / `ABT` /
-     * `BET..AND` / `FROM..TO` modifier are skipped: webtrees still synthesises
-     * a default julian-day for those rows (usually 01.01.YYYY) so two year-only
-     * siblings of the same year would collide at JD = same → phantom 0-year
-     * bucket entry, and a `BET..AND` child shows up as two rows in the JOIN →
-     * JD-sorted run produces a phantom self-gap with the same `i_id` on both
-     * sides. Filtering on `d_day > 0 AND d_mon > 0` cuts both pathologies in
-     * one stroke. Mixed families (some full-date, some not) still contribute
-     * the surviving pairs — those overshoot the real consecutive distance,
-     * which is the documented trade-off.
+     * year-imprecise `BET..AND` / `FROM..TO` modifier are skipped: webtrees
+     * still synthesises a default julian-day for those rows (usually 01.01.YYYY)
+     * with `d_day = 0`, so two year-only siblings of the same year would collide
+     * at JD = same → phantom 0-year bucket entry. Filtering on `d_day > 0 AND
+     * d_mon > 0` cuts those out. A DAY-precise range (`BET 30 DEC 1850 AND 31
+     * DEC 1850`), however, writes two rows that BOTH carry a non-zero day and
+     * therefore survive that gate; the per-child collapse below keeps only that
+     * child's lower-bound row, so its two rows cannot form a phantom self-gap or
+     * double-count the gaps to real siblings. Mixed families (some full-date,
+     * some not) still contribute the surviving pairs — those overshoot the real
+     * consecutive distance, which is the documented trade-off.
      *
      * @return array<string, int>
      */
@@ -775,18 +796,24 @@ final readonly class ChildrenRepository
             ->join('dates AS birth', static function (JoinClause $join): void {
                 DateJoin::on($join, 'birth', 'l_file', 'l_from', 'BIRT', DateJoin::JD_NOT_EQUAL_ZERO, true);
             })
-            ->select(['l_to AS family_id', 'birth.d_julianday1 AS birth_jd'])
+            ->select(['l_to AS family_id', 'l_from AS child_id', 'birth.d_julianday1 AS birth_jd'])
             ->orderBy('l_to')
             ->orderBy('birth.d_julianday1')
             ->get();
 
+        /** @var array<string, array<string, int>> $perFamily Family id → child id → lower-bound birth julian day */
         $perFamily = [];
 
         foreach ($rows as $row) {
             $famId   = RowCast::string($row, 'family_id');
+            $childId = RowCast::string($row, 'child_id');
             $birthJd = RowCast::int($row, 'birth_jd');
 
             if ($famId === '') {
+                continue;
+            }
+
+            if ($childId === '') {
                 continue;
             }
 
@@ -794,16 +821,27 @@ final readonly class ChildrenRepository
                 continue;
             }
 
-            $perFamily[$famId][] = $birthJd;
+            // Collapse to one BIRT row per child: a day-precise `BET`/`FROM`
+            // range (both bounds carry a non-zero day, so the full-date gate
+            // keeps them) or a cross-calendar dual-dating writes more than one
+            // row. Without this the gap walk reads one child's rows as a phantom
+            // self-gap and double-counts the gaps to real siblings. Keep the
+            // lower-bound (minimum julian day) row.
+            if (isset($perFamily[$famId][$childId]) && ($birthJd >= $perFamily[$famId][$childId])) {
+                continue;
+            }
+
+            $perFamily[$famId][$childId] = $birthJd;
         }
 
         $buckets = $this->initSiblingBuckets();
 
-        foreach ($perFamily as $jds) {
-            if (count($jds) < 2) {
+        foreach ($perFamily as $jdsByChild) {
+            if (count($jdsByChild) < 2) {
                 continue;
             }
 
+            $jds = array_values($jdsByChild);
             sort($jds);
             $counter = count($jds);
 
@@ -865,11 +903,20 @@ final readonly class ChildrenRepository
         $buckets = array_fill_keys($codes, 0);
 
         foreach ($this->firstChildBirthMonthByFamily() as $row) {
-            // The query yields the numeric month (1–12); map it to the GEDCOM
-            // abbreviation through the canonical lookup rather than aggregating
-            // the string column, which would order lexicographically on a
-            // cross-calendar julian-day tie.
-            $abbreviation = $codes[RowCast::int($row, 'month')] ?? null;
+            // Bucket by the GREGORIAN month: native d_mon for Gregorian/Julian,
+            // the lower-bound julian day converted otherwise, so a non-Gregorian
+            // first birth lands in the month it actually fell in. Mapping the
+            // numeric month through the canonical lookup (never the GEDCOM string
+            // column) keeps the order chronological, not lexicographic.
+            [, $month] = GregorianDate::fromEventRow(
+                RowCast::string($row, 'birth_type'),
+                RowCast::int($row, 'birth_year'),
+                RowCast::int($row, 'birth_mon'),
+                RowCast::int($row, 'birth_day'),
+                RowCast::int($row, 'birth_jd'),
+            );
+
+            $abbreviation = $codes[$month] ?? null;
 
             if ($abbreviation !== null) {
                 ++$buckets[$abbreviation];
@@ -880,20 +927,23 @@ final readonly class ChildrenRepository
     }
 
     /**
-     * One row per family carrying the numeric birth month (1–12) of that
-     * family's earliest-born child's `BIRT` fact. Mirrors webtrees core's
-     * first-child query — children are reached through their family's `CHIL`
-     * links (`l_from` = family, `l_to` = child) — with two corrections: the
-     * earliest child is anchored on the `BIRT` fact only, and the join-back to
-     * that single minimum julian day is collapsed by family so same-julian-day
-     * twins contribute one row, not two. The `BIRT` predicate is repeated on
-     * the outer join on purpose — without it a non-birth row sharing the
-     * representative julian day would join back and re-introduce the very
-     * anchor defect this query exists to remove. The month is exposed as the
-     * numeric `d_mon` (never the GEDCOM string `d_month`): on the rare
-     * cross-calendar julian-day tie a string `MIN` would pick the ASCII-smallest
-     * abbreviation rather than the chronological one, the same reason
-     * {@see DedupedEventDates} exposes the numeric column.
+     * One row per family carrying the representative `BIRT` date fields
+     * (`birth_type`, `birth_year`, `birth_mon`, `birth_day`, `birth_jd`) of that
+     * family's earliest-born child, from which the consumer derives the Gregorian
+     * month. Mirrors webtrees core's first-child query — children are reached
+     * through their family's `CHIL` links (`l_from` = family, `l_to` = child) —
+     * with three corrections: the earliest child is anchored on the `BIRT` fact
+     * only; the join-back to that single minimum julian day is collapsed by
+     * family so same-julian-day twins contribute one row, not two; and the
+     * representative is pinned to ONE coherent calendar row (the lexicographically
+     * smallest `d_type` among the rows at the lower-bound julian day) so an exact
+     * same-julian-day cross-calendar tie cannot read the month of one calendar
+     * with the year of another. The `BIRT` predicate is repeated on every outer
+     * join on purpose — without it a non-birth row sharing the representative
+     * julian day would join back and re-introduce the very anchor defect this
+     * query exists to remove. The numeric `d_mon` is exposed (never the GEDCOM
+     * string `d_month`) so the consumer's {@see GregorianDate} conversion stays
+     * chronological rather than lexicographic.
      *
      * @return Collection<int, object>
      */
@@ -917,7 +967,12 @@ final readonly class ChildrenRepository
                 DateAggregate::min('birth', 'd_julianday1', 'min_birth_jd'),
             ]);
 
-        return TreeScope::table($this->tree, 'link', 'chil')
+        // Among the rows at that lower-bound julian day, pick a single calendar
+        // deterministically — the lexicographically smallest `d_type` — so an
+        // exact same-julian-day cross-calendar tie reads ONE coherent row rather
+        // than mixing one calendar's month with another's year. Mirrors
+        // {@see \MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates}.
+        $representative = TreeScope::table($this->tree, 'link', 'chil')
             ->where('chil.l_type', '=', 'CHIL')
             ->join('dates AS birth', $birthJoin)
             ->joinSub($earliestBirth, 'first', static function (JoinClause $join): void {
@@ -927,7 +982,27 @@ final readonly class ChildrenRepository
             })
             ->groupBy('chil.l_from')
             ->select([
-                DateAggregate::min('birth', 'd_mon', 'month'),
+                'chil.l_from AS family_id',
+                DateAggregate::min('birth', 'd_julianday1', 'min_birth_jd'),
+                DateAggregate::min('birth', 'd_type', 'rep_type'),
+            ]);
+
+        return TreeScope::table($this->tree, 'link', 'chil')
+            ->where('chil.l_type', '=', 'CHIL')
+            ->join('dates AS birth', $birthJoin)
+            ->joinSub($representative, 'first', static function (JoinClause $join): void {
+                $join
+                    ->on('first.family_id', '=', 'chil.l_from')
+                    ->on('first.min_birth_jd', '=', 'birth.d_julianday1')
+                    ->on('first.rep_type', '=', 'birth.d_type');
+            })
+            ->groupBy('chil.l_from')
+            ->select([
+                DateAggregate::min('birth', 'd_type', 'birth_type'),
+                DateAggregate::min('birth', 'd_year', 'birth_year'),
+                DateAggregate::min('birth', 'd_mon', 'birth_mon'),
+                DateAggregate::min('birth', 'd_day', 'birth_day'),
+                DateAggregate::min('birth', 'd_julianday1', 'birth_jd'),
             ])
             ->get();
     }

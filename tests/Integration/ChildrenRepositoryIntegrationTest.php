@@ -17,6 +17,7 @@ use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
 use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarPayload;
 use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarSeries;
 use MagicSunday\Webtrees\Statistic\Repository\ChildrenRepository;
+use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
@@ -57,6 +58,7 @@ use function array_sum;
 #[UsesClass(TreeScope::class)]
 #[UsesClass(RowCast::class)]
 #[UsesClass(CenturyName::class)]
+#[UsesClass(GregorianDate::class)]
 final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
 {
     private function repository(Tree $tree): ChildrenRepository
@@ -162,6 +164,27 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame(1, $result['8y'] ?? 0, 'F6: ABT 1832 dropped, 10 MAR 1830 → 5 DEC 1838 ≈ 8y overshoot');
         self::assertSame(1, $result['9y'] ?? 0, 'F7: BET..AND 1843-1845 dropped (both rows), 20 APR 1840 → 10 DEC 1849 ≈ 9y overshoot');
         self::assertSame(8, array_sum($result), 'F2 modifier-only contributes 0; F1=2 + F3=2 + F4=1 + F5=1 + F6=1 + F7=1 = 8');
+    }
+
+    /**
+     * A DAY-precise `BET … AND` range (`BET 30 DEC 1850 AND 31 DEC 1850`) writes
+     * a lower- and an upper-bound row that BOTH carry a non-zero day, so unlike
+     * the year-imprecise modifiers above neither is dropped by the
+     * `d_day > 0 AND d_mon > 0` gate. Without a per-child collapse the JD-sorted
+     * gap walk reads that one child's two rows as a phantom self-gap (a 0-year
+     * pair) and double-counts the gap to the real sibling. The ranged child must
+     * count once, at its lower-bound julian day: F1's two children (I1 ranged
+     * end-1850, I2 born 1854) form exactly ONE gap of three years.
+     */
+    #[Test]
+    public function siblingAgeGapDistributionCollapsesADayPreciseRangedChild(): void
+    {
+        $tree   = $this->importFixtureTree('sibling-age-gap-day-range-dedup.ged');
+        $result = $this->repository($tree)->siblingAgeGapDistribution();
+
+        self::assertSame(0, $result['0y'] ?? 0, 'The ranged child must not produce a phantom self-gap.');
+        self::assertSame(1, $result['3y'] ?? 0, 'One real gap: lower-bound end-1850 → 1 JAN 1854 is three years.');
+        self::assertSame(1, array_sum($result), 'A two-child family yields exactly one consecutive-pair gap.');
     }
 
     /**
@@ -293,6 +316,52 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame(1, $result['JUN'] ?? null, 'The family is anchored on its June-born first child');
         self::assertSame(0, $result['MAR'] ?? null, 'The later March twins never anchor or double-count the family');
         self::assertSame(1, array_sum($result), 'One family, one first child');
+    }
+
+    /**
+     * A non-Gregorian first birth must be bucketed by the Gregorian month it
+     * actually fell in, not by its native calendar month. The Hebrew family's
+     * only child is born `1 TSH 5661` — Tishri (native `d_mon` = 1) of the
+     * Jewish year 5661, which is 24 September 1900 on the Gregorian scale, so
+     * the family belongs in September, not January. Reading the native `d_mon`
+     * would file it under January; the month must be converted through
+     * {@see GregorianDate} from the representative row's calendar and julian day.
+     * The Control family's March birth pins a clean Gregorian single-child
+     * family so the assertions cannot pass by zeroing every month.
+     */
+    #[Test]
+    public function firstChildrenByMonthConvertsANonGregorianBirthToItsGregorianMonth(): void
+    {
+        $tree   = $this->importFixtureTree('first-children-month-non-gregorian.ged');
+        $result = $this->repository($tree)->firstChildrenByMonth();
+
+        self::assertSame(1, $result['SEP'] ?? null, 'Hebrew 1 TSH 5661 converts to its Gregorian month, September.');
+        self::assertSame(0, $result['JAN'] ?? null, 'It must not be filed under the native Tishri month number.');
+        self::assertSame(1, $result['MAR'] ?? null, 'The Gregorian control family is anchored on March.');
+        self::assertSame(2, array_sum($result), 'Two families, two first children.');
+    }
+
+    /**
+     * An exact same-julian-day cross-calendar tie on the earliest birth must
+     * read ONE coherent calendar row, not mix the month of one calendar with
+     * another. The DualDated family's only child carries the same physical day
+     * in two calendars — Gregorian `1 MAR 1850` and Julian `17 FEB 1850` (both
+     * julian day 2396818) — whose native months diverge (March vs February).
+     * The representative pins the lexicographically smaller `d_type`, Gregorian,
+     * so the family belongs in March; a naive `MIN(d_mon)` would draw the lower
+     * native February number from the Julian row and mis-file it. The Control
+     * family's July birth pins a clean single-calendar family alongside.
+     */
+    #[Test]
+    public function firstChildrenByMonthResolvesACrossCalendarTieToOneCoherentMonth(): void
+    {
+        $tree   = $this->importFixtureTree('first-children-month-cross-calendar-tie.ged');
+        $result = $this->repository($tree)->firstChildrenByMonth();
+
+        self::assertSame(1, $result['MAR'] ?? null, 'The Gregorian row wins the tie (G < J), so the month is March.');
+        self::assertSame(0, $result['FEB'] ?? null, "The Julian row's lower native month must not leak in.");
+        self::assertSame(1, $result['JUL'] ?? null, 'The control family is anchored on July.');
+        self::assertSame(2, array_sum($result), 'Two families, two first children.');
     }
 
     /**
@@ -577,5 +646,48 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
         // 3 triplet children of 262 ≈ 1.15 % (F353 only). Under the
         // chaining bug F354 would add a second triplet set → 2.29 %.
         self::assertEqualsWithDelta(1.15, $byName['Triplets']->values[0], 0.01);
+    }
+
+    /**
+     * A single child carrying more than one dated BIRT row — a day-precise
+     * `BET … AND` range writes a lower- and an upper-bound row, both surviving
+     * the full-date gate — must contribute to the multiple-birth detection
+     * exactly ONCE. Without a per-child collapse the cluster walk reads that
+     * one child's two near-adjacent rows as two separate siblings and fabricates
+     * a multiple birth out of a singleton.
+     *
+     * The fixture seeds 202 nineteenth-century children (clearing the 200-child
+     * cohort floor): 199 singletons, one genuine same-day twin pair (F200), and
+     * one single child (I202, F202) whose birth is `BET 30 DEC 1855 AND 31 DEC
+     * 1855` — two rows one day apart. The only real multiple birth is the F200
+     * pair, so the Twins rate must be 2 / 202 ≈ 0.99 %. Under the per-row bug
+     * I202's two range rows form a second (spurious) twin set, doubling the
+     * figure to 4 / 202 ≈ 1.98 %.
+     */
+    #[Test]
+    public function multipleBirthRateByCenturyCountsAMultiRowChildBirthOnce(): void
+    {
+        $tree   = $this->importFixtureTree('multi-birth-per-child-dedup.ged');
+        $result = $this->repository($tree)->multipleBirthRateByCentury();
+
+        self::assertSame(['19th cent.'], $result->categories, '202 dated births clear the 200-child floor.');
+
+        $byName = [];
+
+        foreach ($result->series as $series) {
+            $byName[$series->name] = $series;
+        }
+
+        self::assertSame(
+            ['Twins'],
+            array_keys($byName),
+            'Only the genuine F200 pair is a multiple birth; the ranged singleton must not fabricate a set.',
+        );
+        self::assertEqualsWithDelta(
+            0.99,
+            $byName['Twins']->values[0],
+            0.01,
+            'The single ranged child is counted once (2/202), not as a second twin set (4/202).',
+        );
     }
 }
