@@ -44,16 +44,25 @@ use Illuminate\Database\Query\JoinClause;
  * that map to the same julian day) — without it that individual would surface
  * twice and split across two buckets, the very defect this helper exists to
  * remove. For a single-row individual the `GROUP BY` is a no-op. On a genuine
- * cross-calendar tie the surviving `d_year` / `d_mon` / `d_day` are the
- * per-column minima of the tied rows and may therefore be drawn from different
- * rows. The exact-once cardinality holds regardless — the `GROUP BY` emits one
- * row per individual, so every consumer counts each record once. A consumer
- * that reads a single column (century, year, month) is fully correct; a
- * consumer that combines `d_mon` and `d_day` from the same row (the zodiac
- * card) is also correct for the common range case, where the two bounds carry
- * distinct julian days and the join-back matches one whole row, and on the rare
- * tie could at worst place the still-counted-once individual in an adjacent
- * bucket.
+ * cross-calendar tie the representative is still ONE coherent row: among the
+ * rows sharing the lower-bound julian day the builder pins the
+ * lexicographically smallest `d_type`, so every exposed column — `d_type`,
+ * `d_year`, `d_mon`, `d_day` — is read from that single chosen calendar. The
+ * tie-break is deterministic rather than semantic, and that suffices: a tied
+ * Gregorian and Julian transcription of one day picks the Gregorian row
+ * (`@#DGREGORIAN@` < `@#DJULIAN@`). A Gregorian-scale winner (Gregorian or
+ * Julian) keeps its native year — the value webtrees core itself buckets by —
+ * while any other calendar (`@#DFRENCH R@`, `@#DHEBREW@`, …) converts the shared
+ * julian day through {@see \MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate};
+ * either way the single deterministic winner lands the record in the correct
+ * Gregorian period. This matters when a Gregorian and
+ * a Julian transcription of the same physical day carry diverging native years
+ * (`1 JAN 1800` Gregorian vs `21 DEC 1799` Julian): a naive column-wise `MIN()`
+ * would mix the Gregorian `d_type` with the Julian row's lower `d_year` and
+ * bucket the record one year — and at an edge one century — off. Pinning the
+ * whole row keeps `d_type`/`d_year` in lock-step, so a single-column consumer
+ * (century, year, month) and a multi-column one (the zodiac card's `d_mon` +
+ * `d_day`) alike see a self-consistent date.
  *
  * The returned builder reads like a virtual `event_dates` table with columns
  * `d_gid, d_type, d_year, d_mon, d_day, d_julianday1`; consumers chain their own
@@ -96,15 +105,39 @@ final readonly class DedupedEventDates
      */
     public static function query(Tree $tree, string $fact): Builder
     {
-        $representatives = self::restrictToDatedFact(TreeScope::table($tree, 'dates'), $fact, '')
+        $lowerBound = self::restrictToDatedFact(TreeScope::table($tree, 'dates'), $fact, '')
             ->select(['d_gid', new Expression('MIN(d_julianday1) AS min_jd')])
             ->groupBy('d_gid');
+
+        // Among the rows sharing that lower-bound julian day, pick a single
+        // calendar deterministically — the lexicographically smallest `d_type`.
+        // This resolves the exact same-julian-day cross-calendar tie, where two
+        // same-fact rows share `d_julianday1` but carry diverging native years
+        // (a Gregorian and a Julian transcription of one physical day), so the
+        // final join-back matches ONE whole row instead of mixing a Gregorian
+        // `d_type` with a Julian `d_year` column-wise. A Gregorian/Julian tie
+        // resolves to the Gregorian row (`@#DGREGORIAN@` < `@#DJULIAN@`); any
+        // other calendar bucketing through the shared julian day lands in the
+        // same Gregorian period whichever wins, so the choice is always correct.
+        $representatives = self::restrictToDatedFact(TreeScope::table($tree, 'dates', 'd'), $fact, 'd.')
+            ->joinSub($lowerBound, 'lb', static function (JoinClause $join): void {
+                $join
+                    ->on('lb.d_gid', '=', 'd.d_gid')
+                    ->on('lb.min_jd', '=', 'd.d_julianday1');
+            })
+            ->groupBy('d.d_gid')
+            ->select([
+                'd.d_gid',
+                DateAggregate::min('d', 'd_julianday1', 'min_jd'),
+                DateAggregate::min('d', 'd_type', 'rep_type'),
+            ]);
 
         $representativeRows = self::restrictToDatedFact(TreeScope::table($tree, 'dates', 'd'), $fact, 'd.')
             ->joinSub($representatives, 'rep', static function (JoinClause $join): void {
                 $join
                     ->on('rep.d_gid', '=', 'd.d_gid')
-                    ->on('rep.min_jd', '=', 'd.d_julianday1');
+                    ->on('rep.min_jd', '=', 'd.d_julianday1')
+                    ->on('rep.rep_type', '=', 'd.d_type');
             })
             ->groupBy('d.d_gid')
             ->select([
