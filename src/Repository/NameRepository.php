@@ -108,10 +108,16 @@ final readonly class NameRepository
     /**
      * Top-N surnames as `[{label, value}]`, ready for the chart widget. A
      * single grouped query selects the most frequent whitelisted surnames
-     * (descending occurrence, `n_surn` as a deterministic tie-break) above the
+     * (descending occurrence, `n_surn` as the boundary tie-break) above the
      * threshold; the result is then sorted alphabetically for a stable display
      * order. Counting inside the GROUP BY avoids the per-surname follow-up
      * query that core's `commonSurnames()` fires for every distinct surname.
+     *
+     * Note: unlike the sibling {@see topGivenNames()}, the boundary tie-break
+     * here stays in SQL (`ORDER BY n_surn`), so it is collation-dependent rather
+     * than the engine-independent PHP byte order. This divergence is deliberate
+     * — the SQL `LIMIT` returns only the surviving rows instead of transferring
+     * every distinct surname into PHP to re-rank — and is tracked in #149.
      *
      * @param int $limit     Maximum number of surnames to return
      * @param int $threshold Lower bound on the occurrences a surname must reach
@@ -176,8 +182,10 @@ final readonly class NameRepository
     /**
      * Top-N given names for a sex as `[{label, value}]`, ready for the chart
      * widget. Selection is by descending occurrence (so the most common names
-     * win the limited slots); the returned list is then sorted alphabetically
-     * for a stable display order.
+     * win the limited slots), with equal-count ties at the boundary broken by
+     * the shared {@see TopNAggregator::rankKeys()} on the fold key in PHP byte
+     * order (engine-independent, unlike a SQL collation tie-break); the returned
+     * list is then sorted alphabetically for a stable display order.
      *
      * @param string $sex       GEDCOM sex token — a {@see Sex} case value or {@see SEX_ALL} for every sex
      * @param int    $threshold Lower bound on the occurrences a name must reach

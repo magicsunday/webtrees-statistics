@@ -22,12 +22,20 @@ use function strcmp;
 use function uksort;
 
 /**
- * Generic Top-N counter for "iterate a row set, extract zero or more label
- * strings per row, count case-folded labels, return the top entries by
- * descending frequency". Used by the OCCU / RELI / CAUS Top-N repositories
- * which share this exact shape; consolidating the loop and the
- * case-folding-vs-display-form bookkeeping in one place means a fix here
- * propagates to every aggregator at once.
+ * Shared Top-N counting and ranking helper. Two responsibilities:
+ *
+ * - {@see topN()} is the generic counter for "iterate a row set, extract zero
+ *   or more label strings per row, count case-folded labels, return the top
+ *   entries by descending frequency" — used by the OCCU / RELI / CAUS Top-N
+ *   repositories which share that exact shape.
+ * - {@see rankKeys()} / {@see rank()} are the single source of truth for the
+ *   Top-N tie-break (count descending, then fold key ascending in PHP byte
+ *   order) shared by the given-name, surname-matrix and given-name-trends
+ *   aggregations, whose own counting loops differ but must order and cap their
+ *   pre-counted maps identically and engine-independently.
+ *
+ * Consolidating the case-folding-vs-display-form bookkeeping and the tie-break
+ * in one place means a fix here propagates to every aggregator at once.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -76,10 +84,13 @@ final readonly class TopNAggregator
      * Order a `fold key => count` map by descending count, breaking equal-count
      * ties on the fold key ascending (byte order, engine-independent), and
      * return the surviving keys in that order. This is the single source of
-     * truth for the Top-N tie-break shared across the given-name, surname and
-     * OCCU / RELI / CAUS aggregations — relying on the database row order
-     * instead would diverge because `n_givn` / value columns collate differently
-     * across SQLite and MySQL.
+     * truth for the Top-N tie-break shared by the given-name (via {@see rank()}
+     * in topGivenNames), surname-matrix and given-name-trends aggregations — and,
+     * indirectly through {@see topN()}, the OCCU / RELI / CAUS counters. Relying
+     * on the database row order instead would diverge because the grouped value
+     * columns collate differently across SQLite and MySQL; the SQL-side
+     * `topSurnames` cap deliberately keeps its own collation tie-break instead
+     * (see #149).
      *
      * @param array<string, int> $counts Fold key => merged count
      * @param int                $limit  Maximum number of keys to return; 0 or negative returns the full list

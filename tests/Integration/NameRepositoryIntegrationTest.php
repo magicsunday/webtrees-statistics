@@ -504,6 +504,29 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
+     * The boundary tie is broken on the FOLD KEY, not on the resolved display
+     * label. The fixture has Anna (×2) plus the count-1 pair Zoé and Zoia, whose
+     * dominant display spellings sort opposite to their fold keys: fold keys
+     * `zoe` < `zoia` keep "Zoé", but the display labels "Zoia" < "Zoé" would keep
+     * "Zoia". At Top-2 the survivors are {Anna, Zoé} — proving the cut is decided
+     * by the shared {@see TopNAggregator::rankKeys()} fold-key byte order, not by
+     * the display label (the former display-label tie-break would have yielded
+     * {Anna, Zoia}). Unlike the ASCII fixtures above, this genuinely
+     * discriminates the two tie-break bases.
+     */
+    #[Test]
+    public function topGivenNamesBreaksBoundaryTiesOnFoldKeyNotDisplayLabel(): void
+    {
+        $tree   = $this->importFixtureTree('given-name-fold-tiebreak.ged');
+        $labels = array_column(
+            $this->repository($tree)->topGivenNames(NameRepository::SEX_ALL, 1, 2),
+            'label',
+        );
+
+        self::assertSame(['Anna', 'Zoé'], $labels);
+    }
+
+    /**
      * An individual is counted once per fold key even when the same name is
      * recorded in several forms (primary NAME + a ROMN/FONE transliteration that
      * Latin-folds onto it). The fixture: I1 = NAME "José" + ROMN "Jose", I2 =
