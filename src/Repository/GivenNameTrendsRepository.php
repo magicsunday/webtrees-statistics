@@ -22,7 +22,6 @@ use MagicSunday\Webtrees\Statistic\Support\Gedcom\GivenNameNormalizer;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 
 use function array_keys;
-use function count;
 use function date;
 use function intdiv;
 use function max;
