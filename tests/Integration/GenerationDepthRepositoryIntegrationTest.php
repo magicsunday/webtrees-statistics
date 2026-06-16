@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
+use Fisharebest\Webtrees\DB;
 use MagicSunday\Webtrees\Statistic\Model\Ranking\RankingEntry;
 use MagicSunday\Webtrees\Statistic\Model\Tree\GenerationDepthReport;
 use MagicSunday\Webtrees\Statistic\Repository\GenerationDepthRepository;
@@ -25,6 +26,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
 
 use function array_map;
 use function array_search;
+use function count;
 
 /**
  * End-to-end test of {@see GenerationDepthRepository} against
@@ -75,6 +77,58 @@ final class GenerationDepthRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame(
             [0 => 1, 1 => 1, 2 => 1],
             $result->distribution,
+        );
+    }
+
+    /**
+     * The rendered chain must be resolved with a single bulk gedcom fetch, not
+     * one `IndividualFactory::make()` round-trip per chain member (GH-154). On a
+     * deep linear lineage the chain is `maxDepth + 1` individuals long, so a
+     * per-id resolution loop issued one `SELECT i_gedcom` per member and grew
+     * with the lineage depth; the bulk fetch issues a single chunked query
+     * regardless.
+     *
+     * The discriminator is depth-INDEPENDENCE rather than an absolute bound: the
+     * structural scans cost the same number of queries for a three-deep and an
+     * eight-deep lineage, so summary()'s query count must not grow between them.
+     * The old per-id loop made the eight-deep chain cost five extra queries (one
+     * per additional member); the bulk fetch keeps the two equal. This is robust
+     * to an incidental change in the structural query count (a core bump) that a
+     * hard-coded bound would mask.
+     */
+    #[Test]
+    public function summaryResolvesChainWithoutPerMemberQueries(): void
+    {
+        $shallow = $this->importFixtureTree('generation-depth.ged');
+        $deep    = $this->importFixtureTree('generation-depth-deep-chain.ged');
+
+        DB::connection()->flushQueryLog();
+        DB::connection()->enableQueryLog();
+        (new GenerationDepthRepository($shallow, new ParentMapRepository($shallow)))->summary();
+        $shallowQueries = count(DB::connection()->getQueryLog());
+        DB::connection()->disableQueryLog();
+
+        DB::connection()->flushQueryLog();
+        DB::connection()->enableQueryLog();
+        $deepResult  = (new GenerationDepthRepository($deep, new ParentMapRepository($deep)))->summary();
+        $deepQueries = count(DB::connection()->getQueryLog());
+        DB::connection()->disableQueryLog();
+
+        // The deep lineage is eight individuals deep, so the rendered chain holds
+        // all eight — proving the chain was actually reconstructed and resolved,
+        // so the query-count assertion cannot pass on a short-circuited chain.
+        self::assertSame(7, $deepResult->maxDepth);
+        self::assertCount(1, $deepResult->chains);
+        self::assertCount(8, $deepResult->chains[0]);
+        self::assertStringContainsString('Ancestor1', $deepResult->chains[0][0]->fullName());
+        self::assertStringContainsString('Leaf8', $deepResult->chains[0][7]->fullName());
+
+        // The eight-deep chain must not cost more queries than the three-deep
+        // one — chain resolution does not scale one query per chain member.
+        self::assertLessThanOrEqual(
+            $shallowQueries,
+            $deepQueries,
+            'Chain resolution must not scale one query per chain member',
         );
     }
 
