@@ -29,8 +29,6 @@ import {
     WorldMap,
 } from "@magicsunday/webtrees-chart-lib";
 
-import { DashboardBus } from "./dashboard-bus.js";
-
 const WORLD_GEOJSON_URL =
     "/index.php?route=%2Fmodule%2F_webtrees-statistics_%2FAsset&asset=js/world-map.geojson";
 
@@ -163,19 +161,17 @@ const WIDGETS = {
  *
  * @param {ParentNode} root Document fragment to scan.
  *
- * @returns {{bus: DashboardBus, widgets: Array<object>, disconnect: () => void}}
- *          The shared selection bus, the widget instances wired into it, and a
- *          teardown that disconnects the reveal observer and drops the
- *          reduced-motion listener.
+ * @returns {{widgets: Array<object>, disconnect: () => void}}
+ *          The rendered widget instances and a teardown that disconnects the
+ *          reveal observer and drops the reduced-motion listener.
  */
 export function renderWidgets(root) {
     const nodes = root.querySelectorAll("[data-widget]");
-    const bus = new DashboardBus();
     const widgets = [];
 
-    // Reveal-on-scroll: every widget is drawn up front — in the DOM and wired to
-    // the bus immediately (cross-widget filtering, print, in-page search) — with
-    // animated entrances HELD at their initial keyframe. A card already within
+    // Reveal-on-scroll: every widget is drawn up front — in the DOM immediately
+    // (print, in-page search) — with animated entrances HELD at their initial
+    // keyframe. A card already within
     // the viewport plays its entrance right away; an off-screen card waits for
     // an IntersectionObserver to reveal it once it scrolls a quarter into view.
     // Eager draw keeps the layout stable (each chart sizes itself on draw).
@@ -305,7 +301,7 @@ export function renderWidgets(root) {
     }
 
     /**
-     * Draw a single widget node and wire it into the shared bus.
+     * Draw a single widget node and collect its rendered instance.
      *
      * @param {Element} node
      *
@@ -342,15 +338,20 @@ export function renderWidgets(root) {
         const instance = widget(node, data, options);
 
         // Async widgets (world-map) return a Promise instead of the widget
-        // instance; connect the bus and arm the reveal inside the .then so the
-        // instance is known before it is observed (no unobserve-before-resolve
+        // instance; collect the instance and arm the reveal inside the .then so
+        // the instance is known before it is observed (no unobserve-before-resolve
         // race).
         if (instance instanceof Promise) {
             // Async widgets resolve in their own microtask, after the draw pass
             // has flushed layout, so they can reveal directly.
             instance.then((resolved) => {
-                connectToBus(resolved, bus, widgets);
-                if (revealOnScroll === false || resolved === null || resolved === undefined) {
+                if (resolved === null || resolved === undefined) {
+                    return;
+                }
+
+                widgets.push(resolved);
+
+                if (revealOnScroll === false) {
                     return;
                 }
 
@@ -368,7 +369,9 @@ export function renderWidgets(root) {
                 revealWhenSeen(node, resolved);
             });
         } else {
-            connectToBus(instance, bus, widgets);
+            if (instance !== null && instance !== undefined) {
+                widgets.push(instance);
+            }
             if (pendingReveals !== null) {
                 pendingReveals.push({ node, instance });
             }
@@ -416,7 +419,7 @@ export function renderWidgets(root) {
         }
     };
 
-    return { bus, widgets, disconnect };
+    return { widgets, disconnect };
 }
 
 /**
@@ -450,41 +453,6 @@ function initPlacesPanelTabs(root) {
                 wrap.dataset.view = targetView;
             });
         });
-    });
-}
-
-/**
- * Wire a single widget into the shared bus: emit clicks via `bus.emit`,
- * re-broadcast incoming selections via the widget's `setSelection` hook.
- * Widgets without a recognisable interface (no `onSelectionChanged` /
- * `setSelection`) are skipped silently so the dispatcher stays additive — a
- * future widget that opts in to the bus only needs to expose the two hooks.
- *
- * The receiver ignores echoes of its own emission so a widget never fights its
- * own click via the round-trip.
- *
- * @param {object|null|undefined} instance
- * @param {DashboardBus}          bus
- * @param {Array<object>}         widgets   Mutated — every instance the bus accepted is pushed.
- * @returns {void}
- */
-function connectToBus(instance, bus, widgets) {
-    if (instance === null || instance === undefined) {
-        return;
-    }
-    if (typeof instance.onSelectionChanged !== "function") {
-        return;
-    }
-    widgets.push(instance);
-    const ownSource = typeof instance.options?.source === "string" ? instance.options.source : "";
-    instance.onSelectionChanged((payload) => bus.emit(payload));
-    bus.onSelectionChanged((payload) => {
-        if (payload.source === ownSource && ownSource !== "") {
-            return;
-        }
-        if (typeof instance.setSelection === "function") {
-            instance.setSelection(payload.predicate);
-        }
     });
 }
 
