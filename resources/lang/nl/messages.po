@@ -230,8 +230,8 @@ msgstr[1] "%s verschillende oorzaken"
 msgid "%s distinct causes (top 10)"
 msgstr "%s verschillende oorzaken (top 10)"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:67
-#: resources/views/modules/statistics-chart/tabs/names.phtml:82
+#: resources/views/modules/statistics-chart/tabs/names.phtml:72
+#: resources/views/modules/statistics-chart/tabs/names.phtml:87
 #, php-format
 msgid "%s distinct given names (top 15)"
 msgstr "%s verschillende voornamen (top 15)"
@@ -265,7 +265,7 @@ msgstr[1] "%s verschillende religies"
 msgid "%s distinct religions (top 10)"
 msgstr "%s verschillende religies (top 10)"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:52
+#: resources/views/modules/statistics-chart/tabs/names.phtml:57
 #, php-format
 msgid "%s distinct surnames (top 15)"
 msgstr "%s verschillende achternamen (top 15)"
@@ -776,7 +776,7 @@ msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:146
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:238
-#: resources/views/modules/statistics-chart/tabs/names.phtml:42
+#: resources/views/modules/statistics-chart/tabs/names.phtml:47
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:212
 #: resources/views/modules/statistics-chart/tabs/places.phtml:181
 #: resources/views/modules/statistics-chart/tabs/places.phtml:200
@@ -792,6 +792,10 @@ msgid "Across %s individual with at least one recorded place."
 msgid_plural "Across %s individuals with at least one recorded place."
 msgstr[0] "Over %s persoon met minimaal één geregistreerde plaats."
 msgstr[1] "Over %s personen met minimaal één geregistreerde plaats."
+
+#: resources/views/modules/statistics-chart/widgets/name-timeline.phtml:58
+msgid "Active"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:589
 msgid "After the partner's death"
@@ -925,7 +929,7 @@ msgstr ""
 "Aantallen per leeftijdsklasse per geboorte-eeuw, opgesplitst in een kolom "
 "voor mannen en een kolom voor vrouwen"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:140
+#: resources/views/modules/statistics-chart/tabs/names.phtml:159
 msgid "Alliances"
 msgstr "Allianties"
 
@@ -1150,7 +1154,7 @@ msgstr "Cholera-epidemie van 1892"
 msgid "Cholera pandemic of 1831–1832"
 msgstr "Cholera-pandemie van 1831–1832"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:139
+#: resources/views/modules/statistics-chart/tabs/names.phtml:158
 msgid ""
 "Chord diagram: arcs = surnames, ribbons = marriages between them, loops = "
 "endogamy"
@@ -1171,11 +1175,11 @@ msgstr "Valt samen met: %s"
 msgid "Common causes of death"
 msgstr "Veelvoorkomende doodsoorzaken"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:81
+#: resources/views/modules/statistics-chart/tabs/names.phtml:86
 msgid "Common given names – female"
 msgstr "Veelvoorkomende voornamen – vrouw"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:66
+#: resources/views/modules/statistics-chart/tabs/names.phtml:71
 msgid "Common given names – male"
 msgstr "Veelvoorkomende voornamen – man"
 
@@ -1187,7 +1191,7 @@ msgstr "Veelvoorkomende beroepen"
 msgid "Common religions"
 msgstr "Veelvoorkomende religies"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:51
+#: resources/views/modules/statistics-chart/tabs/names.phtml:56
 msgid "Common surnames"
 msgstr "Veelvoorkomende achternamen"
 
@@ -1418,7 +1422,7 @@ msgstr "Documentatie"
 msgid "Dutch famine (1944–1945)"
 msgstr "Nederlandse hongersnood (1944–1945)"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:39
+#: resources/views/modules/statistics-chart/tabs/names.phtml:40
 msgid ""
 "Each arc on the circumference is one of the top surnames in the tree, ranked "
 "by how many marriages that surname appears in (as husband or wife). Ribbons "
@@ -1452,7 +1456,7 @@ msgstr ""
 "combinatie van vaderberoep → zoonberoep te zien, het aantal zonen en enkele "
 "van hen bij naam."
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:35
+#: resources/views/modules/statistics-chart/tabs/names.phtml:36
 msgid ""
 "Each band stands for one of the most common given names in the tree. The "
 "band's vertical thickness in a given decade shows how many individuals born "
@@ -1682,7 +1686,7 @@ msgstr "Europese hittegolf van 2003"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:302
 #: resources/views/modules/statistics-chart/tabs/family.phtml:507
-#: resources/views/modules/statistics-chart/tabs/names.phtml:97
+#: resources/views/modules/statistics-chart/tabs/names.phtml:102
 msgid "Evolution"
 msgstr "Evolutie"
 
@@ -1734,7 +1738,7 @@ msgstr "Gezinnen met vs. zonder kinderen"
 msgid "Family"
 msgstr "Gezin"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:48
+#: resources/views/modules/statistics-chart/tabs/names.phtml:53
 msgid "Family names and given names by frequency across the tree"
 msgstr "Achter- en voornamen op basis van frequentie in de stamboom"
 
@@ -1987,7 +1991,7 @@ msgstr ""
 "zodat decennia met sterk verschillende aantallen gezinnen naast elkaar "
 "vergeleken kunnen worden."
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:122
+#: resources/views/modules/statistics-chart/tabs/names.phtml:141
 msgid ""
 "For every parent-child pair of the same sex (father / son and mother / "
 "daughter) where both individuals carry a recorded given name, the widget "
@@ -2016,7 +2020,7 @@ msgstr "Frans-Duitse Oorlog (1870–1871)"
 msgid "French Wars of Religion (1562–1598)"
 msgstr "Franse godsdienstoorlogen (1562–1598)"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:47
+#: resources/views/modules/statistics-chart/tabs/names.phtml:52
 msgid "Frequencies"
 msgstr "Frequenties"
 
@@ -2064,12 +2068,12 @@ msgstr "Geografisch overzicht"
 msgid "Geography"
 msgstr "Geografie"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:68
-#: resources/views/modules/statistics-chart/tabs/names.phtml:83
+#: resources/views/modules/statistics-chart/tabs/names.phtml:73
+#: resources/views/modules/statistics-chart/tabs/names.phtml:88
 msgid "Given names"
 msgstr "Voornamen"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:101
+#: resources/views/modules/statistics-chart/tabs/names.phtml:106
 msgid "Given-name popularity across decades"
 msgstr "Populariteit van voornamen per decennium"
 
@@ -2170,7 +2174,7 @@ msgstr ""
 "Hoeveel verbonden deelbomen zijn er? Een stamboom heeft één grote deelboom, "
 "een adresboek veel kleine."
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:96
+#: resources/views/modules/statistics-chart/tabs/names.phtml:101
 msgid "How names came and went over time"
 msgstr "Hoe namen verschenen en verdwenen door de tijd"
 
@@ -2486,6 +2490,10 @@ msgstr "Sterftecijfer per geboorte-eeuw"
 msgid "Most children"
 msgstr "Meeste kinderen"
 
+#: resources/views/modules/statistics-chart/tabs/names.phtml:121
+msgid "Most recent birth year per name · names still in use are highlighted"
+msgstr ""
+
 #: resources/views/modules/statistics-chart/components/records-grid.phtml:36
 msgid "Most spouses"
 msgstr "Meeste echtgenoten"
@@ -2734,7 +2742,7 @@ msgstr "Overlijdensplaatsen"
 msgid "Polish-Soviet War (1919–1921)"
 msgstr "Pools-Sovjetoorlog (1919–1921)"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:98
+#: resources/views/modules/statistics-chart/tabs/names.phtml:103
 msgid "Popularity over decades and marriage alliances between families"
 msgstr "Populariteit per decennium en huwelijksbanden tussen gezinnen"
 
@@ -2782,8 +2790,8 @@ msgstr "Russische hongersnood van 1921–1922"
 msgid "Sagittarius"
 msgstr "Boogschutter"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:115
-#: resources/views/modules/statistics-chart/tabs/names.phtml:133
+#: resources/views/modules/statistics-chart/tabs/names.phtml:134
+#: resources/views/modules/statistics-chart/tabs/names.phtml:152
 msgid "Same-sex name passdown"
 msgstr "Naamsoverdracht binnen hetzelfde geslacht"
 
@@ -2842,7 +2850,7 @@ msgstr ""
 "Aandeel kinderen geboren op dezelfde dag als een broer of zus in hetzelfde "
 "gezin"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:116
+#: resources/views/modules/statistics-chart/tabs/names.phtml:135
 msgid ""
 "Share of children sharing at least one given name with the same-sex parent"
 msgstr ""
@@ -2972,12 +2980,12 @@ msgstr "Structuur"
 msgid "Structure type"
 msgstr "Structuurtype"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:138
-#: resources/views/modules/statistics-chart/tabs/names.phtml:148
+#: resources/views/modules/statistics-chart/tabs/names.phtml:157
+#: resources/views/modules/statistics-chart/tabs/names.phtml:167
 msgid "Surname × surname marriage matrix"
 msgstr "Achternaam × achternaam huwelijksmatrix"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:53
+#: resources/views/modules/statistics-chart/tabs/names.phtml:58
 msgid "Surnames"
 msgstr "Achternamen"
 
@@ -3004,6 +3012,16 @@ msgstr "Taiping-opstand (1850–1864)"
 #: src/Support/Locale/ZodiacLabels.php:50
 msgid "Taurus"
 msgstr "Stier"
+
+#: resources/views/modules/statistics-chart/tabs/names.phtml:44
+msgid ""
+"The chart shows the most common given names in the tree, each placed on the "
+"year axis at the most recent birth recorded for a person carrying that name. "
+"The names are ordered by that year, so the most recently given sit at one "
+"end and those that fell out of use long ago at the other. A name whose most "
+"recent bearer was born within the last 25 years counts as still in use and "
+"is highlighted."
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:221
 msgid "The extremes of the tree"
@@ -3121,7 +3139,8 @@ msgstr "Tijdsverdeling van geboorten"
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:304
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:433
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:516
-#: resources/views/modules/statistics-chart/tabs/names.phtml:103
+#: resources/views/modules/statistics-chart/tabs/names.phtml:108
+#: resources/views/modules/statistics-chart/tabs/names.phtml:122
 msgid "Timeline"
 msgstr "Tijdlijn"
 
@@ -3137,7 +3156,7 @@ msgstr ""
 "Voor te weinig personen zijn zowel de geboorte- als de overlijdensplaats "
 "voorzien van coördinaten."
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:102
+#: resources/views/modules/statistics-chart/tabs/names.phtml:107
 #, php-format
 msgid "Top %s given names, stacked · band thickness = share per decade"
 msgstr "Top %s voornamen, gestapeld · klassedikte = aandeel per decennium"
@@ -3162,7 +3181,7 @@ msgstr "Top 10 oudsten (overleden)"
 msgid "Top 10 oldest (living)"
 msgstr "Top 10 oudsten (levend)"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:117
+#: resources/views/modules/statistics-chart/tabs/names.phtml:136
 msgid "Tradition"
 msgstr "Traditie"
 
@@ -3269,6 +3288,10 @@ msgstr "Wanneer huwelijken eindigden"
 msgid "When they had children"
 msgstr "Wanneer zij kinderen kregen"
 
+#: resources/views/modules/statistics-chart/tabs/names.phtml:120
+msgid "When was the name last given?"
+msgstr ""
+
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:271
 msgid "When were they born?"
 msgstr "Wanneer werden zij geboren?"
@@ -3283,7 +3306,7 @@ msgstr ""
 msgid "Where they lived and died"
 msgstr "Waar zij leefden en stierven"
 
-#: resources/views/modules/statistics-chart/tabs/names.phtml:46
+#: resources/views/modules/statistics-chart/tabs/names.phtml:51
 msgid "Which names return?"
 msgstr "Welke namen keren terug?"
 
