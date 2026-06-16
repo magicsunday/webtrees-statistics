@@ -345,6 +345,14 @@ export function renderWidgets(root) {
             // Async widgets resolve in their own microtask, after the draw pass
             // has flushed layout, so they can reveal directly.
             instance.then((resolved) => {
+                // The statistics chart is loaded into the page over AJAX, so a
+                // tab swap or reload can detach this node before the async widget
+                // resolves. Abort if it is no longer in the document — touching a
+                // detached node would only leak a held reference.
+                if (!node.isConnected) {
+                    return;
+                }
+
                 if (resolved === null || resolved === undefined) {
                     return;
                 }
