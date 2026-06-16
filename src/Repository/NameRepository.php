@@ -229,6 +229,13 @@ final class NameRepository
         // reused by the Top-N card for the same sex (GH-154).
         $counts = $this->foldGivenNames($sex)['counts'];
 
+        // Every fold key has at least one bearer, so the default threshold of 1
+        // admits all of them — skip the filter scan and closure-per-name on the
+        // hot path (the dashboard always queries with threshold 1).
+        if ($threshold <= 1) {
+            return count($counts);
+        }
+
         return count(
             array_filter($counts, static fn (int $count): bool => $count >= $threshold),
         );

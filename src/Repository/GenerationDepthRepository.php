@@ -28,6 +28,7 @@ use function array_map;
 use function array_merge;
 use function array_pop;
 use function array_slice;
+use function array_unique;
 use function array_values;
 use function count;
 use function max;
@@ -127,8 +128,12 @@ final readonly class GenerationDepthRepository
         // issued one `SELECT i_gedcom` per member and grew with the depth
         // (GH-154). Passing the pre-fetched gedcom as the factory's third
         // argument skips that lookup, keeping the resolution a single query.
+        // Flatten every rendered chain and de-duplicate the ids: should more
+        // than one chain ever be rendered, sibling chains share most of their
+        // ancestors, so the union keeps the placeholder count (and the fetched
+        // row set) minimal.
         $gedcomByXref = $this->gedcomByXref(
-            array_merge(...array_values($top)),
+            array_values(array_unique(array_merge(...array_values($top)))),
         );
 
         foreach ($top as $chainIds) {
