@@ -27,7 +27,6 @@ use MagicSunday\Webtrees\Statistic\View\EmptyStatePlaceholder;
  * @var string|null    $accent     CSS colour literal for the cell fill
  * @var string|null    $valueLabel Pre-translated unit caption for the tooltip
  * @var string|null    $ariaLabel  Accessible label on the host svg
- * @var string|null    $source     Crossfilter source id for the shared selection bus
  */
 $height ??= 460;
 
@@ -43,10 +42,6 @@ $options = [
     'valueLabel' => $valueLabel ?? null,
     'ariaLabel'  => $ariaLabel ?? null,
 ];
-
-if (isset($source) && ($source !== '')) {
-    $options['source'] = $source;
-}
 ?>
 <div class="wt-stat-heatmap-container"
      id="<?php echo e($identifier); ?>"
