@@ -8,7 +8,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://github.com/magicsunday/webtrees-statistics/"
 "issues\n"
 "POT-Creation-Date: 1970-01-01 00:00+0000\n"
-"PO-Revision-Date: 2026-06-06 09:23+0200\n"
+"PO-Revision-Date: 2026-06-16 17:24+0200\n"
 "Last-Translator: TheDutchJewel <thedutchjewel@gmail.com>\n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -30,7 +30,7 @@ msgstr "%1$s %% (%2$s van %3$s personen bereikten deze leeftijd)"
 #: src/Support/Locale/ZodiacPeriods.php:61
 #, php-format
 msgid "%1$s %2$s – %3$s %4$s"
-msgstr ""
+msgstr "%1$s %2$s – %3$s %4$s"
 
 #: src/Repository/ChildrenRepository.php:426
 #, php-format
@@ -795,7 +795,7 @@ msgstr[1] "Over %s personen met minimaal één geregistreerde plaats."
 
 #: resources/views/modules/statistics-chart/widgets/name-timeline.phtml:58
 msgid "Active"
-msgstr ""
+msgstr "Actief"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:589
 msgid "After the partner's death"
@@ -2493,6 +2493,8 @@ msgstr "Meeste kinderen"
 #: resources/views/modules/statistics-chart/tabs/names.phtml:121
 msgid "Most recent birth year per name · names still in use are highlighted"
 msgstr ""
+"Meest recente geboortejaar per naam · nog in gebruik zijnde namen zijn "
+"gemarkeerd"
 
 #: resources/views/modules/statistics-chart/components/records-grid.phtml:36
 msgid "Most spouses"
@@ -3022,6 +3024,12 @@ msgid ""
 "recent bearer was born within the last 25 years counts as still in use and "
 "is highlighted."
 msgstr ""
+"De grafiek toont de meest voorkomende voornamen in de stamboom, elk op de "
+"tijdas geplaatst bij het meest recente geboortejaar van een persoon met die "
+"naam. De namen zijn naar dat jaar gerangschikt, zodat de recentst gegeven "
+"namen aan de ene kant staan en de namen die al lang buiten gebruik zijn "
+"geraakt aan de andere. Een naam waarvan de meest recente drager in de "
+"afgelopen 25 jaar is geboren, geldt als nog in gebruik en wordt gemarkeerd."
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:221
 msgid "The extremes of the tree"
@@ -3290,7 +3298,7 @@ msgstr "Wanneer zij kinderen kregen"
 
 #: resources/views/modules/statistics-chart/tabs/names.phtml:120
 msgid "When was the name last given?"
-msgstr ""
+msgstr "Wanneer werd de naam voor het laatst gegeven?"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:271
 msgid "When were they born?"
