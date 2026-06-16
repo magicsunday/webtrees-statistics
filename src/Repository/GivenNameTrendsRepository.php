@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
+use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Model\StreamGraph\GivenNameTrendsPayload;
@@ -21,10 +22,12 @@ use MagicSunday\Webtrees\Statistic\Support\Gedcom\GivenNameNormalizer;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 
 use function array_keys;
+use function date;
 use function intdiv;
 use function max;
 use function min;
 use function range;
+use function usort;
 
 /**
  * Per-decade frequency of the top-N given names across the tree. Backs the
@@ -151,6 +154,85 @@ final readonly class GivenNameTrendsRepository
     }
 
     /**
+     * For each of the top-N most frequent given names: the most recent birth
+     * year a token of that name was recorded on, its total occurrence count, and
+     * whether that year still falls inside the active window. Spelling variants
+     * fold under their dominant form exactly as in {@see countByDecade()}, and
+     * the selection is the same top-N-by-frequency the decade series uses.
+     *
+     * Rows are ordered by last year descending — still-given names lead, long
+     * vanished ones trail — with the display name as a deterministic final
+     * tie-break. The active flag is a visual highlight only; it drives neither
+     * the selection nor the ordering.
+     *
+     * @param int      $topN              Maximum number of distinct given names to keep
+     * @param int|null $referenceYear     Reference year ("now") for the active-window test; defaults to the current year
+     * @param int      $activeWithinYears A name counts as still active when its last year is no more than this many years before the reference year
+     *
+     * @return list<array{name: string, lastYear: int, total: int, isActive: bool}>
+     */
+    public function lastYearByName(int $topN, ?int $referenceYear = null, int $activeWithinYears = 25): array
+    {
+        $rows = $this->loadIndividualNamesAndYears();
+
+        // Fold spelling variants onto one key (like countByDecade) so "José" and
+        // "Jose" share a row; track per-key totals, the latest birth year, and
+        // the raw spellings backing the dominant-spelling display label.
+        /** @var array<string, int> $perKeyTotal */
+        $perKeyTotal = [];
+
+        /** @var array<string, int> $perKeyLastYear */
+        $perKeyLastYear = [];
+
+        /** @var array<string, array<string, int>> $rawByKey */
+        $rawByKey = [];
+
+        foreach ($rows as $entry) {
+            foreach (GivenNameNormalizer::tokens($entry['givn']) as $token) {
+                $key                    = GivenNameNormalizer::foldKey($token);
+                $perKeyTotal[$key]      = ($perKeyTotal[$key] ?? 0) + 1;
+                $perKeyLastYear[$key]   = max($perKeyLastYear[$key] ?? $entry['year'], $entry['year']);
+                $rawByKey[$key][$token] = ($rawByKey[$key][$token] ?? 0) + 1;
+            }
+        }
+
+        // Top-N by frequency with the shared engine-independent tie-break (count
+        // descending, then fold key ascending) — the same selection the decade
+        // series uses, so the two cards agree on which names are "the top names".
+        $topKeys = TopNAggregator::rankKeys($perKeyTotal, $topN);
+
+        $threshold = ($referenceYear ?? (int) date('Y')) - $activeWithinYears;
+
+        $result = [];
+
+        foreach ($topKeys as $key) {
+            $lastYear = $perKeyLastYear[$key];
+
+            $result[] = [
+                'name'     => GivenNameNormalizer::dominantForm($rawByKey[$key]),
+                'lastYear' => $lastYear,
+                'total'    => $perKeyTotal[$key],
+                'isActive' => ($lastYear >= $threshold),
+            ];
+        }
+
+        // Order by most recent birth year descending, with the display name as a
+        // stable final tie-break. The active flag only highlights; it does not
+        // reorder.
+        usort($result, static function (array $a, array $b): int {
+            $byYearDescending = $b['lastYear'] <=> $a['lastYear'];
+
+            if ($byYearDescending !== 0) {
+                return $byYearDescending;
+            }
+
+            return $a['name'] <=> $b['name'];
+        });
+
+        return $result;
+    }
+
+    /**
      * Build the dense decade range for the chart's x-axis. Starts at the first
      * decade where any top-N name actually has a birth (no pre-history pad from
      * outlier early dates) and ends at the most recent dated birth in the whole
@@ -225,7 +307,14 @@ final readonly class GivenNameTrendsRepository
         foreach ($rows as $row) {
             $givn = RowCast::string($row, 'givn');
 
+            // Skip the "no given name" placeholder (`@P.N.`); it is not a real
+            // name and would otherwise rank as a band of its own in both the
+            // decade series and the last-year aggregate.
             if ($givn === '') {
+                continue;
+            }
+
+            if ($givn === Individual::PRAENOMEN_NESCIO) {
                 continue;
             }
 
