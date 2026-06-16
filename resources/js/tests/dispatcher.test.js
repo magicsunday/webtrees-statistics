@@ -375,77 +375,6 @@ describe("renderWidgets", () => {
         expect(() => renderWidgets(document.body)).not.toThrow();
     });
 
-    test("returns a DashboardBus instance and the connected widgets", () => {
-        document.body.innerHTML = `
-            <div id="d1"
-                 data-widget="donut-chart"
-                 data-payload='[{"label":"Male","value":1}]'></div>
-        `;
-
-        const result = renderWidgets(document.body);
-
-        expect(result.bus).toBeDefined();
-        expect(typeof result.bus.emit).toBe("function");
-        expect(typeof result.bus.onSelectionChanged).toBe("function");
-        // The donut mock has no onSelectionChanged hook, so the
-        // dispatcher quietly skips it — connected widgets stay empty.
-        expect(result.widgets).toEqual([]);
-    });
-
-    test("connects every widget exposing onSelectionChanged to the shared bus", () => {
-        // Bus-aware donut: emits via onSelectionChanged, receives via setSelection.
-        let emitCallback = null;
-        const setSelectionSpy = jest.fn();
-
-        class BusAwareDonut {
-            constructor(node, options) {
-                this.node = node;
-                this.options = options;
-            }
-            draw() {}
-            onSelectionChanged(cb) {
-                emitCallback = cb;
-                return this;
-            }
-            setSelection(predicate) {
-                setSelectionSpy(predicate);
-            }
-        }
-
-        // Stub the dispatch table entry with the bus-aware variant.
-        // Because Jest's ESM module mocks are immutable, swap the
-        // donut spy chain via a fresh dispatch instead of re-mocking.
-        document.body.innerHTML = `
-            <div id="bus-a" data-widget="donut-chart" data-payload='[]'
-                 data-options='{"source":"donut.a"}'></div>
-            <div id="bus-b" data-widget="donut-chart" data-payload='[]'
-                 data-options='{"source":"donut.b"}'></div>
-        `;
-
-        // Patch the global DonutChart for this test only.
-        // (Cleaner than re-mocking; mock is module-scoped.)
-        const originalDraw = DonutChart.prototype.draw;
-        DonutChart.prototype.onSelectionChanged = BusAwareDonut.prototype.onSelectionChanged;
-        DonutChart.prototype.setSelection = BusAwareDonut.prototype.setSelection;
-
-        const result = renderWidgets(document.body);
-
-        // Both donuts connected.
-        expect(result.widgets.length).toBe(2);
-
-        // Emit from donut.a; donut.b's setSelection receives the predicate,
-        // donut.a's does NOT (echo suppression by source).
-        const otherSpy = jest.fn();
-        result.widgets[1].setSelection = otherSpy;
-        emitCallback({ source: "donut.a", predicate: { slice: "Male" } });
-        expect(otherSpy).toHaveBeenCalledWith({ slice: "Male" });
-
-        // Cleanup
-        delete DonutChart.prototype.onSelectionChanged;
-        delete DonutChart.prototype.setSelection;
-        DonutChart.prototype.draw = originalDraw;
-    });
-
     test("draws every widget eagerly and plays its entrance once the node scrolls into view", () => {
         // Fake IntersectionObserver: records observed nodes and lets the test
         // fire the intersection callback manually.
@@ -470,10 +399,14 @@ describe("renderWidgets", () => {
             <div id="d1" data-widget="donut-chart" data-payload='[]'></div>
         `;
 
-        renderWidgets(document.body);
+        const result = renderWidgets(document.body);
 
-        // Eager: the widget is drawn up front (in the DOM + on the bus) with its
-        // entrance held via animateOnReveal — but playEntry has NOT fired yet.
+        // renderWidgets returns the rendered widget instances and a teardown.
+        expect(result.widgets).toHaveLength(1);
+        expect(typeof result.disconnect).toBe("function");
+
+        // Eager: the widget is drawn up front (in the DOM) with its entrance held
+        // via animateOnReveal — but playEntry has NOT fired yet.
         expect(donutDrawSpy).toHaveBeenCalledTimes(1);
         expect(donutDrawSpy.mock.calls[0][2]).toMatchObject({ animateOnReveal: true });
         expect(donutPlayEntrySpy).not.toHaveBeenCalled();

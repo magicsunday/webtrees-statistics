@@ -1415,17 +1415,15 @@
     text-transform: uppercase;
 }
 
-/* Hover / selection highlight: the focused slice brightens
+/* Hover highlight: the focused slice brightens
    slightly; surrounding slices stay at their default fill.
    Mirrors the donut / bar-chart / box-plot hover treatment. */
 .wt-statistics-chart svg.msc-month-radial path.msc-month-radial-slice {
     transition: filter 200ms ease-out;
 }
 
-.wt-statistics-chart svg.msc-month-radial path.msc-month-radial-slice:hover,
-.wt-statistics-chart svg.msc-month-radial path.msc-month-radial-slice.is-selected {
+.wt-statistics-chart svg.msc-month-radial path.msc-month-radial-slice:hover {
     opacity: 0.75;
-    cursor: pointer;
 }
 
 /* ----------------------------------------------------------------------
@@ -1836,14 +1834,12 @@
 }
 
 /*
- * Hover and selection share one visual: the focused slice
- * brightens slightly (no border, no shape change) while every
- * other slice stays at its default fill. Mirrors the bar-chart /
- * stream-graph / sankey hover treatment so click and hover read
- * the same across the dashboard.
+ * Hover visual: the focused slice brightens slightly (no border,
+ * no shape change) while every other slice stays at its default
+ * fill. Mirrors the bar-chart / stream-graph / sankey hover
+ * treatment so hover reads the same across the dashboard.
  */
-.wt-statistics-chart svg.msc-donut-chart path.msc-donut-chart-slice:hover,
-.wt-statistics-chart svg.msc-donut-chart path.msc-donut-chart-slice.is-selected {
+.wt-statistics-chart svg.msc-donut-chart path.msc-donut-chart-slice:hover {
     opacity: 0.75;
 }
 
@@ -2530,11 +2526,10 @@
 }
 
 /*
- * Hover / selection highlight: the focused band brightens; the
- * surrounding bands stay at their default fill.
+ * Hover highlight: the focused band brightens; the surrounding
+ * bands stay at their default fill.
  */
-.wt-statistics-chart svg.msc-stream-graph path.msc-stream-graph-band:hover,
-.wt-statistics-chart svg.msc-stream-graph path.msc-stream-graph-band.is-selected {
+.wt-statistics-chart svg.msc-stream-graph path.msc-stream-graph-band:hover {
     opacity: 0.75;
 }
 
@@ -2615,12 +2610,11 @@
 }
 
 /*
- * Hover / selection highlight: the focused flow bumps to full
- * opacity; surrounding flows stay at their default visibility so
- * the chart context survives the focus.
+ * Hover highlight: the focused flow bumps to full opacity;
+ * surrounding flows stay at their default visibility so the chart
+ * context survives the focus.
  */
-.wt-statistics-chart svg.msc-sankey-flow path.msc-sankey-flow-link:hover,
-.wt-statistics-chart svg.msc-sankey-flow path.msc-sankey-flow-link.is-selected {
+.wt-statistics-chart svg.msc-sankey-flow path.msc-sankey-flow-link:hover {
     opacity: 0.75;
 }
 
@@ -2829,7 +2823,6 @@
 .wt-statistics-chart svg.msc-bar-chart path.msc-bar-chart-bar {
     fill:       var(--wt-stat-card-accent, var(--slate));
     transition: opacity 200ms ease-out;
-    cursor:     pointer;
 }
 
 /* Faint secondary baseline below the main x-axis, mirroring the
@@ -2868,15 +2861,12 @@
 }
 
 /*
- * Hover and selection share one visual: dim every OTHER bar to
- * 0.35 while the focused bar stays opaque. Mirrors the
- * donut / stream-graph / sankey rules so click + hover read the
- * same across the dashboard.
+ * Hover dims every OTHER bar to 0.35 while the focused bar stays
+ * opaque. Mirrors the donut / stream-graph / sankey rules so hover
+ * reads the same across the dashboard.
  */
 .wt-statistics-chart svg.msc-bar-chart rect.msc-bar-chart-bar:hover,
-.wt-statistics-chart svg.msc-bar-chart rect.msc-bar-chart-bar.is-selected,
-.wt-statistics-chart svg.msc-bar-chart path.msc-bar-chart-bar:hover,
-.wt-statistics-chart svg.msc-bar-chart path.msc-bar-chart-bar.is-selected {
+.wt-statistics-chart svg.msc-bar-chart path.msc-bar-chart-bar:hover {
     opacity: 0.75;
 }
 
@@ -2914,7 +2904,6 @@
     transform-box:    fill-box;
     transform-origin: center;
     transition:       transform 150ms ease-out;
-    cursor:           pointer;
 }
 
 .wt-statistics-chart svg.msc-event-timeline circle.msc-event-timeline-dot:hover {
@@ -3060,9 +3049,9 @@
 
 /* Per-cohort P25 / P75 guides — two horizontal dashed lines that
    stretch across the plot at the box's bottom + top edge. Hidden
-   at rest; revealed only when the parent cohort is hovered or
-   selected so the reader can read P25 / P75 straight off the
-   y-axis without the chart being noisy. */
+   at rest; revealed only when the parent cohort is hovered so the
+   reader can read P25 / P75 straight off the y-axis without the
+   chart being noisy. */
 .wt-statistics-chart svg.msc-box-plot line.msc-box-plot-box-guide {
     stroke:           var(--ink-2);
     stroke-width:     1;
@@ -3072,28 +3061,23 @@
     transition:       opacity 150ms ease-out;
 }
 
-.wt-statistics-chart svg.msc-box-plot g.msc-box-plot-cohort:hover line.msc-box-plot-box-guide,
-.wt-statistics-chart svg.msc-box-plot g.msc-box-plot-cohort.is-selected line.msc-box-plot-box-guide {
+.wt-statistics-chart svg.msc-box-plot g.msc-box-plot-cohort:hover line.msc-box-plot-box-guide {
     opacity: 0.7;
 }
 
-/* Hover / selection highlight: the focused cohort's box gets a
-   denser accent tint so it shifts visually without becoming
-   transparent (semi-transparent fill would let the grid show
-   through). Whiskers / caps / outliers reuse the opacity shift
-   used elsewhere — they are already opaque so transparency is
-   safe there. */
-.wt-statistics-chart svg.msc-box-plot g.msc-box-plot-cohort:hover rect.msc-box-plot-box,
-.wt-statistics-chart svg.msc-box-plot g.msc-box-plot-cohort.is-selected rect.msc-box-plot-box {
+/* Hover highlight: the focused cohort's box gets a denser accent
+   tint so it shifts visually without becoming transparent
+   (semi-transparent fill would let the grid show through).
+   Whiskers / caps / outliers reuse the opacity shift used
+   elsewhere — they are already opaque so transparency is safe
+   there. */
+.wt-statistics-chart svg.msc-box-plot g.msc-box-plot-cohort:hover rect.msc-box-plot-box {
     fill: color-mix(in srgb, var(--wt-stat-card-accent, var(--wine)) 45%, var(--card));
 }
 
 .wt-statistics-chart svg.msc-box-plot g.msc-box-plot-cohort:hover .msc-box-plot-whisker,
 .wt-statistics-chart svg.msc-box-plot g.msc-box-plot-cohort:hover .msc-box-plot-whisker-cap,
-.wt-statistics-chart svg.msc-box-plot g.msc-box-plot-cohort:hover .msc-box-plot-outlier,
-.wt-statistics-chart svg.msc-box-plot g.msc-box-plot-cohort.is-selected .msc-box-plot-whisker,
-.wt-statistics-chart svg.msc-box-plot g.msc-box-plot-cohort.is-selected .msc-box-plot-whisker-cap,
-.wt-statistics-chart svg.msc-box-plot g.msc-box-plot-cohort.is-selected .msc-box-plot-outlier {
+.wt-statistics-chart svg.msc-box-plot g.msc-box-plot-cohort:hover .msc-box-plot-outlier {
     opacity: 0.75;
 }
 
@@ -3617,8 +3601,7 @@
  * Hover dim mirrors the BarChart / DivergingBar pattern so a
  * focused segment reads against a softened backdrop.
  */
-.wt-statistics-chart svg.msc-stacked-bar rect.msc-stacked-bar-segment:hover,
-.wt-statistics-chart svg.msc-stacked-bar rect.msc-stacked-bar-segment.is-selected {
+.wt-statistics-chart svg.msc-stacked-bar rect.msc-stacked-bar-segment:hover {
     opacity: 0.75;
 }
 
@@ -4075,7 +4058,6 @@
 /* Treemap hover: lift the pointed-at tile and dim the rest, mirroring the
    bar-chart / donut hover-dim pattern. */
 .wt-statistics-chart svg.msc-treemap-svg .msc-treemap-tile {
-    cursor:     pointer;
     transition: opacity 0.15s ease;
 }
 
