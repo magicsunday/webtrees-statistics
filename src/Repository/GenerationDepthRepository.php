@@ -25,8 +25,11 @@ use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use function array_filter;
 use function array_keys;
 use function array_map;
+use function array_merge;
 use function array_pop;
 use function array_slice;
+use function array_unique;
+use function array_values;
 use function count;
 use function max;
 use function strcmp;
@@ -119,11 +122,25 @@ final readonly class GenerationDepthRepository
         $top    = array_slice($byLeaf, 0, self::MAX_CHAINS_RENDERED, true);
         $chains = [];
 
+        // Resolve every rendered chain member from a single bulk gedcom fetch
+        // rather than one `IndividualFactory::make()` round-trip per id: a deep
+        // lineage chain is `maxDepth + 1` individuals long, so the per-id loop
+        // issued one `SELECT i_gedcom` per member and grew with the depth
+        // (GH-154). Passing the pre-fetched gedcom as the factory's third
+        // argument skips that lookup, keeping the resolution a single query.
+        // Flatten every rendered chain and de-duplicate the ids: should more
+        // than one chain ever be rendered, sibling chains share most of their
+        // ancestors, so the union keeps the placeholder count (and the fetched
+        // row set) minimal.
+        $gedcomByXref = $this->gedcomByXref(
+            array_values(array_unique(array_merge(...array_values($top)))),
+        );
+
         foreach ($top as $chainIds) {
             $resolved = [];
 
             foreach ($chainIds as $id) {
-                $individual = Registry::individualFactory()->make($id, $this->tree);
+                $individual = Registry::individualFactory()->make($id, $this->tree, $gedcomByXref[$id] ?? null);
 
                 if ($individual instanceof Individual) {
                     $resolved[] = $individual;
@@ -371,6 +388,45 @@ final readonly class GenerationDepthRepository
             // Same id can have multiple BIRT date rows; keep the latest.
             $existing = $out[$id] ?? 0;
             $out[$id] = max($existing, $jday);
+        }
+
+        return $out;
+    }
+
+    /**
+     * Bulk-fetch the raw gedcom for every given xref in a single chunked query,
+     * returning an `[xref => gedcom]` map. Lets the chain resolution hand the
+     * gedcom straight to {@see Registry::individualFactory()} instead of issuing
+     * one `SELECT i_gedcom` per chain member — the N+1 the rendered-chain loop
+     * otherwise scaled one query per generation deep (GH-154). {@see
+     * ChunkedWhereIn} keeps the id filter within the placeholder budget on a
+     * pathologically deep lineage.
+     *
+     * @param list<string> $xrefs
+     *
+     * @return array<array-key, string>
+     */
+    private function gedcomByXref(array $xrefs): array
+    {
+        if ($xrefs === []) {
+            return [];
+        }
+
+        $query = TreeScope::table($this->tree, 'individuals')
+            ->select(['i_id', 'i_gedcom']);
+
+        $rows = ChunkedWhereIn::get($query, 'i_id', $xrefs);
+
+        $out = [];
+
+        foreach ($rows as $row) {
+            $id = RowCast::string($row, 'i_id');
+
+            if ($id === '') {
+                continue;
+            }
+
+            $out[$id] = RowCast::string($row, 'i_gedcom');
         }
 
         return $out;

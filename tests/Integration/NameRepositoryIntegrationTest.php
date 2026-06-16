@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
+use Fisharebest\Webtrees\DB;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Enum\Sex;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
@@ -28,6 +29,9 @@ use PHPUnit\Framework\Attributes\UsesClass;
 
 use function array_column;
 use function array_unique;
+use function count;
+
+use const PHP_INT_MAX;
 
 /**
  * Integration test for {@see NameRepository}. The count / passdown cases use
@@ -94,10 +98,11 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * Five distinct given names appear in the fixture (Anna, Friedrich, Maria,
-     * Hans, Lisa), split across sexes. Female: Anna×3, Maria×2, Lisa×1 → 3
-     * distinct. Male: Friedrich×2, Hans×3 → 2 distinct. The 12th individual is
-     * undated but still has a given name so still contributes.
+     * Six distinct given names appear in the fixture (Anna, Friedrich, Maria,
+     * Hans, Lisa, plus the sex-`U` 12th individual's "Unknown"), split across
+     * sexes. Female: Anna×3, Maria×2, Lisa×1 → 3 distinct. Male: Friedrich×2,
+     * Hans×3 → 2 distinct. The 12th individual carries sex `U`, so it contributes
+     * to the all-sexes count but to neither the female nor the male count.
      */
     #[Test]
     public function countDistinctGivenNamesPerSex(): void
@@ -111,8 +116,13 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
 
     /**
      * The threshold filter excludes given names that occur fewer times than the
-     * threshold. Asking for names that appear at least 3 times across the
-     * fixture should drop the count.
+     * threshold, with the boundary INCLUSIVE (`count >= threshold`). Across all
+     * sexes the fixture carries six distinct given names — Anna (×3), Friedrich
+     * (×2), Maria (×2), Hans (×3), Lisa (×1) and the sex-`U` individual's
+     * "Unknown" (×1) — of which exactly two, Anna and Hans, reach an occurrence
+     * of three. Pinning both exact values guards the inclusive boundary: a
+     * regression to a strict `count > threshold` would drop the two names
+     * sitting exactly on the threshold and yield 0, not 2.
      */
     #[Test]
     public function countDistinctGivenNamesRespectsThreshold(): void
@@ -120,12 +130,69 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
         $tree = $this->importFixtureTree('name-trends.ged');
         $repo = $this->repository($tree);
 
-        // With threshold 1 we see all five given names; with
-        // threshold 3 only Anna (3) and Hans (3) qualify.
         $unbounded = $repo->countDistinctGivenNames(NameRepository::SEX_ALL, 1);
         $threeOnly = $repo->countDistinctGivenNames(NameRepository::SEX_ALL, 3);
 
-        self::assertGreaterThan($threeOnly, $unbounded);
+        self::assertSame(6, $unbounded, 'All six distinct given names clear threshold 1');
+        self::assertSame(2, $threeOnly, 'Only Anna (×3) and Hans (×3) reach the inclusive threshold 3');
+    }
+
+    /**
+     * The distinct-count card and the Top-N card for the SAME sex must fold the
+     * underlying `name` rows exactly once between them, not once per card
+     * (GH-154). The fold (the SQL scan plus the per-token tokenise) depends only
+     * on the sex filter; the threshold and limit are applied afterwards, so a
+     * second card for the same sex must reuse the memoised fold rather than
+     * re-scanning. The query count is the discriminator: before the shared fold
+     * the two calls issued two scans, after it a single one.
+     */
+    #[Test]
+    public function givenNameCountAndTopShareOneFoldPerSex(): void
+    {
+        $tree = $this->importFixtureTree('name-trends.ged');
+        $repo = $this->repository($tree);
+
+        DB::connection()->flushQueryLog();
+        DB::connection()->enableQueryLog();
+
+        $repo->countDistinctGivenNames(Sex::Male->value);
+        $repo->topGivenNames(Sex::Male->value, 1, 15);
+
+        $queryCount = count(DB::connection()->getQueryLog());
+
+        DB::connection()->disableQueryLog();
+
+        self::assertSame(
+            1,
+            $queryCount,
+            'Count and Top for one sex must share a single name-row fold, not scan once per card',
+        );
+    }
+
+    /**
+     * The headline distinct-given-name count must stay in lockstep with the
+     * Top-N aggregation it summarises: at a given threshold the count equals the
+     * number of distinct Top-N entries the same threshold yields (GH-154 splits
+     * the count off the shared fold, so this pins that the two derive the same
+     * key set). Asserted symmetrically for both sexes so neither the male nor the
+     * female card can drift.
+     */
+    #[Test]
+    public function givenNameCountMatchesTopNCardinalityForBothSexes(): void
+    {
+        $tree = $this->importFixtureTree('name-trends.ged');
+        $repo = $this->repository($tree);
+
+        foreach ([Sex::Male->value, Sex::Female->value, NameRepository::SEX_ALL] as $sex) {
+            $count = $repo->countDistinctGivenNames($sex, 1);
+            $top   = $repo->topGivenNames($sex, 1, PHP_INT_MAX);
+
+            self::assertCount(
+                $count,
+                $top,
+                'Distinct count must equal the unbounded Top-N cardinality for sex ' . $sex,
+            );
+        }
     }
 
     /**

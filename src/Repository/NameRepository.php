@@ -31,14 +31,14 @@ use MagicSunday\Webtrees\Statistic\Support\Gedcom\GivenNameNormalizer;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
 
+use function array_filter;
 use function array_intersect;
 use function array_keys;
 use function array_map;
+use function count;
 use function ksort;
 use function round;
 use function usort;
-
-use const PHP_INT_MAX;
 
 /**
  * Top-N lists and total counts for surnames and given names. Both the lists
@@ -64,7 +64,7 @@ use const PHP_INT_MAX;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-final readonly class NameRepository
+final class NameRepository
 {
     /**
      * Per-century sample floor for {@see sameSexNamePassdownByCentury}.
@@ -98,10 +98,21 @@ final readonly class NameRepository
     public const string SEX_ALL = 'ALL';
 
     /**
+     * Per-sex memo of the tokenised given-name fold — the expensive `name`-table
+     * scan plus per-token tokenise that both the distinct-count card and the
+     * Top-N card consume. Keyed by the sex selector; the threshold and limit are
+     * applied on top of a shared fold, so a tab that renders the count and the
+     * Top-N for the same sex scans the rows once, not once per card (GH-154).
+     *
+     * @var array<string, array{counts: array<string, int>, rawByFold: array<string, array<string, int>>}>
+     */
+    private array $givenNameFoldCache = [];
+
+    /**
      * @param Tree $tree The tree whose names to aggregate
      */
     public function __construct(
-        private Tree $tree,
+        private readonly Tree $tree,
     ) {
     }
 
@@ -213,7 +224,21 @@ final readonly class NameRepository
      */
     public function countDistinctGivenNames(string $sex, int $threshold = 1): int
     {
-        return $this->aggregateGivenNames($sex, $threshold, PHP_INT_MAX)->count();
+        // Count the folded keys that clear the threshold directly off the shared
+        // fold — no Top-N rank/sort is needed for a cardinality, and the fold is
+        // reused by the Top-N card for the same sex (GH-154).
+        $counts = $this->foldGivenNames($sex)['counts'];
+
+        // Every fold key has at least one bearer, so the default threshold of 1
+        // admits all of them — skip the filter scan and closure-per-name on the
+        // hot path (the dashboard always queries with threshold 1).
+        if ($threshold <= 1) {
+            return count($counts);
+        }
+
+        return count(
+            array_filter($counts, static fn (int $count): bool => $count >= $threshold),
+        );
     }
 
     /**
@@ -258,6 +283,10 @@ final readonly class NameRepository
      * not double-counted. Core's `n_type <> '_MARNM'` blacklist is swapped for
      * the whitelist so arbitrary custom sub-tags never reach the tokeniser.
      *
+     * Reads the shared per-sex fold ({@see foldGivenNames}) and applies only the
+     * Top-N rank + threshold filter on top, so the count card and the Top-N card
+     * for the same sex re-use a single `name`-table scan (GH-154).
+     *
      * @param string $sex       GEDCOM sex token — a {@see Sex} case value or {@see SEX_ALL} for every sex
      * @param int    $threshold Lower bound on the individuals a folded name must reach
      * @param int    $limit     Maximum number of folded names to keep, by descending count
@@ -266,6 +295,43 @@ final readonly class NameRepository
      */
     private function aggregateGivenNames(string $sex, int $threshold, int $limit): Collection
     {
+        $fold = $this->foldGivenNames($sex);
+
+        // Order by count descending, then by fold key ascending, before the
+        // limit slice — the shared {@see TopNAggregator::rankKeys()} tie-break
+        // (PHP byte order, independent of the database collation), so the
+        // surviving Top-N is identical across database engines. The dominant raw
+        // spelling of each surviving fold key becomes its display label. The
+        // threshold filter runs after the slice, matching the prior order.
+        $givenNames = TopNAggregator::rank(
+            $fold['counts'],
+            static fn (string $key): string => GivenNameNormalizer::dominantForm($fold['rawByFold'][$key]),
+            $limit,
+        );
+
+        return (new Collection($givenNames))
+            ->filter(static fn (int $count): bool => $count >= $threshold);
+    }
+
+    /**
+     * The expensive half of the given-name aggregation: scan the whitelisted
+     * `name` rows for one sex and fold each individual's tokens into a
+     * `[foldKey => individual count]` map plus a `[foldKey => raw spelling
+     * frequencies]` map for the display label. Memoised per sex selector so the
+     * distinct-count card and the Top-N card for the same sex share one scan
+     * instead of repeating it — the threshold and limit only shape the result
+     * downstream, never the scan (GH-154).
+     *
+     * @param string $sex GEDCOM sex token — a {@see Sex} case value or {@see SEX_ALL} for every sex
+     *
+     * @return array{counts: array<string, int>, rawByFold: array<string, array<string, int>>}
+     */
+    private function foldGivenNames(string $sex): array
+    {
+        if (isset($this->givenNameFoldCache[$sex])) {
+            return $this->givenNameFoldCache[$sex];
+        }
+
         $query = DB::table('name')
             ->where('n_file', '=', $this->tree->id())
             ->whereIn('n_type', self::NAME_TYPE_WHITELIST)
@@ -348,20 +414,10 @@ final readonly class NameRepository
             $countsByKey[$key] = ($countsByKey[$key] ?? 0) + 1;
         }
 
-        // Order by count descending, then by fold key ascending, before the
-        // limit slice — the shared {@see TopNAggregator::rankKeys()} tie-break
-        // (PHP byte order, independent of the database collation), so the
-        // surviving Top-N is identical across database engines. The dominant raw
-        // spelling of each surviving fold key becomes its display label. The
-        // threshold filter runs after the slice, matching the prior order.
-        $givenNames = TopNAggregator::rank(
-            $countsByKey,
-            static fn (string $key): string => GivenNameNormalizer::dominantForm($rawByFold[$key]),
-            $limit,
-        );
-
-        return (new Collection($givenNames))
-            ->filter(static fn (int $count): bool => $count >= $threshold);
+        return $this->givenNameFoldCache[$sex] = [
+            'counts'    => $countsByKey,
+            'rawByFold' => $rawByFold,
+        ];
     }
 
     /**
