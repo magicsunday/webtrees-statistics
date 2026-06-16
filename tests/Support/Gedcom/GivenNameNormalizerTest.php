@@ -110,6 +110,54 @@ final class GivenNameNormalizerTest extends TestCase
     }
 
     /**
+     * Messy `GIVN` fields from royal / legendary lineages pack regnal numbers,
+     * parenthetical titles / epithets / variants and quote-delimited bynames
+     * alongside the bare given name (issue #156). `tokens()` strips the
+     * bracketed segments and quote/backtick delimiters before the split, then
+     * drops multi-letter Roman numerals and ordinals so those fragments never
+     * rank as given names — while a legitimate multi-token name (`Anna Maria`)
+     * survives intact.
+     *
+     * A small residual is accepted as out of reach of a deterministic,
+     * locale-free fix: an all-caps place / surname after a particle (`of
+     * CORDOBA` → `CORDOBA`) and a quoted byname's inner word (`` `the Bruce` ``
+     * → `Bruce`) still survive.
+     *
+     * @return iterable<string, array{0: string, 1: list<string>}>
+     */
+    public static function noisyGivnCases(): iterable
+    {
+        yield 'control multi-token name survives' => ['Anna Maria', ['Anna', 'Maria']];
+        yield 'parenthetical title stripped' => ['John (King)', ['John']];
+        yield 'regnal Roman numeral dropped' => ['William II', ['William']];
+        yield 'larger Roman numeral dropped' => ['Henry VIII', ['Henry']];
+        yield 'parenthetical variant + ordinal + title stripped' => ['Abia (Abijah) (4th King) of JUDAH', ['Abia', 'JUDAH']];
+        yield 'backtick byname delimiters stripped' => ['Robert `the Bruce`', ['Robert', 'Bruce']];
+        yield 'bracketed variant after particle' => ['Aba (Ava) of ARVERNE', ['Aba', 'ARVERNE']];
+        yield 'descriptor-only parenthetical collapses' => ['(Miss)', []];
+        yield 'standalone ordinal dropped' => ['2nd', []];
+        yield 'uppercase ordinal dropped' => ['Karl 2ND', ['Karl']];
+        yield 'square-bracket segment stripped' => ['Karl [der Große]', ['Karl']];
+        yield 'curly-brace segment stripped' => ['Karl {der Große}', ['Karl']];
+        yield 'unbalanced bracket leaves a stray that is stripped' => ['Anna (King', ['Anna', 'King']];
+        // A straight apostrophe is an intra-word letter in real anthroponyms,
+        // not a byname delimiter — it must NOT be stripped (would otherwise drop
+        // the leading initial as a particle and mangle the name module-wide).
+        yield 'apostrophe name survives' => ["O'Brien", ["O'Brien"]];
+        yield 'apostrophe name with short head survives' => ["Sa'id", ["Sa'id"]];
+    }
+
+    /**
+     * @param list<string> $expected
+     */
+    #[Test]
+    #[DataProvider('noisyGivnCases')]
+    public function tokensStripBracketedTitleAndRegnalNoise(string $givn, array $expected): void
+    {
+        self::assertSame($expected, GivenNameNormalizer::tokens($givn));
+    }
+
+    /**
      * The returned display tokens are NFC-normalised, so a decomposed source
      * spelling is emitted in its composed (canonical) form for the label.
      */

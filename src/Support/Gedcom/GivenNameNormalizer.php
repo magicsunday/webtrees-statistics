@@ -19,6 +19,7 @@ use function ksort;
 use function mb_strtolower;
 use function normalizer_normalize;
 use function preg_match;
+use function preg_replace;
 use function preg_split;
 use function trim;
 
@@ -66,6 +67,38 @@ final readonly class GivenNameNormalizer
     private const string PARTICLE_REGEX = '/^([A-Z]|[a-z]{1,3})$/';
 
     /**
+     * Strips bracketed segments — `(…)` / `[…]` / `{…}` — and the
+     * backtick / double-quote characters used to delimit epithets, regnal
+     * qualifiers, alternate spellings and titles inside a messy `n_givn` value
+     * (issue #156). Replaced with a space so the surrounding tokens never merge.
+     * Unbalanced brackets leave a stray bracket character behind, which the
+     * residual single-character strip removes. The straight apostrophe is
+     * deliberately NOT stripped: it is an intra-word letter in real
+     * anthroponyms (`O'Brien`, `Sa'id`), and removing it would split the name
+     * and drop the leading initial as a particle.
+     */
+    private const string NOISE_SEGMENT_REGEX = '/\([^)]*\)|\[[^\]]*\]|\{[^}]*\}|[(){}\[\]`"]/u';
+
+    /**
+     * Drops a multi-letter Roman numeral (a regnal number such as "II" / "VIII"
+     * / "XIV"); a single Roman letter is already removed as an initial by
+     * {@see PARTICLE_REGEX}. This is a deliberately loose character match, not a
+     * Roman-numeral validator: it drops ANY all-caps token built solely from
+     * the seven Roman letters. The case requirement keeps every mixed-case name
+     * safe (`Liv`, `Mimi`, `Vivi` survive); only an all-caps GEDCOM carrying a
+     * Roman-letter-only given name (`LIV`, `MIMI`) loses it — accepted as the
+     * documented residual rather than risking a real regnal number slipping
+     * through a stricter pattern.
+     */
+    private const string ROMAN_NUMERAL_REGEX = '/^[IVXLCDM]{2,}$/';
+
+    /**
+     * Drops an English ordinal fragment ("4th" / "1st" / "2nd" / "3rd") that
+     * leaks from a regnal descriptor like "(4th King)".
+     */
+    private const string ORDINAL_REGEX = '/^\d+(st|nd|rd|th)$/i';
+
+    /**
      * ICU transliterator chain folding accents, special Latin letters and case
      * into a plain lowercase ASCII grouping key (`Łukasz` → `lukasz`).
      */
@@ -84,7 +117,17 @@ final readonly class GivenNameNormalizer
      * ({@see Individual::PRAENOMEN_NESCIO}) and empty input collapse to an empty
      * list so they neither dilute a cohort nor surface as a name. Slashes and
      * other GEDCOM markers do not appear in `n_givn` (they live on `n_surn` /
-     * `n_full`), so a Unicode whitespace split is sufficient.
+     * `n_full`), but messy GIVN fields from royal / legendary lineages pack
+     * regnal numbers, parenthetical titles / epithets / variants and
+     * quote-delimited bynames alongside the bare name. Bracketed segments and
+     * quote / backtick delimiters are stripped before the whitespace split, and
+     * the per-token filter additionally drops multi-letter Roman numerals and
+     * ordinals so none of that noise ranks as a given name (issue #156). A
+     * legitimate multi-token name (`Anna Maria`) is preserved; a small residual
+     * (an all-caps place / surname after a particle, or — only on an all-caps
+     * GEDCOM that also carries a Roman-letter-only given name such as `LIV` —
+     * that name) is accepted as out of reach of a deterministic, locale-free
+     * fix.
      *
      * @param string $givn The raw `n_givn` column value
      *
@@ -104,6 +147,17 @@ final readonly class GivenNameNormalizer
             $normalised = $trimmed;
         }
 
+        // Strip bracketed segments and quote/backtick delimiters so the regnal
+        // numbers, titles and alternate spellings packed into a messy GIVN
+        // value do not survive the split as bogus names (issue #156). A failed
+        // replace (invalid UTF-8) leaves the value untouched for the soft byte
+        // split below to handle.
+        $stripped = preg_replace(self::NOISE_SEGMENT_REGEX, ' ', $normalised);
+
+        if ($stripped !== null) {
+            $normalised = $stripped;
+        }
+
         $rawTokens = preg_split('/\s+/u', $normalised, -1, PREG_SPLIT_NO_EMPTY);
 
         if ($rawTokens === false) {
@@ -121,6 +175,14 @@ final readonly class GivenNameNormalizer
 
         foreach ($rawTokens as $token) {
             if (preg_match(self::PARTICLE_REGEX, $token) === 1) {
+                continue;
+            }
+
+            if (preg_match(self::ROMAN_NUMERAL_REGEX, $token) === 1) {
+                continue;
+            }
+
+            if (preg_match(self::ORDINAL_REGEX, $token) === 1) {
                 continue;
             }
 

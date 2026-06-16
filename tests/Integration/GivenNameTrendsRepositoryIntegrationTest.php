@@ -272,6 +272,55 @@ final class GivenNameTrendsRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
+     * Messy GIVN fields must not leak regnal numbers or parenthetical titles
+     * into either card (issue #156). The fixture pairs three "William II" and
+     * two "John (King)" — whose bare given names William / John must rank, while
+     * the regnal "II" and the title "(King)" must vanish — with a control "Anna
+     * Maria" that has to survive as two intact tokens. Asserting the full names
+     * list across both `countByDecade` and `lastYearByName` is the discriminator:
+     * before the tokenizer fix "II" (×3) and "(King)" (×2) ranked as their own
+     * bands, and the William band would have carried only the leftover "II".
+     */
+    #[Test]
+    public function bothCardsStripRegnalAndTitleNoiseFromMessyGivnFields(): void
+    {
+        $tree = $this->importFixtureTree('given-name-noisy.ged');
+        $repo = new GivenNameTrendsRepository($tree);
+
+        $trends = $repo->countByDecade(10);
+
+        // William (×3), John (×2) and the control's two tokens Anna / Maria
+        // (×1 each) are the only bands; the regnal "II" and the title "(King)"
+        // never surface.
+        self::assertSame(['William', 'John', 'Anna', 'Maria'], $trends->names);
+        self::assertNotContains('II', $trends->names);
+        self::assertNotContains('(King)', $trends->names);
+
+        // The William band folds all three regnal records — it is not split
+        // into a "William" band plus a leftover "II" band.
+        self::assertSame(3, $trends->series['William'][1850] ?? null);
+
+        $lastYear = $repo->lastYearByName(10, 1980);
+        $names    = array_column($lastYear, 'name');
+
+        self::assertNotContains('II', $names);
+        self::assertNotContains('(King)', $names);
+
+        // Ordered by most recent birth descending, the 1900 control pair leads
+        // (tie broken on the display name), then John (1861), then William
+        // (1852) — each carrying its folded total, not a noise-split count.
+        self::assertSame(
+            [
+                ['name' => 'Anna', 'lastYear' => 1900, 'total' => 1, 'isActive' => false],
+                ['name' => 'Maria', 'lastYear' => 1900, 'total' => 1, 'isActive' => false],
+                ['name' => 'John', 'lastYear' => 1861, 'total' => 2, 'isActive' => false],
+                ['name' => 'William', 'lastYear' => 1852, 'total' => 3, 'isActive' => false],
+            ],
+            $lastYear,
+        );
+    }
+
+    /**
      * The "no given name" placeholder (`@P.N.`) is not a real name. The
      * dedicated fixture pairs two dated "Anna" births (1900, 1910) with a third
      * individual who has only the placeholder and a 2010 birth. The aggregator
