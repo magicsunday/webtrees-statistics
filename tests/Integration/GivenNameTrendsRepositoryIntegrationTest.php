@@ -223,53 +223,51 @@ final class GivenNameTrendsRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * The selection is balanced between still-active and extinct names rather
-     * than taken purely by frequency. With a top-3 request and a 1980 reference
-     * year (25-year window → active from 1955), half the slots (intdiv(3, 2) = 1)
-     * go to the most frequent active name and the remaining two to the most
-     * frequent extinct names: Hans (active, 3) leads, then Anna (3) and
-     * Friedrich (2). Lisa (active but only 1 occurrence) loses the single active
-     * slot to Hans; Maria (2) loses the last extinct slot to Friedrich on the
-     * first-seen tie-break.
+     * Selection is purely the top-N most frequent names — no active/extinct
+     * balancing. With a top-2 request and a 1984 reference year (25-year window
+     * → active from 1959), the two most frequent names are Anna (3) and Hans (3);
+     * both are picked and ordered by last year descending (Hans 1955, Anna 1900),
+     * each flagged inactive since 1955 and 1900 both predate 1959. The active but
+     * single-occurrence Lisa (1960) is NOT surfaced — v1 never reserves a slot
+     * for an active name over a more frequent one.
      */
     #[Test]
-    public function lastYearByNameBalancesActiveAndExtinctSlots(): void
-    {
-        $tree   = $this->importFixtureTree('name-trends.ged');
-        $result = (new GivenNameTrendsRepository($tree))->lastYearByName(3, 1980);
-
-        self::assertSame(
-            [
-                ['name' => 'Hans', 'lastYear' => 1955, 'total' => 3, 'isActive' => true],
-                ['name' => 'Anna', 'lastYear' => 1900, 'total' => 3, 'isActive' => false],
-                ['name' => 'Friedrich', 'lastYear' => 1865, 'total' => 2, 'isActive' => false],
-            ],
-            $result,
-        );
-    }
-
-    /**
-     * The balanced split surfaces a surviving name that a pure top-N-by-frequency
-     * cut would bury. With reference year 1984 (active from 1959) only Lisa
-     * (1960) is still active; Hans (1955) has now fallen extinct. A plain top-2
-     * by frequency would pick Anna (3) and Hans (3) — two extinct names, hiding
-     * every survivor. The balanced rule instead reserves one slot for the most
-     * frequent active name (Lisa) and one for the most frequent extinct name
-     * (Anna), so the contrast survivors-vs-vanished is always visible.
-     */
-    #[Test]
-    public function lastYearByNameSurfacesActiveNamesOverMoreFrequentExtinctOnes(): void
+    public function lastYearByNameSelectsTopNByFrequencyWithoutBalancing(): void
     {
         $tree   = $this->importFixtureTree('name-trends.ged');
         $result = (new GivenNameTrendsRepository($tree))->lastYearByName(2, 1984);
 
         self::assertSame(
             [
-                ['name' => 'Lisa', 'lastYear' => 1960, 'total' => 1, 'isActive' => true],
+                ['name' => 'Hans', 'lastYear' => 1955, 'total' => 3, 'isActive' => false],
                 ['name' => 'Anna', 'lastYear' => 1900, 'total' => 3, 'isActive' => false],
             ],
             $result,
-            'The reserved active slot keeps Lisa visible even though Anna and Hans are more frequent',
+            'v1 takes the two most frequent names regardless of active status — Lisa is not reserved a slot',
+        );
+    }
+
+    /**
+     * The last-year aggregate folds spelling variants under the dominant form,
+     * exactly like the decade series. In `given-name-fold.ged` José (×2) + Jose
+     * (×1) share a fold key — one row labelled "José" with total 3 and the
+     * latest of the three births (1870) — and Sofia (×2) + Sofía (×1) likewise
+     * fold to "Sofia". Ordered by last year descending: Wilhelm (1880) leads,
+     * then the José/Sofia pair tied at 1870 break on the display name.
+     */
+    #[Test]
+    public function lastYearByNameFoldsSpellingVariantsUnderTheDominantName(): void
+    {
+        $tree   = $this->importFixtureTree('given-name-fold.ged');
+        $result = (new GivenNameTrendsRepository($tree))->lastYearByName(10, 2000);
+
+        self::assertSame(
+            [
+                ['name' => 'Wilhelm', 'lastYear' => 1880, 'total' => 1, 'isActive' => false],
+                ['name' => 'José', 'lastYear' => 1870, 'total' => 3, 'isActive' => false],
+                ['name' => 'Sofia', 'lastYear' => 1870, 'total' => 3, 'isActive' => false],
+            ],
+            $result,
         );
     }
 

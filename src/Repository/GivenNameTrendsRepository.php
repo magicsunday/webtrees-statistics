@@ -22,9 +22,6 @@ use MagicSunday\Webtrees\Statistic\Support\Gedcom\GivenNameNormalizer;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 
 use function array_keys;
-use function array_merge;
-use function array_slice;
-use function arsort;
 use function count;
 use function date;
 use function intdiv;
@@ -158,17 +155,16 @@ final readonly class GivenNameTrendsRepository
     }
 
     /**
-     * For each selected given name: the most recent birth year a token of that
-     * name was recorded on, its total occurrence count, and whether that year
-     * still falls inside the active window. The selection is balanced — half the
-     * `$topN` slots go to the most frequent names still in use, half to the most
-     * frequent names that have died out — so the chart always contrasts
-     * surviving names with vanished ones rather than being flooded by whichever
-     * group dominates the tree (a tree with many recent births has dozens of
-     * rare still-active names that would otherwise crowd out the common ones). A
-     * short side yields its spare slots to the other. Names still in use are
-     * listed first, then the rest by last year descending, with the name as a
-     * deterministic final tie-break.
+     * For each of the top-N most frequent given names: the most recent birth
+     * year a token of that name was recorded on, its total occurrence count, and
+     * whether that year still falls inside the active window. Spelling variants
+     * fold under their dominant form exactly as in {@see countByDecade()}, and
+     * the selection is the same top-N-by-frequency the decade series uses.
+     *
+     * Rows are ordered by last year descending — still-given names lead, long
+     * vanished ones trail — with the display name as a deterministic final
+     * tie-break. The active flag is a visual highlight only; it drives neither
+     * the selection nor the ordering.
      *
      * @param int      $topN              Maximum number of distinct given names to keep
      * @param int|null $referenceYear     Reference year ("now") for the active-window test; defaults to the current year
@@ -180,70 +176,51 @@ final readonly class GivenNameTrendsRepository
     {
         $rows = $this->loadIndividualNamesAndYears();
 
-        $perNameTotal    = [];
-        $perNameLastYear = [];
+        // Fold spelling variants onto one key (like countByDecade) so "José" and
+        // "Jose" share a row; track per-key totals, the latest birth year, and
+        // the raw spellings backing the dominant-spelling display label.
+        /** @var array<string, int> $perKeyTotal */
+        $perKeyTotal = [];
+
+        /** @var array<string, int> $perKeyLastYear */
+        $perKeyLastYear = [];
+
+        /** @var array<string, array<string, int>> $rawByKey */
+        $rawByKey = [];
 
         foreach ($rows as $entry) {
             foreach (GivenNameNormalizer::tokens($entry['givn']) as $token) {
-                $perNameTotal[$token]    = ($perNameTotal[$token] ?? 0) + 1;
-                $perNameLastYear[$token] = max($perNameLastYear[$token] ?? $entry['year'], $entry['year']);
+                $key                    = GivenNameNormalizer::foldKey($token);
+                $perKeyTotal[$key]      = ($perKeyTotal[$key] ?? 0) + 1;
+                $perKeyLastYear[$key]   = max($perKeyLastYear[$key] ?? $entry['year'], $entry['year']);
+                $rawByKey[$key][$token] = ($rawByKey[$key][$token] ?? 0) + 1;
             }
         }
 
-        arsort($perNameTotal);
+        // Top-N by frequency with the shared engine-independent tie-break (count
+        // descending, then fold key ascending) — the same selection the decade
+        // series uses, so the two cards agree on which names are "the top names".
+        $topKeys = TopNAggregator::rankKeys($perKeyTotal, $topN);
 
         $threshold = ($referenceYear ?? (int) date('Y')) - $activeWithinYears;
 
-        // Partition the names — already ordered by total frequency — into those
-        // still in use (most recent bearer born within the active window) and
-        // those that have died out.
-        $activeRanked  = [];
-        $extinctRanked = [];
-
-        foreach (array_keys($perNameTotal) as $name) {
-            if ($perNameLastYear[$name] >= $threshold) {
-                $activeRanked[] = $name;
-            } else {
-                $extinctRanked[] = $name;
-            }
-        }
-
-        // Balance the list: half the slots to the most frequent still-active
-        // names, half to the most frequent extinct ones, so the chart always
-        // contrasts surviving with vanished names instead of being flooded by
-        // whichever group dominates. A short side yields its spare slots to the
-        // other, backfilling from the remaining active names, so the list still
-        // fills up to $topN.
-        $activeQuota = intdiv($topN, 2);
-        $selected    = array_slice($activeRanked, 0, $activeQuota);
-        $selected    = array_merge($selected, array_slice($extinctRanked, 0, $topN - count($selected)));
-
-        $shortfall = $topN - count($selected);
-
-        if ($shortfall > 0) {
-            $selected = array_merge($selected, array_slice($activeRanked, $activeQuota, $shortfall));
-        }
-
         $result = [];
 
-        foreach ($selected as $name) {
-            $lastYear = $perNameLastYear[$name];
+        foreach ($topKeys as $key) {
+            $lastYear = $perKeyLastYear[$key];
 
             $result[] = [
-                'name'     => $name,
+                'name'     => GivenNameNormalizer::dominantForm($rawByKey[$key]),
                 'lastYear' => $lastYear,
-                'total'    => $perNameTotal[$name],
+                'total'    => $perKeyTotal[$key],
                 'isActive' => ($lastYear >= $threshold),
             ];
         }
 
+        // Order by most recent birth year descending, with the display name as a
+        // stable final tie-break. The active flag only highlights; it does not
+        // reorder.
         usort($result, static function (array $a, array $b): int {
-            // Still-in-use names lead the list, then the rest by last year
-            // descending, then the name for a stable final tie-break.
-            if ($a['isActive'] !== $b['isActive']) {
-                return $a['isActive'] ? -1 : 1;
-            }
-
             $byYearDescending = $b['lastYear'] <=> $a['lastYear'];
 
             if ($byYearDescending !== 0) {
