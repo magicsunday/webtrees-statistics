@@ -399,10 +399,14 @@ describe("renderWidgets", () => {
             <div id="d1" data-widget="donut-chart" data-payload='[]'></div>
         `;
 
-        renderWidgets(document.body);
+        const result = renderWidgets(document.body);
 
-        // Eager: the widget is drawn up front (in the DOM + on the bus) with its
-        // entrance held via animateOnReveal — but playEntry has NOT fired yet.
+        // renderWidgets returns the rendered widget instances and a teardown.
+        expect(result.widgets).toHaveLength(1);
+        expect(typeof result.disconnect).toBe("function");
+
+        // Eager: the widget is drawn up front (in the DOM) with its entrance held
+        // via animateOnReveal — but playEntry has NOT fired yet.
         expect(donutDrawSpy).toHaveBeenCalledTimes(1);
         expect(donutDrawSpy.mock.calls[0][2]).toMatchObject({ animateOnReveal: true });
         expect(donutPlayEntrySpy).not.toHaveBeenCalled();
