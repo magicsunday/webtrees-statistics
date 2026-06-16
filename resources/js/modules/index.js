@@ -368,10 +368,9 @@ export function renderWidgets(root) {
 
                 revealWhenSeen(node, resolved);
             });
-        } else {
-            if (instance !== null && instance !== undefined) {
-                widgets.push(instance);
-            }
+        } else if (instance !== null && instance !== undefined) {
+            widgets.push(instance);
+
             if (pendingReveals !== null) {
                 pendingReveals.push({ node, instance });
             }
