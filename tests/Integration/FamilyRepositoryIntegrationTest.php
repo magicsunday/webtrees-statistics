@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
+use Fisharebest\Webtrees\Auth;
 use MagicSunday\Webtrees\Statistic\Enum\MaritalBucket;
 use MagicSunday\Webtrees\Statistic\Model\Family\SexRatioAnomaly;
 use MagicSunday\Webtrees\Statistic\Model\Family\SiblingDeathCluster;
@@ -188,6 +189,34 @@ final class FamilyRepositoryIntegrationTest extends IntegrationTestCase
                 ['F1', 7, 0],
             ],
             $this->triples($result),
+        );
+    }
+
+    /**
+     * The sons/daughters split of a family a viewer cannot see must not leak.
+     * `sex-ratio-living.ged` has one living family (six living sons, no
+     * daughters) that clears the skew + child-count gates. The importing admin
+     * sees the anomaly; an anonymous visitor (with live people hidden) gets an
+     * empty list because the family fails `canShow()`. Drop the `canShow()` gate
+     * and the visitor would receive the family label + the 6/0 split.
+     */
+    #[Test]
+    public function getSexRatioAnomaliesDropsAFamilyAVisitorCannotSee(): void
+    {
+        $tree = $this->importFixtureTree('sex-ratio-living.ged');
+        $tree->setPreference('HIDE_LIVE_PEOPLE', '1');
+        $tree->setPreference('SHOW_DEAD_PEOPLE', (string) Auth::PRIV_PRIVATE);
+
+        $asAdmin = (new FamilyRepository($tree))->getSexRatioAnomalies();
+        self::assertCount(1, $asAdmin, 'precondition: the living skewed family is an anomaly for the admin');
+        self::assertSame('F1', $asAdmin[0]->familyXref);
+
+        Auth::logout();
+
+        self::assertSame(
+            [],
+            (new FamilyRepository($tree))->getSexRatioAnomalies(),
+            'a living family the visitor cannot see must not surface its son/daughter split',
         );
     }
 
