@@ -131,11 +131,19 @@ final readonly class GenerationDepth
     }
 
     /**
-     * Walk down from `$rootId` through children whose recorded
-     * deepest-descendant distance equals exactly `remaining-1`, yielding the
-     * eldest-first chain of length `$maxDepth + 1`. Ties at any hop are broken
-     * by PHP's default `sort()` ordering (numeric for digit-only XREFs, lexical
-     * otherwise) so the result is reproducible.
+     * Walk down from `$rootId` through the DEEPEST child at each hop, yielding
+     * the eldest-first chain of length `$maxDepth + 1`. Ties at any hop are
+     * broken by PHP's default `sort()` ordering (numeric for digit-only XREFs,
+     * lexical otherwise) so the result is reproducible.
+     *
+     * Following the child with the largest recorded depth — rather than the one
+     * that decrements the remaining budget by exactly one — is what keeps the
+     * walk on the longest line through the over-cap region of a
+     * >`MAX_DEPTH`-generation descent: there every node is clamped to the same
+     * `MAX_DEPTH`, so no child carries `remaining-1` and an exact-decrement step
+     * would dead-end at the root (issue #164). Below the cap the deepest child
+     * always carries exactly `remaining-1`, so this is identical to the
+     * exact-decrement walk for every tree that never trips `capped`.
      *
      * @param array<array-key, list<string>> $childrenOf
      * @param array<array-key, int>          $depthCache
@@ -149,16 +157,20 @@ final readonly class GenerationDepth
         $remainingHops = $maxDepth;
 
         while (($remainingHops > 0) && isset($childrenOf[$current])) {
-            $nextHopDepth = $remainingHops - 1;
-            $children     = $childrenOf[$current];
+            $children = $childrenOf[$current];
             sort($children);
-            $next = null;
+            $next      = null;
+            $bestDepth = -1;
 
             foreach ($children as $childId) {
-                if (($depthCache[$childId] ?? -1) === $nextHopDepth) {
-                    $next = $childId;
+                $childDepth = $depthCache[$childId] ?? -1;
 
-                    break;
+                // Strictly greater keeps the FIRST child at the maximum depth;
+                // children are pre-sorted, so ties resolve to the lexically
+                // (or numerically) smallest XREF — the documented tie-break.
+                if ($childDepth > $bestDepth) {
+                    $bestDepth = $childDepth;
+                    $next      = $childId;
                 }
             }
 
@@ -166,9 +178,9 @@ final readonly class GenerationDepth
                 break;
             }
 
-            $chain[]       = $next;
-            $current       = $next;
-            $remainingHops = $nextHopDepth;
+            $chain[] = $next;
+            $current = $next;
+            --$remainingHops;
         }
 
         return $chain;
@@ -212,11 +224,10 @@ final readonly class GenerationDepth
     /**
      * Pick one concrete deepest chain so the widget can name actual
      * individuals: starts at the eldest ancestor (one whose deepest-descendant
-     * distance equals the tree-wide maximum) and walks down through children
-     * that themselves carry exactly the remaining depth budget. Ties are broken
-     * by PHP's default `sort()` ordering (numeric for digit-only XREFs, lexical
-     * otherwise) so the result is stable across runs even when several chains
-     * share the same maximum length.
+     * distance equals the tree-wide maximum) and walks down through the deepest
+     * child at each hop. Ties are broken by PHP's default `sort()` ordering
+     * (numeric for digit-only XREFs, lexical otherwise) so the result is stable
+     * across runs even when several chains share the same maximum length.
      *
      * @param array<array-key, list<string>> $childrenOf
      * @param array<array-key, int>          $depthCache

@@ -16,6 +16,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
+use function sprintf;
+
 /**
  * Unit coverage of the pure {@see GenerationDepth::compute()} helper —
  * exercises the empty case, a clean 3-generation linear chain (issue acceptance
@@ -405,5 +407,91 @@ final class GenerationDepthTest extends TestCase
 
         self::assertSame(1, $result['maxDepth']);
         self::assertSame(['1', '007'], $result['deepestChain']);
+    }
+
+    /**
+     * A descent line longer than {@see GenerationDepth::MAX_DEPTH} saturates the
+     * depth of every node in the over-cap region to `MAX_DEPTH`: the eldest
+     * ancestor and its first ~50 children all cache the same clamped value. The
+     * lexically-first max-depth candidate is then a *deep* clamped node (its own
+     * child is also clamped, not decremented by one), which the exact-decrement
+     * step could not step past — it truncated the chain to the lone root. The
+     * reconstruction must instead follow the deepest child at each hop and return
+     * a full `MAX_DEPTH + 1`-node chain down the longest line (issue #164).
+     */
+    #[Test]
+    public function deepestChainReconstructsFullyForDescentLongerThanMaxDepth(): void
+    {
+        // One straight 150-generation chain I000 → I001 → … → I150. Fixed-width
+        // zero-padded XREFs keep the lexical sort numeric, so candidates[0] is
+        // the eldest ancestor I000 — a deep clamped node whose only child I001
+        // is itself clamped to MAX_DEPTH: the exact case that truncated.
+        $generations = GenerationDepth::MAX_DEPTH + 50;
+        $parentOf    = [];
+
+        for ($i = 1; $i <= $generations; ++$i) {
+            $parentOf[sprintf('I%03d', $i)] = [sprintf('I%03d', $i - 1), null];
+        }
+
+        $result = GenerationDepth::compute($parentOf);
+
+        self::assertSame(GenerationDepth::MAX_DEPTH, $result['maxDepth']);
+        self::assertTrue($result['capped']);
+
+        // The chain holds MAX_DEPTH + 1 individuals — not a lone root — running
+        // contiguously down the deepest line from the eldest ancestor I000.
+        $expectedChain = [];
+
+        for ($i = 0; $i <= GenerationDepth::MAX_DEPTH; ++$i) {
+            $expectedChain[] = sprintf('I%03d', $i);
+        }
+
+        self::assertSame($expectedChain, $result['deepestChain']);
+    }
+
+    /**
+     * When an over-cap descent BRANCHES, every node in the clamped region of
+     * both branches caches the identical `MAX_DEPTH`, so the walk can no longer
+     * tell the branches apart by depth. It must still pick deterministically —
+     * the lexically-first child at each saturated fork — and return a
+     * contiguous `MAX_DEPTH + 1`-node chain rather than truncating. This locks
+     * the tie-break under depth saturation, the adversarial-naming case behind
+     * issue #164 (the old exact-decrement walk dead-ended at the root here too).
+     */
+    #[Test]
+    public function deepestChainPicksTheLexicallyFirstBranchUnderDepthSaturation(): void
+    {
+        // Two parallel 150-generation lines sharing the eldest ancestor I000:
+        // I000 → I001 → … → I150 and I000 → J001 → … → J150. At I000 both
+        // children (I001, J001) are clamped to MAX_DEPTH, so the walk must
+        // resolve the tie to the lexically-smaller "I001" branch.
+        $generations = GenerationDepth::MAX_DEPTH + 50;
+        $parentOf    = [];
+
+        for ($i = 1; $i <= $generations; ++$i) {
+            $parentOf[sprintf('I%03d', $i)] = [sprintf('I%03d', $i - 1), null];
+            $parentOf[sprintf('J%03d', $i)] = [$i === 1 ? 'I000' : sprintf('J%03d', $i - 1), null];
+        }
+
+        $result = GenerationDepth::compute($parentOf);
+
+        self::assertSame(GenerationDepth::MAX_DEPTH, $result['maxDepth']);
+        self::assertTrue($result['capped']);
+
+        $chain = $result['deepestChain'];
+
+        // Full-length, contiguous, and committed to the "I" branch from the
+        // first saturated fork onward (never a stray "J" node).
+        self::assertCount(GenerationDepth::MAX_DEPTH + 1, $chain);
+        self::assertSame('I000', $chain[0]);
+        self::assertSame('I001', $chain[1], 'The tie at the saturated root must resolve to the lexically-first child');
+
+        $expectedChain = [];
+
+        for ($i = 0; $i <= GenerationDepth::MAX_DEPTH; ++$i) {
+            $expectedChain[] = sprintf('I%03d', $i);
+        }
+
+        self::assertSame($expectedChain, $chain);
     }
 }
