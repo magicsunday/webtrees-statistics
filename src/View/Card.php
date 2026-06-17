@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\View;
 
+use Fisharebest\Webtrees\I18N;
+
 use function htmlspecialchars;
 use function implode;
 use function sprintf;
@@ -477,11 +479,17 @@ HTML;
             // Name the card this info button explains so each button has a
             // unique accessible name — otherwise a screen-reader user meets a
             // page full of identical "About this chart" controls with no way to
-            // tell which chart each describes. Reuses the already-translated
-            // card title; no new catalogue string.
-            $ariaLabelText = (($this->infoAriaLabel !== '') && ($this->title !== ''))
-                ? $this->infoAriaLabel . ': ' . $this->title
-                : ($this->title !== '' ? $this->title : $this->infoAriaLabel);
+            // tell which chart each describes. Composed through a translatable
+            // format so the separator follows each locale's punctuation rules
+            // (e.g. French "X : Y") rather than a hardcoded ': '.
+            if (($this->infoAriaLabel !== '') && ($this->title !== '')) {
+                $ariaLabelText = I18N::translate('%1$s: %2$s', $this->infoAriaLabel, $this->title);
+            } elseif ($this->title !== '') {
+                $ariaLabelText = $this->title;
+            } else {
+                $ariaLabelText = $this->infoAriaLabel;
+            }
+
             $ariaLabel = $this->escapeHtml($ariaLabelText);
 
             $button = <<<HTML

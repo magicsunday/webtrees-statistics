@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\View;
 
+use Fisharebest\Webtrees\I18N;
+use Fisharebest\Webtrees\Webtrees;
 use MagicSunday\Webtrees\Statistic\View\Accent;
 use MagicSunday\Webtrees\Statistic\View\Card;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -34,6 +36,18 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Card::class)]
 final class CardTest extends TestCase
 {
+    /**
+     * The info-button aria-label is composed through `I18N::translate`, so the
+     * translator must be initialised before any card with `withInfo()` renders.
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        (new Webtrees())->bootstrap();
+        I18N::init('en-US', true);
+    }
+
     /**
      * A bare title-only card emits the `wt-stat-card` section, the title h3, no
      * eyebrow, no sub, no illustration, no footer.
