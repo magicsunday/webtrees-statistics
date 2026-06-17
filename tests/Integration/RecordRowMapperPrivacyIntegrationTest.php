@@ -82,7 +82,7 @@ final class RecordRowMapperPrivacyIntegrationTest extends IntegrationTestCase
                 'Oldest living',
                 new IndividualAgeRecord($visitor, 15),
             ),
-            'the living holder\'s age + URL must not leak to a visitor',
+            "the living holder's age + URL must not leak to a visitor",
         );
     }
 

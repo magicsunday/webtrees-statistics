@@ -20,6 +20,7 @@ use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use Psr\Http\Message\ServerRequestInterface;
 use ReflectionProperty;
 
 /**
@@ -42,12 +43,12 @@ final class TabAccessIntegrationTest extends IntegrationTestCase
     {
         return [
             // The module's own six tab actions.
-            'Overview'    => ['getOverviewAction'],
-            'Names'       => ['getNamesAction'],
-            'LifeSpan'    => ['getLifeSpanAction'],
-            'Family'      => ['getFamilyAction'],
-            'Places'      => ['getPlacesAction'],
-            'TreeHealth'  => ['getTreeHealthAction'],
+            'Overview'   => ['getOverviewAction'],
+            'Names'      => ['getNamesAction'],
+            'LifeSpan'   => ['getLifeSpanAction'],
+            'Family'     => ['getFamilyAction'],
+            'Places'     => ['getPlacesAction'],
+            'TreeHealth' => ['getTreeHealthAction'],
             // The chart actions inherited from StatisticsChartModule, which the
             // module overrides to run the same gate.
             'Individuals' => ['getIndividualsAction'],
@@ -87,7 +88,7 @@ final class TabAccessIntegrationTest extends IntegrationTestCase
 
         $this->expectException(HttpAccessDeniedException::class);
 
-        /** @var callable(\Psr\Http\Message\ServerRequestInterface): mixed $action */
+        /** @var callable(ServerRequestInterface):mixed $action */
         $action = [$module, $method];
         $action($request);
     }

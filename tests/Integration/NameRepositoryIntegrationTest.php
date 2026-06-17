@@ -267,7 +267,7 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
             100.0,
             $fatherSon->values[0],
             0.05,
-            'Ten matching pairs read 100 %; the first father\'s second NAME line must not add an 11th, non-matching cohort entry',
+            "Ten matching pairs read 100 %; the first father's second NAME line must not add an 11th, non-matching cohort entry",
         );
     }
 
