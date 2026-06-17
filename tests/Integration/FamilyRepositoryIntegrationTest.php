@@ -193,31 +193,56 @@ final class FamilyRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * The sons/daughters split of a family a viewer cannot see must not leak.
+     * Ranked extremes follow the project's raw-rank convention: a family is
+     * ranked from its raw counts and shown with a name-privatised label — not
+     * dropped — exactly like the sibling "largest families" card.
      * `sex-ratio-living.ged` has one living family (six living sons, no
-     * daughters) that clears the skew + child-count gates. The importing admin
-     * sees the anomaly; an anonymous visitor (with live people hidden) gets an
-     * empty list because the family fails `canShow()`. Drop the `canShow()` gate
-     * and the visitor would receive the family label + the 6/0 split.
+     * daughters, surname "Living") that clears the gates. To the importing admin
+     * the label is the real couple name.
+     *
+     * (The visitor side is a separate test: Family::fullName() memoises its
+     * rendered string on the cached record, so resolving once as admin would
+     * leak the real name into a later same-process visitor resolution — the two
+     * privacy universes must each start from a fresh import.)
      */
     #[Test]
-    public function getSexRatioAnomaliesDropsAFamilyAVisitorCannotSee(): void
+    public function getSexRatioAnomaliesShowsTheRealLabelToTheAdmin(): void
+    {
+        $tree = $this->importFixtureTree('sex-ratio-living.ged');
+
+        $result = (new FamilyRepository($tree))->getSexRatioAnomalies();
+
+        self::assertCount(1, $result, 'the living skewed family is an anomaly');
+        self::assertSame('F1', $result[0]->familyXref);
+        self::assertSame(6, $result[0]->sons);
+        self::assertSame(0, $result[0]->daughters);
+        self::assertStringContainsString('Living', $result[0]->label, 'admin sees the real surname');
+    }
+
+    /**
+     * Same fixture, anonymous visitor with live people hidden: the family is
+     * still ranked and shown with its raw 6/0 split, but the label is privatised
+     * (the real surname absent) — NOT dropped. Resolved fresh as the visitor so
+     * no admin-computed `fullName()` is cached. Resolving only the Top-N keeps
+     * this off the N+1 path (GH-186).
+     */
+    #[Test]
+    public function getSexRatioAnomaliesShowsAHiddenFamilyWithAPrivatisedLabel(): void
     {
         $tree = $this->importFixtureTree('sex-ratio-living.ged');
         $tree->setPreference('HIDE_LIVE_PEOPLE', '1');
         $tree->setPreference('SHOW_DEAD_PEOPLE', (string) Auth::PRIV_PRIVATE);
 
-        $asAdmin = (new FamilyRepository($tree))->getSexRatioAnomalies();
-        self::assertCount(1, $asAdmin, 'precondition: the living skewed family is an anomaly for the admin');
-        self::assertSame('F1', $asAdmin[0]->familyXref);
-
         Auth::logout();
 
-        self::assertSame(
-            [],
-            (new FamilyRepository($tree))->getSexRatioAnomalies(),
-            'a living family the visitor cannot see must not surface its son/daughter split',
-        );
+        $result = (new FamilyRepository($tree))->getSexRatioAnomalies();
+
+        self::assertCount(1, $result, 'the family is ranked + shown, not dropped');
+        self::assertSame('F1', $result[0]->familyXref);
+        self::assertSame(6, $result[0]->sons, 'raw split preserved');
+        self::assertSame(0, $result[0]->daughters);
+        self::assertNotSame('', $result[0]->label, 'a privatised placeholder label is still rendered');
+        self::assertStringNotContainsString('Living', $result[0]->label, 'the real surname is privatised for the visitor');
     }
 
     /**
