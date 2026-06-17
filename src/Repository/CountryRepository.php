@@ -13,16 +13,14 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Query\JoinClause;
+use MagicSunday\Webtrees\Statistic\Support\Aggregator\TopNAggregator;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Locale\IsoCountryMap;
 
-use function arsort;
 use function str_ends_with;
 use function trim;
-
-use const SORT_NUMERIC;
 
 /**
  * Aggregates individual events (BIRT / DEAT) by ISO-3166-1 alpha-2 country.
@@ -104,23 +102,7 @@ final readonly class CountryRepository
             $counts[$iso2] = ($counts[$iso2] ?? 0) + 1;
         }
 
-        // Sort by descending count so the companion ProgressList
-        // shows the biggest country first — insertion order from
-        // the placelinks join is otherwise alphabetical-by-place,
-        // which makes the "top 10" look randomly ranked.
-        arsort($counts, SORT_NUMERIC);
-
-        $entries = [];
-
-        foreach ($counts as $iso2 => $count) {
-            $entries[] = [
-                'code'  => $iso2,
-                'label' => $this->isoMap->label($iso2),
-                'count' => $count,
-            ];
-        }
-
-        return $entries;
+        return $this->rankEntries($counts);
     }
 
     /**
@@ -159,15 +141,33 @@ final readonly class CountryRepository
             }
         }
 
-        arsort($counts, SORT_NUMERIC);
+        return $this->rankEntries($counts);
+    }
 
+    /**
+     * Order an `ISO2 => count` map by descending count and emit the labelled
+     * entry rows the WorldMap widget and its companion ProgressList consume.
+     *
+     * Equal-count countries are broken on the ISO2 code ascending (byte order)
+     * via the shared {@see TopNAggregator::rankKeys()}, never on the database
+     * row order — the latter collates differently across SQLite and MySQL, and
+     * once the view slices the list to the top 10 a row-order tie could change
+     * which country appears at the boundary. Sorting biggest-first also keeps
+     * the top-10 list meaningfully ranked rather than alphabetical-by-place.
+     *
+     * @param array<string, int> $counts ISO2 code => occurrence count
+     *
+     * @return list<array{code: string, label: string, count: int}>
+     */
+    private function rankEntries(array $counts): array
+    {
         $entries = [];
 
-        foreach ($counts as $iso2 => $count) {
+        foreach (TopNAggregator::rankKeys($counts, 0) as $iso2) {
             $entries[] = [
                 'code'  => $iso2,
                 'label' => $this->isoMap->label($iso2),
-                'count' => $count,
+                'count' => $counts[$iso2],
             ];
         }
 
