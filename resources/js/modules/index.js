@@ -517,10 +517,11 @@ function initPopovers(root) {
         /** @type {{ bootstrap?: unknown }} */ (window).bootstrap
     );
 
-    // Truthiness guard (not a strict `=== undefined`): skip cleanly when the
-    // bundle is absent or ships no Popover, rather than throwing on a
-    // falsy-but-defined value.
-    if (bootstrap === undefined || !bootstrap.Popover) {
+    // Optional-chain truthiness guard: skip cleanly when bootstrap is absent
+    // (undefined OR null) or ships no Popover, rather than throwing — a plain
+    // `bootstrap === undefined` first clause would still dereference a `null`
+    // bootstrap in the second clause and throw.
+    if (!bootstrap?.Popover) {
         return;
     }
 
