@@ -275,8 +275,11 @@ final class MarriageRepository
 
             // Strict-less, with a byte-order (strcmp) tie-break on the smaller
             // xref so an equal-duration tie picks a stable, engine-independent
-            // holder.
-            if (($bestDays === null) || ($days < $bestDays) || (($days === $bestDays) && ($bestXref !== null) && (strcmp($pair['xref'], $bestXref) < 0))) {
+            // holder. No explicit null-guard on $bestXref: reaching the tie
+            // operand means the `$bestDays === null` seed already fired, which
+            // sets $bestDays and $bestXref together, so $bestXref is a string
+            // here.
+            if (($bestDays === null) || ($days < $bestDays) || (($days === $bestDays) && (strcmp($pair['xref'], $bestXref) < 0))) {
                 $bestDays = $days;
                 $bestXref = $pair['xref'];
             }
