@@ -261,7 +261,15 @@ final readonly class FamilyRepository
         $gedcomByXref = [];
 
         foreach (ChunkedWhereIn::get($gedcomQuery, 'f_id', array_column($top, 'xref')) as $row) {
-            $gedcomByXref[RowCast::string($row, 'f_id')] = RowCast::string($row, 'f_gedcom');
+            $gedcom = RowCast::string($row, 'f_gedcom');
+
+            // Map only a non-empty gedcom: make() short-circuits its own fetch on
+            // any non-null argument, so an empty string would build an empty
+            // record — leave it out and let the `?? null` lookup below fall back
+            // to a real resolution.
+            if ($gedcom !== '') {
+                $gedcomByXref[RowCast::string($row, 'f_id')] = $gedcom;
+            }
         }
 
         // Resolve only the Top-N. Privacy follows the documented raw-rank
