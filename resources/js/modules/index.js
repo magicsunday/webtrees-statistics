@@ -510,12 +510,17 @@ function parseJsonAttribute(raw, fallback) {
 function initPopovers(root) {
     // Bootstrap is not part of the page's typed globals — it rides in on the
     // webtrees vendor bundle and self-registers on `window.bootstrap`. Read it
-    // through a single cast rather than annotating the global Window type.
+    // through a cast rather than annotating the global Window type. (Bracket
+    // access `window["bootstrap"]` would trip biome's useLiteralKeys, whose
+    // auto-fix to `window.bootstrap` then fails tsc — the cast satisfies both.)
     const bootstrap = /** @type {{ Popover?: { getOrCreateInstance: Function } } | undefined } */ (
         /** @type {{ bootstrap?: unknown }} */ (window).bootstrap
     );
 
-    if (bootstrap === undefined || bootstrap.Popover === undefined) {
+    // Truthiness guard (not a strict `=== undefined`): skip cleanly when the
+    // bundle is absent or ships no Popover, rather than throwing on a
+    // falsy-but-defined value.
+    if (bootstrap === undefined || !bootstrap.Popover) {
         return;
     }
 
