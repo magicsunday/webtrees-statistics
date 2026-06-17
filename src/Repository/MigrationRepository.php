@@ -89,6 +89,9 @@ final readonly class MigrationRepository
         $birthPatterns = GedcomScanner::anchoredLikePatterns('BIRT');
         $deathPatterns = GedcomScanner::anchoredLikePatterns('DEAT');
 
+        // Stream with a cursor — each blob is parsed for its birth/death place
+        // inside the loop and discarded; only the per-flow tallies and resolved
+        // samples are retained.
         $rows = TreeScope::table($this->tree, 'individuals')
             ->where(static function (Builder $query) use ($birthPatterns): void {
                 foreach ($birthPatterns as $pattern) {
@@ -102,7 +105,7 @@ final readonly class MigrationRepository
             })
             ->orderBy('i_id')
             ->select(['i_id AS xref', 'i_gedcom AS gedcom'])
-            ->get();
+            ->cursor();
 
         // Count every (origin → destination) pair once per individual,
         // and remember up to SAMPLES_PER_FLOW representatives per flow.

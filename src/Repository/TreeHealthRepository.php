@@ -351,10 +351,13 @@ final readonly class TreeHealthRepository
     {
         $birthYearByXref = [];
 
+        // Stream the rows with a cursor: only the extracted year (an int) is
+        // retained per individual, so a large tree never holds all the BIRT
+        // blobs resident at once.
         foreach (
             TreeScope::table($this->tree, 'individuals')
                 ->select(['i_id', 'i_gedcom'])
-                ->get() as $individual
+                ->cursor() as $individual
         ) {
             $year = GedcomScanner::extractEventYear(RowCast::string($individual, 'i_gedcom'), 'BIRT');
 

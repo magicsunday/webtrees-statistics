@@ -126,6 +126,8 @@ final readonly class CountryRepository
         // to the same footing.
         $resiPatterns = GedcomScanner::anchoredLikePatterns('RESI');
 
+        // Stream with a cursor — each RESI blob is parsed and discarded, only
+        // the per-country tallies are retained.
         $rows = TreeScope::table($this->tree, 'individuals')
             ->where(static function (Builder $query) use ($resiPatterns): void {
                 foreach ($resiPatterns as $pattern) {
@@ -133,7 +135,7 @@ final readonly class CountryRepository
                 }
             })
             ->select(['i_gedcom AS gedcom'])
-            ->get();
+            ->cursor();
 
         $counts = [];
 
