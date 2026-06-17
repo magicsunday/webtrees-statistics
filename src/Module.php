@@ -205,7 +205,7 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
      */
     public function getOverviewAction(ServerRequestInterface $request): ResponseInterface
     {
-        return $this->renderTab('overview');
+        return $this->renderTab($request, 'overview');
     }
 
     /**
@@ -215,7 +215,7 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
      */
     public function getNamesAction(ServerRequestInterface $request): ResponseInterface
     {
-        return $this->renderTab('names');
+        return $this->renderTab($request, 'names');
     }
 
     /**
@@ -225,7 +225,7 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
      */
     public function getTreeHealthAction(ServerRequestInterface $request): ResponseInterface
     {
-        return $this->renderTab('tree-health');
+        return $this->renderTab($request, 'tree-health');
     }
 
     /**
@@ -235,7 +235,7 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
      */
     public function getLifeSpanAction(ServerRequestInterface $request): ResponseInterface
     {
-        return $this->renderTab('life-span');
+        return $this->renderTab($request, 'life-span');
     }
 
     /**
@@ -245,7 +245,7 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
      */
     public function getFamilyAction(ServerRequestInterface $request): ResponseInterface
     {
-        return $this->renderTab('family');
+        return $this->renderTab($request, 'family');
     }
 
     /**
@@ -255,7 +255,7 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
      */
     public function getPlacesAction(ServerRequestInterface $request): ResponseInterface
     {
-        return $this->renderTab('places');
+        return $this->renderTab($request, 'places');
     }
 
     /**
@@ -282,10 +282,23 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
      * action key one-to-one so adding a tab is a three-place change (catalog
      * entry + action method + the `tabs/<kebab-name>.phtml` body).
      *
-     * @param string $template Template file name under tabs/ without extension (kebab-case)
+     * Enforces the chart component's access level on every tab. The webtrees
+     * `ModuleAction` dispatcher only checks that the module is enabled and
+     * delegates per-component access to the module, so the AJAX tab endpoints
+     * must run the same {@see Auth::checkComponentAccess()} gate as
+     * {@see getChartAction()} — otherwise a visitor could call a tab URL
+     * directly and bypass a restriction the admin set on the chart component.
+     *
+     * @param ServerRequestInterface $request  Incoming HTTP request
+     * @param string                 $template Template file name under tabs/ without extension (kebab-case)
      */
-    private function renderTab(string $template): ResponseInterface
+    private function renderTab(ServerRequestInterface $request, string $template): ResponseInterface
     {
+        $tree = Validator::attributes($request)->tree();
+        $user = Validator::attributes($request)->user();
+
+        Auth::checkComponentAccess($this, ModuleChartInterface::class, $tree, $user);
+
         $this->layout = 'layouts/ajax';
 
         return $this->viewResponse(
