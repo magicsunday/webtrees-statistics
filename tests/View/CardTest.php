@@ -116,7 +116,10 @@ final class CardTest extends TestCase
 
     /**
      * Setting `withInfo()` auto-shows the footer and wires up the Bootstrap
-     * popover attributes with the localised title and accessible label.
+     * popover attributes with the localised title and accessible label. The
+     * info button's `aria-label` names the card it explains (here "T") so a
+     * screen-reader user can tell the otherwise-identical "About this chart"
+     * buttons apart.
      */
     #[Test]
     public function withInfoAutoShowsFooterAndWiresPopover(): void
@@ -129,7 +132,7 @@ final class CardTest extends TestCase
         self::assertStringContainsString('class="wt-stat-card-info"', $html);
         self::assertStringContainsString('data-bs-toggle="popover"', $html);
         self::assertStringContainsString('data-bs-content="Long help text"', $html);
-        self::assertStringContainsString('aria-label="About this chart"', $html);
+        self::assertStringContainsString('aria-label="About this chart: T"', $html);
         // Heritage popover theme rides on the `wt-stat-popover`
         // custom-class — the CSS in statistics.css scopes its
         // background / typography / dark-mode overrides under

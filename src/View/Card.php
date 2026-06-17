@@ -471,9 +471,18 @@ HTML;
         $button = '';
 
         if (($this->info !== null) && ($this->info !== '')) {
-            $title     = $this->escapeHtml($this->infoTitle);
-            $content   = $this->escapeHtml($this->info);
-            $ariaLabel = $this->escapeHtml($this->infoAriaLabel);
+            $title   = $this->escapeHtml($this->infoTitle);
+            $content = $this->escapeHtml($this->info);
+
+            // Name the card this info button explains so each button has a
+            // unique accessible name — otherwise a screen-reader user meets a
+            // page full of identical "About this chart" controls with no way to
+            // tell which chart each describes. Reuses the already-translated
+            // card title; no new catalogue string.
+            $ariaLabelText = (($this->infoAriaLabel !== '') && ($this->title !== ''))
+                ? $this->infoAriaLabel . ': ' . $this->title
+                : ($this->title !== '' ? $this->title : $this->infoAriaLabel);
+            $ariaLabel     = $this->escapeHtml($ariaLabelText);
 
             $button = <<<HTML
 <button type="button" 
