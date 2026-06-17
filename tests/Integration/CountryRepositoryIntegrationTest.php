@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use MagicSunday\Webtrees\Statistic\Repository\CountryRepository;
+use MagicSunday\Webtrees\Statistic\Support\Aggregator\TopNAggregator;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
@@ -41,6 +42,7 @@ use function sort;
 #[UsesClass(GedcomScanner::class)]
 #[UsesClass(RowCast::class)]
 #[UsesClass(IsoCountryMap::class)]
+#[UsesClass(TopNAggregator::class)]
 final class CountryRepositoryIntegrationTest extends IntegrationTestCase
 {
     /**
@@ -161,6 +163,31 @@ final class CountryRepositoryIntegrationTest extends IntegrationTestCase
         $parts = array_map(trim(...), explode(',', $place));
 
         return end($parts);
+    }
+
+    /**
+     * Equal-count countries must come back in a deterministic order so the
+     * companion top-10 ProgressList shows the same entries regardless of the
+     * database engine. The ranking is count descending, then ISO2 code
+     * ascending (byte order) — the same engine-independent tie-break the rest of
+     * the module applies via {@see TopNAggregator::rankKeys()}. Relying on the
+     * `placelinks` join's row order instead diverges between SQLite (CI) and
+     * MySQL (production), and once the view slices to the top 10 that can change
+     * *which* country is listed at the boundary.
+     *
+     * The fixture's BIRT distribution has two ties: Germany and the USA at
+     * count 2, and Austria, Côte d'Ivoire and the United Kingdom at count 1. By
+     * code that orders as DE, US, AT, CI, GB — note CI precedes GB, whereas the
+     * countries first appear in row order as …, GB (Greta), …, CI (Ines), so a
+     * row-order tie-break would emit GB before CI and fail this assertion.
+     */
+    #[Test]
+    public function countByCountryOrdersEqualCountsByCodeNotRowOrder(): void
+    {
+        $tree   = $this->importFixtureTree('places-test.ged');
+        $result = (new CountryRepository($tree, new IsoCountryMap()))->countByCountry('BIRT');
+
+        self::assertSame(['DE', 'US', 'AT', 'CI', 'GB'], array_column($result, 'code'));
     }
 
     /**

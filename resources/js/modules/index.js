@@ -43,7 +43,9 @@ let cachedGeoJson = null;
  */
 async function loadWorldGeoJson() {
     if (cachedGeoJson === null) {
-        const raw = await json(WORLD_GEOJSON_URL);
+        const raw = /** @type {import("geojson").FeatureCollection} */ (
+            await json(WORLD_GEOJSON_URL)
+        );
         // Drop Antarctica — no genealogy data is going to land in
         // AQ and the continent eats roughly a third of a Mercator
         // projection's vertical space, squishing every populated
@@ -118,7 +120,10 @@ async function drawWorldMap(node, data, options) {
         geojson,
         projection: geoMercator(),
     });
-    widget.draw(data);
+    // The dispatcher carries every widget's payload as `unknown`; the WorldMap
+    // draw signature is concrete, so narrow at this boundary the same way the
+    // `fromChartLib` adapter treats its `(data: unknown)` draw calls.
+    widget.draw(/** @type {Parameters<WorldMap["draw"]>[0]} */ (data));
     return widget;
 }
 
@@ -166,7 +171,7 @@ const WIDGETS = {
  *          reveal observer and drops the reduced-motion listener.
  */
 export function renderWidgets(root) {
-    const nodes = root.querySelectorAll("[data-widget]");
+    const nodes = /** @type {NodeListOf<HTMLElement>} */ (root.querySelectorAll("[data-widget]"));
     const widgets = [];
 
     // Reveal-on-scroll: every widget is drawn up front — in the DOM immediately
@@ -303,7 +308,7 @@ export function renderWidgets(root) {
     /**
      * Draw a single widget node and collect its rendered instance.
      *
-     * @param {Element} node
+     * @param {HTMLElement} node
      *
      * @returns {void}
      */
@@ -440,9 +445,17 @@ export function renderWidgets(root) {
  * @param {ParentNode} root Document fragment to scan.
  */
 function initPlacesPanelTabs(root) {
-    root.querySelectorAll("[data-wt-stat-places]").forEach((wrap) => {
-        const tabs = wrap.querySelectorAll(".wt-stat-places-tab");
-        const panels = wrap.querySelectorAll(".wt-stat-places-panel");
+    const wraps = /** @type {NodeListOf<HTMLElement>} */ (
+        root.querySelectorAll("[data-wt-stat-places]")
+    );
+
+    wraps.forEach((wrap) => {
+        const tabs = /** @type {NodeListOf<HTMLElement>} */ (
+            wrap.querySelectorAll(".wt-stat-places-tab")
+        );
+        const panels = /** @type {NodeListOf<HTMLElement>} */ (
+            wrap.querySelectorAll(".wt-stat-places-panel")
+        );
         tabs.forEach((tab) => {
             tab.addEventListener("click", () => {
                 const targetView = tab.dataset.view;
@@ -495,11 +508,26 @@ function parseJsonAttribute(raw, fallback) {
  * @param {ParentNode} root Document fragment to scan.
  */
 function initPopovers(root) {
-    if (typeof window.bootstrap === "undefined" || !window.bootstrap.Popover) {
+    // Bootstrap is not part of the page's typed globals — it rides in on the
+    // webtrees vendor bundle and self-registers on `window.bootstrap`. Read it
+    // through a cast rather than annotating the global Window type. (Bracket
+    // access `window["bootstrap"]` would trip biome's useLiteralKeys, whose
+    // auto-fix to `window.bootstrap` then fails tsc — the cast satisfies both.)
+    const bootstrap = /** @type {{ Popover?: { getOrCreateInstance: Function } } | undefined } */ (
+        /** @type {{ bootstrap?: unknown }} */ (window).bootstrap
+    );
+
+    // Optional-chain truthiness guard: skip cleanly when bootstrap is absent
+    // (undefined OR null) or ships no Popover, rather than throwing — a plain
+    // `bootstrap === undefined` first clause would still dereference a `null`
+    // bootstrap in the second clause and throw.
+    if (!bootstrap?.Popover) {
         return;
     }
 
+    const { Popover } = bootstrap;
+
     root.querySelectorAll('.wt-statistics-chart [data-bs-toggle="popover"]').forEach((element) => {
-        window.bootstrap.Popover.getOrCreateInstance(element, { container: "body" });
+        Popover.getOrCreateInstance(element, { container: "body" });
     });
 }

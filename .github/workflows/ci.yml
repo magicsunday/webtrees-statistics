@@ -83,11 +83,11 @@ jobs:
               run: |
                   composer ci:test:js:format
 
-            # TODO(js-typecheck): re-enable once the ~55 outstanding
-            # TS / JSDoc errors in resources/js/modules/index.js are
-            # resolved. `composer ci:test:js:typecheck` runs locally
-            # but is not gated in CI yet to avoid breaking the
-            # release pipeline.
+            - id: js-typecheck
+              name: JS Typecheck
+              if: ${{ always() && steps.install.conclusion == 'success' }}
+              run: |
+                  composer ci:test:js:typecheck
 
             - id: phpstan
               name: PHPStan
