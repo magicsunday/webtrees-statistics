@@ -175,6 +175,38 @@ final class MarriageMatrixRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
+     * A spouse carrying an alternate name form on the primary record — a `ROMN`
+     * transliteration here, representative of the `FONE`/`_HEB`/`_AKA` family —
+     * must contribute exactly one surname to the matrix. webtrees stores each
+     * name form as its own `name` row sharing the individual's `n_id`, so the
+     * surname join must restrict to the primary `NAME` row rather than merely
+     * excluding `_MARNM`; otherwise the single marriage fans out across every
+     * name form and is double-counted.
+     *
+     * The fixture marries Iwan /Roman/ (primary) — who also carries the `ROMN`
+     * surname /Romanov/ — to Olga /Petrov/. The matrix must hold only the two
+     * primary surnames Petrov and Roman; the romanised /Romanov/ must never
+     * surface as a third surname, and the single marriage must contribute a
+     * total mass of exactly two mirrored cells (not four).
+     */
+    #[Test]
+    public function surnameMarriageMatrixCountsAlternateNameFormSpouseOnce(): void
+    {
+        $tree   = $this->importFixtureTree('surname-marriage-matrix-name-fanout.ged');
+        $result = $this->repository($tree)->surnameMarriageMatrix(8);
+
+        self::assertSame(['Petrov', 'Roman'], $result->labels);
+
+        $total = 0;
+
+        foreach ($result->matrix as $row) {
+            $total += array_sum($row);
+        }
+
+        self::assertSame(2, $total, 'One marriage mirrors to two cells — the ROMN form must not double-count it');
+    }
+
+    /**
      * `topN = 0` (and any non-positive value) short-circuits to an empty result
      * so the view layer can skip the chord-diagram card without rendering an
      * empty chart.
