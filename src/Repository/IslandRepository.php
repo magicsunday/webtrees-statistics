@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
+use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\JoinClause;
@@ -225,8 +226,15 @@ final readonly class IslandRepository
     {
         $rows = DB::table('name')
             ->where('n_file', '=', $this->tree->id())
-            ->where('n_type', '=', 'NAME')
-            ->where('n_surn', '<>', '')
+            // Pin the primary name via n_num=0: an individual with two top-level
+            // `1 NAME` lines has two rows both at n_type='NAME' (n_num 0 and 1),
+            // so n_type alone would let a secondary name decide the island
+            // surname (and the pick is row-order/engine-dependent without it).
+            ->where('n_num', '=', 0)
+            // Drop empty AND the NOMEN_NESCIO placeholder (`@N.N.`, webtrees'
+            // stored "no recorded surname") so an unknown surname never becomes
+            // an island label — mirroring NameRepository::baseSurnameQuery.
+            ->whereNotIn('n_surn', ['', Individual::NOMEN_NESCIO])
             ->select(['n_id', 'n_surn AS surname'])
             ->get();
 

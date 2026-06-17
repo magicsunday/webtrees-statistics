@@ -136,6 +136,35 @@ final class IslandRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
+     * The per-individual surname must come from the PRIMARY name (`n_num = 0`),
+     * and the `NOMEN_NESCIO` placeholder (`@N.N.`, webtrees' stored "no recorded
+     * surname") must never become a label.
+     *
+     * `island-primary-name.ged` has island X (3 members): X1 carries two
+     * top-level `1 NAME` lines — primary `/Zeta/` and a secondary `/Alpha/` —
+     * plus X2 `/Zeta/` and X3 `/Alpha/`. With the primary pinned, the surnames
+     * are Zeta, Zeta, Alpha → dominant "Zeta"; if the secondary name leaks in
+     * (the `n_type='NAME'` bug) the split becomes Alpha, Zeta, Alpha → "Alpha".
+     * Island Y (2 members) carries empty-surname NAMEs (`Solo //` / `Mate //`),
+     * which webtrees stores as `@N.N.`; without the placeholder exclusion the
+     * label would read "@N.N." instead of empty.
+     */
+    #[Test]
+    public function labelUsesPrimaryNameAndNeverThePlaceholderSurname(): void
+    {
+        $tree   = $this->importFixtureTree('island-primary-name.ged');
+        $result = (new IslandRepository($tree))->getConnectedComponents(10);
+
+        self::assertSame(
+            [
+                ['rank' => 1, 'members' => 3, 'label' => 'Zeta'],
+                ['rank' => 2, 'members' => 2, 'label' => ''],
+            ],
+            $result->top,
+        );
+    }
+
+    /**
      * An empty tree yields no islands and a zero largest-share, not a division
      * error.
      */

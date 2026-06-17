@@ -1,0 +1,40 @@
+0 HEAD
+1 SOUR webtrees-statistics-fixture
+2 NAME island-primary-name
+1 DEST ANSTFILE
+1 CHAR UTF-8
+1 SUBM @SUBM1@
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+0 @SUBM1@ SUBM
+1 NAME Fixture
+0 @X1@ INDI
+1 NAME Iwan /Zeta/
+1 NAME Iwan /Alpha/
+1 SEX M
+1 FAMS @XF1@
+0 @X2@ INDI
+1 NAME Olga /Zeta/
+1 SEX F
+1 FAMS @XF1@
+0 @X3@ INDI
+1 NAME Carl /Alpha/
+1 SEX M
+1 FAMC @XF1@
+0 @Y1@ INDI
+1 NAME Solo //
+1 SEX M
+1 FAMS @YF1@
+0 @Y2@ INDI
+1 NAME Mate //
+1 SEX F
+1 FAMS @YF1@
+0 @XF1@ FAM
+1 HUSB @X1@
+1 WIFE @X2@
+1 CHIL @X3@
+0 @YF1@ FAM
+1 HUSB @Y1@
+1 WIFE @Y2@
+0 TRLR
