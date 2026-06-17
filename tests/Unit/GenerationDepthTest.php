@@ -50,9 +50,7 @@ final class GenerationDepthTest extends TestCase
     /**
      * The issue acceptance scenario: a clean G1 → V → C chain (grandparent →
      * parent → child). Max depth is 2, and exactly one individual sits at each
-     * of depth 0, 1, 2 below their deepest descendant. The deepestChain field
-     * surfaces the three IDs in eldest-first order so the view can render "G1 →
-     * V → C".
+     * of depth 0, 1, 2 below their deepest descendant.
      */
     #[Test]
     public function threeGenerationLinearChainMatchesAcceptance(): void
@@ -70,41 +68,6 @@ final class GenerationDepthTest extends TestCase
             $result['distribution'],
         );
         self::assertFalse($result['capped']);
-        self::assertSame(['G1', 'V', 'C'], $result['deepestChain']);
-    }
-
-    /**
-     * When two distinct lines tie at the maximum depth, the chain picker must
-     * produce a deterministic answer — alphabetically earliest root,
-     * alphabetically earliest descendant at each step — so the rendered chain
-     * does not flip between page loads.
-     */
-    #[Test]
-    public function deepestChainIsDeterministicOnTiesAlphabetical(): void
-    {
-        // Two parallel two-generation chains: A → X and B → Y.
-        // Both A and B have depth 1; the picker must choose A.
-        $parentOf = [
-            'X' => ['A', null],
-            'Y' => ['B', null],
-        ];
-
-        $result = GenerationDepth::compute($parentOf);
-
-        self::assertSame(1, $result['maxDepth']);
-        self::assertSame(['A', 'X'], $result['deepestChain']);
-    }
-
-    /**
-     * An empty tree produces an empty chain (there is no longest descent to
-     * name).
-     */
-    #[Test]
-    public function emptyTreeYieldsEmptyDeepestChain(): void
-    {
-        $result = GenerationDepth::compute([]);
-
-        self::assertSame([], $result['deepestChain']);
     }
 
     /**
@@ -163,8 +126,9 @@ final class GenerationDepthTest extends TestCase
 
         $result = GenerationDepth::compute($parentOf);
 
+        // maxDepth 3 (not 2) proves the longest of the two reconverging lines
+        // wins regardless of traversal order.
         self::assertSame(3, $result['maxDepth']);
-        self::assertSame(['G', 'Q', 'P2', 'C1'], $result['deepestChain']);
     }
 
     /**
@@ -187,13 +151,6 @@ final class GenerationDepthTest extends TestCase
 
         self::assertSame(GenerationDepth::MAX_DEPTH, $result['maxDepth'], 'Depth saturates at MAX_DEPTH');
         self::assertTrue($result['capped'], 'A >MAX_DEPTH acyclic chain trips the capped signal');
-        // Chain reconstruction still works under clamping: the chosen root is
-        // the boundary node (the shallowest one at MAX_DEPTH, I100), whose
-        // descent decrements cleanly to the leaf — so the chain rebuilds to
-        // MAX_DEPTH + 1 nodes rather than truncating at the clamp.
-        self::assertCount(GenerationDepth::MAX_DEPTH + 1, $result['deepestChain']);
-        self::assertSame('I100', $result['deepestChain'][0]);
-        self::assertSame('I0', $result['deepestChain'][GenerationDepth::MAX_DEPTH]);
     }
 
     /**
@@ -226,60 +183,31 @@ final class GenerationDepthTest extends TestCase
     }
 
     /**
-     * Numeric-only XREFs (e.g. "54", common in trees imported from software
-     * that uses digit-only pointers) become integer array keys the moment they
-     * index a PHP array — `$parentOf["54"]` stores key int 54. `array_keys()`
-     * and `foreach`-over-keys then yield ints, which crash the `string`-typed
-     * walk under strict_types. This variant of {@see
-     * threeGenerationLinearChainMatchesAcceptance} guards that the whole
-     * compute path tolerates the coercion and still emits a string-typed
-     * eldest-first chain (regression for #71).
+     * Upward-walk tie-break with numeric-only XREFs whose lexical and numeric
+     * orderings disagree: a leaf with two equally-distant parents 2 and 10 ("10"
+     * sorts before "2" lexically, but 2 before 10 numerically). The reconstructed
+     * chain "2 → 200" — not "10 → 200" — confirms the tie ran through PHP's
+     * default numeric-string `sort()` on the coerced keys and that the chain
+     * stays string-typed (regression for #71).
      */
     #[Test]
-    public function numericOnlyXrefsLinearChainReturnsStringChain(): void
+    public function numericOnlyXrefsUpwardWalkTieBreakUsesNumericSort(): void
     {
-        // Keys are written as numeric strings but PHP coerces them to
-        // int array keys: 3 (grandparent) → 12 (parent) → 54 (child).
+        // Leaf 200 has two root parents 2 and 10, both at upward distance 0, so
+        // the parent step is a pure tie the numeric sort must resolve to 2.
         $parentOf = [
-            '54' => ['12', null],
-            '12' => ['3', null],
+            '200' => ['2', '10'],
         ];
 
-        $result = GenerationDepth::compute($parentOf);
+        $upDistance = GenerationDepth::upDistanceCache($parentOf);
 
-        self::assertSame(2, $result['maxDepth']);
-        self::assertSame(
-            [0 => 1, 1 => 1, 2 => 1],
-            $result['distribution'],
-        );
-        self::assertFalse($result['capped']);
-        // assertSame is strict: a coerced [3, 12, 54] of ints would
-        // not match the expected string chain, so this pins both the
-        // values and their string type.
-        self::assertSame(['3', '12', '54'], $result['deepestChain']);
-    }
+        self::assertSame(1, $upDistance['200'] ?? null);
 
-    /**
-     * Numeric-XREF variant of {@see
-     * deepestChainIsDeterministicOnTiesAlphabetical} with roots whose lexical
-     * and numeric orderings disagree: candidate roots 2 and 10 ("10" sorts
-     * before "2" lexically, but 2 before 10 numerically). This pins both that
-     * the tie-break runs on the coerced keys at all and that the picked chain
-     * stays string-typed (regression for #71). The chain "2 → 200" — not "10 →
-     * 100" — confirms PHP's default numeric-string sort decided the tie.
-     */
-    #[Test]
-    public function numericOnlyXrefsDeepestChainIsDeterministic(): void
-    {
-        $parentOf = [
-            '200' => ['2', null],
-            '100' => ['10', null],
-        ];
+        $chain = GenerationDepth::walkUpFromLeaf($parentOf, $upDistance, '200', 1);
 
-        $result = GenerationDepth::compute($parentOf);
-
-        self::assertSame(1, $result['maxDepth']);
-        self::assertSame(['2', '200'], $result['deepestChain']);
+        // assertSame is strict: a coerced [2, 200] of ints would not match, so
+        // this pins both the numeric tie-break and the string type.
+        self::assertSame(['2', '200'], $chain);
     }
 
     /**
@@ -390,11 +318,93 @@ final class GenerationDepthTest extends TestCase
     }
 
     /**
+     * An ancestry line longer than {@see GenerationDepth::MAX_DEPTH} saturates
+     * the upward distance of every node in the over-cap region to `MAX_DEPTH`:
+     * the genuine leaf and its first ~50 ancestors all cache the same clamped
+     * value. The upward walk must follow the DEEPEST parent at each hop (largest
+     * recorded `upDistance`, `sort()` tie-break) so it stays on the longest line
+     * and rebuilds a full `MAX_DEPTH + 1`-node chain ending at the genuine leaf,
+     * rather than dead-ending the moment the exact `remaining - 1` decrement
+     * fails inside the clamped region (issue #167).
+     */
+    #[Test]
+    public function walkUpFromLeafReconstructsFullyForAncestryLongerThanMaxDepth(): void
+    {
+        // One straight 150-generation line I000 → I001 → … → I150 with I150 the
+        // sole genuine leaf. Its upward distance clamps to MAX_DEPTH, and every
+        // ancestor up to I050 is clamped too — the exact case that dead-ended.
+        $generations = GenerationDepth::MAX_DEPTH + 50;
+        $parentOf    = [];
+
+        for ($i = 1; $i <= $generations; ++$i) {
+            $parentOf[sprintf('I%03d', $i)] = [sprintf('I%03d', $i - 1), null];
+        }
+
+        $upDistance = GenerationDepth::upDistanceCache($parentOf);
+        $leaf       = sprintf('I%03d', $generations);
+
+        self::assertSame(GenerationDepth::MAX_DEPTH, $upDistance[$leaf] ?? null);
+
+        $chain = GenerationDepth::walkUpFromLeaf($parentOf, $upDistance, $leaf, GenerationDepth::MAX_DEPTH);
+
+        // A full MAX_DEPTH + 1 chain, eldest-first, ending at the genuine leaf.
+        self::assertNotNull($chain);
+        self::assertCount(GenerationDepth::MAX_DEPTH + 1, $chain);
+        self::assertSame($leaf, $chain[GenerationDepth::MAX_DEPTH]);
+
+        $expectedChain = [];
+
+        for ($i = $generations - GenerationDepth::MAX_DEPTH; $i <= $generations; ++$i) {
+            $expectedChain[] = sprintf('I%03d', $i);
+        }
+
+        self::assertSame($expectedChain, $chain);
+    }
+
+    /**
+     * When an over-cap ancestry BRANCHES, the clamped parents of both lines all
+     * cache the identical `MAX_DEPTH`, so the upward walk can no longer tell them
+     * apart by distance. It must still pick deterministically — the
+     * lexically-first parent at each saturated fork — and return a contiguous
+     * chain rather than dead-ending (issue #167).
+     */
+    #[Test]
+    public function walkUpFromLeafPicksTheLexicallyFirstParentUnderDistanceSaturation(): void
+    {
+        // The genuine leaf L sits below two clamped ancestral lines that merge
+        // at it: an "I" line and a "J" line, both longer than MAX_DEPTH. At the
+        // first fork above L both parents are clamped, so the tie must resolve
+        // to the lexically-smaller "I" parent.
+        $generations = GenerationDepth::MAX_DEPTH + 50;
+        $parentOf    = ['L' => [sprintf('I%03d', $generations), sprintf('J%03d', $generations)]];
+
+        for ($i = 1; $i <= $generations; ++$i) {
+            $parentOf[sprintf('I%03d', $i)] = [sprintf('I%03d', $i - 1), null];
+            $parentOf[sprintf('J%03d', $i)] = [sprintf('J%03d', $i - 1), null];
+        }
+
+        $upDistance = GenerationDepth::upDistanceCache($parentOf);
+        $chain      = GenerationDepth::walkUpFromLeaf($parentOf, $upDistance, 'L', GenerationDepth::MAX_DEPTH);
+
+        self::assertNotNull($chain);
+        self::assertCount(GenerationDepth::MAX_DEPTH + 1, $chain);
+        // The leaf ends the chain; the hop directly above it commits to the "I"
+        // line (lexically before "J") and never strays onto a "J" node.
+        self::assertSame('L', $chain[GenerationDepth::MAX_DEPTH]);
+        self::assertSame(sprintf('I%03d', $generations), $chain[GenerationDepth::MAX_DEPTH - 1]);
+
+        foreach ($chain as $id) {
+            self::assertStringStartsNotWith('J', $id);
+        }
+    }
+
+    /**
      * Leading-zero XREFs ("007") are NOT canonical decimal-integer strings, so
      * PHP does not coerce them to int when they index an array — they survive
      * as string keys. This guards the boundary the AGENTS.md "Key patterns"
-     * note describes: the chain must carry "007" verbatim, not a coerced "7",
-     * proving the fix neither over- nor under-normalises (regression for #71).
+     * note describes: the reconstructed chain must carry "007" verbatim, not a
+     * coerced "7", proving the fix neither over- nor under-normalises
+     * (regression for #71).
      */
     #[Test]
     public function leadingZeroXrefsSurviveAsStringKeys(): void
@@ -403,95 +413,12 @@ final class GenerationDepthTest extends TestCase
             '007' => ['1', null],
         ];
 
-        $result = GenerationDepth::compute($parentOf);
+        $upDistance = GenerationDepth::upDistanceCache($parentOf);
 
-        self::assertSame(1, $result['maxDepth']);
-        self::assertSame(['1', '007'], $result['deepestChain']);
-    }
+        self::assertSame(1, $upDistance['007'] ?? null);
 
-    /**
-     * A descent line longer than {@see GenerationDepth::MAX_DEPTH} saturates the
-     * depth of every node in the over-cap region to `MAX_DEPTH`: the eldest
-     * ancestor and its first ~50 children all cache the same clamped value. The
-     * lexically-first max-depth candidate is then a *deep* clamped node (its own
-     * child is also clamped, not decremented by one), which the exact-decrement
-     * step could not step past — it truncated the chain to the lone root. The
-     * reconstruction must instead follow the deepest child at each hop and return
-     * a full `MAX_DEPTH + 1`-node chain down the longest line (issue #164).
-     */
-    #[Test]
-    public function deepestChainReconstructsFullyForDescentLongerThanMaxDepth(): void
-    {
-        // One straight 150-generation chain I000 → I001 → … → I150. Fixed-width
-        // zero-padded XREFs keep the lexical sort numeric, so candidates[0] is
-        // the eldest ancestor I000 — a deep clamped node whose only child I001
-        // is itself clamped to MAX_DEPTH: the exact case that truncated.
-        $generations = GenerationDepth::MAX_DEPTH + 50;
-        $parentOf    = [];
+        $chain = GenerationDepth::walkUpFromLeaf($parentOf, $upDistance, '007', 1);
 
-        for ($i = 1; $i <= $generations; ++$i) {
-            $parentOf[sprintf('I%03d', $i)] = [sprintf('I%03d', $i - 1), null];
-        }
-
-        $result = GenerationDepth::compute($parentOf);
-
-        self::assertSame(GenerationDepth::MAX_DEPTH, $result['maxDepth']);
-        self::assertTrue($result['capped']);
-
-        // The chain holds MAX_DEPTH + 1 individuals — not a lone root — running
-        // contiguously down the deepest line from the eldest ancestor I000.
-        $expectedChain = [];
-
-        for ($i = 0; $i <= GenerationDepth::MAX_DEPTH; ++$i) {
-            $expectedChain[] = sprintf('I%03d', $i);
-        }
-
-        self::assertSame($expectedChain, $result['deepestChain']);
-    }
-
-    /**
-     * When an over-cap descent BRANCHES, every node in the clamped region of
-     * both branches caches the identical `MAX_DEPTH`, so the walk can no longer
-     * tell the branches apart by depth. It must still pick deterministically —
-     * the lexically-first child at each saturated fork — and return a
-     * contiguous `MAX_DEPTH + 1`-node chain rather than truncating. This locks
-     * the tie-break under depth saturation, the adversarial-naming case behind
-     * issue #164 (the old exact-decrement walk dead-ended at the root here too).
-     */
-    #[Test]
-    public function deepestChainPicksTheLexicallyFirstBranchUnderDepthSaturation(): void
-    {
-        // Two parallel 150-generation lines sharing the eldest ancestor I000:
-        // I000 → I001 → … → I150 and I000 → J001 → … → J150. At I000 both
-        // children (I001, J001) are clamped to MAX_DEPTH, so the walk must
-        // resolve the tie to the lexically-smaller "I001" branch.
-        $generations = GenerationDepth::MAX_DEPTH + 50;
-        $parentOf    = [];
-
-        for ($i = 1; $i <= $generations; ++$i) {
-            $parentOf[sprintf('I%03d', $i)] = [sprintf('I%03d', $i - 1), null];
-            $parentOf[sprintf('J%03d', $i)] = [$i === 1 ? 'I000' : sprintf('J%03d', $i - 1), null];
-        }
-
-        $result = GenerationDepth::compute($parentOf);
-
-        self::assertSame(GenerationDepth::MAX_DEPTH, $result['maxDepth']);
-        self::assertTrue($result['capped']);
-
-        $chain = $result['deepestChain'];
-
-        // Full-length, contiguous, and committed to the "I" branch from the
-        // first saturated fork onward (never a stray "J" node).
-        self::assertCount(GenerationDepth::MAX_DEPTH + 1, $chain);
-        self::assertSame('I000', $chain[0]);
-        self::assertSame('I001', $chain[1], 'The tie at the saturated root must resolve to the lexically-first child');
-
-        $expectedChain = [];
-
-        for ($i = 0; $i <= GenerationDepth::MAX_DEPTH; ++$i) {
-            $expectedChain[] = sprintf('I%03d', $i);
-        }
-
-        self::assertSame($expectedChain, $chain);
+        self::assertSame(['1', '007'], $chain);
     }
 }

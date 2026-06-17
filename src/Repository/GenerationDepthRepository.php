@@ -88,10 +88,12 @@ final readonly class GenerationDepthRepository
         $parentOf   = $this->parentMapRepository->build();
         $result     = GenerationDepth::compute($parentOf);
         $upDistance = GenerationDepth::upDistanceCache($parentOf);
+        $childrenOf = GenerationDepth::childrenMap($parentOf);
 
         $byLeaf = $this->collectDistinctChainsKeyedByLeaf(
             $parentOf,
             $upDistance,
+            $childrenOf,
             $result['maxDepth'],
         );
 
@@ -171,15 +173,28 @@ final readonly class GenerationDepthRepository
      *
      * @param array<array-key, array{0: string|null, 1: string|null}> $parentOf
      * @param array<array-key, int>                                   $upDistance
+     * @param array<array-key, list<string>>                          $childrenOf
      *
      * @return array<array-key, list<string>>
      */
-    private function collectDistinctChainsKeyedByLeaf(array $parentOf, array $upDistance, int $maxDepth): array
+    private function collectDistinctChainsKeyedByLeaf(array $parentOf, array $upDistance, array $childrenOf, int $maxDepth): array
     {
         $byLeaf = [];
 
         foreach ($upDistance as $leafId => $distance) {
             if ($distance !== $maxDepth) {
+                continue;
+            }
+
+            // In the over-cap region (a descent line longer than
+            // GenerationDepth::MAX_DEPTH) the upward distance saturates, so
+            // interior nodes also report `upDistance == maxDepth`. Restrict the
+            // chain endpoints to GENUINE leaves (no children) so a single
+            // >MAX_DEPTH lineage is reconstructed and counted once, not once per
+            // clamped interior node (issue #167). For any tree that never trips
+            // `capped` every max-depth node is already a genuine leaf, so this
+            // is a no-op there.
+            if (isset($childrenOf[$leafId])) {
                 continue;
             }
 

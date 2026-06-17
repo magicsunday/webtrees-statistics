@@ -65,7 +65,7 @@ final readonly class GenerationDepth
      *
      * @param array<array-key, array{0: string|null, 1: string|null}> $parentOf
      *
-     * @return array{maxDepth: int, distribution: array<int, int>, capped: bool, deepestChain: list<string>, deepestChainCandidates: list<string>}
+     * @return array{maxDepth: int, distribution: array<int, int>, capped: bool}
      */
     public static function compute(array $parentOf): array
     {
@@ -89,107 +89,17 @@ final readonly class GenerationDepth
         }
 
         return [
-            'maxDepth'               => $maxDepth,
-            'distribution'           => $distribution,
-            'capped'                 => $capped,
-            'deepestChain'           => self::pickDeepestChain($childrenOf, $depthCache, $maxDepth),
-            'deepestChainCandidates' => self::collectMaxDepthRoots($depthCache, $maxDepth),
+            'maxDepth'     => $maxDepth,
+            'distribution' => $distribution,
+            'capped'       => $capped,
         ];
     }
 
     /**
-     * Return every individual that sits at the tree-wide maximum depth — i.e.
-     * every eldest ancestor whose deepest verified descendant lies maxDepth
-     * generations below. The repository uses these as the candidate set for
-     * picking a preferred chain (e.g. by the leaf's birth-year), so the helper
-     * stays DB-free and the preference is a separate concern.
-     *
-     * @param array<array-key, int> $depthCache
-     *
-     * @return list<string>
-     */
-    private static function collectMaxDepthRoots(array $depthCache, int $maxDepth): array
-    {
-        if ($maxDepth === 0) {
-            return [];
-        }
-
-        $roots = [];
-
-        foreach ($depthCache as $id => $depth) {
-            if ($depth === $maxDepth) {
-                // Numeric-only XREFs ("54") surface here as integer
-                // array keys; cast back to string so the chain stays
-                // string-typed all the way to Registry::make().
-                $roots[] = (string) $id;
-            }
-        }
-
-        sort($roots);
-
-        return $roots;
-    }
-
-    /**
-     * Walk down from `$rootId` through the DEEPEST child at each hop, yielding
-     * the eldest-first chain of length `$maxDepth + 1`. Ties at any hop are
-     * broken by PHP's default `sort()` ordering (numeric for digit-only XREFs,
-     * lexical otherwise) so the result is reproducible.
-     *
-     * Following the child with the largest recorded depth — rather than the one
-     * that decrements the remaining budget by exactly one — is what keeps the
-     * walk on the longest line through the over-cap region of a
-     * >`MAX_DEPTH`-generation descent: there every node is clamped to the same
-     * `MAX_DEPTH`, so no child carries `remaining-1` and an exact-decrement step
-     * would dead-end at the root (issue #164). Below the cap the deepest child
-     * always carries exactly `remaining-1`, so this is identical to the
-     * exact-decrement walk for every tree that never trips `capped`.
-     *
-     * @param array<array-key, list<string>> $childrenOf
-     * @param array<array-key, int>          $depthCache
-     *
-     * @return list<string>
-     */
-    public static function walkDownFrom(array $childrenOf, array $depthCache, string $rootId, int $maxDepth): array
-    {
-        $chain         = [$rootId];
-        $current       = $rootId;
-        $remainingHops = $maxDepth;
-
-        while (($remainingHops > 0) && isset($childrenOf[$current])) {
-            $children = $childrenOf[$current];
-            sort($children);
-            $next      = null;
-            $bestDepth = -1;
-
-            foreach ($children as $childId) {
-                $childDepth = $depthCache[$childId] ?? -1;
-
-                // Strictly greater keeps the FIRST child at the maximum depth;
-                // children are pre-sorted, so ties resolve to the lexically
-                // (or numerically) smallest XREF — the documented tie-break.
-                if ($childDepth > $bestDepth) {
-                    $bestDepth = $childDepth;
-                    $next      = $childId;
-                }
-            }
-
-            if ($next === null) {
-                break;
-            }
-
-            $chain[] = $next;
-            $current = $next;
-            --$remainingHops;
-        }
-
-        return $chain;
-    }
-
-    /**
      * Build the children-of map from a parent-of map. Public so the repository
-     * can reuse the same inverted view when it walks a non-default candidate
-     * root.
+     * can reuse the same inverted view — to count transitive descendants and to
+     * tell a genuine leaf (no children) apart from a clamped interior node when
+     * keying distinct deepest-chains by their leaf.
      *
      * @param array<array-key, array{0: string|null, 1: string|null}> $parentOf
      *
@@ -201,16 +111,16 @@ final readonly class GenerationDepth
     }
 
     /**
-     * Re-run the per-individual deepest-descendant walk that {@see compute()}
-     * already performs, exposed publicly so the repository can fold a preferred
-     * root into a full chain without duplicating the cache.
+     * Run the per-individual deepest-descendant walk for every node in the
+     * parentage graph and return the `[id => depth]` cache {@see compute()}
+     * derives its metrics from.
      *
      * @param array<array-key, list<string>>                          $childrenOf
      * @param array<array-key, array{0: string|null, 1: string|null}> $parentOf
      *
      * @return array<array-key, int>
      */
-    public static function depthCache(array $childrenOf, array $parentOf): array
+    private static function depthCache(array $childrenOf, array $parentOf): array
     {
         $depthCache = [];
 
@@ -219,34 +129,6 @@ final readonly class GenerationDepth
         }
 
         return $depthCache;
-    }
-
-    /**
-     * Pick one concrete deepest chain so the widget can name actual
-     * individuals: starts at the eldest ancestor (one whose deepest-descendant
-     * distance equals the tree-wide maximum) and walks down through the deepest
-     * child at each hop. Ties are broken by PHP's default `sort()` ordering
-     * (numeric for digit-only XREFs, lexical otherwise) so the result is stable
-     * across runs even when several chains share the same maximum length.
-     *
-     * @param array<array-key, list<string>> $childrenOf
-     * @param array<array-key, int>          $depthCache
-     *
-     * @return list<string>
-     */
-    private static function pickDeepestChain(array $childrenOf, array $depthCache, int $maxDepth): array
-    {
-        if ($maxDepth === 0) {
-            return [];
-        }
-
-        $candidates = self::collectMaxDepthRoots($depthCache, $maxDepth);
-
-        if ($candidates === []) {
-            return [];
-        }
-
-        return self::walkDownFrom($childrenOf, $depthCache, $candidates[0], $maxDepth);
     }
 
     /**
@@ -387,12 +269,21 @@ final readonly class GenerationDepth
 
     /**
      * Walk upward from a leaf-descendant by following its parents, yielding the
-     * eldest-first chain that ends at `$leafId`. At every parent step the
-     * parent with the larger remaining upward distance is preferred; ties break
-     * by PHP's default `sort()` ordering (numeric for digit-only XREFs, lexical
+     * eldest-first chain that ends at `$leafId`. At every parent step the parent
+     * with the DEEPEST recorded upward distance is preferred; ties break by
+     * PHP's default `sort()` ordering (numeric for digit-only XREFs, lexical
      * otherwise). Returns null when no chain of length `$maxDepth` can be
      * reconstructed from the leaf — usually because the leaf is not actually at
      * the bottom of a max-depth chain.
+     *
+     * Following the deepest parent — rather than the one whose distance is
+     * exactly `remaining - 1` — is the upward mirror of {@see walkDeepestDistance()}
+     * and is what keeps the walk on the longest line through the over-cap region
+     * of a >`MAX_DEPTH`-generation ancestry: there every node is clamped to the
+     * same `MAX_DEPTH`, so no parent carries `remaining - 1` and an exact-decrement
+     * step would dead-end at the leaf (issue #167). Below the cap the deepest
+     * parent always carries exactly `remaining - 1`, so this is identical to the
+     * exact-decrement walk for every tree that never trips `capped`.
      *
      * @param array<array-key, array{0: string|null, 1: string|null}> $parentOf
      * @param array<array-key, int>                                   $upDistance
@@ -411,23 +302,41 @@ final readonly class GenerationDepth
 
         while (($remainingUp > 0) && isset($parentOf[$current])) {
             [$father, $mother] = $parentOf[$current];
-            $needed            = $remainingUp - 1;
-            $candidates        = [];
+            $parents           = [];
 
-            if (($father !== null) && (($upDistance[$father] ?? -1) === $needed)) {
-                $candidates[] = $father;
+            if ($father !== null) {
+                $parents[] = $father;
             }
 
-            if (($mother !== null) && (($upDistance[$mother] ?? -1) === $needed)) {
-                $candidates[] = $mother;
+            if ($mother !== null) {
+                $parents[] = $mother;
             }
 
-            if ($candidates === []) {
-                return null;
+            if ($parents === []) {
+                break;
             }
 
-            sort($candidates);
-            $next            = $candidates[0];
+            sort($parents);
+            $next     = null;
+            $bestDist = -1;
+
+            foreach ($parents as $parentId) {
+                $parentDist = $upDistance[$parentId] ?? -1;
+
+                // Strictly greater keeps the FIRST parent at the maximum
+                // distance; parents are pre-sorted, so ties resolve to the
+                // lexically (or numerically) smallest XREF — the documented
+                // tie-break.
+                if ($parentDist > $bestDist) {
+                    $bestDist = $parentDist;
+                    $next     = $parentId;
+                }
+            }
+
+            if ($next === null) {
+                break;
+            }
+
             $chainReversed[] = $next;
             $current         = $next;
             --$remainingUp;

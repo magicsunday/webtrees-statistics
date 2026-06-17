@@ -81,6 +81,40 @@ final class GenerationDepthRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
+     * A single descent line longer than the {@see GenerationDepth::MAX_DEPTH}
+     * cap (a 105-generation chain, Gen000 → … → Gen105) must still render one
+     * full `MAX_DEPTH + 1`-individual chain ending at the genuine deepest leaf —
+     * not dead-end, and not inflate the chain count. In the over-cap region the
+     * upward distance saturates to MAX_DEPTH for every node from Gen100 up to the
+     * leaf, so all six of those nodes report `upDistance == maxDepth`; only the
+     * genuine leaf (Gen105, the one with no children) anchors a distinct lineage,
+     * so `totalChainCount` must stay 1 rather than counting the five clamped
+     * interior nodes as separate chains (issue #167).
+     */
+    #[Test]
+    public function summaryReconstructsAndCountsOneChainForDescentBeyondTheCap(): void
+    {
+        $tree   = $this->importFixtureTree('generation-depth-over-cap.ged');
+        $result = (new GenerationDepthRepository($tree, new ParentMapRepository($tree)))->summary();
+
+        self::assertSame(GenerationDepth::MAX_DEPTH, $result->maxDepth);
+        self::assertTrue($result->capped);
+
+        // Exactly one lineage is rendered and counted — the genuine-leaf filter
+        // keeps the five clamped interior nodes from each spawning their own
+        // near-identical chain.
+        self::assertSame(1, $result->totalChainCount);
+        self::assertCount(1, $result->chains);
+
+        // The rendered chain is a full MAX_DEPTH + 1 window of the line, ending
+        // at the genuine deepest leaf Gen105.
+        self::assertCount(GenerationDepth::MAX_DEPTH + 1, $result->chains[0]);
+        self::assertSame('I105', $result->chains[0][GenerationDepth::MAX_DEPTH]->xref());
+        self::assertStringContainsString('Gen105', $result->chains[0][GenerationDepth::MAX_DEPTH]->fullName());
+        self::assertSame('I005', $result->chains[0][0]->xref());
+    }
+
+    /**
      * The rendered chain must be resolved with a single bulk gedcom fetch, not
      * one `IndividualFactory::make()` round-trip per chain member (GH-154). On a
      * deep linear lineage the chain is `maxDepth + 1` individuals long, so a
