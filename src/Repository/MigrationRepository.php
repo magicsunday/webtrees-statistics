@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
+use Illuminate\Database\Query\Builder;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyFlowsPayload;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeySample;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
@@ -78,7 +79,27 @@ final readonly class MigrationRepository
         // order so the SAMPLES_PER_FLOW cap always picks the same
         // representatives across page loads, even after table-level
         // events (OPTIMIZE TABLE, replication, index changes).
+        //
+        // Only an individual carrying BOTH a `1 BIRT` and a `1 DEAT` line can
+        // contribute a birth → death flow, so anchor-LIKE both events before
+        // transferring blobs. An individual lacking either event can have no
+        // origin or destination place, so the prefilter drops exactly what the
+        // loop would skip — sparing the whole-tree GEDCOM scan on the
+        // birth-and-death-bearing subset.
+        $birthPatterns = GedcomScanner::anchoredLikePatterns('BIRT');
+        $deathPatterns = GedcomScanner::anchoredLikePatterns('DEAT');
+
         $rows = TreeScope::table($this->tree, 'individuals')
+            ->where(static function (Builder $query) use ($birthPatterns): void {
+                foreach ($birthPatterns as $pattern) {
+                    $query->orWhere('i_gedcom', 'like', $pattern);
+                }
+            })
+            ->where(static function (Builder $query) use ($deathPatterns): void {
+                foreach ($deathPatterns as $pattern) {
+                    $query->orWhere('i_gedcom', 'like', $pattern);
+                }
+            })
             ->orderBy('i_id')
             ->select(['i_id AS xref', 'i_gedcom AS gedcom'])
             ->get();

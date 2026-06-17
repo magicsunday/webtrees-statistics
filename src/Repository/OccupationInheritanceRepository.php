@@ -17,6 +17,7 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 // only the imports from clone detection so the two method bodies stay covered.
 // jscpd:ignore-start
 use Fisharebest\Webtrees\Tree;
+use Illuminate\Database\Query\Builder;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyFlowsPayload;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeySample;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
@@ -91,7 +92,22 @@ final readonly class OccupationInheritanceRepository
         // SAMPLES_PER_FLOW cap always picks the same representatives across
         // page loads, even after table-level events (OPTIMIZE TABLE,
         // replication, index changes).
+        //
+        // Restrict the loaded set to individuals carrying a `1 OCCU` line: only
+        // an OCCU-bearer can be a son in a flow, and a father without OCCU is
+        // dropped anyway, so the anchored-LIKE prefilter keeps exactly the set
+        // both the son iteration and the father lookup need — but it spares the
+        // whole-tree GEDCOM blob transfer (and the resident xref → blob map) on
+        // the typically small OCCU-bearing subpopulation rather than every
+        // individual.
+        $occuPatterns = GedcomScanner::anchoredLikePatterns('OCCU');
+
         $rows = TreeScope::table($this->tree, 'individuals')
+            ->where(static function (Builder $query) use ($occuPatterns): void {
+                foreach ($occuPatterns as $pattern) {
+                    $query->orWhere('i_gedcom', 'like', $pattern);
+                }
+            })
             ->orderBy('i_id')
             ->select(['i_id AS xref', 'i_gedcom AS gedcom'])
             ->get();
