@@ -14,6 +14,7 @@ namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Model\Chord\ChordMatrixPayload;
 use MagicSunday\Webtrees\Statistic\Repository\MarriageMatrixRepository;
+use MagicSunday\Webtrees\Statistic\Support\Aggregator\TopNAggregator;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -60,6 +61,7 @@ use function count;
 #[CoversClass(MarriageMatrixRepository::class)]
 #[UsesClass(ChordMatrixPayload::class)]
 #[UsesClass(RowCast::class)]
+#[UsesClass(TopNAggregator::class)]
 final class MarriageMatrixRepositoryIntegrationTest extends IntegrationTestCase
 {
     private function repository(Tree $tree): MarriageMatrixRepository
