@@ -276,13 +276,30 @@ final readonly class GenerationDepth
      */
     private static function deepestDescendantDistance(array $childrenOf, string $id, array &$depthCache): void
     {
-        if (isset($depthCache[$id])) {
+        self::walkDeepestDistance(
+            $id,
+            $depthCache,
+            static fn (string $current): array => $childrenOf[$current] ?? [],
+        );
+    }
+
+    /**
+     * Iterative-DFS skeleton shared by {@see deepestDescendantDistance()} and
+     * {@see deepestAncestorDistance()}: memoise the largest generation distance
+     * from `$id` to any reachable leaf, following whichever half of the
+     * parentage graph `$neighbours` exposes. An explicit stack keeps deep
+     * chains off PHP's recursion budget, and the per-walk `visited` set kills
+     * any cycle the moment it would loop back on itself.
+     *
+     * @param array<array-key, int>          $cache      In/out cache, mutated on every call
+     * @param callable(string): list<string> $neighbours Next ids to walk from a given node; an empty list ends the branch
+     */
+    private static function walkDeepestDistance(string $id, array &$cache, callable $neighbours): void
+    {
+        if (isset($cache[$id])) {
             return;
         }
 
-        // DFS with an explicit stack so deep chains don't blow PHP's
-        // recursion budget. The "visited on this walk" set kills any
-        // cycle the moment it would loop back on itself.
         /** @var list<array{0: string, 1: int}> $stack */
         $stack   = [[$id, 0]];
         $visited = [];
@@ -302,16 +319,12 @@ final readonly class GenerationDepth
             $visited[$current] = true;
             $deepest           = max($deepest, $depth);
 
-            if (!isset($childrenOf[$current])) {
-                continue;
-            }
-
-            foreach ($childrenOf[$current] as $childId) {
-                $stack[] = [$childId, $depth + 1];
+            foreach ($neighbours($current) as $next) {
+                $stack[] = [$next, $depth + 1];
             }
         }
 
-        $depthCache[$id] = $deepest;
+        $cache[$id] = $deepest;
     }
 
     /**
@@ -429,52 +442,36 @@ final readonly class GenerationDepth
 
     /**
      * Mirror of {@see deepestDescendantDistance()} that walks parents instead
-     * of children. The two functions share the same iterative-DFS skeleton but
-     * operate on opposite halves of the parentage graph.
+     * of children. Both delegate to the shared {@see walkDeepestDistance()}
+     * skeleton, supplying the neighbour resolver for their half of the
+     * parentage graph.
      *
      * @param array<array-key, array{0: string|null, 1: string|null}> $parentOf
      * @param array<array-key, int>                                   $cache    In/out cache, mutated on every call
      */
     private static function deepestAncestorDistance(array $parentOf, string $id, array &$cache): void
     {
-        if (isset($cache[$id])) {
-            return;
-        }
+        self::walkDeepestDistance(
+            $id,
+            $cache,
+            static function (string $current) use ($parentOf): array {
+                if (!isset($parentOf[$current])) {
+                    return [];
+                }
 
-        /** @var list<array{0: string, 1: int}> $stack */
-        $stack   = [[$id, 0]];
-        $visited = [];
-        $deepest = 0;
+                [$father, $mother] = $parentOf[$current];
+                $parents           = [];
 
-        while ($stack !== []) {
-            [$current, $depth] = array_pop($stack);
+                if ($father !== null) {
+                    $parents[] = $father;
+                }
 
-            if (isset($visited[$current])) {
-                continue;
-            }
+                if ($mother !== null) {
+                    $parents[] = $mother;
+                }
 
-            if ($depth > self::MAX_DEPTH) {
-                continue;
-            }
-
-            $visited[$current] = true;
-            $deepest           = max($deepest, $depth);
-
-            if (!isset($parentOf[$current])) {
-                continue;
-            }
-
-            [$father, $mother] = $parentOf[$current];
-
-            if ($father !== null) {
-                $stack[] = [$father, $depth + 1];
-            }
-
-            if ($mother !== null) {
-                $stack[] = [$mother, $depth + 1];
-            }
-        }
-
-        $cache[$id] = $deepest;
+                return $parents;
+            },
+        );
     }
 }

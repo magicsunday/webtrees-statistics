@@ -11,6 +11,11 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
+// The Sankey-toolkit import block below converges with the sibling
+// MigrationRepository — both legitimately orchestrate the same toolkit, with no
+// shared logic to extract (disjoint constructor deps and query bodies). Exempt
+// only the imports from clone detection so the two method bodies stay covered.
+// jscpd:ignore-start
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyFlowsPayload;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeySample;
@@ -22,6 +27,8 @@ use MagicSunday\Webtrees\Statistic\Support\Sankey\SankeySampleResolver;
 
 use function count;
 use function mb_strtolower;
+
+// jscpd:ignore-end
 
 /**
  * Aggregates father → son occupation inheritance across the tree. Every male

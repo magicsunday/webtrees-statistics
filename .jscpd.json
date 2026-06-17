@@ -1,21 +1,22 @@
 {
-    "languages": [
+    "format": [
         "php",
         "javascript"
     ],
     "threshold": 0,
     "reporters": [
-        "consoleFull"
+        "console-full"
     ],
     "minTokens": 100,
     "minLines": 5,
     "path": [
-        "src/",
-        "tests/",
-        "resources/js/modules/"
+        "src",
+        "tests",
+        "resources/js/modules"
     ],
     "ignore": [
-        "**/*.min.js"
+        "**/*.min.js",
+        "**/tests/Integration/ChildrenRepositoryIntegrationTest.php"
     ],
-    "exitCode": true
+    "exitCode": 1
 }

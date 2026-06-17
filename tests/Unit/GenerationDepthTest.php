@@ -271,6 +271,36 @@ final class GenerationDepthTest extends TestCase
     }
 
     /**
+     * The upward walk must follow BOTH parents of a node and record the deeper
+     * of the two ancestor lines, and a null father must not abort the maternal
+     * line. The earlier upward tests only exercise single-parent linear chains,
+     * which cannot tell a both-parents walk (deeper wins) from a father-only
+     * one, nor prove the null-slot is skipped rather than terminating the walk.
+     */
+    #[Test]
+    public function upwardWalkFollowsBothParentsTakingTheDeeperLineAndSurvivesANullFather(): void
+    {
+        $parentOf = [
+            // C's maternal line (C→M→GM1→GM2 = 3) is deeper than its paternal
+            // line (C→F→GF = 2); the cache must record 3, proving both parents
+            // are walked and the deeper line wins.
+            'C'   => ['F', 'M'],
+            'F'   => ['GF', null],
+            'M'   => ['GM1', null],
+            'GM1' => ['GM2', null],
+            // X has no father but a mother; the null father must not stop the
+            // maternal walk (X→Y→Z = 2).
+            'X' => [null, 'Y'],
+            'Y' => ['Z', null],
+        ];
+
+        $upDistance = GenerationDepth::upDistanceCache($parentOf);
+
+        self::assertSame(3, $upDistance['C'] ?? null, 'Both parents must be walked and the deeper line wins');
+        self::assertSame(2, $upDistance['X'] ?? null, 'A null father must not stop the maternal line');
+    }
+
+    /**
      * Leading-zero XREFs ("007") are NOT canonical decimal-integer strings, so
      * PHP does not coerce them to int when they index an array — they survive
      * as string keys. This guards the boundary the AGENTS.md "Key patterns"
