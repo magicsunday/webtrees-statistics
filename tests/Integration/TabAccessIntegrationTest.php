@@ -41,12 +41,20 @@ final class TabAccessIntegrationTest extends IntegrationTestCase
     public static function tabActionProvider(): array
     {
         return [
-            'Overview'   => ['getOverviewAction'],
-            'Names'      => ['getNamesAction'],
-            'LifeSpan'   => ['getLifeSpanAction'],
-            'Family'     => ['getFamilyAction'],
-            'Places'     => ['getPlacesAction'],
-            'TreeHealth' => ['getTreeHealthAction'],
+            // The module's own six tab actions.
+            'Overview'    => ['getOverviewAction'],
+            'Names'       => ['getNamesAction'],
+            'LifeSpan'    => ['getLifeSpanAction'],
+            'Family'      => ['getFamilyAction'],
+            'Places'      => ['getPlacesAction'],
+            'TreeHealth'  => ['getTreeHealthAction'],
+            // The chart actions inherited from StatisticsChartModule, which the
+            // module overrides to run the same gate.
+            'Individuals' => ['getIndividualsAction'],
+            'Families'    => ['getFamiliesAction'],
+            'Other'       => ['getOtherAction'],
+            'Custom'      => ['getCustomAction'],
+            'CustomChart' => ['postCustomChartAction'],
         ];
     }
 
