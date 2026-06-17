@@ -800,6 +800,22 @@
     justify-content: flex-start;
 }
 
+/* Gauge cards pin their arc wrap to the BOTTOM of the body so two gauges
+   sharing a grid row line up on the arc even when one card's title wraps
+   to a second line. With a centred arc, the card whose taller (2-line)
+   title pushes the body down would sit its arc lower than its 1-line
+   neighbour; the equal-height grid row + identical card foot make the
+   body bottoms — and thus the bottom-pinned arc wraps — share a baseline.
+   A small bottom padding keeps the wrap off the foot so it doesn't read as
+   glued to the card edge; both gauges share it, so the baseline still aligns.
+   Excluded when the widget is empty: chart-lib drops a `.chart-empty-state`
+   placeholder into the still-present wrap, and a "no data" message reads
+   better centred than bottom-pinned. */
+.wt-statistics-chart .wt-stat-card-body:has(.wt-stat-gauge-arc-wrap):not(:has(.chart-empty-state)) {
+    justify-content: flex-end;
+    padding-bottom:  15px;
+}
+
 /* chart-lib's `renderEmptyState()` appends a bare
    `<div class="chart-empty-state">…</div>` whenever a widget receives
    an empty / all-zero dataset. Style it to match the PHTML-level
