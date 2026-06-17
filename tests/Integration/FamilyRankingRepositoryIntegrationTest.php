@@ -143,16 +143,49 @@ final class FamilyRankingRepositoryIntegrationTest extends IntegrationTestCase
      * The grandchild count must come from a single grouped aggregation, not from
      * a per-family record-layer re-count (children → spouse families →
      * grandchildren), which issued one deep traversal per candidate family and
-     * scaled with the grandchild population (GH-115). Asserting a tight upper
-     * bound on the query count guards against a regression to that N+1 pattern:
-     * the only follow-up work is resolving each returned family's record for its
-     * display name, which is bounded by the limit, not by how many grandchildren
-     * the tree holds.
+     * scaled with the grandchild population (GH-115).
+     *
+     * Rather than a loose absolute bound (which both lets a partial per-family
+     * re-count slip under it and flakes on incidental upstream query-count
+     * shifts), this pins the contract by scaling-independence — the same shape as
+     * {@see GenerationDepthRepositoryIntegrationTest::summaryResolvesChainWithoutPerMemberQueries}.
+     * The sparse and dense fixtures hold the SAME four grandparent families, but
+     * the dense one packs ten extra grandchildren under the `/Two/` family.
+     * `topGrandchildFamilies(10)` returns the same number of families from each,
+     * so the record-resolution cost is identical; only a per-grandchild
+     * traversal would make the dense fixture issue more queries.
      */
     #[Test]
-    public function topGrandchildFamiliesDoesNotReCountPerFamily(): void
+    public function topGrandchildFamiliesQueryCountIsIndependentOfGrandchildPopulation(): void
     {
-        $tree = $this->importFixtureTree('grandchild-families.ged');
+        $sparse = $this->countTopGrandchildFamilyQueries('grandchild-families.ged');
+        $dense  = $this->countTopGrandchildFamilyQueries('grandchild-families-dense.ged');
+
+        // Precondition: the same number of grandparent families rank in both, so
+        // a query-count difference can only come from the grandchild population.
+        self::assertSame(
+            $sparse['families'],
+            $dense['families'],
+            'both fixtures must rank the same number of grandparent families',
+        );
+        self::assertGreaterThan(0, $sparse['families'], 'the ranking must actually return families');
+
+        self::assertSame(
+            $sparse['queries'],
+            $dense['queries'],
+            'Query count must not grow with the grandchild population (no per-family re-count traversal)',
+        );
+    }
+
+    /**
+     * Run `topGrandchildFamilies(10)` against a fixture and return the number of
+     * ranked families and the SQL query count it cost.
+     *
+     * @return array{families: int, queries: int}
+     */
+    private function countTopGrandchildFamilyQueries(string $fixture): array
+    {
+        $tree = $this->importFixtureTree($fixture);
 
         DB::connection()->flushQueryLog();
         DB::connection()->enableQueryLog();
@@ -162,17 +195,7 @@ final class FamilyRankingRepositoryIntegrationTest extends IntegrationTestCase
 
         DB::connection()->disableQueryLog();
 
-        // The cost is O(returned families), never O(grandchildren): one ranking
-        // query, plus at most ~6 record-resolution queries per returned family
-        // (member preload + a handful of tree-preference reads for the display
-        // name) and one shared pending-changes lookup. The removed per-family
-        // re-count traversal (children → spouse families → grandchildren) issued
-        // ~52 queries for this very fixture, so the bound separates the two.
-        self::assertLessThanOrEqual(
-            (6 * count($result)) + 2,
-            $queryCount,
-            'Query count must scale with the returned-family count, not the grandchild population',
-        );
+        return ['families' => count($result), 'queries' => $queryCount];
     }
 
     /**
