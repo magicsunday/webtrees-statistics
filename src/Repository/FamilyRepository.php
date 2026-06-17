@@ -32,6 +32,7 @@ use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RecordName;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 
+use function array_column;
 use function array_key_exists;
 use function array_slice;
 use function array_unique;
@@ -209,7 +210,10 @@ final readonly class FamilyRepository
             }
         }
 
-        $anomalies = [];
+        // Qualify candidates from the raw counts — no record resolution is
+        // needed for the gate or the ranking comparator.
+        /** @var list<array{xref: string, sons: int, daughters: int, total: int}> $candidates */
+        $candidates = [];
 
         foreach ($byFamily as $familyId => $counts) {
             $sons      = $counts['sons'];
@@ -226,46 +230,71 @@ final readonly class FamilyRepository
                 continue;
             }
 
-            $family = Registry::familyFactory()->make($familyId, $this->tree);
-
-            if (!$family instanceof Family) {
-                continue;
-            }
-
-            // Privacy: drop the anomaly when the family is not visible to the
-            // current viewer. The label is name-privatised, but the derived
-            // sons/daughters split of a positionally-identifiable (often living)
-            // family is itself sensitive and must not surface to a viewer who
-            // cannot see the family — mirroring the RecordRowMapper gate.
-            if (!$family->canShow()) {
-                continue;
-            }
-
-            $label = RecordName::plain($family->fullName());
-
-            $anomalies[] = new SexRatioAnomaly(
-                familyXref: $familyId,
-                label: $label,
-                sons: $sons,
-                daughters: $daughters,
-            );
+            $candidates[] = ['xref' => $familyId, 'sons' => $sons, 'daughters' => $daughters, 'total' => $total];
         }
 
-        usort($anomalies, static function (SexRatioAnomaly $a, SexRatioAnomaly $b): int {
+        // Rank on the raw data, THEN cap — so only the Top-N families are ever
+        // resolved to a record (keeps the resolve loop off the N+1 path, GH-186).
+        usort($candidates, static function (array $a, array $b): int {
             // Skew descending via cross-multiplication (max_a/total_a vs
             // max_b/total_b without floating-point division), then child count
             // descending, then XREF ascending for a deterministic final order.
-            $bySkew = (max($b->sons, $b->daughters) * $a->total())
-                <=> (max($a->sons, $a->daughters) * $b->total());
+            $bySkew = (max($b['sons'], $b['daughters']) * $a['total'])
+                <=> (max($a['sons'], $a['daughters']) * $b['total']);
 
             if ($bySkew !== 0) {
                 return $bySkew;
             }
 
-            return [$b->total(), $a->familyXref] <=> [$a->total(), $b->familyXref];
+            return [$b['total'], $a['xref']] <=> [$a['total'], $b['xref']];
         });
 
-        return array_slice($anomalies, 0, $limit);
+        $top = array_slice($candidates, 0, $limit);
+
+        if ($top === []) {
+            return [];
+        }
+
+        // Batch-fetch the surviving families' gedcom in one query so each make()
+        // below is round-trip-free.
+        $gedcomQuery  = TreeScope::table($this->tree, 'families')->select(['f_id', 'f_gedcom']);
+        $gedcomByXref = [];
+
+        foreach (ChunkedWhereIn::get($gedcomQuery, 'f_id', array_column($top, 'xref')) as $row) {
+            $gedcom = RowCast::string($row, 'f_gedcom');
+
+            // Map only a non-empty gedcom: make() short-circuits its own fetch on
+            // any non-null argument, so an empty string would build an empty
+            // record — leave it out and let the `?? null` lookup below fall back
+            // to a real resolution.
+            if ($gedcom !== '') {
+                $gedcomByXref[RowCast::string($row, 'f_id')] = $gedcom;
+            }
+        }
+
+        // Resolve only the Top-N. Privacy follows the documented raw-rank
+        // convention: the label is privatised through Family::fullName() (a
+        // family the viewer cannot see reads as "Private"), while the raw split
+        // is shown either way — matching the sibling "largest families" card.
+        $anomalies = [];
+
+        foreach ($top as $candidate) {
+            $familyId = $candidate['xref'];
+            $family   = Registry::familyFactory()->make($familyId, $this->tree, $gedcomByXref[$familyId] ?? null);
+
+            if (!$family instanceof Family) {
+                continue;
+            }
+
+            $anomalies[] = new SexRatioAnomaly(
+                familyXref: $familyId,
+                label: RecordName::plain($family->fullName()),
+                sons: $candidate['sons'],
+                daughters: $candidate['daughters'],
+            );
+        }
+
+        return $anomalies;
     }
 
     /**
