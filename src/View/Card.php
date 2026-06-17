@@ -482,7 +482,7 @@ HTML;
             $ariaLabelText = (($this->infoAriaLabel !== '') && ($this->title !== ''))
                 ? $this->infoAriaLabel . ': ' . $this->title
                 : ($this->title !== '' ? $this->title : $this->infoAriaLabel);
-            $ariaLabel     = $this->escapeHtml($ariaLabelText);
+            $ariaLabel = $this->escapeHtml($ariaLabelText);
 
             $button = <<<HTML
 <button type="button" 
