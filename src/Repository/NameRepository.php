@@ -548,14 +548,14 @@ final class NameRepository
                 $join
                     ->on('parent_name.n_file', '=', 'fam.f_file')
                     ->on('parent_name.n_id', '=', 'fam.' . $parentColumn)
-                    ->where('parent_name.n_type', '=', 'NAME')
+                    ->where('parent_name.n_num', '=', 0)
                     ->where('parent_name.n_file', '=', $treeId);
             })
             ->join('name AS child_name', static function (JoinClause $join) use ($treeId): void {
                 $join
                     ->on('child_name.n_file', '=', 'famc.l_file')
                     ->on('child_name.n_id', '=', 'famc.l_from')
-                    ->where('child_name.n_type', '=', 'NAME')
+                    ->where('child_name.n_num', '=', 0)
                     ->where('child_name.n_file', '=', $treeId);
             })
             ->whereNotNull('fam.' . $parentColumn)

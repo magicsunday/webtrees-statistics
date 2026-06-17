@@ -209,6 +209,35 @@ final class MarriageMatrixRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
+     * A spouse carrying two top-level `1 NAME` lines with different surnames must
+     * still contribute exactly one surname. webtrees writes one `name` row per
+     * `1 NAME` line, all with `n_type = 'NAME'` and an incrementing `n_num`, so
+     * restricting to `n_type = 'NAME'` alone keeps both rows; the surname join
+     * must pin the primary name via `n_num = 0`.
+     *
+     * The fixture marries Hans /Alpha/ — who also carries a second `1 NAME`
+     * /Beta/ — to Olga /Gamma/. The matrix must hold only the primary surnames
+     * Alpha and Gamma; /Beta/ must never surface as a third surname, and the
+     * single marriage must contribute a total mass of exactly two mirrored cells.
+     */
+    #[Test]
+    public function surnameMarriageMatrixCountsSpouseWithTwoNameLinesOnce(): void
+    {
+        $tree   = $this->importFixtureTree('surname-marriage-matrix-two-names.ged');
+        $result = $this->repository($tree)->surnameMarriageMatrix(8);
+
+        self::assertSame(['Alpha', 'Gamma'], $result->labels);
+
+        $total = 0;
+
+        foreach ($result->matrix as $row) {
+            $total += array_sum($row);
+        }
+
+        self::assertSame(2, $total, 'One marriage mirrors to two cells — the second NAME line must not double-count it');
+    }
+
+    /**
      * `topN = 0` (and any non-positive value) short-circuits to an empty result
      * so the view layer can skip the chord-diagram card without rendering an
      * empty chart.

@@ -240,6 +240,38 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
     }
 
     /**
+     * A parent carrying a second top-level `1 NAME` line must not inflate the
+     * passdown cohort. webtrees stores both `1 NAME` lines as `name` rows with
+     * `n_type = 'NAME'` (differing only in `n_num`), so the parent join must pin
+     * the primary name via `n_num = 0`; an `n_type` filter alone keeps both rows
+     * and fans the parent-child pair into two cohort entries — one matching, one
+     * not — skewing the rate.
+     *
+     * The fixture has ten father → son pairs in the 1850s, all named "Otto"
+     * (a perfect 100 % pass-down). The first father also carries a second
+     * `1 NAME Zzz` whose given name does NOT match the son. With the primary-name
+     * pin the rate stays 100 % (10 matches / 10 pairs); without it the extra
+     * non-matching row makes it 10 / 11 ≈ 90.9 %.
+     */
+    #[Test]
+    public function sameSexNamePassdownByCenturyIgnoresAParentsSecondNameLine(): void
+    {
+        $tree   = $this->importFixtureTree('passdown-parent-two-names.ged');
+        $result = $this->repository($tree)->sameSexNamePassdownByCentury();
+
+        self::assertSame(['19th cent.'], $result->categories);
+
+        $fatherSon = $result->series[0];
+        self::assertSame('Father → son', $fatherSon->name);
+        self::assertEqualsWithDelta(
+            100.0,
+            $fatherSon->values[0],
+            0.05,
+            'Ten matching pairs read 100 %; the first father\'s second NAME line must not add an 11th, non-matching cohort entry',
+        );
+    }
+
+    /**
      * BCE-born children fold into a negative century instead of being dropped.
      * name-passdown-bce.ged seeds 10 families whose sons all share the father's
      * given name and whose daughters all share the mother's, every child born
