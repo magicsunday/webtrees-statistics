@@ -37,7 +37,7 @@ final readonly class GenerationDepthReport implements JsonSerializable
     /**
      * @param int                    $maxDepth        Deepest verified parent-child chain length across the tree
      * @param array<int, int>        $distribution    Histogram `depthBucket → count of individuals`
-     * @param bool                   $capped          Whether the walk hit the safety cap (typical sign of cyclic FAMC/FAMS edits)
+     * @param bool                   $capped          Whether the walk hit the safety cap — a genuine ≥MAX_DEPTH acyclic descent; a cyclic edit is absorbed and does NOT trip it
      * @param list<list<Individual>> $chains          Sample of verified chains anchored at the maximum depth
      * @param int                    $totalChainCount Total number of chains found at the maximum depth (≥ `count($chains)`)
      */

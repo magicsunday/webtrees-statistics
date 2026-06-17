@@ -109,8 +109,8 @@ final class GenerationDepthTest extends TestCase
      * When two distinct child lines converge into the same deeper ancestor
      * (pedigree collapse via cousin marriage), the ancestor's depth is computed
      * from the LONGEST downward path — not the sum of both. Verifies the
-     * visited-set within a single DFS prevents a re-entry from doubling the
-     * depth.
+     * longest-path memoisation (`depth = 1 + max(child)`) takes the deeper
+     * branch rather than adding the two converging lines.
      */
     #[Test]
     public function pedigreeCollapseChoosesLongestDownwardPath(): void
@@ -137,10 +137,61 @@ final class GenerationDepthTest extends TestCase
     }
 
     /**
+     * Pedigree collapse where the two reconverging lines have DIFFERENT
+     * lengths: the deeper individual's depth must be the LONGER path, and the
+     * answer must not depend on which path the walk happens to explore first.
+     * {@see pedigreeCollapseChoosesLongestDownwardPath} only uses equal-length
+     * lines, so it never actually exercises "longest wins over a shorter
+     * alternative" (regression for #161).
+     */
+    #[Test]
+    public function downwardWalkTakesTheLongerOfTwoUnequalLengthPaths(): void
+    {
+        // C1 is reachable downward from G via two paths of different length:
+        //   G -> P1 -> C1         (2)
+        //   G -> Q  -> P2 -> C1   (3)
+        // The entry order below makes the SHORTER path explored first, which
+        // a visited-set DFS under-counts to maxDepth 2.
+        $parentOf = [
+            'C1' => ['P1', 'P2'],
+            'Q'  => ['G', null],
+            'P2' => ['Q', null],
+            'P1' => ['G', null],
+        ];
+
+        $result = GenerationDepth::compute($parentOf);
+
+        self::assertSame(3, $result['maxDepth']);
+        self::assertSame(['G', 'Q', 'P2', 'C1'], $result['deepestChain']);
+    }
+
+    /**
+     * A legitimate but implausibly long ACYCLIC descent (deeper than MAX_DEPTH)
+     * saturates at the cap and trips the `capped` data-quality flag. Pins the
+     * per-node `min($depth, MAX_DEPTH)` clamp the longest-path rewrite introduced
+     * (regression for #161).
+     */
+    #[Test]
+    public function chainDeeperThanMaxDepthClampsAndTripsCappedFlag(): void
+    {
+        // A linear chain of 150 generations: I0 (child) up to I150 (eldest).
+        $parentOf = [];
+
+        for ($i = 0; $i < 150; ++$i) {
+            $parentOf['I' . $i] = ['I' . ($i + 1), null];
+        }
+
+        $result = GenerationDepth::compute($parentOf);
+
+        self::assertSame(GenerationDepth::MAX_DEPTH, $result['maxDepth'], 'Depth saturates at MAX_DEPTH');
+        self::assertTrue($result['capped'], 'A >MAX_DEPTH acyclic chain trips the capped signal');
+    }
+
+    /**
      * A cycle (illegal but possible: someone self-edits the parent map so an
-     * ancestor points back to a descendant) must not loop forever. The
-     * visited-set on a per-walk basis breaks the cycle; depth is bounded but
-     * the `capped` flag may or may not trip depending on chain length.
+     * ancestor points back to a descendant) must not loop forever. The per-walk
+     * on-path back-edge guard absorbs the cycle to a small finite depth, so it
+     * never trips `capped` (which signals only genuinely long acyclic descent).
      */
     #[Test]
     public function cyclicParentMapDoesNotLoopForever(): void
@@ -159,6 +210,10 @@ final class GenerationDepthTest extends TestCase
         self::assertGreaterThanOrEqual(0, $result['maxDepth']);
         self::assertLessThanOrEqual(GenerationDepth::MAX_DEPTH, $result['maxDepth']);
         self::assertNotSame([], $result['distribution']);
+        // A cycle is absorbed by the on-path back-edge guard to a small finite
+        // depth — it must NOT saturate the cap, so `capped` stays false (the
+        // flag signals only genuinely long acyclic descent, not corrupt data).
+        self::assertFalse($result['capped']);
     }
 
     /**
@@ -298,6 +353,31 @@ final class GenerationDepthTest extends TestCase
 
         self::assertSame(3, $upDistance['C'] ?? null, 'Both parents must be walked and the deeper line wins');
         self::assertSame(2, $upDistance['X'] ?? null, 'A null father must not stop the maternal line');
+    }
+
+    /**
+     * Ancestor-side counterpart of {@see downwardWalkTakesTheLongerOfTwoUnequalLengthPaths}:
+     * a node reachable UPWARD via two lines of unequal length, arranged so the
+     * SHORTER line is explored first, must still record the longer distance —
+     * the upward walk shares the same longest-path memoisation (regression for
+     * #161).
+     */
+    #[Test]
+    public function upwardWalkTakesTheLongerOfTwoUnequalLengthPaths(): void
+    {
+        // L reaches the eldest ancestor A via two upward lines:
+        //   L -> F -> N -> A   (3, paternal — explored second)
+        //   L -> M -> A        (2, maternal — explored first)
+        $parentOf = [
+            'L' => ['F', 'M'],
+            'F' => ['N', null],
+            'N' => ['A', null],
+            'M' => ['A', null],
+        ];
+
+        $upDistance = GenerationDepth::upDistanceCache($parentOf);
+
+        self::assertSame(3, $upDistance['L'] ?? null);
     }
 
     /**

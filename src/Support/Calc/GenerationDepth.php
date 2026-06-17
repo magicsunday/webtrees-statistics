@@ -17,6 +17,7 @@ use function array_map;
 use function array_pop;
 use function array_reverse;
 use function max;
+use function min;
 use function sort;
 
 /**
@@ -26,11 +27,13 @@ use function sort;
  * descendants are direct children has depth 1, and so on. The tree-wide maximum
  * is the longest recorded vertical descent.
  *
- * The walk is bounded by `MAX_DEPTH` so an accidentally-cyclic GEDCOM (rare but
- * possible — self-referential FAMC + FAMS edits) cannot loop forever. Within a
- * single individual's DFS, a visited-set protects against the more mundane case
- * of pedigree-collapse where the same descendant could be re-walked through
- * different lines.
+ * Depth is computed as a longest-path memoisation over the parentage graph
+ * (`depth(node) = 1 + max(depth(child))`), so pedigree collapse — where the same
+ * descendant is reachable through several lines of possibly different length —
+ * always yields the LONGEST descent, independent of traversal order. The walk is
+ * bounded by `MAX_DEPTH` and a per-walk on-path set so an accidentally-cyclic
+ * GEDCOM (rare but possible — self-referential FAMC + FAMS edits) cannot loop
+ * forever.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -285,13 +288,26 @@ final readonly class GenerationDepth
 
     /**
      * Iterative-DFS skeleton shared by {@see deepestDescendantDistance()} and
-     * {@see deepestAncestorDistance()}: memoise the largest generation distance
-     * from `$id` to any reachable leaf, following whichever half of the
-     * parentage graph `$neighbours` exposes. An explicit stack keeps deep
-     * chains off PHP's recursion budget, and the per-walk `visited` set kills
-     * any cycle the moment it would loop back on itself.
+     * {@see deepestAncestorDistance()}: memoise the LONGEST generation distance
+     * from every reachable node to a leaf — `depth(node) = 1 + max(depth(child))`,
+     * `0` for a leaf — following whichever half of the parentage graph
+     * `$neighbours` exposes. The walk is a post-order pass over an explicit
+     * stack (so deep chains stay off PHP's recursion budget), and the per-walk
+     * on-path set breaks cycles: a back-edge to a node still being resolved on
+     * the current path contributes nothing, so an accidentally-cyclic FAMC/FAMS
+     * edit cannot loop — it is absorbed to a small finite depth and does NOT
+     * reach the cap. Each depth is clamped to `MAX_DEPTH`, so only a genuine
+     * ≥100-generation ACYCLIC descent saturates there and trips the `capped`
+     * data-quality signal; corrupt cyclic parentage degrades silently.
      *
-     * @param array<array-key, int>          $cache      In/out cache, mutated on every call
+     * A plain visited-set DFS is WRONG here: it marks a node at the first
+     * (possibly shorter) depth it is reached and skips the deeper re-visit, so a
+     * node reachable via two paths of UNEQUAL length (asymmetric pedigree
+     * collapse) is under-counted whenever the shorter path is explored first —
+     * an iteration-order-dependent defect. The post-order memoisation records
+     * each node's depth exactly once and order-independently (GH-161).
+     *
+     * @param array<array-key, int>          $cache      In/out cache, mutated on every call; every reachable node is memoised
      * @param callable(string): list<string> $neighbours Next ids to walk from a given node; an empty list ends the branch
      */
     private static function walkDeepestDistance(string $id, array &$cache, callable $neighbours): void
@@ -300,31 +316,59 @@ final readonly class GenerationDepth
             return;
         }
 
-        /** @var list<array{0: string, 1: int}> $stack */
-        $stack   = [[$id, 0]];
-        $visited = [];
-        $deepest = 0;
+        // Stack frames are [node, leaving]: a node is first popped to be
+        // ENTERED (children scheduled), then popped again to LEAVE (its depth
+        // computed from the now-resolved children).
+        /** @var list<array{0: string, 1: bool}> $stack */
+        $stack  = [[$id, false]];
+        $onPath = [];
 
         while ($stack !== []) {
-            [$current, $depth] = array_pop($stack);
+            [$node, $leaving] = array_pop($stack);
 
-            if (isset($visited[$current])) {
+            if ($leaving) {
+                $deepest = 0;
+
+                foreach ($neighbours($node) as $child) {
+                    if (isset($cache[$child])) {
+                        $deepest = max($deepest, $cache[$child] + 1);
+                    }
+                }
+
+                $cache[$node] = min($deepest, self::MAX_DEPTH);
+                unset($onPath[$node]);
+
                 continue;
             }
 
-            if ($depth > self::MAX_DEPTH) {
+            // A node already memoised (reached through another branch) or
+            // already on the current path (a second parent scheduled it before
+            // it was entered) needs no second ENTER.
+            if (isset($cache[$node])) {
                 continue;
             }
 
-            $visited[$current] = true;
-            $deepest           = max($deepest, $depth);
+            if (isset($onPath[$node])) {
+                continue;
+            }
 
-            foreach ($neighbours($current) as $next) {
-                $stack[] = [$next, $depth + 1];
+            $onPath[$node] = true;
+            $stack[]       = [$node, true];
+
+            foreach ($neighbours($node) as $child) {
+                // Skip resolved children and back-edges to the current path
+                // (the cycle guard); both are read back during the LEAVE pass.
+                if (isset($cache[$child])) {
+                    continue;
+                }
+
+                if (isset($onPath[$child])) {
+                    continue;
+                }
+
+                $stack[] = [$child, false];
             }
         }
-
-        $cache[$id] = $deepest;
     }
 
     /**
