@@ -234,11 +234,15 @@ final class MarriageRepository
         foreach ($this->marriageDurationPairs() as $pair) {
             $years = CalendarSpan::wholeYears($pair['marrJd'], $pair['endJd']);
 
-            // Strict-greater, with a byte-order (strcmp) tie-break on the
-            // smaller xref so an equal-duration tie picks a stable, engine-
-            // independent holder (the pairs query carries no ORDER BY; strcmp,
-            // not `<`, so numeric-looking xrefs compare byte-wise).
-            if (($years > $bestYears) || (($years === $bestYears) && ($bestXref !== null) && (strcmp($pair['xref'], $bestXref) < 0))) {
+            // Seed on the first pair ($bestXref === null), then strict-greater,
+            // with a byte-order (strcmp) tie-break on the smaller xref so an
+            // equal-duration tie picks a stable, engine-independent holder (the
+            // pairs query carries no ORDER BY; strcmp, not `<`, so numeric-
+            // looking xrefs compare byte-wise). The seed mirrors
+            // shortestMarriageRecord and makes the pick independent of the
+            // $bestYears start value; the $bestYears <= 0 cap below still drops
+            // a zero-year-only result.
+            if (($bestXref === null) || ($years > $bestYears) || (($years === $bestYears) && (strcmp($pair['xref'], $bestXref) < 0))) {
                 $bestYears = $years;
                 $bestXref  = $pair['xref'];
             }
