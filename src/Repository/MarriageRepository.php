@@ -234,7 +234,11 @@ final class MarriageRepository
         foreach ($this->marriageDurationPairs() as $pair) {
             $years = CalendarSpan::wholeYears($pair['marrJd'], $pair['endJd']);
 
-            if ($years > $bestYears) {
+            // Strict-greater, with a byte-order (strcmp) tie-break on the
+            // smaller xref so an equal-duration tie picks a stable, engine-
+            // independent holder (the pairs query carries no ORDER BY; strcmp,
+            // not `<`, so numeric-looking xrefs compare byte-wise).
+            if (($years > $bestYears) || (($years === $bestYears) && ($bestXref !== null) && (strcmp($pair['xref'], $bestXref) < 0))) {
                 $bestYears = $years;
                 $bestXref  = $pair['xref'];
             }
@@ -269,7 +273,10 @@ final class MarriageRepository
         foreach ($this->marriageDurationPairs() as $pair) {
             $days = $pair['endJd'] - $pair['marrJd'];
 
-            if (($bestDays === null) || ($days < $bestDays)) {
+            // Strict-less, with a byte-order (strcmp) tie-break on the smaller
+            // xref so an equal-duration tie picks a stable, engine-independent
+            // holder.
+            if (($bestDays === null) || ($days < $bestDays) || (($days === $bestDays) && ($bestXref !== null) && (strcmp($pair['xref'], $bestXref) < 0))) {
                 $bestDays = $days;
                 $bestXref = $pair['xref'];
             }
@@ -474,6 +481,10 @@ final class MarriageRepository
             ->where('l_type', '=', 'FAMS')
             ->groupBy('l_from')
             ->orderByRaw('COUNT(*) DESC')
+            // Deterministic tie-break: on an equal marriage count keep the
+            // smaller xref so the single record holder is stable across runs
+            // and engines, not row-order-dependent.
+            ->orderBy('l_from')
             ->select(['l_from AS xref', new Expression('COUNT(*) AS marriage_count')])
             ->first();
 
