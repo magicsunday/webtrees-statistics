@@ -101,7 +101,7 @@ msgstr "%1$s Jahre (n = %2$s)"
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:137
 #, php-format
 msgid "%1$s%% — %2$s of %3$s children died before age 5"
-msgstr "%1$s%% — %2$s von %3$s Kindern starben vor dem 5. Lebensjahr"
+msgstr "%1$s %% — %2$s von %3$s Kindern starben vor dem 5. Lebensjahr"
 
 #: src/Repository/NameRepository.php:676
 #, php-format
@@ -1636,7 +1636,7 @@ msgstr ""
 "Die erfasste Sterbezahl jedes Jahres wird mit dem umgebenden "
 "Elfjahresfenster verglichen. Ein Jahr wird markiert, wenn seine Zahl "
 "mindestens zwei Standardabweichungen über dem Mittelwert des Fensters liegt; "
-"die markierten Jahre werden danach gereiht, wie stark sie herausragen. Die "
+"die markierten Jahre werden danach sortiert, wie stark sie herausragen. Die "
 "Markierung hinter jedem Balken zeigt den Median des Fensters als erwartete "
 "Basislinie; Mittelwert und Median liegen nah beieinander, sind aber nicht "
 "identisch. Berücksichtigt werden nur Jahre mit vollständigem Fenster auf "
@@ -2413,7 +2413,7 @@ msgstr "Fehlender Heiratsort"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:306
 msgid "Missing-event gaps"
-msgstr "Lücken bei fehlenden Ereignissen"
+msgstr "Fehlende Ereignisse"
 
 #: resources/views/modules/statistics-chart/tabs/places.phtml:98
 msgid "Mobile population: migration and relocation were common."
@@ -2960,7 +2960,7 @@ msgstr "Strukturtyp"
 #: resources/views/modules/statistics-chart/tabs/names.phtml:157
 #: resources/views/modules/statistics-chart/tabs/names.phtml:167
 msgid "Surname × surname marriage matrix"
-msgstr "Nachname × Nachname Eheschließungsmatrix"
+msgstr "Eheschließungsmatrix Nachname × Nachname"
 
 #: resources/views/modules/statistics-chart/tabs/names.phtml:58
 msgid "Surnames"
