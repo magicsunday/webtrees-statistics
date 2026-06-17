@@ -25,8 +25,15 @@ use MagicSunday\Webtrees\Statistic\View\RecordCategory;
  * iterates over. Each factory method covers one record-holder shape — `years()`
  * for individual age-records, `familyYears()` / `familyDays()` for marriage
  * durations, `marriages()` / `children()` / `familyChildren()` for count
- * records. Every method returns `null` when the source record is missing so the
- * caller can `array_filter()` the assembled list without a per-record `if`.
+ * records. Every method returns `null` when the source record is missing — or
+ * when its holder is not visible to the current viewer — so the caller can
+ * `array_filter()` the assembled list without a per-record `if`.
+ *
+ * Privacy: each factory drops the row when `!$holder->canShow()`. The holder's
+ * name is already privatised by `fullName()`, but the derived value (age /
+ * duration / spouse- or child-count) and the record `url` (an XREF deep-link)
+ * would otherwise leak a sensitive fact about a positionally-identifiable —
+ * often living — record-holder to a visitor who cannot see the record.
  *
  * The pluralised value strings live here as literal `I18N::plural(...)` calls —
  * xgettext extracts the msgids from this file the same way it would from the
@@ -58,6 +65,10 @@ final readonly class RecordRowMapper
             return null;
         }
 
+        if (!$record->individual->canShow()) {
+            return null;
+        }
+
         return [
             'cat'   => $cat->value,
             'label' => $label,
@@ -75,6 +86,10 @@ final readonly class RecordRowMapper
     public static function familyYears(RecordCategory $cat, string $label, ?FamilyDurationYearsRecord $record): ?array
     {
         if (!$record instanceof FamilyDurationYearsRecord) {
+            return null;
+        }
+
+        if (!$record->family->canShow()) {
             return null;
         }
 
@@ -98,6 +113,10 @@ final readonly class RecordRowMapper
             return null;
         }
 
+        if (!$record->family->canShow()) {
+            return null;
+        }
+
         return [
             'cat'   => $cat->value,
             'label' => $label,
@@ -115,6 +134,10 @@ final readonly class RecordRowMapper
     public static function marriages(RecordCategory $cat, string $label, ?IndividualCountRecord $record): ?array
     {
         if (!$record instanceof IndividualCountRecord) {
+            return null;
+        }
+
+        if (!$record->individual->canShow()) {
             return null;
         }
 
@@ -138,6 +161,10 @@ final readonly class RecordRowMapper
             return null;
         }
 
+        if (!$record->individual->canShow()) {
+            return null;
+        }
+
         return [
             'cat'   => $cat->value,
             'label' => $label,
@@ -155,6 +182,10 @@ final readonly class RecordRowMapper
     public static function familyChildren(RecordCategory $cat, string $label, ?FamilyCountRecord $record): ?array
     {
         if (!$record instanceof FamilyCountRecord) {
+            return null;
+        }
+
+        if (!$record->family->canShow()) {
             return null;
         }
 

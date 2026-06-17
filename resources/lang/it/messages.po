@@ -154,8 +154,8 @@ msgstr "%s° secolo"
 #: src/Repository/ChildrenRepository.php:337
 #: src/Repository/ChildrenRepository.php:342
 #: src/Repository/ChildrenRepository.php:347
-#: src/Support/Aggregator/RecordRowMapper.php:144
-#: src/Support/Aggregator/RecordRowMapper.php:164
+#: src/Support/Aggregator/RecordRowMapper.php:171
+#: src/Support/Aggregator/RecordRowMapper.php:195
 #, php-format
 msgid "%s child"
 msgid_plural "%s children"
@@ -202,7 +202,7 @@ msgid_plural "%s couples with both partners' death dates recorded"
 msgstr[0] "%s coppia con date di morte di entrambi i partner registrate"
 msgstr[1] "%s coppie con date di morte di entrambi i partner registrate"
 
-#: src/Support/Aggregator/RecordRowMapper.php:104
+#: src/Support/Aggregator/RecordRowMapper.php:123
 #, php-format
 msgid "%s day"
 msgid_plural "%s days"
@@ -418,7 +418,7 @@ msgstr[1] "%s uomini"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:101
 #: src/Support/Aggregator/CenturyBarRowMapper.php:105
-#: src/Support/Aggregator/RecordRowMapper.php:124
+#: src/Support/Aggregator/RecordRowMapper.php:147
 #, php-format
 msgid "%s marriage"
 msgid_plural "%s marriages"
@@ -562,8 +562,8 @@ msgid_plural "%s women"
 msgstr[0] "%s donna"
 msgstr[1] "%s donne"
 
-#: src/Support/Aggregator/RecordRowMapper.php:64
-#: src/Support/Aggregator/RecordRowMapper.php:84
+#: src/Support/Aggregator/RecordRowMapper.php:75
+#: src/Support/Aggregator/RecordRowMapper.php:99
 #, php-format
 msgid "%s year"
 msgid_plural "%s years"
@@ -1615,7 +1615,7 @@ msgid "Families with vs without children"
 msgstr "Famiglie con vs senza figli"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:350
-#: src/Module.php:274
+#: src/Module.php:337
 msgid "Family"
 msgstr "Famiglia"
 
@@ -2118,7 +2118,7 @@ msgid "Life event"
 msgstr "Evento di vita"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:596
-#: src/Module.php:273
+#: src/Module.php:336
 msgid "Life span"
 msgstr "Durata della vita"
 
@@ -2364,7 +2364,7 @@ msgstr "Parti plurigemellari"
 msgid "Multiple-birth rate by century"
 msgstr "Tasso di parti plurigemellari per secolo"
 
-#: src/Module.php:272
+#: src/Module.php:335
 msgid "Names"
 msgstr "Nomi"
 
@@ -2496,7 +2496,7 @@ msgstr ""
 msgid "Outlier marriages"
 msgstr ""
 
-#: src/Module.php:271
+#: src/Module.php:334
 msgid "Overview"
 msgstr "Panoramica"
 
@@ -2547,7 +2547,7 @@ msgid "Pisces"
 msgstr "Pesci"
 
 #: resources/views/modules/statistics-chart/tabs/places.phtml:232
-#: src/Module.php:275
+#: src/Module.php:338
 msgid "Places"
 msgstr "Luoghi"
 
@@ -2979,7 +2979,7 @@ msgstr "Tradizione"
 msgid "Tree growth over time"
 msgstr "Crescita dell'albero nel tempo"
 
-#: src/Module.php:276
+#: src/Module.php:339
 msgid "Tree health"
 msgstr "Salute dell'albero"
 

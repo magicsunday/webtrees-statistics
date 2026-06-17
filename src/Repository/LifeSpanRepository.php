@@ -790,8 +790,8 @@ final readonly class LifeSpanRepository
             // empty "15th: 0 / 16th: 0" entries that carry no
             // information.
             if (
-                $perSex['M']['n'] < self::MIN_COHORT_SIZE
-                && $perSex['F']['n'] < self::MIN_COHORT_SIZE
+                ($perSex['M']['n'] < self::MIN_COHORT_SIZE)
+                && ($perSex['F']['n'] < self::MIN_COHORT_SIZE)
             ) {
                 continue;
             }
@@ -1424,7 +1424,7 @@ final readonly class LifeSpanRepository
     private function bandLabel(int $age): string
     {
         foreach (self::LIVING_AGE_BANDS as $band) {
-            if ($band['max'] === null || $age <= $band['max']) {
+            if (($band['max'] === null) || ($age <= $band['max'])) {
                 return $band['label'];
             }
         }

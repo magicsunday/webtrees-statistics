@@ -193,7 +193,7 @@ final readonly class Statistic
         $decadeKeys  = array_keys($decades);
         $decadeFrom  = ($decadeKeys !== []) ? min($decadeKeys) : null;
         $decadeTo    = ($decadeKeys !== []) ? max($decadeKeys) : null;
-        $centurySpan = ($decadeFrom !== null && $decadeTo !== null)
+        $centurySpan = (($decadeFrom !== null) && ($decadeTo !== null))
             ? max(1, (int) ceil(($decadeTo + 9 - $decadeFrom) / 100))
             : 0;
 

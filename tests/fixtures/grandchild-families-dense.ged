@@ -1,0 +1,231 @@
+0 HEAD
+1 SOUR webtrees-statistics-fixture
+2 NAME grandchild-families-dense
+1 DEST ANSTFILE
+1 CHAR UTF-8
+1 SUBM @SUBM1@
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+0 @SUBM1@ SUBM
+1 NAME Fixture
+0 @G1H@ INDI
+1 NAME Grandfather /One/
+1 SEX M
+1 FAMS @G1@
+0 @G1W@ INDI
+1 NAME Grandmother /One/
+1 SEX F
+1 FAMS @G1@
+0 @C1@ INDI
+1 NAME Child A /One/
+1 SEX M
+1 FAMC @G1@
+1 FAMS @C1F@
+0 @C2@ INDI
+1 NAME Child B /One/
+1 SEX F
+1 FAMC @G1@
+1 FAMS @C2F@
+0 @C1S@ INDI
+1 NAME Spouse A /One/
+1 SEX F
+1 FAMS @C1F@
+0 @C2S@ INDI
+1 NAME Spouse B /One/
+1 SEX M
+1 FAMS @C2F@
+0 @GC1@ INDI
+1 NAME Grandchild A /One/
+1 SEX M
+1 FAMC @C1F@
+0 @GC2@ INDI
+1 NAME Grandchild B /One/
+1 SEX F
+1 FAMC @C1F@
+0 @GC3@ INDI
+1 NAME Grandchild C /One/
+1 SEX M
+1 FAMC @C1F@
+0 @GC4@ INDI
+1 NAME Grandchild D /One/
+1 SEX F
+1 FAMC @C2F@
+0 @GC5@ INDI
+1 NAME Grandchild E /One/
+1 SEX M
+1 FAMC @C2F@
+0 @G2H@ INDI
+1 NAME Grandfather /Two/
+1 SEX M
+1 FAMS @G2@
+0 @G2W@ INDI
+1 NAME Grandmother /Two/
+1 SEX F
+1 FAMS @G2@
+0 @C3@ INDI
+1 NAME Child A /Two/
+1 SEX M
+1 FAMC @G2@
+1 FAMS @C3F@
+0 @C3S@ INDI
+1 NAME Spouse /Two/
+1 SEX F
+1 FAMS @C3F@
+0 @GC6@ INDI
+1 NAME Grandchild A /Two/
+1 SEX M
+1 FAMC @C3F@
+0 @GC7@ INDI
+1 NAME Grandchild B /Two/
+1 SEX F
+1 FAMC @C3F@
+0 @GC8@ INDI
+1 NAME Grandchild C /Two/
+1 SEX M
+1 FAMC @C3F@
+0 @GC8B@ INDI
+1 NAME Grandchild D /Two/
+1 SEX F
+1 FAMC @C3F@
+0 @GC8C@ INDI
+1 NAME Grandchild E /Two/
+1 SEX M
+1 FAMC @C3F@
+0 @GC8D@ INDI
+1 NAME Grandchild F /Two/
+1 SEX F
+1 FAMC @C3F@
+0 @G3H@ INDI
+1 NAME Grandfather /Three/
+1 SEX M
+1 FAMS @G3@
+0 @G3W@ INDI
+1 NAME Grandmother /Three/
+1 SEX F
+1 FAMS @G3@
+0 @C4@ INDI
+1 NAME Child A /Three/
+1 SEX M
+1 FAMC @G3@
+1 FAMS @C4F@
+0 @C4S@ INDI
+1 NAME Spouse /Three/
+1 SEX F
+1 FAMS @C4F@
+0 @GC9@ INDI
+1 NAME Grandchild A /Three/
+1 SEX M
+1 FAMC @C4F@
+0 @G4H@ INDI
+1 NAME Grandfather /Four/
+1 SEX M
+1 FAMS @G4@
+0 @G4W@ INDI
+1 NAME Grandmother /Four/
+1 SEX F
+1 FAMS @G4@
+0 @C5@ INDI
+1 NAME Child A /Four/
+1 SEX M
+1 FAMC @G4@
+1 FAMS @C5F@
+0 @C5S@ INDI
+1 NAME Spouse /Four/
+1 SEX F
+1 FAMS @C5F@
+0 @GCX1@ INDI
+1 NAME Extra Grandchild 1 /Two/
+1 SEX M
+1 FAMC @C3F@
+0 @GCX2@ INDI
+1 NAME Extra Grandchild 2 /Two/
+1 SEX M
+1 FAMC @C3F@
+0 @GCX3@ INDI
+1 NAME Extra Grandchild 3 /Two/
+1 SEX M
+1 FAMC @C3F@
+0 @GCX4@ INDI
+1 NAME Extra Grandchild 4 /Two/
+1 SEX M
+1 FAMC @C3F@
+0 @GCX5@ INDI
+1 NAME Extra Grandchild 5 /Two/
+1 SEX M
+1 FAMC @C3F@
+0 @GCX6@ INDI
+1 NAME Extra Grandchild 6 /Two/
+1 SEX M
+1 FAMC @C3F@
+0 @GCX7@ INDI
+1 NAME Extra Grandchild 7 /Two/
+1 SEX M
+1 FAMC @C3F@
+0 @GCX8@ INDI
+1 NAME Extra Grandchild 8 /Two/
+1 SEX M
+1 FAMC @C3F@
+0 @GCX9@ INDI
+1 NAME Extra Grandchild 9 /Two/
+1 SEX M
+1 FAMC @C3F@
+0 @GCX10@ INDI
+1 NAME Extra Grandchild 10 /Two/
+1 SEX M
+1 FAMC @C3F@
+0 @G1@ FAM
+1 HUSB @G1H@
+1 WIFE @G1W@
+1 CHIL @C1@
+1 CHIL @C2@
+0 @C1F@ FAM
+1 HUSB @C1@
+1 WIFE @C1S@
+1 CHIL @GC1@
+1 CHIL @GC2@
+1 CHIL @GC3@
+0 @C2F@ FAM
+1 HUSB @C2S@
+1 WIFE @C2@
+1 CHIL @GC4@
+1 CHIL @GC5@
+0 @G2@ FAM
+1 HUSB @G2H@
+1 WIFE @G2W@
+1 CHIL @C3@
+0 @C3F@ FAM
+1 HUSB @C3@
+1 WIFE @C3S@
+1 CHIL @GC6@
+1 CHIL @GC7@
+1 CHIL @GC8@
+1 CHIL @GC8B@
+1 CHIL @GC8C@
+1 CHIL @GC8D@
+1 CHIL @GCX1@
+1 CHIL @GCX2@
+1 CHIL @GCX3@
+1 CHIL @GCX4@
+1 CHIL @GCX5@
+1 CHIL @GCX6@
+1 CHIL @GCX7@
+1 CHIL @GCX8@
+1 CHIL @GCX9@
+1 CHIL @GCX10@
+0 @G3@ FAM
+1 HUSB @G3H@
+1 WIFE @G3W@
+1 CHIL @C4@
+0 @C4F@ FAM
+1 HUSB @C4@
+1 WIFE @C4S@
+1 CHIL @GC9@
+0 @G4@ FAM
+1 HUSB @G4H@
+1 WIFE @G4W@
+1 CHIL @C5@
+0 @C5F@ FAM
+1 HUSB @C5@
+1 WIFE @C5S@
+0 TRLR

@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\TopNAggregator;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
@@ -117,9 +118,24 @@ final readonly class CountryRepository
      */
     public function residencesByCountry(): array
     {
+        // Only individuals carrying a `1 RESI` line contribute, so anchor-LIKE
+        // the residence-bearers before transferring blobs — the whole-tree
+        // GEDCOM scan otherwise reads (and regex-walks) every individual even
+        // though most record no residence. The sibling countByCountry() is
+        // already narrow via its placelinks join; this brings residencesByCountry
+        // to the same footing.
+        $resiPatterns = GedcomScanner::anchoredLikePatterns('RESI');
+
+        // Stream with a cursor — each RESI blob is parsed and discarded, only
+        // the per-country tallies are retained.
         $rows = TreeScope::table($this->tree, 'individuals')
+            ->where(static function (Builder $query) use ($resiPatterns): void {
+                foreach ($resiPatterns as $pattern) {
+                    $query->orWhere('i_gedcom', 'like', $pattern);
+                }
+            })
             ->select(['i_gedcom AS gedcom'])
-            ->get();
+            ->cursor();
 
         $counts = [];
 

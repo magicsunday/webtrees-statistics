@@ -84,14 +84,16 @@ final readonly class MarriageMatrixRepository
 
     /**
      * Pull every (husband-surname, wife-surname) pair from the tree. Husband
-     * and wife surnames come from the primary `NAME` record (`n_type = 'NAME'`)
-     * so each spouse contributes exactly one surname per family. Restricting to
-     * the primary name — rather than merely excluding the `_MARNM` married-name
-     * type — keeps a wife under her birth surname and, crucially, prevents the
-     * alternate name forms webtrees stores as their own `name` rows under the
-     * same `n_id` (`ROMN`/`FONE`/`_HEB` transliterations, `_AKA`/`_AKAN`
-     * aliases) from fanning the marriage out across several surnames and
-     * double-counting it.
+     * and wife surnames come from the primary name row (`n_num = 0`) so each
+     * spouse contributes exactly one surname per family. Pinning the primary
+     * name — rather than merely excluding the `_MARNM` married-name type, or even
+     * restricting to `n_type = 'NAME'` — keeps a wife under her birth surname and
+     * prevents BOTH the alternate name forms webtrees stores as their own `name`
+     * rows under the same `n_id` (`ROMN`/`FONE`/`_HEB` transliterations,
+     * `_AKA`/`_AKAN` aliases — these carry a non-`NAME` `n_type`) AND a second
+     * top-level `1 NAME` line (which carries `n_type = 'NAME'` with `n_num = 1`,
+     * so an `n_type` filter alone would not collapse it) from fanning the
+     * marriage out across several surnames and double-counting it.
      *
      * Empty surnames and the NOMEN_NESCIO placeholder are dropped: those rows
      * can't carry information in a surname-pair matrix.
@@ -105,13 +107,13 @@ final readonly class MarriageMatrixRepository
                 $join
                     ->on('hn.n_file', '=', 'f.f_file')
                     ->on('hn.n_id', '=', 'f.f_husb')
-                    ->where('hn.n_type', '=', 'NAME');
+                    ->where('hn.n_num', '=', 0);
             })
             ->join('name AS wn', static function (JoinClause $join): void {
                 $join
                     ->on('wn.n_file', '=', 'f.f_file')
                     ->on('wn.n_id', '=', 'f.f_wife')
-                    ->where('wn.n_type', '=', 'NAME');
+                    ->where('wn.n_num', '=', 0);
             })
             ->where('f.f_file', '=', $this->tree->id())
             ->where('f.f_husb', '<>', '')

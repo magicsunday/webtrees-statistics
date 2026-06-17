@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
+use Illuminate\Support\Collection;
 use MagicSunday\Webtrees\Statistic\Model\Metric\PlaceDispersionSummary;
 use MagicSunday\Webtrees\Statistic\Support\Calc\Haversine;
 use MagicSunday\Webtrees\Statistic\Support\Database\PlaceLocationGazetteer;
@@ -41,7 +42,7 @@ use function trim;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-final readonly class PlaceDispersionRepository
+final class PlaceDispersionRepository
 {
     /**
      * Cap for the distribution histogram — individuals with more than this many
@@ -79,11 +80,33 @@ final readonly class PlaceDispersionRepository
     private const int MIN_GEOCODED_INDIVIDUALS = 5;
 
     /**
+     * Per-instance cache of the tree's individual GEDCOM rows. Both public
+     * metrics scan the same whole-tree blob set; the container shares one
+     * repository instance per request, so loading it once here halves the
+     * Places-tab blob transfer.
+     *
+     * @var Collection<int, object>|null
+     */
+    private ?Collection $individualGedcomsCache = null;
+
+    /**
      * @param Tree $tree The tree the statistics are computed for
      */
     public function __construct(
-        private Tree $tree,
+        private readonly Tree $tree,
     ) {
+    }
+
+    /**
+     * The tree's individual GEDCOM rows, loaded once and memoised so the two
+     * public metrics share a single full-table read instead of scanning the
+     * individuals table twice per Places-tab render.
+     *
+     * @return Collection<int, object>
+     */
+    private function individualGedcoms(): Collection
+    {
+        return $this->individualGedcomsCache ??= TreeScope::individualGedcoms($this->tree);
     }
 
     /**
@@ -106,7 +129,7 @@ final readonly class PlaceDispersionRepository
      */
     public function getMigrationDistanceDistribution(): array
     {
-        $rows      = TreeScope::individualGedcoms($this->tree);
+        $rows      = $this->individualGedcoms();
         $gazetteer = PlaceLocationGazetteer::load();
         $bands     = $this->initDistanceBands();
 
@@ -185,7 +208,7 @@ final readonly class PlaceDispersionRepository
      */
     public function dispersionSummary(): PlaceDispersionSummary
     {
-        $rows = TreeScope::individualGedcoms($this->tree);
+        $rows = $this->individualGedcoms();
 
         $distribution = $this->initDistribution();
         $totalPlaces  = 0;

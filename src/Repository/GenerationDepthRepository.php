@@ -54,16 +54,6 @@ use function usort;
 final readonly class GenerationDepthRepository
 {
     /**
-     * @param Tree                $tree                The tree the statistics are computed for
-     * @param ParentMapRepository $parentMapRepository Shared parent-of map provider (FAMC + FAM scan)
-     */
-    public function __construct(
-        private Tree $tree,
-        private ParentMapRepository $parentMapRepository,
-    ) {
-    }
-
-    /**
      * Show exactly one concrete chain. When multiple lineages reach the
      * tree-wide maximum depth, the displayed chain is the one with the
      * youngest-leaf BIRT (= the still-living-or-recent branch); the total chain
@@ -72,6 +62,16 @@ final readonly class GenerationDepthRepository
      * leaf.
      */
     private const int MAX_CHAINS_RENDERED = 1;
+
+    /**
+     * @param Tree                $tree                The tree the statistics are computed for
+     * @param ParentMapRepository $parentMapRepository Shared parent-of map provider (FAMC + FAM scan)
+     */
+    public function __construct(
+        private Tree $tree,
+        private ParentMapRepository $parentMapRepository,
+    ) {
+    }
 
     /**
      * Tree-wide generation-depth summary: longest recorded vertical descent,

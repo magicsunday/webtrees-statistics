@@ -153,8 +153,8 @@ msgstr "%s century"
 #: src/Repository/ChildrenRepository.php:337
 #: src/Repository/ChildrenRepository.php:342
 #: src/Repository/ChildrenRepository.php:347
-#: src/Support/Aggregator/RecordRowMapper.php:144
-#: src/Support/Aggregator/RecordRowMapper.php:164
+#: src/Support/Aggregator/RecordRowMapper.php:171
+#: src/Support/Aggregator/RecordRowMapper.php:195
 #, php-format
 msgid "%s child"
 msgid_plural "%s children"
@@ -201,7 +201,7 @@ msgid_plural "%s couples with both partners' death dates recorded"
 msgstr[0] "%s couple with both partners' death dates recorded"
 msgstr[1] "%s couples with both partners' death dates recorded"
 
-#: src/Support/Aggregator/RecordRowMapper.php:104
+#: src/Support/Aggregator/RecordRowMapper.php:123
 #, php-format
 msgid "%s day"
 msgid_plural "%s days"
@@ -417,7 +417,7 @@ msgstr[1] "%s men"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:101
 #: src/Support/Aggregator/CenturyBarRowMapper.php:105
-#: src/Support/Aggregator/RecordRowMapper.php:124
+#: src/Support/Aggregator/RecordRowMapper.php:147
 #, php-format
 msgid "%s marriage"
 msgid_plural "%s marriages"
@@ -561,8 +561,8 @@ msgid_plural "%s women"
 msgstr[0] "%s woman"
 msgstr[1] "%s women"
 
-#: src/Support/Aggregator/RecordRowMapper.php:64
-#: src/Support/Aggregator/RecordRowMapper.php:84
+#: src/Support/Aggregator/RecordRowMapper.php:75
+#: src/Support/Aggregator/RecordRowMapper.php:99
 #, php-format
 msgid "%s year"
 msgid_plural "%s years"
@@ -1609,7 +1609,7 @@ msgid "Families with vs without children"
 msgstr "Families with vs without children"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:350
-#: src/Module.php:274
+#: src/Module.php:337
 msgid "Family"
 msgstr "Family"
 
@@ -2092,7 +2092,7 @@ msgid "Life event"
 msgstr "Life event"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:596
-#: src/Module.php:273
+#: src/Module.php:336
 msgid "Life span"
 msgstr "Life span"
 
@@ -2336,7 +2336,7 @@ msgstr "Multiple births"
 msgid "Multiple-birth rate by century"
 msgstr "Multiple-birth rate by century"
 
-#: src/Module.php:272
+#: src/Module.php:335
 msgid "Names"
 msgstr "Names"
 
@@ -2465,7 +2465,7 @@ msgstr ""
 msgid "Outlier marriages"
 msgstr ""
 
-#: src/Module.php:271
+#: src/Module.php:334
 msgid "Overview"
 msgstr "Overview"
 
@@ -2517,7 +2517,7 @@ msgid "Pisces"
 msgstr "Pisces"
 
 #: resources/views/modules/statistics-chart/tabs/places.phtml:232
-#: src/Module.php:275
+#: src/Module.php:338
 msgid "Places"
 msgstr "Places"
 
@@ -2946,7 +2946,7 @@ msgstr "Migration"
 msgid "Tree growth over time"
 msgstr "Tree growth over time"
 
-#: src/Module.php:276
+#: src/Module.php:339
 msgid "Tree health"
 msgstr "Tree health"
 

@@ -481,21 +481,23 @@
        card surface — the chart wrapper itself stays transparent
        so the webtrees-core theme backdrop shows around the
        nav + cards. The strip stays inside the app padding
-       (no negative side margin), so the bottom rounded corners
-       line up with the card column. */
+       (no negative side margin), so it lines up with the card
+       column. */
     background:              color-mix(in srgb, var(--paper) 92%, transparent);
     border:                  1px solid var(--border);
-    /* Square top corners so the strip butts flush against the hero
-       above it (one continuous unit) and, once stuck to the viewport
-       top, presents a full rectangle to the content scrolling behind
-       it — no sharp corner gap outside a rounded arc. Only the bottom
-       corners round, forming the foot of the hero+strip unit. */
-    border-radius:           0 0 var(--card-radius) var(--card-radius);
+    /* Fully square corners. The strip is translucent (92 % paper +
+       backdrop blur), so once it is stuck and the card column scrolls
+       up behind it, ANY rounded corner clips the tinted fill/blur to its
+       arc and leaves a sharp, untinted triangle where the content shows
+       through unblurred — at the bottom edge as well as the top. Keeping
+       every corner square presents a full rectangle to the content
+       scrolling behind both edges; depth is conveyed by the box-shadow
+       below, not a rounded foot. */
+    border-radius:           0;
     box-shadow:              var(--shadow-sticky);
     /* The active tab paints a 2-px wine line on its bottom
        edge that sits flush against the strip's outer border;
-       `overflow: hidden` clips that line to the rounded bottom
-       corners so it never spikes outside the radius on the
+       `overflow: hidden` keeps that line inside the strip's box on the
        first / last tab. */
     overflow:                hidden;
     -webkit-backdrop-filter: blur(12px);

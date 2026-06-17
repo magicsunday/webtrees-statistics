@@ -335,13 +335,53 @@ final readonly class TreeHealthRepository
      * Mean parent-to-child birth-year delta across every parent-child pair
      * where both ends carry a parseable `1 BIRT / 2 DATE` line. Returns null
      * when the tree has fewer than one usable pair.
+     *
+     * The birth year per individual is extracted ONCE into an xref → year map
+     * (same {@see GedcomScanner::extractEventYear()} semantics as before), then
+     * the parent-child edges are pulled through a thin xref-only join. The
+     * previous form selected BOTH `parent.i_gedcom` and `child.i_gedcom` on every
+     * edge, so a parent of k children had their birth-record blob transferred and
+     * regex-parsed k times — quadratic-ish blob traffic on a large tree. Parsing
+     * each individual's blob once and joining on xref alone keeps the result
+     * identical (a dangling link xref is simply absent from the map, exactly as
+     * the old inner join on `individuals` excluded it) while collapsing the cost
+     * to O(individuals) parses + O(edges) integer lookups.
      */
     public function averageGenerationLength(): ?float
     {
-        $rows = DB::table('link AS parent_link')
+        $birthYearByXref = [];
+        $birthPatterns   = GedcomScanner::anchoredLikePatterns('BIRT');
+
+        // Anchor-LIKE the BIRT-bearers (an individual without a `1 BIRT` line
+        // yields no year and is dropped at the `!== null` guard anyway) and
+        // stream with a cursor: only the extracted year (an int) is retained
+        // per individual, so a large tree never holds all the BIRT blobs
+        // resident at once.
+        foreach (
+            TreeScope::table($this->tree, 'individuals')
+                ->where(static function (Builder $query) use ($birthPatterns): void {
+                    foreach ($birthPatterns as $pattern) {
+                        $query->orWhere('i_gedcom', 'like', $pattern);
+                    }
+                })
+                ->select(['i_id', 'i_gedcom'])
+                ->cursor() as $individual
+        ) {
+            $year = GedcomScanner::extractEventYear(RowCast::string($individual, 'i_gedcom'), 'BIRT');
+
+            if ($year !== null) {
+                $birthYearByXref[RowCast::string($individual, 'i_id')] = $year;
+            }
+        }
+
+        if ($birthYearByXref === []) {
+            return null;
+        }
+
+        $edges = DB::table('link AS parent_link')
             ->select(
-                'parent.i_gedcom AS parent_gedcom',
-                'child.i_gedcom AS child_gedcom',
+                'parent_link.l_to AS parent_xref',
+                'child_link.l_to AS child_xref',
             )
             ->join('families', static function (JoinClause $join): void {
                 $join
@@ -354,28 +394,15 @@ final readonly class TreeHealthRepository
                     ->on('child_link.l_file', '=', 'families.f_file')
                     ->where('child_link.l_type', '=', 'CHIL');
             })
-            ->join('individuals AS parent', static function (JoinClause $join): void {
-                $join
-                    ->on('parent.i_id', '=', 'parent_link.l_to')
-                    ->on('parent.i_file', '=', 'parent_link.l_file');
-            })
-            ->join('individuals AS child', static function (JoinClause $join): void {
-                $join
-                    ->on('child.i_id', '=', 'child_link.l_to')
-                    ->on('child.i_file', '=', 'child_link.l_file');
-            })
             ->where('parent_link.l_file', '=', $this->tree->id())
             ->whereIn('parent_link.l_type', ['HUSB', 'WIFE'])
             ->get();
 
         $deltas = [];
 
-        foreach ($rows as $row) {
-            $parentBlob = RowCast::string($row, 'parent_gedcom');
-            $childBlob  = RowCast::string($row, 'child_gedcom');
-
-            $parentYear = GedcomScanner::extractEventYear($parentBlob, 'BIRT');
-            $childYear  = GedcomScanner::extractEventYear($childBlob, 'BIRT');
+        foreach ($edges as $edge) {
+            $parentYear = $birthYearByXref[RowCast::string($edge, 'parent_xref')] ?? null;
+            $childYear  = $birthYearByXref[RowCast::string($edge, 'child_xref')] ?? null;
 
             if (($parentYear !== null) && ($childYear !== null) && ($childYear > $parentYear)) {
                 $deltas[] = $childYear - $parentYear;

@@ -205,7 +205,7 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
      */
     public function getOverviewAction(ServerRequestInterface $request): ResponseInterface
     {
-        return $this->renderTab('overview');
+        return $this->renderTab($request, 'overview');
     }
 
     /**
@@ -215,7 +215,7 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
      */
     public function getNamesAction(ServerRequestInterface $request): ResponseInterface
     {
-        return $this->renderTab('names');
+        return $this->renderTab($request, 'names');
     }
 
     /**
@@ -225,7 +225,7 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
      */
     public function getTreeHealthAction(ServerRequestInterface $request): ResponseInterface
     {
-        return $this->renderTab('tree-health');
+        return $this->renderTab($request, 'tree-health');
     }
 
     /**
@@ -235,7 +235,7 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
      */
     public function getLifeSpanAction(ServerRequestInterface $request): ResponseInterface
     {
-        return $this->renderTab('life-span');
+        return $this->renderTab($request, 'life-span');
     }
 
     /**
@@ -245,7 +245,7 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
      */
     public function getFamilyAction(ServerRequestInterface $request): ResponseInterface
     {
-        return $this->renderTab('family');
+        return $this->renderTab($request, 'family');
     }
 
     /**
@@ -255,7 +255,70 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
      */
     public function getPlacesAction(ServerRequestInterface $request): ResponseInterface
     {
-        return $this->renderTab('places');
+        return $this->renderTab($request, 'places');
+    }
+
+    /**
+     * Gate the chart actions inherited from {@see StatisticsChartModule}. This
+     * module replaces the chart page with its own six-tab layout, but the parent
+     * still contributes the `Individuals` / `Families` / `Other` / `Custom`
+     * AJAX actions, none of which run {@see Auth::checkComponentAccess()}. They
+     * remain reachable under this module's name, so override each to enforce the
+     * component gate before delegating to the parent — closing the same
+     * access-bypass the tab actions were fixed for.
+     *
+     * @param ServerRequestInterface $request Incoming HTTP request
+     */
+    #[Override]
+    public function getIndividualsAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $this->checkChartAccess($request);
+
+        return parent::getIndividualsAction($request);
+    }
+
+    /**
+     * @param ServerRequestInterface $request Incoming HTTP request
+     */
+    #[Override]
+    public function getFamiliesAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $this->checkChartAccess($request);
+
+        return parent::getFamiliesAction($request);
+    }
+
+    /**
+     * @param ServerRequestInterface $request Incoming HTTP request
+     */
+    #[Override]
+    public function getOtherAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $this->checkChartAccess($request);
+
+        return parent::getOtherAction($request);
+    }
+
+    /**
+     * @param ServerRequestInterface $request Incoming HTTP request
+     */
+    #[Override]
+    public function getCustomAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $this->checkChartAccess($request);
+
+        return parent::getCustomAction($request);
+    }
+
+    /**
+     * @param ServerRequestInterface $request Incoming HTTP request
+     */
+    #[Override]
+    public function postCustomChartAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $this->checkChartAccess($request);
+
+        return parent::postCustomChartAction($request);
     }
 
     /**
@@ -278,14 +341,40 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
     }
 
     /**
+     * Enforce the chart component's access level. The webtrees `ModuleAction`
+     * dispatcher only checks that the module is enabled (and that `Admin…`
+     * actions need admin) and explicitly delegates per-component access to the
+     * module, so EVERY data-bearing action this module exposes must run this
+     * gate itself — not just the {@see getChartAction()} page shell. That
+     * includes the custom tab actions AND the chart actions inherited from
+     * {@see StatisticsChartModule} (`Individuals` / `Families` / `Other` /
+     * `Custom`), which would otherwise be reachable by their action name and
+     * serve statistics that bypass a restriction the admin set on the chart
+     * component. Throws {@see \Fisharebest\Webtrees\Http\Exceptions\HttpAccessDeniedException}
+     * for an unauthorised viewer.
+     *
+     * @param ServerRequestInterface $request Incoming HTTP request
+     */
+    private function checkChartAccess(ServerRequestInterface $request): void
+    {
+        $tree = Validator::attributes($request)->tree();
+        $user = Validator::attributes($request)->user();
+
+        Auth::checkComponentAccess($this, ModuleChartInterface::class, $tree, $user);
+    }
+
+    /**
      * Shared renderer for every tab action. The template name matches the
      * action key one-to-one so adding a tab is a three-place change (catalog
      * entry + action method + the `tabs/<kebab-name>.phtml` body).
      *
-     * @param string $template Template file name under tabs/ without extension (kebab-case)
+     * @param ServerRequestInterface $request  Incoming HTTP request
+     * @param string                 $template Template file name under tabs/ without extension (kebab-case)
      */
-    private function renderTab(string $template): ResponseInterface
+    private function renderTab(ServerRequestInterface $request, string $template): ResponseInterface
     {
+        $this->checkChartAccess($request);
+
         $this->layout = 'layouts/ajax';
 
         return $this->viewResponse(

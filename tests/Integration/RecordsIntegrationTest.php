@@ -99,6 +99,27 @@ final class RecordsIntegrationTest extends IntegrationTestCase
     }
 
     /**
+     * Oldest-living walks the alive query oldest-first but skips a record whose
+     * age exceeds the {@see LifeSpanRepository::DEFAULT_MAX_ALIVE_AGE} cap (120),
+     * so a data-entry typo like a 1700 birth on a death-less record cannot steal
+     * the slot. The fixture's oldest *plausible* living individual (LB, born
+     * 1930) must win over both the implausible elder (LA, born 1700 → skipped)
+     * and the younger living individual (LC, born 1995). Without the cap LA would
+     * wrongly win; without the oldest-first walk LC could.
+     */
+    #[Test]
+    public function oldestLivingSkipsImplausibleAgeAndPicksTheOldestPlausible(): void
+    {
+        $tree   = $this->importFixtureTree('oldest-living-record.ged');
+        $record = (new LifeSpanRepository($tree, $this->statisticsData($tree), new IsoCountryMap()))->oldestLivingRecord();
+
+        self::assertNotNull($record);
+        self::assertSame('LB', $record->individual->xref(), 'the 1700 birth exceeds the 120-year cap and is skipped; LB is the oldest plausible living individual');
+        self::assertGreaterThan(90, $record->ageYears, 'LB is plausibly old');
+        self::assertLessThanOrEqual(120, $record->ageYears, 'and within the alive-age cap');
+    }
+
+    /**
      * Longest-marriage picks F1 (1925 → 1980, 55 years), not F3 (1930 MARR + 06
      * Apr 1930 DIV ≈ 95 days). Confirms that the underlying iterator picks the
      * largest end-julian-day delta.
