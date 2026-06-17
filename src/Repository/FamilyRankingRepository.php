@@ -179,6 +179,11 @@ final readonly class FamilyRankingRepository
             ->where('families.f_numchil', '>', 0)
             ->groupBy('link.l_from')
             ->orderByRaw('SUM(' . $familiesTable . '.f_numchil) DESC')
+            // Deterministic tie-break: on an equal child total keep the smaller
+            // xref so the single record holder is stable across runs and
+            // engines (the Top-N list sibling topGrandchildFamilies already
+            // orders by f_id for the same reason).
+            ->orderBy('link.l_from')
             ->select([
                 'link.l_from AS xref',
                 new Expression('SUM(' . $familiesTable . '.f_numchil) AS total_children'),

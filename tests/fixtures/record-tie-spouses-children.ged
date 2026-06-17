@@ -1,0 +1,90 @@
+0 HEAD
+1 SOUR webtrees-statistics-fixture
+2 NAME record-tie-spouses-children
+1 DEST ANSTFILE
+1 CHAR UTF-8
+1 SUBM @SUBM1@
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+0 @SUBM1@ SUBM
+1 NAME Fixture
+0 @M1@ INDI
+1 NAME Aaron /Tie/
+1 SEX M
+1 FAMS @S1@
+1 FAMS @S2@
+0 @M3@ INDI
+1 NAME Zane /Tie/
+1 SEX M
+1 FAMS @S3@
+1 FAMS @S4@
+0 @W2@ INDI
+1 NAME Wife2 /Tie/
+1 SEX F
+1 FAMS @S1@
+0 @W4@ INDI
+1 NAME Wife4 /Tie/
+1 SEX F
+1 FAMS @S2@
+0 @W6@ INDI
+1 NAME Wife6 /Tie/
+1 SEX F
+1 FAMS @S3@
+0 @W8@ INDI
+1 NAME Wife8 /Tie/
+1 SEX F
+1 FAMS @S4@
+0 @C1@ INDI
+1 NAME Child1 /Tie/
+1 SEX U
+1 FAMC @S1@
+0 @C2@ INDI
+1 NAME Child2 /Tie/
+1 SEX U
+1 FAMC @S1@
+0 @C3@ INDI
+1 NAME Child3 /Tie/
+1 SEX U
+1 FAMC @S2@
+0 @C4@ INDI
+1 NAME Child4 /Tie/
+1 SEX U
+1 FAMC @S2@
+0 @C5@ INDI
+1 NAME Child5 /Tie/
+1 SEX U
+1 FAMC @S3@
+0 @C6@ INDI
+1 NAME Child6 /Tie/
+1 SEX U
+1 FAMC @S3@
+0 @C7@ INDI
+1 NAME Child7 /Tie/
+1 SEX U
+1 FAMC @S4@
+0 @C8@ INDI
+1 NAME Child8 /Tie/
+1 SEX U
+1 FAMC @S4@
+0 @S1@ FAM
+1 HUSB @M1@
+1 WIFE @W2@
+1 CHIL @C1@
+1 CHIL @C2@
+0 @S2@ FAM
+1 HUSB @M1@
+1 WIFE @W4@
+1 CHIL @C3@
+1 CHIL @C4@
+0 @S3@ FAM
+1 HUSB @M3@
+1 WIFE @W6@
+1 CHIL @C5@
+1 CHIL @C6@
+0 @S4@ FAM
+1 HUSB @M3@
+1 WIFE @W8@
+1 CHIL @C7@
+1 CHIL @C8@
+0 TRLR

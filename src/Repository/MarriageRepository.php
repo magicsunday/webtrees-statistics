@@ -234,7 +234,15 @@ final class MarriageRepository
         foreach ($this->marriageDurationPairs() as $pair) {
             $years = CalendarSpan::wholeYears($pair['marrJd'], $pair['endJd']);
 
-            if ($years > $bestYears) {
+            // Seed on the first pair ($bestXref === null), then strict-greater,
+            // with a byte-order (strcmp) tie-break on the smaller xref so an
+            // equal-duration tie picks a stable, engine-independent holder (the
+            // pairs query carries no ORDER BY; strcmp, not `<`, so numeric-
+            // looking xrefs compare byte-wise). The seed mirrors
+            // shortestMarriageRecord and makes the pick independent of the
+            // $bestYears start value; the $bestYears <= 0 cap below still drops
+            // a zero-year-only result.
+            if (($bestXref === null) || ($years > $bestYears) || (($years === $bestYears) && (strcmp($pair['xref'], $bestXref) < 0))) {
                 $bestYears = $years;
                 $bestXref  = $pair['xref'];
             }
@@ -269,7 +277,13 @@ final class MarriageRepository
         foreach ($this->marriageDurationPairs() as $pair) {
             $days = $pair['endJd'] - $pair['marrJd'];
 
-            if (($bestDays === null) || ($days < $bestDays)) {
+            // Strict-less, with a byte-order (strcmp) tie-break on the smaller
+            // xref so an equal-duration tie picks a stable, engine-independent
+            // holder. No explicit null-guard on $bestXref: reaching the tie
+            // operand means the `$bestDays === null` seed already fired, which
+            // sets $bestDays and $bestXref together, so $bestXref is a string
+            // here.
+            if (($bestDays === null) || ($days < $bestDays) || (($days === $bestDays) && (strcmp($pair['xref'], $bestXref) < 0))) {
                 $bestDays = $days;
                 $bestXref = $pair['xref'];
             }
@@ -474,6 +488,10 @@ final class MarriageRepository
             ->where('l_type', '=', 'FAMS')
             ->groupBy('l_from')
             ->orderByRaw('COUNT(*) DESC')
+            // Deterministic tie-break: on an equal marriage count keep the
+            // smaller xref so the single record holder is stable across runs
+            // and engines, not row-order-dependent.
+            ->orderBy('l_from')
             ->select(['l_from AS xref', new Expression('COUNT(*) AS marriage_count')])
             ->first();
 

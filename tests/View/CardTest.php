@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\View;
 
+use Fisharebest\Webtrees\I18N;
+use Fisharebest\Webtrees\Webtrees;
 use MagicSunday\Webtrees\Statistic\View\Accent;
 use MagicSunday\Webtrees\Statistic\View\Card;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -34,6 +36,18 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Card::class)]
 final class CardTest extends TestCase
 {
+    /**
+     * The info-button aria-label is composed through `I18N::translate`, so the
+     * translator must be initialised before any card with `withInfo()` renders.
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        (new Webtrees())->bootstrap();
+        I18N::init('en-US', true);
+    }
+
     /**
      * A bare title-only card emits the `wt-stat-card` section, the title h3, no
      * eyebrow, no sub, no illustration, no footer.
@@ -116,7 +130,10 @@ final class CardTest extends TestCase
 
     /**
      * Setting `withInfo()` auto-shows the footer and wires up the Bootstrap
-     * popover attributes with the localised title and accessible label.
+     * popover attributes with the localised title and accessible label. The
+     * info button's `aria-label` names the card it explains (here "T") so a
+     * screen-reader user can tell the otherwise-identical "About this chart"
+     * buttons apart.
      */
     #[Test]
     public function withInfoAutoShowsFooterAndWiresPopover(): void
@@ -129,7 +146,7 @@ final class CardTest extends TestCase
         self::assertStringContainsString('class="wt-stat-card-info"', $html);
         self::assertStringContainsString('data-bs-toggle="popover"', $html);
         self::assertStringContainsString('data-bs-content="Long help text"', $html);
-        self::assertStringContainsString('aria-label="About this chart"', $html);
+        self::assertStringContainsString('aria-label="About this chart: T"', $html);
         // Heritage popover theme rides on the `wt-stat-popover`
         // custom-class — the CSS in statistics.css scopes its
         // background / typography / dark-mode overrides under

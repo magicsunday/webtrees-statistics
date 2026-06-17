@@ -94,35 +94,59 @@ final class AgePairExtremumTest extends TestCase
     }
 
     /**
-     * Ties on the `years` field keep the first-encountered row — the comparison
-     * is strict `<` / `>` rather than `<=` / `>=`, which means
-     * deterministic-iteration callers stay deterministic on ties. Bracketed by
-     * a strictly-worse row so a `<=` / `>=` regression cannot accidentally pass
-     * because FIRST happens to be the directional winner.
+     * Ties on the `years` field are broken on the lexicographically SMALLEST
+     * `xref`, NOT the first-encountered row — the feeding iterators carry no
+     * `ORDER BY`, so a first-wins tie-break would pick a row-order/engine-
+     * dependent holder. The smaller xref is placed SECOND in iteration here so
+     * the assertion fails on a first-encountered (strict `<`/`>`) implementation
+     * and only passes once the deterministic xref tie-break is applied. A
+     * strictly-worse row brackets it so a `<=`/`>=` regression cannot pass by
+     * the directional winner happening to sort first.
      */
     #[Test]
-    public function pickKeepsFirstEncounteredRowOnTie(): void
+    public function pickBreaksTieByLowestXref(): void
     {
         $lowestEntries = [
-            ['xref' => 'FIRST', 'years' => 25],
-            ['xref' => 'SECOND', 'years' => 25],
-            ['xref' => 'WORSE', 'years' => 99],
+            ['xref' => 'I2', 'years' => 25],
+            ['xref' => 'I1', 'years' => 25],
+            ['xref' => 'I9', 'years' => 99],
         ];
 
         self::assertSame(
-            ['xref' => 'FIRST', 'years' => 25],
+            ['xref' => 'I1', 'years' => 25],
             AgePairExtremum::Lowest->pick($lowestEntries),
         );
 
         $highestEntries = [
-            ['xref' => 'FIRST', 'years' => 25],
-            ['xref' => 'SECOND', 'years' => 25],
-            ['xref' => 'WORSE', 'years' => 1],
+            ['xref' => 'I2', 'years' => 25],
+            ['xref' => 'I1', 'years' => 25],
+            ['xref' => 'I0', 'years' => 1],
         ];
 
         self::assertSame(
-            ['xref' => 'FIRST', 'years' => 25],
+            ['xref' => 'I1', 'years' => 25],
             AgePairExtremum::Highest->pick($highestEntries),
+        );
+    }
+
+    /**
+     * The tie-break compares xrefs in BYTE order (strcmp), not numerically. With
+     * digit-only xrefs "915" and "1000", byte order makes "1000" the smaller
+     * ("1" < "9") while a numeric `<` comparison would pick "915" — so this pins
+     * the strcmp tie-break and fails on a `<`-based regression that would treat
+     * the numeric-looking xrefs as numbers.
+     */
+    #[Test]
+    public function pickBreaksTieInByteOrderNotNumericOrder(): void
+    {
+        $entries = [
+            ['xref' => '915', 'years' => 30],
+            ['xref' => '1000', 'years' => 30],
+        ];
+
+        self::assertSame(
+            ['xref' => '1000', 'years' => 30],
+            AgePairExtremum::Highest->pick($entries),
         );
     }
 }

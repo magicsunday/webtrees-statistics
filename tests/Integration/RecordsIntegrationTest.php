@@ -151,6 +151,27 @@ final class RecordsIntegrationTest extends IntegrationTestCase
     }
 
     /**
+     * Two families with the identical marriage span (D1 and D9, both 1900-1910)
+     * tie on BOTH the longest (years) and shortest (days) record. The in-PHP
+     * min/max pick must break the tie on the byte-order-smaller xref D1, not the
+     * first-encountered (row-order/engine-dependent) family.
+     */
+    #[Test]
+    public function marriageDurationRecordsBreakTieByLowestXref(): void
+    {
+        $tree = $this->importFixtureTree('record-tie-marriage-duration.ged');
+        $repo = new MarriageRepository($tree, $this->statisticsData($tree));
+
+        $longest = $repo->longestMarriageRecord();
+        self::assertNotNull($longest);
+        self::assertSame('D1', $longest->family->xref(), 'equal-duration tie resolves to the smaller xref');
+
+        $shortest = $repo->shortestMarriageRecord();
+        self::assertNotNull($shortest);
+        self::assertSame('D1', $shortest->family->xref(), 'equal-duration tie resolves to the smaller xref');
+    }
+
+    /**
      * Largest-family picks F2 (6 children) — the only family with children in
      * the fixture.
      */
@@ -167,10 +188,9 @@ final class RecordsIntegrationTest extends IntegrationTestCase
 
     /**
      * Most children per person — BigDad (I7) and BigMom (I8) both belong to F2
-     * with six children. The aggregator picks one of the two (tie-breaker is
-     * the DB's natural order over `link.l_from`, which isn't fixture-stable
-     * across MySQL versions). Either is correct; what matters is that the
-     * record beats PolygamistA (two FAMS, zero children).
+     * with six children, a genuine tie. The deterministic tie-break (secondary
+     * `orderBy('link.l_from')`) keeps the byte-order-smaller xref, so I7 wins
+     * stably — no longer "either is correct, DB-natural-order".
      */
     #[Test]
     public function mostChildrenPerPersonAggregatesAcrossAllFams(): void
@@ -179,7 +199,7 @@ final class RecordsIntegrationTest extends IntegrationTestCase
         $record = (new FamilyRankingRepository($tree, $this->statisticsData($tree)))->mostChildrenPerPersonRecord();
 
         self::assertNotNull($record);
-        self::assertContains($record->individual->xref(), ['I7', 'I8']);
+        self::assertSame('I7', $record->individual->xref(), 'tie between I7 and I8 resolves to the smaller xref');
         self::assertSame(6, $record->count);
     }
 
@@ -248,6 +268,40 @@ final class RecordsIntegrationTest extends IntegrationTestCase
         self::assertNotNull($record);
         self::assertSame('I18', $record->individual->xref());
         self::assertSame(2, $record->count);
+    }
+
+    /**
+     * When two individuals tie on the marriage count (M1 and M3 each have two
+     * FAMS), the single most-spouses holder must be the deterministic
+     * byte-order-smaller xref M1 — not a row-order/engine-dependent pick. The
+     * secondary `orderBy('l_from')` provides it; the xrefs are collation-
+     * unambiguous so the assertion holds on both SQLite and MySQL.
+     */
+    #[Test]
+    public function mostSpousesRecordBreaksTieByLowestXref(): void
+    {
+        $tree   = $this->importFixtureTree('record-tie-spouses-children.ged');
+        $record = (new MarriageRepository($tree, $this->statisticsData($tree)))->mostSpousesRecord();
+
+        self::assertNotNull($record);
+        self::assertSame('M1', $record->individual->xref());
+        self::assertSame(2, $record->count);
+    }
+
+    /**
+     * When two individuals tie on the aggregated child total (M1 and M3 each
+     * have two families of two children = four), the single most-children
+     * holder must be the deterministic byte-order-smaller xref M1.
+     */
+    #[Test]
+    public function mostChildrenPerPersonRecordBreaksTieByLowestXref(): void
+    {
+        $tree   = $this->importFixtureTree('record-tie-spouses-children.ged');
+        $record = (new FamilyRankingRepository($tree, $this->statisticsData($tree)))->mostChildrenPerPersonRecord();
+
+        self::assertNotNull($record);
+        self::assertSame('M1', $record->individual->xref());
+        self::assertSame(4, $record->count);
     }
 
     /**

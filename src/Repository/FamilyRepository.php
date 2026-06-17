@@ -232,6 +232,15 @@ final readonly class FamilyRepository
                 continue;
             }
 
+            // Privacy: drop the anomaly when the family is not visible to the
+            // current viewer. The label is name-privatised, but the derived
+            // sons/daughters split of a positionally-identifiable (often living)
+            // family is itself sensitive and must not surface to a viewer who
+            // cannot see the family — mirroring the RecordRowMapper gate.
+            if (!$family->canShow()) {
+                continue;
+            }
+
             $label = RecordName::plain($family->fullName());
 
             $anomalies[] = new SexRatioAnomaly(
