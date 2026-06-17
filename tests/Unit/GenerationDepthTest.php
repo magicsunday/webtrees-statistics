@@ -185,6 +185,13 @@ final class GenerationDepthTest extends TestCase
 
         self::assertSame(GenerationDepth::MAX_DEPTH, $result['maxDepth'], 'Depth saturates at MAX_DEPTH');
         self::assertTrue($result['capped'], 'A >MAX_DEPTH acyclic chain trips the capped signal');
+        // Chain reconstruction still works under clamping: the chosen root is
+        // the boundary node (the shallowest one at MAX_DEPTH, I100), whose
+        // descent decrements cleanly to the leaf — so the chain rebuilds to
+        // MAX_DEPTH + 1 nodes rather than truncating at the clamp.
+        self::assertCount(GenerationDepth::MAX_DEPTH + 1, $result['deepestChain']);
+        self::assertSame('I100', $result['deepestChain'][0]);
+        self::assertSame('I0', $result['deepestChain'][GenerationDepth::MAX_DEPTH]);
     }
 
     /**
