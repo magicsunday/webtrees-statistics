@@ -350,12 +350,20 @@ final readonly class TreeHealthRepository
     public function averageGenerationLength(): ?float
     {
         $birthYearByXref = [];
+        $birthPatterns   = GedcomScanner::anchoredLikePatterns('BIRT');
 
-        // Stream the rows with a cursor: only the extracted year (an int) is
-        // retained per individual, so a large tree never holds all the BIRT
-        // blobs resident at once.
+        // Anchor-LIKE the BIRT-bearers (an individual without a `1 BIRT` line
+        // yields no year and is dropped at the `!== null` guard anyway) and
+        // stream with a cursor: only the extracted year (an int) is retained
+        // per individual, so a large tree never holds all the BIRT blobs
+        // resident at once.
         foreach (
             TreeScope::table($this->tree, 'individuals')
+                ->where(static function (Builder $query) use ($birthPatterns): void {
+                    foreach ($birthPatterns as $pattern) {
+                        $query->orWhere('i_gedcom', 'like', $pattern);
+                    }
+                })
                 ->select(['i_id', 'i_gedcom'])
                 ->cursor() as $individual
         ) {
