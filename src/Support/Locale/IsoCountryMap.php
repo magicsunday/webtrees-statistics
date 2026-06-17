@@ -209,7 +209,7 @@ final class IsoCountryMap
     {
         $name = (string) Locale::getDisplayRegion('-' . $iso2, $this->effectiveLocale());
 
-        return ($name !== '' && $name !== $iso2) ? $name : $iso2;
+        return (($name !== '') && ($name !== $iso2)) ? $name : $iso2;
     }
 
     /**
