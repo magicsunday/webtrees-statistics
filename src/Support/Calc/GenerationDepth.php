@@ -316,20 +316,22 @@ final readonly class GenerationDepth
             return;
         }
 
-        // Stack frames are [node, leaving]: a node is first popped to be
-        // ENTERED (children scheduled), then popped again to LEAVE (its depth
-        // computed from the now-resolved children).
-        /** @var list<array{0: string, 1: bool}> $stack */
-        $stack  = [[$id, false]];
+        // Stack frames are [node, leaving, children]: a node is first popped to
+        // be ENTERED (its neighbour list resolved once and its children
+        // scheduled), then popped again to LEAVE (its depth computed from the
+        // now-resolved children). The neighbour list is carried in the LEAVE
+        // frame so the closure is resolved exactly once per node, not twice.
+        /** @var list<array{0: string, 1: bool, 2: list<string>|null}> $stack */
+        $stack  = [[$id, false, null]];
         $onPath = [];
 
         while ($stack !== []) {
-            [$node, $leaving] = array_pop($stack);
+            [$node, $leaving, $children] = array_pop($stack);
 
             if ($leaving) {
                 $deepest = 0;
 
-                foreach ($neighbours($node) as $child) {
+                foreach ($children ?? [] as $child) {
                     if (isset($cache[$child])) {
                         $deepest = max($deepest, $cache[$child] + 1);
                     }
@@ -353,9 +355,10 @@ final readonly class GenerationDepth
             }
 
             $onPath[$node] = true;
-            $stack[]       = [$node, true];
+            $children      = $neighbours($node);
+            $stack[]       = [$node, true, $children];
 
-            foreach ($neighbours($node) as $child) {
+            foreach ($children as $child) {
                 // Skip resolved children and back-edges to the current path
                 // (the cycle guard); both are read back during the LEAVE pass.
                 if (isset($cache[$child])) {
@@ -366,7 +369,7 @@ final readonly class GenerationDepth
                     continue;
                 }
 
-                $stack[] = [$child, false];
+                $stack[] = [$child, false, null];
             }
         }
     }
