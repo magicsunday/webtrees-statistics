@@ -89,9 +89,17 @@ final class MarriageReachRepositoryIntegrationTest extends IntegrationTestCase
         self::assertCount(40, $result->group->edges, '40 marriage edges join the 41-person cluster');
         self::assertCount(15, $result->group->chainIds, 'chainIds is the 15-person longest path inside the group');
 
-        // The hub is a real group member; the median is an integer year.
+        // The hub is a real group member; the median is the LOWER-median of the
+        // group's collapsed birth+death years (one representative year per
+        // person). I21 carries an imprecise `BET 1889 AND 1891` birth, which
+        // webtrees stores as two `dates` rows (years 1889 and 1891). Collapsing
+        // each person to a single lower-bound year keeps the multiset at 67
+        // values whose lower-median is 1893; feeding BOTH of I21's rows (the
+        // pre-fix double-count) would add the upper bound 1891 too, dragging the
+        // lower-median down to 1892. Pinning 1893 therefore fails RED the moment
+        // the per-person collapse is removed.
         self::assertContains($result->group->hubId, $this->nodeXrefs($result));
-        self::assertIsInt($result->group->medianYear);
+        self::assertSame(1893, $result->group->medianYear, 'lower-median of the collapsed birth+death years');
     }
 
     /**

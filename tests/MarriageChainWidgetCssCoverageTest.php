@@ -82,6 +82,15 @@ final class MarriageChainWidgetCssCoverageTest extends TestCase
             'bead female'            => ['.msc-sequence-chain-bead[data-group="F"] .msc-sequence-chain-disc'],
             'bead male'              => ['.msc-sequence-chain-bead[data-group="M"] .msc-sequence-chain-disc'],
             'bead unknown'           => ['.msc-sequence-chain-bead[data-group="U"] .msc-sequence-chain-disc'],
+            // The scroll container must overflow horizontally (not wrap), beads
+            // must keep their width, and the two scroll-position edge-fade flags
+            // must drive a mask — otherwise a long chain squeezes into the card
+            // instead of overflowing and scrolling.
+            'scroll container'  => ['.msc-sequence-chain-scroll {'],
+            'scroll overflow-x' => ['overflow-x:          auto;'],
+            'scroll fade start' => ['.msc-sequence-chain-scroll[data-start]'],
+            'scroll fade end'   => ['.msc-sequence-chain-scroll[data-end]'],
+            'bead no-shrink'    => ['flex-shrink:     0;'],
         ];
     }
 }

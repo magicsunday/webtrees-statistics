@@ -19,8 +19,8 @@ use MagicSunday\Webtrees\Statistic\Model\Tree\MarriageReachReport;
 use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
 use MagicSunday\Webtrees\Statistic\Support\Calc\MarriageChains;
 use MagicSunday\Webtrees\Statistic\Support\Database\ChunkedWhereIn;
+use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
 use MagicSunday\Webtrees\Statistic\Support\Database\GedcomByXref;
-use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 
 use function array_fill_keys;
@@ -218,9 +218,10 @@ final readonly class MarriageReachRepository
 
     /**
      * The combined multiset of birth AND death years of the given members,
-     * fed to {@see MarriageChains::medianYear()}. Years are read from the
-     * `dates` table (one chunked query each for BIRT and DEAT) and converted to
-     * the Gregorian scale via {@see GregorianDate::year()}, so a non-Gregorian
+     * fed to {@see MarriageChains::medianYear()}. Each member contributes at most
+     * ONE birth and ONE death year — the lower-bound representative of an
+     * imprecise date, not both encoded rows — and the value is converted to the
+     * Gregorian scale via {@see GregorianDate::year()}, so a non-Gregorian
      * calendar contributes a comparable year rather than its native one. A member
      * with neither a dated birth nor death simply contributes nothing.
      *
@@ -237,11 +238,19 @@ final readonly class MarriageReachRepository
     }
 
     /**
-     * The Gregorian years of one dated fact for the given members. Each member
-     * may carry several rows for the same fact (an imprecise range like
-     * `BET … AND …` stores its lower and upper bound as two rows); every dated
-     * row contributes its converted year, so such a range adds both its bound
-     * years (two distinct values) to the multiset the median summarises.
+     * The Gregorian years of one dated fact for the given members — exactly ONE
+     * representative year per person. webtrees writes TWO `dates` rows for a
+     * genuine two-bound range (`BET … AND …`, `FROM … TO …`): a lower-bound row
+     * and an upper-bound row carrying DISTINCT years (a `BET 1889 AND 1891` birth
+     * stores 1889 and 1891). Feeding both into the multiset would DOUBLE-WEIGHT
+     * that person in this per-person "median life year" statistic. (A year-only /
+     * `ABT` / month-only date keeps a single row, so it is unaffected either way.)
+     * Each member is therefore collapsed to its lower-bound row via the shared
+     * {@see DedupedEventDates} query — the minimum-`d_julianday1` representative,
+     * exactly the {@see BirthDeathPairsQuery} pin — and the year is derived from
+     * that pinned row's `d_type` / `d_year` so the value stays calendar-coherent.
+     * The deduped query already emits one row per `d_gid`; {@see ChunkedWhereIn}
+     * only narrows it to the requested members.
      *
      * @param list<string> $members The people whose years to read
      * @param string       $fact    The GEDCOM fact tag (`BIRT` / `DEAT`)
@@ -254,13 +263,7 @@ final readonly class MarriageReachRepository
             return [];
         }
 
-        $query = TreeScope::table($this->tree, 'dates')
-            ->where('d_fact', '=', $fact)
-            ->where('d_year', '<>', 0)
-            ->where('d_julianday1', '<>', 0)
-            ->select(['d_type', 'd_year', 'd_julianday1']);
-
-        $rows = ChunkedWhereIn::get($query, 'd_gid', $members);
+        $rows = ChunkedWhereIn::get(DedupedEventDates::query($this->tree, $fact), 'd_gid', $members);
 
         $years = [];
 

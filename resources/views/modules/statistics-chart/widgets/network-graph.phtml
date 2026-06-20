@@ -15,8 +15,9 @@ use MagicSunday\Webtrees\Statistic\View\EmptyStatePlaceholder;
 /**
  * Network-graph widget shell. Emits a `data-widget="network-graph"` marker
  * carrying the `{nodes, links, highlightPath, hubId, totalCount, shownCount}`
- * payload — `nodes` an `[{id, label, group, emphasis, href}]` list (each node's
- * `group` becomes a `data-group` attribute the consumer styles via CSS), `links`
+ * payload — `nodes` an `[{id, label, title, emphasis, href}]` list (each node
+ * carries a rich `title` tooltip the widget renders on hover; network nodes
+ * carry no data-group, since colour is chain-membership not a category), `links`
  * an `[{source, target, highlighted}]` edge list, `highlightPath` the ordered
  * node ids forming the longest chain, `hubId` the central node. The chart-lib
  * `NetworkGraph` widget paints only geometry and the highlight accent; it
@@ -24,7 +25,7 @@ use MagicSunday\Webtrees\Statistic\View\EmptyStatePlaceholder;
  * the value/aria captions are passed in pre-translated.
  *
  * @var string                                                                                                                                                                                                                                                 $identifier Host element id
- * @var array{nodes: list<array{id: string, label: string, group: string, emphasis: bool, href: string}>, links: list<array{source: string, target: string, highlighted: bool}>, highlightPath: list<string>, hubId: string, totalCount: int, shownCount: int} $data Network-graph payload
+ * @var array{nodes: list<array{id: string, label: string, title: string, emphasis: bool, href: string}>, links: list<array{source: string, target: string, highlighted: bool}>, highlightPath: list<string>, hubId: string, totalCount: int, shownCount: int} $data Network-graph payload
  * @var int|null                                                                                                                                                                                                                                               $height     Optional viewport height (defaults to 360)
  * @var string|null                                                                                                                                                                                                                                            $accent     CSS colour literal for the highlighted edges
  * @var string|null                                                                                                                                                                                                                                            $capBadge   Pre-translated `{shown} / {total}` cap-badge template

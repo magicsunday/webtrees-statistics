@@ -15,14 +15,15 @@ use MagicSunday\Webtrees\Statistic\View\EmptyStatePlaceholder;
 /**
  * Sequence-chain widget shell. Emits a `data-widget="sequence-chain"` marker
  * carrying the `{items}` payload — `items` an ordered
- * `[{id, label, sublabel, group, href}]` bead list (each item's `group` becomes
- * a `data-group` attribute on its bead the consumer styles via CSS). The
- * chart-lib `SequenceChain` widget paints only the bead layout and assigns no
- * colour by group. The accessible label is passed in pre-translated.
+ * `[{id, label, sublabel, title, group, href}]` bead list (each item's `group`
+ * becomes a `data-group` attribute on its bead the consumer styles via CSS, and
+ * its `title` a rich tooltip the widget renders on hover). The chart-lib
+ * `SequenceChain` widget paints only the bead layout and assigns no colour by
+ * group. The accessible label is passed in pre-translated.
  *
- * @var string                                                                                              $identifier Host element id
- * @var array{items: list<array{id: string, label: string, sublabel: string, group: string, href: string}>} $data       Sequence-chain payload
- * @var string|null                                                                                         $ariaLabel  Accessible label on the host element
+ * @var string                                                                                                             $identifier Host element id
+ * @var array{items: list<array{id: string, label: string, sublabel: string, title: string, group: string, href: string}>} $data       Sequence-chain payload
+ * @var string|null                                                                                                        $ariaLabel  Accessible label on the host element
  */
 if (($data['items'] ?? []) === []) {
     echo EmptyStatePlaceholder::render();

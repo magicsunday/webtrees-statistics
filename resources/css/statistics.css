@@ -4197,14 +4197,61 @@
 /* ---- Sequence chain --------------------------------------- */
 
 .wt-statistics-chart .msc-sequence-chain {
-    width: 100%;
+    position: relative;
+    width:    100%;
+}
+
+/* The beads form ONE horizontal strip that overflows and scrolls sideways —
+   never wraps onto a second row — so a long chain (15+ people) reads as a single
+   timeline rather than a squeezed grid. The scroll container owns the overflow;
+   the track sizes to its content (`max-content`) so the beads keep their natural
+   width instead of being compressed to fit the card. */
+.wt-statistics-chart .msc-sequence-chain-scroll {
+    overflow-x:          auto;
+    overflow-y:          hidden;
+    padding:             6px 2px 4px;
+    scrollbar-width:     thin;
+    scrollbar-color:     var(--border) transparent;
+    scroll-behavior:     smooth;
+    -webkit-overflow-scrolling: touch;
+    /* Edge-fade: the widget toggles `data-start` / `data-end` on this container
+       from its live scroll position, so the overflowing edge fades out via a
+       mask. At rest neither flag is set and the strip is fully opaque. */
+    -webkit-mask-image: linear-gradient(90deg, #000 0, #000 100%);
+            mask-image: linear-gradient(90deg, #000 0, #000 100%);
+    transition:         mask-image 150ms;
+}
+
+.wt-statistics-chart .msc-sequence-chain-scroll[data-start] {
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 48px, #000 100%);
+            mask-image: linear-gradient(90deg, transparent 0, #000 48px, #000 100%);
+}
+
+.wt-statistics-chart .msc-sequence-chain-scroll[data-end] {
+    -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 48px), transparent 100%);
+            mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 48px), transparent 100%);
+}
+
+.wt-statistics-chart .msc-sequence-chain-scroll[data-start][data-end] {
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 48px, #000 calc(100% - 48px), transparent 100%);
+            mask-image: linear-gradient(90deg, transparent 0, #000 48px, #000 calc(100% - 48px), transparent 100%);
+}
+
+.wt-statistics-chart .msc-sequence-chain-scroll::-webkit-scrollbar {
+    height: 6px;
+}
+
+.wt-statistics-chart .msc-sequence-chain-scroll::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background:    var(--border);
 }
 
 .wt-statistics-chart .msc-sequence-chain-track {
     display:     flex;
     align-items: flex-start;
-    flex-wrap:   wrap;
+    flex-wrap:   nowrap;
     gap:         4px;
+    width:       max-content;
 }
 
 .wt-statistics-chart .msc-sequence-chain-bead {
@@ -4212,6 +4259,7 @@
     flex-direction:  column;
     align-items:     center;
     gap:             4px;
+    flex-shrink:     0;
     text-decoration: none;
     color:           inherit;
 }
