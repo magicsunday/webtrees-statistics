@@ -35,20 +35,24 @@ use function array_map;
 final readonly class MarriageGroupExcerpt implements JsonSerializable
 {
     /**
-     * @param list<Individual>                  $nodes      The group's people (the shown excerpt when capped), as live records so the view can link them
-     * @param list<array{0: string, 1: string}> $edges      The marriage edges among the shown nodes, as byte-ordered `[idA, idB]` xref pairs
-     * @param list<string>                      $chainIds   The longest path's xrefs, in order
-     * @param string                            $hubId      The max-degree member's xref (the cluster hub)
-     * @param int                               $totalCount The group's real size
-     * @param int                               $shownCount The number of nodes actually drawn (≤ `$totalCount`, ≤ the excerpt cap)
-     * @param int|null                          $medianYear The median of the group's combined birth+death years, or `null` when none are dated
+     * @param list<Individual>                  $nodes          The group's people (the shown excerpt when capped), as live records so the view can link them
+     * @param list<array{0: string, 1: string}> $edges          The marriage edges among the shown nodes, as byte-ordered `[idA, idB]` xref pairs
+     * @param list<string>                      $chainIds       The longest path's xrefs, in order
+     * @param string                            $hubId          The max-degree member's xref (the cluster hub)
+     * @param int                               $hubDegree      The hub's real marriage degree over the WHOLE group, not just the shown excerpt
+     * @param int                               $totalCount     The group's real size
+     * @param int                               $totalEdgeCount The group's real internal marriage-edge count over the WHOLE group, not just the shown excerpt
+     * @param int                               $shownCount     The number of nodes actually drawn (≤ `$totalCount`, ≤ the excerpt cap)
+     * @param int|null                          $medianYear     The median of the group's combined birth+death years, or `null` when none are dated
      */
     public function __construct(
         public array $nodes,
         public array $edges,
         public array $chainIds,
         public string $hubId,
+        public int $hubDegree,
         public int $totalCount,
+        public int $totalEdgeCount,
         public int $shownCount,
         public ?int $medianYear,
     ) {
@@ -59,18 +63,20 @@ final readonly class MarriageGroupExcerpt implements JsonSerializable
      * `{xref, label, sex, birth, death, url}` row (an {@see Individual} is not
      * JSON-encodable); edges, chain ids and the scalar fields pass through.
      *
-     * @return array{nodes: list<array{xref: string, label: string, sex: string, birth: string, death: string, url: string}>, edges: list<array{0: string, 1: string}>, chainIds: list<string>, hubId: string, totalCount: int, shownCount: int, medianYear: int|null}
+     * @return array{nodes: list<array{xref: string, label: string, sex: string, birth: string, death: string, url: string}>, edges: list<array{0: string, 1: string}>, chainIds: list<string>, hubId: string, hubDegree: int, totalCount: int, totalEdgeCount: int, shownCount: int, medianYear: int|null}
      */
     public function jsonSerialize(): array
     {
         return [
-            'nodes'      => array_map(IndividualWire::row(...), $this->nodes),
-            'edges'      => $this->edges,
-            'chainIds'   => $this->chainIds,
-            'hubId'      => $this->hubId,
-            'totalCount' => $this->totalCount,
-            'shownCount' => $this->shownCount,
-            'medianYear' => $this->medianYear,
+            'nodes'          => array_map(IndividualWire::row(...), $this->nodes),
+            'edges'          => $this->edges,
+            'chainIds'       => $this->chainIds,
+            'hubId'          => $this->hubId,
+            'hubDegree'      => $this->hubDegree,
+            'totalCount'     => $this->totalCount,
+            'totalEdgeCount' => $this->totalEdgeCount,
+            'shownCount'     => $this->shownCount,
+            'medianYear'     => $this->medianYear,
         ];
     }
 }

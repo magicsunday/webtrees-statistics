@@ -181,6 +181,44 @@ final class MarriageChainsExcerptTest extends TestCase
     }
 
     /**
+     * D12 — the foot legend pairs the WHOLE group's people count with the whole
+     * group's marriage count, so the marriage figure must come from
+     * {@see MarriageChains::largestGroup()} (the full-group `(Σ degree) / 2`),
+     * NOT from the capped excerpt's edge list. This pins the divergence the
+     * repository relies on: over the cap, the full-group edge count stays the
+     * real total while the drawn excerpt's edges are trimmed. Sourcing the legend
+     * from the excerpt would understate the marriage count on any cluster larger
+     * than the cap.
+     */
+    #[Test]
+    public function largestGroupEdgeCountExceedsTheCappedExcerptEdgeCount(): void
+    {
+        // 80 spine + 80 leaves = 160 people, 159 internal edges — well over the
+        // cap, so the excerpt is forced to trim both nodes and edges.
+        $adjacency = $this->spineWithLeaves(80);
+        $members   = $this->members($adjacency);
+
+        self::assertGreaterThan(self::CAP, count($members), 'fixture must exceed the cap to force an excerpt');
+
+        $largest = MarriageChains::largestGroup($adjacency);
+        $excerpt = MarriageChains::excerpt($adjacency, $members, ['I001', 'I002', 'I003'], self::CAP);
+
+        self::assertNotNull($largest);
+
+        // Full group: (n - 1) spine edges + n pendant edges = 2n - 1 = 159.
+        self::assertSame((2 * 80) - 1, $largest['edges'], 'largestGroup() reports the whole-group edge count');
+
+        // The capped excerpt holds CAP nodes, so it can carry at most CAP - 1
+        // edges — strictly fewer than the full group. The legend must read the
+        // former, never the latter.
+        self::assertLessThan(
+            $largest['edges'],
+            count($excerpt['edges']),
+            'the capped excerpt edge count must be strictly below the full-group total',
+        );
+    }
+
+    /**
      * The excerpt is independent of the adjacency map's insertion order and of
      * any neighbour-list order: reversing both yields a byte-for-byte identical
      * result (members AND edges). The BFS sorts its frontier, so without that

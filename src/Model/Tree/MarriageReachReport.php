@@ -61,7 +61,7 @@ final readonly class MarriageReachReport implements JsonSerializable
      * {@see MarriageGroupExcerpt::jsonSerialize()}, so a JS consumer can drive
      * the chain and the group graph without an Individual proxy on the wire.
      *
-     * @return array{longestChainLength: int, chain: list<array{xref: string, label: string, sex: string, birth: string, death: string, url: string}>, group: array{nodes: list<array{xref: string, label: string, sex: string, birth: string, death: string, url: string}>, edges: list<array{0: string, 1: string}>, chainIds: list<string>, hubId: string, totalCount: int, shownCount: int, medianYear: int|null}, depthPath: int, breadthChain: int}
+     * @return array{longestChainLength: int, chain: list<array{xref: string, label: string, sex: string, birth: string, death: string, url: string}>, group: array{nodes: list<array{xref: string, label: string, sex: string, birth: string, death: string, url: string}>, edges: list<array{0: string, 1: string}>, chainIds: list<string>, hubId: string, hubDegree: int, totalCount: int, totalEdgeCount: int, shownCount: int, medianYear: int|null}, depthPath: int, breadthChain: int}
      */
     public function jsonSerialize(): array
     {

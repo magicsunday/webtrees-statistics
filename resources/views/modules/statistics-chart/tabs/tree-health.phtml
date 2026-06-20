@@ -278,15 +278,6 @@ if ($marriageReach !== null) {
         $marriageGroupChainPairs[$b . "\0" . $a] = true;
     }
 
-    // The hub's marriage degree is the number of edges incident to `hubId`.
-    $marriageHubDegree = 0;
-
-    foreach ($marriageGroup['edges'] as $edge) {
-        if (($edge[0] === $marriageGroup['hubId']) || ($edge[1] === $marriageGroup['hubId'])) {
-            ++$marriageHubDegree;
-        }
-    }
-
     $marriageGroupNodes = [];
 
     foreach ($marriageGroup['nodes'] as $node) {
@@ -295,7 +286,7 @@ if ($marriageReach !== null) {
         $title    = $marriageTooltip($node, $sexLabel, $lifeSpan);
 
         if ($node['xref'] === $marriageGroup['hubId']) {
-            $title .= ' · ' . I18N::translate('%s marriages', I18N::number($marriageHubDegree));
+            $title .= ' · ' . I18N::translate('%s marriages', I18N::number($marriageGroup['hubDegree']));
         }
 
         $marriageGroupNodes[] = [
@@ -335,12 +326,15 @@ if ($marriageReach !== null) {
 
     // Foot legend strip beneath the network: the longest chain length, the
     // group size and edge count, and the median life year — mirroring the
-    // prototype. Years print verbatim (no thousands separator); the counts go
-    // through `I18N::number`. The legend is appended to the widget body below.
+    // prototype. Both counts describe the WHOLE group (`totalCount` people,
+    // `totalEdgeCount` marriages), never the capped excerpt that is drawn, so
+    // the legend never pairs a full-group people count with an excerpt-only
+    // marriage count. Years print verbatim (no thousands separator); the counts
+    // go through `I18N::number`. The legend is appended to the widget body below.
     $marriageNetworkLegendParts = [
         I18N::translate('Longest chain (%s)', I18N::number(count($marriageGroup['chainIds']))),
         I18N::translate('%s people', I18N::number($marriageGroup['totalCount'])),
-        I18N::translate('%s marriages', I18N::number(count($marriageGroup['edges']))),
+        I18N::translate('%s marriages', I18N::number($marriageGroup['totalEdgeCount'])),
     ];
 
     if ($marriageGroup['medianYear'] !== null) {

@@ -87,7 +87,24 @@ final class MarriageReachRepositoryIntegrationTest extends IntegrationTestCase
         self::assertCount(41, $result->group->nodes, 'the 41 group members resolve to 41 Individual objects');
         self::assertContainsOnlyInstancesOf(Individual::class, $result->group->nodes);
         self::assertCount(40, $result->group->edges, '40 marriage edges join the 41-person cluster');
+        self::assertSame(40, $result->group->totalEdgeCount, 'totalEdgeCount is the whole-group marriage count; here = the 40 shown edges since 41 < cap');
         self::assertCount(15, $result->group->chainIds, 'chainIds is the 15-person longest path inside the group');
+
+        // hubDegree is the hub's real marriage degree over the WHOLE group. With
+        // 41 < NETWORK_CAP every member is shown, so the full-group degree must
+        // equal the number of drawn edges incident to the hub — derived from the
+        // edge list rather than hard-coded so the assertion can never drift from
+        // the fixture, and non-zero so it cannot pass vacuously.
+        $hubIncidentEdges = 0;
+
+        foreach ($result->group->edges as $edge) {
+            if (($edge[0] === $result->group->hubId) || ($edge[1] === $result->group->hubId)) {
+                ++$hubIncidentEdges;
+            }
+        }
+
+        self::assertGreaterThan(0, $hubIncidentEdges, 'the hub must have at least one marriage');
+        self::assertSame($hubIncidentEdges, $result->group->hubDegree, 'under the cap the hub degree equals its incident shown edges');
 
         // The hub is a real group member; the median is the LOWER-median of the
         // group's collapsed birth+death years (one representative year per
@@ -178,7 +195,9 @@ final class MarriageReachRepositoryIntegrationTest extends IntegrationTestCase
         }
 
         self::assertSame($result->group->hubId, $json['group']['hubId']);
+        self::assertSame($result->group->hubDegree, $json['group']['hubDegree']);
         self::assertSame(41, $json['group']['totalCount']);
+        self::assertSame(40, $json['group']['totalEdgeCount']);
         self::assertSame(41, $json['group']['shownCount']);
         self::assertSame($result->group->medianYear, $json['group']['medianYear']);
     }

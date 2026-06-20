@@ -86,16 +86,19 @@ final readonly class MarriageReachRepository
      */
     public function summary(): ?MarriageReachReport
     {
-        $adjacency  = $this->marriageMapRepository->build();
-        $components = MarriageChains::components($adjacency);
+        $adjacency = $this->marriageMapRepository->build();
+        $largest   = MarriageChains::largestGroup($adjacency);
 
-        if ($components === []) {
+        if ($largest === null) {
             return null;
         }
 
-        // components() sorts largest-first with a deterministic tie-break, so the
-        // first entry is the largest connected marriage group.
-        $members = $components[0];
+        // largestGroup() sorts largest-first with a deterministic tie-break, so
+        // this is the largest connected marriage group together with its REAL
+        // internal marriage-edge count over the whole group — the figure the foot
+        // legend reports, independent of the excerpt the drawing is capped to.
+        $members        = $largest['members'];
+        $totalEdgeCount = $largest['edges'];
 
         // The reported chain MUST lie inside the reported group: compute the
         // longest path on an adjacency restricted to the largest group's members,
@@ -106,7 +109,7 @@ final readonly class MarriageReachRepository
         // empty. Scoping to `$members` keeps the chain a sub-path of the group.
         $groupAdjacency = $this->subAdjacency($adjacency, $members);
         $longestChain   = MarriageChains::longestChain($groupAdjacency);
-        $hubId          = $this->highestDegreeMember($adjacency, $members);
+        $hub            = $this->highestDegreeMember($adjacency, $members);
 
         // Excerpt the rendered group when the real cluster overruns the cap: keep
         // the longest-chain nodes (always shown), grow outward in deterministic
@@ -138,8 +141,10 @@ final readonly class MarriageReachRepository
                 nodes: $this->resolveIndividuals($shownMembers, $gedcomByXref),
                 edges: $shownEdges,
                 chainIds: $longestChain,
-                hubId: $hubId,
+                hubId: $hub['id'],
+                hubDegree: $hub['degree'],
                 totalCount: count($members),
+                totalEdgeCount: $totalEdgeCount,
                 shownCount: count($shownMembers),
                 medianYear: $medianYear,
             ),
@@ -184,15 +189,18 @@ final readonly class MarriageReachRepository
 
     /**
      * The group member with the highest marriage degree (most distinct
-     * spouses) — the hub of the cluster. Ties are broken by the byte-order-
-     * smallest xref so the pick is deterministic across reloads.
+     * spouses) — the hub of the cluster — together with that real degree over the
+     * WHOLE group. The degree travels with the xref so the hub label and the
+     * "%s marriages" tooltip report the cluster-wide figure, never the lower
+     * edge count of a capped excerpt. Ties are broken by the byte-order-smallest
+     * xref so the pick is deterministic across reloads.
      *
      * @param array<array-key, list<string>> $adjacency Symmetric `xref → [spouse-xref, …]` map
      * @param list<string>                   $members   The group's people, byte-order sorted
      *
-     * @return string The hub xref
+     * @return array{id: string, degree: int} The hub xref and its real marriage degree
      */
-    private function highestDegreeMember(array $adjacency, array $members): string
+    private function highestDegreeMember(array $adjacency, array $members): array
     {
         $hubId     = $members[0];
         $maxDegree = -1;
@@ -213,7 +221,10 @@ final readonly class MarriageReachRepository
             }
         }
 
-        return $hubId;
+        return [
+            'id'     => $hubId,
+            'degree' => $maxDegree,
+        ];
     }
 
     /**
