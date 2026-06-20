@@ -11,10 +11,12 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Support\Calc;
 
+use function array_fill_keys;
 use function array_keys;
 use function array_pop;
 use function array_reverse;
 use function array_shift;
+use function array_values;
 use function count;
 use function intdiv;
 use function sort;
@@ -140,6 +142,162 @@ final readonly class MarriageChains
             'members' => $members,
             'edges'   => self::countEdges($adjacency, $members),
         ];
+    }
+
+    /**
+     * Choose the people and edges drawn into a rendered group graph, capping an
+     * over-large connected group to a legible EXCERPT. When the member count
+     * fits within `$cap`, every member is shown — the input list is returned
+     * unchanged. Otherwise a connected excerpt is grown: the chain nodes that
+     * belong to the group are always included, then a breadth-first sweep adds
+     * neighbours in deterministic smallest-xref order until `$cap` is reached.
+     * The returned `members` are byte-order sorted so they match the full-group
+     * ordering; the returned `edges` are the undirected internal marriage pairs
+     * among exactly those shown members (any edge to a node outside the excerpt
+     * is dropped), oriented `[smaller, larger]` and sorted, so the drawing is
+     * reproducible regardless of the adjacency map's insertion order.
+     *
+     * Pure graph logic — no person resolution, no database — so the excerpt
+     * frontier, the cap cut and the edge restriction are unit-testable in
+     * isolation from the {@see \MagicSunday\Webtrees\Statistic\Repository\MarriageReachRepository}.
+     *
+     * @param array<array-key, list<string>> $adjacency Symmetric `xref → [spouse-xref, …]` map
+     * @param list<string>                   $members   The group's people, byte-order sorted
+     * @param list<string>                   $chainIds  The longest path's xrefs, always included
+     * @param int                            $cap       The maximum number of people to draw
+     *
+     * @return array{members: list<string>, edges: list<array{0: string, 1: string}>}
+     */
+    public static function excerpt(array $adjacency, array $members, array $chainIds, int $cap): array
+    {
+        $shown = self::excerptMembers($adjacency, $members, $chainIds, $cap);
+
+        return [
+            'members' => $shown,
+            'edges'   => self::collectEdges($adjacency, $shown),
+        ];
+    }
+
+    /**
+     * Grow the shown-member list for {@see excerpt()}. Below the cap every member
+     * is returned unchanged; above it a connected excerpt is grown breadth-first
+     * from the group's chain nodes in deterministic smallest-xref order until the
+     * cap is reached, then byte-order sorted.
+     *
+     * @param array<array-key, list<string>> $adjacency Symmetric `xref → [spouse-xref, …]` map
+     * @param list<string>                   $members   The group's people, byte-order sorted
+     * @param list<string>                   $chainIds  The longest path's xrefs, always included
+     * @param int                            $cap       The maximum number of people to draw
+     *
+     * @return list<string>
+     */
+    private static function excerptMembers(array $adjacency, array $members, array $chainIds, int $cap): array
+    {
+        if (count($members) <= $cap) {
+            return $members;
+        }
+
+        $memberSet = array_fill_keys($members, true);
+
+        // Seed with the chain nodes that genuinely belong to this group, in
+        // byte order so the BFS frontier is deterministic.
+        $included = [];
+        $seeds    = [];
+
+        foreach ($chainIds as $node) {
+            if (isset($memberSet[$node]) && !isset($included[$node])) {
+                $included[$node] = true;
+                $seeds[]         = $node;
+            }
+        }
+
+        sort($seeds, SORT_STRING);
+        $queue = $seeds;
+
+        while (($queue !== []) && (count($included) < $cap)) {
+            $node       = array_shift($queue);
+            $neighbours = $adjacency[$node] ?? [];
+
+            // Visit neighbours in byte order so the cap cuts the frontier at the
+            // same place on every run.
+            sort($neighbours, SORT_STRING);
+
+            foreach ($neighbours as $neighbour) {
+                if (count($included) >= $cap) {
+                    break;
+                }
+
+                if (!isset($memberSet[$neighbour])) {
+                    continue;
+                }
+
+                if (isset($included[$neighbour])) {
+                    continue;
+                }
+
+                $included[$neighbour] = true;
+                $queue[]              = $neighbour;
+            }
+        }
+
+        $shown = array_keys($included);
+        sort($shown, SORT_STRING);
+
+        return $shown;
+    }
+
+    /**
+     * Collect the undirected edges internal to a member set as byte-order
+     * `[smaller, larger]` xref pairs, deduplicated (each undirected edge appears
+     * once in each endpoint's neighbour list). The member list is membership-
+     * tested as a set so an excerpt's edges exclude any neighbour outside the
+     * shown nodes. Pairs are emitted in a deterministic order — sorted by their
+     * two endpoints — so the rendered graph is reproducible regardless of the
+     * adjacency map's insertion order.
+     *
+     * @param array<array-key, list<string>> $adjacency Symmetric `xref → [spouse-xref, …]` map
+     * @param list<string>                   $members   The people whose internal edges to collect
+     *
+     * @return list<array{0: string, 1: string}>
+     */
+    private static function collectEdges(array $adjacency, array $members): array
+    {
+        $memberSet = array_fill_keys($members, true);
+
+        $pairs = [];
+
+        foreach ($members as $member) {
+            foreach ($adjacency[$member] ?? [] as $neighbour) {
+                if (!isset($memberSet[$neighbour])) {
+                    continue;
+                }
+
+                // Orient the pair so the same undirected edge always reads the
+                // same way; the set key dedupes the two directions.
+                [$low, $high] = (strcmp($member, $neighbour) <= 0)
+                    ? [$member, $neighbour]
+                    : [$neighbour, $member];
+
+                $pairs[$low . "\0" . $high] = [$low, $high];
+            }
+        }
+
+        $edges = array_values($pairs);
+
+        usort(
+            $edges,
+            static function (array $left, array $right): int {
+                $byFirst = strcmp($left[0], $right[0]);
+
+                if ($byFirst !== 0) {
+                    return $byFirst;
+                }
+
+                return strcmp($left[1], $right[1]);
+            },
+        );
+
+        return $edges;
     }
 
     /**

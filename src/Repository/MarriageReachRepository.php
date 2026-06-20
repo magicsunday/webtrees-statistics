@@ -24,16 +24,10 @@ use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 
 use function array_fill_keys;
-use function array_keys;
-use function array_shift;
 use function array_unique;
 use function array_values;
 use function count;
-use function sort;
 use function strcmp;
-use function usort;
-
-use const SORT_STRING;
 
 /**
  * Marriage-reach surfacing for the Family tab. Orchestrates the shared
@@ -112,17 +106,17 @@ final readonly class MarriageReachRepository
         // empty. Scoping to `$members` keeps the chain a sub-path of the group.
         $groupAdjacency = $this->subAdjacency($adjacency, $members);
         $longestChain   = MarriageChains::longestChain($groupAdjacency);
-        $edges          = $this->collectEdges($adjacency, $members);
         $hubId          = $this->highestDegreeMember($adjacency, $members);
 
         // Excerpt the rendered group when the real cluster overruns the cap: keep
         // the longest-chain nodes (always shown), grow outward in deterministic
         // smallest-xref order until the cap, and keep only the edges among the
-        // shown nodes. Below the cap this is a no-op — every member is shown.
-        $shownMembers = $this->excerptMembers($adjacency, $members, $longestChain);
-        $shownEdges   = ($shownMembers === $members)
-            ? $edges
-            : $this->collectEdges($adjacency, $shownMembers);
+        // shown nodes. Below the cap this is a no-op — every member is shown with
+        // every internal edge. The selection is pure graph logic, so it lives in
+        // the unit-tested {@see MarriageChains::excerpt()} calc, not here.
+        $excerpt      = MarriageChains::excerpt($adjacency, $members, $longestChain, self::NETWORK_CAP);
+        $shownMembers = $excerpt['members'];
+        $shownEdges   = $excerpt['edges'];
 
         $medianYear = MarriageChains::medianYear(
             $this->birthDeathYears($members),
@@ -189,60 +183,6 @@ final readonly class MarriageReachRepository
     }
 
     /**
-     * Collect the undirected edges internal to a member set as byte-order
-     * `[smaller, larger]` xref pairs, deduplicated (each undirected edge appears
-     * once in each endpoint's neighbour list). The member list is membership-
-     * tested as a set so an excerpt's edges exclude any neighbour outside the
-     * shown nodes. Pairs are emitted in a deterministic order — sorted by their
-     * two endpoints — so the rendered graph is reproducible regardless of the
-     * adjacency map's insertion order.
-     *
-     * @param array<array-key, list<string>> $adjacency Symmetric `xref → [spouse-xref, …]` map
-     * @param list<string>                   $members   The people whose internal edges to collect
-     *
-     * @return list<array{0: string, 1: string}>
-     */
-    private function collectEdges(array $adjacency, array $members): array
-    {
-        $memberSet = array_fill_keys($members, true);
-
-        $pairs = [];
-
-        foreach ($members as $member) {
-            foreach ($adjacency[$member] ?? [] as $neighbour) {
-                if (!isset($memberSet[$neighbour])) {
-                    continue;
-                }
-
-                // Orient the pair so the same undirected edge always reads the
-                // same way; the set key dedupes the two directions.
-                [$low, $high] = (strcmp($member, $neighbour) <= 0)
-                    ? [$member, $neighbour]
-                    : [$neighbour, $member];
-
-                $pairs[$low . "\0" . $high] = [$low, $high];
-            }
-        }
-
-        $edges = array_values($pairs);
-
-        usort(
-            $edges,
-            static function (array $left, array $right): int {
-                $byFirst = strcmp($left[0], $right[0]);
-
-                if ($byFirst !== 0) {
-                    return $byFirst;
-                }
-
-                return strcmp($left[1], $right[1]);
-            },
-        );
-
-        return $edges;
-    }
-
-    /**
      * The group member with the highest marriage degree (most distinct
      * spouses) — the hub of the cluster. Ties are broken by the byte-order-
      * smallest xref so the pick is deterministic across reloads.
@@ -274,76 +214,6 @@ final readonly class MarriageReachRepository
         }
 
         return $hubId;
-    }
-
-    /**
-     * Choose the people drawn into the rendered group graph. When the group fits
-     * within {@see NETWORK_CAP}, every member is shown (the input list is
-     * returned unchanged). Otherwise a connected EXCERPT is grown: the
-     * longest-chain nodes are always included, then a breadth-first sweep adds
-     * neighbours in deterministic smallest-xref order until the cap is reached.
-     * The result is byte-order sorted so it matches the full-group ordering and
-     * the edge collection stays reproducible.
-     *
-     * @param array<array-key, list<string>> $adjacency    Symmetric `xref → [spouse-xref, …]` map
-     * @param list<string>                   $members      The group's people, byte-order sorted
-     * @param list<string>                   $longestChain The longest path's xrefs, always included
-     *
-     * @return list<string>
-     */
-    private function excerptMembers(array $adjacency, array $members, array $longestChain): array
-    {
-        if (count($members) <= self::NETWORK_CAP) {
-            return $members;
-        }
-
-        $memberSet = array_fill_keys($members, true);
-
-        // Seed with the chain nodes that genuinely belong to this group, in
-        // byte-order so the BFS frontier is deterministic.
-        $included = [];
-        $seeds    = [];
-
-        foreach ($longestChain as $node) {
-            if (isset($memberSet[$node]) && !isset($included[$node])) {
-                $included[$node] = true;
-                $seeds[]         = $node;
-            }
-        }
-
-        sort($seeds, SORT_STRING);
-        $queue = $seeds;
-
-        while (($queue !== []) && (count($included) < self::NETWORK_CAP)) {
-            $node       = array_shift($queue);
-            $neighbours = $adjacency[$node] ?? [];
-
-            // Visit neighbours in byte order so the cap cuts the frontier at the
-            // same place on every run.
-            sort($neighbours, SORT_STRING);
-
-            foreach ($neighbours as $neighbour) {
-                if (count($included) >= self::NETWORK_CAP) {
-                    break;
-                }
-
-                if (!isset($memberSet[$neighbour])) {
-                    continue;
-                }
-
-                if (isset($included[$neighbour])) {
-                    continue;
-                }
-
-                $included[$neighbour] = true;
-                $queue[]              = $neighbour;
-            }
-        }
-
-        $shown = array_keys($included);
-        sort($shown, SORT_STRING);
-
-        return $shown;
     }
 
     /**
