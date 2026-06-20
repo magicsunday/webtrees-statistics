@@ -18,6 +18,7 @@ use MagicSunday\Webtrees\Statistic\Repository\GenerationDepthRepository;
 use MagicSunday\Webtrees\Statistic\Repository\ParentMapRepository;
 use MagicSunday\Webtrees\Statistic\Support\Calc\GenerationDepth;
 use MagicSunday\Webtrees\Statistic\Support\Database\ChunkedWhereIn;
+use MagicSunday\Webtrees\Statistic\Support\Database\GedcomByXref;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -56,6 +57,7 @@ use function count;
 #[UsesClass(ParentMapRepository::class)]
 #[UsesClass(GenerationDepth::class)]
 #[UsesClass(ChunkedWhereIn::class)]
+#[UsesClass(GedcomByXref::class)]
 #[UsesClass(TreeScope::class)]
 #[UsesClass(RowCast::class)]
 final class GenerationDepthRepositoryIntegrationTest extends IntegrationTestCase
