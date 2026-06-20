@@ -202,25 +202,63 @@ if ($marriageReach !== null) {
     $marriageReachReport = $marriageReach->jsonSerialize();
     $marriageGroup       = $marriageReachReport['group'];
 
+    // Map a genealogy sex code (`F`/`M`/`U`) to the translated word for the
+    // tooltip text. This domain label belongs in the consumer, not the neutral
+    // chart-lib widget — the literals are call-site so xgettext picks them up.
+    $marriageSexLabel = static fn (string $sex): string => match ($sex) {
+        'F'     => I18N::translate('female'),
+        'M'     => I18N::translate('male'),
+        default => I18N::translate('unknown'),
+    };
+
+    // Build the "*birth–death" life span gracefully when either bound is
+    // missing (a living / privacy-withheld person carries an empty year). The
+    // years print verbatim — a year must never gain a thousands separator.
+    $marriageLifeSpan = static function (string $birth, string $death): string {
+        if (($birth === '') && ($death === '')) {
+            return '';
+        }
+
+        return '*' . $birth . '–' . $death;
+    };
+
+    // Compose the rich tooltip body the chart-lib widgets render verbatim:
+    // "Name · sex · *birth–death", with the hub's marriage degree appended.
+    $marriageTooltip = static function (array $person, string $sexLabel, string $lifeSpan): string {
+        $parts = [$person['label'], $sexLabel];
+
+        if ($lifeSpan !== '') {
+            $parts[] = $lifeSpan;
+        }
+
+        return implode(' · ', $parts);
+    };
+
     // V1 — the longest chain as a left-to-right bead strip. Each person becomes
-    // a bead carrying its display label, a "*birth–death" sub-caption and its
-    // sex as the `data-group` the consumer stylesheet colours.
+    // a bead carrying its display label, a "*birth–death" sub-caption, its sex
+    // as the `data-group` the consumer stylesheet colours and a rich `title`
+    // the widget renders as a styled tooltip.
     $marriageChainItems = [];
 
     foreach ($marriageReachReport['chain'] as $person) {
+        $sexLabel = $marriageSexLabel($person['sex']);
+        $lifeSpan = $marriageLifeSpan($person['birth'], $person['death']);
+
         $marriageChainItems[] = [
             'id'       => $person['xref'],
             'label'    => $person['label'],
-            'sublabel' => '*' . $person['birth'] . '–' . $person['death'],
+            'sublabel' => $lifeSpan,
+            'title'    => $marriageTooltip($person, $sexLabel, $lifeSpan),
             'group'    => $person['sex'],
             'href'     => $person['url'],
         ];
     }
 
-    // V2 — the largest group as a force-directed graph. Each node carries its
-    // sex as `data-group`, the hub is emphasised, and every edge lying on the
+    // V2 — the largest group as a force-directed graph. Each node carries a
+    // rich `title` tooltip, the hub is emphasised, and every edge lying on the
     // longest-chain path is highlighted. `chainIds` doubles as the highlight
-    // path so the graph draws the chain through the cluster.
+    // path so the graph draws the chain through the cluster. Node colour comes
+    // from chain membership (highlighted / hub / off-chain) via CSS, NOT sex.
     $marriageGroupChainPairs = [];
 
     for ($i = 1, $count = count($marriageGroup['chainIds']); $i < $count; ++$i) {
@@ -231,13 +269,30 @@ if ($marriageReach !== null) {
         $marriageGroupChainPairs[$b . "\0" . $a] = true;
     }
 
+    // The hub's marriage degree is the number of edges incident to `hubId`.
+    $marriageHubDegree = 0;
+
+    foreach ($marriageGroup['edges'] as $edge) {
+        if (($edge[0] === $marriageGroup['hubId']) || ($edge[1] === $marriageGroup['hubId'])) {
+            ++$marriageHubDegree;
+        }
+    }
+
     $marriageGroupNodes = [];
 
     foreach ($marriageGroup['nodes'] as $node) {
+        $sexLabel = $marriageSexLabel($node['sex']);
+        $lifeSpan = $marriageLifeSpan($node['birth'], $node['death']);
+        $title    = $marriageTooltip($node, $sexLabel, $lifeSpan);
+
+        if ($node['xref'] === $marriageGroup['hubId']) {
+            $title .= ' · ' . I18N::translate('%s marriages', I18N::number($marriageHubDegree));
+        }
+
         $marriageGroupNodes[] = [
             'id'       => $node['xref'],
             'label'    => $node['label'],
-            'group'    => $node['sex'],
+            'title'    => $title,
             'emphasis' => $node['xref'] === $marriageGroup['hubId'],
             'href'     => $node['url'],
         ];
@@ -266,10 +321,30 @@ if ($marriageReach !== null) {
         'Two people are linked when they were married to each other. Following those links from spouse to later spouse traces a marriage chain; the longest unbroken chain in the tree is shown on the left. The largest connected group on the right is every person reachable from one another through such marriages, drawn as a web with the most-married person at its centre and the longest chain highlighted.'
     );
 
-    // K2 — caption naming the group's median life year, when any member is dated.
+    // K2 — caption naming the group's median life year, when any member is
+    // dated. A year prints verbatim — `I18N::number` would add the German
+    // thousands separator ("1.934"), so cast the year to a plain string.
     $marriageGroupCaption = ($marriageGroup['medianYear'] !== null)
-        ? I18N::translate('People joined by marriage · median life around %s', I18N::number($marriageGroup['medianYear']))
+        ? I18N::translate('People joined by marriage · median life around %s', (string) $marriageGroup['medianYear'])
         : I18N::translate('People joined by marriage');
+
+    // Foot legend strip beneath the network: the longest chain length, the
+    // group size and edge count, and the median life year — mirroring the
+    // prototype. Years print verbatim (no thousands separator); the counts go
+    // through `I18N::number`. The legend is appended to the widget body below.
+    $marriageNetworkLegendParts = [
+        I18N::translate('Longest chain (%s)', I18N::number(count($marriageGroup['chainIds']))),
+        I18N::translate('%s people', I18N::number($marriageGroup['totalCount'])),
+        I18N::translate('%s marriages', I18N::number(count($marriageGroup['edges']))),
+    ];
+
+    if ($marriageGroup['medianYear'] !== null) {
+        $marriageNetworkLegendParts[] = I18N::translate('Median %s', (string) $marriageGroup['medianYear']);
+    }
+
+    $marriageNetworkLegend = '<p class="wt-stat-network-graph-legend">'
+        . e(implode(' · ', $marriageNetworkLegendParts))
+        . '</p>';
 }
 ?>
 <div class="wt-stat-grid">
@@ -559,6 +634,7 @@ if ($marriageReach !== null) {
                 ->with('capBadge', I18N::translate('%1$s of %2$s shown', '{shown}', '{total}'))
                 ->withAriaLabel(I18N::translate('Largest connected marriage group'))
                 ->render()
+            . $marriageNetworkLegend
         )
         ->render();
 }

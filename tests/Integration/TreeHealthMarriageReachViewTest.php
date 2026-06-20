@@ -77,6 +77,25 @@ final class TreeHealthMarriageReachViewTest extends IntegrationTestCase
         // assertion cannot pass on an unrelated widget's data-payload).
         self::assertMatchesRegularExpression('/data-widget="sequence-chain"[^>]*data-payload="[^"]+"/', $html);
         self::assertMatchesRegularExpression('/data-widget="network-graph"[^>]*data-payload="[^"]+"/', $html);
+
+        // BUG fix — the median life year is a YEAR and must print WITHOUT a
+        // thousands separator. `I18N::number(1934)` would render "1.934" under
+        // a German locale and "1,934" under the en-US test locale; the caption
+        // must carry the bare four-digit year instead. The negative regex
+        // matches BOTH grouping separators so it fires whichever locale runs.
+        self::assertMatchesRegularExpression('/median life around \d{4}\b/', $html);
+        self::assertDoesNotMatchRegularExpression('/median life around \d[.,]\d{3}/', $html);
+
+        // Tooltip — the consumer supplies a `title` per node and per bead so the
+        // chart-lib widgets render a styled tooltip. The JSON key lands in the
+        // e()-escaped data-payload as `&quot;title&quot;`.
+        self::assertStringContainsString('&quot;title&quot;:', $html);
+
+        // Foot legend — the network card carries the summary strip beneath the
+        // widget, naming the longest-chain length, the group size and the
+        // marriage count.
+        self::assertStringContainsString('wt-stat-network-graph-legend', $html);
+        self::assertStringContainsString('Longest chain (', $html);
     }
 
     /**
