@@ -192,6 +192,85 @@ $recordInventoryExplanation = I18N::translate(
 $islandsExplanation = I18N::translate(
     'Each tile is one connected sub-tree: a group of individuals tied together by parentage or marriage, with no link to any other sub-tree. The tile area is proportional to the number of members, the largest first. The label is the most common surname within that sub-tree — so the same surname can mark several separate sub-trees when a family line is not yet connected to the rest of the tree. The final tile sums up every sub-tree beyond the ten largest.'
 );
+
+// Marriage-reach: the longest unbroken marriage chain and the single largest
+// connected marriage group. The summary is null for a tree with no married
+// couples, in which case the whole block below is skipped.
+$marriageReach = $statistic->getMarriageReachSummary();
+
+if ($marriageReach !== null) {
+    $marriageReachReport = $marriageReach->jsonSerialize();
+    $marriageGroup       = $marriageReachReport['group'];
+
+    // V1 — the longest chain as a left-to-right bead strip. Each person becomes
+    // a bead carrying its display label, a "*birth–death" sub-caption and its
+    // sex as the `data-group` the consumer stylesheet colours.
+    $marriageChainItems = [];
+
+    foreach ($marriageReachReport['chain'] as $person) {
+        $marriageChainItems[] = [
+            'id'       => $person['xref'],
+            'label'    => $person['label'],
+            'sublabel' => '*' . $person['birth'] . '–' . $person['death'],
+            'group'    => $person['sex'],
+            'href'     => $person['url'],
+        ];
+    }
+
+    // V2 — the largest group as a force-directed graph. Each node carries its
+    // sex as `data-group`, the hub is emphasised, and every edge lying on the
+    // longest-chain path is highlighted. `chainIds` doubles as the highlight
+    // path so the graph draws the chain through the cluster.
+    $marriageGroupChainPairs = [];
+
+    for ($i = 1, $count = count($marriageGroup['chainIds']); $i < $count; ++$i) {
+        $a = $marriageGroup['chainIds'][$i - 1];
+        $b = $marriageGroup['chainIds'][$i];
+
+        $marriageGroupChainPairs[$a . "\0" . $b] = true;
+        $marriageGroupChainPairs[$b . "\0" . $a] = true;
+    }
+
+    $marriageGroupNodes = [];
+
+    foreach ($marriageGroup['nodes'] as $node) {
+        $marriageGroupNodes[] = [
+            'id'       => $node['xref'],
+            'label'    => $node['label'],
+            'group'    => $node['sex'],
+            'emphasis' => $node['xref'] === $marriageGroup['hubId'],
+            'href'     => $node['url'],
+        ];
+    }
+
+    $marriageGroupLinks = [];
+
+    foreach ($marriageGroup['edges'] as $edge) {
+        $marriageGroupLinks[] = [
+            'source'      => $edge[0],
+            'target'      => $edge[1],
+            'highlighted' => isset($marriageGroupChainPairs[$edge[0] . "\0" . $edge[1]]),
+        ];
+    }
+
+    $marriageGroupPayload = [
+        'nodes'         => $marriageGroupNodes,
+        'links'         => $marriageGroupLinks,
+        'highlightPath' => $marriageGroup['chainIds'],
+        'hubId'         => $marriageGroup['hubId'],
+        'totalCount'    => $marriageGroup['totalCount'],
+        'shownCount'    => $marriageGroup['shownCount'],
+    ];
+
+    $marriageReachExplanation = I18N::translate(
+        'Two people are linked when they were married to each other. Following those links from spouse to later spouse traces a marriage chain; the longest unbroken chain in the tree is shown on the left. The largest connected group on the right is every person reachable from one another through such marriages, drawn as a web with the most-married person at its centre and the longest chain highlighted.'
+    );
+
+    // K2 — caption naming the group's median life year, when any member is dated.
+    $marriageGroupCaption = ($marriageGroup['medianYear'] !== null)
+        ? I18N::translate('People joined by marriage · median life around %s', I18N::number($marriageGroup['medianYear']))
+        : I18N::translate('People joined by marriage');
+}
 ?>
 <div class="wt-stat-grid">
 <?php
@@ -401,6 +480,88 @@ echo Card::for($module, I18N::translate('Endogamy rate'))
                 ->render()
     )
     ->render();
+
+if ($marriageReach !== null) {
+    echo Card::for($module, I18N::translate('Longest marriage chain'))
+        ->withSub(I18N::translate('Unbroken spouse-to-spouse line'))
+        ->withEyebrow(I18N::translate('Reach'))
+        ->withAccent(Accent::Rose)
+        ->withIllustration(Illustration::Rings)
+        ->withInfo($marriageReachExplanation, $aboutThisChart, $aboutThisChart)
+        ->withSpan(4)
+        ->centered()
+        ->withBodyHtml(
+            Component::scalar($module)
+                ->with('value', I18N::number($marriageReach->longestChainLength))
+                ->with('unit', I18N::translate('people'))
+                ->with('caption', I18N::translate('Each step is one marriage further along the line.'))
+                ->render()
+        )
+        ->render();
+
+    echo Card::for($module, I18N::translate('Largest connected group'))
+        ->withSub(I18N::translate('Biggest web of intermarried people'))
+        ->withEyebrow(I18N::translate('Reach'))
+        ->withAccent(Accent::Rose)
+        ->withIllustration(Illustration::Knot)
+        ->withSpan(4)
+        ->centered()
+        ->withBodyHtml(
+            Component::scalar($module)
+                ->with('value', I18N::number($marriageReach->group->totalCount))
+                ->with('unit', I18N::translate('people'))
+                ->with('caption', $marriageGroupCaption)
+                ->render()
+        )
+        ->render();
+
+    echo Card::for($module, I18N::translate('Depth-to-breadth ratio'))
+        ->withSub(I18N::translate('Deepest line against the longest marriage chain'))
+        ->withEyebrow(I18N::translate('Shape'))
+        ->withAccent(Accent::Rose)
+        ->withIllustration(Illustration::Bell)
+        ->withSpan(4)
+        ->centered()
+        ->withBodyHtml(
+            Component::scalar($module)
+                ->with('value', I18N::number($marriageReach->depthPath) . ' : ' . I18N::number($marriageReach->breadthChain))
+                ->with('caption', I18N::translate('Generations deep versus people wide. A tall tree runs deep, a broad one spreads sideways.'))
+                ->render()
+        )
+        ->render();
+
+    echo Card::for($module, I18N::translate('Longest marriage chain'))
+        ->withSub(I18N::translate('Every spouse on the longest line, in order'))
+        ->withEyebrow(I18N::translate('Reach'))
+        ->withAccent(Accent::Rose)
+        ->withIllustration(Illustration::Rings)
+        ->withSpan(12)
+        ->withBodyHtml(
+            Widget::sequenceChain($module, 'marriage-chain-sequence')
+                ->withData(['items' => $marriageChainItems])
+                ->withAriaLabel(I18N::translate('Longest marriage chain'))
+                ->render()
+        )
+        ->render();
+
+    echo Card::for($module, I18N::translate('Largest connected marriage group'))
+        ->withSub(I18N::translate('Intermarriage web · the longest chain highlighted'))
+        ->withEyebrow(I18N::translate('Reach'))
+        ->withAccent(Accent::Rose)
+        ->withIllustration(Illustration::Knot)
+        ->withInfo($marriageReachExplanation, $aboutThisChart, $aboutThisChart)
+        ->withSpan(8)
+        ->withBodyHtml(
+            Widget::networkGraph($module, 'marriage-group-network')
+                ->withData($marriageGroupPayload)
+                ->withHeight(360)
+                ->withAccent(Accent::Rose)
+                ->with('capBadge', I18N::translate('%1$s of %2$s shown', '{shown}', '{total}'))
+                ->withAriaLabel(I18N::translate('Largest connected marriage group'))
+                ->render()
+        )
+        ->render();
+}
 
 echo Card::for($module, I18N::translate('Top 10 most-influential ancestors'))
     ->withSub(I18N::translate('Individuals with the most documented descendants · the structural roots of the tree'))

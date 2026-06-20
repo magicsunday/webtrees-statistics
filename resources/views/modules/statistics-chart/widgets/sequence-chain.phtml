@@ -1,0 +1,42 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
+use MagicSunday\Webtrees\Statistic\View\EmptyStatePlaceholder;
+
+/**
+ * Sequence-chain widget shell. Emits a `data-widget="sequence-chain"` marker
+ * carrying the `{items}` payload — `items` an ordered
+ * `[{id, label, sublabel, group, href}]` bead list (each item's `group` becomes
+ * a `data-group` attribute on its bead the consumer styles via CSS). The
+ * chart-lib `SequenceChain` widget paints only the bead layout and assigns no
+ * colour by group. The accessible label is passed in pre-translated.
+ *
+ * @var string                                                                                              $identifier Host element id
+ * @var array{items: list<array{id: string, label: string, sublabel: string, group: string, href: string}>} $data       Sequence-chain payload
+ * @var string|null                                                                                         $ariaLabel  Accessible label on the host element
+ */
+if (($data['items'] ?? []) === []) {
+    echo EmptyStatePlaceholder::render();
+
+    return;
+}
+
+$options = [
+    'ariaLabel' => $ariaLabel ?? null,
+];
+?>
+<div class="wt-stat-sequence-chain-container"
+     id="<?php echo e($identifier); ?>"
+     data-widget="sequence-chain"
+     data-payload="<?php echo WidgetJson::encodeAttribute($data); ?>"
+     data-options="<?php echo WidgetJson::encodeAttribute($options); ?>"
+     data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"></div>
