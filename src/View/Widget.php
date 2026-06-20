@@ -238,6 +238,24 @@ final readonly class Widget
     }
 
     /**
+     * Start a new network-graph widget host. The partial emits a
+     * `data-widget="network-graph"` shell carrying the `{nodes, links, hubId,
+     * highlightPath, …}` payload; the chart-lib `NetworkGraph` widget paints
+     * only geometry and assigns no colour by `group` — each node's `group`
+     * becomes a `data-group` attribute the consumer styles via CSS.
+     */
+    public static function networkGraph(string $module, string $identifier): self
+    {
+        return new self(
+            $module,
+            'network-graph',
+            [
+                'identifier' => $identifier,
+            ]
+        );
+    }
+
+    /**
      * Start a new population-pyramid widget host. Pass the `{groups, bands,
      * data}` payload via `withData(...)`; the `leftLabel` / `rightLabel` /
      * `axisLabel` captions flow through `with(...)`.
@@ -261,6 +279,24 @@ final readonly class Widget
         return new self(
             $module,
             'sankey-flow',
+            [
+                'identifier' => $identifier,
+            ]
+        );
+    }
+
+    /**
+     * Start a new sequence-chain widget host. The partial emits a
+     * `data-widget="sequence-chain"` shell carrying the `{items, …}` payload;
+     * the chart-lib `SequenceChain` widget paints only the bead layout and
+     * assigns no colour by `group` — each item's `group` becomes a `data-group`
+     * attribute on its bead the consumer styles via CSS.
+     */
+    public static function sequenceChain(string $module, string $identifier): self
+    {
+        return new self(
+            $module,
+            'sequence-chain',
             [
                 'identifier' => $identifier,
             ]

@@ -22,7 +22,9 @@ import {
     MonthRadial,
     NameBubbles,
     NameTimeline,
+    NetworkGraph,
     SankeyFlow,
+    SequenceChain,
     StackedBar,
     StreamGraph,
     Treemap,
@@ -153,6 +155,8 @@ const WIDGETS = {
     "population-pyramid": fromChartLib(DivergingBarChart),
     heatmap: fromChartLib(Heatmap),
     treemap: fromChartLib(Treemap),
+    "network-graph": fromChartLib(NetworkGraph),
+    "sequence-chain": fromChartLib(SequenceChain),
 };
 
 /**

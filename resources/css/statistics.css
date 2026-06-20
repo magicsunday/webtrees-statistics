@@ -4090,3 +4090,168 @@
 .wt-statistics-chart svg.msc-treemap-svg .msc-treemap-tile:hover .msc-treemap-rect {
     filter: brightness(1.08);
 }
+
+/* ============================================================
+   Marriage-chain widgets (network-graph + sequence-chain)
+   ============================================================
+   chart-lib paints only geometry for these two widgets and assigns
+   no colour or shape by `group`; it writes each node's/bead's group
+   verbatim into a `data-group` attribute. The consumer owns the
+   DOMAIN styling below: it maps the genealogy sex code to a colour
+   AND a shape via that neutral hook — `F` (female) → a circle in the
+   rose accent, `M` (male) → a rounded square in the slate accent,
+   `U`/empty → a neutral diamond. All colours come from the existing
+   `--wmstats-sex-*` tokens (rose / slate / ink-3), which already
+   theme-switch between the light and dark `:root` blocks, so nothing
+   is hard-coded.
+
+   `msc-*` classes belong to chart-lib — styled here, never renamed.
+   The `wt-stat-*-container` wrappers are the consumer's own. */
+
+.wt-statistics-chart .wt-stat-network-graph-container,
+.wt-statistics-chart .wt-stat-sequence-chain-container {
+    width: 100%;
+}
+
+/* ---- Network graph ---------------------------------------- */
+
+.wt-statistics-chart .msc-network-graph-wrapper {
+    position: relative;
+    width:    100%;
+}
+
+.wt-statistics-chart svg.msc-network-graph {
+    display: block;
+    width:   100%;
+}
+
+/* Edges read as quiet hairlines; a highlighted edge keeps the inline
+   accent stroke chart-lib paints, so only the plain stroke is set. */
+.wt-statistics-chart .msc-network-graph-edge {
+    stroke:       var(--border);
+    stroke-width: 1.5;
+}
+
+.wt-statistics-chart .msc-network-graph-edge--highlighted {
+    stroke-width: 2.5;
+}
+
+/* Base node: neutral fill + a thin card-coloured rim that lifts every
+   bead off the edges underneath. The sex overrides below repaint the
+   fill. A circle cannot change its SVG geometry, so on the network the
+   sex cue is carried by COLOUR; the bead chain below adds the shape. */
+.wt-statistics-chart .msc-network-graph-node {
+    fill:         var(--wmstats-sex-unknown);
+    stroke:       var(--card);
+    stroke-width: 1.5;
+}
+
+.wt-statistics-chart .msc-network-graph-node[data-group="F"] {
+    fill: var(--wmstats-sex-female);
+}
+
+.wt-statistics-chart .msc-network-graph-node[data-group="M"] {
+    fill: var(--wmstats-sex-male);
+}
+
+.wt-statistics-chart .msc-network-graph-node[data-group="U"] {
+    fill: var(--wmstats-sex-unknown);
+}
+
+/* The hub (the focus couple's anchor) keeps a rose accent ring so it
+   stays findable regardless of its sex fill. */
+.wt-statistics-chart .msc-network-graph-node--hub {
+    stroke:       var(--rose);
+    stroke-width: 2.5;
+}
+
+.wt-statistics-chart .msc-network-graph-badge {
+    position:      absolute;
+    top:           8px;
+    right:         8px;
+    padding:       2px 8px;
+    border-radius: 999px;
+    background:    var(--card-warm);
+    color:         var(--ink-2);
+    font-family:   var(--mono);
+    font-size:     11px;
+}
+
+/* ---- Sequence chain --------------------------------------- */
+
+.wt-statistics-chart .msc-sequence-chain {
+    width: 100%;
+}
+
+.wt-statistics-chart .msc-sequence-chain-track {
+    display:     flex;
+    align-items: flex-start;
+    flex-wrap:   wrap;
+    gap:         4px;
+}
+
+.wt-statistics-chart .msc-sequence-chain-bead {
+    display:         inline-flex;
+    flex-direction:  column;
+    align-items:     center;
+    gap:             4px;
+    text-decoration: none;
+    color:           inherit;
+}
+
+/* The disc carries the sex SHAPE + colour. Base = neutral diamond (a
+   `clip-path`, NOT a rotate transform, so the initials inside stay
+   upright) in the unknown tint; `F` rounds it to a full circle in the
+   rose accent, `M` softens it to a rounded square in the slate accent.
+   `clip-path: none` on F/M lets the border-radius shape take over. */
+.wt-statistics-chart .msc-sequence-chain-disc {
+    display:         inline-flex;
+    align-items:     center;
+    justify-content: center;
+    width:           34px;
+    height:          34px;
+    clip-path:       polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+    background:      var(--wmstats-sex-unknown);
+    color:           var(--card);
+    font-family:     var(--sans);
+    font-size:       12px;
+    font-weight:     600;
+}
+
+.wt-statistics-chart .msc-sequence-chain-bead[data-group="F"] .msc-sequence-chain-disc {
+    border-radius: 999px;
+    clip-path:     none;
+    background:    var(--wmstats-sex-female);
+}
+
+.wt-statistics-chart .msc-sequence-chain-bead[data-group="M"] .msc-sequence-chain-disc {
+    border-radius: 8px;
+    clip-path:     none;
+    background:    var(--wmstats-sex-male);
+}
+
+.wt-statistics-chart .msc-sequence-chain-bead[data-group="U"] .msc-sequence-chain-disc {
+    clip-path:  polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+    background: var(--wmstats-sex-unknown);
+}
+
+.wt-statistics-chart .msc-sequence-chain-label {
+    max-width:   80px;
+    color:       var(--ink);
+    font-size:   12px;
+    font-weight: 600;
+    text-align:  center;
+}
+
+.wt-statistics-chart .msc-sequence-chain-sublabel {
+    color:      var(--ink-2);
+    font-size:  11px;
+    text-align: center;
+}
+
+/* The interlocked-rings connector glyph paints in currentColor; tint it
+   with the rose accent so the marriage link reads as the card's accent. */
+.wt-statistics-chart .msc-sequence-chain-link {
+    display: inline-flex;
+    color:   var(--rose);
+}
