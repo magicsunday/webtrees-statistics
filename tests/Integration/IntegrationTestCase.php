@@ -137,6 +137,12 @@ abstract class IntegrationTestCase extends TestCase
      * attribute, so without this binding the CLI harness cannot resolve any
      * `Individual::url()` / `Family::url()` call (the absent request fails to
      * instantiate). Mirrors `Fisharebest\Webtrees\TestCase::setUp()`.
+     *
+     * The request's `user` attribute is intentionally a {@see GuestUser} and is
+     * a routing placeholder only — tests must NOT read it for authorization.
+     * Access checks go through `Auth::user()` (the session principal), which
+     * each test sets up independently; a future test that drives authz off the
+     * request attribute would need to bind it from that same principal instead.
      */
     private function bindRoutingAndRequest(): void
     {

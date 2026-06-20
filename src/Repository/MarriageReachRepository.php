@@ -238,9 +238,10 @@ final readonly class MarriageReachRepository
 
     /**
      * The Gregorian years of one dated fact for the given members. Each member
-     * may carry several rows for the same fact (an imprecise range stores two);
-     * every dated row contributes its converted year, matching the multiset the
-     * median is meant to summarise.
+     * may carry several rows for the same fact (an imprecise range like
+     * `BET … AND …` stores its lower and upper bound as two rows); every dated
+     * row contributes its converted year, so such a range adds both its bound
+     * years (two distinct values) to the multiset the median summarises.
      *
      * @param list<string> $members The people whose years to read
      * @param string       $fact    The GEDCOM fact tag (`BIRT` / `DEAT`)
