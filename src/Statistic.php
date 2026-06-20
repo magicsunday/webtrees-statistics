@@ -69,7 +69,6 @@ use MagicSunday\Webtrees\Statistic\Support\Locale\MonthName;
 use MagicSunday\Webtrees\Statistic\Support\Locale\ZodiacLabels;
 
 use function array_values;
-use function count;
 
 /**
  * Aggregator service that backs the statistics-chart tab partials.
