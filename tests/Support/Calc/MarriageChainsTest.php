@@ -559,4 +559,78 @@ final class MarriageChainsTest extends TestCase
             MarriageChains::longestChain($shuffled),
         );
     }
+
+    /**
+     * The median year over the supplied multiset: an odd count yields the middle
+     * value, an even count the LOWER of the two middle values (deterministic, no
+     * averaging — averaging could produce a non-integer year), an empty list
+     * yields `null`. The selection sorts a local copy, so the result is
+     * order-independent and the caller's array is never mutated.
+     *
+     * @param list<int> $years    The birth+death year multiset
+     * @param int|null  $expected The expected median year, or `null` when empty
+     *
+     * @return void
+     */
+    #[Test]
+    #[DataProvider('medianYearProvider')]
+    public function medianYearReturnsLowerMedian(array $years, ?int $expected): void
+    {
+        self::assertSame($expected, MarriageChains::medianYear($years));
+    }
+
+    /**
+     * The caller's array is never mutated: the helper must sort a local copy.
+     * The unsorted input would become `[1850, 1900, 1950]` if the helper sorted
+     * in place, so asserting the original order is preserved proves the copy.
+     *
+     * @param list<int> $years An unsorted year multiset, passed via the data
+     *                         provider so PHPStan cannot constant-fold it to a
+     *                         literal and flag the assertion as always-true
+     *
+     * @return void
+     */
+    #[Test]
+    #[DataProvider('unsortedYearsProvider')]
+    public function medianYearDoesNotMutateTheCallerArray(array $years): void
+    {
+        $before = $years;
+
+        MarriageChains::medianYear($years);
+
+        self::assertSame($before, $years);
+    }
+
+    /**
+     * A single unsorted multiset whose in-place sort would reorder it, so a
+     * preserved order proves the helper copied rather than mutated.
+     *
+     * @return array<string, array{list<int>}>
+     */
+    public static function unsortedYearsProvider(): array
+    {
+        return [
+            'descending then unsorted tail' => [[1950, 1850, 1900]],
+        ];
+    }
+
+    /**
+     * Median-year cases: odd → middle, even → lower median, unsorted → same as
+     * sorted, single → itself, empty → null, and a duplicate-heavy multiset.
+     *
+     * @return array<string, array{list<int>, int|null}>
+     */
+    public static function medianYearProvider(): array
+    {
+        return [
+            'empty list'                    => [[], null],
+            'single element'                => [[1875], 1875],
+            'odd count picks the middle'    => [[1850, 1900, 1950], 1900],
+            'even count picks lower median' => [[1900, 1910], 1900],
+            'unsorted input equals sorted'  => [[1950, 1850, 1900], 1900],
+            'even unsorted lower median'    => [[1920, 1880, 1910, 1890], 1890],
+            'duplicate-heavy multiset'      => [[1900, 1900, 1900, 1950], 1900],
+            'all identical years'           => [[1880, 1880, 1880], 1880],
+        ];
+    }
 }

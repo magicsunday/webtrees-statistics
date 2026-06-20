@@ -21,6 +21,7 @@ use function sort;
 use function strcmp;
 use function usort;
 
+use const SORT_NUMERIC;
 use const SORT_STRING;
 
 /**
@@ -139,6 +140,44 @@ final readonly class MarriageChains
             'members' => $members,
             'edges'   => self::countEdges($adjacency, $members),
         ];
+    }
+
+    /**
+     * Return the median of the supplied year multiset — later fed the combined
+     * birth AND death years of the largest group's members — or `null` when the
+     * list is empty.
+     *
+     * An odd count yields the single middle value; an EVEN count yields the
+     * LOWER of the two middle values, never their average — a year must stay an
+     * integer, so averaging (which can land on a half-year) is deliberately
+     * avoided, and the lower-median choice keeps the result deterministic. A
+     * local copy is sorted before the middle value is picked, so the caller's
+     * array is never mutated and the result is independent of the input order.
+     *
+     * @param list<int> $years The birth+death year multiset
+     *
+     * @return int|null The lower-median year, or `null` when the list is empty
+     */
+    public static function medianYear(array $years): ?int
+    {
+        $count = count($years);
+
+        if ($count === 0) {
+            return null;
+        }
+
+        $sorted = $years;
+        sort($sorted, SORT_NUMERIC);
+
+        // intdiv() floors the middle index: an odd count lands on the single
+        // middle element, an even count on the LOWER of the two middle
+        // elements (index $count / 2 - 1), giving the lower median without
+        // averaging.
+        $middle = ($count % 2 === 0)
+            ? intdiv($count, 2) - 1
+            : intdiv($count, 2);
+
+        return $sorted[$middle];
     }
 
     /**
