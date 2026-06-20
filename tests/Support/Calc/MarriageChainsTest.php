@@ -18,6 +18,8 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 use function array_map;
+use function array_reverse;
+use function array_unique;
 use function count;
 
 /**
@@ -25,7 +27,12 @@ use function count;
  * connected-component split over hand-coded adjacency maps without a Tree: the
  * three-person threshold that drops a couple, the size-descending then
  * smallest-xref ordering, insertion-order independence, the internal
- * edge-count, and the empty / no-qualifying-component cases.
+ * edge-count, and the empty / no-qualifying-component cases — plus the
+ * longest-simple-path ("longest chain") diameter computation: hand-verifiable
+ * diameters, the branch-hub case where a naive eccentricity-from-the-first-node
+ * walk under-counts but the diameter is correct, the equal-length tie-break
+ * pinned to an exact sequence, the three-person threshold, and order
+ * independence.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -248,5 +255,308 @@ final class MarriageChainsTest extends TestCase
                 'Y' => ['W'],
             ]],
         ];
+    }
+
+    /**
+     * A graph with no component of {@see MarriageChains::MIN_GROUP_SIZE} people
+     * has no chain: an empty map, a lone couple, and an isolated single person
+     * all return an empty path.
+     *
+     * @param array<array-key, list<string>> $adjacency A sub-threshold graph
+     *
+     * @return void
+     */
+    #[Test]
+    #[DataProvider('subThresholdGraphProvider')]
+    public function longestChainIsEmptyBelowThreshold(array $adjacency): void
+    {
+        self::assertSame([], MarriageChains::longestChain($adjacency));
+    }
+
+    /**
+     * Graphs whose every component holds fewer than three people.
+     *
+     * @return array<string, array{array<array-key, list<string>>}>
+     */
+    public static function subThresholdGraphProvider(): array
+    {
+        return [
+            'empty map'   => [[]],
+            'lone couple' => [[
+                'A' => ['B'],
+                'B' => ['A'],
+            ]],
+            'two lone couples' => [[
+                'A' => ['B'],
+                'B' => ['A'],
+                'C' => ['D'],
+                'D' => ['C'],
+            ]],
+            // A degree-0 person: a single individual with no marriage edge — its
+            // own one-member component is far below the threshold.
+            'isolated single person' => [[
+                'A' => [],
+            ]],
+        ];
+    }
+
+    /**
+     * The longest chain across hand-coded graphs whose diameter can be checked
+     * by eye. Each row pins the EXACT returned sequence (not just its length),
+     * so the byte-order tie-break — smallest-xref start node, smallest-xref
+     * farthest pick, sorted neighbour visitation — is locked against any
+     * regression that would still yield a same-length but differently-ordered
+     * path.
+     *
+     * @param array<array-key, list<string>> $adjacency The marriage graph
+     * @param list<string>                   $expected  The exact longest-path xref sequence
+     *
+     * @return void
+     */
+    #[Test]
+    #[DataProvider('longestChainProvider')]
+    public function longestChainReturnsTheExactDiameterPath(array $adjacency, array $expected): void
+    {
+        self::assertSame($expected, MarriageChains::longestChain($adjacency));
+    }
+
+    /**
+     * Hand-verifiable diameter graphs.
+     *
+     * @return array<string, array{array<array-key, list<string>>, list<string>}>
+     */
+    public static function longestChainProvider(): array
+    {
+        return [
+            // A straight three-person chain A–B–C: the diameter is the whole
+            // chain, reported smallest-endpoint first.
+            'three-person line' => [
+                [
+                    'A' => ['B'],
+                    'B' => ['A', 'C'],
+                    'C' => ['B'],
+                ],
+                ['A', 'B', 'C'],
+            ],
+
+            // A five-person line A–B–C–D–E: the diameter spans all five.
+            'five-person line' => [
+                [
+                    'A' => ['B'],
+                    'B' => ['A', 'C'],
+                    'C' => ['B', 'D'],
+                    'D' => ['C', 'E'],
+                    'E' => ['D'],
+                ],
+                ['A', 'B', 'C', 'D', 'E'],
+            ],
+
+            // Branch-hub case (THE discriminator for diameter vs eccentricity):
+            // four leaves A/B/C/D on a single hub H. Every longest simple path
+            // is leaf–H–leaf (three people); among those the lexicographically
+            // smallest sequence is A–H–B, which the byte-order tie-break and the
+            // path orientation pick deterministically.
+            'star hub picks smallest leaf pair' => [
+                [
+                    'A' => ['H'],
+                    'B' => ['H'],
+                    'C' => ['H'],
+                    'D' => ['H'],
+                    'H' => ['A', 'B', 'C', 'D'],
+                ],
+                ['A', 'H', 'B'],
+            ],
+
+            // A "T" graph: a spine A–B–C–D with a branch B–E. The longest simple
+            // path is the spine A–B–C–D (4); the branch E–B–C–D is also 4 but
+            // starts at the larger endpoint "E", so the smaller-endpoint
+            // A–B–C–D wins the tie-break. A naive eccentricity walk from the
+            // first node "A" happens to find the spine here, but the branch-hub
+            // row above is the real discriminator.
+            'T-graph prefers smallest endpoint path' => [
+                [
+                    'A' => ['B'],
+                    'B' => ['A', 'C', 'E'],
+                    'C' => ['B', 'D'],
+                    'D' => ['C'],
+                    'E' => ['B'],
+                ],
+                ['A', 'B', 'C', 'D'],
+            ],
+
+            // Two equal-length components: chain A–B–C and chain P–Q–R. Both are
+            // length 3; the lexicographically smallest path (A,B,C) wins.
+            'equal-length components tie-break on smallest path' => [
+                [
+                    'P' => ['Q'],
+                    'Q' => ['P', 'R'],
+                    'R' => ['Q'],
+                    'A' => ['B'],
+                    'B' => ['A', 'C'],
+                    'C' => ['B'],
+                ],
+                ['A', 'B', 'C'],
+            ],
+
+            // A longer component must win over a shorter qualifying one,
+            // regardless of insertion order: a 3-chain written first, a 4-line
+            // written second.
+            'longer component wins over shorter' => [
+                [
+                    'A' => ['B'],
+                    'B' => ['A', 'C'],
+                    'C' => ['B'],
+                    'M' => ['N'],
+                    'N' => ['M', 'O'],
+                    'O' => ['N', 'P'],
+                    'P' => ['O'],
+                ],
+                ['M', 'N', 'O', 'P'],
+            ],
+        ];
+    }
+
+    /**
+     * THE discriminator at the unit level: the graph diameter (longest simple
+     * path, computed by double-BFS) joins the TWO longest arms through a branch
+     * hub, which a path confined to a single arm cannot reach. Hub C carries
+     * three arms: A–B–C (two edges), C–D–E (two edges) and C–F–G–X (three
+     * edges). The longest simple path picks the two longest arms — A–B–C and
+     * C–F–G–X — and joins them across C into A–B–C–F–G–X (six people, five
+     * marriages). A walk that measured only one arm, or only the eccentricity
+     * from a fixed proband down a single line, would stop short (the C–D–E arm
+     * is a five-person path A–B–C–D–E and would be the wrong, shorter answer).
+     */
+    #[Test]
+    public function longestChainExceedsSingleArmEccentricityOnBranchHub(): void
+    {
+        $adjacency = [
+            'A' => ['B'],
+            'B' => ['A', 'C'],
+            'C' => ['B', 'D', 'F'],
+            'D' => ['C', 'E'],
+            'E' => ['D'],
+            'F' => ['C', 'G'],
+            'G' => ['F', 'X'],
+            'X' => ['G'],
+        ];
+
+        // Two longest arms through C: A–B–C and C–F–G–X join into
+        // A–B–C–F–G–X = six people. The C–D–E arm is shorter, so the
+        // A–B–C–D–E (five-person) path it would form loses the tie — a
+        // single-arm walk would stop at five, the diameter reaches six.
+        self::assertSame(['A', 'B', 'C', 'F', 'G', 'X'], MarriageChains::longestChain($adjacency));
+    }
+
+    /**
+     * The longest chain must not depend on the insertion order of the adjacency
+     * map nor of any neighbour list. The BFS sorts every neighbour list before
+     * use, so reversing neighbour lists alone would be inert; this test ALSO
+     * reverses the top-level key order — the algorithm's most order-sensitive
+     * input, since it seeds which node BFS starts from — so the assertion
+     * exercises the start-node, farthest-pick and reconstruction tie-breaks, not
+     * just the (normalised-away) neighbour order.
+     */
+    #[Test]
+    public function longestChainIsInsertionOrderIndependent(): void
+    {
+        $adjacency = [
+            'A' => ['B'],
+            'B' => ['A', 'C'],
+            'C' => ['B', 'D', 'F'],
+            'D' => ['C', 'E'],
+            'E' => ['D'],
+            'F' => ['C', 'G'],
+            'G' => ['F', 'X'],
+            'X' => ['G'],
+        ];
+
+        $shuffled = array_map(array_reverse(...), array_reverse($adjacency, true));
+
+        self::assertSame(
+            MarriageChains::longestChain($adjacency),
+            MarriageChains::longestChain($shuffled),
+        );
+    }
+
+    /**
+     * A component that contains a CYCLE: the longest simple path is NP-hard in
+     * general, so double-BFS returns a deterministic lower bound rather than a
+     * proven optimum. The contract this test locks is that the result stays
+     * deterministic and is a real simple path — not its exact optimality. The
+     * graph is a four-node square A–B–C–D–A with a tail D–E; the byte-order
+     * double-BFS yields the same chain regardless of insertion order.
+     */
+    #[Test]
+    public function longestChainStaysDeterministicOnACyclicComponent(): void
+    {
+        $adjacency = [
+            'A' => ['B', 'D'],
+            'B' => ['A', 'C'],
+            'C' => ['B', 'D'],
+            'D' => ['A', 'C', 'E'],
+            'E' => ['D'],
+        ];
+
+        $shuffled = array_map(array_reverse(...), array_reverse($adjacency, true));
+
+        $chain = MarriageChains::longestChain($adjacency);
+
+        // Deterministic across insertion order.
+        self::assertSame($chain, MarriageChains::longestChain($shuffled));
+
+        // A real simple path: at least the three-person threshold, no repeated
+        // person, and every consecutive pair is a genuine marriage edge.
+        self::assertGreaterThanOrEqual(MarriageChains::MIN_GROUP_SIZE, count($chain));
+        self::assertCount(count($chain), array_unique($chain));
+
+        $previous = null;
+
+        foreach ($chain as $person) {
+            if ($previous !== null) {
+                self::assertContains($person, $adjacency[$previous], $previous . ' and ' . $person . ' must be married');
+            }
+
+            $previous = $person;
+        }
+    }
+
+    /**
+     * Digit-only XREFs must order in BYTE order throughout the chain — including
+     * the neighbour visitation that routes the interior of the path — so the
+     * result matches the `strcmp` tie-breaks used everywhere else in the class.
+     * The interior node "9" is reachable through two equal-distance parents,
+     * "54" and "7"; in byte order "54" precedes "7" (digit '5' < '7'), whereas a
+     * numeric sort would route through "7" instead. Pinning the exact sequence
+     * locks the neighbour sort to {@see SORT_STRING}: a regression to the default
+     * numeric `sort()` would route the interior through "7" and fail here.
+     */
+    #[Test]
+    public function longestChainOrdersDigitOnlyXrefsInByteOrder(): void
+    {
+        // A diamond 1–{54,7}–9 with a tail 3–2–1 on one side and 9–8 on the
+        // other. The diameter runs 3–2–1–?–9–8 (six people); the "?" hub ties
+        // between "54" and "7", and the byte-order tie-break picks "54".
+        $adjacency = [
+            '3'  => ['2'],
+            '2'  => ['3', '1'],
+            '1'  => ['2', '54', '7'],
+            '54' => ['1', '9'],
+            '7'  => ['1', '9'],
+            '9'  => ['54', '7', '8'],
+            '8'  => ['9'],
+        ];
+
+        self::assertSame(
+            ['3', '2', '1', '54', '9', '8'],
+            MarriageChains::longestChain($adjacency),
+        );
+
+        $shuffled = array_map(array_reverse(...), array_reverse($adjacency, true));
+
+        self::assertSame(
+            MarriageChains::longestChain($adjacency),
+            MarriageChains::longestChain($shuffled),
+        );
     }
 }
