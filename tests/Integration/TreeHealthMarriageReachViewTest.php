@@ -24,9 +24,11 @@ use function view;
 /**
  * Render-level test of the marriage-chain block on the Tree-Health tab. The five
  * cards (the longest-chain scalar, the largest-group scalar, the depth-vs-breadth
- * ratio, the sequence-chain widget and the network-graph widget) must appear when
- * {@see Statistic::getMarriageReachSummary()} resolves a report, and the WHOLE
- * block must be absent when it returns `null` (a tree with no marriages).
+ * ratio, the sequence-chain widget and the network-graph widget) carry their real
+ * values and widget payloads when {@see Statistic::getMarriageReachSummary()}
+ * resolves a report, and they still render with the empty-state placeholder as
+ * their body — never vanish — when it returns `null` (a tree with no marriage
+ * chain reaching three people).
  *
  * The tab partial is rendered through `view()` exactly as the AJAX tab action
  * does, with a live {@see Statistic} the container auto-wires against the imported
@@ -99,17 +101,27 @@ final class TreeHealthMarriageReachViewTest extends IntegrationTestCase
     }
 
     /**
-     * A tree with no marriages yields a `null` summary, so none of the five
-     * marriage-chain cards — and neither widget shell — render.
+     * A tree with no marriage chain reaching three people yields a `null`
+     * summary, so each of the five marriage-chain cards still renders — with the
+     * empty-state placeholder as its body instead of a value or widget shell.
      */
     #[Test]
-    public function marriageReachBlockIsAbsentWhenTheSummaryIsNull(): void
+    public function marriageReachCardsRenderTheEmptyStateWhenTheSummaryIsNull(): void
     {
         $html = $this->renderTreeHealthTab($this->importFixtureTree('age-at-death-dedup.ged'));
 
-        self::assertStringNotContainsString('Longest marriage chain', $html);
-        self::assertStringNotContainsString('Largest connected group', $html);
-        self::assertStringNotContainsString('Depth-to-breadth ratio', $html);
+        // The card headings stay present — the section does not vanish.
+        self::assertStringContainsString('Longest marriage chain', $html);
+        self::assertStringContainsString('Largest connected group', $html);
+        self::assertStringContainsString('Depth-to-breadth ratio', $html);
+        self::assertStringContainsString('Largest connected marriage group', $html);
+
+        // Each card body falls back to the shared empty-state placeholder copy.
+        self::assertStringContainsString('chart-empty-state', $html);
+        self::assertStringContainsString('No data recorded for this metric.', $html);
+
+        // Neither widget shell is emitted — a null report carries no payload to
+        // hand the sequence-chain or network-graph widget.
         self::assertStringNotContainsString('data-widget="sequence-chain"', $html);
         self::assertStringNotContainsString('data-widget="network-graph"', $html);
     }

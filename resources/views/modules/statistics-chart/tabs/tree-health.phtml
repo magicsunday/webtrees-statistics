@@ -195,8 +195,17 @@ $islandsExplanation = I18N::translate(
 
 // Marriage-reach: the longest unbroken marriage chain and the single largest
 // connected marriage group. The summary is null for a tree with no married
-// couples, in which case the whole block below is skipped.
+// couple chain reaching three people, in which case each card below still
+// renders but shows the empty-state placeholder instead of a value or widget
+// (mirroring the Endogamy card). The VO → widget-payload mapping only runs
+// when a report is present.
 $marriageReach = $statistic->getMarriageReachSummary();
+
+// The "About this chart" popover text is shared by two of the cards and is
+// rendered whether or not a report is present.
+$marriageReachExplanation = I18N::translate(
+    'Two people are linked when they were married to each other. Following those links from spouse to later spouse traces a marriage chain; the longest unbroken chain in the tree is shown on the left. The largest connected group on the right is every person reachable from one another through such marriages, drawn as a web with the most-married person at its centre and the longest chain highlighted.'
+);
 
 if ($marriageReach !== null) {
     $marriageReachReport = $marriageReach->jsonSerialize();
@@ -316,10 +325,6 @@ if ($marriageReach !== null) {
         'totalCount'    => $marriageGroup['totalCount'],
         'shownCount'    => $marriageGroup['shownCount'],
     ];
-
-    $marriageReachExplanation = I18N::translate(
-        'Two people are linked when they were married to each other. Following those links from spouse to later spouse traces a marriage chain; the longest unbroken chain in the tree is shown on the left. The largest connected group on the right is every person reachable from one another through such marriages, drawn as a web with the most-married person at its centre and the longest chain highlighted.'
-    );
 
     // K2 — caption naming the group's median life year, when any member is
     // dated. A year prints verbatim — `I18N::number` would add the German
@@ -556,78 +561,91 @@ echo Card::for($module, I18N::translate('Endogamy rate'))
     )
     ->render();
 
-if ($marriageReach !== null) {
-    echo Card::for($module, I18N::translate('Longest marriage chain'))
-        ->withSub(I18N::translate('Unbroken spouse-to-spouse line'))
-        ->withEyebrow(I18N::translate('Reach'))
-        ->withAccent(Accent::Rose)
-        ->withIllustration(Illustration::Rings)
-        ->withInfo($marriageReachExplanation, $aboutThisChart, $aboutThisChart)
-        ->withSpan(4)
-        ->centered()
-        ->withBodyHtml(
-            Component::scalar($module)
+// The marriage-reach cards always render. When no married couple forms a chain
+// of three or more people (`$marriageReach === null`), each card keeps its
+// heading and shows the empty-state placeholder as its body — mirroring the
+// Endogamy card — instead of the whole block vanishing.
+echo Card::for($module, I18N::translate('Longest marriage chain'))
+    ->withSub(I18N::translate('Unbroken spouse-to-spouse line'))
+    ->withEyebrow(I18N::translate('Reach'))
+    ->withAccent(Accent::Rose)
+    ->withIllustration(Illustration::Rings)
+    ->withInfo($marriageReachExplanation, $aboutThisChart, $aboutThisChart)
+    ->withSpan(4)
+    ->centered()
+    ->withBodyHtml(
+        ($marriageReach === null)
+            ? EmptyStatePlaceholder::render()
+            : Component::scalar($module)
                 ->with('value', I18N::number($marriageReach->longestChainLength))
                 ->with('unit', I18N::translate('people'))
                 ->with('caption', I18N::translate('Each step is one marriage further along the line.'))
                 ->render()
-        )
-        ->render();
+    )
+    ->render();
 
-    echo Card::for($module, I18N::translate('Largest connected group'))
-        ->withSub(I18N::translate('Biggest web of intermarried people'))
-        ->withEyebrow(I18N::translate('Reach'))
-        ->withAccent(Accent::Rose)
-        ->withIllustration(Illustration::Knot)
-        ->withSpan(4)
-        ->centered()
-        ->withBodyHtml(
-            Component::scalar($module)
+echo Card::for($module, I18N::translate('Largest connected group'))
+    ->withSub(I18N::translate('Biggest web of intermarried people'))
+    ->withEyebrow(I18N::translate('Reach'))
+    ->withAccent(Accent::Rose)
+    ->withIllustration(Illustration::Knot)
+    ->withSpan(4)
+    ->centered()
+    ->withBodyHtml(
+        ($marriageReach === null)
+            ? EmptyStatePlaceholder::render()
+            : Component::scalar($module)
                 ->with('value', I18N::number($marriageReach->group->totalCount))
                 ->with('unit', I18N::translate('people'))
                 ->with('caption', $marriageGroupCaption)
                 ->render()
-        )
-        ->render();
+    )
+    ->render();
 
-    echo Card::for($module, I18N::translate('Depth-to-breadth ratio'))
-        ->withSub(I18N::translate('Deepest line against the longest marriage chain'))
-        ->withEyebrow(I18N::translate('Shape'))
-        ->withAccent(Accent::Rose)
-        ->withIllustration(Illustration::Bell)
-        ->withSpan(4)
-        ->centered()
-        ->withBodyHtml(
-            Component::scalar($module)
+echo Card::for($module, I18N::translate('Depth-to-breadth ratio'))
+    ->withSub(I18N::translate('Deepest line against the longest marriage chain'))
+    ->withEyebrow(I18N::translate('Shape'))
+    ->withAccent(Accent::Rose)
+    ->withIllustration(Illustration::Bell)
+    ->withSpan(4)
+    ->centered()
+    ->withBodyHtml(
+        ($marriageReach === null)
+            ? EmptyStatePlaceholder::render()
+            : Component::scalar($module)
                 ->with('value', I18N::number($marriageReach->depthPath) . ' : ' . I18N::number($marriageReach->breadthChain))
                 ->with('caption', I18N::translate('Generations deep versus people wide. A tall tree runs deep, a broad one spreads sideways.'))
                 ->render()
-        )
-        ->render();
+    )
+    ->render();
 
-    echo Card::for($module, I18N::translate('Longest marriage chain'))
-        ->withSub(I18N::translate('Every spouse on the longest line, in order'))
-        ->withEyebrow(I18N::translate('Reach'))
-        ->withAccent(Accent::Rose)
-        ->withIllustration(Illustration::Rings)
-        ->withSpan(12)
-        ->withBodyHtml(
-            Widget::sequenceChain($module, 'marriage-chain-sequence')
+echo Card::for($module, I18N::translate('Longest marriage chain'))
+    ->withSub(I18N::translate('Every spouse on the longest line, in order'))
+    ->withEyebrow(I18N::translate('Reach'))
+    ->withAccent(Accent::Rose)
+    ->withIllustration(Illustration::Rings)
+    ->withSpan(12)
+    ->withBodyHtml(
+        ($marriageReach === null)
+            ? EmptyStatePlaceholder::render()
+            : Widget::sequenceChain($module, 'marriage-chain-sequence')
                 ->withData(['items' => $marriageChainItems])
                 ->withAriaLabel(I18N::translate('Longest marriage chain'))
                 ->render()
-        )
-        ->render();
+    )
+    ->render();
 
-    echo Card::for($module, I18N::translate('Largest connected marriage group'))
-        ->withSub(I18N::translate('Intermarriage web · the longest chain highlighted'))
-        ->withEyebrow(I18N::translate('Reach'))
-        ->withAccent(Accent::Rose)
-        ->withIllustration(Illustration::Knot)
-        ->withInfo($marriageReachExplanation, $aboutThisChart, $aboutThisChart)
-        ->withSpan(8)
-        ->withBodyHtml(
-            Widget::networkGraph($module, 'marriage-group-network')
+echo Card::for($module, I18N::translate('Largest connected marriage group'))
+    ->withSub(I18N::translate('Intermarriage web · the longest chain highlighted'))
+    ->withEyebrow(I18N::translate('Reach'))
+    ->withAccent(Accent::Rose)
+    ->withIllustration(Illustration::Knot)
+    ->withInfo($marriageReachExplanation, $aboutThisChart, $aboutThisChart)
+    ->withSpan(8)
+    ->withBodyHtml(
+        ($marriageReach === null)
+            ? EmptyStatePlaceholder::render()
+            : Widget::networkGraph($module, 'marriage-group-network')
                 ->withData($marriageGroupPayload)
                 ->withHeight(360)
                 ->withAccent(Accent::Rose)
@@ -635,9 +653,8 @@ if ($marriageReach !== null) {
                 ->withAriaLabel(I18N::translate('Largest connected marriage group'))
                 ->render()
             . $marriageNetworkLegend
-        )
-        ->render();
-}
+    )
+    ->render();
 
 echo Card::for($module, I18N::translate('Top 10 most-influential ancestors'))
     ->withSub(I18N::translate('Individuals with the most documented descendants · the structural roots of the tree'))

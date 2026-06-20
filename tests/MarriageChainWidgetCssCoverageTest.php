@@ -79,9 +79,14 @@ final class MarriageChainWidgetCssCoverageTest extends TestCase
             'network off-chain node' => ['.msc-network-graph-node {'],
             'network highlighted'    => ['.msc-network-graph-node--highlighted'],
             'network hub'            => ['.msc-network-graph-node--hub'],
-            'bead female'            => ['.msc-sequence-chain-bead[data-group="F"] .msc-sequence-chain-disc'],
-            'bead male'              => ['.msc-sequence-chain-bead[data-group="M"] .msc-sequence-chain-disc'],
-            'bead unknown'           => ['.msc-sequence-chain-bead[data-group="U"] .msc-sequence-chain-disc'],
+            // The node label needs a card-coloured halo so the text stays
+            // legible over nodes/edges and where labels crowd each other —
+            // the selector plus its `paint-order`/`stroke` halo pair.
+            'network label'      => ['.msc-network-graph-label {'],
+            'network label halo' => ['paint-order:      stroke;'],
+            'bead female'        => ['.msc-sequence-chain-bead[data-group="F"] .msc-sequence-chain-disc'],
+            'bead male'          => ['.msc-sequence-chain-bead[data-group="M"] .msc-sequence-chain-disc'],
+            'bead unknown'       => ['.msc-sequence-chain-bead[data-group="U"] .msc-sequence-chain-disc'],
             // The scroll container must overflow horizontally (not wrap), beads
             // must keep their width, and the two scroll-position edge-fade flags
             // must drive a mask — otherwise a long chain squeezes into the card

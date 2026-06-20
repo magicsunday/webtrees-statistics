@@ -4170,6 +4170,20 @@
     stroke-width: 2.5;
 }
 
+/* Node labels carry a card-coloured halo (paint-order: stroke) so the text
+   stays legible over the nodes and edges underneath and where neighbouring
+   labels crowd each other. The halo flips with the theme via `--card`. */
+.wt-statistics-chart .msc-network-graph-label {
+    font-size:        11px;
+    font-weight:      500;
+    paint-order:      stroke;
+    stroke:           var(--card);
+    stroke-width:     3px;
+    stroke-linejoin:  round;
+    pointer-events:   none;
+    fill:             var(--ink-2);
+}
+
 .wt-statistics-chart .msc-network-graph-badge {
     position:      absolute;
     top:           8px;
