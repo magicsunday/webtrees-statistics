@@ -263,6 +263,33 @@ if ($marriageReach !== null) {
         ];
     }
 
+    // Foot legend beneath the chain, mirroring the prototype: the chain length
+    // and its marriage count on the left, a sex-shape key on the right. The
+    // marriage count is one fewer than the people (N spouses → N-1 unions),
+    // never the larger whole-group edge count. The key explains the disc shapes
+    // now that sex is encoded by shape (circle = female, rounded square = male),
+    // not colour. The consumer owns this wrapper (a `wt-stat-*` class, not
+    // `msc-*`), like the network legend; it is appended to the widget body below.
+    $marriageChainCount = count($marriageReachReport['chain']);
+
+    $marriageChainFoot = '<div class="wt-stat-sequence-chain-foot">'
+        . '<span class="wt-stat-sequence-chain-count">'
+        . e(I18N::translate('%s people', I18N::number($marriageChainCount)))
+        . ' · '
+        . e(I18N::translate('%s marriages', I18N::number($marriageChainCount - 1)))
+        . '</span>'
+        . '<span class="wt-stat-sequence-chain-legend">'
+        . '<span class="wt-stat-sequence-chain-legend-item">'
+        . '<i class="wt-stat-sequence-chain-key" data-sex="F" aria-hidden="true"></i>'
+        . e($marriageSexLabel('F'))
+        . '</span>'
+        . '<span class="wt-stat-sequence-chain-legend-item">'
+        . '<i class="wt-stat-sequence-chain-key" data-sex="M" aria-hidden="true"></i>'
+        . e($marriageSexLabel('M'))
+        . '</span>'
+        . '</span>'
+        . '</div>';
+
     // V2 — the largest group as a force-directed graph. Each node carries a
     // rich `title` tooltip, the hub is emphasised, and every edge lying on the
     // longest-chain path is highlighted. `chainIds` doubles as the highlight
@@ -555,6 +582,36 @@ echo Card::for($module, I18N::translate('Endogamy rate'))
     )
     ->render();
 
+echo Card::for($module, I18N::translate('Top 10 most-influential ancestors'))
+    ->withSub(I18N::translate('Individuals with the most documented descendants · the structural roots of the tree'))
+    ->withEyebrow(I18N::translate('Reach'))
+    ->withAccent(Accent::Ochre)
+    ->withIllustration(Illustration::Tree)
+    ->withInfo(
+        I18N::translate(
+            'For every individual in the tree the widget counts how many descendants are recorded below them across all generations. A descendant reached through two different grandparents is counted once per ancestor. The ranking surfaces the people whose branches actually carry the rest of the recorded lineage.'
+        ),
+        $aboutThisChart,
+        $aboutThisChart
+    )
+    ->withSpan(12)
+    ->withBodyHtml(
+        Component::podium($module)
+            ->with('class', 'progress-top-ancestors')
+            ->withData($topAncestors)
+            ->with('suffix', I18N::translate('desc.'))
+            ->render()
+    )
+    ->render();
+
+// The marriage-reach cards form their own section: three summary KPIs (chain
+// length, group size and the depth-to-breadth ratio) followed by the two detail
+// visualisations (the chain strip and the group network).
+echo Section::create(I18N::translate('How far does the tree connect through marriage?'))
+    ->withKicker(I18N::translate('Marriage reach'))
+    ->withSub(I18N::translate('Chains and clusters formed by marriage'))
+    ->render();
+
 // The marriage-reach cards always render. When no married couple forms a chain
 // of three or more people (`$marriageReach === null`), each card keeps its
 // heading and shows the empty-state placeholder as its body — mirroring the
@@ -584,6 +641,7 @@ echo Card::for($module, I18N::translate('Largest connected group'))
     ->withAccent(Accent::Rose)
     ->withIllustration(Illustration::Knot)
     ->withSpan(4)
+    ->withFooter()
     ->centered()
     ->withBodyHtml(
         ($marriageReach === null)
@@ -598,7 +656,7 @@ echo Card::for($module, I18N::translate('Largest connected group'))
 
 echo Card::for($module, I18N::translate('Depth-to-breadth ratio'))
     ->withSub(I18N::translate('Deepest line against the longest marriage chain'))
-    ->withEyebrow(I18N::translate('Shape'))
+    ->withEyebrow(I18N::translate('Reach'))
     ->withAccent(Accent::Rose)
     ->withIllustration(Illustration::Bell)
     ->withSpan(4)
@@ -613,7 +671,7 @@ echo Card::for($module, I18N::translate('Depth-to-breadth ratio'))
     )
     ->render();
 
-echo Card::for($module, I18N::translate('Longest marriage chain'))
+echo Card::for($module, I18N::translate('The longest chain, person by person'))
     ->withSub(I18N::translate('Every spouse on the longest line, in order'))
     ->withEyebrow(I18N::translate('Reach'))
     ->withAccent(Accent::Rose)
@@ -626,6 +684,7 @@ echo Card::for($module, I18N::translate('Longest marriage chain'))
                 ->withData(['items' => $marriageChainItems])
                 ->withAriaLabel(I18N::translate('Longest marriage chain'))
                 ->render()
+            . $marriageChainFoot
     )
     ->render();
 
@@ -635,7 +694,7 @@ echo Card::for($module, I18N::translate('Largest connected marriage group'))
     ->withAccent(Accent::Rose)
     ->withIllustration(Illustration::Knot)
     ->withInfo($marriageReachExplanation, $aboutThisChart, $aboutThisChart)
-    ->withSpan(8)
+    ->withSpan(12)
     ->withBodyHtml(
         ($marriageReach === null)
             ? EmptyStatePlaceholder::render()
@@ -647,28 +706,6 @@ echo Card::for($module, I18N::translate('Largest connected marriage group'))
                 ->withAriaLabel(I18N::translate('Largest connected marriage group'))
                 ->render()
             . $marriageNetworkLegend
-    )
-    ->render();
-
-echo Card::for($module, I18N::translate('Top 10 most-influential ancestors'))
-    ->withSub(I18N::translate('Individuals with the most documented descendants · the structural roots of the tree'))
-    ->withEyebrow(I18N::translate('Reach'))
-    ->withAccent(Accent::Ochre)
-    ->withIllustration(Illustration::Tree)
-    ->withInfo(
-        I18N::translate(
-            'For every individual in the tree the widget counts how many descendants are recorded below them across all generations. A descendant reached through two different grandparents is counted once per ancestor. The ranking surfaces the people whose branches actually carry the rest of the recorded lineage.'
-        ),
-        $aboutThisChart,
-        $aboutThisChart
-    )
-    ->withSpan(12)
-    ->withBodyHtml(
-        Component::podium($module)
-            ->with('class', 'progress-top-ancestors')
-            ->withData($topAncestors)
-            ->with('suffix', I18N::translate('desc.'))
-            ->render()
     )
     ->render();
 

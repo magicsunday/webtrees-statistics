@@ -4148,9 +4148,14 @@
    rim, so the chain reads as the foreground and the rest of the web
    recedes. Chain membership repaints it below. */
 .wt-statistics-chart .msc-network-graph-node {
-    fill:         var(--card);
-    stroke:       var(--rose);
-    stroke-width: 1.6;
+    fill:             var(--card);
+    stroke:           var(--rose);
+    stroke-width:     1.6;
+    cursor:           pointer;
+    /* Scale the dot around its OWN centre (not the svg origin) on hover. */
+    transform-box:    fill-box;
+    transform-origin: center;
+    transition:       transform 120ms ease;
 }
 
 /* A node on the longest chain → solid rose fill with a card-coloured
@@ -4170,15 +4175,26 @@
     stroke-width: 2.5;
 }
 
+/* Nodes pop on hover/focus — the design prototype scales the dot up so the
+   person under the cursor stands out from the web. */
+.wt-statistics-chart .msc-network-graph-nodes a:hover .msc-network-graph-node {
+    transform: scale(1.45);
+}
+
+.wt-statistics-chart .msc-network-graph-nodes a:focus-visible .msc-network-graph-node {
+    stroke:       var(--ink);
+    stroke-width: 2;
+}
+
 /* Node labels carry a card-coloured halo (paint-order: stroke) so the text
    stays legible over the nodes and edges underneath and where neighbouring
    labels crowd each other. The halo flips with the theme via `--card`. */
 .wt-statistics-chart .msc-network-graph-label {
-    font-size:        11px;
+    font-size:        16px;
     font-weight:      500;
     paint-order:      stroke;
     stroke:           var(--card);
-    stroke-width:     3px;
+    stroke-width:     4px;
     stroke-linejoin:  round;
     pointer-events:   none;
     fill:             var(--ink-2);
@@ -4264,73 +4280,156 @@
     display:     flex;
     align-items: flex-start;
     flex-wrap:   nowrap;
-    gap:         4px;
+    gap:         0;
     width:       max-content;
+    padding:     2px 4px 4px;
 }
 
+/* Each bead is a fixed-width column (disc + name + life span). It lifts and
+   tints on hover/focus, mirroring the design prototype, so the person under
+   the cursor reads as active. */
 .wt-statistics-chart .msc-sequence-chain-bead {
-    display:         inline-flex;
+    display:         flex;
     flex-direction:  column;
     align-items:     center;
-    gap:             4px;
-    flex-shrink:     0;
+    gap:             7px;
+    flex:            0 0 96px;
+    width:           96px;
+    padding:         4px 2px 6px;
+    border-radius:   10px;
     text-decoration: none;
     color:           inherit;
+    outline:         none;
+    transition:      transform 140ms ease, background 140ms ease;
 }
 
-/* The disc carries the sex SHAPE + colour. Base = neutral diamond (a
-   `clip-path`, NOT a rotate transform, so the initials inside stay
-   upright) in the unknown tint; `F` rounds it to a full circle in the
-   rose accent, `M` softens it to a rounded square in the slate accent.
-   `clip-path: none` on F/M lets the border-radius shape take over. */
+.wt-statistics-chart .msc-sequence-chain-bead:hover,
+.wt-statistics-chart .msc-sequence-chain-bead:focus-visible {
+    transform:  translateY(-3px);
+    background: color-mix(in srgb, var(--rose) 8%, transparent);
+}
+
+.wt-statistics-chart .msc-sequence-chain-bead:focus-visible {
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--rose) 55%, transparent);
+}
+
+/* The disc encodes the sex through its SHAPE, not its colour: every disc is
+   the same rose-tinted chip with rose serif initials; `F` rounds it to a full
+   circle, `M` softens it to a rounded square, and a sex-neutral disc stays a
+   sharp square. This matches the design prototype, where the foot legend
+   explains the two shapes. */
 .wt-statistics-chart .msc-sequence-chain-disc {
     display:         inline-flex;
     align-items:     center;
     justify-content: center;
-    width:           34px;
-    height:          34px;
-    clip-path:       polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
-    background:      var(--wmstats-sex-unknown);
-    color:           var(--card);
-    font-family:     var(--sans);
-    font-size:       12px;
-    font-weight:     600;
+    width:           52px;
+    height:          52px;
+    font-family:     var(--serif);
+    font-size:       18px;
+    letter-spacing:  -0.02em;
+    color:           var(--rose);
+    background:      color-mix(in srgb, var(--rose) 13%, var(--card));
+    border:          1.5px solid color-mix(in srgb, var(--rose) 55%, transparent);
+    transition:      background 140ms ease, border-color 140ms ease;
 }
 
 .wt-statistics-chart .msc-sequence-chain-bead[data-group="F"] .msc-sequence-chain-disc {
-    border-radius: 999px;
-    clip-path:     none;
-    background:    var(--wmstats-sex-female);
+    border-radius: 50%;
 }
 
 .wt-statistics-chart .msc-sequence-chain-bead[data-group="M"] .msc-sequence-chain-disc {
-    border-radius: 8px;
-    clip-path:     none;
-    background:    var(--wmstats-sex-male);
+    border-radius: 14px;
 }
 
+/* A sex-neutral disc stays a sharp square — the third, distinct shape next to
+   the female circle and the male rounded square. Pinned explicitly so an
+   unknown-sex person never silently inherits one of the two keyed shapes. */
 .wt-statistics-chart .msc-sequence-chain-bead[data-group="U"] .msc-sequence-chain-disc {
-    clip-path:  polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
-    background: var(--wmstats-sex-unknown);
+    border-radius: 0;
+}
+
+.wt-statistics-chart .msc-sequence-chain-bead:hover .msc-sequence-chain-disc,
+.wt-statistics-chart .msc-sequence-chain-bead:focus-visible .msc-sequence-chain-disc {
+    background:    color-mix(in srgb, var(--rose) 22%, var(--card));
+    border-color: var(--rose);
 }
 
 .wt-statistics-chart .msc-sequence-chain-label {
-    max-width:   80px;
+    max-width:   92px;
     color:       var(--ink);
     font-size:   12px;
-    font-weight: 600;
+    font-weight: 500;
+    line-height: 1.25;
     text-align:  center;
+    text-wrap:   balance;
 }
 
 .wt-statistics-chart .msc-sequence-chain-sublabel {
-    color:      var(--ink-2);
-    font-size:  11px;
-    text-align: center;
+    color:       var(--ink-3);
+    font-family: var(--mono);
+    font-size:   10px;
+    text-align:  center;
 }
 
-/* The interlocked-rings connector glyph paints in currentColor; tint it
-   with the rose accent so the marriage link reads as the card's accent. */
+/* The interlocked-rings connector glyph paints in currentColor; tint it with
+   the rose accent and size it to the disc height (with a small negative
+   margin) so it sits centred between two beads. */
 .wt-statistics-chart .msc-sequence-chain-link {
-    display: inline-flex;
-    color:   var(--rose);
+    display:         inline-flex;
+    align-items:     center;
+    justify-content: center;
+    flex:            0 0 30px;
+    height:          52px;
+    margin:          0 -8px;
+    color:           color-mix(in srgb, var(--rose) 70%, transparent);
+}
+
+/* Foot legend beneath the chain — the chain length and its marriage count on
+   the left, a sex-shape key on the right. Now that the disc encodes sex through
+   its SHAPE (circle = female, rounded square = male) rather than its colour,
+   this key tells the reader what the two shapes mean. The consumer owns the
+   wrapper (a `wt-stat-*` class, not `msc-*`), mirroring the network legend. */
+.wt-statistics-chart .wt-stat-sequence-chain-foot {
+    display:         flex;
+    align-items:     center;
+    justify-content: space-between;
+    gap:             16px;
+    margin-top:      12px;
+    padding:         10px 2px 0;
+    border-top:      1px solid var(--border-soft);
+}
+
+.wt-statistics-chart .wt-stat-sequence-chain-count {
+    color:       var(--ink-3);
+    font-family: var(--mono);
+    font-size:   11px;
+}
+
+.wt-statistics-chart .wt-stat-sequence-chain-legend {
+    display: flex;
+    gap:     16px;
+}
+
+.wt-statistics-chart .wt-stat-sequence-chain-legend-item {
+    display:     flex;
+    align-items: center;
+    gap:         6px;
+    color:       var(--ink-2);
+    font-size:   11px;
+}
+
+.wt-statistics-chart .wt-stat-sequence-chain-key {
+    display:    inline-block;
+    width:      13px;
+    height:     13px;
+    background: color-mix(in srgb, var(--rose) 16%, var(--card));
+    border:     1.5px solid var(--rose);
+}
+
+.wt-statistics-chart .wt-stat-sequence-chain-key[data-sex="F"] {
+    border-radius: 50%;
+}
+
+.wt-statistics-chart .wt-stat-sequence-chain-key[data-sex="M"] {
+    border-radius: 4px;
 }

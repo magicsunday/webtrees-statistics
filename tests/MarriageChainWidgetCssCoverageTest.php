@@ -95,7 +95,14 @@ final class MarriageChainWidgetCssCoverageTest extends TestCase
             'scroll overflow-x' => ['overflow-x:          auto;'],
             'scroll fade start' => ['.msc-sequence-chain-scroll[data-start]'],
             'scroll fade end'   => ['.msc-sequence-chain-scroll[data-end]'],
-            'bead no-shrink'    => ['flex-shrink:     0;'],
+            'bead no-shrink'    => ['flex:            0 0 96px;'],
+            // The consumer-owned foot legend beneath the chain: the count strip
+            // plus the sex-shape key whose two shapes (circle = female, rounded
+            // square = male) explain the discs now that sex is shape-encoded.
+            'chain foot'       => ['.wt-stat-sequence-chain-foot {'],
+            'chain count'      => ['.wt-stat-sequence-chain-count {'],
+            'chain key female' => ['.wt-stat-sequence-chain-key[data-sex="F"]'],
+            'chain key male'   => ['.wt-stat-sequence-chain-key[data-sex="M"]'],
         ];
     }
 }

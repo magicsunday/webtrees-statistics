@@ -47,7 +47,7 @@ msgstr "%1$s vaders en %2$s moeders met een gedateerd eerste kind"
 msgid "%1$s husbands and %2$s wives with a known marriage age"
 msgstr "%1$s echtgenoten en %2$s echtgenotes met een bekende huwelijksleeftijd"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:404
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:430
 #, php-format
 msgid "%1$s of %2$s"
 msgstr "%1$s van %2$s"
@@ -65,7 +65,7 @@ msgstr ""
 "%1$s van de %2$s kinderen overleden vóór de leeftijd van 5 jaar: de cohort "
 "met de hoogste sterfte in de stamboom."
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:548
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:574
 #, php-format
 msgid ""
 "%1$s of %2$s couple where both spouses had at least one recorded parent "
@@ -80,7 +80,7 @@ msgstr[1] ""
 "%1$s van %2$s paren waarvan beide echtgenoten ten minste één geregistreerde "
 "ouder hebben delen een gemeenschappelijke voorouder."
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:634
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:705
 #, php-format
 msgid "%1$s of %2$s shown"
 msgstr "%1$s van %2$s getoond"
@@ -90,7 +90,7 @@ msgstr "%1$s van %2$s getoond"
 msgid "%1$s siblings across %2$s families"
 msgstr "%1$s broers/zussen uit %2$s gezinnen"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:670
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:718
 #, php-format
 msgid "%1$s sub-trees total · the largest covers %2$s%% of all individuals"
 msgstr "%1$s deelbomen totaal · de grootste omvat %2$s%% van alle personen"
@@ -294,7 +294,7 @@ msgid_plural "%s divorces with a recorded month"
 msgstr[0] "%s echtscheiding met geregistreerde maand"
 msgstr[1] "%s echtscheidingen met geregistreerde maand"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:358
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:384
 #, php-format
 msgid "%s enrichment records per 100 individuals"
 msgstr "%s aanvullende records per 100 personen"
@@ -359,7 +359,7 @@ msgid_plural "%s individuals recorded"
 msgstr[0] "%s persoon geregistreerd"
 msgstr[1] "%s personen geregistreerd"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:423
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:449
 #, php-format
 msgid "%s individual sampled"
 msgid_plural "%s individuals sampled"
@@ -444,13 +444,14 @@ msgid_plural "%s marriages with a recorded month"
 msgstr[0] "%s huwelijk met geregistreerde maand"
 msgstr[1] "%s huwelijken met geregistreerde maand"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:289
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:338
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:279
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:316
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:364
 #, php-format
 msgid "%s marriages"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:372
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:398
 #, php-format
 msgid "%s media file in total"
 msgid_plural "%s media files in total"
@@ -494,7 +495,8 @@ msgid_plural "%s pairs"
 msgstr[0] "%s paar"
 msgstr[1] "%s paren"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:337
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:277
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:363
 #, php-format
 msgid "%s people"
 msgstr ""
@@ -958,8 +960,8 @@ msgstr "Allianties"
 msgid "American Civil War (1861–1865)"
 msgstr "Amerikaanse Burgeroorlog (1861–1865)"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:518
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:525
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:544
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:551
 msgid "Ancestors"
 msgstr "Voorouders"
 
@@ -989,7 +991,7 @@ msgctxt "NOMINATIVE"
 msgid "August"
 msgstr "Augustus"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:430
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:456
 msgid "Average birth-year gap parent → child"
 msgstr "Gemiddeld leeftijdsverschil ouder → kind"
 
@@ -1023,7 +1025,7 @@ msgstr "Gemiddeld over alle ouder-kindparen met verwerkbare geboortedatums."
 msgid "Avg. generation length"
 msgstr "Gem. generatielengte"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:578
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:639
 msgid "Biggest web of intermarried people"
 msgstr ""
 
@@ -1144,6 +1146,10 @@ msgstr "Doodsoorzaken en zuigelingensterfte"
 msgid "Century"
 msgstr "Eeuw"
 
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:612
+msgid "Chains and clusters formed by marriage"
+msgstr ""
+
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:602
 #, php-format
 msgid "Child mortality %s"
@@ -1221,15 +1227,15 @@ msgid "Common surnames"
 msgstr "Veelvoorkomende achternamen"
 
 #: resources/views/modules/statistics-chart/components/hero.phtml:88
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:412
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:438
 msgid "Completeness"
 msgstr "Volledigheid"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:359
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:385
 msgid "Composition"
 msgstr "Samenstelling"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:664
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:712
 msgid "Connected and unconnected sub-trees"
 msgstr "Verbonden en niet-verbonden deelbomen"
 
@@ -1241,7 +1247,7 @@ msgstr "Opeenvolgende broer/zus-paren"
 msgid "Core"
 msgstr "Kerngegevens"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:354
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:380
 msgid ""
 "Core records (individuals and families) against the enrichment records that "
 "document them"
@@ -1292,8 +1298,8 @@ msgstr "Huidige leeftijd, oudste eerst"
 msgid "Dano-Swedish Wars (1657–1660)"
 msgstr "Deens-Zweedse oorlogen (1657–1660)"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:353
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:357
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:379
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:383
 msgid "Data-set inventory"
 msgstr "Datasetoverzicht"
 
@@ -1338,7 +1344,7 @@ msgstr "December"
 msgid "Dec–Feb vs. baseline"
 msgstr "Dec–Feb vs. basislijn"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:594
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:658
 msgid "Deepest line against the longest marriage chain"
 msgstr ""
 
@@ -1356,19 +1362,19 @@ msgstr ""
 "Dichtheid van geregistreerde geboorten en overlijdens per 25-jaarsperiode en "
 "maand"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:480
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:506
 msgid "Depth"
 msgstr "Diepte"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:593
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:657
 msgid "Depth-to-breadth ratio"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:693
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:741
 msgid "Diagnosis"
 msgstr "Diagnose"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:517
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:543
 msgid "Distinct ancestors up to 4 generations (max. 30)"
 msgstr "Verschillende voorouders tot en met 4 generaties (max. 30)"
 
@@ -1445,9 +1451,9 @@ msgstr "Echtscheidingen per eeuw"
 msgid "Divorces by month"
 msgstr "Echtscheidingen per maand"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:387
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:393
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:442
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:413
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:419
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:468
 msgid "Documentation"
 msgstr "Documentatie"
 
@@ -1639,11 +1645,11 @@ msgstr ""
 "niet kan verstoren. De andere lijn loopt ononderbroken door. Beweeg de muis "
 "over een punt om te zien op hoeveel ouders het gemiddelde gebaseerd is."
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:572
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:633
 msgid "Each step is one marriage further along the line."
 msgstr "Elke stap is één huwelijk verder langs de keten."
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:494
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:520
 msgid "Each step is one parent–child link upward."
 msgstr "Elke stap is één ouder-kindrelatie hogerop."
 
@@ -1705,7 +1711,7 @@ msgstr ""
 msgid "Eighty Years’ War (1568–1648)"
 msgstr "Tachtigjarige Oorlog (1568–1648)"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:531
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:557
 msgid "Endogamy rate"
 msgstr "Endogamiepercentage"
 
@@ -1721,7 +1727,7 @@ msgstr "Epidemie"
 msgid "European heatwave of 2003"
 msgstr "Europese hittegolf van 2003"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:609
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:675
 msgid "Every spouse on the longest line, in order"
 msgstr ""
 
@@ -1920,7 +1926,7 @@ msgstr ""
 "gedateerde kinderen worden weggelaten om te voorkomen dat de curve uitschiet "
 "bij kleine aantallen."
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:649
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:592
 msgid ""
 "For every individual in the tree the widget counts how many descendants are "
 "recorded below them across all generations. A descendant reached through two "
@@ -2065,8 +2071,8 @@ msgstr "Franse godsdienstoorlogen (1562–1598)"
 msgid "Frequencies"
 msgstr "Frequenties"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:456
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:462
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:482
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:488
 msgid "Gaps"
 msgstr "Hiaten"
 
@@ -2074,26 +2080,26 @@ msgstr "Hiaten"
 msgid "Gemini"
 msgstr "Tweelingen"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:500
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:511
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:526
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:537
 msgid "Generation depth distribution"
 msgstr "Verdeling generatiediepte"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:475
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:501
 msgid "Generation depth, ancestor distribution and kin marriages"
 msgstr ""
 "Generatiediepte, verspreiding van voorouders en verwantschapshuwelijken"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:429
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:455
 msgid "Generation length"
 msgstr "Generatielengte"
 
 #: resources/views/modules/statistics-chart/components/hero.phtml:70
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:510
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:536
 msgid "Generations"
 msgstr "Generaties"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:603
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:669
 msgid ""
 "Generations deep versus people wide. A tall tree runs deep, a broad one "
 "spreads sideways."
@@ -2189,13 +2195,17 @@ msgstr "Erfgoed"
 msgid "High mobility: strongly migrating ancestors."
 msgstr "Hoge mobiliteit: sterk migrerende voorouders."
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:424
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:450
 msgid "Higher = more thorough research"
 msgstr "Hoger = grondiger onderzoek"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:473
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:499
 msgid "How deep and branched is the tree?"
 msgstr "Hoe diep en vertakt is de stamboom?"
+
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:610
+msgid "How far does the tree connect through marriage?"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/places.phtml:190
 msgid "How far they roamed"
@@ -2213,7 +2223,7 @@ msgstr "Hoe lang de langstlevende partner de eerstoverledene heeft overleefd"
 msgid "How long was the life?"
 msgstr "Hoe lang was het leven?"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:666
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:714
 msgid ""
 "How many connected sub-trees are there? A family tree has one large sub-"
 "tree, an address book many small ones."
@@ -2229,7 +2239,7 @@ msgstr "Hoe namen verschenen en verdwenen door de tijd"
 msgid "How the tree grew"
 msgstr "Hoe de stamboom groeide"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:386
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:412
 msgid "How well is the tree documented?"
 msgstr "Hoe goed is de stamboom gedocumenteerd?"
 
@@ -2242,7 +2252,7 @@ msgstr "Echtgenoot ouder"
 msgid "Individuals"
 msgstr "Personen"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:501
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:527
 msgid "Individuals N generations above their deepest descendant"
 msgstr "Personen N generaties boven hun diepste nakomeling"
 
@@ -2252,11 +2262,11 @@ msgstr ""
 "Personen geboren in het ene land en geregistreerd als overleden in een ander "
 "land"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:392
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:418
 msgid "Individuals with at least one source"
 msgstr "Personen met ten minste één bron"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:643
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:586
 msgid ""
 "Individuals with the most documented descendants · the structural roots of "
 "the tree"
@@ -2264,11 +2274,11 @@ msgstr ""
 "Personen met de meeste geregistreerde nakomelingen · de structurele wortels "
 "van de stamboom"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:405
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:431
 msgid "Individuals with ≥ 1 source citation"
 msgstr "Personen met ≥ 1 bronvermelding"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:623
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:692
 msgid "Intermarriage web · the longest chain highlighted"
 msgstr ""
 
@@ -2295,30 +2305,30 @@ msgctxt "NOMINATIVE"
 msgid "June"
 msgstr "Juni"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:533
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:559
 msgid "Kinship"
 msgstr "Verwantschap"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:516
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:526
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:542
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:552
 msgid "Known ancestors per individual"
 msgstr "Bekende voorouders per persoon"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:422
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:448
 msgid "Lacy 1989"
 msgstr "Lacy 1989"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:411
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:437
 msgid "Lacy index · average share of known ancestors up to the 4th generation"
 msgstr ""
 "Lacy-index · gemiddeld aandeel bekende voorouders tot en met de 4e generatie"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:577
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:638
 msgid "Largest connected group"
 msgstr "Grootste verbonden groep"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:622
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:635
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:691
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:706
 msgid "Largest connected marriage group"
 msgstr "Grootste verbonden huwelijksgroep"
 
@@ -2326,8 +2336,8 @@ msgstr "Grootste verbonden huwelijksgroep"
 msgid "Largest family"
 msgstr "Grootste gezin"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:669
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:686
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:717
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:734
 msgid "Largest unconnected sub-trees"
 msgstr "Grootste niet-verbonden deelbomen"
 
@@ -2373,12 +2383,12 @@ msgstr "Levend of overleden"
 msgid "Living vs deceased proportion"
 msgstr "Verhouding levend vs. overleden"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:336
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:362
 #, php-format
 msgid "Longest chain (%s)"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:479
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:505
 msgid "Longest line in the tree, leaf to oldest ancestor"
 msgstr "Langste lijn in de stamboom, van blad naar oudste voorouder"
 
@@ -2386,9 +2396,8 @@ msgstr "Langste lijn in de stamboom, van blad naar oudste voorouder"
 msgid "Longest marriage"
 msgstr "Langste huwelijk"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:560
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:608
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:617
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:619
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:685
 msgid "Longest marriage chain"
 msgstr "Langste huwelijksketen"
 
@@ -2426,11 +2435,15 @@ msgstr "Huwelijk"
 msgid "Marriage duration"
 msgstr "Huwelijksduur"
 
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:611
+msgid "Marriage reach"
+msgstr ""
+
 #: src/Statistic.php:273
 msgid "Married"
 msgstr "Gehuwd"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:478
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:504
 msgid "Maximum generation depth"
 msgstr "Maximale generatiediepte"
 
@@ -2444,11 +2457,11 @@ msgstr "Mei"
 msgid "Mean age at first child by decade"
 msgstr "Gemiddelde leeftijd bij eerste kind per decennium"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:373
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:399
 msgid "Media"
 msgstr "Media"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:371
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:397
 msgid "Media files by type"
 msgstr "Mediabestanden per type"
 
@@ -2456,7 +2469,7 @@ msgstr "Mediabestanden per type"
 msgid "Media objects"
 msgstr "Mediabestanden"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:342
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:368
 #, php-format
 msgid "Median %s"
 msgstr ""
@@ -2507,7 +2520,7 @@ msgstr "Ontbrekende huwelijksgebeurtenis"
 msgid "Missing marriage place"
 msgstr "Ontbrekende huwelijksplaats"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:460
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:486
 msgid "Missing-event gaps"
 msgstr "Ontbrekende gebeurtenissen"
 
@@ -2765,15 +2778,15 @@ msgstr "Piek"
 msgid "Peak value"
 msgstr "Piekwaarde"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:410
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:436
 msgid "Pedigree completeness"
 msgstr "Volledigheid van de stamboom"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:329
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:352
 msgid "People joined by marriage"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:328
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:351
 #, php-format
 msgid "People joined by marriage · median life around %s"
 msgstr ""
@@ -2845,11 +2858,12 @@ msgstr "Vierlingen"
 msgid "Quintuplets and above"
 msgstr "Vijflingen en meer"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:562
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:579
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:610
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:624
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:644
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:587
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:621
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:640
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:659
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:676
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:693
 msgid "Reach"
 msgstr "Bereik"
 
@@ -2931,10 +2945,6 @@ msgstr "Geslacht, status, burgerlijke staat"
 msgid "Sex-ratio anomalies"
 msgstr "Afwijkende geslachtsverhouding"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:595
-msgid "Shape"
-msgstr ""
-
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:446
 msgid "Share of a birth cohort still alive at each age threshold"
 msgstr "Aandeel van een geboortecohort dat nog leeft bij elke leeftijdsgrens"
@@ -2952,12 +2962,12 @@ msgstr ""
 "Aandeel kinderen dat ten minste één voornaam deelt met de ouder van "
 "hetzelfde geslacht"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:441
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:467
 msgid ""
 "Share of individuals with at least one source citation, per birth century"
 msgstr "Aandeel personen met ten minste één bronvermelding, per geboorte-eeuw"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:461
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:487
 msgid "Share of individuals without a recorded birth, death or marriage event"
 msgstr ""
 "Aandeel personen zonder geregistreerde geboorte-, overlijdens- of "
@@ -2967,11 +2977,11 @@ msgstr ""
 msgid "Share of marriages per decade that ended in divorce"
 msgstr "Aandeel huwelijken per decennium dat in echtscheiding eindigde"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:532
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:558
 msgid "Share of marriages within 4 generations"
 msgstr "Aandeel huwelijken binnen 4 generaties"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:692
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:740
 msgid "Share of the largest sub-tree"
 msgstr "Aandeel van de grootste deelboom"
 
@@ -3021,16 +3031,16 @@ msgstr "Pokkenepidemie van 1870–1873"
 msgid "Socio-economics"
 msgstr "Sociaal-economische kenmerken"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:440
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:450
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:466
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:476
 msgid "Source coverage by century"
 msgstr "Brondekking per eeuw"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:388
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:414
 msgid "Source coverage, completeness and average generation length"
 msgstr "Brondekking, volledigheid en gemiddelde generatielengte"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:391
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:417
 msgid "Source-citation coverage"
 msgstr "Dekking van bronvermeldingen"
 
@@ -3065,13 +3075,13 @@ msgid "Status"
 msgstr "Status"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:437
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:474
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:502
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:671
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:500
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:528
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:719
 msgid "Structure"
 msgstr "Structuur"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:665
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:713
 msgid "Structure type"
 msgstr "Structuurtype"
 
@@ -3127,6 +3137,10 @@ msgstr ""
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:221
 msgid "The extremes of the tree"
 msgstr "De uitersten van de stamboom"
+
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:674
+msgid "The longest chain, person by person"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/widgets/geo-map.phtml:34
 msgid "The map could not be loaded."
@@ -3221,7 +3235,7 @@ msgstr "Dertigjarige Oorlog (1618–1648)"
 msgid "Three views of every individual · birth, residence, death"
 msgstr "Drie weergaven van elke persoon · geboorte, woonplaats, overlijden"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:431
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:457
 msgid "Time"
 msgstr "Tijd"
 
@@ -3270,7 +3284,7 @@ msgstr "Top 10 gezinnen met de meeste kleinkinderen"
 msgid "Top 10 largest families"
 msgstr "Top 10 grootste gezinnen"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:642
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:585
 msgid "Top 10 most-influential ancestors"
 msgstr "Top 10 invloedrijkste voorouders"
 
@@ -3298,7 +3312,7 @@ msgstr "Stamboomkwaliteit"
 msgid "Tree records"
 msgstr "Stamboomgegevens"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:691
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:739
 msgid "Tree type"
 msgstr "Boomtype"
 
@@ -3310,7 +3324,7 @@ msgstr "Drielingen"
 msgid "Twins"
 msgstr "Tweelingen"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:321
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:207
 msgid ""
 "Two people are linked when they were married to each other. Following those "
 "links from spouse to later spouse traces a marriage chain; the longest "
@@ -3324,7 +3338,7 @@ msgstr ""
 msgid "Typical range"
 msgstr "Typisch bereik"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:561
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:620
 msgid "Unbroken spouse-to-spouse line"
 msgstr ""
 
@@ -3350,7 +3364,7 @@ msgstr "Diverse statistische grafieken."
 msgid "Virgo"
 msgstr "Maagd"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:493
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:519
 msgid ""
 "Walk reached the safety cap (100 generations) — check the tree for cyclic "
 "FAMC/FAMS edits."
@@ -3375,11 +3389,11 @@ msgstr "Huwelijken per eeuw"
 msgid "Weddings by month"
 msgstr "Huwelijken per maand"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:455
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:481
 msgid "What is missing?"
 msgstr "Wat ontbreekt?"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:352
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:378
 msgid "What is the tree made of?"
 msgstr "Waaruit bestaat de stamboom?"
 
@@ -3411,7 +3425,7 @@ msgstr "Wanneer werd de naam voor het laatst gegeven?"
 msgid "When were they born?"
 msgstr "Wanneer werden zij geboren?"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:457
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:483
 msgid "Where the tree has gaps · events and places not recorded"
 msgstr ""
 "Waar de stamboom hiaten vertoont · gebeurtenissen en plaatsen die niet zijn "
@@ -3582,11 +3596,11 @@ msgstr "overlijdens"
 msgid "deceased"
 msgstr "overleden"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:659
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:602
 msgid "desc."
 msgstr "nak."
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:403
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:429
 msgid "documented"
 msgstr "gedocumenteerd"
 
@@ -3612,7 +3626,7 @@ msgstr "geëindigd door echtscheiding"
 msgid "families"
 msgstr "gezinnen"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:209
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:218
 msgid "female"
 msgstr ""
 
@@ -3626,7 +3640,7 @@ msgctxt "count word"
 msgid "four"
 msgstr "vier"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:489
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:515
 msgid "generations"
 msgstr "generaties"
 
@@ -3659,7 +3673,7 @@ msgstr "levend"
 msgid "living today"
 msgstr "vandaag levend"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:210
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:219
 msgid "male"
 msgstr ""
 
@@ -3677,7 +3691,7 @@ msgstr "negen"
 msgid "no data (n < %s)"
 msgstr "geen gegevens (n < %s)"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:702
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:750
 msgid ""
 "of all individuals lie in a single sub-tree. A high value is a closed family "
 "tree; a low value an address-book-like scatter of many fragments."
@@ -3691,7 +3705,7 @@ msgctxt "count word"
 msgid "one"
 msgstr "één"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:685
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:733
 msgid "other sub-trees"
 msgstr "overige deelbomen"
 
@@ -3715,12 +3729,12 @@ msgstr "piekmaand"
 msgid "peak sign"
 msgstr "piekteken"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:571
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:587
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:632
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:651
 msgid "people"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:684
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:732
 msgid "persons"
 msgstr "personen"
 
@@ -3763,7 +3777,7 @@ msgctxt "count word"
 msgid "two"
 msgstr "twee"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:211
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:220
 msgid "unknown"
 msgstr ""
 

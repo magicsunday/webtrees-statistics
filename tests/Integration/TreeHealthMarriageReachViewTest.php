@@ -98,6 +98,45 @@ final class TreeHealthMarriageReachViewTest extends IntegrationTestCase
         // marriage count.
         self::assertStringContainsString('wt-stat-network-graph-legend', $html);
         self::assertStringContainsString('Longest chain (', $html);
+
+        // Chain foot legend — the longest-chain card carries its own summary
+        // strip: the chain length (15 people) and its marriage count (14 — one
+        // fewer than the people, never the larger whole-group edge count), plus
+        // a sex-shape key explaining the disc shapes now that sex is encoded by
+        // shape, not colour.
+        self::assertStringContainsString('wt-stat-sequence-chain-foot', $html);
+        self::assertMatchesRegularExpression(
+            '#wt-stat-sequence-chain-count">15 people · 14 marriages<#u',
+            $html,
+        );
+        self::assertStringContainsString('wt-stat-sequence-chain-key" data-sex="F"', $html);
+        self::assertStringContainsString('wt-stat-sequence-chain-key" data-sex="M"', $html);
+
+        // Layout — the network card spans the full twelve columns (the section
+        // opening that wraps the network-graph widget carries `span 12`, never
+        // the former `span 8`). The negative lookahead pins the span to the
+        // SAME section the network-graph host lives in, so a span-12 chain card
+        // cannot satisfy it by accident.
+        self::assertMatchesRegularExpression(
+            '#<section class="wt-stat-card[^"]*" style="grid-column: span 12;(?:(?!<section).)*?data-widget="network-graph"#s',
+            $html,
+        );
+
+        // The "Largest connected group" scalar card now renders its footer slot
+        // (`withFooter()`) so its dashed-rhythm footer matches its sibling
+        // scalar cards. The lookahead keeps the match inside that one card —
+        // and "Largest connected group" is not a substring of "Largest
+        // connected marriage group", so it cannot match the network card.
+        self::assertMatchesRegularExpression(
+            '#Largest connected group(?:(?!</section>).)*?wt-stat-card-foot#s',
+            $html,
+        );
+
+        // The marriage-reach cards live under their own section heading, and the
+        // chain WIDGET card carries a distinct title from the chain SCALAR KPI
+        // ("Longest marriage chain") so the same heading no longer appears twice.
+        self::assertStringContainsString('How far does the tree connect through marriage?', $html);
+        self::assertStringContainsString('The longest chain, person by person', $html);
     }
 
     /**
@@ -124,6 +163,10 @@ final class TreeHealthMarriageReachViewTest extends IntegrationTestCase
         // hand the sequence-chain or network-graph widget.
         self::assertStringNotContainsString('data-widget="sequence-chain"', $html);
         self::assertStringNotContainsString('data-widget="network-graph"', $html);
+
+        // The chain foot legend rides with the widget, so it must vanish too
+        // when the card falls back to the empty-state placeholder.
+        self::assertStringNotContainsString('wt-stat-sequence-chain-foot', $html);
     }
 
     /**
