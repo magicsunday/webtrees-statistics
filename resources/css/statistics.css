@@ -4090,3 +4090,346 @@
 .wt-statistics-chart svg.msc-treemap-svg .msc-treemap-tile:hover .msc-treemap-rect {
     filter: brightness(1.08);
 }
+
+/* ============================================================
+   Marriage-chain widgets (network-graph + sequence-chain)
+   ============================================================
+   chart-lib paints only geometry for these two widgets. The consumer
+   owns the DOMAIN styling below, but the two widgets carry DIFFERENT
+   colour semantics:
+
+   • The NETWORK nodes are coloured by CHAIN MEMBERSHIP (chart-lib's
+     own `…-node--highlighted` / `…-node--hub` classes): a node on the
+     longest chain is filled rose, the hub keeps an emphasis ring, and
+     an off-chain node is hollow (card fill + accent stroke). Sex plays
+     no part here, so the network nodes carry no `data-group` hook.
+
+   • The SEQUENCE-CHAIN beads keep their genealogy sex cue: chart-lib
+     writes each bead's sex code verbatim into a `data-group` attribute
+     and the consumer maps it to a colour AND a shape — `F` (female) →
+     a circle in the rose accent, `M` (male) → a rounded square in the
+     slate accent, `U`/empty → a neutral diamond. Those colours come
+     from the existing `--wmstats-sex-*` tokens (rose / slate / ink-3),
+     which already theme-switch between the light and dark `:root`
+     blocks, so nothing is hard-coded.
+
+   `msc-*` classes belong to chart-lib — styled here, never renamed.
+   The `wt-stat-*-container` wrappers are the consumer's own. */
+
+.wt-statistics-chart .wt-stat-network-graph-container,
+.wt-statistics-chart .wt-stat-sequence-chain-container {
+    width: 100%;
+}
+
+/* ---- Network graph ---------------------------------------- */
+
+.wt-statistics-chart .msc-network-graph-wrapper {
+    position: relative;
+    width:    100%;
+}
+
+.wt-statistics-chart svg.msc-network-graph {
+    display: block;
+    width:   100%;
+}
+
+/* Edges read as quiet hairlines; a highlighted edge keeps the inline
+   accent stroke chart-lib paints, so only the plain stroke is set. */
+.wt-statistics-chart .msc-network-graph-edge {
+    stroke:       var(--border);
+    stroke-width: 1.5;
+}
+
+.wt-statistics-chart .msc-network-graph-edge--highlighted {
+    stroke-width: 2.5;
+}
+
+/* Base node = an OFF-CHAIN person: hollow card fill with a thin accent
+   rim, so the chain reads as the foreground and the rest of the web
+   recedes. Chain membership repaints it below. */
+.wt-statistics-chart .msc-network-graph-node {
+    fill:             var(--card);
+    stroke:           var(--rose);
+    stroke-width:     1.6;
+    cursor:           pointer;
+    /* Scale the dot around its OWN centre (not the svg origin) on hover. */
+    transform-box:    fill-box;
+    transform-origin: center;
+    transition:       transform 120ms ease;
+}
+
+/* A node on the longest chain → solid rose fill with a card-coloured
+   rim that lifts it off the edges underneath. */
+.wt-statistics-chart .msc-network-graph-node--highlighted {
+    fill:         var(--rose);
+    stroke:       var(--card);
+    stroke-width: 1.5;
+}
+
+/* The hub (the most-married person) → the accent fill plus the emphasis
+   ring treatment so it stays the focal point. Listed after `--highlighted`
+   so a hub that also lies on the chain takes the hub stroke. */
+.wt-statistics-chart .msc-network-graph-node--hub {
+    fill:         var(--rose);
+    stroke:       var(--rose);
+    stroke-width: 2.5;
+}
+
+/* Nodes pop on hover/focus — the design prototype scales the dot up so the
+   person under the cursor stands out from the web. */
+.wt-statistics-chart .msc-network-graph-nodes a:hover .msc-network-graph-node {
+    transform: scale(1.45);
+}
+
+.wt-statistics-chart .msc-network-graph-nodes a:focus-visible .msc-network-graph-node {
+    stroke:       var(--ink);
+    stroke-width: 2;
+}
+
+/* Node labels carry a card-coloured halo (paint-order: stroke) so the text
+   stays legible over the nodes and edges underneath and where neighbouring
+   labels crowd each other. The halo flips with the theme via `--card`. */
+.wt-statistics-chart .msc-network-graph-label {
+    font-size:        16px;
+    font-weight:      500;
+    paint-order:      stroke;
+    stroke:           var(--card);
+    stroke-width:     4px;
+    stroke-linejoin:  round;
+    pointer-events:   none;
+    fill:             var(--ink-2);
+}
+
+.wt-statistics-chart .msc-network-graph-badge {
+    position:      absolute;
+    top:           8px;
+    right:         8px;
+    padding:       2px 8px;
+    border-radius: 999px;
+    background:    var(--card-warm);
+    color:         var(--ink-2);
+    font-family:   var(--mono);
+    font-size:     11px;
+}
+
+/* Foot legend beneath the network — a quiet summary strip naming the
+   longest-chain length, the group size, the marriage count and the
+   median life year. The consumer owns this wrapper (not an `msc-*`
+   class), so it is styled directly. */
+.wt-statistics-chart .wt-stat-network-graph-legend {
+    margin:      8px 0 0;
+    color:       var(--ink-2);
+    font-family: var(--mono);
+    font-size:   11px;
+    text-align:  center;
+}
+
+/* ---- Sequence chain --------------------------------------- */
+
+.wt-statistics-chart .msc-sequence-chain {
+    position: relative;
+    width:    100%;
+}
+
+/* The beads form ONE horizontal strip that overflows and scrolls sideways —
+   never wraps onto a second row — so a long chain (15+ people) reads as a single
+   timeline rather than a squeezed grid. The scroll container owns the overflow;
+   the track sizes to its content (`max-content`) so the beads keep their natural
+   width instead of being compressed to fit the card. */
+.wt-statistics-chart .msc-sequence-chain-scroll {
+    overflow-x:          auto;
+    overflow-y:          hidden;
+    padding:             6px 2px 4px;
+    scrollbar-width:     thin;
+    scrollbar-color:     var(--border) transparent;
+    scroll-behavior:     smooth;
+    -webkit-overflow-scrolling: touch;
+    /* Edge-fade: the widget toggles `data-start` / `data-end` on this container
+       from its live scroll position, so the overflowing edge fades out via a
+       mask. At rest neither flag is set and the strip is fully opaque. */
+    -webkit-mask-image: linear-gradient(90deg, #000 0, #000 100%);
+            mask-image: linear-gradient(90deg, #000 0, #000 100%);
+    transition:         mask-image 150ms;
+}
+
+.wt-statistics-chart .msc-sequence-chain-scroll[data-start] {
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 48px, #000 100%);
+            mask-image: linear-gradient(90deg, transparent 0, #000 48px, #000 100%);
+}
+
+.wt-statistics-chart .msc-sequence-chain-scroll[data-end] {
+    -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 48px), transparent 100%);
+            mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 48px), transparent 100%);
+}
+
+.wt-statistics-chart .msc-sequence-chain-scroll[data-start][data-end] {
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 48px, #000 calc(100% - 48px), transparent 100%);
+            mask-image: linear-gradient(90deg, transparent 0, #000 48px, #000 calc(100% - 48px), transparent 100%);
+}
+
+.wt-statistics-chart .msc-sequence-chain-scroll::-webkit-scrollbar {
+    height: 6px;
+}
+
+.wt-statistics-chart .msc-sequence-chain-scroll::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background:    var(--border);
+}
+
+.wt-statistics-chart .msc-sequence-chain-track {
+    display:     flex;
+    align-items: flex-start;
+    flex-wrap:   nowrap;
+    gap:         0;
+    width:       max-content;
+    padding:     2px 4px 4px;
+}
+
+/* Each bead is a fixed-width column (disc + name + life span). It lifts and
+   tints on hover/focus, mirroring the design prototype, so the person under
+   the cursor reads as active. */
+.wt-statistics-chart .msc-sequence-chain-bead {
+    display:         flex;
+    flex-direction:  column;
+    align-items:     center;
+    gap:             7px;
+    flex:            0 0 96px;
+    width:           96px;
+    padding:         4px 2px 6px;
+    border-radius:   10px;
+    text-decoration: none;
+    color:           inherit;
+    outline:         none;
+    transition:      transform 140ms ease, background 140ms ease;
+}
+
+.wt-statistics-chart .msc-sequence-chain-bead:hover,
+.wt-statistics-chart .msc-sequence-chain-bead:focus-visible {
+    transform:  translateY(-3px);
+    background: color-mix(in srgb, var(--rose) 8%, transparent);
+}
+
+.wt-statistics-chart .msc-sequence-chain-bead:focus-visible {
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--rose) 55%, transparent);
+}
+
+/* The disc encodes the sex through its SHAPE, not its colour: every disc is
+   the same rose-tinted chip with rose serif initials; `F` rounds it to a full
+   circle, `M` softens it to a rounded square, and a sex-neutral disc stays a
+   sharp square. This matches the design prototype, where the foot legend
+   explains the two shapes. */
+.wt-statistics-chart .msc-sequence-chain-disc {
+    display:         inline-flex;
+    align-items:     center;
+    justify-content: center;
+    width:           52px;
+    height:          52px;
+    font-family:     var(--serif);
+    font-size:       18px;
+    letter-spacing:  -0.02em;
+    color:           var(--rose);
+    background:      color-mix(in srgb, var(--rose) 13%, var(--card));
+    border:          1.5px solid color-mix(in srgb, var(--rose) 55%, transparent);
+    transition:      background 140ms ease, border-color 140ms ease;
+}
+
+.wt-statistics-chart .msc-sequence-chain-bead[data-group="F"] .msc-sequence-chain-disc {
+    border-radius: 50%;
+}
+
+.wt-statistics-chart .msc-sequence-chain-bead[data-group="M"] .msc-sequence-chain-disc {
+    border-radius: 14px;
+}
+
+/* A sex-neutral disc stays a sharp square — the third, distinct shape next to
+   the female circle and the male rounded square. Pinned explicitly so an
+   unknown-sex person never silently inherits one of the two keyed shapes. */
+.wt-statistics-chart .msc-sequence-chain-bead[data-group="U"] .msc-sequence-chain-disc {
+    border-radius: 0;
+}
+
+.wt-statistics-chart .msc-sequence-chain-bead:hover .msc-sequence-chain-disc,
+.wt-statistics-chart .msc-sequence-chain-bead:focus-visible .msc-sequence-chain-disc {
+    background:    color-mix(in srgb, var(--rose) 22%, var(--card));
+    border-color: var(--rose);
+}
+
+.wt-statistics-chart .msc-sequence-chain-label {
+    max-width:   92px;
+    color:       var(--ink);
+    font-size:   12px;
+    font-weight: 500;
+    line-height: 1.25;
+    text-align:  center;
+    text-wrap:   balance;
+}
+
+.wt-statistics-chart .msc-sequence-chain-sublabel {
+    color:       var(--ink-3);
+    font-family: var(--mono);
+    font-size:   10px;
+    text-align:  center;
+}
+
+/* The interlocked-rings connector glyph paints in currentColor; tint it with
+   the rose accent and size it to the disc height (with a small negative
+   margin) so it sits centred between two beads. */
+.wt-statistics-chart .msc-sequence-chain-link {
+    display:         inline-flex;
+    align-items:     center;
+    justify-content: center;
+    flex:            0 0 30px;
+    height:          52px;
+    margin:          0 -8px;
+    color:           color-mix(in srgb, var(--rose) 70%, transparent);
+}
+
+/* Foot legend beneath the chain — the chain length and its marriage count on
+   the left, a sex-shape key on the right. Now that the disc encodes sex through
+   its SHAPE (circle = female, rounded square = male) rather than its colour,
+   this key tells the reader what the two shapes mean. The consumer owns the
+   wrapper (a `wt-stat-*` class, not `msc-*`), mirroring the network legend. */
+.wt-statistics-chart .wt-stat-sequence-chain-foot {
+    display:         flex;
+    align-items:     center;
+    justify-content: space-between;
+    gap:             16px;
+    margin-top:      12px;
+    padding:         10px 2px 0;
+    border-top:      1px solid var(--border-soft);
+}
+
+.wt-statistics-chart .wt-stat-sequence-chain-count {
+    color:       var(--ink-3);
+    font-family: var(--mono);
+    font-size:   11px;
+}
+
+.wt-statistics-chart .wt-stat-sequence-chain-legend {
+    display: flex;
+    gap:     16px;
+}
+
+.wt-statistics-chart .wt-stat-sequence-chain-legend-item {
+    display:     flex;
+    align-items: center;
+    gap:         6px;
+    color:       var(--ink-2);
+    font-size:   11px;
+}
+
+.wt-statistics-chart .wt-stat-sequence-chain-key {
+    display:    inline-block;
+    width:      13px;
+    height:     13px;
+    background: color-mix(in srgb, var(--rose) 16%, var(--card));
+    border:     1.5px solid var(--rose);
+}
+
+.wt-statistics-chart .wt-stat-sequence-chain-key[data-sex="F"] {
+    border-radius: 50%;
+}
+
+.wt-statistics-chart .wt-stat-sequence-chain-key[data-sex="M"] {
+    border-radius: 4px;
+}

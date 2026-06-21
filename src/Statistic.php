@@ -36,6 +36,7 @@ use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarPayload;
 use MagicSunday\Webtrees\Statistic\Model\StreamGraph\GivenNameTrendsPayload;
 use MagicSunday\Webtrees\Statistic\Model\Tree\GenerationDepthReport;
 use MagicSunday\Webtrees\Statistic\Model\Tree\HeroStats;
+use MagicSunday\Webtrees\Statistic\Model\Tree\MarriageReachReport;
 use MagicSunday\Webtrees\Statistic\Model\Tree\TreeRecordsReport;
 use MagicSunday\Webtrees\Statistic\Repository\ChildMortalityRepository;
 use MagicSunday\Webtrees\Statistic\Repository\ChildrenRepository;
@@ -52,6 +53,7 @@ use MagicSunday\Webtrees\Statistic\Repository\IslandRepository;
 use MagicSunday\Webtrees\Statistic\Repository\KinshipRepository;
 use MagicSunday\Webtrees\Statistic\Repository\LifeSpanRepository;
 use MagicSunday\Webtrees\Statistic\Repository\MarriageMatrixRepository;
+use MagicSunday\Webtrees\Statistic\Repository\MarriageReachRepository;
 use MagicSunday\Webtrees\Statistic\Repository\MarriageRepository;
 use MagicSunday\Webtrees\Statistic\Repository\MigrationRepository;
 use MagicSunday\Webtrees\Statistic\Repository\NameRepository;
@@ -67,7 +69,6 @@ use MagicSunday\Webtrees\Statistic\Support\Locale\MonthName;
 use MagicSunday\Webtrees\Statistic\Support\Locale\ZodiacLabels;
 
 use function array_values;
-use function count;
 
 /**
  * Aggregator service that backs the statistics-chart tab partials.
@@ -112,6 +113,7 @@ final readonly class Statistic
      * @param EndogamyRepository              $endogamyRepository              Cousin-marriage / shared-ancestor rate within four generations (Family tab)
      * @param MarriageMatrixRepository        $marriageMatrixRepository        Surname × surname marriage matrix for the chord diagram (Names tab)
      * @param RecordInventoryRepository       $recordInventoryRepository       Record-type inventory (core vs. enrichment) + media-by-type for the Tree-health tab
+     * @param MarriageReachRepository         $marriageReachRepository         Longest marriage chain + largest connected marriage group + depth-vs-breadth ratio (Family tab)
      */
     public function __construct(
         private StatisticsData $data,
@@ -140,6 +142,7 @@ final readonly class Statistic
         private EndogamyRepository $endogamyRepository,
         private MarriageMatrixRepository $marriageMatrixRepository,
         private RecordInventoryRepository $recordInventoryRepository,
+        private MarriageReachRepository $marriageReachRepository,
     ) {
     }
 
@@ -672,6 +675,21 @@ final readonly class Statistic
     public function getGenerationDepthSummary(): GenerationDepthReport
     {
         return $this->generationDepthRepository->summary();
+    }
+
+    /**
+     * Marriage-reach summary for the Family tab: the longest unbroken chain of
+     * married people resolved to ordered {@see \Fisharebest\Webtrees\Individual}
+     * objects, the single largest connected marriage group (its people —
+     * excerpted when the real cluster exceeds the network cap — its internal
+     * edges, the longest path's xrefs, the max-degree hub, its real and shown
+     * sizes, and the median birth+death year), and the depth-vs-breadth ratio
+     * components. Returns `null` when no marriage group is large enough to carry
+     * a reportable chain.
+     */
+    public function getMarriageReachSummary(): ?MarriageReachReport
+    {
+        return $this->marriageReachRepository->summary();
     }
 
     /**

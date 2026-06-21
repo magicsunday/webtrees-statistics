@@ -1,0 +1,56 @@
+<?php
+
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
+use MagicSunday\Webtrees\Statistic\View\EmptyStatePlaceholder;
+
+/**
+ * Network-graph widget shell. Emits a `data-widget="network-graph"` marker
+ * carrying the `{nodes, links, highlightPath, hubId, totalCount, shownCount}`
+ * payload — `nodes` an `[{id, label, title, emphasis, href}]` list (each node
+ * carries a rich `title` tooltip the widget renders on hover; network nodes
+ * carry no data-group, since colour is chain-membership not a category), `links`
+ * an `[{source, target, highlighted}]` edge list, `highlightPath` the ordered
+ * node ids forming the longest chain, `hubId` the central node. The chart-lib
+ * `NetworkGraph` widget paints only geometry and the highlight accent; it
+ * assigns no colour by group. The accent, the optional cap-badge template and
+ * the value/aria captions are passed in pre-translated.
+ *
+ * @var string                                                                                                                                                                                                                                                 $identifier Host element id
+ * @var array{nodes: list<array{id: string, label: string, title: string, emphasis: bool, href: string}>, links: list<array{source: string, target: string, highlighted: bool}>, highlightPath: list<string>, hubId: string, totalCount: int, shownCount: int} $data Network-graph payload
+ * @var int|null                                                                                                                                                                                                                                               $height     Optional viewport height (defaults to 360)
+ * @var string|null                                                                                                                                                                                                                                            $accent     CSS colour literal for the highlighted edges
+ * @var string|null                                                                                                                                                                                                                                            $capBadge   Pre-translated `{shown} / {total}` cap-badge template
+ * @var string|null                                                                                                                                                                                                                                            $ariaLabel  Accessible label on the host svg
+ */
+$height ??= 360;
+
+if (($data['nodes'] ?? []) === []) {
+    echo EmptyStatePlaceholder::render();
+
+    return;
+}
+
+$options = [
+    'height'    => $height,
+    'accent'    => $accent ?? null,
+    'ariaLabel' => $ariaLabel ?? null,
+    'i18n'      => [
+        'capBadge' => $capBadge ?? null,
+    ],
+];
+?>
+<div class="wt-stat-network-graph-container"
+     id="<?php echo e($identifier); ?>"
+     data-widget="network-graph"
+     data-payload="<?php echo WidgetJson::encodeAttribute($data); ?>"
+     data-options="<?php echo WidgetJson::encodeAttribute($options); ?>"
+     data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"></div>

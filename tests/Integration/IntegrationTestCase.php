@@ -11,10 +11,13 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
+use Aura\Router\RouterContainer;
 use Fisharebest\Webtrees\Auth;
 use Fisharebest\Webtrees\Contracts\UserInterface;
 use Fisharebest\Webtrees\DB;
 use Fisharebest\Webtrees\Gedcom;
+use Fisharebest\Webtrees\GuestUser;
+use Fisharebest\Webtrees\Http\Routes\WebRoutes;
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Services\GedcomImportService;
@@ -28,12 +31,15 @@ use Fisharebest\Webtrees\Tree;
 use Fisharebest\Webtrees\Webtrees;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ServerRequestFactoryInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 use Throwable;
 
 use function basename;
 use function file_get_contents;
 use function getenv;
+use function http_build_query;
 use function preg_split;
 
 /**
@@ -107,6 +113,12 @@ abstract class IntegrationTestCase extends TestCase
         // Element factory normally bound by webtrees' RoutingMiddleware.
         (new Gedcom())->registerTags(Registry::elementFactory(), true);
 
+        // Bind the routing table and a base server request the way the web
+        // middleware would, so a record's `url()` (which generates a named-route
+        // URL from the request's `base_url` attribute) resolves under the CLI
+        // harness instead of failing to instantiate the absent request.
+        $this->bindRoutingAndRequest();
+
         // Webtrees treats the visitor (guest) user as no-access by default,
         // so name records imported via GedcomImportService are stored with
         // n_givn = "Private". Log in as an admin so the import path sees
@@ -116,6 +128,38 @@ abstract class IntegrationTestCase extends TestCase
         $admin       = $userService->create('admin', 'Admin', 'admin@example.test', 'secret');
         $admin->setPreference(UserInterface::PREF_IS_ADMINISTRATOR, '1');
         Auth::login($admin);
+    }
+
+    /**
+     * Register the web routing table and a base server request in the container,
+     * exactly as webtrees' routing middleware would in a real request. A record's
+     * `url()` generates a named-route URL from the request's `base_url`
+     * attribute, so without this binding the CLI harness cannot resolve any
+     * `Individual::url()` / `Family::url()` call (the absent request fails to
+     * instantiate). Mirrors `Fisharebest\Webtrees\TestCase::setUp()`.
+     *
+     * The request's `user` attribute is intentionally a {@see GuestUser} and is
+     * a routing placeholder only — tests must NOT read it for authorization.
+     * Access checks go through `Auth::user()` (the session principal), which
+     * each test sets up independently; a future test that drives authz off the
+     * request attribute would need to bind it from that same principal instead.
+     */
+    private function bindRoutingAndRequest(): void
+    {
+        $routerContainer = new RouterContainer('/');
+        (new WebRoutes())->load($routerContainer->getMap());
+        Registry::container()->set(RouterContainer::class, $routerContainer);
+
+        $requestFactory = Registry::container()->get(ServerRequestFactoryInterface::class);
+        self::assertInstanceOf(ServerRequestFactoryInterface::class, $requestFactory);
+
+        $request = $requestFactory
+            ->createServerRequest('GET', 'https://webtrees.test/index.php?' . http_build_query([]))
+            ->withAttribute('base_url', 'https://webtrees.test')
+            ->withAttribute('client-ip', '127.0.0.1')
+            ->withAttribute('user', new GuestUser());
+
+        Registry::container()->set(ServerRequestInterface::class, $request);
     }
 
     /**

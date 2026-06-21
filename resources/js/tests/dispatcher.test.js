@@ -25,6 +25,8 @@ const lineChartDrawSpy = jest.fn();
 const populationPyramidDrawSpy = jest.fn();
 const heatmapDrawSpy = jest.fn();
 const treemapDrawSpy = jest.fn();
+const networkGraphDrawSpy = jest.fn();
+const sequenceChainDrawSpy = jest.fn();
 
 class DonutChart {
     constructor(node, options) {
@@ -138,6 +140,24 @@ class Treemap {
         treemapDrawSpy(this.node, data, this.options);
     }
 }
+class NetworkGraph {
+    constructor(node, options) {
+        this.node = node;
+        this.options = options;
+    }
+    draw(data) {
+        networkGraphDrawSpy(this.node, data, this.options);
+    }
+}
+class SequenceChain {
+    constructor(node, options) {
+        this.node = node;
+        this.options = options;
+    }
+    draw(data) {
+        sequenceChainDrawSpy(this.node, data, this.options);
+    }
+}
 
 jest.unstable_mockModule("@magicsunday/webtrees-chart-lib", () => ({
     DonutChart,
@@ -158,6 +178,8 @@ jest.unstable_mockModule("@magicsunday/webtrees-chart-lib", () => ({
     DivergingBarChart,
     Heatmap,
     Treemap,
+    NetworkGraph,
+    SequenceChain,
 }));
 
 // world-map dispatch is async (geojson fetch); mock d3-fetch + d3-geo
@@ -183,6 +205,8 @@ describe("renderWidgets", () => {
         populationPyramidDrawSpy.mockClear();
         heatmapDrawSpy.mockClear();
         treemapDrawSpy.mockClear();
+        networkGraphDrawSpy.mockClear();
+        sequenceChainDrawSpy.mockClear();
         document.body.innerHTML = "";
     });
 
@@ -288,6 +312,49 @@ describe("renderWidgets", () => {
         });
         expect(options.accent).toBe("var(--slate)");
         expect(options.restLabel).toBe("other islands");
+    });
+
+    test("dispatches a network-graph widget when data-widget=network-graph", () => {
+        document.body.innerHTML = `
+            <div id="n1"
+                 data-widget="network-graph"
+                 data-payload='{"nodes":[{"id":"I1","label":"Anna","group":"F"}],"links":[],"hubId":"I1"}'
+                 data-options='{"height":360,"accent":"var(--rose)"}'></div>
+        `;
+
+        expect(() => renderWidgets(document.body)).not.toThrow();
+
+        expect(networkGraphDrawSpy).toHaveBeenCalledTimes(1);
+        const [node, data, options] = networkGraphDrawSpy.mock.calls[0];
+        expect(node.id).toBe("n1");
+        expect(data).toEqual({
+            nodes: [{ id: "I1", label: "Anna", group: "F" }],
+            links: [],
+            hubId: "I1",
+        });
+        expect(options.accent).toBe("var(--rose)");
+    });
+
+    test("dispatches a sequence-chain widget when data-widget=sequence-chain", () => {
+        document.body.innerHTML = `
+            <div id="c1"
+                 data-widget="sequence-chain"
+                 data-payload='{"items":[{"label":"Anna","group":"F"},{"label":"Bert","group":"M"}]}'
+                 data-options='{"accent":"var(--rose)"}'></div>
+        `;
+
+        expect(() => renderWidgets(document.body)).not.toThrow();
+
+        expect(sequenceChainDrawSpy).toHaveBeenCalledTimes(1);
+        const [node, data, options] = sequenceChainDrawSpy.mock.calls[0];
+        expect(node.id).toBe("c1");
+        expect(data).toEqual({
+            items: [
+                { label: "Anna", group: "F" },
+                { label: "Bert", group: "M" },
+            ],
+        });
+        expect(options.accent).toBe("var(--rose)");
     });
 
     test("ignores nodes without data-widget attribute", () => {

@@ -18,6 +18,7 @@ use MagicSunday\Webtrees\Statistic\Model\Ranking\RankingEntry;
 use MagicSunday\Webtrees\Statistic\Model\Tree\GenerationDepthReport;
 use MagicSunday\Webtrees\Statistic\Support\Calc\GenerationDepth;
 use MagicSunday\Webtrees\Statistic\Support\Database\ChunkedWhereIn;
+use MagicSunday\Webtrees\Statistic\Support\Database\GedcomByXref;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RecordName;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
@@ -134,7 +135,8 @@ final readonly class GenerationDepthRepository
         // than one chain ever be rendered, sibling chains share most of their
         // ancestors, so the union keeps the placeholder count (and the fetched
         // row set) minimal.
-        $gedcomByXref = $this->gedcomByXref(
+        $gedcomByXref = GedcomByXref::fetch(
+            $this->tree,
             array_values(array_unique(array_merge(...array_values($top)))),
         );
 
@@ -403,45 +405,6 @@ final readonly class GenerationDepthRepository
             // Same id can have multiple BIRT date rows; keep the latest.
             $existing = $out[$id] ?? 0;
             $out[$id] = max($existing, $jday);
-        }
-
-        return $out;
-    }
-
-    /**
-     * Bulk-fetch the raw gedcom for every given xref in a single chunked query,
-     * returning an `[xref => gedcom]` map. Lets the chain resolution hand the
-     * gedcom straight to {@see Registry::individualFactory()} instead of issuing
-     * one `SELECT i_gedcom` per chain member — the N+1 the rendered-chain loop
-     * otherwise scaled one query per generation deep (GH-154). {@see
-     * ChunkedWhereIn} keeps the id filter within the placeholder budget on a
-     * pathologically deep lineage.
-     *
-     * @param list<string> $xrefs
-     *
-     * @return array<array-key, string>
-     */
-    private function gedcomByXref(array $xrefs): array
-    {
-        if ($xrefs === []) {
-            return [];
-        }
-
-        $query = TreeScope::table($this->tree, 'individuals')
-            ->select(['i_id', 'i_gedcom']);
-
-        $rows = ChunkedWhereIn::get($query, 'i_id', $xrefs);
-
-        $out = [];
-
-        foreach ($rows as $row) {
-            $id = RowCast::string($row, 'i_id');
-
-            if ($id === '') {
-                continue;
-            }
-
-            $out[$id] = RowCast::string($row, 'i_gedcom');
         }
 
         return $out;
