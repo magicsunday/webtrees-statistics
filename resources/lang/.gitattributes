@@ -1,0 +1,4 @@
+# Compiled gettext catalogues are generated binary artifacts: never diff or
+# normalise them, and keep them out of GitHub's language statistics.
+*.mo binary
+*.mo linguist-generated
