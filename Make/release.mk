@@ -10,6 +10,8 @@
 #   zip      — distribution archive creation + integrity check
 #   gh       — GitHub CLI for creating releases and pushing tags
 #   sed      — text substitution for PHP version string (Module.php)
+#   unzip    — extract the dist zip to verify its contents (dist-smoke)
+#   php      — lint the extracted module.php (php -l) in dist-smoke
 #
 # Non-interactive use:
 #   export GH_TOKEN=<token>   # instead of 'gh auth login'
@@ -124,7 +126,7 @@ release-check:
 		echo "bundle the sibling clone instead of the tagged release."; \
 		exit 1; \
 	fi
-	@if [ -d node_modules ] && [ -n "$$(find node_modules ! -uid $$(id -u) -print -quit 2>/dev/null)" ]; then \
+	@if [ -d node_modules ] && [ -n "$$(find node_modules ! -uid $$(id -u) -print 2>/dev/null | head -n 1)" ]; then \
 		echo "Error: node_modules contains files not owned by the current user."; \
 		echo "A prior 'make unlink-chart-lib' run from the host (root in the compose"; \
 		echo "container) can leave root-owned files that the release build cannot"; \
@@ -443,6 +445,14 @@ release-dry-run:
 	fi
 	@if [ -L node_modules/@magicsunday/webtrees-chart-lib ]; then \
 		echo "Error: node_modules/@magicsunday/webtrees-chart-lib is a symlink (active 'make link-chart-lib'); build-js-fresh would destroy it. Run 'make unlink-chart-lib' first."; \
+		exit 1; \
+	fi
+	@if [ -d node_modules ] && [ -n "$$(find node_modules ! -uid $$(id -u) -print 2>/dev/null | head -n 1)" ]; then \
+		echo "Error: node_modules contains files not owned by the current user."; \
+		echo "A prior 'make unlink-chart-lib' run from the host (root in the compose"; \
+		echo "container) can leave root-owned files that build-js-fresh's 'rm -rf"; \
+		echo "node_modules' cannot remove, aborting the dry run mid-way. Clear them"; \
+		echo "as root first:  docker run --rm -v \"\$$PWD\":/m alpine rm -rf /m/node_modules"; \
 		exit 1; \
 	fi
 	@$(MAKE) release-bootstrap
