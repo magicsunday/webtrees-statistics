@@ -43,7 +43,7 @@ SCOPE_NS         := StatisticsVendor
 # Accept both 'make release 1.0.0' (goal form) and 'make release VERSION=1.0.0'.
 VERSION ?= $(filter-out release release-% dist,$(MAKECMDGOALS))
 
-REQUIRED_TOOLS := git node npm composer jq zip gh sed
+REQUIRED_TOOLS := git node npm composer jq zip unzip gh sed php
 
 .PHONY: release release-check release-prepare release-publish release-bump \
         release-recover dist dist-smoke clean-js release-clean build-js-fresh \
@@ -71,9 +71,12 @@ release-bootstrap:
 	fi
 	@echo -e "${FGREEN} ✔${FRESET} Release toolchain ready"
 
-## Verify all required tools, VERSION, clean tree, no active link-base symlink, gh auth.
-## Depends on release-bootstrap so the toolchain is in place before the gate runs.
-release-check: release-bootstrap
+## Verify all required tools, VERSION, clean tree, no active link-base / link-chart-lib
+## symlink, node_modules ownership, gh auth — THEN provision the toolchain. Bootstrap
+## runs LAST (from the recipe, not as a prerequisite) so its composer install / npm ci
+## can never clobber an active link-base / link-chart-lib BEFORE the symlink guards below
+## reject it.
+release-check:
 	@missing=""; \
 	for tool in $(REQUIRED_TOOLS); do \
 		if ! command -v $$tool >/dev/null 2>&1; then \
@@ -135,6 +138,7 @@ release-check: release-bootstrap
 		exit 1; \
 	fi
 	@echo -e "${FGREEN} ✔${FRESET} Release checks passed for $(VERSION)"
+	@$(MAKE) release-bootstrap
 
 ## Remove old versioned JS bundles before building new ones (filesystem + git)
 clean-js:
@@ -240,7 +244,7 @@ dist-smoke:
 	# bundle is present and non-empty, and every bundled module-base src/ dir holds
 	# real PHP files (a truncated/empty bundle or a missing namespace dir passes a
 	# name-only listing but fails here).
-	@tmp=$$(mktemp -d); trap 'rm -rf "$$tmp"' EXIT; \
+	@tmp=$$(mktemp -d); trap '[ -n "$$tmp" ] && rm -rf "$$tmp"' EXIT; \
 	unzip -q $(MODULE_NAME).zip -d "$$tmp" || { echo "Error: $(MODULE_NAME).zip failed to extract"; exit 1; }; \
 	for f in module.php LICENSE; do \
 		[ -s "$$tmp/$$f" ] || { echo "Error: $$f missing or empty in extracted zip"; exit 1; }; \
@@ -420,20 +424,57 @@ release-recover:
 ## ci:test gate, the clean-room rollup build incl. chart-lib dist, the dist zip
 ## and its smoke test). No VERSION, gh auth or network needed.
 ##   make release-dry-run
-release-dry-run: release-bootstrap
+# No release-bootstrap PREREQUISITE: the guards below must abort BEFORE any
+# provisioning work, so a dirty tree / active symlink fails fast. Bootstrap is
+# invoked from the recipe once the guards have passed.
+release-dry-run:
 	@echo -e "${FYELLOW}[dry-run]${FRESET} Release rehearsal — NO commit, tag, push or publish."
-	@echo -e "${FYELLOW}[dry-run 1/4]${FRESET} Running the full CI test suite..."
-	@npm ci
-	@composer ci:test
-	@echo -e "${FYELLOW}[dry-run 2/4]${FRESET} Clean-room JavaScript build..."
-	@$(MAKE) build-js-fresh
-	@echo -e "${FYELLOW}[dry-run 3/4]${FRESET} Building distribution archive..."
-	@$(MAKE) dist
-	@echo -e "${FYELLOW}[dry-run 4/4]${FRESET} Smoke-testing the archive..."
-	@$(MAKE) dist-smoke
-	@echo -e "${FGREEN} ✔${FRESET} Dry run passed — restoring working tree..."
-	@$(MAKE) release-recover
-	@echo -e "${FGREEN} ✔ Dry run complete — the release would succeed. Working tree restored.${FRESET}"
+	# Guard like release-check (minus VERSION/gh): the rehearsal rebuilds and then
+	# REVERTS the JS bundle, and build-js-fresh wipes node_modules — so on a dirty
+	# tree it would discard uncommitted work, and an active link-base / link-chart-lib
+	# symlink would be destroyed. Refuse to run unless the tree is clean + unlinked.
+	@if [ -n "$$(git status --porcelain --untracked-files=no)" ]; then \
+		echo "Error: working tree not clean — commit or stash first (the dry run rebuilds and then reverts the JS bundle)."; \
+		exit 1; \
+	fi
+	@if [ -L $(MODULE_BASE_PATH) ]; then \
+		echo "Error: $(MODULE_BASE_PATH) is a symlink (active 'make link-base'). Run 'make unlink-base' first."; \
+		exit 1; \
+	fi
+	@if [ -L node_modules/@magicsunday/webtrees-chart-lib ]; then \
+		echo "Error: node_modules/@magicsunday/webtrees-chart-lib is a symlink (active 'make link-chart-lib'); build-js-fresh would destroy it. Run 'make unlink-chart-lib' first."; \
+		exit 1; \
+	fi
+	@$(MAKE) release-bootstrap
+	# Run the rehearsal capturing its own status, then ALWAYS restore the tree, and
+	# exit with the rehearsal's status. A cleanup failure must not mask a failed run
+	# (nor a passing run a failed cleanup), and the closing message must tell the
+	# truth. `.build/vendor` is left at --no-dev by `dist`; the next release-bootstrap
+	# re-provisions it on demand.
+	@rc=0; { \
+		echo -e "${FYELLOW}[dry-run 1/4]${FRESET} Running the full CI test suite..." && \
+		npm ci && \
+		composer ci:test && \
+		echo -e "${FYELLOW}[dry-run 2/4]${FRESET} Clean-room JavaScript build..." && \
+		$(MAKE) build-js-fresh && \
+		echo -e "${FYELLOW}[dry-run 3/4]${FRESET} Building distribution archive..." && \
+		$(MAKE) dist && \
+		echo -e "${FYELLOW}[dry-run 4/4]${FRESET} Smoke-testing the archive..." && \
+		$(MAKE) dist-smoke; \
+	} || rc=$$?; \
+	$(MAKE) release-recover || true; \
+	dirty=$$(git status --porcelain --untracked-files=no); \
+	if [ "$$rc" -ne 0 ]; then \
+		echo -e "${FRED} ✘${FRESET} Dry run FAILED (rc=$$rc) — attempted to restore the working tree."; \
+		if [ -n "$$dirty" ]; then echo "   note: tracked files still differ — run 'make release-recover'."; fi; \
+		exit $$rc; \
+	elif [ -n "$$dirty" ]; then \
+		echo -e "${FRED} ✘${FRESET} Rehearsal passed but the working tree is NOT clean after restore — run 'make release-recover':"; \
+		git status --short; \
+		exit 1; \
+	else \
+		echo -e "${FGREEN} ✔ Dry run complete — the release would succeed. Working tree restored.${FRESET}"; \
+	fi
 
 ## Full release pipeline
 release: release-prepare release-publish release-bump release-clean ## Create and publish a release (usage: make release 1.0.0)
