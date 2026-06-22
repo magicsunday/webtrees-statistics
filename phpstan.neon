@@ -44,9 +44,15 @@ parameters:
         # the MIN/MAX/SUM references the actual prefixed table — trusted, but
         # provably non-literal. Released webtrees still ships illuminate 12.x
         # without the narrowing; this only fires against the `dev-main` probe.
+        # A module release must stay green against the RELEASED webtrees (12.x),
+        # where these errors do NOT exist — so each block sets
+        # `reportUnmatched: false`: it suppresses the narrowing on a dev-main
+        # (13.x) resolve, yet is tolerated (not a hard error) on the stable
+        # 12.x resolve the float lands on via prefer-stable.
         -
             message: '#expects (literal-string|TValue of float\|int\|literal-string)#'
             identifier: argument.type
+            reportUnmatched: false
             paths:
                 - src/Repository/FamilyRankingRepository.php
                 - src/Repository/LifeSpanRepository.php
@@ -59,6 +65,7 @@ parameters:
         -
             message: '#generic type Illuminate.+Expression#'
             identifier: generics.notSubtype
+            reportUnmatched: false
             paths:
                 - src/Repository/LifeSpanRepository.php
                 - src/Support/Database/DateAggregate.php
@@ -66,6 +73,7 @@ parameters:
         -
             message: '#should return Illuminate.+Expression<non-falsy-string>#'
             identifier: return.type
+            reportUnmatched: false
             path: src/Support/Database/DateAggregate.php
 
     phpat:
