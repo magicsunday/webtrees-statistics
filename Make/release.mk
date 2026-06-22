@@ -126,7 +126,7 @@ release-check:
 		echo "bundle the sibling clone instead of the tagged release."; \
 		exit 1; \
 	fi
-	@if [ -d node_modules ] && [ -n "$$(find node_modules ! -uid $$(id -u) -print -quit 2>/dev/null)" ]; then \
+	@if [ -d node_modules ] && [ -n "$$(find node_modules ! -uid $$(id -u) -print 2>/dev/null | head -n 1)" ]; then \
 		echo "Error: node_modules contains files not owned by the current user."; \
 		echo "A prior 'make unlink-chart-lib' run from the host (root in the compose"; \
 		echo "container) can leave root-owned files that the release build cannot"; \
@@ -447,7 +447,7 @@ release-dry-run:
 		echo "Error: node_modules/@magicsunday/webtrees-chart-lib is a symlink (active 'make link-chart-lib'); build-js-fresh would destroy it. Run 'make unlink-chart-lib' first."; \
 		exit 1; \
 	fi
-	@if [ -d node_modules ] && [ -n "$$(find node_modules ! -uid $$(id -u) -print -quit 2>/dev/null)" ]; then \
+	@if [ -d node_modules ] && [ -n "$$(find node_modules ! -uid $$(id -u) -print 2>/dev/null | head -n 1)" ]; then \
 		echo "Error: node_modules contains files not owned by the current user."; \
 		echo "A prior 'make unlink-chart-lib' run from the host (root in the compose"; \
 		echo "container) can leave root-owned files that build-js-fresh's 'rm -rf"; \
