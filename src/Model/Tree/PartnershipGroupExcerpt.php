@@ -18,8 +18,8 @@ use MagicSunday\Webtrees\Statistic\Support\Gedcom\IndividualWire;
 use function array_map;
 
 /**
- * The single largest connected marriage group, in the renderable shape the
- * Family-tab marriage-reach card consumes. Carries live {@see Individual}
+ * The single largest connected partnership group, in the renderable shape the
+ * Family-tab partnership-reach card consumes. Carries live {@see Individual}
  * objects in `$nodes` so the PHTML view can link each person, and — when the
  * real cluster overruns the repository's excerpt cap — a connected EXCERPT
  * (`shownCount` ≤ `totalCount`) grown outward from the longest-chain nodes.
@@ -32,16 +32,16 @@ use function array_map;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-final readonly class MarriageGroupExcerpt implements JsonSerializable
+final readonly class PartnershipGroupExcerpt implements JsonSerializable
 {
     /**
      * @param list<Individual>                  $nodes          The group's people (the shown excerpt when capped), as live records so the view can link them
-     * @param list<array{0: string, 1: string}> $edges          The marriage edges among the shown nodes, as byte-ordered `[idA, idB]` xref pairs
+     * @param list<array{0: string, 1: string}> $edges          The partnership edges among the shown nodes, as byte-ordered `[idA, idB]` xref pairs
      * @param list<string>                      $chainIds       The longest path's xrefs, in order
      * @param string                            $hubId          The max-degree member's xref (the cluster hub)
-     * @param int                               $hubDegree      The hub's real marriage degree over the WHOLE group, not just the shown excerpt
+     * @param int                               $hubDegree      The hub's real partnership degree over the WHOLE group, not just the shown excerpt
      * @param int                               $totalCount     The group's real size
-     * @param int                               $totalEdgeCount The group's real internal marriage-edge count over the WHOLE group, not just the shown excerpt
+     * @param int                               $totalEdgeCount The group's real internal partnership-edge count over the WHOLE group, not just the shown excerpt
      * @param int                               $shownCount     The number of nodes actually drawn (≤ `$totalCount`, ≤ the excerpt cap)
      * @param int|null                          $medianYear     The median of the group's combined birth+death years, or `null` when none are dated
      */

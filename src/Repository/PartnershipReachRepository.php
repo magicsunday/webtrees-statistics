@@ -14,10 +14,10 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Tree;
-use MagicSunday\Webtrees\Statistic\Model\Tree\MarriageGroupExcerpt;
-use MagicSunday\Webtrees\Statistic\Model\Tree\MarriageReachReport;
+use MagicSunday\Webtrees\Statistic\Model\Tree\PartnershipGroupExcerpt;
+use MagicSunday\Webtrees\Statistic\Model\Tree\PartnershipReachReport;
 use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
-use MagicSunday\Webtrees\Statistic\Support\Calc\MarriageChains;
+use MagicSunday\Webtrees\Statistic\Support\Calc\PartnershipChains;
 use MagicSunday\Webtrees\Statistic\Support\Database\ChunkedWhereIn;
 use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
 use MagicSunday\Webtrees\Statistic\Support\Database\GedcomByXref;
@@ -30,11 +30,11 @@ use function count;
 use function strcmp;
 
 /**
- * Marriage-reach surfacing for the Family tab. Orchestrates the shared
- * marriage-graph adjacency ({@see MarriageMapRepository}) and the pure
- * connected-component / longest-path calculator ({@see MarriageChains}) into a
- * renderable {@see MarriageReachReport}: the longest unbroken marriage chain,
- * the single largest connected marriage group (with its internal edges, its
+ * Partnership-reach surfacing for the Family tab. Orchestrates the shared
+ * partnership-graph adjacency ({@see PartnershipMapRepository}) and the pure
+ * connected-component / longest-path calculator ({@see PartnershipChains}) into a
+ * renderable {@see PartnershipReachReport}: the longest unbroken partnership chain,
+ * the single largest connected partnership group (with its internal edges, its
  * max-degree hub, and a median birth+death year), and the depth-vs-breadth
  * ratio components.
  *
@@ -50,11 +50,11 @@ use function strcmp;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-final readonly class MarriageReachRepository
+final readonly class PartnershipReachRepository
 {
     /**
-     * Maximum number of people drawn into the rendered marriage-group graph. A
-     * real intermarriage web can run to hundreds of nodes, which neither renders
+     * Maximum number of people drawn into the rendered partnership-group graph. A
+     * real partnership web can run to hundreds of nodes, which neither renders
      * legibly nor serialises cheaply; beyond the cap the report shows a connected
      * EXCERPT grown outward from the longest-chain nodes, while `totalCount`
      * still reports the group's real size so the reader knows the cluster is
@@ -64,38 +64,38 @@ final readonly class MarriageReachRepository
 
     /**
      * @param Tree                      $tree                      The tree the statistics are computed for
-     * @param MarriageMapRepository     $marriageMapRepository     Shared marriage-graph adjacency provider (FAMS spouse pairs)
+     * @param PartnershipMapRepository  $partnershipMapRepository  Shared partnership-graph adjacency provider (FAMS spouse pairs)
      * @param GenerationDepthRepository $generationDepthRepository Provides the tree-wide max generation depth for the ratio
      */
     public function __construct(
         private Tree $tree,
-        private MarriageMapRepository $marriageMapRepository,
+        private PartnershipMapRepository $partnershipMapRepository,
         private GenerationDepthRepository $generationDepthRepository,
     ) {
     }
 
     /**
-     * Tree-wide marriage-reach summary: the longest marriage chain resolved to
-     * ordered {@see Individual} objects, the largest connected marriage group
+     * Tree-wide partnership-reach summary: the longest partnership chain resolved to
+     * ordered {@see Individual} objects, the largest connected partnership group
      * (its people — excerpted to {@see NETWORK_CAP} when the real cluster is
      * larger — its internal edges, the longest path's xrefs, the max-degree hub,
      * its real and shown sizes, and the median birth+death year), and the
-     * depth-vs-breadth ratio components. Returns `null` when no marriage group
-     * reaches {@see MarriageChains::MIN_GROUP_SIZE} people, since there is then no
+     * depth-vs-breadth ratio components. Returns `null` when no partnership group
+     * reaches {@see PartnershipChains::MIN_GROUP_SIZE} people, since there is then no
      * chain to report.
      */
-    public function summary(): ?MarriageReachReport
+    public function summary(): ?PartnershipReachReport
     {
-        $adjacency = $this->marriageMapRepository->build();
-        $largest   = MarriageChains::largestGroup($adjacency);
+        $adjacency = $this->partnershipMapRepository->build();
+        $largest   = PartnershipChains::largestGroup($adjacency);
 
         if ($largest === null) {
             return null;
         }
 
         // largestGroup() sorts largest-first with a deterministic tie-break, so
-        // this is the largest connected marriage group together with its REAL
-        // internal marriage-edge count over the whole group — the figure the foot
+        // this is the largest connected partnership group together with its REAL
+        // internal partnership-edge count over the whole group — the figure the foot
         // legend reports, independent of the excerpt the drawing is capped to.
         $members        = $largest['members'];
         $totalEdgeCount = $largest['edges'];
@@ -108,7 +108,7 @@ final readonly class MarriageReachRepository
         // with chain nodes absent from the group, collapsing the shown excerpt to
         // empty. Scoping to `$members` keeps the chain a sub-path of the group.
         $groupAdjacency = $this->subAdjacency($adjacency, $members);
-        $longestChain   = MarriageChains::longestChain($groupAdjacency);
+        $longestChain   = PartnershipChains::longestChain($groupAdjacency);
         $hub            = $this->highestDegreeMember($adjacency, $members);
 
         // Excerpt the rendered group when the real cluster overruns the cap: keep
@@ -116,12 +116,12 @@ final readonly class MarriageReachRepository
         // smallest-xref order until the cap, and keep only the edges among the
         // shown nodes. Below the cap this is a no-op — every member is shown with
         // every internal edge. The selection is pure graph logic, so it lives in
-        // the unit-tested {@see MarriageChains::excerpt()} calc, not here.
-        $excerpt      = MarriageChains::excerpt($adjacency, $members, $longestChain, self::NETWORK_CAP);
+        // the unit-tested {@see PartnershipChains::excerpt()} calc, not here.
+        $excerpt      = PartnershipChains::excerpt($adjacency, $members, $longestChain, self::NETWORK_CAP);
         $shownMembers = $excerpt['members'];
         $shownEdges   = $excerpt['edges'];
 
-        $medianYear = MarriageChains::medianYear(
+        $medianYear = PartnershipChains::medianYear(
             $this->birthDeathYears($members),
         );
 
@@ -134,10 +134,10 @@ final readonly class MarriageReachRepository
             array_values(array_unique([...$shownMembers, ...$longestChain])),
         );
 
-        return new MarriageReachReport(
+        return new PartnershipReachReport(
             longestChainLength: count($longestChain),
             chain: $this->resolveIndividuals($longestChain, $gedcomByXref),
-            group: new MarriageGroupExcerpt(
+            group: new PartnershipGroupExcerpt(
                 nodes: $this->resolveIndividuals($shownMembers, $gedcomByXref),
                 edges: $shownEdges,
                 chainIds: $longestChain,
@@ -154,7 +154,7 @@ final readonly class MarriageReachRepository
     }
 
     /**
-     * Restrict the full marriage adjacency to one member set: every member keeps
+     * Restrict the full partnership adjacency to one member set: every member keeps
      * only the neighbours that are themselves members. Since `$members` is a
      * connected component, no internal edge is lost — the restriction merely
      * drops edges to nodes outside the set (there are none for a whole
@@ -188,17 +188,17 @@ final readonly class MarriageReachRepository
     }
 
     /**
-     * The group member with the highest marriage degree (most distinct
+     * The group member with the highest partnership degree (most distinct
      * spouses) — the hub of the cluster — together with that real degree over the
      * WHOLE group. The degree travels with the xref so the hub label and the
-     * "%s marriages" tooltip report the cluster-wide figure, never the lower
+     * "%s partnerships" tooltip report the cluster-wide figure, never the lower
      * edge count of a capped excerpt. Ties are broken by the byte-order-smallest
      * xref so the pick is deterministic across reloads.
      *
      * @param array<array-key, list<string>> $adjacency Symmetric `xref → [spouse-xref, …]` map
      * @param list<string>                   $members   The group's people, byte-order sorted
      *
-     * @return array{id: string, degree: int} The hub xref and its real marriage degree
+     * @return array{id: string, degree: int} The hub xref and its real partnership degree
      */
     private function highestDegreeMember(array $adjacency, array $members): array
     {
@@ -229,7 +229,7 @@ final readonly class MarriageReachRepository
 
     /**
      * The combined multiset of birth AND death years of the given members,
-     * fed to {@see MarriageChains::medianYear()}. Each member contributes at most
+     * fed to {@see PartnershipChains::medianYear()}. Each member contributes at most
      * ONE birth and ONE death year — the lower-bound representative of an
      * imprecise date, not both encoded rows — and the value is converted to the
      * Gregorian scale via {@see GregorianDate::year()}, so a non-Gregorian

@@ -22,12 +22,12 @@ use function realpath;
 use function view;
 
 /**
- * Render-level test of the marriage-chain block on the Tree-Health tab. The five
+ * Render-level test of the partnership-chain block on the Tree-Health tab. The five
  * cards (the longest-chain scalar, the largest-group scalar, the depth-vs-breadth
  * ratio, the sequence-chain widget and the network-graph widget) carry their real
- * values and widget payloads when {@see Statistic::getMarriageReachSummary()}
+ * values and widget payloads when {@see Statistic::getPartnershipReachSummary()}
  * resolves a report, and they still render with the empty-state placeholder as
- * their body — never vanish — when it returns `null` (a tree with no marriage
+ * their body — never vanish — when it returns `null` (a tree with no partnership
  * chain reaching three people).
  *
  * The tab partial is rendered through `view()` exactly as the AJAX tab action
@@ -40,7 +40,7 @@ use function view;
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
 #[CoversNothing]
-final class TreeHealthMarriageReachViewTest extends IntegrationTestCase
+final class TreeHealthPartnershipReachViewTest extends IntegrationTestCase
 {
     /**
      * Fixed view-namespace slug for the rendered tab. A bare `new Module()` not
@@ -56,16 +56,16 @@ final class TreeHealthMarriageReachViewTest extends IntegrationTestCase
      * partials emit their `data-widget` host carrying a JSON payload.
      */
     #[Test]
-    public function marriageReachBlockRendersTheFiveCardsWhenTheSummaryIsPresent(): void
+    public function partnershipReachBlockRendersTheFiveCardsWhenTheSummaryIsPresent(): void
     {
         $html = $this->renderTreeHealthTab($this->importFixtureTree('partner-chains.ged'));
 
-        // K1 — longest marriage chain = 15 people. The scalar value is wrapped
+        // K1 — longest partnership chain = 15 people. The scalar value is wrapped
         // in the scalar-value div, so match on that container's content.
-        self::assertStringContainsString('Longest marriage chain', $html);
+        self::assertStringContainsString('Longest partnership chain', $html);
         self::assertMatchesRegularExpression('/wt-stat-scalar-value">\s*15\s/', $html);
 
-        // K2 — largest connected marriage group = 41 people.
+        // K2 — largest connected partnership group = 41 people.
         self::assertStringContainsString('Largest connected group', $html);
         self::assertMatchesRegularExpression('/wt-stat-scalar-value">\s*41\s/', $html);
 
@@ -75,7 +75,7 @@ final class TreeHealthMarriageReachViewTest extends IntegrationTestCase
         self::assertMatchesRegularExpression('/wt-stat-scalar-value">\s*\d+ : 15\s/', $html);
 
         // V1 + V2 — both widget shells render, each carrying a non-empty
-        // serialised payload (anchored to the marriage widgets so the payload
+        // serialised payload (anchored to the partnership widgets so the payload
         // assertion cannot pass on an unrelated widget's data-payload).
         self::assertMatchesRegularExpression('/data-widget="sequence-chain"[^>]*data-payload="[^"]+"/', $html);
         self::assertMatchesRegularExpression('/data-widget="network-graph"[^>]*data-payload="[^"]+"/', $html);
@@ -95,18 +95,18 @@ final class TreeHealthMarriageReachViewTest extends IntegrationTestCase
 
         // Foot legend — the network card carries the summary strip beneath the
         // widget, naming the longest-chain length, the group size and the
-        // marriage count.
+        // partnership count.
         self::assertStringContainsString('wt-stat-network-graph-legend', $html);
         self::assertStringContainsString('Longest chain (', $html);
 
         // Chain foot legend — the longest-chain card carries its own summary
-        // strip: the chain length (15 people) and its marriage count (14 — one
+        // strip: the chain length (15 people) and its partnership count (14 — one
         // fewer than the people, never the larger whole-group edge count), plus
         // a sex-shape key explaining the disc shapes now that sex is encoded by
         // shape, not colour.
         self::assertStringContainsString('wt-stat-sequence-chain-foot', $html);
         self::assertMatchesRegularExpression(
-            '#wt-stat-sequence-chain-count">15 people · 14 marriages<#u',
+            '#wt-stat-sequence-chain-count">15 people · 14 partnerships<#u',
             $html,
         );
         self::assertStringContainsString('wt-stat-sequence-chain-key" data-sex="F"', $html);
@@ -126,34 +126,34 @@ final class TreeHealthMarriageReachViewTest extends IntegrationTestCase
         // (`withFooter()`) so its dashed-rhythm footer matches its sibling
         // scalar cards. The lookahead keeps the match inside that one card —
         // and "Largest connected group" is not a substring of "Largest
-        // connected marriage group", so it cannot match the network card.
+        // connected partnership group", so it cannot match the network card.
         self::assertMatchesRegularExpression(
             '#Largest connected group(?:(?!</section>).)*?wt-stat-card-foot#s',
             $html,
         );
 
-        // The marriage-reach cards live under their own section heading, and the
+        // The partnership-reach cards live under their own section heading, and the
         // chain WIDGET card carries a distinct title from the chain SCALAR KPI
-        // ("Longest marriage chain") so the same heading no longer appears twice.
-        self::assertStringContainsString('How far does the tree connect through marriage?', $html);
+        // ("Longest partnership chain") so the same heading no longer appears twice.
+        self::assertStringContainsString('How far does the tree connect through partnerships?', $html);
         self::assertStringContainsString('The longest chain, person by person', $html);
     }
 
     /**
-     * A tree with no marriage chain reaching three people yields a `null`
-     * summary, so each of the five marriage-chain cards still renders — with the
+     * A tree with no partnership chain reaching three people yields a `null`
+     * summary, so each of the five partnership-chain cards still renders — with the
      * empty-state placeholder as its body instead of a value or widget shell.
      */
     #[Test]
-    public function marriageReachCardsRenderTheEmptyStateWhenTheSummaryIsNull(): void
+    public function partnershipReachCardsRenderTheEmptyStateWhenTheSummaryIsNull(): void
     {
         $html = $this->renderTreeHealthTab($this->importFixtureTree('age-at-death-dedup.ged'));
 
         // The card headings stay present — the section does not vanish.
-        self::assertStringContainsString('Longest marriage chain', $html);
+        self::assertStringContainsString('Longest partnership chain', $html);
         self::assertStringContainsString('Largest connected group', $html);
         self::assertStringContainsString('Depth-to-breadth ratio', $html);
-        self::assertStringContainsString('Largest connected marriage group', $html);
+        self::assertStringContainsString('Largest connected partnership group', $html);
 
         // Each card body falls back to the shared empty-state placeholder copy.
         self::assertStringContainsString('chart-empty-state', $html);

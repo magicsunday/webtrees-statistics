@@ -193,28 +193,28 @@ $islandsExplanation = I18N::translate(
     'Each tile is one connected sub-tree: a group of individuals tied together by parentage or marriage, with no link to any other sub-tree. The tile area is proportional to the number of members, the largest first. The label is the most common surname within that sub-tree — so the same surname can mark several separate sub-trees when a family line is not yet connected to the rest of the tree. The final tile sums up every sub-tree beyond the ten largest.'
 );
 
-// Marriage-reach: the longest unbroken marriage chain and the single largest
-// connected marriage group. The summary is null for a tree with no married
+// Partnership-reach: the longest unbroken partnership chain and the single largest
+// connected partnership group. The summary is null for a tree with no partnered
 // couple chain reaching three people, in which case each card below still
 // renders but shows the empty-state placeholder instead of a value or widget
 // (mirroring the Endogamy card). The VO → widget-payload mapping only runs
 // when a report is present.
-$marriageReach = $statistic->getMarriageReachSummary();
+$partnershipReach = $statistic->getPartnershipReachSummary();
 
 // The "About this chart" popover text is shared by two of the cards and is
 // rendered whether or not a report is present.
-$marriageReachExplanation = I18N::translate(
-    'Two people are linked when they were married to each other. Following those links from spouse to later spouse traces a marriage chain; the longest unbroken chain in the tree is shown on the left. The largest connected group on the right is every person reachable from one another through such marriages, drawn as a web with the most-married person at its centre and the longest chain highlighted.'
+$partnershipReachExplanation = I18N::translate(
+    'Two people are linked when they were partners — married or not. Following those links from one partner to the next traces a partnership chain; the longest unbroken chain in the tree is shown on the left. The largest connected group on the right is every person reachable from one another through such partnerships, drawn as a web with the person who had the most partners at its centre and the longest chain highlighted.'
 );
 
-if ($marriageReach !== null) {
-    $marriageReachReport = $marriageReach->jsonSerialize();
-    $marriageGroup       = $marriageReachReport['group'];
+if ($partnershipReach !== null) {
+    $partnershipReachReport = $partnershipReach->jsonSerialize();
+    $partnershipGroup       = $partnershipReachReport['group'];
 
     // Map a genealogy sex code (`F`/`M`/`U`) to the translated word for the
     // tooltip text. This domain label belongs in the consumer, not the neutral
     // chart-lib widget — the literals are call-site so xgettext picks them up.
-    $marriageSexLabel = static fn (string $sex): string => match ($sex) {
+    $partnershipSexLabel = static fn (string $sex): string => match ($sex) {
         'F'     => I18N::translate('female'),
         'M'     => I18N::translate('male'),
         default => I18N::translate('unknown'),
@@ -223,7 +223,7 @@ if ($marriageReach !== null) {
     // Build the "*birth–death" life span gracefully when either bound is
     // missing (a living / privacy-withheld person carries an empty year). The
     // years print verbatim — a year must never gain a thousands separator.
-    $marriageLifeSpan = static function (string $birth, string $death): string {
+    $partnershipLifeSpan = static function (string $birth, string $death): string {
         if (($birth === '') && ($death === '')) {
             return '';
         }
@@ -232,8 +232,8 @@ if ($marriageReach !== null) {
     };
 
     // Compose the rich tooltip body the chart-lib widgets render verbatim:
-    // "Name · sex · *birth–death", with the hub's marriage degree appended.
-    $marriageTooltip = static function (array $person, string $sexLabel, string $lifeSpan): string {
+    // "Name · sex · *birth–death", with the hub's partnership degree appended.
+    $partnershipTooltip = static function (array $person, string $sexLabel, string $lifeSpan): string {
         $parts = [$person['label'], $sexLabel];
 
         if ($lifeSpan !== '') {
@@ -247,45 +247,45 @@ if ($marriageReach !== null) {
     // a bead carrying its display label, a "*birth–death" sub-caption, its sex
     // as the `data-group` the consumer stylesheet colours and a rich `title`
     // the widget renders as a styled tooltip.
-    $marriageChainItems = [];
+    $partnershipChainItems = [];
 
-    foreach ($marriageReachReport['chain'] as $person) {
-        $sexLabel = $marriageSexLabel($person['sex']);
-        $lifeSpan = $marriageLifeSpan($person['birth'], $person['death']);
+    foreach ($partnershipReachReport['chain'] as $person) {
+        $sexLabel = $partnershipSexLabel($person['sex']);
+        $lifeSpan = $partnershipLifeSpan($person['birth'], $person['death']);
 
-        $marriageChainItems[] = [
+        $partnershipChainItems[] = [
             'id'       => $person['xref'],
             'label'    => $person['label'],
             'sublabel' => $lifeSpan,
-            'title'    => $marriageTooltip($person, $sexLabel, $lifeSpan),
+            'title'    => $partnershipTooltip($person, $sexLabel, $lifeSpan),
             'group'    => $person['sex'],
             'href'     => $person['url'],
         ];
     }
 
     // Foot legend beneath the chain, mirroring the prototype: the chain length
-    // and its marriage count on the left, a sex-shape key on the right. The
-    // marriage count is one fewer than the people (N spouses → N-1 unions),
+    // and its partnership count on the left, a sex-shape key on the right. The
+    // partnership count is one fewer than the people (N spouses → N-1 unions),
     // never the larger whole-group edge count. The key explains the disc shapes
     // now that sex is encoded by shape (circle = female, rounded square = male),
     // not colour. The consumer owns this wrapper (a `wt-stat-*` class, not
     // `msc-*`), like the network legend; it is appended to the widget body below.
-    $marriageChainCount = count($marriageReachReport['chain']);
+    $partnershipChainCount = count($partnershipReachReport['chain']);
 
-    $marriageChainFoot = '<div class="wt-stat-sequence-chain-foot">'
+    $partnershipChainFoot = '<div class="wt-stat-sequence-chain-foot">'
         . '<span class="wt-stat-sequence-chain-count">'
-        . e(I18N::translate('%s people', I18N::number($marriageChainCount)))
+        . e(I18N::translate('%s people', I18N::number($partnershipChainCount)))
         . ' · '
-        . e(I18N::translate('%s marriages', I18N::number($marriageChainCount - 1)))
+        . e(I18N::translate('%s partnerships', I18N::number($partnershipChainCount - 1)))
         . '</span>'
         . '<span class="wt-stat-sequence-chain-legend">'
         . '<span class="wt-stat-sequence-chain-legend-item">'
         . '<i class="wt-stat-sequence-chain-key" data-sex="F" aria-hidden="true"></i>'
-        . e($marriageSexLabel('F'))
+        . e($partnershipSexLabel('F'))
         . '</span>'
         . '<span class="wt-stat-sequence-chain-legend-item">'
         . '<i class="wt-stat-sequence-chain-key" data-sex="M" aria-hidden="true"></i>'
-        . e($marriageSexLabel('M'))
+        . e($partnershipSexLabel('M'))
         . '</span>'
         . '</span>'
         . '</div>';
@@ -295,81 +295,81 @@ if ($marriageReach !== null) {
     // longest-chain path is highlighted. `chainIds` doubles as the highlight
     // path so the graph draws the chain through the cluster. Node colour comes
     // from chain membership (highlighted / hub / off-chain) via CSS, NOT sex.
-    $marriageGroupChainPairs = [];
+    $partnershipGroupChainPairs = [];
 
-    for ($i = 1, $count = count($marriageGroup['chainIds']); $i < $count; ++$i) {
-        $a = $marriageGroup['chainIds'][$i - 1];
-        $b = $marriageGroup['chainIds'][$i];
+    for ($i = 1, $count = count($partnershipGroup['chainIds']); $i < $count; ++$i) {
+        $a = $partnershipGroup['chainIds'][$i - 1];
+        $b = $partnershipGroup['chainIds'][$i];
 
-        $marriageGroupChainPairs[$a . "\0" . $b] = true;
-        $marriageGroupChainPairs[$b . "\0" . $a] = true;
+        $partnershipGroupChainPairs[$a . "\0" . $b] = true;
+        $partnershipGroupChainPairs[$b . "\0" . $a] = true;
     }
 
-    $marriageGroupNodes = [];
+    $partnershipGroupNodes = [];
 
-    foreach ($marriageGroup['nodes'] as $node) {
-        $sexLabel = $marriageSexLabel($node['sex']);
-        $lifeSpan = $marriageLifeSpan($node['birth'], $node['death']);
-        $title    = $marriageTooltip($node, $sexLabel, $lifeSpan);
+    foreach ($partnershipGroup['nodes'] as $node) {
+        $sexLabel = $partnershipSexLabel($node['sex']);
+        $lifeSpan = $partnershipLifeSpan($node['birth'], $node['death']);
+        $title    = $partnershipTooltip($node, $sexLabel, $lifeSpan);
 
-        if ($node['xref'] === $marriageGroup['hubId']) {
-            $title .= ' · ' . I18N::translate('%s marriages', I18N::number($marriageGroup['hubDegree']));
+        if ($node['xref'] === $partnershipGroup['hubId']) {
+            $title .= ' · ' . I18N::translate('%s partnerships', I18N::number($partnershipGroup['hubDegree']));
         }
 
-        $marriageGroupNodes[] = [
+        $partnershipGroupNodes[] = [
             'id'       => $node['xref'],
             'label'    => $node['label'],
             'title'    => $title,
-            'emphasis' => $node['xref'] === $marriageGroup['hubId'],
+            'emphasis' => $node['xref'] === $partnershipGroup['hubId'],
             'href'     => $node['url'],
         ];
     }
 
-    $marriageGroupLinks = [];
+    $partnershipGroupLinks = [];
 
-    foreach ($marriageGroup['edges'] as $edge) {
-        $marriageGroupLinks[] = [
+    foreach ($partnershipGroup['edges'] as $edge) {
+        $partnershipGroupLinks[] = [
             'source'      => $edge[0],
             'target'      => $edge[1],
-            'highlighted' => isset($marriageGroupChainPairs[$edge[0] . "\0" . $edge[1]]),
+            'highlighted' => isset($partnershipGroupChainPairs[$edge[0] . "\0" . $edge[1]]),
         ];
     }
 
-    $marriageGroupPayload = [
-        'nodes'         => $marriageGroupNodes,
-        'links'         => $marriageGroupLinks,
-        'highlightPath' => $marriageGroup['chainIds'],
-        'hubId'         => $marriageGroup['hubId'],
-        'totalCount'    => $marriageGroup['totalCount'],
-        'shownCount'    => $marriageGroup['shownCount'],
+    $partnershipGroupPayload = [
+        'nodes'         => $partnershipGroupNodes,
+        'links'         => $partnershipGroupLinks,
+        'highlightPath' => $partnershipGroup['chainIds'],
+        'hubId'         => $partnershipGroup['hubId'],
+        'totalCount'    => $partnershipGroup['totalCount'],
+        'shownCount'    => $partnershipGroup['shownCount'],
     ];
 
     // K2 — caption naming the group's median life year, when any member is
     // dated. A year prints verbatim — `I18N::number` would add the German
     // thousands separator ("1.934"), so cast the year to a plain string.
-    $marriageGroupCaption = ($marriageGroup['medianYear'] !== null)
-        ? I18N::translate('People joined by marriage · median life around %s', (string) $marriageGroup['medianYear'])
-        : I18N::translate('People joined by marriage');
+    $partnershipGroupCaption = ($partnershipGroup['medianYear'] !== null)
+        ? I18N::translate('People joined by partnership · median life around %s', (string) $partnershipGroup['medianYear'])
+        : I18N::translate('People joined by partnership');
 
     // Foot legend strip beneath the network: the longest chain length, the
     // group size and edge count, and the median life year — mirroring the
     // prototype. Both counts describe the WHOLE group (`totalCount` people,
-    // `totalEdgeCount` marriages), never the capped excerpt that is drawn, so
+    // `totalEdgeCount` partnerships), never the capped excerpt that is drawn, so
     // the legend never pairs a full-group people count with an excerpt-only
-    // marriage count. Years print verbatim (no thousands separator); the counts
+    // partnership count. Years print verbatim (no thousands separator); the counts
     // go through `I18N::number`. The legend is appended to the widget body below.
-    $marriageNetworkLegendParts = [
-        I18N::translate('Longest chain (%s)', I18N::number(count($marriageGroup['chainIds']))),
-        I18N::translate('%s people', I18N::number($marriageGroup['totalCount'])),
-        I18N::translate('%s marriages', I18N::number($marriageGroup['totalEdgeCount'])),
+    $partnershipNetworkLegendParts = [
+        I18N::translate('Longest chain (%s)', I18N::number(count($partnershipGroup['chainIds']))),
+        I18N::translate('%s people', I18N::number($partnershipGroup['totalCount'])),
+        I18N::translate('%s partnerships', I18N::number($partnershipGroup['totalEdgeCount'])),
     ];
 
-    if ($marriageGroup['medianYear'] !== null) {
-        $marriageNetworkLegendParts[] = I18N::translate('Median %s', (string) $marriageGroup['medianYear']);
+    if ($partnershipGroup['medianYear'] !== null) {
+        $partnershipNetworkLegendParts[] = I18N::translate('Median %s', (string) $partnershipGroup['medianYear']);
     }
 
-    $marriageNetworkLegend = '<p class="wt-stat-network-graph-legend">'
-        . e(implode(' · ', $marriageNetworkLegendParts))
+    $partnershipNetworkLegend = '<p class="wt-stat-network-graph-legend">'
+        . e(implode(' · ', $partnershipNetworkLegendParts))
         . '</p>';
 }
 ?>
@@ -604,39 +604,39 @@ echo Card::for($module, I18N::translate('Top 10 most-influential ancestors'))
     )
     ->render();
 
-// The marriage-reach cards form their own section: three summary KPIs (chain
+// The partnership-reach cards form their own section: three summary KPIs (chain
 // length, group size and the depth-to-breadth ratio) followed by the two detail
 // visualisations (the chain strip and the group network).
-echo Section::create(I18N::translate('How far does the tree connect through marriage?'))
-    ->withKicker(I18N::translate('Marriage reach'))
-    ->withSub(I18N::translate('Chains and clusters formed by marriage'))
+echo Section::create(I18N::translate('How far does the tree connect through partnerships?'))
+    ->withKicker(I18N::translate('Partnership reach'))
+    ->withSub(I18N::translate('Chains and clusters formed by partnership'))
     ->render();
 
-// The marriage-reach cards always render. When no married couple forms a chain
-// of three or more people (`$marriageReach === null`), each card keeps its
+// The partnership-reach cards always render. When no partnered couple forms a chain
+// of three or more people (`$partnershipReach === null`), each card keeps its
 // heading and shows the empty-state placeholder as its body — mirroring the
 // Endogamy card — instead of the whole block vanishing.
-echo Card::for($module, I18N::translate('Longest marriage chain'))
-    ->withSub(I18N::translate('Unbroken spouse-to-spouse line'))
+echo Card::for($module, I18N::translate('Longest partnership chain'))
+    ->withSub(I18N::translate('Unbroken partner-to-partner line'))
     ->withEyebrow(I18N::translate('Reach'))
     ->withAccent(Accent::Rose)
     ->withIllustration(Illustration::Rings)
-    ->withInfo($marriageReachExplanation, $aboutThisChart, $aboutThisChart)
+    ->withInfo($partnershipReachExplanation, $aboutThisChart, $aboutThisChart)
     ->withSpan(4)
     ->centered()
     ->withBodyHtml(
-        ($marriageReach === null)
+        ($partnershipReach === null)
             ? EmptyStatePlaceholder::render()
             : Component::scalar($module)
-                ->with('value', I18N::number($marriageReach->longestChainLength))
+                ->with('value', I18N::number($partnershipReach->longestChainLength))
                 ->with('unit', I18N::translate('people'))
-                ->with('caption', I18N::translate('Each step is one marriage further along the line.'))
+                ->with('caption', I18N::translate('Each step is one partnership further along the line.'))
                 ->render()
     )
     ->render();
 
 echo Card::for($module, I18N::translate('Largest connected group'))
-    ->withSub(I18N::translate('Biggest web of intermarried people'))
+    ->withSub(I18N::translate('Biggest web of partnered people'))
     ->withEyebrow(I18N::translate('Reach'))
     ->withAccent(Accent::Rose)
     ->withIllustration(Illustration::Knot)
@@ -644,68 +644,68 @@ echo Card::for($module, I18N::translate('Largest connected group'))
     ->withFooter()
     ->centered()
     ->withBodyHtml(
-        ($marriageReach === null)
+        ($partnershipReach === null)
             ? EmptyStatePlaceholder::render()
             : Component::scalar($module)
-                ->with('value', I18N::number($marriageReach->group->totalCount))
+                ->with('value', I18N::number($partnershipReach->group->totalCount))
                 ->with('unit', I18N::translate('people'))
-                ->with('caption', $marriageGroupCaption)
+                ->with('caption', $partnershipGroupCaption)
                 ->render()
     )
     ->render();
 
 echo Card::for($module, I18N::translate('Depth-to-breadth ratio'))
-    ->withSub(I18N::translate('Deepest line against the longest marriage chain'))
+    ->withSub(I18N::translate('Deepest line against the longest partnership chain'))
     ->withEyebrow(I18N::translate('Reach'))
     ->withAccent(Accent::Rose)
     ->withIllustration(Illustration::Bell)
     ->withSpan(4)
     ->centered()
     ->withBodyHtml(
-        ($marriageReach === null)
+        ($partnershipReach === null)
             ? EmptyStatePlaceholder::render()
             : Component::scalar($module)
-                ->with('value', I18N::number($marriageReach->depthPath) . ' : ' . I18N::number($marriageReach->breadthChain))
+                ->with('value', I18N::number($partnershipReach->depthPath) . ' : ' . I18N::number($partnershipReach->breadthChain))
                 ->with('caption', I18N::translate('Generations deep versus people wide. A tall tree runs deep, a broad one spreads sideways.'))
                 ->render()
     )
     ->render();
 
 echo Card::for($module, I18N::translate('The longest chain, person by person'))
-    ->withSub(I18N::translate('Every spouse on the longest line, in order'))
+    ->withSub(I18N::translate('Every partner on the longest line, in order'))
     ->withEyebrow(I18N::translate('Reach'))
     ->withAccent(Accent::Rose)
     ->withIllustration(Illustration::Rings)
     ->withSpan(12)
     ->withBodyHtml(
-        ($marriageReach === null)
+        ($partnershipReach === null)
             ? EmptyStatePlaceholder::render()
-            : Widget::sequenceChain($module, 'marriage-chain-sequence')
-                ->withData(['items' => $marriageChainItems])
-                ->withAriaLabel(I18N::translate('Longest marriage chain'))
+            : Widget::sequenceChain($module, 'partnership-chain-sequence')
+                ->withData(['items' => $partnershipChainItems])
+                ->withAriaLabel(I18N::translate('Longest partnership chain'))
                 ->render()
-            . $marriageChainFoot
+            . $partnershipChainFoot
     )
     ->render();
 
-echo Card::for($module, I18N::translate('Largest connected marriage group'))
-    ->withSub(I18N::translate('Intermarriage web · the longest chain highlighted'))
+echo Card::for($module, I18N::translate('Largest connected partnership group'))
+    ->withSub(I18N::translate('Partnership web · the longest chain highlighted'))
     ->withEyebrow(I18N::translate('Reach'))
     ->withAccent(Accent::Rose)
     ->withIllustration(Illustration::Knot)
-    ->withInfo($marriageReachExplanation, $aboutThisChart, $aboutThisChart)
+    ->withInfo($partnershipReachExplanation, $aboutThisChart, $aboutThisChart)
     ->withSpan(12)
     ->withBodyHtml(
-        ($marriageReach === null)
+        ($partnershipReach === null)
             ? EmptyStatePlaceholder::render()
-            : Widget::networkGraph($module, 'marriage-group-network')
-                ->withData($marriageGroupPayload)
+            : Widget::networkGraph($module, 'partnership-group-network')
+                ->withData($partnershipGroupPayload)
                 ->withHeight(360)
                 ->withAccent(Accent::Rose)
                 ->with('capBadge', I18N::translate('%1$s of %2$s shown', '{shown}', '{total}'))
-                ->withAriaLabel(I18N::translate('Largest connected marriage group'))
+                ->withAriaLabel(I18N::translate('Largest connected partnership group'))
                 ->render()
-            . $marriageNetworkLegend
+            . $partnershipNetworkLegend
     )
     ->render();
 
