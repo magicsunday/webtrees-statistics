@@ -46,13 +46,34 @@ VERSION ?= $(filter-out release release-% dist,$(MAKECMDGOALS))
 REQUIRED_TOOLS := git node npm composer jq zip gh sed
 
 .PHONY: release release-check release-prepare release-publish release-bump \
-        release-recover dist dist-smoke clean-js release-clean build-js-fresh
+        release-recover dist dist-smoke clean-js release-clean build-js-fresh \
+        release-bootstrap release-dry-run
 
 # release pipeline operates on shared repo state — must run sequentially.
 .NOTPARALLEL:
 
+## Provision the dev toolchain a release needs but that a fresh checkout or a
+## prior 'make dist' (composer update --no-dev wipes .build/vendor's dev tools)
+## may have left missing — so 'make release' / 'make release-dry-run' run end to
+## end without a manual 'composer install' / 'npm ci' first. Idempotent: each
+## step is guarded and skips when already present, so it is cheap on a warm tree.
+##   1. .build/vendor dev tools (phpstan/php-cs-fixer/phpunit) for 'composer ci:test'
+##   2. node_modules with the built chart-lib dist (the github source dep ships no
+##      dist/; only a real 'npm ci' clones + builds it) for the rollup + js:typecheck
+release-bootstrap:
+	@if [ ! -d $(VENDOR_DIR)/phpstan/phpstan ]; then \
+		echo -e "${FYELLOW}[bootstrap]${FRESET} Restoring dev toolchain ($(VENDOR_DIR))..."; \
+		composer install --no-interaction --no-progress; \
+	fi
+	@if [ ! -f node_modules/@magicsunday/webtrees-chart-lib/dist/webtrees-chart-lib.es.js ]; then \
+		echo -e "${FYELLOW}[bootstrap]${FRESET} Installing node deps + building chart-lib dist (npm ci)..."; \
+		npm ci; \
+	fi
+	@echo -e "${FGREEN} ✔${FRESET} Release toolchain ready"
+
 ## Verify all required tools, VERSION, clean tree, no active link-base symlink, gh auth.
-release-check:
+## Depends on release-bootstrap so the toolchain is in place before the gate runs.
+release-check: release-bootstrap
 	@missing=""; \
 	for tool in $(REQUIRED_TOOLS); do \
 		if ! command -v $$tool >/dev/null 2>&1; then \
@@ -214,7 +235,24 @@ dist-smoke:
 		echo "Error: module.php in zip still contains unprefixed MagicSunday\\Webtrees\\ModuleBase"; \
 		exit 1; \
 	fi
-	@echo -e "${FGREEN} ✔${FRESET} dist-smoke passed: $(MODULE_NAME).zip is well-formed"
+	# Beyond the entry-list checks above: actually EXTRACT the zip and verify the
+	# unpacked tree — module.php parses, key files are non-empty, the versioned JS
+	# bundle is present and non-empty, and every bundled module-base src/ dir holds
+	# real PHP files (a truncated/empty bundle or a missing namespace dir passes a
+	# name-only listing but fails here).
+	@tmp=$$(mktemp -d); trap 'rm -rf "$$tmp"' EXIT; \
+	unzip -q $(MODULE_NAME).zip -d "$$tmp" || { echo "Error: $(MODULE_NAME).zip failed to extract"; exit 1; }; \
+	for f in module.php LICENSE; do \
+		[ -s "$$tmp/$$f" ] || { echo "Error: $$f missing or empty in extracted zip"; exit 1; }; \
+	done; \
+	php -l "$$tmp/module.php" >/dev/null 2>&1 || { echo "Error: extracted module.php does not parse"; exit 1; }; \
+	bundle=$$(ls "$$tmp"/resources/js/$(JS_NAME)-[0-9]*.min.js 2>/dev/null | head -1); \
+	[ -s "$$bundle" ] || { echo "Error: versioned JS bundle missing or empty in extracted resources/js/"; exit 1; }; \
+	for d in Contract Model Module Processor; do \
+		find "$$tmp/vendor/magicsunday/webtrees-module-base/src/$$d" -name '*.php' -print -quit 2>/dev/null | grep -q . \
+			|| { echo "Error: bundled module-base src/$$d has no PHP files in extracted zip"; exit 1; }; \
+	done
+	@echo -e "${FGREEN} ✔${FRESET} dist-smoke passed: $(MODULE_NAME).zip extracts to a well-formed module"
 
 # Atomic JSON edit with cleanup on failure + post-write assertion. Usage:
 #   $(call jq_edit,FILE,WRITE_EXPR,ARGS,VERIFY_EXPR)
@@ -375,6 +413,27 @@ release-recover:
 		echo "  git reset --soft HEAD~1"; \
 	fi
 	@echo "If a tag was created, remove it with: git tag -d <VERSION>"
+
+## Dry run — rehearse the whole build pipeline WITHOUT committing, tagging,
+## pushing or publishing, then restore the working tree. Validates exactly the
+## steps that historically broke a release (toolchain provisioning, the full
+## ci:test gate, the clean-room rollup build incl. chart-lib dist, the dist zip
+## and its smoke test). No VERSION, gh auth or network needed.
+##   make release-dry-run
+release-dry-run: release-bootstrap
+	@echo -e "${FYELLOW}[dry-run]${FRESET} Release rehearsal — NO commit, tag, push or publish."
+	@echo -e "${FYELLOW}[dry-run 1/4]${FRESET} Running the full CI test suite..."
+	@npm ci
+	@composer ci:test
+	@echo -e "${FYELLOW}[dry-run 2/4]${FRESET} Clean-room JavaScript build..."
+	@$(MAKE) build-js-fresh
+	@echo -e "${FYELLOW}[dry-run 3/4]${FRESET} Building distribution archive..."
+	@$(MAKE) dist
+	@echo -e "${FYELLOW}[dry-run 4/4]${FRESET} Smoke-testing the archive..."
+	@$(MAKE) dist-smoke
+	@echo -e "${FGREEN} ✔${FRESET} Dry run passed — restoring working tree..."
+	@$(MAKE) release-recover
+	@echo -e "${FGREEN} ✔ Dry run complete — the release would succeed. Working tree restored.${FRESET}"
 
 ## Full release pipeline
 release: release-prepare release-publish release-bump release-clean ## Create and publish a release (usage: make release 1.0.0)
