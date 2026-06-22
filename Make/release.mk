@@ -253,7 +253,7 @@ dist-smoke:
 	bundle=$$(ls "$$tmp"/resources/js/$(JS_NAME)-[0-9]*.min.js 2>/dev/null | head -1); \
 	[ -s "$$bundle" ] || { echo "Error: versioned JS bundle missing or empty in extracted resources/js/"; exit 1; }; \
 	for d in Contract Model Module Processor; do \
-		find "$$tmp/vendor/magicsunday/webtrees-module-base/src/$$d" -name '*.php' -print -quit 2>/dev/null | grep -q . \
+		find "$$tmp/vendor/magicsunday/webtrees-module-base/src/$$d" -name '*.php' -print 2>/dev/null | grep -q . \
 			|| { echo "Error: bundled module-base src/$$d has no PHP files in extracted zip"; exit 1; }; \
 	done
 	@echo -e "${FGREEN} ✔${FRESET} dist-smoke passed: $(MODULE_NAME).zip extracts to a well-formed module"
