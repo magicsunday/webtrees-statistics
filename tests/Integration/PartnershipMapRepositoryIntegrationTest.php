@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
-use MagicSunday\Webtrees\Statistic\Repository\MarriageMapRepository;
+use MagicSunday\Webtrees\Statistic\Repository\PartnershipMapRepository;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -23,7 +23,7 @@ use function array_unique;
 use function array_values;
 
 /**
- * End-to-end test of {@see MarriageMapRepository} against the
+ * End-to-end test of {@see PartnershipMapRepository} against the
  * `partner-chains.ged` fixture. The fixture records 51 families that carry both
  * a HUSB and a WIFE pointer, but only 50 distinct couples — the I6+I21 pair is
  * deliberately recorded twice (FXX and FXXDUP) to exercise the de-duplication
@@ -36,10 +36,10 @@ use function array_values;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(MarriageMapRepository::class)]
+#[CoversClass(PartnershipMapRepository::class)]
 #[UsesClass(TreeScope::class)]
 #[UsesClass(RowCast::class)]
-final class MarriageMapRepositoryIntegrationTest extends IntegrationTestCase
+final class PartnershipMapRepositoryIntegrationTest extends IntegrationTestCase
 {
     /**
      * The map keys one individual XREF onto the list of its spouse XREFs, with
@@ -51,7 +51,7 @@ final class MarriageMapRepositoryIntegrationTest extends IntegrationTestCase
     public function buildReturnsDedupedSymmetricSpouseAdjacency(): void
     {
         $tree = $this->importFixtureTree('partner-chains.ged');
-        $map  = (new MarriageMapRepository($tree))->build();
+        $map  = (new PartnershipMapRepository($tree))->build();
 
         self::assertCount(
             52,

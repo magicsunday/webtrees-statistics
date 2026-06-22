@@ -441,13 +441,6 @@ msgid_plural "%s marriages with a recorded month"
 msgstr[0] "%s bryllup med registrert måned"
 msgstr[1] "%s bryllup med registrert måned"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:279
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:316
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:364
-#, php-format
-msgid "%s marriages"
-msgstr ""
-
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:398
 #, php-format
 msgid "%s media file in total"
@@ -491,6 +484,13 @@ msgid "%s pair"
 msgid_plural "%s pairs"
 msgstr[0] "%s par"
 msgstr[1] "%s par"
+
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:279
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:316
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:364
+#, php-format
+msgid "%s partnerships"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:277
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:363
@@ -1007,7 +1007,7 @@ msgid "Avg. generation length"
 msgstr "Gj.snittlig generasjonslengde"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:639
-msgid "Biggest web of intermarried people"
+msgid "Biggest web of partnered people"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:117
@@ -1126,7 +1126,7 @@ msgid "Century"
 msgstr "Århundre"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:612
-msgid "Chains and clusters formed by marriage"
+msgid "Chains and clusters formed by partnership"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:602
@@ -1315,7 +1315,7 @@ msgid "Dec–Feb vs. baseline"
 msgstr "Dec – Feb vs. baseline"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:658
-msgid "Deepest line against the longest marriage chain"
+msgid "Deepest line against the longest partnership chain"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:415
@@ -1548,13 +1548,13 @@ msgstr ""
 "uavbrutt. Hold musen over et punkt for å se hvor mange foreldre "
 "gjennomsnittet bygger på."
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:633
-msgid "Each step is one marriage further along the line."
-msgstr ""
-
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:520
 msgid "Each step is one parent–child link upward."
 msgstr "Each step is one parent–child link upward."
+
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:633
+msgid "Each step is one partnership further along the line."
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:193
 msgid ""
@@ -1606,7 +1606,7 @@ msgid "European heatwave of 2003"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:675
-msgid "Every spouse on the longest line, in order"
+msgid "Every partner on the longest line, in order"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:302
@@ -2027,7 +2027,7 @@ msgid "How deep and branched is the tree?"
 msgstr "Hvor dypt og forgrenet er treet?"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:610
-msgid "How far does the tree connect through marriage?"
+msgid "How far does the tree connect through partnerships?"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/places.phtml:190
@@ -2097,10 +2097,6 @@ msgstr ""
 msgid "Individuals with ≥ 1 source citation"
 msgstr "Individuals with ≥ 1 source citation"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:692
-msgid "Intermarriage web · the longest chain highlighted"
-msgstr ""
-
 #: src/Support/Locale/HistoricalEventCatalog.php:212
 msgid "Italian Wars (1500–1559)"
 msgstr ""
@@ -2147,7 +2143,7 @@ msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:691
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:706
-msgid "Largest connected marriage group"
+msgid "Largest connected partnership group"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/components/records-grid.phtml:37
@@ -2214,13 +2210,13 @@ msgstr "Longest line in the tree, leaf to oldest ancestor"
 msgid "Longest marriage"
 msgstr "Lengste ekteskap"
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:619
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:685
-msgid "Longest marriage chain"
-msgstr ""
-
 #: resources/views/modules/statistics-chart/components/marriage-extremes.phtml:42
 msgid "Longest marriages"
+msgstr ""
+
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:619
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:685
+msgid "Longest partnership chain"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:469
@@ -2252,10 +2248,6 @@ msgstr "Vielse"
 #: resources/views/modules/statistics-chart/tabs/family.phtml:195
 msgid "Marriage duration"
 msgstr "Ekteskapets varighet"
-
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:611
-msgid "Marriage reach"
-msgstr ""
 
 #: src/Statistic.php:273
 msgid "Married"
@@ -2575,6 +2567,14 @@ msgstr "Oversikt"
 msgid "Parenthood"
 msgstr "Foreldreskap"
 
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:611
+msgid "Partnership reach"
+msgstr ""
+
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:692
+msgid "Partnership web · the longest chain highlighted"
+msgstr ""
+
 #: resources/views/modules/statistics-chart/tabs/places.phtml:177
 msgid ""
 "Paths of individuals born in one country and recorded as having died in "
@@ -2596,12 +2596,12 @@ msgid "Pedigree completeness"
 msgstr "Anetavlefullstendighet"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:352
-msgid "People joined by marriage"
+msgid "People joined by partnership"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:351
 #, php-format
-msgid "People joined by marriage · median life around %s"
+msgid "People joined by partnership · median life around %s"
 msgstr ""
 
 #: src/Support/Locale/DecadeName.php:85 src/Support/Locale/DecadeName.php:92
@@ -3086,12 +3086,12 @@ msgstr "Tvillinger"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:207
 msgid ""
-"Two people are linked when they were married to each other. Following those "
-"links from spouse to later spouse traces a marriage chain; the longest "
-"unbroken chain in the tree is shown on the left. The largest connected group "
-"on the right is every person reachable from one another through such "
-"marriages, drawn as a web with the most-married person at its centre and the "
-"longest chain highlighted."
+"Two people are linked when they were partners — married or not. Following "
+"those links from one partner to the next traces a partnership chain; the "
+"longest unbroken chain in the tree is shown on the left. The largest "
+"connected group on the right is every person reachable from one another "
+"through such partnerships, drawn as a web with the person who had the most "
+"partners at its centre and the longest chain highlighted."
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:179
@@ -3099,7 +3099,7 @@ msgid "Typical range"
 msgstr "Typical range"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:620
-msgid "Unbroken spouse-to-spouse line"
+msgid "Unbroken partner-to-partner line"
 msgstr ""
 
 #: src/Statistic.php:233

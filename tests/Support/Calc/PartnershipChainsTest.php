@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Support\Calc;
 
-use MagicSunday\Webtrees\Statistic\Support\Calc\MarriageChains;
+use MagicSunday\Webtrees\Statistic\Support\Calc\PartnershipChains;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -23,7 +23,7 @@ use function array_unique;
 use function count;
 
 /**
- * Unit coverage of the pure {@see MarriageChains} graph helper — exercises the
+ * Unit coverage of the pure {@see PartnershipChains} graph helper — exercises the
  * connected-component split over hand-coded adjacency maps without a Tree: the
  * three-person threshold that drops a couple, the size-descending then
  * smallest-xref ordering, insertion-order independence, the internal
@@ -38,8 +38,8 @@ use function count;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(MarriageChains::class)]
-final class MarriageChainsTest extends TestCase
+#[CoversClass(PartnershipChains::class)]
+final class PartnershipChainsTest extends TestCase
 {
     /**
      * A symmetric three-person chain A–B–C: one qualifying component with all
@@ -62,8 +62,8 @@ final class MarriageChainsTest extends TestCase
     #[Test]
     public function emptyMapHasNoComponentsAndNoLargestGroup(): void
     {
-        self::assertSame([], MarriageChains::components([]));
-        self::assertNull(MarriageChains::largestGroup([]));
+        self::assertSame([], PartnershipChains::components([]));
+        self::assertNull(PartnershipChains::largestGroup([]));
     }
 
     /**
@@ -79,8 +79,8 @@ final class MarriageChainsTest extends TestCase
             'B' => ['A'],
         ];
 
-        self::assertSame([], MarriageChains::components($adjacency));
-        self::assertNull(MarriageChains::largestGroup($adjacency));
+        self::assertSame([], PartnershipChains::components($adjacency));
+        self::assertNull(PartnershipChains::largestGroup($adjacency));
     }
 
     /**
@@ -90,12 +90,12 @@ final class MarriageChainsTest extends TestCase
     #[Test]
     public function threePersonChainIsTheSmallestQualifyingComponent(): void
     {
-        $components = MarriageChains::components($this->threePersonChain());
+        $components = PartnershipChains::components($this->threePersonChain());
 
         self::assertCount(1, $components);
         self::assertSame(['A', 'B', 'C'], $components[0]);
 
-        $largest = MarriageChains::largestGroup($this->threePersonChain());
+        $largest = PartnershipChains::largestGroup($this->threePersonChain());
 
         self::assertNotNull($largest);
         self::assertSame(['A', 'B', 'C'], $largest['members']);
@@ -121,14 +121,14 @@ final class MarriageChainsTest extends TestCase
             'Z' => ['W'],
         ];
 
-        $components = MarriageChains::components($adjacency);
+        $components = PartnershipChains::components($adjacency);
 
         self::assertSame(
             [4, 3],
             array_map(count(...), $components),
         );
 
-        $largest = MarriageChains::largestGroup($adjacency);
+        $largest = PartnershipChains::largestGroup($adjacency);
 
         self::assertNotNull($largest);
         self::assertSame(['W', 'X', 'Y', 'Z'], $largest['members']);
@@ -156,7 +156,7 @@ final class MarriageChainsTest extends TestCase
             'C' => ['B'],
         ];
 
-        $components = MarriageChains::components($adjacency);
+        $components = PartnershipChains::components($adjacency);
 
         self::assertSame(['A', 'B', 'C'], $components[0]);
         self::assertSame(['P', 'Q', 'R'], $components[1]);
@@ -179,14 +179,14 @@ final class MarriageChainsTest extends TestCase
             '9'  => ['7'],
         ];
 
-        $components = MarriageChains::components($adjacency);
+        $components = PartnershipChains::components($adjacency);
 
         self::assertCount(1, $components);
         // Strict equality pins both the byte-order sort and the string type:
         // a coerced [54, 7, 9] of ints would not match.
         self::assertSame(['54', '7', '9'], $components[0]);
 
-        $largest = MarriageChains::largestGroup($adjacency);
+        $largest = PartnershipChains::largestGroup($adjacency);
 
         self::assertNotNull($largest);
         self::assertSame(['54', '7', '9'], $largest['members']);
@@ -206,7 +206,7 @@ final class MarriageChainsTest extends TestCase
     #[DataProvider('shuffledAdjacencyProvider')]
     public function resultIsIndependentOfInsertionOrder(array $adjacency): void
     {
-        $components = MarriageChains::components($adjacency);
+        $components = PartnershipChains::components($adjacency);
 
         self::assertSame(
             [
@@ -258,7 +258,7 @@ final class MarriageChainsTest extends TestCase
     }
 
     /**
-     * A graph with no component of {@see MarriageChains::MIN_GROUP_SIZE} people
+     * A graph with no component of {@see PartnershipChains::MIN_GROUP_SIZE} people
      * has no chain: an empty map, a lone couple, and an isolated single person
      * all return an empty path.
      *
@@ -270,7 +270,7 @@ final class MarriageChainsTest extends TestCase
     #[DataProvider('subThresholdGraphProvider')]
     public function longestChainIsEmptyBelowThreshold(array $adjacency): void
     {
-        self::assertSame([], MarriageChains::longestChain($adjacency));
+        self::assertSame([], PartnershipChains::longestChain($adjacency));
     }
 
     /**
@@ -292,7 +292,7 @@ final class MarriageChainsTest extends TestCase
                 'C' => ['D'],
                 'D' => ['C'],
             ]],
-            // A degree-0 person: a single individual with no marriage edge — its
+            // A degree-0 person: a single individual with no partnership edge — its
             // own one-member component is far below the threshold.
             'isolated single person' => [[
                 'A' => [],
@@ -308,7 +308,7 @@ final class MarriageChainsTest extends TestCase
      * regression that would still yield a same-length but differently-ordered
      * path.
      *
-     * @param array<array-key, list<string>> $adjacency The marriage graph
+     * @param array<array-key, list<string>> $adjacency The partnership graph
      * @param list<string>                   $expected  The exact longest-path xref sequence
      *
      * @return void
@@ -317,7 +317,7 @@ final class MarriageChainsTest extends TestCase
     #[DataProvider('longestChainProvider')]
     public function longestChainReturnsTheExactDiameterPath(array $adjacency, array $expected): void
     {
-        self::assertSame($expected, MarriageChains::longestChain($adjacency));
+        self::assertSame($expected, PartnershipChains::longestChain($adjacency));
     }
 
     /**
@@ -423,7 +423,7 @@ final class MarriageChainsTest extends TestCase
      * three arms: A–B–C (two edges), C–D–E (two edges) and C–F–G–X (three
      * edges). The longest simple path picks the two longest arms — A–B–C and
      * C–F–G–X — and joins them across C into A–B–C–F–G–X (six people, five
-     * marriages). A walk that measured only one arm, or only the eccentricity
+     * partnerships). A walk that measured only one arm, or only the eccentricity
      * from a fixed proband down a single line, would stop short (the C–D–E arm
      * is a five-person path A–B–C–D–E and would be the wrong, shorter answer).
      */
@@ -445,7 +445,7 @@ final class MarriageChainsTest extends TestCase
         // A–B–C–F–G–X = six people. The C–D–E arm is shorter, so the
         // A–B–C–D–E (five-person) path it would form loses the tie — a
         // single-arm walk would stop at five, the diameter reaches six.
-        self::assertSame(['A', 'B', 'C', 'F', 'G', 'X'], MarriageChains::longestChain($adjacency));
+        self::assertSame(['A', 'B', 'C', 'F', 'G', 'X'], PartnershipChains::longestChain($adjacency));
     }
 
     /**
@@ -474,8 +474,8 @@ final class MarriageChainsTest extends TestCase
         $shuffled = array_map(array_reverse(...), array_reverse($adjacency, true));
 
         self::assertSame(
-            MarriageChains::longestChain($adjacency),
-            MarriageChains::longestChain($shuffled),
+            PartnershipChains::longestChain($adjacency),
+            PartnershipChains::longestChain($shuffled),
         );
     }
 
@@ -500,14 +500,14 @@ final class MarriageChainsTest extends TestCase
 
         $shuffled = array_map(array_reverse(...), array_reverse($adjacency, true));
 
-        $chain = MarriageChains::longestChain($adjacency);
+        $chain = PartnershipChains::longestChain($adjacency);
 
         // Deterministic across insertion order.
-        self::assertSame($chain, MarriageChains::longestChain($shuffled));
+        self::assertSame($chain, PartnershipChains::longestChain($shuffled));
 
         // A real simple path: at least the three-person threshold, no repeated
-        // person, and every consecutive pair is a genuine marriage edge.
-        self::assertGreaterThanOrEqual(MarriageChains::MIN_GROUP_SIZE, count($chain));
+        // person, and every consecutive pair is a genuine partnership edge.
+        self::assertGreaterThanOrEqual(PartnershipChains::MIN_GROUP_SIZE, count($chain));
         self::assertCount(count($chain), array_unique($chain));
 
         $previous = null;
@@ -549,14 +549,14 @@ final class MarriageChainsTest extends TestCase
 
         self::assertSame(
             ['3', '2', '1', '54', '9', '8'],
-            MarriageChains::longestChain($adjacency),
+            PartnershipChains::longestChain($adjacency),
         );
 
         $shuffled = array_map(array_reverse(...), array_reverse($adjacency, true));
 
         self::assertSame(
-            MarriageChains::longestChain($adjacency),
-            MarriageChains::longestChain($shuffled),
+            PartnershipChains::longestChain($adjacency),
+            PartnershipChains::longestChain($shuffled),
         );
     }
 
@@ -576,7 +576,7 @@ final class MarriageChainsTest extends TestCase
     #[DataProvider('medianYearProvider')]
     public function medianYearReturnsLowerMedian(array $years, ?int $expected): void
     {
-        self::assertSame($expected, MarriageChains::medianYear($years));
+        self::assertSame($expected, PartnershipChains::medianYear($years));
     }
 
     /**
@@ -596,7 +596,7 @@ final class MarriageChainsTest extends TestCase
     {
         $before = $years;
 
-        MarriageChains::medianYear($years);
+        PartnershipChains::medianYear($years);
 
         self::assertSame($before, $years);
     }

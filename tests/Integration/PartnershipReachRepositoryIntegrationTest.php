@@ -13,14 +13,14 @@ namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Tree;
-use MagicSunday\Webtrees\Statistic\Model\Tree\MarriageGroupExcerpt;
-use MagicSunday\Webtrees\Statistic\Model\Tree\MarriageReachReport;
+use MagicSunday\Webtrees\Statistic\Model\Tree\PartnershipGroupExcerpt;
+use MagicSunday\Webtrees\Statistic\Model\Tree\PartnershipReachReport;
 use MagicSunday\Webtrees\Statistic\Repository\GenerationDepthRepository;
-use MagicSunday\Webtrees\Statistic\Repository\MarriageMapRepository;
-use MagicSunday\Webtrees\Statistic\Repository\MarriageReachRepository;
 use MagicSunday\Webtrees\Statistic\Repository\ParentMapRepository;
+use MagicSunday\Webtrees\Statistic\Repository\PartnershipMapRepository;
+use MagicSunday\Webtrees\Statistic\Repository\PartnershipReachRepository;
 use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
-use MagicSunday\Webtrees\Statistic\Support\Calc\MarriageChains;
+use MagicSunday\Webtrees\Statistic\Support\Calc\PartnershipChains;
 use MagicSunday\Webtrees\Statistic\Support\Database\ChunkedWhereIn;
 use MagicSunday\Webtrees\Statistic\Support\Database\GedcomByXref;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
@@ -35,34 +35,34 @@ use function array_map;
 use function strcmp;
 
 /**
- * End-to-end test of {@see MarriageReachRepository} against
- * `partner-chains.ged` — a real-world intermarriage web of forty-one people
- * (the "40 marriages" cluster) plus a handful of unrelated couples.
+ * End-to-end test of {@see PartnershipReachRepository} against
+ * `partner-chains.ged` — a real-world interconnected partnership web of forty-one people
+ * (the "40 partnerships" cluster) plus a handful of unrelated couples.
  *
- * The largest connected marriage group holds 41 people joined by 40 marriage
- * edges, and the longest unbroken marriage chain through it is 15 people. The
- * group sits well below the {@see MarriageReachRepository::NETWORK_CAP} = 70
+ * The largest connected partnership group holds 41 people joined by 40 partnership
+ * edges, and the longest unbroken partnership chain through it is 15 people. The
+ * group sits well below the {@see PartnershipReachRepository::NETWORK_CAP} = 70
  * excerpt cap, so every member is shown (`shownCount == totalCount == 41`).
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(MarriageReachRepository::class)]
-#[UsesClass(MarriageReachReport::class)]
-#[UsesClass(MarriageGroupExcerpt::class)]
+#[CoversClass(PartnershipReachRepository::class)]
+#[UsesClass(PartnershipReachReport::class)]
+#[UsesClass(PartnershipGroupExcerpt::class)]
 #[UsesClass(IndividualWire::class)]
-#[UsesClass(MarriageMapRepository::class)]
+#[UsesClass(PartnershipMapRepository::class)]
 #[UsesClass(GenerationDepthRepository::class)]
 #[UsesClass(ParentMapRepository::class)]
-#[UsesClass(MarriageChains::class)]
+#[UsesClass(PartnershipChains::class)]
 #[UsesClass(GregorianDate::class)]
 #[UsesClass(ChunkedWhereIn::class)]
 #[UsesClass(GedcomByXref::class)]
 #[UsesClass(TreeScope::class)]
 #[UsesClass(RecordName::class)]
 #[UsesClass(RowCast::class)]
-final class MarriageReachRepositoryIntegrationTest extends IntegrationTestCase
+final class PartnershipReachRepositoryIntegrationTest extends IntegrationTestCase
 {
     /**
      * The summary captures the 15-person longest chain and the 41-person /
@@ -75,22 +75,22 @@ final class MarriageReachRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('partner-chains.ged');
         $result = $this->repository($tree)->summary();
 
-        self::assertInstanceOf(MarriageReachReport::class, $result);
+        self::assertInstanceOf(PartnershipReachReport::class, $result);
 
-        self::assertSame(15, $result->longestChainLength, 'longest marriage chain through the cluster = 15 people');
+        self::assertSame(15, $result->longestChainLength, 'longest partnership chain through the cluster = 15 people');
         self::assertSame(15, $result->breadthChain);
         self::assertCount(15, $result->chain, 'the 15-person chain resolves to 15 Individual objects');
         self::assertContainsOnlyInstancesOf(Individual::class, $result->chain);
 
-        self::assertSame(41, $result->group->totalCount, 'largest connected marriage group = 41 people');
+        self::assertSame(41, $result->group->totalCount, 'largest connected partnership group = 41 people');
         self::assertSame(41, $result->group->shownCount, '41 < NETWORK_CAP (70), so every member is shown');
         self::assertCount(41, $result->group->nodes, 'the 41 group members resolve to 41 Individual objects');
         self::assertContainsOnlyInstancesOf(Individual::class, $result->group->nodes);
-        self::assertCount(40, $result->group->edges, '40 marriage edges join the 41-person cluster');
-        self::assertSame(40, $result->group->totalEdgeCount, 'totalEdgeCount is the whole-group marriage count; here = the 40 shown edges since 41 < cap');
+        self::assertCount(40, $result->group->edges, '40 partnership edges join the 41-person cluster');
+        self::assertSame(40, $result->group->totalEdgeCount, 'totalEdgeCount is the whole-group partnership count; here = the 40 shown edges since 41 < cap');
         self::assertCount(15, $result->group->chainIds, 'chainIds is the 15-person longest path inside the group');
 
-        // hubDegree is the hub's real marriage degree over the WHOLE group. With
+        // hubDegree is the hub's real partnership degree over the WHOLE group. With
         // 41 < NETWORK_CAP every member is shown, so the full-group degree must
         // equal the number of drawn edges incident to the hub — derived from the
         // edge list rather than hard-coded so the assertion can never drift from
@@ -103,7 +103,7 @@ final class MarriageReachRepositoryIntegrationTest extends IntegrationTestCase
             }
         }
 
-        self::assertGreaterThan(0, $hubIncidentEdges, 'the hub must have at least one marriage');
+        self::assertGreaterThan(0, $hubIncidentEdges, 'the hub must have at least one partnership');
         self::assertSame($hubIncidentEdges, $result->group->hubDegree, 'under the cap the hub degree equals its incident shown edges');
 
         // The hub is a real group member; the median is the LOWER-median of the
@@ -136,7 +136,7 @@ final class MarriageReachRepositoryIntegrationTest extends IntegrationTestCase
 
         $result = $this->repository($tree)->summary();
 
-        self::assertInstanceOf(MarriageReachReport::class, $result);
+        self::assertInstanceOf(PartnershipReachReport::class, $result);
         self::assertSame($expectedDepth, $result->depthPath);
     }
 
@@ -151,7 +151,7 @@ final class MarriageReachRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('partner-chains.ged');
         $result = $this->repository($tree)->summary();
 
-        self::assertInstanceOf(MarriageReachReport::class, $result);
+        self::assertInstanceOf(PartnershipReachReport::class, $result);
 
         $json = $result->jsonSerialize();
 
@@ -205,11 +205,11 @@ final class MarriageReachRepositoryIntegrationTest extends IntegrationTestCase
     /**
      * Wire the repository under test for a given tree.
      */
-    private function repository(Tree $tree): MarriageReachRepository
+    private function repository(Tree $tree): PartnershipReachRepository
     {
-        return new MarriageReachRepository(
+        return new PartnershipReachRepository(
             $tree,
-            new MarriageMapRepository($tree),
+            new PartnershipMapRepository($tree),
             new GenerationDepthRepository($tree, new ParentMapRepository($tree)),
         );
     }
@@ -219,7 +219,7 @@ final class MarriageReachRepositoryIntegrationTest extends IntegrationTestCase
      *
      * @return list<string>
      */
-    private function nodeXrefs(MarriageReachReport $report): array
+    private function nodeXrefs(PartnershipReachReport $report): array
     {
         $xrefs = [];
 

@@ -27,13 +27,13 @@ use const SORT_NUMERIC;
 use const SORT_STRING;
 
 /**
- * Pure helper that splits a tree-wide marriage-graph adjacency map — `xref →
- * [spouse-xref, …]`, as produced by {@see \MagicSunday\Webtrees\Statistic\Repository\MarriageMapRepository} —
- * into its connected components ("marriage chains" / "marriage webs") and
+ * Pure helper that splits a tree-wide partnership-graph adjacency map — `xref →
+ * [spouse-xref, …]`, as produced by {@see \MagicSunday\Webtrees\Statistic\Repository\PartnershipMapRepository} —
+ * into its connected components ("partnership chains" / "partnership webs") and
  * reports the largest of them.
  *
  * A component is the maximal set of people reachable from one another by
- * marriage edges; only components of THREE OR MORE people are reported, since a
+ * partnership edges; only components of THREE OR MORE people are reported, since a
  * lone couple is not a "chain". Each qualifying component is returned with its
  * members sorted in byte order, and the component list is sorted by member
  * count descending, ties broken by the byte-order-smallest member XREF — both
@@ -43,7 +43,7 @@ use const SORT_STRING;
  * The traversal is an iterative breadth-first sweep over an explicit queue (no
  * recursion-depth risk on a large web), and is order-independent: every node is
  * visited exactly once and assigned to exactly one component. The internal edge
- * count of a component is `(Σ member degree) / 2` — every undirected marriage
+ * count of a component is `(Σ member degree) / 2` — every undirected partnership
  * edge contributes one to each of its two endpoints' degrees, so summing the
  * degrees double-counts every edge exactly once.
  *
@@ -51,7 +51,7 @@ use const SORT_STRING;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-final readonly class MarriageChains
+final readonly class PartnershipChains
 {
     /**
      * The smallest person count a component must reach to be reported. A lone
@@ -63,7 +63,7 @@ final readonly class MarriageChains
     /**
      * Cap on the length of a reconstructed chain. Set deliberately high — the
      * only real purpose is a safety bound so a pathological graph cannot return
-     * an unbounded sequence; a genuine marriage chain never approaches it.
+     * an unbounded sequence; a genuine partnership chain never approaches it.
      * Mirrors {@see GenerationDepth::MAX_DEPTH}.
      */
     public const int MAX_CHAIN = 100;
@@ -76,7 +76,7 @@ final readonly class MarriageChains
     }
 
     /**
-     * Split the marriage-graph adjacency map into its connected components,
+     * Split the partnership-graph adjacency map into its connected components,
      * keeping only those with at least {@see MIN_GROUP_SIZE} people. Each
      * component's members are sorted in byte order; the components are sorted by
      * member count descending, ties broken by the byte-order-smallest member
@@ -152,14 +152,14 @@ final readonly class MarriageChains
      * belong to the group are always included, then a breadth-first sweep adds
      * neighbours in deterministic smallest-xref order until `$cap` is reached.
      * The returned `members` are byte-order sorted so they match the full-group
-     * ordering; the returned `edges` are the undirected internal marriage pairs
+     * ordering; the returned `edges` are the undirected internal partnership pairs
      * among exactly those shown members (any edge to a node outside the excerpt
      * is dropped), oriented `[smaller, larger]` and sorted, so the drawing is
      * reproducible regardless of the adjacency map's insertion order.
      *
      * Pure graph logic — no person resolution, no database — so the excerpt
      * frontier, the cap cut and the edge restriction are unit-testable in
-     * isolation from the {@see \MagicSunday\Webtrees\Statistic\Repository\MarriageReachRepository}.
+     * isolation from the {@see \MagicSunday\Webtrees\Statistic\Repository\PartnershipReachRepository}.
      *
      * @param array<array-key, list<string>> $adjacency Symmetric `xref → [spouse-xref, …]` map
      * @param list<string>                   $members   The group's people, byte-order sorted
@@ -339,7 +339,7 @@ final readonly class MarriageChains
     }
 
     /**
-     * Return the longest marriage chain in the graph as an ordered person
+     * Return the longest partnership chain in the graph as an ordered person
      * sequence — the longest SIMPLE PATH (the graph diameter) across every
      * qualifying component — or `[]` when no component reaches
      * {@see MIN_GROUP_SIZE} people.
@@ -356,7 +356,7 @@ final readonly class MarriageChains
      * second sweep from `u` (recording a parent map) reaches a farthest node
      * `v`; the path `u … v` reconstructed through the parent map is a longest
      * simple path. For a cycle-free component — the normal case for a real
-     * marriage graph — double BFS is the exact diameter. For a component that
+     * partnership graph — double BFS is the exact diameter. For a component that
      * contains a cycle (edge count ≥ node count) the longest simple path is
      * NP-hard; the same double BFS is then a DETERMINISTIC lower bound rather
      * than a proven optimum. Real trees do not cycle, so this never bites in
@@ -615,7 +615,7 @@ final readonly class MarriageChains
 
     /**
      * Breadth-first sweep collecting every person reachable from `$startId`
-     * along marriage edges, marking each as visited. The walk uses an explicit
+     * along partnership edges, marking each as visited. The walk uses an explicit
      * queue so a large connected web cannot overflow PHP's recursion budget.
      *
      * @param array<array-key, list<string>> $adjacency Symmetric `xref → [spouse-xref, …]` map
@@ -647,7 +647,7 @@ final readonly class MarriageChains
     }
 
     /**
-     * Count the marriage edges internal to a component: every undirected edge
+     * Count the partnership edges internal to a component: every undirected edge
      * appears once in each endpoint's neighbour list, so the summed degree of
      * the members double-counts each internal edge exactly once.
      *

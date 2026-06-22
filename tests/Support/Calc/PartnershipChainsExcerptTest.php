@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Support\Calc;
 
-use MagicSunday\Webtrees\Statistic\Support\Calc\MarriageChains;
+use MagicSunday\Webtrees\Statistic\Support\Calc\PartnershipChains;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -24,8 +24,8 @@ use function in_array;
 use function sprintf;
 
 /**
- * Unit coverage of {@see MarriageChains::excerpt()} — the pure cap/excerpt graph
- * logic that the {@see \MagicSunday\Webtrees\Statistic\Repository\MarriageReachRepository}
+ * Unit coverage of {@see PartnershipChains::excerpt()} — the pure cap/excerpt graph
+ * logic that the {@see \MagicSunday\Webtrees\Statistic\Repository\PartnershipReachRepository}
  * delegates to. The repository's integration fixture has only 41 connected
  * people (< the 70 cap), so the no-op below-cap branch alone is exercised there;
  * the failure-prone over-cap path — the BFS frontier, the cap cut, the
@@ -37,18 +37,18 @@ use function sprintf;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(MarriageChains::class)]
-final class MarriageChainsExcerptTest extends TestCase
+#[CoversClass(PartnershipChains::class)]
+final class PartnershipChainsExcerptTest extends TestCase
 {
     /**
      * The excerpt cap used throughout this suite — the same value the repository
-     * pins as {@see \MagicSunday\Webtrees\Statistic\Repository\MarriageReachRepository::NETWORK_CAP},
+     * pins as {@see \MagicSunday\Webtrees\Statistic\Repository\PartnershipReachRepository::NETWORK_CAP},
      * passed explicitly so the pure helper stays decoupled from the repository.
      */
     private const int CAP = 70;
 
     /**
-     * Build a connected marriage graph of `$spineLength` spine people joined in a
+     * Build a connected partnership graph of `$spineLength` spine people joined in a
      * line (I001–I002–…), each spine person additionally carrying one pendant
      * leaf (L001, L002, …). With a long-enough spine the component runs well over
      * the cap, while the leaves give the BFS a deterministic frontier to cut.
@@ -89,7 +89,7 @@ final class MarriageChainsExcerptTest extends TestCase
      * Every key of the adjacency map, the full connected component, byte-order
      * sorted — the real `$members` set the repository would hand the excerpt.
      *
-     * @param array<array-key, list<string>> $adjacency The marriage graph
+     * @param array<array-key, list<string>> $adjacency The partnership graph
      *
      * @return list<string>
      */
@@ -124,7 +124,7 @@ final class MarriageChainsExcerptTest extends TestCase
         // chain seeds.
         $chainIds = ['I048', 'I049', 'I050', 'L050'];
 
-        $excerpt    = MarriageChains::excerpt($adjacency, $members, $chainIds, self::CAP);
+        $excerpt    = PartnershipChains::excerpt($adjacency, $members, $chainIds, self::CAP);
         $shown      = $excerpt['members'];
         $shownEdges = $excerpt['edges'];
 
@@ -170,7 +170,7 @@ final class MarriageChainsExcerptTest extends TestCase
 
         self::assertLessThanOrEqual(self::CAP, count($members), 'fixture must fit within the cap');
 
-        $excerpt = MarriageChains::excerpt($adjacency, $members, ['I001', 'I002'], self::CAP);
+        $excerpt = PartnershipChains::excerpt($adjacency, $members, ['I001', 'I002'], self::CAP);
 
         // Members returned unchanged (no excerpt grown).
         self::assertSame($members, $excerpt['members']);
@@ -182,12 +182,12 @@ final class MarriageChainsExcerptTest extends TestCase
 
     /**
      * D12 — the foot legend pairs the WHOLE group's people count with the whole
-     * group's marriage count, so the marriage figure must come from
-     * {@see MarriageChains::largestGroup()} (the full-group `(Σ degree) / 2`),
+     * group's partnership count, so the partnership figure must come from
+     * {@see PartnershipChains::largestGroup()} (the full-group `(Σ degree) / 2`),
      * NOT from the capped excerpt's edge list. This pins the divergence the
      * repository relies on: over the cap, the full-group edge count stays the
      * real total while the drawn excerpt's edges are trimmed. Sourcing the legend
-     * from the excerpt would understate the marriage count on any cluster larger
+     * from the excerpt would understate the partnership count on any cluster larger
      * than the cap.
      */
     #[Test]
@@ -200,8 +200,8 @@ final class MarriageChainsExcerptTest extends TestCase
 
         self::assertGreaterThan(self::CAP, count($members), 'fixture must exceed the cap to force an excerpt');
 
-        $largest = MarriageChains::largestGroup($adjacency);
-        $excerpt = MarriageChains::excerpt($adjacency, $members, ['I001', 'I002', 'I003'], self::CAP);
+        $largest = PartnershipChains::largestGroup($adjacency);
+        $excerpt = PartnershipChains::excerpt($adjacency, $members, ['I001', 'I002', 'I003'], self::CAP);
 
         self::assertNotNull($largest);
 
@@ -234,8 +234,8 @@ final class MarriageChainsExcerptTest extends TestCase
         $shuffled = array_map(array_reverse(...), array_reverse($adjacency, true));
 
         self::assertSame(
-            MarriageChains::excerpt($adjacency, $members, $chainIds, self::CAP),
-            MarriageChains::excerpt($shuffled, $members, $chainIds, self::CAP),
+            PartnershipChains::excerpt($adjacency, $members, $chainIds, self::CAP),
+            PartnershipChains::excerpt($shuffled, $members, $chainIds, self::CAP),
         );
     }
 
@@ -254,7 +254,7 @@ final class MarriageChainsExcerptTest extends TestCase
         // "Z999" belongs to no node in the graph.
         $chainIds = ['Z999', 'I048', 'I049', 'I050'];
 
-        $excerpt = MarriageChains::excerpt($adjacency, $members, $chainIds, self::CAP);
+        $excerpt = PartnershipChains::excerpt($adjacency, $members, $chainIds, self::CAP);
 
         self::assertCount(self::CAP, $excerpt['members']);
         self::assertNotContains('Z999', $excerpt['members'], 'a non-member chain seed must never enter the excerpt');
@@ -277,7 +277,7 @@ final class MarriageChainsExcerptTest extends TestCase
         $members   = $this->members($adjacency);
         $chainIds  = ['I010', 'I011', 'I012', 'I013'];
 
-        $excerpt = MarriageChains::excerpt($adjacency, $members, $chainIds, 4);
+        $excerpt = PartnershipChains::excerpt($adjacency, $members, $chainIds, 4);
 
         self::assertCount(4, $excerpt['members']);
 

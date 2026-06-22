@@ -16,7 +16,7 @@ use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 
 /**
- * Shared repository that builds the tree-wide marriage-graph adjacency map —
+ * Shared repository that builds the tree-wide partnership-graph adjacency map —
  * `individual-id → [spouse-id, …]` — from the `families` table's FAMS pairs.
  * Each family that records both a husband and a wife contributes an undirected
  * edge, stored from both sides so the relation is symmetric; a partner that
@@ -33,10 +33,10 @@ use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-final class MarriageMapRepository
+final class PartnershipMapRepository
 {
     /**
-     * Per-instance memo of the marriage map. The repository is shared across
+     * Per-instance memo of the partnership map. The repository is shared across
      * multiple statistics-chart consumers within a single request, so the
      * underlying SQL + map construction run once instead of once per caller.
      *
@@ -45,7 +45,7 @@ final class MarriageMapRepository
     private ?array $cache = null;
 
     /**
-     * @param Tree $tree The tree the marriage map is computed for
+     * @param Tree $tree The tree the partnership map is computed for
      */
     public function __construct(
         private readonly Tree $tree,
