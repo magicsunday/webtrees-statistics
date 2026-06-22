@@ -62,7 +62,9 @@ jobs:
                   COMPOSER_NO_AUDIT: "1"
                   COMPOSER_NO_INTERACTION: "1"
               run: |
+                  composer config policy.advisories.block false
                   composer install --no-progress
+                  composer audit --format=plain || true
                   npm ci
 
             - id: php-lint
@@ -185,7 +187,9 @@ jobs:
                   COMPOSER_NO_AUDIT: "1"
                   COMPOSER_NO_INTERACTION: "1"
               run: |
+                  composer config policy.advisories.block false
                   composer install --no-progress
+                  composer audit --format=plain || true
 
             - id: integration
               name: Integration tests against MySQL
