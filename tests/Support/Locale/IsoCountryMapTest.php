@@ -103,6 +103,90 @@ final class IsoCountryMapTest extends TestCase
     }
 
     /**
+     * ISO-3166-1 alpha-3 country codes ("DEU", "FRA", "GBR") that GEDCOM
+     * exporters stamp into the country segment must resolve to their alpha-2
+     * sibling. ICU canonicalises the alpha-3 region subtag onto the same display
+     * name as the alpha-2 code, so the resolver bridges through the existing
+     * name lookup rather than carrying a separate 249-entry alpha-3 table.
+     *
+     * @return iterable<string, array{0: string, 1: string}>
+     */
+    public static function alpha3Codes(): iterable
+    {
+        yield 'Germany DEU' => ['DEU', 'DE'];
+        yield 'France FRA' => ['FRA', 'FR'];
+        yield 'United Kingdom GBR' => ['GBR', 'GB'];
+        yield 'Switzerland CHE' => ['CHE', 'CH'];
+        yield 'Austria AUT' => ['AUT', 'AT'];
+        yield 'Côte d’Ivoire CIV' => ['CIV', 'CI'];
+        yield 'lower-case deu' => ['deu', 'DE'];
+        yield 'whitespace-padded fra' => [' FRA ', 'FR'];
+    }
+
+    /**
+     * @param string $alpha3 Raw alpha-3 country segment
+     * @param string $iso2   Expected ISO-3166-1 alpha-2 code
+     */
+    #[Test]
+    #[DataProvider('alpha3Codes')]
+    public function resolveAcceptsIsoAlpha3CountryCodes(string $alpha3, string $iso2): void
+    {
+        self::assertSame($iso2, (new IsoCountryMap())->resolve($alpha3));
+    }
+
+    /**
+     * The reporter's exact place string (issue #208) — a four-segment hierarchy
+     * whose country tail is the alpha-3 code "DEU" — must resolve to Germany via
+     * `resolveFromPlace()`, which peels the trailing comma segment before the
+     * lookup.
+     */
+    #[Test]
+    public function resolveFromPlaceAcceptsAlpha3CountryTail(): void
+    {
+        self::assertSame(
+            'DE',
+            (new IsoCountryMap())->resolveFromPlace('Freiburg, Freiburg, Baden-Württemberg, DEU'),
+        );
+    }
+
+    /**
+     * A three-letter token that is not a valid ISO-3166-1 alpha-3 code must stay
+     * unresolved — ICU echoes an unknown region subtag back unchanged, and the
+     * resolver must treat that echo as "no match" rather than as a hit.
+     */
+    #[Test]
+    public function resolveReturnsNullForUnknownThreeLetterToken(): void
+    {
+        self::assertNull((new IsoCountryMap())->resolve('XYZ'));
+    }
+
+    /**
+     * The UK home-nation codes the webtrees core counts as countries
+     * (CountryService::iso3166(): ENG / SCT / WLS / NIR) must fold onto GB. They
+     * are Chapman / GEDCOM subdivision codes, not ISO-3166-1 alpha-3, so ICU
+     * cannot resolve them — the manual alias carries them.
+     *
+     * @return iterable<string, array{0: string}>
+     */
+    public static function ukHomeNationCodes(): iterable
+    {
+        yield 'England ENG' => ['ENG'];
+        yield 'Scotland SCT' => ['SCT'];
+        yield 'Wales WLS' => ['WLS'];
+        yield 'Northern Ireland NIR' => ['NIR'];
+    }
+
+    /**
+     * @param string $code UK home-nation subdivision code
+     */
+    #[Test]
+    #[DataProvider('ukHomeNationCodes')]
+    public function resolveFoldsUkHomeNationCodesOntoGb(string $code): void
+    {
+        self::assertSame('GB', (new IsoCountryMap())->resolve($code));
+    }
+
+    /**
      * `label()` returns the active webtrees locale's name for a given ISO code.
      * With no I18N bootstrap (the test runs outside the webtrees request
      * lifecycle), the resolver falls back to en_US.

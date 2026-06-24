@@ -17,10 +17,12 @@ use Throwable;
 
 use function array_unique;
 use function mb_strtolower;
+use function preg_match;
 use function preg_replace;
 use function str_replace;
 use function strrpos;
 use function strtolower;
+use function strtoupper;
 use function substr;
 use function trim;
 
@@ -33,6 +35,18 @@ use function trim;
  * small set of widely-used locales (English, German, French, Spanish, Italian,
  * Dutch, Portuguese, Polish, Russian) plus the user's current webtrees locale,
  * then caches the inverse lookup in a static map so repeat queries remain O(1).
+ *
+ * ISO-3166-1 alpha-3 codes ("DEU", "FRA") that GEDCOM exporters stamp into the
+ * country segment are resolved by bridging through ICU: an alpha-3 region
+ * subtag canonicalises onto the same display name as its alpha-2 sibling
+ * (`-DEU` and `-DE` both yield "Germany"), so the alpha-3 code reuses the name
+ * lookup. The UK home-nation codes ("ENG", "SCT", "WLS", "NIR") are not
+ * ISO-3166-1, so they are carried as manual aliases.
+ *
+ * The core ships a country dictionary in
+ * `Fisharebest\Webtrees\Statistics\Service\CountryService`, but it is
+ * `@deprecated` and slated for removal in webtrees 2.3 — coupling to it would
+ * break the module, so the resolver stays self-contained.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -116,13 +130,20 @@ final class IsoCountryMap
         'scotland'                 => 'GB',
         'wales'                    => 'GB',
         'northern ireland'         => 'GB',
-        'uae'                      => 'AE',
-        'ussr'                     => 'RU',
-        'czechoslovakia'           => 'CZ',
-        'deutschland'              => 'DE',
-        'österreich'               => 'AT',
-        'oesterreich'              => 'AT',
-        'schweiz'                  => 'CH',
+        // UK home-nation codes the webtrees core treats as countries.
+        // These are Chapman / GEDCOM subdivision codes, not ISO-3166-1
+        // alpha-3, so ICU cannot resolve them — they fold onto GB here.
+        'eng'            => 'GB',
+        'sct'            => 'GB',
+        'wls'            => 'GB',
+        'nir'            => 'GB',
+        'uae'            => 'AE',
+        'ussr'           => 'RU',
+        'czechoslovakia' => 'CZ',
+        'deutschland'    => 'DE',
+        'österreich'     => 'AT',
+        'oesterreich'    => 'AT',
+        'schweiz'        => 'CH',
     ];
 
     /**
@@ -177,7 +198,39 @@ final class IsoCountryMap
             return null;
         }
 
-        return $this->lookupMap()[$normalised] ?? null;
+        $map = $this->lookupMap();
+
+        return $map[$normalised] ?? $this->resolveAlpha3($normalised, $map);
+    }
+
+    /**
+     * Resolve an ISO-3166-1 alpha-3 country code ("DEU", "FRA", "GBR") to its
+     * alpha-2 sibling. ICU canonicalises an alpha-3 region subtag onto the same
+     * display name as the alpha-2 code (`-DEU` and `-DE` both yield "Germany"),
+     * so the alpha-3 code is bridged through the existing name → ISO-2 map rather
+     * than carrying a separate alpha-3 table that could drift from
+     * {@see self::ISO2_CODES}. Returns null for any token ICU does not recognise
+     * as a region — it echoes an unknown subtag back unchanged, which is treated
+     * as "no match".
+     *
+     * @param string                $normalised Already lower-cased, whitespace-collapsed candidate
+     * @param array<string, string> $map        The reverse name → ISO-2 lookup
+     */
+    private function resolveAlpha3(string $normalised, array $map): ?string
+    {
+        if (preg_match('/^[a-z]{3}$/', $normalised) !== 1) {
+            return null;
+        }
+
+        // Bridge through a fixed locale so the canonical display name matches
+        // the en_US key the reverse map is always seeded with first.
+        $name = (string) Locale::getDisplayRegion('-' . strtoupper($normalised), 'en_US');
+
+        if (($name === '') || (strtolower($name) === $normalised)) {
+            return null;
+        }
+
+        return $map[$this->normalise($name)] ?? null;
     }
 
     /**

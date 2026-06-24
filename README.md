@@ -160,7 +160,7 @@ The dashboard ships with light- and dark-mode visuals; the module reads `data-bs
 - Open the browser developer console — a missing widget bundle usually surfaces as a `MIME type` or `404` error on `/index.php?route=…&asset=js/statistics-<version>.min.js`.
 
 **The world map shows every country in the empty colour**
-- Make sure the tree's place data uses recognisable country names — the world-map widget matches free-text country labels to ISO-3166-1 alpha-2 codes across nine pre-seeded locales plus the active webtrees language; unmatched labels fall back to the empty fill.
+- Make sure the tree's place data carries a recognisable country in the last place segment — the world-map widget matches it across nine pre-seeded locales plus the active webtrees language. Full country names (in any of those languages), ISO-3166-1 alpha-2 codes (`DE`) and alpha-3 codes (`DEU`), common abbreviations (`USA`, `UK`), and the UK home nations (`ENG`/`SCT`/`WLS`/`NIR`) all resolve; unmatched labels fall back to the empty fill.
 
 
 ## Development
