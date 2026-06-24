@@ -15,6 +15,7 @@ use Fisharebest\Webtrees\I18N;
 use Locale;
 use Throwable;
 
+use function array_key_exists;
 use function array_unique;
 use function mb_strtolower;
 use function preg_match;
@@ -155,6 +156,19 @@ final class IsoCountryMap
     private static ?array $reverseLookup = null;
 
     /**
+     * Memoised results of the alpha-3 ICU bridge, keyed by normalised token →
+     * resolved ISO-2 code (or `null` for a token the bridge cannot resolve).
+     * {@see resolveAlpha3()} calls into ICU, so without this a whole-tree scan
+     * of individuals recorded in one country (e.g. every PLAC ending in "DEU")
+     * would repeat the same `getDisplayRegion()` lookup for every record. The
+     * bridge fixes the en_US locale, so the result is locale-independent and the
+     * cache is safely shared across instances like {@see self::$reverseLookup}.
+     *
+     * @var array<string, string|null>
+     */
+    private static array $alpha3Cache = [];
+
+    /**
      * @param string $userLocale Optional extra locale folded into the reverse lookup. Empty string defaults to the active webtrees I18N tag — pass an explicit value only when overriding for tests or for a non-user-facing label resolution.
      */
     public function __construct(
@@ -211,26 +225,34 @@ final class IsoCountryMap
      * than carrying a separate alpha-3 table that could drift from
      * {@see self::ISO2_CODES}. Returns null for any token ICU does not recognise
      * as a region — it echoes an unknown subtag back unchanged, which is treated
-     * as "no match".
+     * as "no match". The per-token result (hit or null) is memoised in
+     * {@see self::$alpha3Cache} so a whole-tree scan resolves each distinct code
+     * through ICU only once.
      *
      * @param string                $normalised Already lower-cased, whitespace-collapsed candidate
      * @param array<string, string> $map        The reverse name → ISO-2 lookup
      */
     private function resolveAlpha3(string $normalised, array $map): ?string
     {
-        if (preg_match('/^[a-z]{3}$/', $normalised) !== 1) {
-            return null;
+        if (array_key_exists($normalised, self::$alpha3Cache)) {
+            return self::$alpha3Cache[$normalised];
         }
 
-        // Bridge through a fixed locale so the canonical display name matches
-        // the en_US key the reverse map is always seeded with first.
-        $name = (string) Locale::getDisplayRegion('-' . strtoupper($normalised), 'en_US');
+        $resolved = null;
 
-        if (($name === '') || (strtolower($name) === $normalised)) {
-            return null;
+        if (preg_match('/^[a-z]{3}$/', $normalised) === 1) {
+            // Bridge through a fixed locale so the canonical display name
+            // matches the en_US key the reverse map is always seeded with
+            // first. ICU echoes an unknown subtag back unchanged (uppercased),
+            // so an echo equal to the token means "no region".
+            $name = (string) Locale::getDisplayRegion('-' . strtoupper($normalised), 'en_US');
+
+            if (($name !== '') && (strtolower($name) !== $normalised)) {
+                $resolved = $map[$this->normalise($name)] ?? null;
+            }
         }
 
-        return $map[$this->normalise($name)] ?? null;
+        return self::$alpha3Cache[$normalised] = $resolved;
     }
 
     /**
@@ -274,6 +296,7 @@ final class IsoCountryMap
     public static function clearCache(): void
     {
         self::$reverseLookup = null;
+        self::$alpha3Cache   = [];
     }
 
     /**

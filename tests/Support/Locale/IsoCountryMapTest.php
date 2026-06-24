@@ -161,6 +161,24 @@ final class IsoCountryMapTest extends TestCase
     }
 
     /**
+     * The alpha-3 ICU bridge memoises its per-token result. A repeated lookup of
+     * the same code must return the identical ISO-2 from cache, and a repeated
+     * unresolvable token must stay null — exercising the cache-hit branch for
+     * both a resolved and a null-cached outcome.
+     */
+    #[Test]
+    public function resolveMemoisesRepeatedAlpha3Lookups(): void
+    {
+        $map = new IsoCountryMap();
+
+        self::assertSame('DE', $map->resolve('DEU'));
+        self::assertSame('DE', $map->resolve('DEU'));
+
+        self::assertNull($map->resolve('XYZ'));
+        self::assertNull($map->resolve('XYZ'));
+    }
+
+    /**
      * The UK home-nation codes the webtrees core counts as countries
      * (CountryService::iso3166(): ENG / SCT / WLS / NIR) must fold onto GB. They
      * are Chapman / GEDCOM subdivision codes, not ISO-3166-1 alpha-3, so ICU
