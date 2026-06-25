@@ -12,10 +12,11 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\View;
 
 /**
- * Backed enum for the donut-chart legend placement. The case value is the
- * literal token the `widgets/donut-chart.phtml` partial dispatches on when
- * picking between the right-aligned default (`donut-chart`) and the stacked
- * variant (`donut-chart-v`).
+ * Backed enum for the donut-chart legend placement. The
+ * `widgets/donut-chart.phtml` partial dispatches on the enum case directly
+ * (`=== LegendPosition::Bottom`) to pick between the right-aligned default
+ * (`donut-chart`) and the stacked variant (`donut-chart-v`); the backing string
+ * value remains the stable token for any caller that needs the literal form.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0

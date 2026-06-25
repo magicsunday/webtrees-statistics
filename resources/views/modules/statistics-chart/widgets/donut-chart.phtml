@@ -12,17 +12,18 @@ declare(strict_types=1);
 use Fisharebest\Webtrees\I18N;
 use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
 use MagicSunday\Webtrees\Statistic\View\EmptyStatePlaceholder;
+use MagicSunday\Webtrees\Statistic\View\LegendPosition;
 
 /**
  * @var string                                                                      $identifier     Host element id
  * @var array<int, array{label: string, value: int, class?: string, fill?: string}> $data           Slice payload
  * @var string|null                                                                 $centerLabel    Optional caption rendered under the centre value (e.g. "Individuals")
  * @var string|null                                                                 $emptyMessage   Optional override for the "no data" placeholder
- * @var string|null                                                                 $legendPosition "right" (default) places the legend next to the donut; "bottom" stacks it underneath
+ * @var LegendPosition|null                                                         $legendPosition LegendPosition::Right (default) places the legend next to the donut; LegendPosition::Bottom stacks it underneath
  */
 $emptyMessage   ??= EmptyStatePlaceholder::defaultMessage();
 $centerLabel    ??= null;
-$legendPosition ??= 'right';
+$legendPosition ??= LegendPosition::Right;
 
 $total = array_sum(array_column($data, 'value'));
 
@@ -43,7 +44,7 @@ if (($centerLabel !== null) && ($centerLabel !== '')) {
     $options['centerLabel'] = $centerLabel;
 }
 ?>
-<div class="wt-stat-donut-chart<?php echo ($legendPosition === 'bottom') ? ' wt-stat-donut-chart-v' : ''; ?>">
+<div class="wt-stat-donut-chart<?php echo ($legendPosition === LegendPosition::Bottom) ? ' wt-stat-donut-chart-v' : ''; ?>">
     <div id="<?php echo e($identifier); ?>"
          class="wt-stat-donut-chart-container"
          data-widget="donut-chart"

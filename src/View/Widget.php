@@ -415,8 +415,8 @@ final readonly class Widget
     }
 
     /**
-     * Legend placement for the donut-chart widget. The enum value (`"right"` /
-     * `"bottom"`) is what the widget partial reads.
+     * Legend placement for the donut-chart widget. The `LegendPosition` enum is
+     * forwarded to the widget partial, which dispatches on it directly.
      */
     public function withLegendPosition(LegendPosition $position): self
     {
@@ -425,7 +425,7 @@ final readonly class Widget
             $this->partial,
             [
                 ...$this->vars,
-                'legendPosition' => $position->value,
+                'legendPosition' => $position,
             ]
         );
     }
