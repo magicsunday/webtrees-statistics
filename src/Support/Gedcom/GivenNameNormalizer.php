@@ -141,11 +141,8 @@ final readonly class GivenNameNormalizer
             return [];
         }
 
-        $normalised = normalizer_normalize($trimmed, Normalizer::FORM_C);
-
-        if ($normalised === false) {
-            $normalised = $trimmed;
-        }
+        $normalisedForm = normalizer_normalize($trimmed, Normalizer::FORM_C);
+        $normalised     = ($normalisedForm !== false) ? $normalisedForm : $trimmed;
 
         // Strip bracketed segments and quote/backtick delimiters so the regnal
         // numbers, titles and alternate spellings packed into a messy GIVN
@@ -204,11 +201,8 @@ final readonly class GivenNameNormalizer
      */
     public static function foldKey(string $token): string
     {
-        $normalised = normalizer_normalize($token, Normalizer::FORM_C);
-
-        if ($normalised === false) {
-            $normalised = $token;
-        }
+        $normalisedForm = normalizer_normalize($token, Normalizer::FORM_C);
+        $normalised     = ($normalisedForm !== false) ? $normalisedForm : $token;
 
         // Build the ICU transliterator once and reuse it; the string-id form of
         // transliterator_transliterate() re-resolves the rule set on every call,

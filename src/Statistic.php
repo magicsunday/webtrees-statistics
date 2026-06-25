@@ -214,7 +214,7 @@ final readonly class Statistic
     }
 
     /**
-     * @return array<int, array{label: string, value: int, class: string}>
+     * @return list<array{label: string, value: int, class: string}>
      */
     public function getTotalIndividualsData(): array
     {
@@ -238,7 +238,7 @@ final readonly class Statistic
     }
 
     /**
-     * @return array<int, array{label: string, value: int, class: string}>
+     * @return list<array{label: string, value: int, class: string}>
      */
     public function getTotalLivingDeceasedData(): array
     {
@@ -262,7 +262,7 @@ final readonly class Statistic
      * precedence current > divorced > widowed > single, so the four slices sum
      * to the living-individual total without clamping.
      *
-     * @return array<int, array{label: string, value: int, class: string}>
+     * @return list<array{label: string, value: int, class: string}>
      */
     public function getFamilyStatusData(): array
     {
@@ -332,7 +332,7 @@ final readonly class Statistic
     /**
      * @param int $limit Maximum number of surnames to return
      *
-     * @return array<int, array{label: string, value: int}>
+     * @return list<array{label: string, value: int}>
      */
     public function getTopSurnames(int $limit): array
     {
@@ -350,7 +350,7 @@ final readonly class Statistic
     /**
      * @param int $limit Maximum number of given names to return
      *
-     * @return array<int, array{label: string, value: int}>
+     * @return list<array{label: string, value: int}>
      */
     public function getTopMaleGivenNames(int $limit): array
     {
@@ -368,7 +368,7 @@ final readonly class Statistic
     /**
      * @param int $limit Maximum number of given names to return
      *
-     * @return array<int, array{label: string, value: int}>
+     * @return list<array{label: string, value: int}>
      */
     public function getTopFemaleGivenNames(int $limit): array
     {
@@ -1109,7 +1109,7 @@ final readonly class Statistic
      * tuples so the consumer can render its own label (keeping translations
      * next to their consuming markup).
      *
-     * @return array<int, array{event: string, kind: string, value: int, total: int}>
+     * @return list<array{event: string, kind: string, value: int, total: int}>
      */
     public function getMissingEventGaps(): array
     {

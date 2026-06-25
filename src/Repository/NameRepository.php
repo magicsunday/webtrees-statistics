@@ -133,7 +133,7 @@ final class NameRepository
      * @param int $limit     Maximum number of surnames to return
      * @param int $threshold Lower bound on the occurrences a surname must reach
      *
-     * @return array<int, array{label: string, value: int}>
+     * @return list<array{label: string, value: int}>
      */
     public function topSurnames(int $limit, int $threshold = 1): array
     {
@@ -202,7 +202,7 @@ final class NameRepository
      * @param int    $threshold Lower bound on the occurrences a name must reach
      * @param int    $limit     Maximum number of names to return
      *
-     * @return array<int, array{label: string, value: int}>
+     * @return list<array{label: string, value: int}>
      */
     public function topGivenNames(string $sex, int $threshold, int $limit): array
     {
@@ -248,7 +248,7 @@ final class NameRepository
      *
      * @param array<int, array{label: string, value: int}> $entries
      *
-     * @return array<int, array{label: string, value: int}>
+     * @return list<array{label: string, value: int}>
      */
     private function sortEntriesByLabel(array $entries): array
     {
