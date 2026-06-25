@@ -31,7 +31,6 @@ use PHPUnit\Framework\Attributes\UsesClass;
 
 use function array_map;
 use function array_unique;
-use function in_array;
 
 /**
  * End-to-end test of the father → son occupation-inheritance aggregator. The
@@ -179,7 +178,7 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
         $candidates = ['Anton Farmer', 'Bernd Farmer', 'Carl Farmer', 'Dirk Farmer', 'Emil Upper'];
 
         foreach ($names as $name) {
-            self::assertTrue(in_array($name, $candidates, true), 'sample names must come from the fixture pool');
+            self::assertContains($name, $candidates, 'sample names must come from the fixture pool');
         }
 
         // No duplicates: every cap slot held by a distinct son.

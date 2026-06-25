@@ -97,7 +97,7 @@ final class DecadeBinCollapserTest extends TestCase
         PayloadNarrowing::assertValueAt(1900, $keys, 9);
 
         // Each bin contains 10 source decades * 1 = 10.
-        foreach (array_values($collapsed) as $value) {
+        foreach ($collapsed as $value) {
             self::assertSame(10, $value);
         }
     }

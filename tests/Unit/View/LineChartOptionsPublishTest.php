@@ -17,7 +17,6 @@ use PHPUnit\Framework\TestCase;
 
 use function dirname;
 use function file_get_contents;
-use function preg_match;
 
 /**
  * Locks the publish contract for the two chart-lib LineChart options
@@ -50,12 +49,9 @@ final class LineChartOptionsPublishTest extends TestCase
     {
         $partial = $this->loadLineChartPartial();
 
-        self::assertSame(
-            1,
-            preg_match(
-                "/'multiSeriesArea'\\s*=>\\s*\\\$multiSeriesArea\\s*\\?\\?\\s*null/",
-                $partial,
-            ),
+        self::assertMatchesRegularExpression(
+            "/'multiSeriesArea'\\s*=>\\s*\\\$multiSeriesArea\\s*\\?\\?\\s*null/",
+            $partial,
             'line-chart.phtml must emit multiSeriesArea into the data-options array',
         );
     }
@@ -70,12 +66,9 @@ final class LineChartOptionsPublishTest extends TestCase
     {
         $partial = $this->loadLineChartPartial();
 
-        self::assertSame(
-            1,
-            preg_match(
-                "/'yUnit'\\s*=>\\s*\\\$yUnit\\s*\\?\\?\\s*null/",
-                $partial,
-            ),
+        self::assertMatchesRegularExpression(
+            "/'yUnit'\\s*=>\\s*\\\$yUnit\\s*\\?\\?\\s*null/",
+            $partial,
             'line-chart.phtml must emit yUnit into the data-options array',
         );
     }
@@ -90,21 +83,15 @@ final class LineChartOptionsPublishTest extends TestCase
     {
         $names = $this->loadNamesTab();
 
-        self::assertSame(
-            1,
-            preg_match(
-                "/->with\\('multiSeriesArea',\\s*true\\)/",
-                $names,
-            ),
+        self::assertMatchesRegularExpression(
+            "/->with\\('multiSeriesArea',\\s*true\\)/",
+            $names,
             'names.phtml must enable multiSeriesArea on the same-sex passdown card',
         );
 
-        self::assertSame(
-            1,
-            preg_match(
-                "/->with\\('yUnit',\\s*' %'\\)/",
-                $names,
-            ),
+        self::assertMatchesRegularExpression(
+            "/->with\\('yUnit',\\s*' %'\\)/",
+            $names,
             'names.phtml must set yUnit to " %" on the same-sex passdown card',
         );
     }
@@ -120,12 +107,9 @@ final class LineChartOptionsPublishTest extends TestCase
     {
         $partial = $this->loadLineChartPartial();
 
-        self::assertSame(
-            1,
-            preg_match(
-                "/'perPointTooltip'\\s*=>\\s*\\\$perPointTooltip\\s*\\?\\?\\s*null/",
-                $partial,
-            ),
+        self::assertMatchesRegularExpression(
+            "/'perPointTooltip'\\s*=>\\s*\\\$perPointTooltip\\s*\\?\\?\\s*null/",
+            $partial,
             'line-chart.phtml must emit perPointTooltip into the data-options array',
         );
     }
@@ -140,21 +124,15 @@ final class LineChartOptionsPublishTest extends TestCase
     {
         $partial = $this->loadLineChartPartial();
 
-        self::assertSame(
-            1,
-            preg_match(
-                "/'xLabel'\\s*=>\\s*\\\$xLabel\\s*\\?\\?\\s*null/",
-                $partial,
-            ),
+        self::assertMatchesRegularExpression(
+            "/'xLabel'\\s*=>\\s*\\\$xLabel\\s*\\?\\?\\s*null/",
+            $partial,
             'line-chart.phtml must emit xLabel into the data-options array',
         );
 
-        self::assertSame(
-            1,
-            preg_match(
-                "/'yLabel'\\s*=>\\s*\\\$yLabel\\s*\\?\\?\\s*null/",
-                $partial,
-            ),
+        self::assertMatchesRegularExpression(
+            "/'yLabel'\\s*=>\\s*\\\$yLabel\\s*\\?\\?\\s*null/",
+            $partial,
             'line-chart.phtml must emit yLabel into the data-options array',
         );
     }
@@ -169,21 +147,15 @@ final class LineChartOptionsPublishTest extends TestCase
     {
         $lifeSpan = $this->loadLifeSpanTab();
 
-        self::assertSame(
-            1,
-            preg_match(
-                "/->with\\('perPointTooltip',\\s*true\\)/",
-                $lifeSpan,
-            ),
+        self::assertMatchesRegularExpression(
+            "/->with\\('perPointTooltip',\\s*true\\)/",
+            $lifeSpan,
             'life-span.phtml must enable perPointTooltip on the survival-curve card',
         );
 
-        self::assertSame(
-            1,
-            preg_match(
-                "/->with\\('xLabel',\\s*I18N::translate\\('Age'\\)\\)/",
-                $lifeSpan,
-            ),
+        self::assertMatchesRegularExpression(
+            "/->with\\('xLabel',\\s*I18N::translate\\('Age'\\)\\)/",
+            $lifeSpan,
             "life-span.phtml must set xLabel to I18N::translate('Age') on the survival-curve card",
         );
     }

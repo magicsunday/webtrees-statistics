@@ -17,7 +17,6 @@ use PHPUnit\Framework\TestCase;
 
 use function dirname;
 use function file_get_contents;
-use function preg_match;
 
 /**
  * Locks the mobile-first responsive contract of the `marriage-extremes` widget:
@@ -49,24 +48,18 @@ final class MarriageExtremesResponsiveCssTest extends TestCase
         // Mobile-first base: the container is a single column. Matched without
         // pinning declaration order or spacing, so a cosmetic reformat does not
         // turn this into a false RED — only an actual two-column base would.
-        self::assertSame(
-            1,
-            preg_match(
-                '/\.wt-stat-marriage-extremes\s*\{[^}]*?grid-template-columns:\s*1fr\s*;/s',
-                $css,
-            ),
+        self::assertMatchesRegularExpression(
+            '/\.wt-stat-marriage-extremes\s*\{[^}]*?grid-template-columns:\s*1fr\s*;/',
+            $css,
             'marriage-extremes must default to a single column (mobile-first base)',
         );
 
         // A min-width breakpoint promotes it to two side-by-side columns (either
         // `1fr 1fr` or the equivalent `repeat(2, 1fr)`).
-        self::assertSame(
-            1,
-            preg_match(
-                '/@media\s*\([^)]*min-width[^)]*\)\s*\{[^@]*?\.wt-stat-marriage-extremes\s*\{[^}]*?'
-                . 'grid-template-columns:\s*(?:1fr\s+1fr|repeat\(\s*2\s*,\s*1fr\s*\))\s*;/s',
-                $css,
-            ),
+        self::assertMatchesRegularExpression(
+            '/@media\s*\([^)]*min-width[^)]*\)\s*\{[^@]*?\.wt-stat-marriage-extremes\s*\{[^}]*?'
+            . 'grid-template-columns:\s*(?:1fr\s+1fr|repeat\(\s*2\s*,\s*1fr\s*\))\s*;/',
+            $css,
             'marriage-extremes must switch to two columns at a min-width breakpoint',
         );
     }

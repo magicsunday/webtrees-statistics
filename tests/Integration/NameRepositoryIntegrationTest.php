@@ -495,7 +495,7 @@ final class NameRepositoryIntegrationTest extends AbstractIntegrationTestCase
     public function topSurnamesKeepsOnlyPrimaryNameSurnames(): void
     {
         $tree   = $this->importFixtureTree('name-custom-subtag.ged');
-        $labels = array_column($this->repository($tree)->topSurnames(100, 1), 'label');
+        $labels = array_column($this->repository($tree)->topSurnames(100), 'label');
 
         // _AKA surname (arbitrary custom) is excluded.
         self::assertNotContains('Aliasson', $labels);
