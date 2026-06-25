@@ -4,6 +4,13 @@ includes:
     - %currentWorkingDirectory%/.build/vendor/phpstan/phpstan-phpunit/extension.neon
     - %currentWorkingDirectory%/.build/vendor/phpstan/phpstan-phpunit/rules.neon
     - %currentWorkingDirectory%/.build/vendor/phpat/phpat/extension.neon
+    - %currentWorkingDirectory%/.build/vendor/shipmonk/phpstan-rules/rules.neon
+    - %currentWorkingDirectory%/.build/vendor/symplify/phpstan-rules/config/services/services.neon
+    - %currentWorkingDirectory%/.build/vendor/symplify/phpstan-rules/config/code-complexity-rules.neon
+    - %currentWorkingDirectory%/.build/vendor/symplify/phpstan-rules/config/configurable-rules.neon
+    - %currentWorkingDirectory%/.build/vendor/symplify/phpstan-rules/config/naming-rules.neon
+    - %currentWorkingDirectory%/.build/vendor/symplify/phpstan-rules/config/static-rules.neon
+    - %currentWorkingDirectory%/.build/vendor/symplify/phpstan-rules/config/symfony-config-rules.neon
 
 parameters:
     # You can currently choose from 11 levels (0 is the loosest and 10 is the strictest).
@@ -24,6 +31,15 @@ parameters:
     excludePaths:
         - %currentWorkingDirectory%/.build/
 
+    checkImplicitMixed: true
+    checkBenevolentUnionTypes: true
+    checkUninitializedProperties: true
+    checkMissingCallableSignature: true
+    checkTooWideReturnTypesInProtectedAndPublicMethods: true
+    reportAnyTypeWideningInVarTag: true
+    reportPossiblyNonexistentConstantArrayOffset: true
+    reportPossiblyNonexistentGeneralArrayOffset: true
+
     # JetBrains' PHP stub for ext-calendar still spells gregoriantojd
     # as PascalCase (`GregorianToJD`), while the official PHP manual
     # at https://www.php.net/manual/en/function.gregoriantojd.php has
@@ -32,6 +48,49 @@ parameters:
     # every call that uses the manual-canonical lowercase form.
     # Suppress just this one mismatch until JetBrains fixes the stub.
     ignoreErrors:
+        # symplify forbiddenNode bans traits + heredocs wholesale — both are
+        # deliberate house idioms here: the module-base sharing traits and the
+        # heredoc HTML blocks in the card renderer.
+        -
+            identifier: symplify.forbiddenNode
+            paths:
+                - src/Traits/*
+                - src/View/Card.php
+
+        # &-references are in/out accumulators (depth cache, visited set) for
+        # recursive graph traversal; copy-free, an explicit return would force a
+        # copy-and-reassign on every recursion.
+        -
+            identifier: symplify.noReference
+            paths:
+                - src/Support/Calc/GenerationDepth.php
+                - src/Support/Calc/PartnershipChains.php
+                - src/Repository/IslandRepository.php
+
+        # Module::CUSTOM_* is the webtrees custom-module convention the module-base
+        # ModuleCustomTrait reads via self::CUSTOM_*; there is no interface contract
+        # to route it through.
+        -
+            identifier: symplify.forbiddenStaticClassConstFetch
+            path: src/Traits/ModuleCustomTrait.php
+
+        # method_exists() is a legitimate API-presence probe in this contract test.
+        -
+            identifier: symplify.forbiddenFuncCall
+            path: tests/ModuleTest.php
+
+        # Closure parameters required positionally by a typed callable contract
+        # (the LineChartPayload projector, the MarriageExtremes mapper), unused in
+        # these specific test bodies — cannot be dropped.
+        -
+            identifier: shipmonk.unusedParameter
+            paths:
+                - tests/Unit/Model/LineChart/LineChartPayloadTest.php
+                - tests/View/MarriageExtremesViewTest.php
+
+        -
+            identifier: shipmonk.checkedExceptionInCallable
+
         -
             identifier: function.nameCase
             path: src/Repository/LifeSpanRepository.php
