@@ -45,8 +45,8 @@ use function trim;
  * ISO-3166-1, so they are carried as manual aliases.
  *
  * The core ships a country dictionary in
- * `Fisharebest\Webtrees\Statistics\Service\CountryService`, but it is
- * `@deprecated` and slated for removal in webtrees 2.3 — coupling to it would
+ * `Fisharebest\Webtrees\Statistics\Service\CountryService`, but it is marked
+ * deprecated and slated for removal in webtrees 2.3 — coupling to it would
  * break the module, so the resolver stays self-contained.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
