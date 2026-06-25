@@ -67,13 +67,18 @@ final class TreeHealthRepositoryIntegrationTest extends IntegrationTestCase
         $tree = $this->importFixtureTree('tree-health.ged');
         $gaps = (new TreeHealthRepository($tree))->missingEventGaps();
 
-        self::assertSame(2, $gaps['BIRT_event']['value']);
-        self::assertSame(6, $gaps['BIRT_event']['total']);
+        $birtEvent = $gaps['BIRT_event'] ?? self::fail('Missing BIRT_event gap row');
+        self::assertSame(2, $birtEvent['value']);
+        self::assertSame(6, $birtEvent['total']);
 
-        self::assertSame(3, $gaps['BIRT_place']['value']);
+        $birtPlace = $gaps['BIRT_place'] ?? self::fail('Missing BIRT_place gap row');
+        self::assertSame(3, $birtPlace['value']);
 
-        self::assertSame(4, $gaps['DEAT_event']['value']);
-        self::assertSame(4, $gaps['DEAT_place']['value']);
+        $deatEvent = $gaps['DEAT_event'] ?? self::fail('Missing DEAT_event gap row');
+        self::assertSame(4, $deatEvent['value']);
+
+        $deatPlace = $gaps['DEAT_place'] ?? self::fail('Missing DEAT_place gap row');
+        self::assertSame(4, $deatPlace['value']);
     }
 
     /**

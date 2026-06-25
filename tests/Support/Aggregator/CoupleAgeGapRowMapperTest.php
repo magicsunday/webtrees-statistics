@@ -13,6 +13,7 @@ namespace MagicSunday\Webtrees\Statistic\Test\Support\Aggregator;
 
 use MagicSunday\Webtrees\Statistic\Model\Pyramid\PopulationPyramidPayload;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\CoupleAgeGapRowMapper;
+use MagicSunday\Webtrees\Statistic\Test\Support\Narrowing\PayloadNarrowing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
@@ -98,7 +99,9 @@ final class CoupleAgeGapRowMapperTest extends TestCase
             '30+' => ['left' => 5, 'right' => 0],
         ]);
 
+        $group = $payload->data[0] ?? self::fail('Expected a data group at index 0');
+
         self::assertSame(['30+'], $payload->bands);
-        self::assertSame(['left' => 5, 'right' => 0], $payload->data[0][0]);
+        PayloadNarrowing::assertValueAt(['left' => 5, 'right' => 0], $group, 0);
     }
 }

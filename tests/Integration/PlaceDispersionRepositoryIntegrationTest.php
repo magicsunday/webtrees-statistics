@@ -19,6 +19,7 @@ use MagicSunday\Webtrees\Statistic\Support\Database\PlaceLocationGazetteer;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
+use MagicSunday\Webtrees\Statistic\Test\Support\Narrowing\PayloadNarrowing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
@@ -84,7 +85,7 @@ final class PlaceDispersionRepositoryIntegrationTest extends IntegrationTestCase
 
         // The distribution shows TWO individuals at count 1: Anna
         // (BIRT+DEAT same place, de-duped) and Emil (single BIRT).
-        self::assertSame(2, $result->distribution['1']);
+        PayloadNarrowing::assertValueAt(2, $result->distribution, '1');
     }
 
     /**

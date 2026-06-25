@@ -108,13 +108,15 @@ final class ChildMortalityRepositoryIntegrationTest extends IntegrationTestCase
             $byCentury[$entry['century']] = $entry;
         }
 
-        self::assertSame(5, $byCentury[19]['total']);
-        self::assertSame(3, $byCentury[19]['died']);
-        self::assertSame(60.0, $byCentury[19]['rate']);
+        $century19 = $byCentury[19] ?? self::fail('Expected a 19th-century breakdown entry');
+        self::assertSame(5, $century19['total']);
+        self::assertSame(3, $century19['died']);
+        self::assertSame(60.0, $century19['rate']);
 
-        self::assertSame(5, $byCentury[20]['total']);
-        self::assertSame(0, $byCentury[20]['died']);
-        self::assertSame(0.0, $byCentury[20]['rate']);
+        $century20 = $byCentury[20] ?? self::fail('Expected a 20th-century breakdown entry');
+        self::assertSame(5, $century20['total']);
+        self::assertSame(0, $century20['died']);
+        self::assertSame(0.0, $century20['rate']);
     }
 
     /**
@@ -205,13 +207,15 @@ final class ChildMortalityRepositoryIntegrationTest extends IntegrationTestCase
 
         self::assertArrayNotHasKey(16, $byCentury, '16th-century singleton stays below MIN_COHORT_SIZE');
 
-        self::assertSame(5, $byCentury[19]['total'], '19th-century cohort drops back to the 5 full-date controls');
-        self::assertSame(3, $byCentury[19]['died']);
-        self::assertSame(60.0, $byCentury[19]['rate']);
+        $century19 = $byCentury[19] ?? self::fail('Expected a 19th-century breakdown entry');
+        self::assertSame(5, $century19['total'], '19th-century cohort drops back to the 5 full-date controls');
+        self::assertSame(3, $century19['died']);
+        self::assertSame(60.0, $century19['rate']);
 
-        self::assertSame(5, $byCentury[20]['total']);
-        self::assertSame(0, $byCentury[20]['died']);
-        self::assertSame(0.0, $byCentury[20]['rate']);
+        $century20 = $byCentury[20] ?? self::fail('Expected a 20th-century breakdown entry');
+        self::assertSame(5, $century20['total']);
+        self::assertSame(0, $century20['died']);
+        self::assertSame(0.0, $century20['rate']);
     }
 
     /**

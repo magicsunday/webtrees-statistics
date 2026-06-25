@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Support\Calc;
 
 use MagicSunday\Webtrees\Statistic\Support\Calc\HistogramTrim;
+use MagicSunday\Webtrees\Statistic\Test\Support\Narrowing\PayloadNarrowing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -218,7 +219,7 @@ final class HistogramTrimTest extends TestCase
         $result = HistogramTrim::capByOutlierTrim($series, 5);
 
         self::assertCount(1, $result);
-        self::assertSame(100, $result[10]);
+        PayloadNarrowing::assertValueAt(100, $result, 10);
     }
 
     /**

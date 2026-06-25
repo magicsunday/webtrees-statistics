@@ -14,6 +14,7 @@ namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 use MagicSunday\Webtrees\Statistic\Repository\PartnershipMapRepository;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
+use MagicSunday\Webtrees\Statistic\Test\Support\Narrowing\PayloadNarrowing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
@@ -76,8 +77,8 @@ final class PartnershipMapRepositoryIntegrationTest extends IntegrationTestCase
         // entry on each side — so I21 appears in I6's list exactly once, and
         // vice versa. This positively pins the dedupe branch: removing it makes
         // these counts 2 and turns the assertions RED.
-        self::assertSame(1, array_count_values($map['I6'])['I21']);
-        self::assertSame(1, array_count_values($map['I21'])['I6']);
+        PayloadNarrowing::assertValueAt(1, array_count_values($map['I6']), 'I21');
+        PayloadNarrowing::assertValueAt(1, array_count_values($map['I21']), 'I6');
 
         // Every spouse list is free of duplicate XREFs.
         foreach ($map as $spouses) {

@@ -59,9 +59,11 @@ final class ZodiacSignsTest extends TestCase
     public function ariesTaurusBoundaryFollowsWikipedia(): void
     {
         $ranges = ZodiacSigns::ranges();
+        $aries  = $ranges['Aries'] ?? self::fail('Expected an Aries range');
+        $taurus = $ranges['Taurus'] ?? self::fail('Expected a Taurus range');
 
-        self::assertSame([4, 20], $ranges['Aries']['to'], '20 April is the last Aries day');
-        self::assertSame([4, 21], $ranges['Taurus']['from'], '21 April is the first Taurus day');
+        self::assertSame([4, 20], $aries['to'], '20 April is the last Aries day');
+        self::assertSame([4, 21], $taurus['from'], '21 April is the first Taurus day');
     }
 
     /**
@@ -77,8 +79,8 @@ final class ZodiacSignsTest extends TestCase
         $count  = count($ranges);
 
         for ($i = 0; $i < $count; ++$i) {
-            $current = $ranges[$i];
-            $next    = $ranges[($i + 1) % $count];
+            $current = $ranges[$i] ?? self::fail('Expected a range at the current wheel position');
+            $next    = $ranges[($i + 1) % $count] ?? self::fail('Expected a range at the next wheel position');
 
             self::assertSame(
                 $this->dayAfter($current['to'][0], $current['to'][1]),
@@ -132,8 +134,9 @@ final class ZodiacSignsTest extends TestCase
     private function dayAfter(int $month, int $day): array
     {
         $daysInMonth = [1 => 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+        $monthLength = $daysInMonth[$month] ?? self::fail('Expected a day count for the given month');
 
-        if ($day < $daysInMonth[$month]) {
+        if ($day < $monthLength) {
             return [$month, $day + 1];
         }
 

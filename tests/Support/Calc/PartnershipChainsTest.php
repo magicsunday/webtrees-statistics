@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Support\Calc;
 
 use MagicSunday\Webtrees\Statistic\Support\Calc\PartnershipChains;
+use MagicSunday\Webtrees\Statistic\Test\Support\Narrowing\PayloadNarrowing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -158,8 +159,8 @@ final class PartnershipChainsTest extends TestCase
 
         $components = PartnershipChains::components($adjacency);
 
-        self::assertSame(['A', 'B', 'C'], $components[0]);
-        self::assertSame(['P', 'Q', 'R'], $components[1]);
+        PayloadNarrowing::assertValueAt(['A', 'B', 'C'], $components, 0);
+        PayloadNarrowing::assertValueAt(['P', 'Q', 'R'], $components, 1);
     }
 
     /**
@@ -514,7 +515,8 @@ final class PartnershipChainsTest extends TestCase
 
         foreach ($chain as $person) {
             if ($previous !== null) {
-                self::assertContains($person, $adjacency[$previous], $previous . ' and ' . $person . ' must be married');
+                $neighbours = $adjacency[$previous] ?? self::fail('Expected adjacency entry for ' . $previous);
+                self::assertContains($person, $neighbours, $previous . ' and ' . $person . ' must be married');
             }
 
             $previous = $person;

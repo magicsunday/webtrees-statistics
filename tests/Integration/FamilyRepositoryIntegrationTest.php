@@ -147,7 +147,8 @@ final class FamilyRepositoryIntegrationTest extends IntegrationTestCase
             $this->triples($result),
         );
 
-        self::assertNotSame('', $result[0]->label, 'The display label must resolve to the couple, not an empty string');
+        $first = $result[0] ?? self::fail('The result must carry at least one sex-ratio anomaly');
+        self::assertNotSame('', $first->label, 'The display label must resolve to the couple, not an empty string');
     }
 
     /**

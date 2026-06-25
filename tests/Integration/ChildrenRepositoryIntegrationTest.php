@@ -25,6 +25,7 @@ use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
 use MagicSunday\Webtrees\Statistic\Support\Locale\DecadeName;
 use MagicSunday\Webtrees\Statistic\Support\Locale\MonthName;
+use MagicSunday\Webtrees\Statistic\Test\Support\Narrowing\PayloadNarrowing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
@@ -79,9 +80,9 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('children.ged');
         $result = $this->repository($tree)->childrenPerFamilyDistribution();
 
-        self::assertSame(1, $result['0'], 'F2 has zero children');
-        self::assertSame(1, $result['3'], 'F1 has three children');
-        self::assertSame(0, $result['10+'], 'no heroic families');
+        PayloadNarrowing::assertValueAt(1, $result, '0');
+        PayloadNarrowing::assertValueAt(1, $result, '3');
+        PayloadNarrowing::assertValueAt(0, $result, '10+');
     }
 
     /**
@@ -413,18 +414,26 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
             $classes,
         );
 
+        $series0 = PayloadNarrowing::seriesAt($result, 0);
+        $series1 = PayloadNarrowing::seriesAt($result, 1);
+        $series3 = PayloadNarrowing::seriesAt($result, 3);
+
         // 19th century: 10 twin children of 203 ≈ 4.93 %.
-        self::assertEqualsWithDelta(4.93, $result->series[0]->values[0], 0.01);
+        $twins19th = $series0->values[0] ?? self::fail('Twins series is missing its 19th-century value');
+        self::assertEqualsWithDelta(4.93, $twins19th, 0.01);
         // 20th century: 8 twin children of 202 ≈ 3.96 %. (Year-1900
         // singletons drift into the 19th century cohort by one
         // because CenturyName::fromYear(1900) = 19.)
-        self::assertEqualsWithDelta(3.96, $result->series[0]->values[1], 0.01);
+        $twins20th = $series0->values[1] ?? self::fail('Twins series is missing its 20th-century value');
+        self::assertEqualsWithDelta(3.96, $twins20th, 0.01);
         // 19th century: 3 triplet children of 203 ≈ 1.48 %.
-        self::assertEqualsWithDelta(1.48, $result->series[1]->values[0], 0.01);
+        $triplets19th = $series1->values[0] ?? self::fail('Triplets series is missing its 19th-century value');
+        self::assertEqualsWithDelta(1.48, $triplets19th, 0.01);
         // 20th century: no triplets.
-        self::assertSame(0.0, $result->series[1]->values[1]);
+        PayloadNarrowing::assertValueAt(0.0, $series1->values, 1);
         // 19th: 6 quintuplet+ children of 203 ≈ 2.96 %.
-        self::assertEqualsWithDelta(2.96, $result->series[3]->values[0], 0.01);
+        $quintuplets19th = $series3->values[0] ?? self::fail('Quintuplets-plus series is missing its 19th-century value');
+        self::assertEqualsWithDelta(2.96, $quintuplets19th, 0.01);
     }
 
     /**
@@ -446,8 +455,10 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
             [CenturyName::compactLabel(-1)],
             $result->categories,
         );
-        self::assertSame('Twins', $result->series[0]->name);
-        self::assertEqualsWithDelta(0.99, $result->series[0]->values[0], 0.01);
+        $series = PayloadNarrowing::firstSeries($result);
+        self::assertSame('Twins', $series->name);
+        $twinsBce = $series->values[0] ?? self::fail('Twins series is missing its BCE value');
+        self::assertEqualsWithDelta(0.99, $twinsBce, 0.01);
     }
 
     /**
@@ -475,8 +486,11 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
             [CenturyName::compactLabel(-1), CenturyName::compactLabel(20)],
             $result->categories,
         );
-        self::assertEqualsWithDelta(2.4, $result->series[0]->values[0], 0.001, 'BCE: (2+3+4+2+1)/5 families');
-        self::assertEqualsWithDelta(2.6, $result->series[0]->values[1], 0.001, 'CE: (3+1+2+5+2)/5 families');
+        $series = PayloadNarrowing::firstSeries($result);
+        $bce    = $series->values[0] ?? self::fail('Average family size series is missing its BCE value');
+        $ce     = $series->values[1] ?? self::fail('Average family size series is missing its CE value');
+        self::assertEqualsWithDelta(2.4, $bce, 0.001, 'BCE: (2+3+4+2+1)/5 families');
+        self::assertEqualsWithDelta(2.6, $ce, 0.001, 'CE: (3+1+2+5+2)/5 families');
     }
 
     /**
@@ -502,10 +516,12 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
             $result->categories,
             'The four-family 17th century is below the floor and must not appear.',
         );
-        self::assertCount(1, $result->series[0]->values);
+        $series = PayloadNarrowing::firstSeries($result);
+        self::assertCount(1, $series->values);
+        $value = $series->values[0] ?? self::fail('Average family size series is missing its 19th-century value');
         self::assertEqualsWithDelta(
             2.4,
-            $result->series[0]->values[0],
+            $value,
             0.001,
             '19th century: (2+2+2+2+4)/5 families',
         );
@@ -618,11 +634,15 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
 
         // 4 twin children of 262 ≈ 1.53 % (F350 + F354's anchored
         // 28/29 pair). Under the chaining bug this would be 0.76 %.
-        self::assertEqualsWithDelta(1.53, $byName['Twins']->values[0], 0.01);
+        $twins      = PayloadNarrowing::seriesNamed($byName, 'Twins');
+        $twinsValue = $twins->values[0] ?? self::fail('Twins series is missing its 19th-century value');
+        self::assertEqualsWithDelta(1.53, $twinsValue, 0.01);
 
         // 3 triplet children of 262 ≈ 1.15 % (F353 only). Under the
         // chaining bug F354 would add a second triplet set → 2.29 %.
-        self::assertEqualsWithDelta(1.15, $byName['Triplets']->values[0], 0.01);
+        $triplets      = PayloadNarrowing::seriesNamed($byName, 'Triplets');
+        $tripletsValue = $triplets->values[0] ?? self::fail('Triplets series is missing its 19th-century value');
+        self::assertEqualsWithDelta(1.15, $tripletsValue, 0.01);
     }
 
     /**
@@ -660,9 +680,11 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
             array_keys($byName),
             'Only the genuine F200 pair is a multiple birth; the ranged singleton must not fabricate a set.',
         );
+        $twins      = PayloadNarrowing::seriesNamed($byName, 'Twins');
+        $twinsValue = $twins->values[0] ?? self::fail('Twins series is missing its 19th-century value');
         self::assertEqualsWithDelta(
             0.99,
-            $byName['Twins']->values[0],
+            $twinsValue,
             0.01,
             'The single ranged child is counted once (2/202), not as a second twin set (4/202).',
         );

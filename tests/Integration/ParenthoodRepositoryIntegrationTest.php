@@ -21,10 +21,12 @@ use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Locale\DecadeName;
+use MagicSunday\Webtrees\Statistic\Test\Support\Narrowing\PayloadNarrowing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
 
+use function array_key_exists;
 use function array_sum;
 use function count;
 
@@ -71,8 +73,8 @@ final class ParenthoodRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('age-at-first-child.ged');
         $result = (new ParenthoodRepository($tree))->ageAtFirstChildDistribution('M');
 
-        self::assertSame(1, $result['20–24']);
-        self::assertSame(1, $result['45–49']);
+        PayloadNarrowing::assertValueAt(1, $result, '20–24');
+        PayloadNarrowing::assertValueAt(1, $result, '45–49');
         self::assertSame(0, $result['15–19'] ?? 0, 'No father in the 15–19 bucket');
         self::assertSame(0, $result['35–39'] ?? 0, 'No father in the 35–39 bucket');
     }
@@ -87,8 +89,8 @@ final class ParenthoodRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('age-at-first-child.ged');
         $result = (new ParenthoodRepository($tree))->ageAtFirstChildDistribution('F');
 
-        self::assertSame(1, $result['15–19']);
-        self::assertSame(1, $result['35–39']);
+        PayloadNarrowing::assertValueAt(1, $result, '15–19');
+        PayloadNarrowing::assertValueAt(1, $result, '35–39');
         self::assertSame(0, $result['20–24'] ?? 0, 'No mother in the 20–24 bucket');
         self::assertSame(0, $result['45–49'] ?? 0, 'No mother in the 45–49 bucket');
     }
@@ -186,21 +188,25 @@ final class ParenthoodRepositoryIntegrationTest extends IntegrationTestCase
         // Re-assert series order so this test is self-contained — the
         // sibling test could be deleted without silently rebinding
         // values[0] / values[1] to the wrong sex.
-        $fathers = $result->series[0];
-        $mothers = $result->series[1];
+        $fathers = PayloadNarrowing::firstSeries($result);
+        $mothers = PayloadNarrowing::seriesAt($result, 1);
         self::assertSame('Fathers', $fathers->name);
         self::assertSame('Mothers', $mothers->name);
 
         // Index 0 = 1900s (child-birth decade).
-        self::assertEqualsWithDelta(26.6, $fathers->values[0], 0.05, 'Fathers mean for the 1900s cohort');
-        self::assertEqualsWithDelta(20.8, $mothers->values[0], 0.05, 'Mothers mean for the 1900s cohort');
+        $fathers1900s = $fathers->values[0] ?? self::fail('Expected a value at offset 0');
+        $mothers1900s = $mothers->values[0] ?? self::fail('Expected a value at offset 0');
+        self::assertEqualsWithDelta(26.6, $fathers1900s, 0.05, 'Fathers mean for the 1900s cohort');
+        self::assertEqualsWithDelta(20.8, $mothers1900s, 0.05, 'Mothers mean for the 1900s cohort');
 
         // Index 1 = 1910s. F6-F10: fathers 1880/1882/1881/1885/1883
         // → children 1915/1912/1913/1911/1914, ages 35/30/32/26/31 →
         // mean 30.8. Mothers 1890/1885/1888/1890/1889 → ages
         // 25/27/25/21/25 → mean 24.6.
-        self::assertEqualsWithDelta(30.8, $fathers->values[1], 0.05, 'Fathers mean for the 1910s cohort');
-        self::assertEqualsWithDelta(24.6, $mothers->values[1], 0.05, 'Mothers mean for the 1910s cohort');
+        $fathers1910s = $fathers->values[1] ?? self::fail('Expected a value at offset 1');
+        $mothers1910s = $mothers->values[1] ?? self::fail('Expected a value at offset 1');
+        self::assertEqualsWithDelta(30.8, $fathers1910s, 0.05, 'Fathers mean for the 1910s cohort');
+        self::assertEqualsWithDelta(24.6, $mothers1910s, 0.05, 'Mothers mean for the 1910s cohort');
     }
 
     /**
@@ -219,9 +225,15 @@ final class ParenthoodRepositoryIntegrationTest extends IntegrationTestCase
         $result = (new ParenthoodRepository($tree))->ageAtFirstChildMeanByDecade();
 
         self::assertSame([DecadeName::for(-50)], $result->categories);
-        self::assertSame('Fathers', $result->series[0]->name);
-        self::assertEqualsWithDelta(25.0, $result->series[0]->values[0], 0.05, 'Five BCE fathers, age 25');
-        self::assertNull($result->series[1]->values[0], 'No mothers recorded — gap, not age 0');
+
+        $fathers = PayloadNarrowing::firstSeries($result);
+        $mothers = PayloadNarrowing::seriesAt($result, 1);
+
+        self::assertSame('Fathers', $fathers->name);
+        $fathersMean = $fathers->values[0] ?? self::fail('Expected a value at offset 0');
+        self::assertEqualsWithDelta(25.0, $fathersMean, 0.05, 'Five BCE fathers, age 25');
+        $mothersMean = array_key_exists(0, $mothers->values) ? $mothers->values[0] : self::fail('Expected a value at offset 0');
+        self::assertNull($mothersMean, 'No mothers recorded — gap, not age 0');
     }
 
     /**
@@ -270,20 +282,25 @@ final class ParenthoodRepositoryIntegrationTest extends IntegrationTestCase
 
         self::assertSame(['1930s', '1940s'], $result->categories, 'Both decades survive — neither is below the floor for BOTH sexes');
 
-        $fathers = $result->series[0];
-        $mothers = $result->series[1];
+        $fathers = PayloadNarrowing::firstSeries($result);
+        $mothers = PayloadNarrowing::seriesAt($result, 1);
         self::assertSame('Fathers', $fathers->name);
         self::assertSame('Mothers', $mothers->name);
 
         // 1930s: symmetric cohort, both means real.
-        self::assertGreaterThan(0, $fathers->values[0], 'Fathers line carries a real 1930s mean');
-        self::assertGreaterThan(0, $mothers->values[0], 'Mothers line carries a real 1930s mean');
+        $fathers1930s = $fathers->values[0] ?? self::fail('Expected a value at offset 0');
+        $mothers1930s = $mothers->values[0] ?? self::fail('Expected a value at offset 0');
+        self::assertGreaterThan(0, $fathers1930s, 'Fathers line carries a real 1930s mean');
+        self::assertGreaterThan(0, $mothers1930s, 'Mothers line carries a real 1930s mean');
 
         // 1940s: asymmetric — fathers pass the floor (5 with dated BIRT),
         // mothers fail (none have a recorded birth date).
-        self::assertGreaterThan(0, $fathers->values[1], 'Fathers line still renders a 1940s mean');
-        self::assertNull($mothers->values[1], 'Mothers line is suppressed to a null (gap) on the 1940s tick, not age 0');
-        self::assertStringContainsString('no data', $mothers->tooltips[1], 'Mothers 1940s tooltip carries the suppression caption');
+        $fathers1940s = $fathers->values[1] ?? self::fail('Expected a value at offset 1');
+        self::assertGreaterThan(0, $fathers1940s, 'Fathers line still renders a 1940s mean');
+        $mothers1940s = array_key_exists(1, $mothers->values) ? $mothers->values[1] : self::fail('Expected a value at offset 1');
+        self::assertNull($mothers1940s, 'Mothers line is suppressed to a null (gap) on the 1940s tick, not age 0');
+        $mothersTooltip1940s = $mothers->tooltips[1] ?? self::fail('Expected a tooltip at offset 1');
+        self::assertStringContainsString('no data', $mothersTooltip1940s, 'Mothers 1940s tooltip carries the suppression caption');
     }
 
     /**
@@ -308,8 +325,13 @@ final class ParenthoodRepositoryIntegrationTest extends IntegrationTestCase
             $result->categories,
             'The earliest (Hebrew 1824) child sets the 1820s decade, not the later Gregorian 1830 child',
         );
-        self::assertSame('Fathers', $result->series[0]->name);
-        self::assertEqualsWithDelta(24.0, $result->series[0]->values[0], 0.05, 'Five fathers, age 24 at their earliest child');
-        self::assertNull($result->series[1]->values[0], 'No mothers recorded — gap, not age 0');
+        $fathers = PayloadNarrowing::firstSeries($result);
+        $mothers = PayloadNarrowing::seriesAt($result, 1);
+
+        self::assertSame('Fathers', $fathers->name);
+        $fathersMean = $fathers->values[0] ?? self::fail('Expected a value at offset 0');
+        self::assertEqualsWithDelta(24.0, $fathersMean, 0.05, 'Five fathers, age 24 at their earliest child');
+        $mothersMean = array_key_exists(0, $mothers->values) ? $mothers->values[0] : self::fail('Expected a value at offset 0');
+        self::assertNull($mothersMean, 'No mothers recorded — gap, not age 0');
     }
 }

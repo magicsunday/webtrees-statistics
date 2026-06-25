@@ -24,6 +24,7 @@ use MagicSunday\Webtrees\Statistic\Support\Gedcom\RecordName;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Sankey\BipartiteSankeyAssembler;
 use MagicSunday\Webtrees\Statistic\Support\Sankey\SankeySampleResolver;
+use MagicSunday\Webtrees\Statistic\Test\Support\Narrowing\PayloadNarrowing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
@@ -164,7 +165,7 @@ final class OccupationInheritanceRepositoryIntegrationTest extends IntegrationTe
         $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree)))
             ->occupationInheritance(10);
 
-        $heaviest = $result->links[0];
+        $heaviest = PayloadNarrowing::sankeyLinkAt($result->links, 0);
         self::assertSame(5, $heaviest->value, 'flow weight reflects all 5 contributing sons');
         self::assertCount(3, $heaviest->samples, 'sample list caps at SAMPLES_PER_FLOW=3');
 
@@ -229,15 +230,17 @@ final class OccupationInheritanceRepositoryIntegrationTest extends IntegrationTe
         self::assertSame(['Smith', 'Carpenter', 'Carpenter', 'Mason'], $result->nodes);
 
         // Grandfather → father: the middle man is the son-sample here.
-        self::assertSame(0, $result->links[0]->source);
-        self::assertSame(2, $result->links[0]->target);
-        self::assertSame('Vater Schmidt', $result->links[0]->samples[0]->name);
+        $upperFlow = PayloadNarrowing::sankeyLinkAt($result->links, 0);
+        self::assertSame(0, $upperFlow->source);
+        self::assertSame(2, $upperFlow->target);
+        self::assertSame('Vater Schmidt', PayloadNarrowing::sankeySampleAt($upperFlow->samples, 0)->name);
 
         // Father → son: the SAME middle man is now the source occupation,
         // and his son is the sample.
-        self::assertSame(1, $result->links[1]->source);
-        self::assertSame(3, $result->links[1]->target);
-        self::assertSame('Sohn Schmidt', $result->links[1]->samples[0]->name);
+        $lowerFlow = PayloadNarrowing::sankeyLinkAt($result->links, 1);
+        self::assertSame(1, $lowerFlow->source);
+        self::assertSame(3, $lowerFlow->target);
+        self::assertSame('Sohn Schmidt', PayloadNarrowing::sankeySampleAt($lowerFlow->samples, 0)->name);
     }
 
     /**
@@ -286,7 +289,7 @@ final class OccupationInheritanceRepositoryIntegrationTest extends IntegrationTe
 
         $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree)))
             ->occupationInheritance(10);
-        $heaviest = $result->links[0];
+        $heaviest = PayloadNarrowing::sankeyLinkAt($result->links, 0);
 
         // The flow weight still reflects all four sons — dropping a private
         // sample must not distort the aggregate.
@@ -323,7 +326,9 @@ final class OccupationInheritanceRepositoryIntegrationTest extends IntegrationTe
         $tailorToTailor = null;
 
         foreach ($result->links as $link) {
-            if ($result->nodes[$link->target] === 'Tailor') {
+            $targetNode = $result->nodes[$link->target] ?? self::fail('link target index missing from the node table');
+
+            if ($targetNode === 'Tailor') {
                 $tailorToTailor = $link;
 
                 break;
@@ -349,7 +354,7 @@ final class OccupationInheritanceRepositoryIntegrationTest extends IntegrationTe
 
         return array_map(
             static fn (SankeySample $sample): string => $sample->name,
-            $result->links[0]->samples,
+            PayloadNarrowing::sankeyLinkAt($result->links, 0)->samples,
         );
     }
 }

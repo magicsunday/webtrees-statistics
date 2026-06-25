@@ -13,6 +13,7 @@ namespace MagicSunday\Webtrees\Statistic\Test\Unit\Model\LineChart;
 
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
+use MagicSunday\Webtrees\Statistic\Test\Support\Narrowing\PayloadNarrowing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
@@ -53,10 +54,12 @@ final class LineChartPayloadTest extends TestCase
 
         self::assertSame([], $payload->categories);
         self::assertCount(1, $payload->series, 'singleSeries always emits one series wrapper');
-        self::assertSame('Births', $payload->series[0]->name);
-        self::assertSame([], $payload->series[0]->values);
-        self::assertSame([], $payload->series[0]->tooltips);
-        self::assertSame([], $payload->series[0]->tooltipLabels);
+
+        $series = PayloadNarrowing::firstSeries($payload);
+        self::assertSame('Births', $series->name);
+        self::assertSame([], $series->values);
+        self::assertSame([], $series->tooltips);
+        self::assertSame([], $series->tooltipLabels);
     }
 
     /**
@@ -77,9 +80,11 @@ final class LineChartPayloadTest extends TestCase
         );
 
         self::assertSame(['1900', '1910'], $payload->categories);
-        self::assertSame([42, 7], $payload->series[0]->values);
-        self::assertSame(['42 births', '7 births'], $payload->series[0]->tooltips);
-        self::assertSame(['Century 1900', 'Century 1910'], $payload->series[0]->tooltipLabels);
+
+        $series = PayloadNarrowing::firstSeries($payload);
+        self::assertSame([42, 7], $series->values);
+        self::assertSame(['42 births', '7 births'], $series->tooltips);
+        self::assertSame(['Century 1900', 'Century 1910'], $series->tooltipLabels);
     }
 
     /**
@@ -102,9 +107,11 @@ final class LineChartPayloadTest extends TestCase
         );
 
         self::assertSame(['0y', '1y', '2y+'], $payload->categories);
-        self::assertSame([5, 12, 3], $payload->series[0]->values);
-        self::assertSame(['5 pairs', '12 pairs', '3 pairs'], $payload->series[0]->tooltips);
-        self::assertSame(['Gap 0y', 'Gap 1y', 'Gap 2y+'], $payload->series[0]->tooltipLabels);
+
+        $series = PayloadNarrowing::firstSeries($payload);
+        self::assertSame([5, 12, 3], $series->values);
+        self::assertSame(['5 pairs', '12 pairs', '3 pairs'], $series->tooltips);
+        self::assertSame(['Gap 0y', 'Gap 1y', 'Gap 2y+'], $series->tooltipLabels);
     }
 
     /**
@@ -127,9 +134,11 @@ final class LineChartPayloadTest extends TestCase
         );
 
         self::assertSame(['C18', 'C19', 'C20'], $payload->categories);
-        self::assertSame([23.4, 15.7, 2.1], $payload->series[0]->values);
-        self::assertSame(['23.4%', '15.7%', '2.1%'], $payload->series[0]->tooltips);
-        self::assertSame(['Century 18', 'Century 19', 'Century 20'], $payload->series[0]->tooltipLabels);
+
+        $series = PayloadNarrowing::firstSeries($payload);
+        self::assertSame([23.4, 15.7, 2.1], $series->values);
+        self::assertSame(['23.4%', '15.7%', '2.1%'], $series->tooltips);
+        self::assertSame(['Century 18', 'Century 19', 'Century 20'], $series->tooltipLabels);
     }
 
     /**
@@ -151,16 +160,18 @@ final class LineChartPayloadTest extends TestCase
             ],
         );
 
+        $series = PayloadNarrowing::firstSeries($payload);
+
         // Position 0 in every parallel array refers to ('A', 10).
-        self::assertSame('cat-A', $payload->categories[0]);
-        self::assertSame(10, $payload->series[0]->values[0]);
-        self::assertSame('body-10', $payload->series[0]->tooltips[0]);
-        self::assertSame('header-A', $payload->series[0]->tooltipLabels[0]);
+        PayloadNarrowing::assertValueAt('cat-A', $payload->categories, 0);
+        PayloadNarrowing::assertValueAt(10, $series->values, 0);
+        PayloadNarrowing::assertValueAt('body-10', $series->tooltips, 0);
+        PayloadNarrowing::assertValueAt('header-A', $series->tooltipLabels, 0);
 
         // Position 2 refers to ('C', 30).
-        self::assertSame('cat-C', $payload->categories[2]);
-        self::assertSame(30, $payload->series[0]->values[2]);
-        self::assertSame('body-30', $payload->series[0]->tooltips[2]);
-        self::assertSame('header-C', $payload->series[0]->tooltipLabels[2]);
+        PayloadNarrowing::assertValueAt('cat-C', $payload->categories, 2);
+        PayloadNarrowing::assertValueAt(30, $series->values, 2);
+        PayloadNarrowing::assertValueAt('body-30', $series->tooltips, 2);
+        PayloadNarrowing::assertValueAt('header-C', $series->tooltipLabels, 2);
     }
 }

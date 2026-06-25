@@ -18,6 +18,7 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 use function array_map;
+use function sprintf;
 use function ucfirst;
 
 /**
@@ -186,7 +187,7 @@ final class TopNAggregatorTest extends TestCase
 
         $result = TopNAggregator::rank(
             ['a' => 2, 'b' => 2],
-            static fn (string $key): string => $display[$key],
+            static fn (string $key): string => $display[$key] ?? self::fail(sprintf('Expected a display label for key "%s"', $key)),
             1,
         );
 

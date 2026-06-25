@@ -23,6 +23,7 @@ use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RecordName;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
+use MagicSunday\Webtrees\Statistic\Test\Support\Narrowing\PayloadNarrowing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
@@ -129,9 +130,9 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('age-at-marriage-dedup.ged');
         $result = $this->repository($tree)->ageAtMarriageDistribution('M');
 
-        self::assertSame(2, $result['25–29'], 'Precise F2 and upper-bound F3 each count once');
-        self::assertSame(2, $result['30–34'], 'F1 (ranged MARR) and F4 (ranged BIRT) bin on their extreme bound, once each');
-        self::assertSame(0, $result['20–24'], 'No husband is split onto a lower range bound');
+        PayloadNarrowing::assertValueAt(2, $result, '25–29');
+        PayloadNarrowing::assertValueAt(2, $result, '30–34');
+        PayloadNarrowing::assertValueAt(0, $result, '20–24');
         self::assertSame(4, array_sum($result), 'Four husbands, not seven MARR×BIRT row pairs');
     }
 
@@ -170,9 +171,11 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame(1, $wifeOlder, 'F3 — wife the older partner');
 
         // The husband-older ~3y couple sits on the left of the nearest band.
-        self::assertSame(1, $result['0–4']['left'], 'F1 husband older ~3y');
+        $bandLow = $result['0–4'] ?? self::fail('Age-gap band 0–4 missing');
+        self::assertSame(1, $bandLow['left'], 'F1 husband older ~3y');
         // The wife-older ~5y couple sits on the right of the 5–9 band.
-        self::assertSame(1, $result['5–9']['right'], 'F3 wife older ~5y');
+        $bandMid = $result['5–9'] ?? self::fail('Age-gap band 5–9 missing');
+        self::assertSame(1, $bandMid['right'], 'F3 wife older ~5y');
     }
 
     /**
@@ -573,7 +576,8 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
             $this->extremeTriples($result['longest'], 'years'),
         );
 
-        self::assertNotSame('', $result['shortest'][0]->label, 'The couple label must resolve, not be empty');
+        $shortestFirst = $result['shortest'][0] ?? self::fail('The shortest list has no first entry');
+        self::assertNotSame('', $shortestFirst->label, 'The couple label must resolve, not be empty');
     }
 
     /**

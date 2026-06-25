@@ -178,10 +178,13 @@ final class MortalityAnomaliesTest extends TestCase
     {
         $result = MortalityAnomalies::detect($this->twoRegionsLowThenHighScore(), 2.0, 10);
 
+        $firstRow  = $result[0] ?? self::fail('Expected an anomaly row at index 0');
+        $secondRow = $result[1] ?? self::fail('Expected an anomaly row at index 1');
+
         self::assertSame([5, 105], array_column($result, 'year'));
         // The chronologically-first row carries the lower score, proving the
         // output is ordered by year and not by score.
-        self::assertLessThan($result[1]['zScore'], $result[0]['zScore']);
+        self::assertLessThan($secondRow['zScore'], $firstRow['zScore']);
     }
 
     /**
@@ -213,8 +216,11 @@ final class MortalityAnomaliesTest extends TestCase
 
         $result = MortalityAnomalies::detect($series, 2.0, 10);
 
+        $firstRow  = $result[0] ?? self::fail('Expected an anomaly row at index 0');
+        $secondRow = $result[1] ?? self::fail('Expected an anomaly row at index 1');
+
         self::assertSame([5, 105], array_column($result, 'year'));
-        self::assertEqualsWithDelta($result[0]['zScore'], $result[1]['zScore'], 0.0001);
+        self::assertEqualsWithDelta($firstRow['zScore'], $secondRow['zScore'], 0.0001);
     }
 
     /**

@@ -17,6 +17,7 @@ use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
+use MagicSunday\Webtrees\Statistic\Test\Support\Narrowing\PayloadNarrowing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
@@ -139,26 +140,26 @@ final class DedupedEventDatesTest extends IntegrationTestCase
             $dayByGid[$gid]  = RowCast::int($row, 'd_day');
         }
 
-        self::assertSame(1900, $yearByGid['I1']);
-        self::assertSame(1, $monByGid['I1']);
-        self::assertSame(1, $dayByGid['I1'], 'Precise date keeps its day.');
+        PayloadNarrowing::assertValueAt(1900, $yearByGid, 'I1');
+        PayloadNarrowing::assertValueAt(1, $monByGid, 'I1');
+        PayloadNarrowing::assertValueAt(1, $dayByGid, 'I1');
 
-        self::assertSame(1850, $yearByGid['I2'], 'Lower bound of BET 1850 AND 1855.');
+        PayloadNarrowing::assertValueAt(1850, $yearByGid, 'I2');
 
         // Year-only 1870 stays a single row with no month (d_mon = 0).
-        self::assertSame(1870, $yearByGid['I3']);
-        self::assertSame(0, $monByGid['I3'], 'Year-only date carries no month.');
+        PayloadNarrowing::assertValueAt(1870, $yearByGid, 'I3');
+        PayloadNarrowing::assertValueAt(0, $monByGid, 'I3');
 
         // BET DEC 1880 AND JAN 1881: the lower bound is December 1880, so the
         // representative month must be 12 and the year 1880 — independent
         // column MINs would wrongly pick month 1 from the January row.
-        self::assertSame(1880, $yearByGid['I4']);
-        self::assertSame(12, $monByGid['I4'], 'Lower bound month spans backward across the year edge.');
-        self::assertSame(0, $dayByGid['I4'], 'A year/month range carries no day.');
+        PayloadNarrowing::assertValueAt(1880, $yearByGid, 'I4');
+        PayloadNarrowing::assertValueAt(12, $monByGid, 'I4');
+        PayloadNarrowing::assertValueAt(0, $dayByGid, 'I4');
 
         // Month-only MAR 1900 keeps its month.
-        self::assertSame(1900, $yearByGid['I5']);
-        self::assertSame(3, $monByGid['I5']);
+        PayloadNarrowing::assertValueAt(1900, $yearByGid, 'I5');
+        PayloadNarrowing::assertValueAt(3, $monByGid, 'I5');
     }
 
     /**
@@ -182,7 +183,7 @@ final class DedupedEventDatesTest extends IntegrationTestCase
             $deaths[RowCast::string($row, 'd_gid')] = RowCast::int($row, 'd_year');
         }
 
-        self::assertSame(1910, $births['I6'], 'Birth fact returns the birth year.');
+        PayloadNarrowing::assertValueAt(1910, $births, 'I6');
         self::assertSame(['I6' => 1980], $deaths, 'Death fact returns only the single dated death.');
     }
 
@@ -242,13 +243,9 @@ final class DedupedEventDatesTest extends IntegrationTestCase
             $this->birthGids($tree),
             'The shared-julian-day tie stays one row per individual.',
         );
-        self::assertSame(1900, $yearByGid['I1'], 'No off-fact or year-less tie row corrupts the survivor, and the kept Hebrew tie keeps the lower Gregorian-scale year.');
-        self::assertSame(1, $monByGid['I1'], 'The numeric month minimum wins the Gregorian tie.');
-        self::assertSame(
-            '@#DGREGORIAN@',
-            $typeByGid['I1'],
-            'The Gregorian calendar wins the cross-calendar type minimum (G < H), so a consumer converts I1 by the native Gregorian year, not the Hebrew julian day.',
-        );
+        PayloadNarrowing::assertValueAt(1900, $yearByGid, 'I1');
+        PayloadNarrowing::assertValueAt(1, $monByGid, 'I1');
+        PayloadNarrowing::assertValueAt('@#DGREGORIAN@', $typeByGid, 'I1');
     }
 
     /**

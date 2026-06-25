@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Support\Aggregator;
 
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\HistogramBucketAggregator;
+use MagicSunday\Webtrees\Statistic\Test\Support\Narrowing\PayloadNarrowing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -175,6 +176,6 @@ final class HistogramBucketAggregatorTest extends TestCase
         $result = HistogramBucketAggregator::compressByFives($series, 24);
 
         self::assertArrayHasKey('25', $result);
-        self::assertSame(1, $result['25']);
+        PayloadNarrowing::assertValueAt(1, $result, '25');
     }
 }

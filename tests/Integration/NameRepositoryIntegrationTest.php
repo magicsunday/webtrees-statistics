@@ -23,6 +23,7 @@ use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GivenNameNormalizer;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
+use MagicSunday\Webtrees\Statistic\Test\Support\Narrowing\PayloadNarrowing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
@@ -219,18 +220,21 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame('Father → son', $fatherSon->name);
 
         // 18th century: 3 pairs, sub-threshold → suppressed to 0.
-        self::assertSame(0, $fatherSon->values[0], '1700s falls below MIN_COHORT_SIZE and reads zero');
+        PayloadNarrowing::assertValueAt(0, $fatherSon->values, 0);
 
         // 19th century: 10 pairs, 3 matches → 30 %.
-        self::assertEqualsWithDelta(30.0, $fatherSon->values[1], 0.05, '1800s sits at 30 % match rate');
+        $rate1800s = $fatherSon->values[1] ?? self::fail('Expected a value at offset 1');
+        self::assertEqualsWithDelta(30.0, $rate1800s, 0.05, '1800s sits at 30 % match rate');
 
         // 20th century: 10 pairs, 5 matches → 50 %.
-        self::assertEqualsWithDelta(50.0, $fatherSon->values[2], 0.05, '1900s sits at 50 % match rate');
+        $rate1900s = $fatherSon->values[2] ?? self::fail('Expected a value at offset 2');
+        self::assertEqualsWithDelta(50.0, $rate1900s, 0.05, '1900s sits at 50 % match rate');
 
         // Sub-threshold tooltip carries the "no data" caption so the
         // hover explains why the line dips to zero without leaving a
         // misleading 0 % suggestion.
-        self::assertStringContainsString('no data', $fatherSon->tooltips[0]);
+        $tooltip1700s = $fatherSon->tooltips[0] ?? self::fail('Expected a tooltip at offset 0');
+        self::assertStringContainsString('no data', $tooltip1700s);
 
         // The fixture has no daughters at all so the mother → daughter
         // series is suppressed across every century.
@@ -261,11 +265,12 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
 
         self::assertSame(['19th cent.'], $result->categories);
 
-        $fatherSon = $result->series[0];
+        $fatherSon = PayloadNarrowing::firstSeries($result);
         self::assertSame('Father → son', $fatherSon->name);
+        $rate = $fatherSon->values[0] ?? self::fail('Expected a value at offset 0');
         self::assertEqualsWithDelta(
             100.0,
-            $fatherSon->values[0],
+            $rate,
             0.05,
             "Ten matching pairs read 100 %; the first father's second NAME line must not add an 11th, non-matching cohort entry",
         );
@@ -287,8 +292,15 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
         $result = $this->repository($tree)->sameSexNamePassdownByCentury();
 
         self::assertSame([CenturyName::compactLabel(-1)], $result->categories);
-        self::assertEqualsWithDelta(100.0, $result->series[0]->values[0], 0.05, 'Father → son: 10/10 match');
-        self::assertEqualsWithDelta(100.0, $result->series[1]->values[0], 0.05, 'Mother → daughter: 10/10 match');
+
+        $fatherSon      = PayloadNarrowing::firstSeries($result);
+        $motherDaughter = PayloadNarrowing::seriesAt($result, 1);
+
+        $fatherSonRate      = $fatherSon->values[0] ?? self::fail('Expected a value at offset 0');
+        $motherDaughterRate = $motherDaughter->values[0] ?? self::fail('Expected a value at offset 0');
+
+        self::assertEqualsWithDelta(100.0, $fatherSonRate, 0.05, 'Father → son: 10/10 match');
+        self::assertEqualsWithDelta(100.0, $motherDaughterRate, 0.05, 'Mother → daughter: 10/10 match');
     }
 
     /**
@@ -345,12 +357,14 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
 
         $fatherSon = $result->series[0];
         self::assertSame('Father → son', $fatherSon->name);
-        self::assertEqualsWithDelta(70.0, $fatherSon->values[0], 0.05);
+        $fatherSonRate = $fatherSon->values[0] ?? self::fail('Expected a value at offset 0');
+        self::assertEqualsWithDelta(70.0, $fatherSonRate, 0.05);
 
         // Mother → daughter has zero pairs in this fixture.
         $motherDaughter = $result->series[1];
-        self::assertSame(0, $motherDaughter->values[0]);
-        self::assertStringContainsString('no data', $motherDaughter->tooltips[0]);
+        PayloadNarrowing::assertValueAt(0, $motherDaughter->values, 0);
+        $motherDaughterTooltip = $motherDaughter->tooltips[0] ?? self::fail('Expected a tooltip at offset 0');
+        self::assertStringContainsString('no data', $motherDaughterTooltip);
     }
 
     /**
@@ -378,11 +392,12 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
 
         self::assertSame(['19th cent.'], $result->categories, 'Undated child never spawns a phantom century slot');
 
-        $fatherSon = $result->series[0];
+        $fatherSon = PayloadNarrowing::firstSeries($result);
         self::assertSame('Father → son', $fatherSon->name);
+        $rate = $fatherSon->values[0] ?? self::fail('Expected a value at offset 0');
         self::assertEqualsWithDelta(
             100.0,
-            $fatherSon->values[0],
+            $rate,
             0.05,
             'Ten dated 19th-century sons all match; the non-matching undated son is excluded from the cohort'
         );
@@ -420,11 +435,12 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
 
         self::assertSame(['19th cent.'], $result->categories, 'Empty-given-name pairs never spawn a phantom century slot');
 
-        $fatherSon = $result->series[0];
+        $fatherSon = PayloadNarrowing::firstSeries($result);
         self::assertSame('Father → son', $fatherSon->name);
+        $rate = $fatherSon->values[0] ?? self::fail('Expected a value at offset 0');
         self::assertEqualsWithDelta(
             100.0,
-            $fatherSon->values[0],
+            $rate,
             0.05,
             'Ten matching dated pairs form the cohort; the unknown-given-name (@P.N.) father, son and both-empty pairs are all dropped'
         );
@@ -565,9 +581,9 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
 
         // The label's count is the sum across the folded variants.
         $byLabel = array_column($entries, 'value', 'label');
-        self::assertSame(3, $byLabel['José']);
-        self::assertSame(3, $byLabel['Sofia']);
-        self::assertSame(1, $byLabel['Wilhelm']);
+        PayloadNarrowing::assertValueAt(3, $byLabel, 'José');
+        PayloadNarrowing::assertValueAt(3, $byLabel, 'Sofia');
+        PayloadNarrowing::assertValueAt(1, $byLabel, 'Wilhelm');
     }
 
     /**
@@ -643,8 +659,8 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
             'label',
         );
 
-        self::assertSame(2, $byLabel['José']);
-        self::assertSame(1, $byLabel['Wilhelm']);
+        PayloadNarrowing::assertValueAt(2, $byLabel, 'José');
+        PayloadNarrowing::assertValueAt(1, $byLabel, 'Wilhelm');
         self::assertArrayNotHasKey('Jose', $byLabel);
     }
 
@@ -662,8 +678,9 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
 
         self::assertSame(['19th cent.'], $result->categories);
 
-        $fatherSon = $result->series[0];
+        $fatherSon = PayloadNarrowing::firstSeries($result);
         self::assertSame('Father → son', $fatherSon->name);
-        self::assertEqualsWithDelta(100.0, $fatherSon->values[0], 0.05);
+        $rate = $fatherSon->values[0] ?? self::fail('Expected a value at offset 0');
+        self::assertEqualsWithDelta(100.0, $rate, 0.05);
     }
 }

@@ -16,11 +16,13 @@ use MagicSunday\Webtrees\Statistic\Repository\GivenNameTrendsRepository;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GivenNameNormalizer;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
+use MagicSunday\Webtrees\Statistic\Test\Support\Narrowing\PayloadNarrowing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
 
 use function array_column;
+use function sprintf;
 
 /**
  * End-to-end test of the per-decade given-name aggregator against a curated
@@ -73,7 +75,7 @@ final class GivenNameTrendsRepositoryIntegrationTest extends IntegrationTestCase
             $result->names,
         );
 
-        self::assertSame(
+        PayloadNarrowing::assertValueAt(
             [
                 1850 => 2,
                 1860 => 0,
@@ -88,8 +90,8 @@ final class GivenNameTrendsRepositoryIntegrationTest extends IntegrationTestCase
                 1950 => 0,
                 1960 => 0,
             ],
-            $result->series['Anna'],
-            'Anna peaks twice — in the 1850s and again in the 1900s',
+            $result->series,
+            'Anna',
         );
 
         self::assertSame(3, $result->series['Hans'][1950] ?? null);
@@ -113,8 +115,8 @@ final class GivenNameTrendsRepositoryIntegrationTest extends IntegrationTestCase
 
         self::assertSame([-50, -40], $result->decades);
         self::assertSame(['Gaius', 'Marcus'], $result->names);
-        self::assertSame([-50 => 5, -40 => 0], $result->series['Gaius']);
-        self::assertSame([-50 => 0, -40 => 3], $result->series['Marcus']);
+        PayloadNarrowing::assertValueAt([-50 => 5, -40 => 0], $result->series, 'Gaius');
+        PayloadNarrowing::assertValueAt([-50 => 0, -40 => 3], $result->series, 'Marcus');
     }
 
     /**
@@ -135,8 +137,11 @@ final class GivenNameTrendsRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame(range(1800, 1900, 10), $result->decades);
         self::assertSame(['Napoleon', 'Moses'], $result->names);
 
-        self::assertSame(3, $result->series['Napoleon'][1800], 'French Republican An XII → the 1800s decade.');
-        self::assertSame(2, $result->series['Moses'][1900], 'Hebrew 5661 → the 1900s decade.');
+        $napoleon = $result->series['Napoleon'] ?? self::fail(sprintf('no series %s', 'Napoleon'));
+        PayloadNarrowing::assertValueAt(3, $napoleon, 1800);
+
+        $moses = $result->series['Moses'] ?? self::fail(sprintf('no series %s', 'Moses'));
+        PayloadNarrowing::assertValueAt(2, $moses, 1900);
 
         // The native-year buckets the old raw-GEDCOM scan produced must not exist.
         self::assertArrayNotHasKey(10, $result->series['Napoleon'], 'An XII is not bucketed as Gregorian year 12.');
@@ -164,10 +169,13 @@ final class GivenNameTrendsRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame(1850, $result->decades[0]);
         self::assertSame(1960, $result->decades[11]);
 
-        self::assertSame(2, $result->series['Anna'][1850]);
-        self::assertSame(1, $result->series['Anna'][1900]);
-        self::assertSame(0, $result->series['Anna'][1950]);
-        self::assertSame(3, $result->series['Hans'][1950]);
+        $anna = $result->series['Anna'] ?? self::fail(sprintf('no series %s', 'Anna'));
+        PayloadNarrowing::assertValueAt(2, $anna, 1850);
+        PayloadNarrowing::assertValueAt(1, $anna, 1900);
+        PayloadNarrowing::assertValueAt(0, $anna, 1950);
+
+        $hans = $result->series['Hans'] ?? self::fail(sprintf('no series %s', 'Hans'));
+        PayloadNarrowing::assertValueAt(3, $hans, 1950);
     }
 
     /**
@@ -190,9 +198,10 @@ final class GivenNameTrendsRepositoryIntegrationTest extends IntegrationTestCase
 
         // The folded band spans the variant's decade: José in the 1850s/1860s
         // plus the folded-in Jose in the 1870s, each a single birth.
-        self::assertSame(1, $result->series['José'][1850]);
-        self::assertSame(1, $result->series['José'][1860]);
-        self::assertSame(1, $result->series['José'][1870]);
+        $jose = $result->series['José'] ?? self::fail(sprintf('no series %s', 'José'));
+        PayloadNarrowing::assertValueAt(1, $jose, 1850);
+        PayloadNarrowing::assertValueAt(1, $jose, 1860);
+        PayloadNarrowing::assertValueAt(1, $jose, 1870);
     }
 
     /**

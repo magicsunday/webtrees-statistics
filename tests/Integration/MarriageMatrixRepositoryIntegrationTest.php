@@ -16,12 +16,14 @@ use MagicSunday\Webtrees\Statistic\Model\Chord\ChordMatrixPayload;
 use MagicSunday\Webtrees\Statistic\Repository\MarriageMatrixRepository;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\TopNAggregator;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
+use MagicSunday\Webtrees\Statistic\Test\Support\Narrowing\PayloadNarrowing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
 
 use function array_sum;
 use function count;
+use function sprintf;
 
 /**
  * End-to-end test of {@see MarriageMatrixRepository} against a curated fixture
@@ -98,10 +100,16 @@ final class MarriageMatrixRepositoryIntegrationTest extends IntegrationTestCase
         $n      = count($matrix);
 
         for ($i = 0; $i < $n; ++$i) {
+            $rowI = $matrix[$i] ?? self::fail(sprintf('Matrix row %d missing', $i));
+
             for ($j = $i + 1; $j < $n; ++$j) {
+                $rowJ  = $matrix[$j] ?? self::fail(sprintf('Matrix row %d missing', $j));
+                $upper = $rowI[$j] ?? self::fail(sprintf('Matrix cell [%d][%d] missing', $i, $j));
+                $lower = $rowJ[$i] ?? self::fail(sprintf('Matrix cell [%d][%d] missing', $j, $i));
+
                 self::assertSame(
-                    $matrix[$i][$j],
-                    $matrix[$j][$i],
+                    $upper,
+                    $lower,
                     sprintf('Matrix asymmetric at [%d][%d] vs [%d][%d]', $i, $j, $j, $i),
                 );
             }
@@ -122,18 +130,23 @@ final class MarriageMatrixRepositoryIntegrationTest extends IntegrationTestCase
         // Labels resolve to indices Klein=0, Miller=1, Smith=2, Weaver=3.
         $matrix = $result->matrix;
 
+        $row0 = $matrix[0] ?? self::fail('Matrix row 0 (Klein) missing');
+        $row1 = $matrix[1] ?? self::fail('Matrix row 1 (Miller) missing');
+        $row2 = $matrix[2] ?? self::fail('Matrix row 2 (Smith) missing');
+        $row3 = $matrix[3] ?? self::fail('Matrix row 3 (Weaver) missing');
+
         // Diagonal: zero across the board (no endogamous marriages).
-        self::assertSame(0, $matrix[0][0], 'Klein-Klein: no endogamy');
-        self::assertSame(0, $matrix[1][1], 'Miller-Miller: no endogamy');
-        self::assertSame(0, $matrix[2][2], 'Smith-Smith: no endogamy');
-        self::assertSame(0, $matrix[3][3], 'Weaver-Weaver: no endogamy');
+        PayloadNarrowing::assertValueAt(0, $row0, 0);
+        PayloadNarrowing::assertValueAt(0, $row1, 1);
+        PayloadNarrowing::assertValueAt(0, $row2, 2);
+        PayloadNarrowing::assertValueAt(0, $row3, 3);
 
         // Off-diagonal counts (already symmetric):
-        self::assertSame(2, $matrix[1][2], 'Miller × Smith = F2 + F4 = 2');
-        self::assertSame(1, $matrix[1][3], 'Miller × Weaver = F3 = 1');
-        self::assertSame(1, $matrix[0][3], 'Klein × Weaver = F1 = 1');
-        self::assertSame(1, $matrix[0][2], 'Klein × Smith = F5 = 1');
-        self::assertSame(0, $matrix[1][0], 'Klein × Miller: no fixture marriage');
+        PayloadNarrowing::assertValueAt(2, $row1, 2);
+        PayloadNarrowing::assertValueAt(1, $row1, 3);
+        PayloadNarrowing::assertValueAt(1, $row0, 3);
+        PayloadNarrowing::assertValueAt(1, $row0, 2);
+        PayloadNarrowing::assertValueAt(0, $row1, 0);
 
         // Total mass of the matrix is 2 × (number of marriages) because
         // every off-diagonal marriage gets mirrored. Five marriages

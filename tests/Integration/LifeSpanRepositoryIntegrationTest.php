@@ -29,6 +29,7 @@ use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
 use MagicSunday\Webtrees\Statistic\Support\Locale\IsoCountryMap;
 use MagicSunday\Webtrees\Statistic\Support\Locale\MonthName;
+use MagicSunday\Webtrees\Statistic\Test\Support\Narrowing\PayloadNarrowing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
@@ -104,9 +105,9 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
         self::assertArrayHasKey('100+', $result);
 
         self::assertSame(1, $result['0–9'], 'Doris (3y) sits in 0-9');
-        self::assertSame(1, $result['50–59'], 'Emil (53y) sits in 50-59');
-        self::assertSame(1, $result['70–79'], 'Anna (75y) sits in 70-79');
-        self::assertSame(1, $result['90–99'], 'Berta (95y) sits in 90-99');
+        PayloadNarrowing::assertValueAt(1, $result, '50–59');
+        PayloadNarrowing::assertValueAt(1, $result, '70–79');
+        PayloadNarrowing::assertValueAt(1, $result, '90–99');
         self::assertSame(1, $result['100+'], 'Carl (120y) hits the overflow');
 
         // Five deceased individuals contributed; living Franz did not.
@@ -130,8 +131,8 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('age-at-death-dedup.ged');
         $result = $this->repository($tree)->ageAtDeathDistribution();
 
-        self::assertSame(3, $result['70–79'], 'I1, I2 and the band-straddling I3 each count once');
-        self::assertSame(0, $result['60–69'], 'The straddler bins on its upper bound, never splitting into 60–69');
+        PayloadNarrowing::assertValueAt(3, $result, '70–79');
+        PayloadNarrowing::assertValueAt(0, $result, '60–69');
         self::assertSame(3, array_sum($result), 'Three deceased individuals, not five dates rows');
     }
 
@@ -145,7 +146,8 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('life-span.ged');
         $result = $this->repository($tree)->topOldestDeceased(10);
 
-        self::assertGreaterThanOrEqual(120, $result[0]->value);
+        $first = $result[0] ?? self::fail('Expected at least one ranked deceased individual');
+        self::assertGreaterThanOrEqual(120, $first->value);
 
         // The displayed age is calendar-aware and not monotonic in the raw day
         // span the core query orders by, so the shaper must re-rank: every
@@ -153,7 +155,9 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
         $counter = count($result);
 
         for ($i = 1; $i < $counter; ++$i) {
-            self::assertGreaterThanOrEqual($result[$i]->value, $result[$i - 1]->value);
+            $current  = $result[$i] ?? self::fail(sprintf('Expected a ranked entry at index %d', $i));
+            $previous = $result[$i - 1] ?? self::fail(sprintf('Expected a ranked entry at index %d', $i - 1));
+            self::assertGreaterThanOrEqual($current->value, $previous->value);
         }
     }
 
@@ -246,21 +250,21 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
 
         // First and last keys frame the visible range.
         $keys = array_keys($result);
-        self::assertSame(1700, $keys[0]);
-        self::assertSame(1950, $keys[count($keys) - 1]);
+        PayloadNarrowing::assertValueAt(1700, $keys, 0);
+        PayloadNarrowing::assertValueAt(1950, $keys, count($keys) - 1);
 
         // Every active decade carries exactly one birth.
-        self::assertSame(1, $result[1700]);
-        self::assertSame(1, $result[1850]);
-        self::assertSame(1, $result[1880]);
-        self::assertSame(1, $result[1900]);
-        self::assertSame(1, $result[1920]);
-        self::assertSame(1, $result[1950]);
+        PayloadNarrowing::assertValueAt(1, $result, 1700);
+        PayloadNarrowing::assertValueAt(1, $result, 1850);
+        PayloadNarrowing::assertValueAt(1, $result, 1880);
+        PayloadNarrowing::assertValueAt(1, $result, 1900);
+        PayloadNarrowing::assertValueAt(1, $result, 1920);
+        PayloadNarrowing::assertValueAt(1, $result, 1950);
 
         // Inner empty decade is rendered as a 0 bucket, not dropped.
-        self::assertSame(0, $result[1710]);
-        self::assertSame(0, $result[1870]);
-        self::assertSame(0, $result[1930]);
+        PayloadNarrowing::assertValueAt(0, $result, 1710);
+        PayloadNarrowing::assertValueAt(0, $result, 1870);
+        PayloadNarrowing::assertValueAt(0, $result, 1930);
 
         // Dense decade window between first and last active decade —
         // assert the exact key sequence instead of a count so that
@@ -289,19 +293,19 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame(range(1700, 1950, 10), array_keys($result));
 
         // Cumulative steps at each active decade.
-        self::assertSame(1, $result[1700]);
-        self::assertSame(2, $result[1850]);
-        self::assertSame(3, $result[1880]);
-        self::assertSame(4, $result[1900]);
-        self::assertSame(5, $result[1920]);
-        self::assertSame(6, $result[1950]);
+        PayloadNarrowing::assertValueAt(1, $result, 1700);
+        PayloadNarrowing::assertValueAt(2, $result, 1850);
+        PayloadNarrowing::assertValueAt(3, $result, 1880);
+        PayloadNarrowing::assertValueAt(4, $result, 1900);
+        PayloadNarrowing::assertValueAt(5, $result, 1920);
+        PayloadNarrowing::assertValueAt(6, $result, 1950);
 
         // Inner zero-decades hold the running total — no decrease,
         // no reset across the long 1710..1840 silent stretch.
-        self::assertSame(1, $result[1710]);
-        self::assertSame(1, $result[1840]);
-        self::assertSame(2, $result[1870]);
-        self::assertSame(5, $result[1930]);
+        PayloadNarrowing::assertValueAt(1, $result, 1710);
+        PayloadNarrowing::assertValueAt(1, $result, 1840);
+        PayloadNarrowing::assertValueAt(2, $result, 1870);
+        PayloadNarrowing::assertValueAt(5, $result, 1930);
 
         // Strictly non-decreasing across the whole window.
         $previous = 0;
@@ -498,22 +502,31 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
         self::assertNotContains('18th cent.', $seriesNames, '5-INDI 18th cohort is far below the floor and must be dropped');
 
         // 19th century cohort: 5 die at 5y, 5 at 25y, 10 at 65y, 10 at 80y.
-        $nineteenth = $result->series[0];
-        self::assertSame(100.0, $nineteenth->values[0], 'all 30 individuals are alive at age 0');
-        self::assertEqualsWithDelta(83.3, $nineteenth->values[1], 0.1, 'age 10: 25 of 30 reached');
-        self::assertEqualsWithDelta(66.7, $nineteenth->values[3], 0.1, 'age 30: 20 of 30 reached');
-        self::assertEqualsWithDelta(33.3, $nineteenth->values[7], 0.1, 'age 70: 10 of 30 reached');
-        self::assertEqualsWithDelta(33.3, $nineteenth->values[8], 0.1, 'age 80: 10 of 30 reached');
-        self::assertSame(0.0, $nineteenth->values[9], 'age 90: nobody from this cohort');
+        $nineteenth       = PayloadNarrowing::seriesAt($result, 0);
+        $nineteenthValues = $nineteenth->values;
+        PayloadNarrowing::assertValueAt(100.0, $nineteenthValues, 0);
+        $nineteenthAge10 = $nineteenthValues[1] ?? self::fail('Expected the 19th-century value at age 10');
+        self::assertEqualsWithDelta(83.3, $nineteenthAge10, 0.1, 'age 10: 25 of 30 reached');
+        $nineteenthAge30 = $nineteenthValues[3] ?? self::fail('Expected the 19th-century value at age 30');
+        self::assertEqualsWithDelta(66.7, $nineteenthAge30, 0.1, 'age 30: 20 of 30 reached');
+        $nineteenthAge70 = $nineteenthValues[7] ?? self::fail('Expected the 19th-century value at age 70');
+        self::assertEqualsWithDelta(33.3, $nineteenthAge70, 0.1, 'age 70: 10 of 30 reached');
+        $nineteenthAge80 = $nineteenthValues[8] ?? self::fail('Expected the 19th-century value at age 80');
+        self::assertEqualsWithDelta(33.3, $nineteenthAge80, 0.1, 'age 80: 10 of 30 reached');
+        PayloadNarrowing::assertValueAt(0.0, $nineteenthValues, 9);
 
         // 20th century cohort: 5 die at 50y, 15 at 80y, 10 at 95y.
-        $twentieth = $result->series[1];
-        self::assertSame(100.0, $twentieth->values[0]);
-        self::assertSame(100.0, $twentieth->values[5], 'age 50: those dying at 50 still count');
-        self::assertEqualsWithDelta(83.3, $twentieth->values[6], 0.1, 'age 60: 25 of 30 reached');
-        self::assertEqualsWithDelta(83.3, $twentieth->values[8], 0.1, 'age 80: 25 of 30 reached');
-        self::assertEqualsWithDelta(33.3, $twentieth->values[9], 0.1, 'age 90: 10 of 30 reached');
-        self::assertSame(0.0, $twentieth->values[10], 'age 100: nobody reached the centenarian anchor');
+        $twentieth       = PayloadNarrowing::seriesAt($result, 1);
+        $twentiethValues = $twentieth->values;
+        PayloadNarrowing::assertValueAt(100.0, $twentiethValues, 0);
+        PayloadNarrowing::assertValueAt(100.0, $twentiethValues, 5);
+        $twentiethAge60 = $twentiethValues[6] ?? self::fail('Expected the 20th-century value at age 60');
+        self::assertEqualsWithDelta(83.3, $twentiethAge60, 0.1, 'age 60: 25 of 30 reached');
+        $twentiethAge80 = $twentiethValues[8] ?? self::fail('Expected the 20th-century value at age 80');
+        self::assertEqualsWithDelta(83.3, $twentiethAge80, 0.1, 'age 80: 25 of 30 reached');
+        $twentiethAge90 = $twentiethValues[9] ?? self::fail('Expected the 20th-century value at age 90');
+        self::assertEqualsWithDelta(33.3, $twentiethAge90, 0.1, 'age 90: 10 of 30 reached');
+        PayloadNarrowing::assertValueAt(0.0, $twentiethValues, 10);
     }
 
     /**
@@ -592,14 +605,18 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
         self::assertCount(1, $result->categories, 'only the 19th-century cohort qualifies');
         self::assertSame('19th cent.', $result->categories[0]);
 
+        $maleTooltip = PayloadNarrowing::seriesAt($result, 0)->tooltips[0]
+            ?? self::fail('Expected a male-cohort tooltip');
         self::assertStringContainsString(
             'n = 16',
-            $result->series[0]->tooltips[0],
+            $maleTooltip,
             '15 male controls + 1 BET..AND male = 16 unique men',
         );
+        $femaleTooltip = PayloadNarrowing::seriesAt($result, 1)->tooltips[0]
+            ?? self::fail('Expected a female-cohort tooltip');
         self::assertStringContainsString(
             'n = 16',
-            $result->series[1]->tooltips[0],
+            $femaleTooltip,
             '15 female controls + 1 FROM..TO female = 16 unique women',
         );
     }
@@ -624,9 +641,11 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
         self::assertCount(1, $result->series, 'only the 19th-century cohort clears MIN_COHORT_SIZE_SURVIVAL = 30');
         self::assertSame('19th cent.', $result->series[0]->name);
 
+        $cohortTooltip = $result->series[0]->tooltips[0]
+            ?? self::fail('Expected a cohort tooltip');
         self::assertStringContainsString(
             'of 32 individuals',
-            $result->series[0]->tooltips[0],
+            $cohortTooltip,
             '30 controls + 1 BET..AND + 1 FROM..TO = 32 unique individuals; without dedup the cohort climbs to 34',
         );
     }
@@ -656,17 +675,20 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame('0–9', $result->bands[10]);
 
         // 17th century: one male + one female centenarian.
-        self::assertSame(['left' => 1, 'right' => 1], $result->data[0][0], '17th c. 100+ band');
-        self::assertSame(2, $this->columnTotal($result->data[0]), '17th c. carries exactly two deaths');
+        $seventeenth = $result->data[0] ?? self::fail('Expected a 17th-century column');
+        PayloadNarrowing::assertValueAt(['left' => 1, 'right' => 1], $seventeenth, 0);
+        self::assertSame(2, $this->columnTotal($seventeenth), '17th c. carries exactly two deaths');
 
         // 19th century: 70–79 pair, 50–59 male, 0–9 female.
-        self::assertSame(['left' => 1, 'right' => 1], $result->data[1][3], '19th c. 70–79 band');
-        self::assertSame(['left' => 1, 'right' => 0], $result->data[1][5], '19th c. 50–59 band (male only)');
-        self::assertSame(['left' => 0, 'right' => 1], $result->data[1][10], '19th c. 0–9 band (female only)');
+        $nineteenth = $result->data[1] ?? self::fail('Expected a 19th-century column');
+        PayloadNarrowing::assertValueAt(['left' => 1, 'right' => 1], $nineteenth, 3);
+        PayloadNarrowing::assertValueAt(['left' => 1, 'right' => 0], $nineteenth, 5);
+        PayloadNarrowing::assertValueAt(['left' => 0, 'right' => 1], $nineteenth, 10);
 
         // 20th century: 0–9 male, 90–99 female.
-        self::assertSame(['left' => 1, 'right' => 0], $result->data[2][10], '20th c. 0–9 band (male only)');
-        self::assertSame(['left' => 0, 'right' => 1], $result->data[2][1], '20th c. 90–99 band (female only)');
+        $twentieth = $result->data[2] ?? self::fail('Expected a 20th-century column');
+        PayloadNarrowing::assertValueAt(['left' => 1, 'right' => 0], $twentieth, 10);
+        PayloadNarrowing::assertValueAt(['left' => 0, 'right' => 1], $twentieth, 1);
     }
 
     /**
@@ -720,16 +742,16 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
 
         self::assertSame(['20th cent.'], $result->groups);
 
-        $column = $result->data[0];
+        $column = $result->data[0] ?? self::fail('Expected a 20th-century column');
         // bands are oldest-first: [100+, 90–99, 80–89, 70–79, …, 10–19, 0–9].
-        self::assertSame(['left' => 1, 'right' => 0], $column[0], '100.5y → 100+ overflow');
-        self::assertSame(['left' => 1, 'right' => 0], $column[1], '99.5y → 90–99');
-        self::assertSame(['left' => 1, 'right' => 0], $column[9], '10.5y → 10–19');
-        self::assertSame(['left' => 2, 'right' => 0], $column[10], '0.5y and 9.5y → 0–9');
+        PayloadNarrowing::assertValueAt(['left' => 1, 'right' => 0], $column, 0);
+        PayloadNarrowing::assertValueAt(['left' => 1, 'right' => 0], $column, 1);
+        PayloadNarrowing::assertValueAt(['left' => 1, 'right' => 0], $column, 9);
+        PayloadNarrowing::assertValueAt(['left' => 2, 'right' => 0], $column, 10);
 
         // Bands 80–89 … 20–29 stay empty.
         foreach ([2, 3, 4, 5, 6, 7, 8] as $emptyBand) {
-            self::assertSame(['left' => 0, 'right' => 0], $column[$emptyBand]);
+            PayloadNarrowing::assertValueAt(['left' => 0, 'right' => 0], $column, $emptyBand);
         }
     }
 
@@ -759,11 +781,13 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame('December', $result->colTitles[11]);
 
         // 1900 period: January (index 0) carries two births, July (index 6) one.
-        self::assertSame(2, $result->values[0][0], '1900 period January holds I1 + I2');
-        self::assertSame(1, $result->values[0][6], '1900 period July holds I3');
+        $period1900 = $result->values[0] ?? self::fail('Expected the 1900 period row');
+        PayloadNarrowing::assertValueAt(2, $period1900, 0);
+        PayloadNarrowing::assertValueAt(1, $period1900, 6);
 
         // 1925 period: December (index 11) carries two births.
-        self::assertSame(2, $result->values[1][11], '1925 period December holds I4 + I5');
+        $period1925 = $result->values[1] ?? self::fail('Expected the 1925 period row');
+        PayloadNarrowing::assertValueAt(2, $period1925, 11);
 
         // Five dated births land in the matrix; the year-only birth is excluded.
         self::assertSame(5, $this->matrixTotal($result->values));
@@ -781,8 +805,8 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('event-heatmap-future.ged');
         $result = $this->repository($tree)->eventHeatmapByPeriodMonth('BIRT');
 
-        self::assertSame('1925', $result->rows[1]);
-        self::assertSame(array_fill(0, 12, 0), $result->values[1], '1925 period is an all-zero band');
+        PayloadNarrowing::assertValueAt('1925', $result->rows, 1);
+        PayloadNarrowing::assertValueAt(array_fill(0, 12, 0), $result->values, 1);
     }
 
     /**
@@ -799,8 +823,9 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
 
         // The year-only 1922 birth falls in the 1900 period; excluded, that row
         // carries only the three dated births (two January, one July).
-        $births = $repository->eventHeatmapByPeriodMonth('BIRT');
-        self::assertSame(3, array_sum($births->values[0]), '1900 period holds only the three dated births');
+        $births      = $repository->eventHeatmapByPeriodMonth('BIRT');
+        $birthsFirst = $births->values[0] ?? self::fail('Expected the 1900 period birth row');
+        self::assertSame(3, array_sum($birthsFirst), '1900 period holds only the three dated births');
 
         // The year-only 1975 death would have seeded the 1975 period; instead the
         // deaths matrix totals four dated events.
@@ -825,9 +850,11 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
         $result = $this->repository($tree)->eventHeatmapByPeriodMonth('BIRT');
 
         self::assertSame(['100 BCE', '75 BCE'], $result->rows);
-        self::assertSame(2, $result->values[0][0], '100-BCE period January holds I1 + I2');
-        self::assertSame(1, $result->values[1][6], '75-BCE period July holds I3');
-        self::assertSame(1, $result->values[1][11], '75-BCE period December holds I4');
+        $bce100 = $result->values[0] ?? self::fail('Expected the 100-BCE period row');
+        PayloadNarrowing::assertValueAt(2, $bce100, 0);
+        $bce75 = $result->values[1] ?? self::fail('Expected the 75-BCE period row');
+        PayloadNarrowing::assertValueAt(1, $bce75, 6);
+        PayloadNarrowing::assertValueAt(1, $bce75, 11);
         self::assertSame(4, $this->matrixTotal($result->values));
     }
 
@@ -868,8 +895,10 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
         $result = $this->repository($tree)->eventHeatmapByPeriodMonth('BIRT');
 
         self::assertSame(['25 BCE', '0'], $result->rows);
-        self::assertSame(1, $result->values[0][2], '25-BCE band holds the March 10 B.C. birth');
-        self::assertSame(1, $result->values[1][5], 'the CE "0" band holds the June 10 C.E. birth');
+        $bce25 = $result->values[0] ?? self::fail('Expected the 25-BCE period row');
+        PayloadNarrowing::assertValueAt(1, $bce25, 2);
+        $ceZero = $result->values[1] ?? self::fail('Expected the CE "0" period row');
+        PayloadNarrowing::assertValueAt(1, $ceZero, 5);
         self::assertSame(2, $this->matrixTotal($result->values));
     }
 
@@ -889,8 +918,8 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
         $result = $this->repository($tree)->eventHeatmapByPeriodMonth('BIRT');
 
         // The matrix stays bounded: the 1900 through 1950 periods, not the 9000s.
-        self::assertSame('1900', $result->rows[0]);
-        self::assertSame('1950', $result->rows[count($result->rows) - 1]);
+        PayloadNarrowing::assertValueAt('1900', $result->rows, 0);
+        PayloadNarrowing::assertValueAt('1950', $result->rows, count($result->rows) - 1);
         self::assertSame(range(1900, 1950, 25), array_map(
             static fn (string $label): int => (int) $label,
             $result->rows,
@@ -917,9 +946,11 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
         $result = $this->repository($tree)->eventHeatmapByPeriodMonth('BIRT');
 
         self::assertSame(['1875', '1900'], $result->rows);
-        self::assertSame(1, $result->values[0][11], 'I1 lands once in the 1875 period December');
-        self::assertSame(1, $result->values[1][2], 'I2 anchors the 1900 period March');
-        self::assertSame(0, $result->values[1][0], 'No January leak from I1 upper bound into the 1900 period');
+        $period1875 = $result->values[0] ?? self::fail('Expected the 1875 period row');
+        PayloadNarrowing::assertValueAt(1, $period1875, 11);
+        $period1900 = $result->values[1] ?? self::fail('Expected the 1900 period row');
+        PayloadNarrowing::assertValueAt(1, $period1900, 2);
+        PayloadNarrowing::assertValueAt(0, $period1900, 0);
         self::assertSame(2, $this->matrixTotal($result->values), 'Two individuals, not three dates rows');
     }
 
@@ -936,9 +967,11 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
 
         self::assertSame(['1950', '1975'], $result->rows);
 
-        self::assertSame(2, $result->values[0][2], '1950 period March holds I1 + I2');
-        self::assertSame(1, $result->values[1][11], '1975 period December holds I3');
-        self::assertSame(1, $result->values[1][0], '1975 period January holds I4');
+        $period1950 = $result->values[0] ?? self::fail('Expected the 1950 period row');
+        PayloadNarrowing::assertValueAt(2, $period1950, 2);
+        $period1975 = $result->values[1] ?? self::fail('Expected the 1975 period row');
+        PayloadNarrowing::assertValueAt(1, $period1975, 11);
+        PayloadNarrowing::assertValueAt(1, $period1975, 0);
 
         self::assertSame(4, $this->matrixTotal($result->values));
     }
@@ -987,23 +1020,29 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
         // Sex/century means: one BCE category, both sexes above the floor.
         $means = $repository->averageLifespanBySexAndCentury();
         self::assertSame([$bceLabel], $means->categories);
-        self::assertStringContainsString('n = 18', $means->series[0]->tooltips[0]);
-        self::assertStringContainsString('n = 18', $means->series[1]->tooltips[0]);
+        $maleTooltip = PayloadNarrowing::seriesAt($means, 0)->tooltips[0]
+            ?? self::fail('Expected a male-cohort tooltip');
+        self::assertStringContainsString('n = 18', $maleTooltip);
+        $femaleTooltip = PayloadNarrowing::seriesAt($means, 1)->tooltips[0]
+            ?? self::fail('Expected a female-cohort tooltip');
+        self::assertStringContainsString('n = 18', $femaleTooltip);
 
         // Survival curve: the BCE cohort (n=36) clears the 30-sample floor.
         $survival = $repository->survivalFunctionByCentury();
         self::assertCount(1, $survival->series);
         self::assertSame($bceLabel, $survival->series[0]->name);
-        self::assertSame(100.0, $survival->series[0]->values[0], 'Everyone is alive at the age-0 anchor');
+        $survivalValues = $survival->series[0]->values;
+        PayloadNarrowing::assertValueAt(100.0, $survivalValues, 0);
         // Discriminator: the cohort's lifespans (30–74 years) mean nobody
         // reached the age-100 threshold, so the curve's last point is a real
         // 0.0 computed from BCE ages — not just the trivial age-0 anchor.
-        self::assertSame(0.0, $survival->series[0]->values[10], 'No BCE individual reached age 100');
+        PayloadNarrowing::assertValueAt(0.0, $survivalValues, 10);
 
         // Population pyramid: a single BCE column holding all 36 deaths.
         $pyramid = $repository->deathsByCenturyAgeBandSex();
         self::assertSame([$bceLabel], $pyramid->groups);
-        self::assertSame(36, $this->columnTotal($pyramid->data[0]));
+        $bceColumn = $pyramid->data[0] ?? self::fail('Expected the BCE pyramid column');
+        self::assertSame(36, $this->columnTotal($bceColumn));
 
         // Shared-decoder side effect: the tree-wide age-at-death histogram has
         // no century axis, but it routes through the same cohort decoder, so
@@ -1032,8 +1071,10 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
             static fn (array $entry): int => $entry['century'],
             $distribution,
         ));
-        self::assertSame(6, $distribution[0]['n']);
-        self::assertSame(6, $distribution[1]['n']);
+        $bceEntry = $distribution[0] ?? self::fail('Expected the BCE century cohort');
+        self::assertSame(6, $bceEntry['n']);
+        $ceEntry = $distribution[1] ?? self::fail('Expected the CE century cohort');
+        self::assertSame(6, $ceEntry['n']);
 
         self::assertSame(
             [CenturyName::compactLabel(-1), CenturyName::compactLabel(1)],
@@ -1061,7 +1102,7 @@ final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
 
         $cumulative = $repository->cumulativeBirthsByDecade();
         self::assertSame(array_keys($byDecade), array_keys($cumulative), 'Cumulative shares the per-decade keys');
-        self::assertSame(36, $cumulative[-60], 'Running total reaches the full population at the latest decade');
+        PayloadNarrowing::assertValueAt(36, $cumulative, -60);
     }
 
     /**

@@ -15,6 +15,7 @@ use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyFlowsPayload;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyLink;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeySample;
 use MagicSunday\Webtrees\Statistic\Support\Sankey\BipartiteSankeyAssembler;
+use MagicSunday\Webtrees\Statistic\Test\Support\Narrowing\PayloadNarrowing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
@@ -77,9 +78,10 @@ final class BipartiteSankeyAssemblerTest extends TestCase
 
         // Heaviest flow leads: Germany (0) → USA (target idx 0, shifted by
         // sourceColumnSize=2 → absolute 2).
-        self::assertSame(0, $payload->links[0]->source);
-        self::assertSame(2, $payload->links[0]->target);
-        self::assertSame(4, $payload->links[0]->value);
+        $heaviest = PayloadNarrowing::sankeyLinkAt($payload->links, 0);
+        self::assertSame(0, $heaviest->source);
+        self::assertSame(2, $heaviest->target);
+        self::assertSame(4, $heaviest->value);
 
         // Every link respects the bipartite invariant: source in [0, 2),
         // target in [2, 5), never equal.
@@ -162,8 +164,9 @@ final class BipartiteSankeyAssemblerTest extends TestCase
 
         // Both columns surface the first-seen casing from the display map.
         self::assertSame(['Farmer', 'Farmer'], $payload->nodes);
-        self::assertSame(3, $payload->links[0]->value);
-        self::assertCount(1, $payload->links[0]->samples);
+        $flow = PayloadNarrowing::sankeyLinkAt($payload->links, 0);
+        self::assertSame(3, $flow->value);
+        self::assertCount(1, $flow->samples);
     }
 
     /**

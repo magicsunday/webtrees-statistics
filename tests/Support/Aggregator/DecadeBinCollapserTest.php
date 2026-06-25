@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Support\Aggregator;
 
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\DecadeBinCollapser;
+use MagicSunday\Webtrees\Statistic\Test\Support\Narrowing\PayloadNarrowing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -93,7 +94,7 @@ final class DecadeBinCollapserTest extends TestCase
         // last bin keyed by 1900 (the 1900-1990 decade block).
         $keys = array_keys($collapsed);
         self::assertSame(1000, $keys[0]);
-        self::assertSame(1900, $keys[9]);
+        PayloadNarrowing::assertValueAt(1900, $keys, 9);
 
         // Each bin contains 10 source decades * 1 = 10.
         foreach (array_values($collapsed) as $value) {
@@ -124,9 +125,9 @@ final class DecadeBinCollapserTest extends TestCase
         self::assertSame(1000, array_keys($collapsed)[0]);
 
         // First bin holds decades 1000..1090 → last running total = 10.
-        self::assertSame(10, $collapsed[1000]);
+        PayloadNarrowing::assertValueAt(10, $collapsed, 1000);
         // Last bin holds decades 1900..1990 → last running total = 100.
-        self::assertSame(100, $collapsed[1900]);
+        PayloadNarrowing::assertValueAt(100, $collapsed, 1900);
 
         // Monotonically non-decreasing.
         $previous = 0;

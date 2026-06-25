@@ -14,6 +14,7 @@ namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\SiblingGapRowMapper;
+use MagicSunday\Webtrees\Statistic\Test\Support\Narrowing\PayloadNarrowing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
@@ -47,8 +48,10 @@ final class SiblingGapRowMapperTest extends IntegrationTestCase
     {
         $payload = SiblingGapRowMapper::toLineChartPayload([]);
 
+        $series = PayloadNarrowing::firstSeries($payload);
+
         self::assertSame([], $payload->categories);
-        self::assertSame([], $payload->series[0]->values);
+        self::assertSame([], $series->values);
     }
 
     /**
@@ -65,8 +68,10 @@ final class SiblingGapRowMapperTest extends IntegrationTestCase
             '2y' => 7,
         ]);
 
+        $series = PayloadNarrowing::firstSeries($payload);
+
         self::assertSame(['0', '1', '2'], $payload->categories);
-        self::assertSame([5, 12, 7], $payload->series[0]->values);
+        self::assertSame([5, 12, 7], $series->values);
     }
 
     /**
@@ -83,10 +88,14 @@ final class SiblingGapRowMapperTest extends IntegrationTestCase
             '10y+' => 8,
         ]);
 
+        $series      = PayloadNarrowing::firstSeries($payload);
+        $firstLabel  = $series->tooltipLabels[0] ?? self::fail('Expected a tooltip label at index 0');
+        $secondLabel = $series->tooltipLabels[1] ?? self::fail('Expected a tooltip label at index 1');
+
         self::assertSame(['9', '10+'], $payload->categories);
-        self::assertStringContainsString('9-year', $payload->series[0]->tooltipLabels[0]);
-        self::assertStringContainsString('10', $payload->series[0]->tooltipLabels[1]);
-        self::assertStringContainsString('more', $payload->series[0]->tooltipLabels[1]);
+        self::assertStringContainsString('9-year', $firstLabel);
+        self::assertStringContainsString('10', $secondLabel);
+        self::assertStringContainsString('more', $secondLabel);
     }
 
     /**
@@ -102,9 +111,12 @@ final class SiblingGapRowMapperTest extends IntegrationTestCase
             '15y+' => 11,
         ]);
 
+        $series      = PayloadNarrowing::firstSeries($payload);
+        $secondLabel = $series->tooltipLabels[1] ?? self::fail('Expected a tooltip label at index 1');
+
         self::assertSame(['14', '15+'], $payload->categories);
-        self::assertStringContainsString('15', $payload->series[0]->tooltipLabels[1]);
-        self::assertStringContainsString('more', $payload->series[0]->tooltipLabels[1]);
+        self::assertStringContainsString('15', $secondLabel);
+        self::assertStringContainsString('more', $secondLabel);
     }
 
     /**
@@ -119,7 +131,11 @@ final class SiblingGapRowMapperTest extends IntegrationTestCase
             '1y' => 4,
         ]);
 
-        self::assertStringContainsString('1 pair', $payload->series[0]->tooltips[0]);
-        self::assertStringContainsString('4 pairs', $payload->series[0]->tooltips[1]);
+        $series     = PayloadNarrowing::firstSeries($payload);
+        $firstBody  = $series->tooltips[0] ?? self::fail('Expected a tooltip body at index 0');
+        $secondBody = $series->tooltips[1] ?? self::fail('Expected a tooltip body at index 1');
+
+        self::assertStringContainsString('1 pair', $firstBody);
+        self::assertStringContainsString('4 pairs', $secondBody);
     }
 }

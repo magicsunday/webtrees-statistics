@@ -115,9 +115,11 @@ final class PartnershipChainsIntegrationTest extends IntegrationTestCase
 
         foreach ($chain as $person) {
             if ($previous !== null) {
+                $neighbours = $adjacency[$previous] ?? self::fail($previous . ' has no adjacency entry');
+
                 self::assertContains(
                     $person,
-                    $adjacency[$previous],
+                    $neighbours,
                     $previous . ' and ' . $person . ' must be a married couple',
                 );
             }

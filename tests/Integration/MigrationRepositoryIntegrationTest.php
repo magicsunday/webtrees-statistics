@@ -24,6 +24,7 @@ use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Locale\IsoCountryMap;
 use MagicSunday\Webtrees\Statistic\Support\Sankey\BipartiteSankeyAssembler;
 use MagicSunday\Webtrees\Statistic\Support\Sankey\SankeySampleResolver;
+use MagicSunday\Webtrees\Statistic\Test\Support\Narrowing\PayloadNarrowing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
@@ -175,7 +176,7 @@ final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('migration-flows.ged');
         $result = (new MigrationRepository($tree, new IsoCountryMap()))->flowsByCountry(10);
 
-        $heaviest = $result->links[0];
+        $heaviest = PayloadNarrowing::sankeyLinkAt($result->links, 0);
         // Germany → United States carries 4 contributors; samples cap at 3.
         self::assertSame(4, $heaviest->value, 'flow weight reflects all 4 contributors');
         self::assertCount(3, $heaviest->samples, 'sample list caps at SAMPLES_PER_FLOW=3');
@@ -207,8 +208,10 @@ final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
         $canada = null;
 
         foreach ($result->links as $link) {
+            $targetNode = $result->nodes[$link->target] ?? self::fail('link target index missing from the node table');
+
             if (($link->value === 1)
-                && ($result->nodes[$link->target] === 'Canada')
+                && ($targetNode === 'Canada')
             ) {
                 $canada = $link;
 
@@ -265,8 +268,9 @@ final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
 
         // Germany and United States each appear twice: once on the source side,
         // once on the target side.
-        self::assertSame(2, array_count_values($names)['Germany']);
-        self::assertSame(2, array_count_values($names)['United States']);
+        $nodeCounts = array_count_values($names);
+        PayloadNarrowing::assertValueAt(2, $nodeCounts, 'Germany');
+        PayloadNarrowing::assertValueAt(2, $nodeCounts, 'United States');
 
         // No link can reference a source-index that equals its
         // target-index — would indicate a fold-back.
@@ -305,7 +309,7 @@ final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
         Auth::logout();
 
         $result   = (new MigrationRepository($tree, new IsoCountryMap()))->flowsByCountry(10);
-        $heaviest = $result->links[0];
+        $heaviest = PayloadNarrowing::sankeyLinkAt($result->links, 0);
 
         // The flow weight still reflects all four contributors — dropping a
         // private sample must not distort the aggregate.
@@ -341,7 +345,9 @@ final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
         $austriaToFrance = null;
 
         foreach ($result->links as $link) {
-            if ($result->nodes[$link->target] === 'France') {
+            $targetNode = $result->nodes[$link->target] ?? self::fail('link target index missing from the node table');
+
+            if ($targetNode === 'France') {
                 $austriaToFrance = $link;
 
                 break;
@@ -366,7 +372,7 @@ final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
 
         return array_map(
             static fn (SankeySample $sample): string => $sample->name,
-            $result->links[0]->samples,
+            PayloadNarrowing::sankeyLinkAt($result->links, 0)->samples,
         );
     }
 }
