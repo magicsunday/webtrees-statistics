@@ -112,7 +112,8 @@ final readonly class EventRepository
                 RowCast::int($row, 'd_julianday1'),
             );
 
-            ++$counts[ZodiacSigns::signFor($month, $day)];
+            $sign          = ZodiacSigns::signFor($month, $day);
+            $counts[$sign] = ($counts[$sign] ?? 0) + 1;
         }
 
         return $counts;

@@ -148,7 +148,8 @@ final readonly class ChildrenRepository
                 $n = 0;
             }
 
-            ++$counts[min($n, self::CHILDREN_HISTOGRAM_MAX)];
+            $bucket          = min($n, self::CHILDREN_HISTOGRAM_MAX);
+            $counts[$bucket] = ($counts[$bucket] ?? 0) + 1;
         }
 
         $labels = [];
@@ -600,7 +601,7 @@ final readonly class ChildrenRepository
         foreach ($clusters as $setChildren) {
             $size            = count($setChildren);
             $multiplicityKey = $size >= self::MULTIPLE_BIRTH_CAP ? self::MULTIPLE_BIRTH_CAP : $size;
-            $primaryChild    = $setChildren[0];
+            $primaryChild    = $setChildren[0] ?? '';
             $primaryYear     = $yearByChild[$primaryChild] ?? 0;
 
             // The `?? 0` fallback (unreachable in practice) plus the degenerate
@@ -662,7 +663,7 @@ final readonly class ChildrenRepository
             $tooltipLabels = [];
 
             foreach ($qualifyingCenturyOrder as $century) {
-                $total    = $totalsByCentury[$century];
+                $total    = $totalsByCentury[$century] ?? 0;
                 $count    = $multiplicityCountsByCentury[$century][$multiplicity] ?? 0;
                 $setCount = $multiplicitySetsByCentury[$century][$multiplicity] ?? 0;
                 $rate     = round(($count / $total) * 100, 2);
@@ -846,7 +847,7 @@ final readonly class ChildrenRepository
             $counter = count($jds);
 
             for ($i = 1; $i < $counter; ++$i) {
-                $gap = CalendarSpan::wholeYears($jds[$i - 1], $jds[$i]);
+                $gap = CalendarSpan::wholeYears($jds[$i - 1] ?? 0, $jds[$i] ?? 0);
 
                 if ($gap < 0) {
                     continue;
@@ -919,7 +920,7 @@ final readonly class ChildrenRepository
             $abbreviation = $codes[$month] ?? null;
 
             if ($abbreviation !== null) {
-                ++$buckets[$abbreviation];
+                $buckets[$abbreviation] = ($buckets[$abbreviation] ?? 0) + 1;
             }
         }
 

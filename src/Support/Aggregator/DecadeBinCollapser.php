@@ -86,7 +86,7 @@ final readonly class DecadeBinCollapser
         return self::collapse(
             $byDecade,
             $maxPoints,
-            static fn (array $binValues): int => $binValues[count($binValues) - 1],
+            static fn (array $binValues): int => $binValues[count($binValues) - 1] ?? 0,
         );
     }
 
@@ -146,9 +146,9 @@ final readonly class DecadeBinCollapser
         $collapsed = [];
 
         for ($i = 0; $i < $count; $i += $decadesPerBin) {
-            $binSize              = min($decadesPerBin, $count - $i);
-            $binValues            = array_slice($values, $i, $binSize);
-            $collapsed[$keys[$i]] = $reducer($binValues);
+            $binSize                   = min($decadesPerBin, $count - $i);
+            $binValues                 = array_slice($values, $i, $binSize);
+            $collapsed[$keys[$i] ?? 0] = $reducer($binValues);
         }
 
         return $collapsed;

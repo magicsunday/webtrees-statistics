@@ -147,7 +147,7 @@ final readonly class GedcomScanner
         // bound of a range date.
         $segment  = (string) preg_replace('/\(.*/', '', $dateMatch[1]);
         $segments = preg_split('/\s+(?:AND|TO)\s+/', $segment, 2);
-        $segment  = ($segments === false) ? $segment : $segments[0];
+        $segment  = ($segments === false) ? $segment : ($segments[0] ?? $segment);
 
         // A four-digit dual date ("1900/01") is the Gregorian-reform Julian
         // convention; core stores the new-style year (old-style + 1). Record
@@ -364,7 +364,13 @@ final readonly class GedcomScanner
 
         $values = [];
 
-        foreach ($matches[1] as $raw) {
+        // The pattern carries exactly one capture group, so a non-zero match
+        // count guarantees the `$matches[1]` group list. PHPStan's preg
+        // extension types the captures as `array<list<string>>` (offset 1 not
+        // provable), so fall back to an empty list for the unreachable case.
+        $captures = $matches[1] ?? [];
+
+        foreach ($captures as $raw) {
             $value = trim($raw);
 
             if ($value !== '') {
@@ -396,7 +402,7 @@ final readonly class GedcomScanner
             return null;
         }
 
-        $value = trim($match[1]);
+        $value = trim($match[1] ?? '');
 
         return ($value === '') ? null : $value;
     }

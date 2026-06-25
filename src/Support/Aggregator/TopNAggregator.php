@@ -77,7 +77,7 @@ final readonly class TopNAggregator
             }
         }
 
-        return self::rank($counts, static fn (string $key): string => $display[$key], $limit);
+        return self::rank($counts, static fn (string $key): string => $display[$key] ?? $key, $limit);
     }
 
     /**
@@ -106,7 +106,7 @@ final readonly class TopNAggregator
         uksort(
             $counts,
             static function (string $a, string $b) use ($counts): int {
-                $byCount = $counts[$b] <=> $counts[$a];
+                $byCount = ($counts[$b] ?? 0) <=> ($counts[$a] ?? 0);
 
                 return $byCount !== 0 ? $byCount : strcmp($a, $b);
             }
@@ -139,7 +139,7 @@ final readonly class TopNAggregator
         $out = [];
 
         foreach (self::rankKeys($counts, $limit) as $key) {
-            $out[$display($key)] = $counts[$key];
+            $out[$display($key)] = $counts[$key] ?? 0;
         }
 
         return $out;

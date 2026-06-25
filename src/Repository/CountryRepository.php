@@ -183,7 +183,7 @@ final readonly class CountryRepository
             $entries[] = [
                 'code'  => $iso2,
                 'label' => $this->isoMap->label($iso2),
-                'count' => $counts[$iso2],
+                'count' => $counts[$iso2] ?? 0,
             ];
         }
 

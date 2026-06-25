@@ -71,7 +71,7 @@ final readonly class IslandRepository
             );
 
             for ($i = 1, $count = count($present); $i < $count; ++$i) {
-                $this->union($parent, $present[0], $present[$i]);
+                $this->union($parent, $present[0], $present[$i] ?? '');
             }
         }
 
@@ -312,12 +312,12 @@ final readonly class IslandRepository
     {
         $root = $xref;
 
-        while ($parent[$root] !== $root) {
-            $root = $parent[$root];
+        while (($parent[$root] ?? $root) !== $root) {
+            $root = $parent[$root] ?? $root;
         }
 
-        while ($parent[$xref] !== $root) {
-            $next          = $parent[$xref];
+        while (($parent[$xref] ?? $root) !== $root) {
+            $next          = $parent[$xref] ?? $root;
             $parent[$xref] = $root;
             $xref          = $next;
         }

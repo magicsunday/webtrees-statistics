@@ -91,7 +91,9 @@ final readonly class BipartiteSankeyAssembler
         $rawLinks    = [];
 
         foreach ($topFlows as $key => $value) {
-            [$sourceKey, $targetKey] = explode("\0", $key, 2);
+            $parts     = explode("\0", $key, 2);
+            $sourceKey = $parts[0];
+            $targetKey = $parts[1] ?? '';
 
             if (!isset($sourceIndex[$sourceKey])) {
                 $sourceIndex[$sourceKey] = count($sourceNodes);
@@ -107,7 +109,7 @@ final readonly class BipartiteSankeyAssembler
                 'source'  => $sourceIndex[$sourceKey],
                 'target'  => $targetIndex[$targetKey],
                 'value'   => $value,
-                'samples' => $linkSamples[$key],
+                'samples' => $linkSamples[$key] ?? [],
             ];
         }
 

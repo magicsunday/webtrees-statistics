@@ -60,9 +60,9 @@ final class ZodiacPeriods
             $out[$sign] = I18N::translate(
                 '%1$s %2$s – %3$s %4$s',
                 I18N::number($fromDay),
-                $months[$fromMonth - 1],
+                $months[$fromMonth - 1] ?? '',
                 I18N::number($toDay),
-                $months[$toMonth - 1],
+                $months[$toMonth - 1] ?? '',
             );
         }
 

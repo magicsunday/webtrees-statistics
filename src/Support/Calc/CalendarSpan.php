@@ -46,6 +46,23 @@ final class CalendarSpan
     }
 
     /**
+     * Convert a Julian day to its Gregorian [year, month, day] triple. The
+     * ext-calendar contract types `jdToYmd()` only as `int[]`, but it always
+     * returns exactly these three components; pin that shape so callers can
+     * destructure it without a possibly-missing-offset warning.
+     *
+     * @param int $julianDay Julian day number to convert
+     *
+     * @return array{int, int, int} The [year, month, day] triple
+     */
+    private static function gregorianYmd(int $julianDay): array
+    {
+        $ymd = (new GregorianCalendar())->jdToYmd($julianDay);
+
+        return [$ymd[0] ?? 0, $ymd[1] ?? 0, $ymd[2] ?? 0];
+    }
+
+    /**
      * Whole years elapsed between two Julian days, i.e. how many anniversaries
      * of the earlier date the later date has reached. The arguments may be in
      * either order; the result is the non-negative magnitude of the span.
@@ -57,10 +74,8 @@ final class CalendarSpan
      */
     public static function wholeYears(int $fromJulianDay, int $toJulianDay): int
     {
-        $calendar = new GregorianCalendar();
-
-        [$year1, $month1, $day1] = $calendar->jdToYmd(min($fromJulianDay, $toJulianDay));
-        [$year2, $month2, $day2] = $calendar->jdToYmd(max($fromJulianDay, $toJulianDay));
+        [$year1, $month1, $day1] = self::gregorianYmd(min($fromJulianDay, $toJulianDay));
+        [$year2, $month2, $day2] = self::gregorianYmd(max($fromJulianDay, $toJulianDay));
 
         $years = $year2 - $year1;
 
@@ -86,10 +101,8 @@ final class CalendarSpan
      */
     public static function wholeMonths(int $fromJulianDay, int $toJulianDay): int
     {
-        $calendar = new GregorianCalendar();
-
-        [$year1, $month1, $day1] = $calendar->jdToYmd(min($fromJulianDay, $toJulianDay));
-        [$year2, $month2, $day2] = $calendar->jdToYmd(max($fromJulianDay, $toJulianDay));
+        [$year1, $month1, $day1] = self::gregorianYmd(min($fromJulianDay, $toJulianDay));
+        [$year2, $month2, $day2] = self::gregorianYmd(max($fromJulianDay, $toJulianDay));
 
         $months = (($year2 - $year1) * self::MONTHS_PER_YEAR) + ($month2 - $month1);
 

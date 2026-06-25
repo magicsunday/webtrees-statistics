@@ -221,10 +221,10 @@ final readonly class MarriageMatrixRepository
                 continue;
             }
 
-            ++$matrix[$hi][$wi];
+            $matrix[$hi][$wi] = ($matrix[$hi][$wi] ?? 0) + 1;
 
             if ($hi !== $wi) {
-                ++$matrix[$wi][$hi];
+                $matrix[$wi][$hi] = ($matrix[$wi][$hi] ?? 0) + 1;
             }
         }
 

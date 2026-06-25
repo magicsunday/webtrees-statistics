@@ -86,7 +86,16 @@ final readonly class EventMonthTally
         $out   = [];
 
         foreach ($byMonth as $month => $count) {
-            $out[$codes[$month]] = $count;
+            $code = $codes[$month] ?? null;
+
+            // A malformed out-of-range month column (the canonical codes only
+            // cover 1–12) carries no calendar month and is dropped, matching the
+            // month-less exclusion the query already applies.
+            if ($code === null) {
+                continue;
+            }
+
+            $out[$code] = $count;
         }
 
         return $out;

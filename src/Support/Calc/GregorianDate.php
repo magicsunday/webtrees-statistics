@@ -87,12 +87,12 @@ final class GregorianDate
             ];
         }
 
-        [$year, $month, $day] = (new GregorianCalendar())->jdToYmd($lowerBoundJulianDay);
+        $ymd = (new GregorianCalendar())->jdToYmd($lowerBoundJulianDay);
 
         return [
-            $year,
-            $month,
-            $day,
+            $ymd[0] ?? 0,
+            $ymd[1] ?? 0,
+            $ymd[2] ?? 0,
         ];
     }
 

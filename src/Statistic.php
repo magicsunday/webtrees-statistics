@@ -271,22 +271,22 @@ final readonly class Statistic
         return [
             [
                 'label' => I18N::translate('Married'),
-                'value' => $buckets[MaritalBucket::Current->value],
+                'value' => $buckets[MaritalBucket::Current->value] ?? 0,
                 'class' => 'married',
             ],
             [
                 'label' => I18N::translate('Single'),
-                'value' => $buckets[MaritalBucket::Single->value],
+                'value' => $buckets[MaritalBucket::Single->value] ?? 0,
                 'class' => 'single',
             ],
             [
                 'label' => I18N::translate('Widowed'),
-                'value' => $buckets[MaritalBucket::Widowed->value],
+                'value' => $buckets[MaritalBucket::Widowed->value] ?? 0,
                 'class' => 'widowed',
             ],
             [
                 'label' => I18N::translate('Divorced'),
-                'value' => $buckets[MaritalBucket::Divorced->value],
+                'value' => $buckets[MaritalBucket::Divorced->value] ?? 0,
                 'class' => 'divorced',
             ],
         ];

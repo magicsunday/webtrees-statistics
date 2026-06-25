@@ -272,7 +272,7 @@ final readonly class DivorceRepository
         $lastAnchor  = null;
 
         foreach ($keys as $index => $key) {
-            $tally = $perCohort[$key];
+            $tally = $perCohort[$key] ?? ['total' => 1, 'divorced' => 0];
 
             if ($tally['total'] < $threshold) {
                 continue;

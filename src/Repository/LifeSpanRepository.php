@@ -1121,8 +1121,8 @@ final readonly class LifeSpanRepository
 
         ksort($byPeriodMonth);
         $periodKeys  = array_keys($byPeriodMonth);
-        $firstPeriod = $periodKeys[0];
-        $lastPeriod  = $periodKeys[count($periodKeys) - 1];
+        $firstPeriod = $periodKeys[0] ?? 0;
+        $lastPeriod  = $periodKeys[count($periodKeys) - 1] ?? 0;
 
         $rowLabels = [];
         $values    = [];
@@ -1313,7 +1313,8 @@ final readonly class LifeSpanRepository
                 continue;
             }
 
-            ++$bandCounts[$this->bandLabel(CalendarSpan::wholeYears($birthJd, $todayJulianDay))];
+            $band              = $this->bandLabel(CalendarSpan::wholeYears($birthJd, $todayJulianDay));
+            $bandCounts[$band] = ($bandCounts[$band] ?? 0) + 1;
         }
 
         $palette = ['age-band-0', 'age-band-1', 'age-band-2', 'age-band-3'];

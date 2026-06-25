@@ -335,7 +335,7 @@ final readonly class PartnershipChains
             ? intdiv($count, 2) - 1
             : intdiv($count, 2);
 
-        return $sorted[$middle];
+        return $sorted[$middle] ?? 0;
     }
 
     /**
@@ -420,7 +420,7 @@ final readonly class PartnershipChains
      */
     private static function componentDiameterPath(array $adjacency, array $members): array
     {
-        $firstEnd = self::bfsDistances($adjacency, $members[0])['farthest'];
+        $firstEnd = self::bfsDistances($adjacency, $members[0] ?? '')['farthest'];
 
         $sweep    = self::bfsDistances($adjacency, $firstEnd);
         $parent   = $sweep['parent'];
@@ -503,7 +503,7 @@ final readonly class PartnershipChains
 
         while ($queue !== []) {
             $node      = array_shift($queue);
-            $nodeDepth = $distance[$node];
+            $nodeDepth = $distance[$node] ?? 0;
 
             $neighbours = $adjacency[$node] ?? [];
 
@@ -693,7 +693,7 @@ final readonly class PartnershipChains
                     return $bySize;
                 }
 
-                return strcmp($left[0], $right[0]);
+                return strcmp($left[0] ?? '', $right[0] ?? '');
             },
         );
     }

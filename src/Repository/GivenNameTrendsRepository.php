@@ -105,7 +105,7 @@ final readonly class GivenNameTrendsRepository
         $topKeySet = [];
 
         foreach ($topKeys as $key) {
-            $labelByKey[$key] = GivenNameNormalizer::dominantForm($rawByKey[$key]);
+            $labelByKey[$key] = GivenNameNormalizer::dominantForm($rawByKey[$key] ?? []);
             $topKeySet[$key]  = true;
         }
 
@@ -137,7 +137,7 @@ final readonly class GivenNameTrendsRepository
         $series = [];
 
         foreach ($topKeys as $key) {
-            $name          = $labelByKey[$key];
+            $name          = $labelByKey[$key] ?? '';
             $names[]       = $name;
             $series[$name] = [];
 
@@ -206,12 +206,12 @@ final readonly class GivenNameTrendsRepository
         $result = [];
 
         foreach ($topKeys as $key) {
-            $lastYear = $perKeyLastYear[$key];
+            $lastYear = $perKeyLastYear[$key] ?? 0;
 
             $result[] = [
-                'name'     => GivenNameNormalizer::dominantForm($rawByKey[$key]),
+                'name'     => GivenNameNormalizer::dominantForm($rawByKey[$key] ?? []),
                 'lastYear' => $lastYear,
-                'total'    => $perKeyTotal[$key],
+                'total'    => $perKeyTotal[$key] ?? 0,
                 'isActive' => ($lastYear >= $threshold),
             ];
         }

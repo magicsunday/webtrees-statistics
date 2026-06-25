@@ -202,7 +202,7 @@ final readonly class PartnershipReachRepository
      */
     private function highestDegreeMember(array $adjacency, array $members): array
     {
-        $hubId     = $members[0];
+        $hubId     = $members[0] ?? '';
         $maxDegree = -1;
 
         foreach ($members as $member) {

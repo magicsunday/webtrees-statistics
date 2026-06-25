@@ -151,7 +151,8 @@ final class PlaceDispersionRepository
 
             $distanceKm = Haversine::distanceKm($birth[0], $birth[1], $death[0], $death[1]);
 
-            ++$bands[$this->bandFor($distanceKm)];
+            $band         = $this->bandFor($distanceKm);
+            $bands[$band] = ($bands[$band] ?? 0) + 1;
             ++$geocoded;
         }
 

@@ -171,7 +171,7 @@ final readonly class MortalityAnomalies
     {
         sort($window);
 
-        return $window[intdiv(count($window), 2)];
+        return $window[intdiv(count($window), 2)] ?? 0;
     }
 
     /**

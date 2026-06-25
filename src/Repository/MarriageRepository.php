@@ -753,7 +753,7 @@ final class MarriageRepository
             }
 
             $years = CalendarSpan::wholeYears($hbJd, $wbJd);
-            $rank  = min(count($bands) - 1, intdiv($years, self::AGE_GAP_BUCKET));
+            $rank  = max(0, min(count($bands) - 1, intdiv($years, self::AGE_GAP_BUCKET)));
             $band  = $bands[$rank];
 
             if ($diff < 0) {
@@ -912,7 +912,9 @@ final class MarriageRepository
             usort($marriages, static fn (array $a, array $b): int => $a['jd'] <=> $b['jd']);
 
             for ($i = 1, $count = count($marriages); $i < $count; ++$i) {
-                $previousSpouseDeath = $deathByXref[$marriages[$i - 1]['spouse']] ?? 0;
+                $previousMarriage    = $marriages[$i - 1] ?? ['jd' => 1, 'spouse' => '?'];
+                $currentMarriage     = $marriages[$i] ?? ['jd' => 1, 'spouse' => '?'];
+                $previousSpouseDeath = $deathByXref[$previousMarriage['spouse']] ?? 0;
 
                 // Skip unless the previous spouse died on or before this
                 // marriage — a still-living previous spouse means the earlier
@@ -921,13 +923,14 @@ final class MarriageRepository
                     continue;
                 }
 
-                if ($previousSpouseDeath > $marriages[$i]['jd']) {
+                if ($previousSpouseDeath > $currentMarriage['jd']) {
                     continue;
                 }
 
-                $months = CalendarSpan::wholeMonths($previousSpouseDeath, $marriages[$i]['jd']);
+                $months = CalendarSpan::wholeMonths($previousSpouseDeath, $currentMarriage['jd']);
 
-                ++$buckets[$this->remarriageIntervalBand($months)];
+                $band           = $this->remarriageIntervalBand($months);
+                $buckets[$band] = ($buckets[$band] ?? 0) + 1;
             }
         }
 
