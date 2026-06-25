@@ -13,7 +13,6 @@ namespace MagicSunday\Webtrees\Statistic\Support\Gedcom;
 
 use function end;
 use function explode;
-use function implode;
 use function in_array;
 use function preg_match;
 use function preg_match_all;
@@ -461,28 +460,6 @@ final readonly class GedcomScanner
         $magnitude = (float) $match[2];
 
         return (strtoupper($match[1]) === $negativeHemisphere) ? -$magnitude : $magnitude;
-    }
-
-    /**
-     * Build an OR-joined LIKE SQL fragment with the same anchoring as {@see
-     * hasTagAnchored()} for use in SQL counts ("how many individuals carry /
-     * lack this tag"). Each tag yields three alternatives (`%\n1 <tag> %`,
-     * `%\n1 <tag>\n%`, `%\n1 <tag>` suffix).
-     *
-     * @param string             $column Fully-qualified column reference, e.g. `individuals.i_gedcom`
-     * @param array<int, string> $tags   Level-1 tags to test for
-     */
-    public static function orLikeAnchoredSql(string $column, array $tags): string
-    {
-        $clauses = [];
-
-        foreach ($tags as $tag) {
-            $clauses[] = $column . " LIKE '%\\n1 " . $tag . " %'";
-            $clauses[] = $column . " LIKE '%\\n1 " . $tag . "\\n%'";
-            $clauses[] = $column . " LIKE '%\\n1 " . $tag . "'";
-        }
-
-        return implode(' OR ', $clauses);
     }
 
     /**

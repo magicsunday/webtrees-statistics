@@ -11,8 +11,6 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Support\Calc;
 
-use function array_intersect_key;
-
 /**
  * Pure helper that decides whether two individuals share a common ancestor
  * within a bounded number of generations. Used by the endogamy metric to flag
@@ -92,22 +90,5 @@ final readonly class Endogamy
         }
 
         return $ancestors;
-    }
-
-    /**
-     * Return the intersection of the two individuals' ancestor sets within
-     * `$depth` generations. Empty intersection means no common-ancestor
-     * evidence within that depth.
-     *
-     * @param array<array-key, array{0: string|null, 1: string|null}> $parentOf
-     *
-     * @return array<array-key, bool>
-     */
-    public static function sharedAncestors(array $parentOf, string $a, string $b, int $depth): array
-    {
-        return array_intersect_key(
-            self::ancestorSet($parentOf, $a, $depth),
-            self::ancestorSet($parentOf, $b, $depth),
-        );
     }
 }

@@ -300,14 +300,6 @@ final class IsoCountryMap
     }
 
     /**
-     * @return list<string>
-     */
-    public static function supportedIso2Codes(): array
-    {
-        return self::ISO2_CODES;
-    }
-
-    /**
      * Build the reverse name → ISO-2 lookup map, combining every pre-seeded
      * locale plus the user's current locale.
      *
