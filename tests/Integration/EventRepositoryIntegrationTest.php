@@ -41,7 +41,7 @@ use function array_sum;
 #[UsesClass(DedupedEventDates::class)]
 #[UsesClass(DateAggregate::class)]
 #[UsesClass(ZodiacSigns::class)]
-final class EventRepositoryIntegrationTest extends IntegrationTestCase
+final class EventRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     /**
      * Every sign in the result keeps its position (12 keys total) and the

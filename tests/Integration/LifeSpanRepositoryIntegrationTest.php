@@ -72,7 +72,7 @@ use function sprintf;
 #[UsesClass(RowCast::class)]
 #[UsesClass(CenturyName::class)]
 #[UsesClass(MonthName::class)]
-final class LifeSpanRepositoryIntegrationTest extends IntegrationTestCase
+final class LifeSpanRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     /**
      * Construct a real LifeSpanRepository wired through core's {@see

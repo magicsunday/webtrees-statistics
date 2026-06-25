@@ -42,7 +42,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
 #[UsesClass(IslandSummary::class)]
 #[UsesClass(TreeScope::class)]
 #[UsesClass(RowCast::class)]
-final class IslandRepositoryIntegrationTest extends IntegrationTestCase
+final class IslandRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     /**
      * The components are unioned from family co-members (spouses and

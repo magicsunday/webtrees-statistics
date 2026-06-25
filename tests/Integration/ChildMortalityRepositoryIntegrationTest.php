@@ -53,7 +53,7 @@ use function array_column;
 #[UsesClass(TreeScope::class)]
 #[UsesClass(RowCast::class)]
 #[UsesClass(CenturyName::class)]
-final class ChildMortalityRepositoryIntegrationTest extends IntegrationTestCase
+final class ChildMortalityRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     /**
      * The tree-wide summary counts every individual whose BIRT and DEAT

@@ -39,7 +39,7 @@ use function sprintf;
 #[UsesClass(GedcomScanner::class)]
 #[UsesClass(RowCast::class)]
 #[UsesClass(GivenNameNormalizer::class)]
-final class GivenNameTrendsRepositoryIntegrationTest extends IntegrationTestCase
+final class GivenNameTrendsRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     /**
      * The fixture has eleven dated individuals across five decades: Anna×2 in

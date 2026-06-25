@@ -64,7 +64,7 @@ use function sprintf;
 #[UsesClass(ChordMatrixPayload::class)]
 #[UsesClass(RowCast::class)]
 #[UsesClass(TopNAggregator::class)]
-final class MarriageMatrixRepositoryIntegrationTest extends IntegrationTestCase
+final class MarriageMatrixRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     private function repository(Tree $tree): MarriageMatrixRepository
     {

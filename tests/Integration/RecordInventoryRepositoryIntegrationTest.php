@@ -47,7 +47,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
 #[UsesClass(RecordInventory::class)]
 #[UsesClass(TreeScope::class)]
 #[UsesClass(RowCast::class)]
-final class RecordInventoryRepositoryIntegrationTest extends IntegrationTestCase
+final class RecordInventoryRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     /**
      * Every record type is counted from its own normalised table. Both top-level

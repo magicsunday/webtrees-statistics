@@ -50,7 +50,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
 #[UsesClass(Endogamy::class)]
 #[UsesClass(TreeScope::class)]
 #[UsesClass(RowCast::class)]
-final class EndogamyRepositoryIntegrationTest extends IntegrationTestCase
+final class EndogamyRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     /**
      * The 50 % acceptance scenario from the issue: one cousin couple sharing

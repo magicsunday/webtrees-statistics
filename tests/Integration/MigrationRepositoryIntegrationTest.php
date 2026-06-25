@@ -57,7 +57,7 @@ use function array_unique;
 #[UsesClass(IsoCountryMap::class)]
 #[UsesClass(SankeySampleResolver::class)]
 #[UsesClass(RecordName::class)]
-final class MigrationRepositoryIntegrationTest extends IntegrationTestCase
+final class MigrationRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     /**
      * Reset the IsoCountryMap lookup-map cache before each test so the

@@ -34,7 +34,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
 #[UsesClass(TopNAggregator::class)]
 #[UsesClass(TreeScope::class)]
 #[UsesClass(GedcomScanner::class)]
-final class DeathCauseRepositoryIntegrationTest extends IntegrationTestCase
+final class DeathCauseRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     /**
      * `Tuberculosis` appears twice (Berta + Carl), `Cholera` once (Anna). The

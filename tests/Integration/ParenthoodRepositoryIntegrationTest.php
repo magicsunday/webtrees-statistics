@@ -61,7 +61,7 @@ use function count;
 #[UsesClass(TreeScope::class)]
 #[UsesClass(RowCast::class)]
 #[UsesClass(DecadeName::class)]
-final class ParenthoodRepositoryIntegrationTest extends IntegrationTestCase
+final class ParenthoodRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     /**
      * Fathers' distribution picks up Anton (23 years → 20–24 bucket) and Emil

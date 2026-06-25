@@ -24,7 +24,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
  * happy-path materialisation against a real tree. Lives under
  * tests/Integration/ because the resolver calls
  * `Registry::individualFactory()->make()` which needs the webtrees container
- * booted by IntegrationTestCase.
+ * booted by AbstractIntegrationTestCase.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -32,7 +32,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
  */
 #[CoversClass(IndividualAgeRecordResolver::class)]
 #[UsesClass(IndividualAgeRecord::class)]
-final class IndividualAgeRecordResolverTest extends IntegrationTestCase
+final class IndividualAgeRecordResolverTest extends AbstractIntegrationTestCase
 {
     /**
      * Both inputs null collapses to null — `null + null` shorts out before the

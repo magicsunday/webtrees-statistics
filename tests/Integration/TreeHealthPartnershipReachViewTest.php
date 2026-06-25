@@ -40,7 +40,7 @@ use function view;
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
 #[CoversNothing]
-final class TreeHealthPartnershipReachViewTest extends IntegrationTestCase
+final class TreeHealthPartnershipReachViewTest extends AbstractIntegrationTestCase
 {
     /**
      * Fixed view-namespace slug for the rendered tab. A bare `new Module()` not

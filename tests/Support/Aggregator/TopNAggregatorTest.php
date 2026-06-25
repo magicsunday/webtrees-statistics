@@ -43,7 +43,7 @@ final class TopNAggregatorTest extends TestCase
     private function rows(array $labels): Collection
     {
         return new Collection(array_map(
-            static fn (string $label): object => new class($label) {
+            static fn (string $label): object => new readonly class($label) {
                 public function __construct(public string $gedcom)
                 {
                 }

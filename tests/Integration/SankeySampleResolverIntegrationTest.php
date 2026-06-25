@@ -44,7 +44,7 @@ use function is_string;
 #[CoversClass(SankeySampleResolver::class)]
 #[UsesClass(SankeySample::class)]
 #[UsesClass(RecordName::class)]
-final class SankeySampleResolverIntegrationTest extends IntegrationTestCase
+final class SankeySampleResolverIntegrationTest extends AbstractIntegrationTestCase
 {
     /**
      * A visible individual resolves to a sample carrying its plain-text name and

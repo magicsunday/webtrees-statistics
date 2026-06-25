@@ -81,7 +81,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
 #[UsesClass(DateJoin::class)]
 #[UsesClass(TreeScope::class)]
 #[UsesClass(RowCast::class)]
-final class RecordsIntegrationTest extends IntegrationTestCase
+final class RecordsIntegrationTest extends AbstractIntegrationTestCase
 {
     /**
      * Oldest-deceased picks Centenarian (110 years) over ShortLife (30 years) —

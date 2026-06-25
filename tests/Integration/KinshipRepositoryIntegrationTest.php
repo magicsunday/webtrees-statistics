@@ -40,7 +40,7 @@ use function array_sum;
 #[UsesClass(ParentMapRepository::class)]
 #[UsesClass(TreeScope::class)]
 #[UsesClass(RowCast::class)]
-final class KinshipRepositoryIntegrationTest extends IntegrationTestCase
+final class KinshipRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     private function repository(Tree $tree): KinshipRepository
     {

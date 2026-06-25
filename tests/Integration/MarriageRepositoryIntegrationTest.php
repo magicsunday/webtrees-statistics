@@ -68,7 +68,7 @@ use function substr;
 #[UsesClass(RecordName::class)]
 #[UsesClass(MarriageDurationExtreme::class)]
 #[UsesClass(MarriageEndReason::class)]
-final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
+final class MarriageRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     private function repository(Tree $tree): MarriageRepository
     {

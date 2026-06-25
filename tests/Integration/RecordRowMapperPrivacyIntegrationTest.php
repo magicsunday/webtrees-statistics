@@ -38,7 +38,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
 #[UsesClass(IndividualAgeRecord::class)]
 #[UsesClass(FamilyCountRecord::class)]
 #[UsesClass(RecordCategory::class)]
-final class RecordRowMapperPrivacyIntegrationTest extends IntegrationTestCase
+final class RecordRowMapperPrivacyIntegrationTest extends AbstractIntegrationTestCase
 {
     private function livingTree(): Tree
     {

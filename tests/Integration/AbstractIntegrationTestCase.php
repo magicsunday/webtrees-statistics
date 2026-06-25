@@ -67,7 +67,7 @@ use function preg_split;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-abstract class IntegrationTestCase extends TestCase
+abstract class AbstractIntegrationTestCase extends TestCase
 {
     /**
      * Whether the persistent-server schema has already been built this process.
@@ -415,11 +415,8 @@ abstract class IntegrationTestCase extends TestCase
             throw new RuntimeException('Fixture not readable: ' . $fixture);
         }
 
-        $records = preg_split('/\n(?=0)/', $gedcom);
-
-        if ($records === false) {
-            $records = [];
-        }
+        $splitRecords = preg_split('/\n(?=0)/', $gedcom);
+        $records      = ($splitRecords !== false) ? $splitRecords : [];
 
         foreach ($records as $record) {
             $gedcomImportService->importRecord($record, $tree, false);

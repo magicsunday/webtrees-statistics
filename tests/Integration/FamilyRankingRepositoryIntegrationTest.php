@@ -41,7 +41,7 @@ use function count;
 #[UsesClass(RankingEntry::class)]
 #[UsesClass(TreeScope::class)]
 #[UsesClass(RowCast::class)]
-final class FamilyRankingRepositoryIntegrationTest extends IntegrationTestCase
+final class FamilyRankingRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     private function repository(Tree $tree): FamilyRankingRepository
     {

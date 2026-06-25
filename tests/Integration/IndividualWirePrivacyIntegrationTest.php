@@ -35,7 +35,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
  */
 #[CoversClass(IndividualWire::class)]
 #[UsesClass(RecordName::class)]
-final class IndividualWirePrivacyIntegrationTest extends IntegrationTestCase
+final class IndividualWirePrivacyIntegrationTest extends AbstractIntegrationTestCase
 {
     private function livingTree(): Tree
     {

@@ -50,7 +50,7 @@ use function array_map;
 #[UsesClass(TreeScope::class)]
 #[UsesClass(GedcomScanner::class)]
 #[UsesClass(RowCast::class)]
-final class FamilyRepositoryIntegrationTest extends IntegrationTestCase
+final class FamilyRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     /**
      * Sum of the four buckets must equal the living count, the canonical

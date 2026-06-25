@@ -40,7 +40,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
 #[UsesClass(IsoCountryMap::class)]
 #[UsesClass(TreeScope::class)]
 #[UsesClass(RowCast::class)]
-final class MortalityAnomaliesIntegrationTest extends IntegrationTestCase
+final class MortalityAnomaliesIntegrationTest extends AbstractIntegrationTestCase
 {
     /**
      * Build a {@see LifeSpanRepository} bound to the given fixture tree.

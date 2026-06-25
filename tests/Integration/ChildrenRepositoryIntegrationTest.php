@@ -60,7 +60,7 @@ use function array_sum;
 #[UsesClass(RowCast::class)]
 #[UsesClass(CenturyName::class)]
 #[UsesClass(GregorianDate::class)]
-final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
+final class ChildrenRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     private function repository(Tree $tree): ChildrenRepository
     {

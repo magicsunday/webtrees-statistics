@@ -27,7 +27,7 @@ use PHPUnit\Framework\Attributes\Test;
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
 #[CoversClass(MediaTypeLabeller::class)]
-final class MediaTypeLabellerTest extends IntegrationTestCase
+final class MediaTypeLabellerTest extends AbstractIntegrationTestCase
 {
     /**
      * Known tokens map to their registry labels regardless of the stored casing,

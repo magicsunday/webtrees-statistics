@@ -156,7 +156,9 @@ final readonly class GedcomScanner
         $dualOffset = (preg_match('#\d{4}/\d{1,4}#', $segment) === 1) ? 1 : 0;
         $segment    = (string) preg_replace('#(\d+)/\d+#', '$1', $segment);
 
-        if (preg_match_all('/(?<!\d)(\d{1,4})(?!\d)/', $segment, $yearMatches) < 1) {
+        $yearCount = preg_match_all('/(?<!\d)(\d{1,4})(?!\d)/', $segment, $yearMatches);
+
+        if (($yearCount === false) || ($yearCount < 1)) {
             return null;
         }
 

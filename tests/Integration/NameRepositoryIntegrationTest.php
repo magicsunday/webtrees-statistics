@@ -57,7 +57,7 @@ use const PHP_INT_MAX;
 #[UsesClass(RowCast::class)]
 #[UsesClass(CenturyName::class)]
 #[UsesClass(GivenNameNormalizer::class)]
-final class NameRepositoryIntegrationTest extends IntegrationTestCase
+final class NameRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     private function repository(Tree $tree): NameRepository
     {

@@ -119,7 +119,10 @@ final readonly class GenerationDepthRepository
                 return $jdayB <=> $jdayA;
             }
 
-            return $a <=> $b;
+            // Compare as strings: the keys are int|string XREFs, and a mixed
+            // int|string spaceship is non-comparable — a string tie-break keeps
+            // the order deterministic across engines.
+            return (string) $a <=> (string) $b;
         });
 
         $top    = array_slice($byLeaf, 0, self::MAX_CHAINS_RENDERED, true);

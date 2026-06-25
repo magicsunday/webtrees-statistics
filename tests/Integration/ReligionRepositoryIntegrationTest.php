@@ -34,7 +34,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
 #[UsesClass(TopNAggregator::class)]
 #[UsesClass(TreeScope::class)]
 #[UsesClass(GedcomScanner::class)]
-final class ReligionRepositoryIntegrationTest extends IntegrationTestCase
+final class ReligionRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     /**
      * `Catholic` appears twice (Anna + Berta with lowercase variant

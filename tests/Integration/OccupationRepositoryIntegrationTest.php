@@ -37,7 +37,7 @@ use function array_keys;
 #[UsesClass(TopNAggregator::class)]
 #[UsesClass(TreeScope::class)]
 #[UsesClass(GedcomScanner::class)]
-final class OccupationRepositoryIntegrationTest extends IntegrationTestCase
+final class OccupationRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     /**
      * `Blacksmith` appears three times (Anna, Berta with lowercase variant

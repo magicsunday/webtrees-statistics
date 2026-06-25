@@ -43,7 +43,7 @@ use function sort;
 #[UsesClass(RowCast::class)]
 #[UsesClass(IsoCountryMap::class)]
 #[UsesClass(TopNAggregator::class)]
-final class CountryRepositoryIntegrationTest extends IntegrationTestCase
+final class CountryRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     /**
      * Reset the IsoCountryMap singleton cache before every test so each

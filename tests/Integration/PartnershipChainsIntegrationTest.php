@@ -42,7 +42,7 @@ use function count;
 #[UsesClass(PartnershipMapRepository::class)]
 #[UsesClass(TreeScope::class)]
 #[UsesClass(RowCast::class)]
-final class PartnershipChainsIntegrationTest extends IntegrationTestCase
+final class PartnershipChainsIntegrationTest extends AbstractIntegrationTestCase
 {
     /**
      * The largest connected partnership group in the fixture spans 41 people

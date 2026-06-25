@@ -26,7 +26,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
  * labels with different overflow caps.
  *
  * Lives under tests/Integration/ because the mapper calls I18N helpers —
- * IntegrationTestCase boots webtrees' container so the translation static
+ * AbstractIntegrationTestCase boots webtrees' container so the translation static
  * resolves.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
@@ -36,7 +36,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
 #[CoversClass(SiblingGapRowMapper::class)]
 #[UsesClass(LineChartPayload::class)]
 #[UsesClass(LineChartSeries::class)]
-final class SiblingGapRowMapperTest extends IntegrationTestCase
+final class SiblingGapRowMapperTest extends AbstractIntegrationTestCase
 {
     /**
      * Empty input returns the empty-payload shape — the LineChart partial's

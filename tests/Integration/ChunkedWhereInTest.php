@@ -35,7 +35,7 @@ use function sort;
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
 #[CoversClass(ChunkedWhereIn::class)]
-final class ChunkedWhereInTest extends IntegrationTestCase
+final class ChunkedWhereInTest extends AbstractIntegrationTestCase
 {
     /**
      * Seed a throwaway table with the string ids `I1`..`I<count>` so the helper

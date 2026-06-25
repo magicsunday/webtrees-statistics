@@ -62,7 +62,7 @@ use function strcmp;
 #[UsesClass(TreeScope::class)]
 #[UsesClass(RecordName::class)]
 #[UsesClass(RowCast::class)]
-final class PartnershipReachRepositoryIntegrationTest extends IntegrationTestCase
+final class PartnershipReachRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     /**
      * The summary captures the 15-person longest chain and the 41-person /

@@ -57,7 +57,7 @@ use function in_array;
 #[UsesClass(BipartiteSankeyAssembler::class)]
 #[UsesClass(SankeySampleResolver::class)]
 #[UsesClass(RecordName::class)]
-final class OccupationInheritanceRepositoryIntegrationTest extends IntegrationTestCase
+final class OccupationInheritanceRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     /**
      * Aggregates the fixture into the bipartite Sankey payload. Three flows

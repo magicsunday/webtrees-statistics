@@ -35,7 +35,7 @@ use function sprintf;
  * the assertion boundary. Implemented as a static-only utility (not a trait —
  * the project's Symplify `ForbiddenNodeRule` bans traits) and routed through
  * `PHPUnit\Framework\Assert` statically, so it resolves cleanly whether the
- * consuming class is an `IntegrationTestCase` subclass or a stand-alone test.
+ * consuming class is an `AbstractIntegrationTestCase` subclass or a stand-alone test.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0

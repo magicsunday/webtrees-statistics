@@ -27,7 +27,7 @@ use PHPUnit\Framework\Attributes\Test;
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
 #[CoversClass(TreeScope::class)]
-final class TreeScopeTest extends IntegrationTestCase
+final class TreeScopeTest extends AbstractIntegrationTestCase
 {
     /**
      * Without an alias the helper emits the bare `<x>_file` qualifier and binds

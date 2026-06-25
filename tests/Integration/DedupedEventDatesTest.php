@@ -54,7 +54,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
 #[UsesClass(DateAggregate::class)]
 #[UsesClass(GregorianDate::class)]
 #[UsesClass(RowCast::class)]
-final class DedupedEventDatesTest extends IntegrationTestCase
+final class DedupedEventDatesTest extends AbstractIntegrationTestCase
 {
     /**
      * The raw table carries the doubled rows (guards the premise); the helper

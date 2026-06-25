@@ -49,7 +49,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
 #[UsesClass(GedcomScanner::class)]
 #[UsesClass(Haversine::class)]
 #[UsesClass(PlaceLocationGazetteer::class)]
-final class PlaceDispersionRepositoryIntegrationTest extends IntegrationTestCase
+final class PlaceDispersionRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     /**
      * The dispersion summary aggregates every individual that carries at least

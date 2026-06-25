@@ -40,7 +40,7 @@ use function array_values;
 #[CoversClass(PartnershipMapRepository::class)]
 #[UsesClass(TreeScope::class)]
 #[UsesClass(RowCast::class)]
-final class PartnershipMapRepositoryIntegrationTest extends IntegrationTestCase
+final class PartnershipMapRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     /**
      * The map keys one individual XREF onto the list of its spouse XREFs, with

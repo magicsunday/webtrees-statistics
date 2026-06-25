@@ -41,7 +41,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
 #[UsesClass(DateAggregate::class)]
 #[UsesClass(MonthName::class)]
 #[UsesClass(RowCast::class)]
-final class EventMonthTallyIntegrationTest extends IntegrationTestCase
+final class EventMonthTallyIntegrationTest extends AbstractIntegrationTestCase
 {
     /**
      * Births collapse to the lower-bound month: the month-spanning I1 counts

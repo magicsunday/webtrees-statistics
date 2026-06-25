@@ -60,7 +60,7 @@ use function count;
 #[UsesClass(GedcomByXref::class)]
 #[UsesClass(TreeScope::class)]
 #[UsesClass(RowCast::class)]
-final class GenerationDepthRepositoryIntegrationTest extends IntegrationTestCase
+final class GenerationDepthRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     /**
      * The summary captures the longest descent and the distribution of

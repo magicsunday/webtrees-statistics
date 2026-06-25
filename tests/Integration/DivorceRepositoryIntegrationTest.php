@@ -44,7 +44,7 @@ use function array_sum;
 #[UsesClass(DateJoin::class)]
 #[UsesClass(TreeScope::class)]
 #[UsesClass(RowCast::class)]
-final class DivorceRepositoryIntegrationTest extends IntegrationTestCase
+final class DivorceRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     private function repository(Tree $tree): DivorceRepository
     {

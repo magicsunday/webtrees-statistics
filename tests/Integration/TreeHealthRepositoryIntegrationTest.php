@@ -38,7 +38,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
 #[UsesClass(GedcomScanner::class)]
 #[UsesClass(RowCast::class)]
 #[UsesClass(CenturyName::class)]
-final class TreeHealthRepositoryIntegrationTest extends IntegrationTestCase
+final class TreeHealthRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     /**
      * Two of six individuals carry a SOUR citation; the headline ratio must

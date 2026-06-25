@@ -34,7 +34,7 @@ use ReflectionProperty;
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
 #[CoversClass(Module::class)]
-final class TabAccessIntegrationTest extends IntegrationTestCase
+final class TabAccessIntegrationTest extends AbstractIntegrationTestCase
 {
     /**
      * @return array<string, array{0: string}>

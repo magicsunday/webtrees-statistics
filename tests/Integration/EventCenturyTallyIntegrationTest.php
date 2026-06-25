@@ -45,7 +45,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
 #[UsesClass(DateAggregate::class)]
 #[UsesClass(CenturyName::class)]
 #[UsesClass(RowCast::class)]
-final class EventCenturyTallyIntegrationTest extends IntegrationTestCase
+final class EventCenturyTallyIntegrationTest extends AbstractIntegrationTestCase
 {
     /**
      * Every birth counts once in its lower-bound century: the within-century
