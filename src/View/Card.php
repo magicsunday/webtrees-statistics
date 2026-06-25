@@ -17,6 +17,8 @@ use function htmlspecialchars;
 use function implode;
 use function sprintf;
 
+use const ENT_QUOTES;
+
 /**
  * Fluent builder for the shared card frame used by every chart / statistic
  * card. Renders the eyebrow + title + sub header strip, the body slot, the
@@ -518,6 +520,6 @@ HTML;
      */
     private function escapeHtml(string $value): string
     {
-        return htmlspecialchars($value, \ENT_QUOTES, 'UTF-8');
+        return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
     }
 }
