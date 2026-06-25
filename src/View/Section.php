@@ -84,13 +84,13 @@ final readonly class Section
         $out = '<section class="wt-stat-section">';
 
         if (($this->kicker !== null) && ($this->kicker !== '')) {
-            $out .= '<p class="wt-stat-section-kicker">' . htmlspecialchars($this->kicker, ENT_QUOTES, 'UTF-8') . '</p>';
+            $out .= '<p class="wt-stat-section-kicker">' . htmlspecialchars($this->kicker, \ENT_QUOTES, 'UTF-8') . '</p>';
         }
 
-        $out .= '<h2 class="wt-stat-section-title">' . htmlspecialchars($this->title, ENT_QUOTES, 'UTF-8') . '</h2>';
+        $out .= '<h2 class="wt-stat-section-title">' . htmlspecialchars($this->title, \ENT_QUOTES, 'UTF-8') . '</h2>';
 
         if (($this->sub !== null) && ($this->sub !== '')) {
-            $out .= '<p class="wt-stat-section-sub">' . htmlspecialchars($this->sub, ENT_QUOTES, 'UTF-8') . '</p>';
+            $out .= '<p class="wt-stat-section-sub">' . htmlspecialchars($this->sub, \ENT_QUOTES, 'UTF-8') . '</p>';
         }
 
         return $out . '</section>';

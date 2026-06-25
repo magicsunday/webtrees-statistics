@@ -518,6 +518,6 @@ HTML;
      */
     private function escapeHtml(string $value): string
     {
-        return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+        return htmlspecialchars($value, \ENT_QUOTES, 'UTF-8');
     }
 }

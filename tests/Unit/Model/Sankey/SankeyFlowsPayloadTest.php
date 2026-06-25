@@ -81,7 +81,7 @@ final class SankeyFlowsPayloadTest extends TestCase
             ],
         ];
 
-        self::assertSame($expected, json_decode(json_encode($payload, JSON_THROW_ON_ERROR), true, 512, JSON_THROW_ON_ERROR));
+        self::assertSame($expected, json_decode(json_encode($payload, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR));
     }
 
     /**
@@ -97,7 +97,7 @@ final class SankeyFlowsPayloadTest extends TestCase
 
         self::assertSame(
             ['nodes' => [], 'links' => []],
-            json_decode(json_encode($payload, JSON_THROW_ON_ERROR), true, 512, JSON_THROW_ON_ERROR),
+            json_decode(json_encode($payload, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
         );
     }
 
@@ -114,7 +114,7 @@ final class SankeyFlowsPayloadTest extends TestCase
 
         self::assertSame(
             ['name' => '(no name)', 'xref' => 'I42'],
-            json_decode(json_encode($sample, JSON_THROW_ON_ERROR), true, 512, JSON_THROW_ON_ERROR),
+            json_decode(json_encode($sample, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
         );
     }
 
@@ -131,7 +131,7 @@ final class SankeyFlowsPayloadTest extends TestCase
 
         self::assertSame(
             ['source' => 0, 'target' => 1, 'value' => 5, 'samples' => []],
-            json_decode(json_encode($linkEmpty, JSON_THROW_ON_ERROR), true, 512, JSON_THROW_ON_ERROR),
+            json_decode(json_encode($linkEmpty, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
         );
 
         $linkWithSamples = new SankeyLink(
@@ -148,7 +148,7 @@ final class SankeyFlowsPayloadTest extends TestCase
                 'value'   => 1,
                 'samples' => [['name' => 'Carl Test', 'xref' => 'I3']],
             ],
-            json_decode(json_encode($linkWithSamples, JSON_THROW_ON_ERROR), true, 512, JSON_THROW_ON_ERROR),
+            json_decode(json_encode($linkWithSamples, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
         );
     }
 }
