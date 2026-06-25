@@ -92,6 +92,7 @@ final class GivenNameTrendsRepositoryIntegrationTest extends IntegrationTestCase
             ],
             $result->series,
             'Anna',
+            'Anna peaks twice — in the 1850s and again in the 1900s',
         );
 
         self::assertSame(3, $result->series['Hans'][1950] ?? null);
@@ -138,10 +139,10 @@ final class GivenNameTrendsRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame(['Napoleon', 'Moses'], $result->names);
 
         $napoleon = $result->series['Napoleon'] ?? self::fail(sprintf('no series %s', 'Napoleon'));
-        PayloadNarrowing::assertValueAt(3, $napoleon, 1800);
+        PayloadNarrowing::assertValueAt(3, $napoleon, 1800, 'French Republican An XII → the 1800s decade.');
 
         $moses = $result->series['Moses'] ?? self::fail(sprintf('no series %s', 'Moses'));
-        PayloadNarrowing::assertValueAt(2, $moses, 1900);
+        PayloadNarrowing::assertValueAt(2, $moses, 1900, 'Hebrew 5661 → the 1900s decade.');
 
         // The native-year buckets the old raw-GEDCOM scan produced must not exist.
         self::assertArrayNotHasKey(10, $result->series['Napoleon'], 'An XII is not bucketed as Gregorian year 12.');

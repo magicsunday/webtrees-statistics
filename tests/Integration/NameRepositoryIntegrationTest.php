@@ -220,7 +220,7 @@ final class NameRepositoryIntegrationTest extends IntegrationTestCase
         self::assertSame('Father → son', $fatherSon->name);
 
         // 18th century: 3 pairs, sub-threshold → suppressed to 0.
-        PayloadNarrowing::assertValueAt(0, $fatherSon->values, 0);
+        PayloadNarrowing::assertValueAt(0, $fatherSon->values, 0, '1700s falls below MIN_COHORT_SIZE and reads zero');
 
         // 19th century: 10 pairs, 3 matches → 30 %.
         $rate1800s = $fatherSon->values[1] ?? self::fail('Expected a value at offset 1');

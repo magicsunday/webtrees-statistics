@@ -80,9 +80,9 @@ final class ChildrenRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('children.ged');
         $result = $this->repository($tree)->childrenPerFamilyDistribution();
 
-        PayloadNarrowing::assertValueAt(1, $result, '0');
-        PayloadNarrowing::assertValueAt(1, $result, '3');
-        PayloadNarrowing::assertValueAt(0, $result, '10+');
+        PayloadNarrowing::assertValueAt(1, $result, '0', 'F2 has zero children');
+        PayloadNarrowing::assertValueAt(1, $result, '3', 'F1 has three children');
+        PayloadNarrowing::assertValueAt(0, $result, '10+', 'no heroic families');
     }
 
     /**

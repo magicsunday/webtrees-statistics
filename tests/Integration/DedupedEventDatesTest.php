@@ -142,20 +142,20 @@ final class DedupedEventDatesTest extends IntegrationTestCase
 
         PayloadNarrowing::assertValueAt(1900, $yearByGid, 'I1');
         PayloadNarrowing::assertValueAt(1, $monByGid, 'I1');
-        PayloadNarrowing::assertValueAt(1, $dayByGid, 'I1');
+        PayloadNarrowing::assertValueAt(1, $dayByGid, 'I1', 'Precise date keeps its day.');
 
-        PayloadNarrowing::assertValueAt(1850, $yearByGid, 'I2');
+        PayloadNarrowing::assertValueAt(1850, $yearByGid, 'I2', 'Lower bound of BET 1850 AND 1855.');
 
         // Year-only 1870 stays a single row with no month (d_mon = 0).
         PayloadNarrowing::assertValueAt(1870, $yearByGid, 'I3');
-        PayloadNarrowing::assertValueAt(0, $monByGid, 'I3');
+        PayloadNarrowing::assertValueAt(0, $monByGid, 'I3', 'Year-only date carries no month.');
 
         // BET DEC 1880 AND JAN 1881: the lower bound is December 1880, so the
         // representative month must be 12 and the year 1880 — independent
         // column MINs would wrongly pick month 1 from the January row.
         PayloadNarrowing::assertValueAt(1880, $yearByGid, 'I4');
-        PayloadNarrowing::assertValueAt(12, $monByGid, 'I4');
-        PayloadNarrowing::assertValueAt(0, $dayByGid, 'I4');
+        PayloadNarrowing::assertValueAt(12, $monByGid, 'I4', 'Lower bound month spans backward across the year edge.');
+        PayloadNarrowing::assertValueAt(0, $dayByGid, 'I4', 'A year/month range carries no day.');
 
         // Month-only MAR 1900 keeps its month.
         PayloadNarrowing::assertValueAt(1900, $yearByGid, 'I5');
@@ -183,7 +183,7 @@ final class DedupedEventDatesTest extends IntegrationTestCase
             $deaths[RowCast::string($row, 'd_gid')] = RowCast::int($row, 'd_year');
         }
 
-        PayloadNarrowing::assertValueAt(1910, $births, 'I6');
+        PayloadNarrowing::assertValueAt(1910, $births, 'I6', 'Birth fact returns the birth year.');
         self::assertSame(['I6' => 1980], $deaths, 'Death fact returns only the single dated death.');
     }
 
@@ -243,9 +243,9 @@ final class DedupedEventDatesTest extends IntegrationTestCase
             $this->birthGids($tree),
             'The shared-julian-day tie stays one row per individual.',
         );
-        PayloadNarrowing::assertValueAt(1900, $yearByGid, 'I1');
-        PayloadNarrowing::assertValueAt(1, $monByGid, 'I1');
-        PayloadNarrowing::assertValueAt('@#DGREGORIAN@', $typeByGid, 'I1');
+        PayloadNarrowing::assertValueAt(1900, $yearByGid, 'I1', 'No off-fact or year-less tie row corrupts the survivor, and the kept Hebrew tie keeps the lower Gregorian-scale year.');
+        PayloadNarrowing::assertValueAt(1, $monByGid, 'I1', 'The numeric month minimum wins the Gregorian tie.');
+        PayloadNarrowing::assertValueAt('@#DGREGORIAN@', $typeByGid, 'I1', 'The Gregorian calendar wins the cross-calendar type minimum (G < H), so a consumer converts I1 by the native Gregorian year, not the Hebrew julian day.');
     }
 
     /**

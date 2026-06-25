@@ -130,9 +130,9 @@ final class MarriageRepositoryIntegrationTest extends IntegrationTestCase
         $tree   = $this->importFixtureTree('age-at-marriage-dedup.ged');
         $result = $this->repository($tree)->ageAtMarriageDistribution('M');
 
-        PayloadNarrowing::assertValueAt(2, $result, '25–29');
-        PayloadNarrowing::assertValueAt(2, $result, '30–34');
-        PayloadNarrowing::assertValueAt(0, $result, '20–24');
+        PayloadNarrowing::assertValueAt(2, $result, '25–29', 'Precise F2 and upper-bound F3 each count once');
+        PayloadNarrowing::assertValueAt(2, $result, '30–34', 'F1 (ranged MARR) and F4 (ranged BIRT) bin on their extreme bound, once each');
+        PayloadNarrowing::assertValueAt(0, $result, '20–24', 'No husband is split onto a lower range bound');
         self::assertSame(4, array_sum($result), 'Four husbands, not seven MARR×BIRT row pairs');
     }
 

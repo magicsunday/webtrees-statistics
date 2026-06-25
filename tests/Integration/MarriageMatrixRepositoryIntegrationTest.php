@@ -136,17 +136,17 @@ final class MarriageMatrixRepositoryIntegrationTest extends IntegrationTestCase
         $row3 = $matrix[3] ?? self::fail('Matrix row 3 (Weaver) missing');
 
         // Diagonal: zero across the board (no endogamous marriages).
-        PayloadNarrowing::assertValueAt(0, $row0, 0);
-        PayloadNarrowing::assertValueAt(0, $row1, 1);
-        PayloadNarrowing::assertValueAt(0, $row2, 2);
-        PayloadNarrowing::assertValueAt(0, $row3, 3);
+        PayloadNarrowing::assertValueAt(0, $row0, 0, 'Klein-Klein: no endogamy');
+        PayloadNarrowing::assertValueAt(0, $row1, 1, 'Miller-Miller: no endogamy');
+        PayloadNarrowing::assertValueAt(0, $row2, 2, 'Smith-Smith: no endogamy');
+        PayloadNarrowing::assertValueAt(0, $row3, 3, 'Weaver-Weaver: no endogamy');
 
         // Off-diagonal counts (already symmetric):
-        PayloadNarrowing::assertValueAt(2, $row1, 2);
-        PayloadNarrowing::assertValueAt(1, $row1, 3);
-        PayloadNarrowing::assertValueAt(1, $row0, 3);
-        PayloadNarrowing::assertValueAt(1, $row0, 2);
-        PayloadNarrowing::assertValueAt(0, $row1, 0);
+        PayloadNarrowing::assertValueAt(2, $row1, 2, 'Miller × Smith = F2 + F4 = 2');
+        PayloadNarrowing::assertValueAt(1, $row1, 3, 'Miller × Weaver = F3 = 1');
+        PayloadNarrowing::assertValueAt(1, $row0, 3, 'Klein × Weaver = F1 = 1');
+        PayloadNarrowing::assertValueAt(1, $row0, 2, 'Klein × Smith = F5 = 1');
+        PayloadNarrowing::assertValueAt(0, $row1, 0, 'Klein × Miller: no fixture marriage');
 
         // Total mass of the matrix is 2 × (number of marriages) because
         // every off-diagonal marriage gets mirrored. Five marriages

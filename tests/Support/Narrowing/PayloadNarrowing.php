@@ -121,12 +121,14 @@ final class PayloadNarrowing
      * @param mixed                   $expected The value the offset must hold
      * @param array<array-key, mixed> $values   The array being read
      * @param int|string              $offset   Offset expected to exist
+     * @param string                  $message  Failure message describing the assertion intent
      */
-    public static function assertValueAt(mixed $expected, array $values, int|string $offset): void
+    public static function assertValueAt(mixed $expected, array $values, int|string $offset, string $message = ''): void
     {
         Assert::assertSame(
             $expected,
             $values[$offset] ?? Assert::fail(sprintf('Expected a value at offset %s', (string) $offset)),
+            $message,
         );
     }
 }
