@@ -141,6 +141,13 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
      * distinct flows — one per parent occupation. The fixture's Nina has a Mason
      * father and a Potter mother and is herself a Glazier, so both Mason →
      * Glazier and Potter → Glazier surface, each weighing one.
+     *
+     * The SAME child is the sample on both flows: the repository resolves a
+     * child through the privacy layer once and reuses the memoised sample across
+     * its flows. Pinning Nina in BOTH sample lists guards that reuse — a
+     * regression that dropped the cached sample from the second flow (or scoped
+     * the memo wrongly) would leave the labels, weights and link count unchanged
+     * and otherwise slip through green.
      */
     #[Test]
     public function occupationInheritanceCountsBothParentsOfOneChild(): void
@@ -153,6 +160,18 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
 
         self::assertContains(['Mason', 'Glazier'], $flows, 'the father trade of a two-parent child must be counted');
         self::assertContains(['Potter', 'Glazier'], $flows, 'the mother trade of a two-parent child must be counted');
+
+        // The memoised child sample must surface in BOTH of Nina's flows.
+        self::assertSame(
+            ['Nina Both'],
+            $this->sampleNamesForFlow($result, 'Mason', 'Glazier'),
+            'the resolved child sample surfaces in the father flow',
+        );
+        self::assertSame(
+            ['Nina Both'],
+            $this->sampleNamesForFlow($result, 'Potter', 'Glazier'),
+            'the same memoised child sample is reused in the mother flow',
+        );
     }
 
     /**
@@ -423,6 +442,34 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
             static fn (SankeySample $sample): string => $sample->name,
             PayloadNarrowing::sankeyLinkAt($result->links, 0)->samples,
         );
+    }
+
+    /**
+     * Resolve the sample names attached to the flow whose source and target
+     * trades match the given labels. Fails the test when no such flow exists so
+     * a typo in the expected trade cannot pass as an empty sample list.
+     *
+     * @param SankeyFlowsPayload $payload     The aggregated payload to search
+     * @param string             $sourceTrade The expected source-node label
+     * @param string             $targetTrade The expected target-node label
+     *
+     * @return list<string>
+     */
+    private function sampleNamesForFlow(SankeyFlowsPayload $payload, string $sourceTrade, string $targetTrade): array
+    {
+        foreach ($payload->links as $link) {
+            $source = $payload->nodes[$link->source] ?? self::fail('link source index missing from the node table');
+            $target = $payload->nodes[$link->target] ?? self::fail('link target index missing from the node table');
+
+            if (($source === $sourceTrade) && ($target === $targetTrade)) {
+                return array_map(
+                    static fn (SankeySample $sample): string => $sample->name,
+                    $link->samples,
+                );
+            }
+        }
+
+        self::fail($sourceTrade . ' → ' . $targetTrade . ' flow missing');
     }
 
     /**
