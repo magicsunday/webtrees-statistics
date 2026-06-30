@@ -22,7 +22,7 @@ use function uasort;
 
 /**
  * Turns a weighted, keyed flow map into a bipartite Sankey payload. Both
- * Sankey aggregators (birth → death migration, father → son occupation
+ * Sankey aggregators (birth → death migration, parent → child occupation
  * inheritance) accumulate the same intermediate shape — a `source\0target`
  * keyed weight map plus per-flow sample lists — and then need the identical
  * tail: sort by weight, keep the top-N, lay the source and target sides out as
