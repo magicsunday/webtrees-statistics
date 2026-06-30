@@ -24,7 +24,7 @@ use function is_string;
  *   - {@see KinshipRepository} (Lacy pedigree completeness)
  *   - {@see GenerationDepthRepository} (max-generation walk)
  *   - {@see EndogamyRepository} (cousin-marriage detection)
- *   - {@see OccupationInheritanceRepository} (father → son occupation flows)
+ *   - {@see OccupationInheritanceRepository} (parent → child occupation flows)
  *
  * Centralising the FAMC + FAM scan here keeps every consumer aligned on the
  * same parent-resolution semantics and avoids a separate full-table scan per

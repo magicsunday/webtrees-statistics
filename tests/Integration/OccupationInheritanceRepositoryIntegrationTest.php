@@ -30,16 +30,20 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
 
 use function array_map;
+use function array_slice;
 use function array_unique;
 
 /**
- * End-to-end test of the father → son occupation-inheritance aggregator. The
+ * End-to-end test of the parent → child occupation-inheritance aggregator. The
  * curated fixture exercises every data-layer behaviour that matters: a trade
- * passed down to four sons (cap on samples), a case-folded variant that merges
- * into that flow, a changed trade, a father with several occupations (only the
- * first counts), and four kinds of pair that must be dropped — father without
- * an occupation, son without an occupation, a daughter, a son with no
- * resolvable father, and a son whose family records only a mother.
+ * passed down to four children (cap on samples), a case-folded variant that
+ * merges into that flow, a changed trade, a parent with several occupations
+ * (only the first counts), a father → daughter flow and a mother → daughter
+ * flow (both parents are considered, regardless of sex), a child of two working
+ * parents that feeds two distinct flows, and four kinds of pair that must be
+ * dropped — a parent without an occupation, a child without an occupation, a
+ * child with no resolvable parent, and a child whose only recorded parent lacks
+ * a trade.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -59,12 +63,13 @@ use function array_unique;
 final class OccupationInheritanceRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     /**
-     * Aggregates the fixture into the bipartite Sankey payload. Three flows
-     * survive: Farmer → Farmer (×5, four direct sons plus the case-folded
-     * `farmer`/`FARMER` pair), Carpenter → Carpenter (×1) and Blacksmith →
-     * Farmer (×1). Every dropped pair — father or son missing an occupation,
-     * the daughter, the fatherless son, and the mother-only family — stays out
-     * of the result.
+     * Aggregates the fixture into the bipartite Sankey payload. Seven flows
+     * survive: Farmer → Farmer (×5, four direct children plus the case-folded
+     * `farmer`/`FARMER` pair), Blacksmith → Farmer (×1), Carpenter → Carpenter
+     * (×1), Weaver → Weaver (×1, a father → daughter), Seamstress → Seamstress
+     * (×1, a mother → daughter), and Mason → Glazier plus Potter → Glazier (×1
+     * each, the two trades of a child's working father and mother). Every
+     * dropped pair stays out of the result.
      */
     #[Test]
     public function occupationInheritanceReturnsTheExpectedAggregation(): void
@@ -73,99 +78,181 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
         $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree)))
             ->occupationInheritance(10);
 
-        // Three distinct flows survive.
-        self::assertCount(3, $result->links);
+        // Seven distinct flows survive.
+        self::assertCount(7, $result->links);
 
-        // Source column [Farmer, Carpenter, Blacksmith] then target
-        // column [Farmer, Carpenter] in encounter order.
+        // Source column then target column, each in encounter order over the
+        // weight-sorted flows. Equal-weight flows keep their insertion order,
+        // which follows the lexicographic xref scan (I1, I10, …, I2, …, I9), so
+        // the single Blacksmith → Farmer pair (child I9) lands last.
         self::assertSame(
-            ['Farmer', 'Carpenter', 'Blacksmith', 'Farmer', 'Carpenter'],
+            [
+                'Farmer', 'Carpenter', 'Weaver', 'Seamstress', 'Mason', 'Potter', 'Blacksmith',
+                'Farmer', 'Carpenter', 'Weaver', 'Seamstress', 'Glazier',
+            ],
             $result->nodes,
         );
 
-        // Heaviest flow leads — Farmer (source idx 0) → Farmer (target
-        // idx 0, shifted by sourceColumnSize=3 to absolute idx 3). Its
-        // weight of 5 proves the case-folded `farmer` / `FARMER` pair
-        // merged into the four direct Farmer → Farmer sons.
+        // Heaviest flow leads — Farmer (source idx 0) → Farmer (target idx 0,
+        // shifted by sourceColumnSize=7 to absolute idx 7). Its weight of 5
+        // proves the case-folded `farmer` / `FARMER` pair merged into the four
+        // direct Farmer → Farmer children.
         $heaviest = $result->links[0];
         self::assertSame(0, $heaviest->source);
-        self::assertSame(3, $heaviest->target);
+        self::assertSame(7, $heaviest->target);
         self::assertSame(5, $heaviest->value);
 
-        // The two remaining flows weigh 1 each.
+        // The six remaining flows weigh 1 each.
         $tailValues = array_map(
             static fn (SankeyLink $link): int => $link->value,
-            [$result->links[1], $result->links[2]],
+            array_slice($result->links, 1),
         );
-        self::assertSame([1, 1], $tailValues);
+        self::assertSame([1, 1, 1, 1, 1, 1], $tailValues);
 
-        // Every link respects the bipartite invariant: source index in
-        // the source column [0, 3), target index in the target column
-        // [3, 5).
+        // Every link respects the bipartite invariant: source index in the
+        // source column [0, 7), target index in the target column [7, 12).
         foreach ($result->links as $link) {
-            self::assertLessThan(3, $link->source, 'source index must be in the source column');
-            self::assertGreaterThanOrEqual(3, $link->target, 'target index must be in the target column');
+            self::assertLessThan(7, $link->source, 'source index must be in the source column');
+            self::assertGreaterThanOrEqual(7, $link->target, 'target index must be in the target column');
         }
     }
 
     /**
-     * A father carrying several `1 OCCU` lines contributes only his FIRST
-     * recorded trade — pairing every father trade against the son would inflate
-     * one succession into a cross-product. The fixture's multi-occupation
-     * father lists Carpenter before Mayor, so Carpenter is the source node and
-     * Mayor never appears.
+     * Both parents are considered regardless of sex, so a daughter inherits a
+     * father's trade (Weaver → Weaver) and a mother's trade reaches her daughter
+     * (Seamstress → Seamstress) — the two flows the issue asked for that the
+     * former father → son scan dropped.
      */
     #[Test]
-    public function occupationInheritanceReadsOnlyThePrimaryFatherOccupation(): void
+    public function occupationInheritanceCountsBothParentSexesAndChildSexes(): void
+    {
+        $tree   = $this->importFixtureTree('occupation-inheritance.ged');
+        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree)))
+            ->occupationInheritance(10);
+
+        $flows = $this->flowLabels($result);
+
+        self::assertContains(['Weaver', 'Weaver'], $flows, 'a father → daughter trade must be counted');
+        self::assertContains(['Seamstress', 'Seamstress'], $flows, 'a mother → daughter trade must be counted');
+    }
+
+    /**
+     * A child whose father and mother both carry a (different) trade feeds TWO
+     * distinct flows — one per parent occupation. The fixture's Nina has a Mason
+     * father and a Potter mother and is herself a Glazier, so both Mason →
+     * Glazier and Potter → Glazier surface, each weighing one.
+     *
+     * The SAME child is the sample on both flows: the repository resolves a
+     * child through the privacy layer once and reuses the memoised sample across
+     * its flows. Pinning Nina in BOTH sample lists guards that reuse — a
+     * regression that dropped the cached sample from the second flow (or scoped
+     * the memo wrongly) would leave the labels, weights and link count unchanged
+     * and otherwise slip through green.
+     */
+    #[Test]
+    public function occupationInheritanceCountsBothParentsOfOneChild(): void
+    {
+        $tree   = $this->importFixtureTree('occupation-inheritance.ged');
+        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree)))
+            ->occupationInheritance(10);
+
+        $flows = $this->flowLabels($result);
+
+        self::assertContains(['Mason', 'Glazier'], $flows, 'the father trade of a two-parent child must be counted');
+        self::assertContains(['Potter', 'Glazier'], $flows, 'the mother trade of a two-parent child must be counted');
+
+        // The memoised child sample must surface in BOTH of Nina's flows.
+        self::assertSame(
+            ['Nina Both'],
+            $this->sampleNamesForFlow($result, 'Mason', 'Glazier'),
+            'the resolved child sample surfaces in the father flow',
+        );
+        self::assertSame(
+            ['Nina Both'],
+            $this->sampleNamesForFlow($result, 'Potter', 'Glazier'),
+            'the same memoised child sample is reused in the mother flow',
+        );
+    }
+
+    /**
+     * A child whose father and mother share the same trade is counted only once
+     * for that flow — the two parents must not double the single child into the
+     * band. The fixture has one Baker father, one Baker mother and a Baker
+     * child, so the Baker → Baker flow weighs one and surfaces the child a
+     * single time.
+     */
+    #[Test]
+    public function occupationInheritanceCountsAChildOnceWhenBothParentsShareTheTrade(): void
+    {
+        $tree   = $this->importFixtureTree('occupation-inheritance-shared-parent-trade.ged');
+        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree)))
+            ->occupationInheritance(10);
+
+        self::assertCount(1, $result->links, 'two same-trade parents feed one flow, not two');
+        self::assertSame(['Baker', 'Baker'], $result->nodes);
+
+        $flow = PayloadNarrowing::sankeyLinkAt($result->links, 0);
+        self::assertSame(1, $flow->value, 'the child is counted once, not once per parent');
+        self::assertCount(1, $flow->samples, 'the child surfaces a single sample, not a duplicate');
+    }
+
+    /**
+     * A parent carrying several `1 OCCU` lines contributes only their FIRST
+     * recorded trade — pairing every parent trade against the child would
+     * inflate one succession into a cross-product. The fixture's
+     * multi-occupation father lists Carpenter before Mayor, so Carpenter is the
+     * source node and Mayor never appears.
+     */
+    #[Test]
+    public function occupationInheritanceReadsOnlyThePrimaryParentOccupation(): void
     {
         $tree   = $this->importFixtureTree('occupation-inheritance.ged');
         $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree)))
             ->occupationInheritance(10);
 
         self::assertContains('Carpenter', $result->nodes);
-        self::assertNotContains('Mayor', $result->nodes, 'only the first father OCCU counts');
+        self::assertNotContains('Mayor', $result->nodes, 'only the first parent OCCU counts');
     }
 
     /**
-     * Pairs where either side lacks an occupation, a daughter, a son with no
-     * resolvable father and a son whose family records only a mother are all
+     * Pairs where either side lacks an occupation, a child with no resolvable
+     * parent and a child whose only recorded parent lacks a trade are all
      * dropped. None of their occupations leak into the node table.
      */
     #[Test]
-    public function occupationInheritanceDropsIncompleteAndNonSonPairs(): void
+    public function occupationInheritanceDropsIncompletePairs(): void
     {
         $tree   = $this->importFixtureTree('occupation-inheritance.ged');
         $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree)))
             ->occupationInheritance(10);
 
-        // Tailor: son's trade, but his father has no occupation.
-        // Miller: father's trade, but his son has none.
-        // Weaver: only carried by a daughter.
-        // Baker:  son has no FAMC at all (no resolvable father).
-        // Cooper: son's family records only a mother (no husband).
-        foreach (['Tailor', 'Miller', 'Weaver', 'Baker', 'Cooper'] as $occupation) {
+        // Tailor: child's trade, but his father has no occupation.
+        // Miller: father's trade, but his child has none.
+        // Baker:  child has no FAMC at all (no resolvable parent).
+        // Cooper: child's only recorded parent is a mother without a trade.
+        foreach (['Tailor', 'Miller', 'Baker', 'Cooper'] as $occupation) {
             self::assertNotContains($occupation, $result->nodes, $occupation . ' pair must be dropped');
         }
     }
 
     /**
-     * Every link carries up to three sample sons so the hover tooltip can
+     * Every link carries up to three sample children so the hover tooltip can
      * surface representative people behind the band. The Farmer → Farmer flow
-     * has five contributing sons precisely to exercise the cap: the sample list
-     * holds exactly three distinct names drawn from the five, while the flow
-     * value still reflects all five. WHICH three survive is pinned by the
+     * has five contributing children precisely to exercise the cap: the sample
+     * list holds exactly three distinct names drawn from the five, while the
+     * flow value still reflects all five. WHICH three survive is pinned by the
      * repository's ORDER BY i_id, but the assertion stays order-agnostic so
      * renumbering the fixture xrefs would not cascade into noisy churn.
      */
     #[Test]
-    public function occupationInheritanceAttachesSampleSonsPerLink(): void
+    public function occupationInheritanceAttachesSampleChildrenPerLink(): void
     {
         $tree   = $this->importFixtureTree('occupation-inheritance.ged');
         $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree)))
             ->occupationInheritance(10);
 
         $heaviest = PayloadNarrowing::sankeyLinkAt($result->links, 0);
-        self::assertSame(5, $heaviest->value, 'flow weight reflects all 5 contributing sons');
+        self::assertSame(5, $heaviest->value, 'flow weight reflects all 5 contributing children');
         self::assertCount(3, $heaviest->samples, 'sample list caps at SAMPLES_PER_FLOW=3');
 
         $names = array_map(
@@ -173,19 +260,19 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
             $heaviest->samples,
         );
 
-        // Every surfaced sample must be one of the five known Farmer →
-        // Farmer sons — proves the cap picks from the right population.
+        // Every surfaced sample must be one of the five known Farmer → Farmer
+        // children — proves the cap picks from the right population.
         $candidates = ['Anton Farmer', 'Bernd Farmer', 'Carl Farmer', 'Dirk Farmer', 'Emil Upper'];
 
         foreach ($names as $name) {
             self::assertContains($name, $candidates, 'sample names must come from the fixture pool');
         }
 
-        // No duplicates: every cap slot held by a distinct son.
-        self::assertCount(3, array_unique($names), 'cap picks 3 distinct sons');
+        // No duplicates: every cap slot held by a distinct child.
+        self::assertCount(3, array_unique($names), 'cap picks 3 distinct children');
 
-        // Each sample carries its son xref so the tooltip could link to
-        // the individual page.
+        // Each sample carries its child xref so the tooltip could link to the
+        // individual page.
         foreach ($heaviest->samples as $sample) {
             self::assertStringStartsWith('I', $sample->xref);
         }
@@ -208,16 +295,16 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
     }
 
     /**
-     * A man in the middle of a three-generation chain contributes to TWO
-     * distinct flows: as the SON of his own father (grandfather → father) and
-     * as the FATHER of his son (father → son). The single-pass design resolves
-     * each role independently, so his occupation surfaces once on the target
-     * side of the upper-generation flow and once on the source side of the
-     * lower-generation flow — guarding the dual-role behaviour against a future
-     * refactor that might couple the two.
+     * A person in the middle of a three-generation chain contributes to TWO
+     * distinct flows: as the CHILD of their own parent (grandfather → father)
+     * and as the PARENT of their child (father → son). The single-pass design
+     * resolves each role independently, so the occupation surfaces once on the
+     * target side of the upper-generation flow and once on the source side of
+     * the lower-generation flow — guarding the dual-role behaviour against a
+     * future refactor that might couple the two.
      */
     #[Test]
-    public function occupationInheritanceCountsAManAsBothSonAndFatherAcrossGenerations(): void
+    public function occupationInheritanceCountsAPersonAsBothChildAndParentAcrossGenerations(): void
     {
         $tree   = $this->importFixtureTree('occupation-inheritance-multigeneration.ged');
         $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree)))
@@ -228,14 +315,14 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
         self::assertCount(2, $result->links);
         self::assertSame(['Smith', 'Carpenter', 'Carpenter', 'Mason'], $result->nodes);
 
-        // Grandfather → father: the middle man is the son-sample here.
+        // Grandfather → father: the middle man is the child-sample here.
         $upperFlow = PayloadNarrowing::sankeyLinkAt($result->links, 0);
         self::assertSame(0, $upperFlow->source);
         self::assertSame(2, $upperFlow->target);
         self::assertSame('Vater Schmidt', PayloadNarrowing::sankeySampleAt($upperFlow->samples, 0)->name);
 
-        // Father → son: the SAME middle man is now the source occupation,
-        // and his son is the sample.
+        // Father → son: the SAME middle man is now the source occupation, and
+        // his son is the sample.
         $lowerFlow = PayloadNarrowing::sankeyLinkAt($result->links, 1);
         self::assertSame(1, $lowerFlow->source);
         self::assertSame(3, $lowerFlow->target);
@@ -243,9 +330,9 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
     }
 
     /**
-     * A tree of father → son lineages that carry no occupation at all produces
-     * no flows — every pair is dropped for want of a trade on both ends and the
-     * aggregator returns its empty shape.
+     * A tree of lineages that carry no occupation at all produces no flows —
+     * every pair is dropped for want of a trade on both ends and the aggregator
+     * returns its empty shape.
      */
     #[Test]
     public function occupationInheritanceReturnsEmptyWhenNoOccupationsRecorded(): void
@@ -259,13 +346,13 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
     }
 
     /**
-     * Hover samples are resolved through the record factory, so a sample son
-     * the current user cannot see is dropped and the next deterministic son
+     * Hover samples are resolved through the record factory, so a sample child
+     * the current user cannot see is dropped and the next deterministic child
      * takes its slot — the private name never reaches the tooltip. The fixture
-     * has one Blacksmith → Blacksmith flow with FOUR sons in xref order (Anton,
-     * Bernd, Carl, Dirk); Bernd carries `1 RESN confidential`. As the importing
-     * admin all four are visible, so the cap of three holds the first three
-     * (Anton, Bernd, Carl) — this proves Bernd sits inside the cap window,
+     * has one Blacksmith → Blacksmith flow with FOUR children in xref order
+     * (Anton, Bernd, Carl, Dirk); Bernd carries `1 RESN confidential`. As the
+     * importing admin all four are visible, so the cap of three holds the first
+     * three (Anton, Bernd, Carl) — this proves Bernd sits inside the cap window,
      * making the visitor assertion a real discriminator rather than a
      * fixture-ordering artefact. As an anonymous visitor Bernd is skipped and
      * Dirk is promoted into the freed slot, while the flow weight stays at four.
@@ -277,7 +364,7 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
         $tree->setPreference('HIDE_LIVE_PEOPLE', '1');
         $tree->setPreference('SHOW_DEAD_PEOPLE', (string) Auth::PRIV_PRIVATE);
 
-        // Control: as the importing admin every son is visible, so the
+        // Control: as the importing admin every child is visible, so the
         // confidential Bernd occupies a cap slot.
         $adminNames = $this->blacksmithFlowSampleNames($tree);
         self::assertContains('Bernd Secret', $adminNames, 'the confidential sample sits inside the cap window for an admin');
@@ -290,7 +377,7 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
             ->occupationInheritance(10);
         $heaviest = PayloadNarrowing::sankeyLinkAt($result->links, 0);
 
-        // The flow weight still reflects all four sons — dropping a private
+        // The flow weight still reflects all four children — dropping a private
         // sample must not distort the aggregate.
         self::assertSame(4, $heaviest->value, 'the flow weight is counted independently of the samples');
         self::assertCount(3, $heaviest->samples, 'the cap still holds three samples after the private one is skipped');
@@ -298,17 +385,17 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
         $names = array_map(static fn (SankeySample $sample): string => $sample->name, $heaviest->samples);
 
         self::assertNotContains('Bernd Secret', $names, 'a sample the visitor cannot see must not leak into the tooltip');
-        self::assertContains('Dirk Public', $names, 'the next deterministic son is promoted into the freed slot');
+        self::assertContains('Dirk Public', $names, 'the next deterministic child is promoted into the freed slot');
         self::assertSame(['Anton Public', 'Carl Public', 'Dirk Public'], $names);
     }
 
     /**
-     * A flow whose every contributing son is hidden from the current user keeps
-     * its full weight but surfaces no sample names — the weight is counted from
-     * the son scan, independent of whether any representative can be shown. The
-     * fixture's Tailor → Tailor flow has two sons, both `1 RESN confidential`,
-     * so an anonymous visitor sees a weight of two with an empty sample list
-     * rather than a leaked name or a dropped flow.
+     * A flow whose every contributing child is hidden from the current user
+     * keeps its full weight but surfaces no sample names — the weight is counted
+     * from the child scan, independent of whether any representative can be
+     * shown. The fixture's Tailor → Tailor flow has two children, both `1 RESN
+     * confidential`, so an anonymous visitor sees a weight of two with an empty
+     * sample list rather than a leaked name or a dropped flow.
      */
     #[Test]
     public function occupationInheritanceKeepsTheWeightButOmitsSamplesWhenEveryContributorIsPrivate(): void
@@ -355,5 +442,54 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
             static fn (SankeySample $sample): string => $sample->name,
             PayloadNarrowing::sankeyLinkAt($result->links, 0)->samples,
         );
+    }
+
+    /**
+     * Resolve the sample names attached to the flow whose source and target
+     * trades match the given labels. Fails the test when no such flow exists so
+     * a typo in the expected trade cannot pass as an empty sample list.
+     *
+     * @param SankeyFlowsPayload $payload     The aggregated payload to search
+     * @param string             $sourceTrade The expected source-node label
+     * @param string             $targetTrade The expected target-node label
+     *
+     * @return list<string>
+     */
+    private function sampleNamesForFlow(SankeyFlowsPayload $payload, string $sourceTrade, string $targetTrade): array
+    {
+        foreach ($payload->links as $link) {
+            $source = $payload->nodes[$link->source] ?? self::fail('link source index missing from the node table');
+            $target = $payload->nodes[$link->target] ?? self::fail('link target index missing from the node table');
+
+            if (($source === $sourceTrade) && ($target === $targetTrade)) {
+                return array_map(
+                    static fn (SankeySample $sample): string => $sample->name,
+                    $link->samples,
+                );
+            }
+        }
+
+        self::fail($sourceTrade . ' → ' . $targetTrade . ' flow missing');
+    }
+
+    /**
+     * Reduce a payload to a list of `[sourceLabel, targetLabel]` pairs so a test
+     * can assert a flow exists by its human-readable trades without pinning the
+     * encounter-order node indices.
+     *
+     * @return list<array{0: string, 1: string}>
+     */
+    private function flowLabels(SankeyFlowsPayload $payload): array
+    {
+        $flows = [];
+
+        foreach ($payload->links as $link) {
+            $source = $payload->nodes[$link->source] ?? self::fail('link source index missing from the node table');
+            $target = $payload->nodes[$link->target] ?? self::fail('link target index missing from the node table');
+
+            $flows[] = [$source, $target];
+        }
+
+        return $flows;
     }
 }

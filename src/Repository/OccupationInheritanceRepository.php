@@ -32,19 +32,30 @@ use function mb_strtolower;
 // jscpd:ignore-end
 
 /**
- * Aggregates father → son occupation inheritance across the tree. Every male
- * child who carries an occupation and whose resolvable father also carries one
- * contributes a single weighted link from the father's occupation to the son's
- * — the data behind the Sankey diagram on the Overview tab.
+ * Aggregates parent → child occupation inheritance across the tree. Every child
+ * who carries an occupation and whose resolvable father or mother also carries
+ * one contributes a single weighted link from the parent's occupation to the
+ * child's — the data behind the Sankey diagram on the Overview tab. Both
+ * parents are considered, so a child of two working parents can feed two
+ * distinct flows (one per parent trade); a child whose father and mother share
+ * the same trade is counted only once for that flow, never twice.
  *
  * Only the FIRST recorded `1 OCCU` line is read per person: a person with
- * several occupations has one primary trade, and pairing every father trade
- * against every son trade would inflate one biological succession into a
- * cross-product of phantom flows. Pairs are dropped whenever either side lacks
- * an occupation — the diagram answers "given both worked, did the trade carry
- * over?", so an unknown end would only add noise. Occupations are case-folded
- * before counting so spelling variants (`Smith` / `smith`) merge; the first-
- * seen casing becomes the display label.
+ * several occupations has one primary trade, and pairing every parent trade
+ * against every child trade would inflate one succession into a cross-product
+ * of phantom flows. Pairs are dropped whenever either side lacks an occupation
+ * — the diagram answers "given both worked, did the trade carry over?", so an
+ * unknown end would only add noise. Occupations are case-folded before counting
+ * so spelling variants (`Smith` / `smith`) merge; the first-seen casing becomes
+ * the display label.
+ *
+ * Privacy contract (matching the sibling migration Sankey): occupation node
+ * labels are AGGREGATE facts and are not individually privacy-gated — a trade
+ * practised by a privacy-restricted parent or child can appear as a node label,
+ * exactly as the statistics module surfaces aggregate counts everywhere else.
+ * Only the per-flow sample children are routed through the privacy layer (see
+ * {@see SankeySampleResolver}): a child the current user may not see is dropped
+ * from the tooltip, while the flow weight still counts them.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -53,9 +64,9 @@ use function mb_strtolower;
 final readonly class OccupationInheritanceRepository
 {
     /**
-     * Maximum number of sample sons surfaced per flow on hover. Three keeps the
-     * tooltip to a single line per name while still hinting at who is behind a
-     * band.
+     * Maximum number of sample children surfaced per flow on hover. Three keeps
+     * the tooltip to a single line per name while still hinting at who is behind
+     * a band.
      */
     private const int SAMPLES_PER_FLOW = 3;
 
@@ -70,17 +81,19 @@ final readonly class OccupationInheritanceRepository
     }
 
     /**
-     * Build the Sankey payload describing father → son occupation flows. For
-     * every male individual that carries an occupation, the father is resolved
-     * via the shared parent map; when the father also carries an occupation the
-     * (father-occupation → son-occupation) pair is counted once. Only the
-     * top-N links by weight are returned so the diagram stays legible. The
-     * weighted flow map is handed to {@see BipartiteSankeyAssembler}, which lays
-     * the father and son sides out as disjoint node columns (a trade that is
-     * both passed down and inherited becomes two separate nodes, avoiding the
-     * d3-sankey "circular link" error).
+     * Build the Sankey payload describing parent → child occupation flows. For
+     * every individual that carries an occupation, both parents are resolved via
+     * the shared parent map; for each parent that also carries an occupation the
+     * (parent-occupation → child-occupation) pair is counted once. A child is
+     * counted at most once per flow, so two parents sharing the same trade do
+     * not double the child into a single band. Only the top-N links by weight
+     * are returned so the diagram stays legible. The weighted flow map is handed
+     * to {@see BipartiteSankeyAssembler}, which lays the parent and child sides
+     * out as disjoint node columns (a trade that is both passed down and
+     * inherited becomes two separate nodes, avoiding the d3-sankey "circular
+     * link" error).
      *
-     * Each link carries up to {@see SAMPLES_PER_FLOW} sample sons (`name`,
+     * Each link carries up to {@see SAMPLES_PER_FLOW} sample children (`name`,
      * `xref`) so the consumer's hover tooltip can surface representative people
      * behind every inheritance path.
      *
@@ -94,11 +107,11 @@ final readonly class OccupationInheritanceRepository
         // replication, index changes).
         //
         // Restrict the loaded set to individuals carrying a `1 OCCU` line: only
-        // an OCCU-bearer can be a son in a flow, and a father without OCCU is
+        // an OCCU-bearer can be a child in a flow, and a parent without OCCU is
         // dropped anyway, so the anchored-LIKE prefilter keeps exactly the set
-        // both the son iteration and the father lookup need — but it spares the
-        // whole-tree GEDCOM blob transfer (and the resident xref → blob map) on
-        // the typically small OCCU-bearing subpopulation rather than every
+        // both the child iteration and the parent lookup need — but it spares
+        // the whole-tree GEDCOM blob transfer (and the resident xref → blob map)
+        // on the typically small OCCU-bearing subpopulation rather than every
         // individual.
         $occuPatterns = GedcomScanner::anchoredLikePatterns('OCCU');
 
@@ -112,8 +125,8 @@ final readonly class OccupationInheritanceRepository
             ->select(['i_id AS xref', 'i_gedcom AS gedcom'])
             ->get();
 
-        // First pass: index every individual's GEDCOM by xref so a son's father
-        // record can be looked up without a second query.
+        // First pass: index every individual's GEDCOM by xref so a child's
+        // parent record can be looked up without a second query.
         $gedcomByXref = [];
 
         foreach ($rows as $row) {
@@ -122,62 +135,87 @@ final readonly class OccupationInheritanceRepository
 
         $parentOf = $this->parentMap->build();
 
-        // Count every (father-occupation → son-occupation) pair once per son,
-        // and remember up to SAMPLES_PER_FLOW representative sons per flow.
+        // Count every (parent-occupation → child-occupation) pair once per
+        // child, and remember up to SAMPLES_PER_FLOW representative children per
+        // flow.
         $linkWeight  = [];
         $linkSamples = [];
         $display     = [];
 
         foreach ($rows as $row) {
-            $sonXref   = RowCast::string($row, 'xref');
-            $sonGedcom = RowCast::string($row, 'gedcom');
+            $childXref   = RowCast::string($row, 'xref');
+            $childGedcom = RowCast::string($row, 'gedcom');
 
-            if (GedcomScanner::extractFirstTagValue($sonGedcom, 'SEX') !== 'M') {
+            $childOccupation = GedcomScanner::extractFirstTagValue($childGedcom, 'OCCU');
+
+            if ($childOccupation === null) {
                 continue;
             }
 
-            $sonOccupation = GedcomScanner::extractFirstTagValue($sonGedcom, 'OCCU');
+            $parents = $parentOf[$childXref] ?? null;
 
-            if ($sonOccupation === null) {
+            if ($parents === null) {
                 continue;
             }
 
-            $fatherXref = $parentOf[$sonXref][0] ?? null;
+            $childKey = mb_strtolower($childOccupation);
 
-            if ($fatherXref === null) {
-                continue;
-            }
+            // A child whose father and mother share the same trade must feed the
+            // band only once: track the flow keys already counted for THIS child
+            // so the second parent of an identical trade is skipped.
+            $seenKeys = [];
 
-            $fatherGedcom = $gedcomByXref[$fatherXref] ?? null;
+            // The sample is always the child, so a child feeding several flows
+            // (two differently-employed parents) resolves through the privacy
+            // layer at most once; the result (a SankeySample or a null the user
+            // may not see) is memoised and reused across that child's flows.
+            $childSample   = null;
+            $childResolved = false;
 
-            if ($fatherGedcom === null) {
-                continue;
-            }
+            foreach ($parents as $parentXref) {
+                if ($parentXref === null) {
+                    continue;
+                }
 
-            $fatherOccupation = GedcomScanner::extractFirstTagValue($fatherGedcom, 'OCCU');
+                $parentGedcom = $gedcomByXref[$parentXref] ?? null;
 
-            if ($fatherOccupation === null) {
-                continue;
-            }
+                if ($parentGedcom === null) {
+                    continue;
+                }
 
-            $fatherKey = mb_strtolower($fatherOccupation);
-            $sonKey    = mb_strtolower($sonOccupation);
+                $parentOccupation = GedcomScanner::extractFirstTagValue($parentGedcom, 'OCCU');
 
-            $display[$fatherKey] ??= $fatherOccupation;
-            $display[$sonKey]    ??= $sonOccupation;
+                if ($parentOccupation === null) {
+                    continue;
+                }
 
-            $key              = $fatherKey . "\0" . $sonKey;
-            $linkWeight[$key] = ($linkWeight[$key] ?? 0) + 1;
-            $linkSamples[$key] ??= [];
+                $parentKey = mb_strtolower($parentOccupation);
+                $key       = $parentKey . "\0" . $childKey;
 
-            // Resolve the sample son through the privacy layer; a null result (a
-            // record the user cannot see) is skipped and the next son fills the
-            // slot — see SankeySampleResolver::resolve().
-            if (count($linkSamples[$key]) < self::SAMPLES_PER_FLOW) {
-                $sample = SankeySampleResolver::resolve($this->tree, $sonXref, $sonGedcom);
+                if (isset($seenKeys[$key])) {
+                    continue;
+                }
 
-                if ($sample instanceof SankeySample) {
-                    $linkSamples[$key][] = $sample;
+                $seenKeys[$key] = true;
+
+                $display[$parentKey] ??= $parentOccupation;
+                $display[$childKey]  ??= $childOccupation;
+
+                $linkWeight[$key] = ($linkWeight[$key] ?? 0) + 1;
+                $linkSamples[$key] ??= [];
+
+                // Resolve the sample child through the privacy layer; a null
+                // result (a record the user cannot see) is skipped and the next
+                // child fills the slot — see SankeySampleResolver::resolve().
+                if (count($linkSamples[$key]) < self::SAMPLES_PER_FLOW) {
+                    if (!$childResolved) {
+                        $childSample   = SankeySampleResolver::resolve($this->tree, $childXref, $childGedcom);
+                        $childResolved = true;
+                    }
+
+                    if ($childSample instanceof SankeySample) {
+                        $linkSamples[$key][] = $childSample;
+                    }
                 }
             }
         }

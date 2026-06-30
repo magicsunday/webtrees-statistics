@@ -151,6 +151,6 @@ final class MarriageExtremesViewTest extends TestCase
             include $partial;
         })(__DIR__ . '/../../resources/views/modules/statistics-chart/components/marriage-extremes.phtml', $data);
 
-        return (string) ob_get_clean();
+        return ob_get_clean();
     }
 }

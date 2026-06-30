@@ -20,7 +20,7 @@ use MagicSunday\Webtrees\Statistic\Support\Gedcom\RecordName;
 /**
  * Resolves a Sankey hover sample through the webtrees record factory so the
  * surfaced name passes the same privacy layer as the rest of the UI. Both
- * Sankey aggregators (birth → death migration, father → son occupation
+ * Sankey aggregators (birth → death migration, parent → child occupation
  * inheritance) used to read the raw `1 NAME` GEDCOM line, which bypassed
  * `Individual::canShow()` and `fullName()` entirely and could surface a name
  * webtrees would otherwise privatise (an explicit `1 RESN` restriction or a
