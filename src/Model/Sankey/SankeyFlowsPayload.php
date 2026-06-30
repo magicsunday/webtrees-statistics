@@ -20,7 +20,7 @@ use function array_map;
  * labels plus directed links that index into it. Two repositories produce it —
  * `MigrationRepository::flowsByCountry()` (birth → death country flows on the
  * Places tab) and `OccupationInheritanceRepository::occupationInheritance()`
- * (father → son occupation flows on the Overview tab) — and the chart-lib
+ * (parent → child occupation flows on the Overview tab) — and the chart-lib
  * sankey-flow widget consumes it via JSON.
  *
  * Serialises to `{nodes: list<{name}>, links: list<{source, target, value,

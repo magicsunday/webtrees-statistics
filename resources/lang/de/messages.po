@@ -1472,17 +1472,19 @@ msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:204
 msgid ""
-"Each band links a father's occupation to the occupation of one of his sons. "
-"The band's thickness encodes the count: thicker bands mean more sons "
-"recorded in that trade after their father. Only sons whose father also has a "
-"recorded occupation are counted. Hover any band to see the exact father "
-"trade → son trade, the number of sons, and a few of them by name."
+"Each band links a parent's occupation to the occupation of one of their "
+"children. The band's thickness encodes the count: thicker bands mean more "
+"children recorded in that trade after a parent. Only children whose father "
+"or mother also has a recorded occupation are counted. Hover any band to see "
+"the exact parent trade → child trade, the number of children, and a few of "
+"them by name."
 msgstr ""
-"Jedes Band verbindet den Beruf eines Vaters mit dem Beruf eines seiner "
-"Söhne. Je dicker das Band, desto mehr Söhne sind nach ihrem Vater im selben "
-"Beruf verzeichnet. Gezählt werden nur Söhne, deren Vater ebenfalls einen "
-"erfassten Beruf hat. Maus über ein Band zeigt den exakten Beruf des Vaters → "
-"Beruf des Sohns, die Zahl der Söhne und einige davon namentlich."
+"Jedes Band verbindet den Beruf eines Elternteils mit dem Beruf eines seiner "
+"Kinder. Je dicker das Band, desto mehr Kinder sind nach einem Elternteil im "
+"selben Beruf verzeichnet. Gezählt werden nur Kinder, deren Vater oder Mutter "
+"ebenfalls einen erfassten Beruf hat. Maus über ein Band zeigt den exakten "
+"Beruf des Elternteils → Beruf des Kindes, die Zahl der Kinder und einige "
+"davon namentlich."
 
 #: resources/views/modules/statistics-chart/tabs/names.phtml:36
 msgid ""
@@ -2640,8 +2642,8 @@ msgid "Occupation and confession"
 msgstr "Beruf und Konfession"
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:207
-msgid "Occupation inheritance from father to son"
-msgstr "Berufsvererbung vom Vater zum Sohn"
+msgid "Occupation inheritance from parent to child"
+msgstr "Berufsvererbung von Eltern zu Kindern"
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:160
 msgid "Occupational and religious affiliation of the recorded individuals"
@@ -3421,8 +3423,8 @@ msgid "Which names return?"
 msgstr "Welche Namen kehren wieder?"
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:208
-msgid "Which trade a son took up relative to his father"
-msgstr "Welchen Beruf ein Sohn im Verhältnis zu seinem Vater ergriff"
+msgid "Which trade a child took up relative to a parent"
+msgstr "Welchen Beruf ein Kind im Verhältnis zu einem Elternteil ergriff"
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:88
 msgid "Who is recorded?"

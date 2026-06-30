@@ -104,7 +104,7 @@ final readonly class Statistic
      * @param ChildMortalityRepository        $childMortalityRepository        Under-5 child mortality summary + per-birth-century breakdown
      * @param KinshipRepository               $kinshipRepository               Ancestor-count distribution + average pedigree-completeness (Lacy 1989)
      * @param OccupationRepository            $occupationRepository            Top-N occupations (`1 OCCU` facts) across the tree
-     * @param OccupationInheritanceRepository $occupationInheritanceRepository Father → son occupation flows for the Overview-tab Sankey diagram
+     * @param OccupationInheritanceRepository $occupationInheritanceRepository Parent → child occupation flows for the Overview-tab Sankey diagram
      * @param ReligionRepository              $religionRepository              Top-N religions / confessions (`1 RELI` facts) across the tree
      * @param DeathCauseRepository            $deathCauseRepository            Top-N death causes (`2 CAUS` under `1 DEAT`) across the tree
      * @param PlaceDispersionRepository       $placeDispersionRepository       Distinct-PLAC-per-individual dispersion (Places tab)
@@ -1230,10 +1230,10 @@ final readonly class Statistic
     }
 
     /**
-     * Father → son occupation inheritance flows ready for the Overview-tab
-     * Sankey diagram. Each link runs from a father's occupation to a son's;
-     * only sons whose father also has a recorded occupation contribute, and
-     * only the top-N weighted links are returned.
+     * Parent → child occupation inheritance flows ready for the Overview-tab
+     * Sankey diagram. Each link runs from a parent's occupation to a child's;
+     * only children whose father or mother also has a recorded occupation
+     * contribute, and only the top-N weighted links are returned.
      *
      * @param int $topLinks Maximum number of distinct flows to retain
      */

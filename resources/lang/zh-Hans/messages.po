@@ -1429,11 +1429,12 @@ msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:204
 msgid ""
-"Each band links a father's occupation to the occupation of one of his sons. "
-"The band's thickness encodes the count: thicker bands mean more sons "
-"recorded in that trade after their father. Only sons whose father also has a "
-"recorded occupation are counted. Hover any band to see the exact father "
-"trade → son trade, the number of sons, and a few of them by name."
+"Each band links a parent's occupation to the occupation of one of their "
+"children. The band's thickness encodes the count: thicker bands mean more "
+"children recorded in that trade after a parent. Only children whose father "
+"or mother also has a recorded occupation are counted. Hover any band to see "
+"the exact parent trade → child trade, the number of children, and a few of "
+"them by name."
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/names.phtml:36
@@ -2446,7 +2447,7 @@ msgid "Occupation and confession"
 msgstr "Occupation and confession"
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:207
-msgid "Occupation inheritance from father to son"
+msgid "Occupation inheritance from parent to child"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:160
@@ -3160,7 +3161,7 @@ msgid "Which names return?"
 msgstr "Which names return?"
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:208
-msgid "Which trade a son took up relative to his father"
+msgid "Which trade a child took up relative to a parent"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:88

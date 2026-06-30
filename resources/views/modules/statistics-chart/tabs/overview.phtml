@@ -201,11 +201,11 @@ echo Card::for($module, I18N::translate('Common religions'))
     ->render();
 
 $occupationInheritanceExplanation = I18N::translate(
-    'Each band links a father\'s occupation to the occupation of one of his sons. The band\'s thickness encodes the count: thicker bands mean more sons recorded in that trade after their father. Only sons whose father also has a recorded occupation are counted. Hover any band to see the exact father trade → son trade, the number of sons, and a few of them by name.'
+    'Each band links a parent\'s occupation to the occupation of one of their children. The band\'s thickness encodes the count: thicker bands mean more children recorded in that trade after a parent. Only children whose father or mother also has a recorded occupation are counted. Hover any band to see the exact parent trade → child trade, the number of children, and a few of them by name.'
 );
 
-echo Card::for($module, I18N::translate('Occupation inheritance from father to son'))
-    ->withSub(I18N::translate('Which trade a son took up relative to his father'))
+echo Card::for($module, I18N::translate('Occupation inheritance from parent to child'))
+    ->withSub(I18N::translate('Which trade a child took up relative to a parent'))
     ->withEyebrow(I18N::translate('Heritage'))
     ->withAccent(Accent::Ochre)
     ->withIllustration(Illustration::Craft)
