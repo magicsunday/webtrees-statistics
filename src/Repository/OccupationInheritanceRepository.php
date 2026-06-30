@@ -49,6 +49,14 @@ use function mb_strtolower;
  * so spelling variants (`Smith` / `smith`) merge; the first-seen casing becomes
  * the display label.
  *
+ * Privacy contract (matching the sibling migration Sankey): occupation node
+ * labels are AGGREGATE facts and are not individually privacy-gated — a trade
+ * practised by a privacy-restricted parent or child can appear as a node label,
+ * exactly as the statistics module surfaces aggregate counts everywhere else.
+ * Only the per-flow sample children are routed through the privacy layer (see
+ * {@see SankeySampleResolver}): a child the current user may not see is dropped
+ * from the tooltip, while the flow weight still counts them.
+ *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
@@ -157,6 +165,13 @@ final readonly class OccupationInheritanceRepository
             // so the second parent of an identical trade is skipped.
             $seenKeys = [];
 
+            // The sample is always the child, so a child feeding several flows
+            // (two differently-employed parents) resolves through the privacy
+            // layer at most once; the result (a SankeySample or a null the user
+            // may not see) is memoised and reused across that child's flows.
+            $childSample   = null;
+            $childResolved = false;
+
             foreach ($parents as $parentXref) {
                 if ($parentXref === null) {
                     continue;
@@ -193,10 +208,13 @@ final readonly class OccupationInheritanceRepository
                 // result (a record the user cannot see) is skipped and the next
                 // child fills the slot — see SankeySampleResolver::resolve().
                 if (count($linkSamples[$key]) < self::SAMPLES_PER_FLOW) {
-                    $sample = SankeySampleResolver::resolve($this->tree, $childXref, $childGedcom);
+                    if (!$childResolved) {
+                        $childSample   = SankeySampleResolver::resolve($this->tree, $childXref, $childGedcom);
+                        $childResolved = true;
+                    }
 
-                    if ($sample instanceof SankeySample) {
-                        $linkSamples[$key][] = $sample;
+                    if ($childSample instanceof SankeySample) {
+                        $linkSamples[$key][] = $childSample;
                     }
                 }
             }
