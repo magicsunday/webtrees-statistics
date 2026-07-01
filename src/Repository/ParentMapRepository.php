@@ -147,11 +147,15 @@ final class ParentMapRepository
             // cannot out-score a valid one. A person is never their own parent
             // (the child listed as its own family's spouse — reachable via an
             // imported GEDCOM and via the core "Change family members" editor,
-            // which enforces no parent ≠ child rule), and a parent duplicated
-            // across both spouse slots carries one parent's worth of
-            // information, not two.
+            // which enforces no parent ≠ child rule).
             $father = ($pair[0] !== $child) ? $pair[0] : null;
-            $mother = (($pair[1] !== $child) && ($pair[1] !== $father)) ? $pair[1] : null;
+            $mother = ($pair[1] !== $child) ? $pair[1] : null;
+
+            // A parent duplicated across both spouse slots carries one parent's
+            // worth of information, not two — keep it in the father slot only.
+            if ($father === $mother) {
+                $mother = null;
+            }
 
             $score = ($father !== null ? 1 : 0) + ($mother !== null ? 1 : 0);
 
