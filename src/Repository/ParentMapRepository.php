@@ -58,8 +58,16 @@ final class ParentMapRepository
      * Build a child-id → [father-id|null, mother-id|null] map for the
      * configured tree. Children with no resolvable FAM-spouse pair are absent
      * from the map; callers treat absence as "root of the walk — no further
-     * ancestors known". Result is cached for the lifetime of the repository
-     * instance.
+     * ancestors known". A child with several FAMC families (a birth family plus
+     * an adoptive/foster one) resolves to a single, DETERMINISTIC pair: the
+     * family carrying the most parent information, ties broken on the
+     * lexicographically lowest family xref (the xref column is text, so the
+     * ordering is byte/sort order, not numeric) — never the arbitrary,
+     * engine-dependent last row. Malformed parent slots are dropped before
+     * scoring: a person is never their own parent, and a parent duplicated
+     * across both spouse slots counts once, so a corrupt family cannot
+     * out-score a valid one. Result is cached for the lifetime of the
+     * repository instance.
      *
      * The key type is `array-key`, not `string`: a digit-only XREF ("54") is
      * silently coerced to an int the moment it indexes the array, so callers
@@ -93,12 +101,29 @@ final class ParentMapRepository
             $familyParents[$famId] = [$husb, $wife];
         }
 
+        // ORDER BY l_to pins the per-child family scan to ascending family-xref
+        // order so the tie-break below ("lexicographically lowest family xref
+        // wins") is stable regardless of the engine's default row order. l_to is
+        // a text column, so the ordering is byte/sort order (F10 sorts before
+        // F2), not numeric. l_from is ordered too so the whole scan is
+        // deterministic.
         $childRows = TreeScope::table($this->tree, 'link')
             ->where('l_type', '=', 'FAMC')
+            ->orderBy('l_from')
+            ->orderBy('l_to')
             ->select(['l_from AS child', 'l_to AS family'])
             ->get();
 
-        $parentOf = [];
+        // A child may carry several FAMC links (a birth family plus an
+        // adoptive/foster one). The previous unordered last-write-wins picked an
+        // arbitrary, engine-dependent family. Instead keep the family carrying
+        // the most parent information (both parents > one > none); equal-score
+        // ties resolve to the lexicographically lowest family xref, which the
+        // ascending scan makes the first seen. The link table carries no
+        // `2 PEDI`, so birth vs. adoptive is not distinguished — the choice is
+        // deterministic, not pedigree-aware.
+        $parentOf    = [];
+        $parentScore = [];
 
         foreach ($childRows as $row) {
             $child  = RowCast::string($row, 'child');
@@ -116,7 +141,24 @@ final class ParentMapRepository
                 continue;
             }
 
-            $parentOf[$child] = $familyParents[$family];
+            $pair = $familyParents[$family];
+
+            // Drop malformed parent slots before scoring so a corrupt family
+            // cannot out-score a valid one. A person is never their own parent
+            // (the child listed as its own family's spouse — reachable via an
+            // imported GEDCOM and via the core "Change family members" editor,
+            // which enforces no parent ≠ child rule), and a parent duplicated
+            // across both spouse slots carries one parent's worth of
+            // information, not two.
+            $father = ($pair[0] !== $child) ? $pair[0] : null;
+            $mother = (($pair[1] !== $child) && ($pair[1] !== $father)) ? $pair[1] : null;
+
+            $score = ($father !== null ? 1 : 0) + ($mother !== null ? 1 : 0);
+
+            if (!isset($parentScore[$child]) || ($score > $parentScore[$child])) {
+                $parentOf[$child]    = [$father, $mother];
+                $parentScore[$child] = $score;
+            }
         }
 
         $this->cache = $parentOf;

@@ -1,0 +1,121 @@
+0 HEAD
+1 SOUR webtrees-statistics-fixture
+2 NAME parent-map-multi-famc
+1 DEST ANSTFILE
+1 CHAR UTF-8
+1 SUBM @SUBM1@
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+0 @SUBM1@ SUBM
+1 NAME Fixture
+0 @I1@ INDI
+1 NAME Child /A/
+1 SEX M
+1 FAMC @F2@
+1 FAMC @F1@
+0 @I2@ INDI
+1 NAME Child /B/
+1 SEX F
+1 FAMC @F4@
+1 FAMC @F3@
+1 FAMC @F5@
+0 @I3@ INDI
+1 NAME Child /C/
+1 SEX M
+1 FAMC @F6@
+1 FAMC @F7@
+0 @I4@ INDI
+1 NAME Child /D/
+1 SEX M
+1 FAMC @F8@
+1 FAMC @F9@
+1 FAMS @F8@
+0 @I5@ INDI
+1 NAME Child /E/
+1 SEX F
+1 FAMC @F10@
+0 @I10@ INDI
+1 NAME Solo /Father/
+1 SEX M
+1 FAMS @F1@
+0 @I11@ INDI
+1 NAME Birth /Father/
+1 SEX M
+1 FAMS @F2@
+0 @I12@ INDI
+1 NAME Birth /Mother/
+1 SEX F
+1 FAMS @F2@
+0 @I13@ INDI
+1 NAME First /Father/
+1 SEX M
+1 FAMS @F3@
+0 @I14@ INDI
+1 NAME First /Mother/
+1 SEX F
+1 FAMS @F3@
+0 @I15@ INDI
+1 NAME Second /Father/
+1 SEX M
+1 FAMS @F4@
+0 @I16@ INDI
+1 NAME Second /Mother/
+1 SEX F
+1 FAMS @F4@
+0 @I18@ INDI
+1 NAME Third /Father/
+1 SEX M
+1 FAMS @F5@
+0 @I19@ INDI
+1 NAME Third /Mother/
+1 SEX F
+1 FAMS @F5@
+0 @I20@ INDI
+1 NAME Lone /Father/
+1 SEX M
+1 FAMS @F6@
+0 @I21@ INDI
+1 NAME Valid /Father/
+1 SEX M
+1 FAMS @F9@
+0 @I30@ INDI
+1 NAME Duplicated /Parent/
+1 SEX M
+1 FAMS @F10@
+0 @F1@ FAM
+1 HUSB @I10@
+1 CHIL @I1@
+0 @F2@ FAM
+1 HUSB @I11@
+1 WIFE @I12@
+1 CHIL @I1@
+0 @F3@ FAM
+1 HUSB @I13@
+1 WIFE @I14@
+1 CHIL @I2@
+0 @F4@ FAM
+1 HUSB @I15@
+1 WIFE @I16@
+1 CHIL @I2@
+0 @F5@ FAM
+1 HUSB @I18@
+1 WIFE @I19@
+1 CHIL @I2@
+0 @F6@ FAM
+1 HUSB @I20@
+1 CHIL @I3@
+0 @F7@ FAM
+1 CHIL @I3@
+0 @F8@ FAM
+1 HUSB @I4@
+1 WIFE @I4@
+1 CHIL @I4@
+0 @F9@ FAM
+1 HUSB @I21@
+1 CHIL @I4@
+0 @F10@ FAM
+1 HUSB @I30@
+1 WIFE @I30@
+1 CHIL @I5@
+0 TRLR
