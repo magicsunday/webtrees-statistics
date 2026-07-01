@@ -38,12 +38,14 @@ use function array_unique;
  * curated fixture exercises every data-layer behaviour that matters: a trade
  * passed down to four children (cap on samples), a case-folded variant that
  * merges into that flow, a changed trade, a parent with several occupations
- * (only the first counts), a father → daughter flow and a mother → daughter
- * flow (both parents are considered, regardless of sex), a child of two working
- * parents that feeds two distinct flows, and four kinds of pair that must be
- * dropped — a parent without an occupation, a child without an occupation, a
- * child with no resolvable parent, and a child whose only recorded parent lacks
- * a trade.
+ * (every trade counts, so the secondary Mayor → Carpenter flow surfaces), a
+ * father → daughter flow and a mother → daughter flow (both parents are
+ * considered, regardless of sex), a child of two working parents that feeds two
+ * distinct flows, and four kinds of pair that must be dropped — a parent without
+ * an occupation, a child without an occupation, a child with no resolvable
+ * parent, and a child whose only recorded parent lacks a trade. A dedicated
+ * fixture exercises the full parent × child cross-product when both sides carry
+ * several trades.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -63,13 +65,14 @@ use function array_unique;
 final class OccupationInheritanceRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     /**
-     * Aggregates the fixture into the bipartite Sankey payload. Seven flows
+     * Aggregates the fixture into the bipartite Sankey payload. Eight flows
      * survive: Farmer → Farmer (×5, four direct children plus the case-folded
-     * `farmer`/`FARMER` pair), Blacksmith → Farmer (×1), Carpenter → Carpenter
-     * (×1), Weaver → Weaver (×1, a father → daughter), Seamstress → Seamstress
-     * (×1, a mother → daughter), and Mason → Glazier plus Potter → Glazier (×1
-     * each, the two trades of a child's working father and mother). Every
-     * dropped pair stays out of the result.
+     * `farmer`/`FARMER` pair), Carpenter → Carpenter (×1), Mayor → Carpenter
+     * (×1, the multi-occupation father's secondary trade), Weaver → Weaver (×1,
+     * a father → daughter), Seamstress → Seamstress (×1, a mother → daughter),
+     * Mason → Glazier plus Potter → Glazier (×1 each, the two trades of a child's
+     * working father and mother) and Blacksmith → Farmer (×1). Every dropped pair
+     * stays out of the result.
      */
     #[Test]
     public function occupationInheritanceReturnsTheExpectedAggregation(): void
@@ -78,42 +81,44 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
         $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree)))
             ->occupationInheritance(10);
 
-        // Seven distinct flows survive.
-        self::assertCount(7, $result->links);
+        // Eight distinct flows survive.
+        self::assertCount(8, $result->links);
 
         // Source column then target column, each in encounter order over the
         // weight-sorted flows. Equal-weight flows keep their insertion order,
-        // which follows the lexicographic xref scan (I1, I10, …, I2, …, I9), so
-        // the single Blacksmith → Farmer pair (child I9) lands last.
+        // which follows the lexicographic xref scan (I1, I10, …, I2, …, I9): the
+        // multi-occupation father I10 is scanned via his son I11 first, so
+        // Carpenter then Mayor lead the weight-1 sources, and the single
+        // Blacksmith → Farmer pair (child I9) lands last.
         self::assertSame(
             [
-                'Farmer', 'Carpenter', 'Weaver', 'Seamstress', 'Mason', 'Potter', 'Blacksmith',
+                'Farmer', 'Carpenter', 'Mayor', 'Weaver', 'Seamstress', 'Mason', 'Potter', 'Blacksmith',
                 'Farmer', 'Carpenter', 'Weaver', 'Seamstress', 'Glazier',
             ],
             $result->nodes,
         );
 
         // Heaviest flow leads — Farmer (source idx 0) → Farmer (target idx 0,
-        // shifted by sourceColumnSize=7 to absolute idx 7). Its weight of 5
+        // shifted by sourceColumnSize=8 to absolute idx 8). Its weight of 5
         // proves the case-folded `farmer` / `FARMER` pair merged into the four
         // direct Farmer → Farmer children.
         $heaviest = $result->links[0];
         self::assertSame(0, $heaviest->source);
-        self::assertSame(7, $heaviest->target);
+        self::assertSame(8, $heaviest->target);
         self::assertSame(5, $heaviest->value);
 
-        // The six remaining flows weigh 1 each.
+        // The seven remaining flows weigh 1 each.
         $tailValues = array_map(
             static fn (SankeyLink $link): int => $link->value,
             array_slice($result->links, 1),
         );
-        self::assertSame([1, 1, 1, 1, 1, 1], $tailValues);
+        self::assertSame([1, 1, 1, 1, 1, 1, 1], $tailValues);
 
         // Every link respects the bipartite invariant: source index in the
-        // source column [0, 7), target index in the target column [7, 12).
+        // source column [0, 8), target index in the target column [8, 13).
         foreach ($result->links as $link) {
-            self::assertLessThan(7, $link->source, 'source index must be in the source column');
-            self::assertGreaterThanOrEqual(7, $link->target, 'target index must be in the target column');
+            self::assertLessThan(8, $link->source, 'source index must be in the source column');
+            self::assertGreaterThanOrEqual(8, $link->target, 'target index must be in the target column');
         }
     }
 
@@ -197,21 +202,81 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
     }
 
     /**
-     * A parent carrying several `1 OCCU` lines contributes only their FIRST
-     * recorded trade — pairing every parent trade against the child would
-     * inflate one succession into a cross-product. The fixture's
-     * multi-occupation father lists Carpenter before Mayor, so Carpenter is the
-     * source node and Mayor never appears.
+     * A parent carrying several `1 OCCU` lines contributes EVERY recorded trade,
+     * not just the first: each parent occupation is paired against the child's
+     * occupation. The fixture's multi-occupation father lists Carpenter before
+     * Mayor and his son is a Carpenter, so both Carpenter → Carpenter and
+     * Mayor → Carpenter surface — the secondary trade is no longer dropped.
      */
     #[Test]
-    public function occupationInheritanceReadsOnlyThePrimaryParentOccupation(): void
+    public function occupationInheritanceReadsEveryParentOccupation(): void
     {
         $tree   = $this->importFixtureTree('occupation-inheritance.ged');
         $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree)))
             ->occupationInheritance(10);
 
-        self::assertContains('Carpenter', $result->nodes);
-        self::assertNotContains('Mayor', $result->nodes, 'only the first parent OCCU counts');
+        $flows = $this->flowLabels($result);
+
+        self::assertContains(['Carpenter', 'Carpenter'], $flows, 'the primary parent trade is counted');
+        self::assertContains(['Mayor', 'Carpenter'], $flows, 'the secondary parent trade is counted too');
+    }
+
+    /**
+     * A parent and a child that each record several `1 OCCU` lines produce the
+     * full cross-product of (parent trade → child trade): every parent
+     * occupation is paired against every child occupation, so a secondary trade
+     * surfaces both as a source and as a target. The fixture's father and son
+     * are each a Farmer AND a Carter, yielding all four combinations —
+     * Farmer → Farmer, Farmer → Carter, Carter → Farmer and Carter → Carter —
+     * each weighing one. The former first-OCCU-only behaviour produced only the
+     * single Farmer → Farmer flow.
+     */
+    #[Test]
+    public function occupationInheritanceCountsTheFullCrossProductOfMultipleOccupations(): void
+    {
+        $tree   = $this->importFixtureTree('occupation-inheritance-multi-occupation.ged');
+        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree)))
+            ->occupationInheritance(10);
+
+        self::assertCount(4, $result->links, 'two 2-trade people yield the 2×2 cross-product');
+
+        $flows = $this->flowLabels($result);
+
+        self::assertContains(['Farmer', 'Farmer'], $flows);
+        self::assertContains(['Farmer', 'Carter'], $flows);
+        self::assertContains(['Carter', 'Farmer'], $flows);
+        self::assertContains(['Carter', 'Carter'], $flows);
+
+        foreach ($result->links as $link) {
+            self::assertSame(1, $link->value, 'each distinct cross-product flow is counted once');
+        }
+    }
+
+    /**
+     * A trade repeated across several of a person's own `1 OCCU` lines counts as
+     * one distinct trade, not once per duplicate line: the repository folds each
+     * person's occupations to their distinct trades before pairing, so neither
+     * the flow count nor a flow's weight inflates. The fixture's father records
+     * Farmer three times plus Carter, and his son records Farmer twice; the
+     * result is exactly two flows — Farmer → Farmer and Carter → Farmer — each
+     * weighing one, never Farmer → Farmer ×3 or a duplicate band.
+     */
+    #[Test]
+    public function occupationInheritanceFoldsRepeatedOccupationLinesToDistinctTrades(): void
+    {
+        $tree   = $this->importFixtureTree('occupation-inheritance-duplicate-occupation.ged');
+        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree)))
+            ->occupationInheritance(10);
+
+        self::assertCount(2, $result->links, 'repeated occupation lines must not create duplicate flows');
+        self::assertSame(
+            [['Farmer', 'Farmer'], ['Carter', 'Farmer']],
+            $this->flowLabels($result),
+        );
+
+        foreach ($result->links as $link) {
+            self::assertSame(1, $link->value, 'a repeated trade must not inflate the flow weight');
+        }
     }
 
     /**

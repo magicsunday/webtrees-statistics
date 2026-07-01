@@ -34,17 +34,22 @@ use function mb_strtolower;
 /**
  * Aggregates parent → child occupation inheritance across the tree. Every child
  * who carries an occupation and whose resolvable father or mother also carries
- * one contributes a single weighted link from the parent's occupation to the
+ * one contributes one or more weighted links from a parent's occupation to the
  * child's — the data behind the Sankey diagram on the Overview tab. Both
- * parents are considered, so a child of two working parents can feed two
- * distinct flows (one per parent trade); a child whose father and mother share
- * the same trade is counted only once for that flow, never twice.
+ * parents are considered, so a child of two working parents feeds each parent's
+ * trades; a child whose father and mother share a trade is counted only once
+ * for that flow, never twice.
  *
- * Only the FIRST recorded `1 OCCU` line is read per person: a person with
- * several occupations has one primary trade, and pairing every parent trade
- * against every child trade would inflate one succession into a cross-product
- * of phantom flows. Pairs are dropped whenever either side lacks an occupation
- * — the diagram answers "given both worked, did the trade carry over?", so an
+ * EVERY recorded `1 OCCU` line is read per person and the full cross-product of
+ * (parent trade → child trade) is counted, so a person's secondary trade
+ * surfaces as both a source and a target — a father who was a Farmer AND a
+ * Carter feeds both trades to a child recorded the same way. Each distinct pair
+ * is counted once per child, so two parents sharing a trade (or the same trade
+ * repeated across a person's own `1 OCCU` lines) never doubles a band. Composite
+ * `1 OCCU` values (`Trade A und Trade B` on one line) are NOT split — the whole
+ * string is one trade; recording distinct trades on separate lines is the
+ * supported form. Pairs are dropped whenever either side lacks an occupation —
+ * the diagram answers "given both worked, did the trade carry over?", so an
  * unknown end would only add noise. Occupations are case-folded before counting
  * so spelling variants (`Smith` / `smith`) merge; the first-seen casing becomes
  * the display label.
@@ -84,9 +89,10 @@ final readonly class OccupationInheritanceRepository
      * Build the Sankey payload describing parent → child occupation flows. For
      * every individual that carries an occupation, both parents are resolved via
      * the shared parent map; for each parent that also carries an occupation the
-     * (parent-occupation → child-occupation) pair is counted once. A child is
-     * counted at most once per flow, so two parents sharing the same trade do
-     * not double the child into a single band. Only the top-N links by weight
+     * full cross-product of their (parent-occupation → child-occupation) pairs is
+     * counted, each distinct pair once per child. A child is counted at most once
+     * per flow, so two parents sharing the same trade do not double the child
+     * into a single band. Only the top-N links by weight
      * are returned so the diagram stays legible. The weighted flow map is handed
      * to {@see BipartiteSankeyAssembler}, which lays the parent and child sides
      * out as disjoint node columns (a trade that is both passed down and
@@ -125,12 +131,18 @@ final readonly class OccupationInheritanceRepository
             ->select(['i_id AS xref', 'i_gedcom AS gedcom'])
             ->get();
 
-        // First pass: index every individual's GEDCOM by xref so a child's
-        // parent record can be looked up without a second query.
-        $gedcomByXref = [];
+        // First pass: fold every individual's `1 OCCU` lines to their DISTINCT
+        // case-folded trades once, keyed by xref. Parsing here — rather than
+        // again for every child and every parent in the main loop — means a
+        // parent shared by several children is parsed a single time, and the
+        // resident map holds the small trade lists instead of the full GEDCOM
+        // blobs.
+        $tradesByXref = [];
 
         foreach ($rows as $row) {
-            $gedcomByXref[RowCast::string($row, 'xref')] = RowCast::string($row, 'gedcom');
+            $tradesByXref[RowCast::string($row, 'xref')] = $this->uniqueTrades(
+                GedcomScanner::extractAllTagValues(RowCast::string($row, 'gedcom'), 'OCCU'),
+            );
         }
 
         $parentOf = $this->parentMap->build();
@@ -146,9 +158,11 @@ final readonly class OccupationInheritanceRepository
             $childXref   = RowCast::string($row, 'xref');
             $childGedcom = RowCast::string($row, 'gedcom');
 
-            $childOccupation = GedcomScanner::extractFirstTagValue($childGedcom, 'OCCU');
+            // The child's distinct trades were folded in the first pass; the raw
+            // GEDCOM is still read below for the privacy-gated sample.
+            $childTrades = $tradesByXref[$childXref] ?? [];
 
-            if ($childOccupation === null) {
+            if ($childTrades === []) {
                 continue;
             }
 
@@ -158,11 +172,9 @@ final readonly class OccupationInheritanceRepository
                 continue;
             }
 
-            $childKey = mb_strtolower($childOccupation);
-
-            // A child whose father and mother share the same trade must feed the
-            // band only once: track the flow keys already counted for THIS child
-            // so the second parent of an identical trade is skipped.
+            // Track the flow keys already counted for THIS child so a given
+            // (parent-trade → child-trade) pair is counted once even when both
+            // the father and the mother carry that same trade.
             $seenKeys = [];
 
             // The sample is always the child, so a child feeding several flows
@@ -177,44 +189,49 @@ final readonly class OccupationInheritanceRepository
                     continue;
                 }
 
-                $parentGedcom = $gedcomByXref[$parentXref] ?? null;
+                // The parent's distinct trades were folded in the first pass, so
+                // a parent shared by several children is not re-parsed per child.
+                $parentTrades = $tradesByXref[$parentXref] ?? [];
 
-                if ($parentGedcom === null) {
+                if ($parentTrades === []) {
                     continue;
                 }
 
-                $parentOccupation = GedcomScanner::extractFirstTagValue($parentGedcom, 'OCCU');
+                // Cross-product: pair every DISTINCT parent trade against every
+                // distinct child trade so a secondary occupation surfaces as both
+                // a source and a target. Each pair is still counted once per
+                // child via $seenKeys, since the father and mother may share a
+                // trade.
+                foreach ($parentTrades as $parentKey => $parentOccupation) {
+                    foreach ($childTrades as $childKey => $childOccupation) {
+                        $key = $parentKey . "\0" . $childKey;
 
-                if ($parentOccupation === null) {
-                    continue;
-                }
+                        if (isset($seenKeys[$key])) {
+                            continue;
+                        }
 
-                $parentKey = mb_strtolower($parentOccupation);
-                $key       = $parentKey . "\0" . $childKey;
+                        $seenKeys[$key] = true;
 
-                if (isset($seenKeys[$key])) {
-                    continue;
-                }
+                        $display[$parentKey] ??= $parentOccupation;
+                        $display[$childKey]  ??= $childOccupation;
 
-                $seenKeys[$key] = true;
+                        $linkWeight[$key] = ($linkWeight[$key] ?? 0) + 1;
+                        $linkSamples[$key] ??= [];
 
-                $display[$parentKey] ??= $parentOccupation;
-                $display[$childKey]  ??= $childOccupation;
+                        // Resolve the sample child through the privacy layer; a
+                        // null result (a record the user cannot see) is skipped
+                        // and the next child fills the slot — see
+                        // SankeySampleResolver::resolve().
+                        if (count($linkSamples[$key]) < self::SAMPLES_PER_FLOW) {
+                            if (!$childResolved) {
+                                $childSample   = SankeySampleResolver::resolve($this->tree, $childXref, $childGedcom);
+                                $childResolved = true;
+                            }
 
-                $linkWeight[$key] = ($linkWeight[$key] ?? 0) + 1;
-                $linkSamples[$key] ??= [];
-
-                // Resolve the sample child through the privacy layer; a null
-                // result (a record the user cannot see) is skipped and the next
-                // child fills the slot — see SankeySampleResolver::resolve().
-                if (count($linkSamples[$key]) < self::SAMPLES_PER_FLOW) {
-                    if (!$childResolved) {
-                        $childSample   = SankeySampleResolver::resolve($this->tree, $childXref, $childGedcom);
-                        $childResolved = true;
-                    }
-
-                    if ($childSample instanceof SankeySample) {
-                        $linkSamples[$key][] = $childSample;
+                            if ($childSample instanceof SankeySample) {
+                                $linkSamples[$key][] = $childSample;
+                            }
+                        }
                     }
                 }
             }
@@ -223,5 +240,28 @@ final readonly class OccupationInheritanceRepository
         // Occupations were case-folded for counting, so the assembler is given
         // the key → first-seen-casing map to surface readable node labels.
         return BipartiteSankeyAssembler::assemble($linkWeight, $linkSamples, $topLinks, $display);
+    }
+
+    /**
+     * Collapse a person's raw `1 OCCU` values to their DISTINCT trades, keyed by
+     * the case-folded trade and mapped to the first-seen display casing. Reading
+     * every OCCU line means a person who records the same trade on several lines
+     * would otherwise pair it into the cross-product once per duplicate; folding
+     * to distinct trades here bounds the pairing to the trades a person actually
+     * holds and merges casing variants (`Smith` / `smith`) in one place.
+     *
+     * @param list<string> $occupations The raw `1 OCCU` values in recorded order
+     *
+     * @return array<string, string> Case-folded trade key → first-seen display casing
+     */
+    private function uniqueTrades(array $occupations): array
+    {
+        $trades = [];
+
+        foreach ($occupations as $occupation) {
+            $trades[mb_strtolower($occupation)] ??= $occupation;
+        }
+
+        return $trades;
     }
 }
