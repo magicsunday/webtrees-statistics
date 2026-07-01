@@ -1233,13 +1233,13 @@ final readonly class Statistic
      * Parent → child occupation inheritance flows ready for the Overview-tab
      * Sankey diagram. Each link runs from a parent's occupation to a child's;
      * only children whose father or mother also has a recorded occupation
-     * contribute, and only the top-N weighted links are returned.
-     *
-     * @param int $topLinks Maximum number of distinct flows to retain
+     * contribute. The repository applies its adaptive display policy — one-off
+     * flows are dropped and the survivors are capped at a legibility ceiling, so
+     * the shown-flow count adapts to the tree's density rather than a fixed cap.
      */
-    public function getOccupationInheritance(int $topLinks): SankeyFlowsPayload
+    public function getOccupationInheritance(): SankeyFlowsPayload
     {
-        return $this->occupationInheritanceRepository->occupationInheritance($topLinks);
+        return $this->occupationInheritanceRepository->occupationInheritance();
     }
 
     /**

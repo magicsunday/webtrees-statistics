@@ -76,6 +76,26 @@ final readonly class OccupationInheritanceRepository
     private const int SAMPLES_PER_FLOW = 3;
 
     /**
+     * Legibility ceiling on the number of flows the Overview diagram renders. A
+     * Sankey beyond roughly this many flows degrades into an unreadable hairball
+     * regardless of tree size, so this is a fixed property of the medium, not of
+     * the data — the adaptive part is {@see self::MIN_FLOW_WEIGHT}, which lets a
+     * sparse tree show fewer flows and a dense one fill up to this cap.
+     */
+    private const int MAX_FLOWS = 15;
+
+    /**
+     * Minimum weight a flow must reach to appear in the Overview diagram. An
+     * inheritance PATTERN requires recurrence: a single parent → child pair is
+     * an anecdote, and the long tail of such one-offs would otherwise swamp the
+     * diagram (in a real tree they outnumber the recurring flows by an order of
+     * magnitude). Dropping everything below this weight is the data-driven floor
+     * that makes the shown-flow count adapt to a tree's density; a tree with no
+     * recurring occupational inheritance yields an honestly empty diagram.
+     */
+    private const int MIN_FLOW_WEIGHT = 2;
+
+    /**
      * @param Tree                $tree      The tree the statistics are computed for
      * @param ParentMapRepository $parentMap Shared child → [father, mother] resolver
      */
@@ -92,8 +112,15 @@ final readonly class OccupationInheritanceRepository
      * full cross-product of their (parent-occupation → child-occupation) pairs is
      * counted, each distinct pair once per child. A child is counted at most once
      * per flow, so two parents sharing the same trade do not double the child
-     * into a single band. Only the top-N links by weight
-     * are returned so the diagram stays legible. The weighted flow map is handed
+     * into a single band.
+     *
+     * Two display thresholds shape what the Overview diagram shows, both
+     * defaulting to the repository's own policy constants. Flows lighter than
+     * `$minWeight` are dropped first — an inheritance pattern must recur across
+     * at least that many children, so the long tail of one-off pairs never reaches
+     * the chart (a tree with no recurring flow yields an empty diagram). The
+     * survivors are then capped at `$maxFlows` by weight so the diagram stays
+     * legible. The weighted flow map is handed
      * to {@see BipartiteSankeyAssembler}, which lays the parent and child sides
      * out as disjoint node columns (a trade that is both passed down and
      * inherited becomes two separate nodes, avoiding the d3-sankey "circular
@@ -103,10 +130,13 @@ final readonly class OccupationInheritanceRepository
      * `xref`) so the consumer's hover tooltip can surface representative people
      * behind every inheritance path.
      *
-     * @param int $topLinks Maximum number of distinct flows to retain
+     * @param int $maxFlows  Legibility ceiling on the number of flows returned
+     * @param int $minWeight Minimum weight a flow must reach to be shown; 1 returns every flow unfiltered
      */
-    public function occupationInheritance(int $topLinks): SankeyFlowsPayload
-    {
+    public function occupationInheritance(
+        int $maxFlows = self::MAX_FLOWS,
+        int $minWeight = self::MIN_FLOW_WEIGHT,
+    ): SankeyFlowsPayload {
         // ORDER BY i_id pins iteration to the (lexicographic) xref order so the
         // SAMPLES_PER_FLOW cap always picks the same representatives across
         // page loads, even after table-level events (OPTIMIZE TABLE,
@@ -237,9 +267,22 @@ final readonly class OccupationInheritanceRepository
             }
         }
 
+        // Drop one-off flows below the display floor: an inheritance pattern
+        // must recur across at least $minWeight children. $minWeight === 1 means
+        // "every flow", so the aggregation stays byte-identical for the
+        // unfiltered call the data-layer tests use. An emptied map assembles to
+        // the empty payload — the honest "no recurring inheritance" diagram.
+        if ($minWeight > 1) {
+            foreach ($linkWeight as $key => $weight) {
+                if ($weight < $minWeight) {
+                    unset($linkWeight[$key], $linkSamples[$key]);
+                }
+            }
+        }
+
         // Occupations were case-folded for counting, so the assembler is given
         // the key → first-seen-casing map to surface readable node labels.
-        return BipartiteSankeyAssembler::assemble($linkWeight, $linkSamples, $topLinks, $display);
+        return BipartiteSankeyAssembler::assemble($linkWeight, $linkSamples, $maxFlows, $display);
     }
 
     /**
