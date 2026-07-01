@@ -136,7 +136,7 @@ $tabs = [
         'getTreeRecords'               => fn () => $statistic->getTreeRecords(),
         'getTotalOccupations'          => fn () => $statistic->getTotalOccupations(),
         'getTopOccupations(10)'        => fn () => $statistic->getTopOccupations(10),
-        'getOccupationInheritance(12)' => fn () => $statistic->getOccupationInheritance(12),
+        'getOccupationInheritance()'   => fn () => $statistic->getOccupationInheritance(),
         'getTotalReligions'            => fn () => $statistic->getTotalReligions(),
         'getTopReligions(10)'          => fn () => $statistic->getTopReligions(10),
     ],

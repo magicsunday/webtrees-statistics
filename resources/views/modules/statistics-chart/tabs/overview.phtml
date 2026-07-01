@@ -32,7 +32,7 @@ $topOccupations   = $statistic->getTopOccupations(10);
 $topReligions     = $statistic->getTopReligions(10);
 $treeRecords      = $statistic->getTreeRecords();
 
-$occupationInheritance = $statistic->getOccupationInheritance(12);
+$occupationInheritance = $statistic->getOccupationInheritance();
 
 $livingDeceased = $statistic->getTotalLivingDeceasedData();
 $livingCount    = $livingDeceased[0]['value'] ?? 0;
