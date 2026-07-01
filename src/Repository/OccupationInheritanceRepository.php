@@ -131,12 +131,18 @@ final readonly class OccupationInheritanceRepository
             ->select(['i_id AS xref', 'i_gedcom AS gedcom'])
             ->get();
 
-        // First pass: index every individual's GEDCOM by xref so a child's
-        // parent record can be looked up without a second query.
-        $gedcomByXref = [];
+        // First pass: fold every individual's `1 OCCU` lines to their DISTINCT
+        // case-folded trades once, keyed by xref. Parsing here — rather than
+        // again for every child and every parent in the main loop — means a
+        // parent shared by several children is parsed a single time, and the
+        // resident map holds the small trade lists instead of the full GEDCOM
+        // blobs.
+        $tradesByXref = [];
 
         foreach ($rows as $row) {
-            $gedcomByXref[RowCast::string($row, 'xref')] = RowCast::string($row, 'gedcom');
+            $tradesByXref[RowCast::string($row, 'xref')] = $this->uniqueTrades(
+                GedcomScanner::extractAllTagValues(RowCast::string($row, 'gedcom'), 'OCCU'),
+            );
         }
 
         $parentOf = $this->parentMap->build();
@@ -152,15 +158,9 @@ final readonly class OccupationInheritanceRepository
             $childXref   = RowCast::string($row, 'xref');
             $childGedcom = RowCast::string($row, 'gedcom');
 
-            // Collapse the child's `1 OCCU` lines to their DISTINCT case-folded
-            // trades up front (folded key → first-seen casing): a person who
-            // repeats a trade across several lines must not iterate the
-            // cross-product below redundantly, which bounds the pairing to the
-            // handful of trades a person actually has rather than the raw line
-            // count.
-            $childTrades = $this->uniqueTrades(
-                GedcomScanner::extractAllTagValues($childGedcom, 'OCCU'),
-            );
+            // The child's distinct trades were folded in the first pass; the raw
+            // GEDCOM is still read below for the privacy-gated sample.
+            $childTrades = $tradesByXref[$childXref] ?? [];
 
             if ($childTrades === []) {
                 continue;
@@ -189,15 +189,9 @@ final readonly class OccupationInheritanceRepository
                     continue;
                 }
 
-                $parentGedcom = $gedcomByXref[$parentXref] ?? null;
-
-                if ($parentGedcom === null) {
-                    continue;
-                }
-
-                $parentTrades = $this->uniqueTrades(
-                    GedcomScanner::extractAllTagValues($parentGedcom, 'OCCU'),
-                );
+                // The parent's distinct trades were folded in the first pass, so
+                // a parent shared by several children is not re-parsed per child.
+                $parentTrades = $tradesByXref[$parentXref] ?? [];
 
                 if ($parentTrades === []) {
                     continue;
