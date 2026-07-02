@@ -305,7 +305,7 @@ final class NameRepository
         // threshold filter runs after the slice, matching the prior order.
         $givenNames = TopNAggregator::rank(
             $fold['counts'],
-            static fn (string $key): string => GivenNameNormalizer::dominantForm($fold['rawByFold'][$key] ?? []),
+            static fn (int|string $key): string => GivenNameNormalizer::dominantForm($fold['rawByFold'][$key] ?? []),
             $limit,
         );
 

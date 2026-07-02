@@ -20,6 +20,8 @@ use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Validator;
 use Fisharebest\Webtrees\View;
 use MagicSunday\Webtrees\ModuleBase\Contract\ModuleAssetUrlInterface;
+use MagicSunday\Webtrees\Statistic\Normalization\Contract\OccupationNormalizerInterface;
+use MagicSunday\Webtrees\Statistic\Normalization\StandardizerModuleNormalizer;
 use MagicSunday\Webtrees\Statistic\Traits\ModuleChartTrait;
 use MagicSunday\Webtrees\Statistic\Traits\ModuleCustomTrait;
 use Override;
@@ -86,7 +88,9 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
 
     /**
      * Registers the module's view namespace so AJAX-loaded tab templates can be
-     * resolved by their fully-qualified `<module>::path` names.
+     * resolved by their fully-qualified `<module>::path` names, and binds the
+     * occupation normalizer so the occupation aggregations pick up an installed
+     * standardization provider automatically.
      */
     public function boot(): void
     {
@@ -94,6 +98,17 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
             $this->name(),
             realpath($this->resourcesFolder() . 'views/') . '/'
         );
+
+        // Bind the occupation normalizer to the provider-backed adapter. The
+        // adapter degrades to the raw value when no standardization module is
+        // installed, so wiring it is a no-op for sites without one — installing
+        // such a module is the opt-in. The interface has no autowirable
+        // implementation, so the binding must be explicit.
+        $container  = Registry::container();
+        $normalizer = $container->get(StandardizerModuleNormalizer::class);
+        assert($normalizer instanceof StandardizerModuleNormalizer);
+
+        $container->set(OccupationNormalizerInterface::class, $normalizer);
     }
 
     /**

@@ -104,4 +104,17 @@ final readonly class TreeScope
             ->select(['i_gedcom AS gedcom'])
             ->get();
     }
+
+    /**
+     * The tree's configured language as a BCP-47 tag for consumers that need a
+     * language hint (e.g. occupation normalization), or null when the tree has
+     * no language preference set. An empty preference is normalised to null so
+     * callers can treat "unset" uniformly.
+     */
+    public static function languageTag(Tree $tree): ?string
+    {
+        $language = $tree->getPreference('LANGUAGE');
+
+        return $language !== '' ? $language : null;
+    }
 }

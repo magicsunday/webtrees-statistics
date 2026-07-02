@@ -317,4 +317,41 @@ final class ArchitectureTest
             )
             ->because('Enums are the vocabulary the rest of the module speaks; they cannot depend back into the layers that consume them');
     }
+
+    /**
+     * Every concrete class in the occupation-normalization seam must be `final`
+     * so its contract (identity default, immutable value object, single provider
+     * adapter) cannot be subverted by a subclass. The `OccupationNormalizerInterface`
+     * interface is excluded because `final` is meaningless for an interface — it
+     * is the very extension point the concrete classes seal.
+     */
+    #[TestRule]
+    public function normalizationConcreteClassesAreFinal(): Rule
+    {
+        return PHPat::rule()
+            ->classes(Selector::inNamespace(self::NAMESPACE_ROOT . '\\Normalization'))
+            ->excluding(Selector::inNamespace(self::NAMESPACE_ROOT . '\\Normalization\\Contract'))
+            ->should()->beFinal()
+            ->because('Normalization seam classes must be final so their contract cannot be subverted by a subclass');
+    }
+
+    /**
+     * The normalization seam sits below the repositories: repositories fold
+     * their occupation values THROUGH it, never the reverse. It may depend on
+     * the webtrees framework (the adapter resolves the provider via
+     * ModuleService), but a dependency back onto a repository or the facade would
+     * invert the layering and make the seam impossible to test in isolation.
+     */
+    #[TestRule]
+    public function normalizationDoesNotDependOnRepositoryOrFacade(): Rule
+    {
+        return PHPat::rule()
+            ->classes(Selector::inNamespace(self::NAMESPACE_ROOT . '\\Normalization'))
+            ->shouldNot()->dependOn()
+            ->classes(
+                Selector::inNamespace(self::NAMESPACE_ROOT . '\\Repository'),
+                Selector::classname(self::NAMESPACE_ROOT . '\\Statistic'),
+            )
+            ->because('Repositories fold occupation values through the normalization seam; the inverse direction would create a cycle');
+    }
 }
