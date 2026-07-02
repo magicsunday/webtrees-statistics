@@ -11,10 +11,15 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
+use MagicSunday\Webtrees\Statistic\Normalization\NormalizedOccupation;
+use MagicSunday\Webtrees\Statistic\Normalization\OccupationFolding;
+use MagicSunday\Webtrees\Statistic\Normalization\RawOccupationNormalizer;
+use MagicSunday\Webtrees\Statistic\Normalization\Support\StringList;
 use MagicSunday\Webtrees\Statistic\Repository\OccupationRepository;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\TopNAggregator;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
+use MagicSunday\Webtrees\Statistic\Test\Support\Normalization\StubOccupationNormalizer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
@@ -37,6 +42,11 @@ use function array_keys;
 #[UsesClass(TopNAggregator::class)]
 #[UsesClass(TreeScope::class)]
 #[UsesClass(GedcomScanner::class)]
+#[UsesClass(RawOccupationNormalizer::class)]
+#[UsesClass(NormalizedOccupation::class)]
+#[UsesClass(OccupationFolding::class)]
+#[UsesClass(StubOccupationNormalizer::class)]
+#[UsesClass(StringList::class)]
 final class OccupationRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     /**
@@ -56,7 +66,7 @@ final class OccupationRepositoryIntegrationTest extends AbstractIntegrationTestC
     public function topOccupationsReturnsCaseFoldedFrequencies(): void
     {
         $tree   = $this->importFixtureTree('individual-facts.ged');
-        $result = (new OccupationRepository($tree))->top(10);
+        $result = (new OccupationRepository($tree, new RawOccupationNormalizer()))->top(10);
 
         self::assertSame(
             ['Blacksmith' => 3, 'Farmer' => 2, 'Carpenter' => 1, 'Teacher' => 1],
@@ -74,7 +84,7 @@ final class OccupationRepositoryIntegrationTest extends AbstractIntegrationTestC
     public function topOccupationsRespectsTheLimit(): void
     {
         $tree   = $this->importFixtureTree('individual-facts.ged');
-        $result = (new OccupationRepository($tree))->top(2);
+        $result = (new OccupationRepository($tree, new RawOccupationNormalizer()))->top(2);
 
         self::assertSame(['Blacksmith', 'Farmer'], array_keys($result));
     }
@@ -88,6 +98,55 @@ final class OccupationRepositoryIntegrationTest extends AbstractIntegrationTestC
     {
         $tree = $this->importFixtureTree('individual-facts.ged');
 
-        self::assertSame(4, (new OccupationRepository($tree))->countDistinct());
+        self::assertSame(4, (new OccupationRepository($tree, new RawOccupationNormalizer()))->countDistinct());
+    }
+
+    /**
+     * With a standardization provider the top-N counter folds on the provider's
+     * grouping key, not the raw spelling: a provider that maps both `Blacksmith`
+     * (three, incl. the case variant) and `Farmer` (two) onto one trade merges
+     * them into a single bucket of five under the provider display label, while
+     * the unmapped `Teacher` and `Carpenter` keep their raw case-fold. Contrast
+     * with {@see self::topOccupationsReturnsCaseFoldedFrequencies()}, which pins
+     * the four separate raw buckets — the merge is the provider's doing.
+     */
+    #[Test]
+    public function topOccupationsFoldOnTheProviderGroupingKey(): void
+    {
+        $tree = $this->importFixtureTree('individual-facts.ged');
+
+        $metal      = new NormalizedOccupation('de:Metall', 'Metall');
+        $normalizer = new StubOccupationNormalizer([
+            'Blacksmith' => $metal,
+            'blacksmith' => $metal,
+            'Farmer'     => $metal,
+        ]);
+
+        $result = (new OccupationRepository($tree, $normalizer))->top(10);
+
+        self::assertSame(
+            ['Metall' => 5, 'Carpenter' => 1, 'Teacher' => 1],
+            $result,
+        );
+        self::assertSame(1, $normalizer->batchCalls(), 'the whole distinct occupation set is resolved in one batch');
+    }
+
+    /**
+     * A purely numeric `1 OCCU` value (someone recording a code as the trade)
+     * must not crash the aggregation. The repository collects the distinct set
+     * as array keys, which coerces `1234` to an int; without the string
+     * round-trip in the fold the fallback `mb_strtolower()` would throw a
+     * TypeError under strict types and 500 the occupation chart. This exercises
+     * the real caller path (`array_keys(...)` → fold) that a `map()` unit test
+     * with a string literal cannot reproduce.
+     */
+    #[Test]
+    public function topOccupationsCountNumericValuesWithoutCoercionError(): void
+    {
+        $tree = $this->importFixtureTree('occupation-numeric.ged');
+
+        $result = (new OccupationRepository($tree, new RawOccupationNormalizer()))->top(10);
+
+        self::assertSame(['1234' => 1, 'Farmer' => 1], $result);
     }
 }

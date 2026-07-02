@@ -11,7 +11,9 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
+use Closure;
 use Fisharebest\Webtrees\Tree;
+use Illuminate\Support\Collection;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\TopNAggregator;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 
@@ -70,6 +72,34 @@ abstract class AbstractGedcomTagTopNRepository
     abstract protected function extract(string $gedcom): array;
 
     /**
+     * Optional per-value fold resolver handed to {@see TopNAggregator::topN()}.
+     * The default is `null`, which folds every value by case alone — the exact
+     * behaviour the Top-N counters have always had. A subclass whose values want
+     * standardization (the occupation counter) overrides this to return a
+     * `Closure(string): array{0: string, 1: string}` mapping a raw value to its
+     * [fold key, display label]; the whole individual set is passed so the
+     * override can resolve the distinct values in one batch before the count.
+     *
+     * @param Collection<int, object> $gedcoms The individual GEDCOM rows about to be counted
+     *
+     * @return (Closure(string): array{0: string, 1: string})|null Fold resolver, or null to fold by case alone
+     */
+    protected function foldValue(Collection $gedcoms): ?Closure
+    {
+        return null;
+    }
+
+    /**
+     * The tree the aggregation runs against, exposed to subclasses that need a
+     * tree-scoped input (e.g. the occupation counter's language hint) without
+     * widening the private constructor dependency.
+     */
+    final protected function tree(): Tree
+    {
+        return $this->tree;
+    }
+
+    /**
      * Top-N values by descending frequency. The case-folded aggregation
      * collapses spelling variants under the first-seen casing; the limit caps
      * how many keys make it into the returned slice.
@@ -99,10 +129,17 @@ abstract class AbstractGedcomTagTopNRepository
      */
     private function aggregate(): array
     {
-        return $this->cache ??= TopNAggregator::topN(
-            TreeScope::individualGedcoms($this->tree),
+        if ($this->cache !== null) {
+            return $this->cache;
+        }
+
+        $gedcoms = TreeScope::individualGedcoms($this->tree);
+
+        return $this->cache = TopNAggregator::topN(
+            $gedcoms,
             $this->extract(...),
             0,
+            $this->foldValue($gedcoms),
         );
     }
 }

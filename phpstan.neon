@@ -25,6 +25,15 @@ parameters:
         - %currentWorkingDirectory%/src/
         - %currentWorkingDirectory%/tests/
 
+    # Makes the public surface of the optional occupation-standardization
+    # provider (hartenthaler/hh_occupation_standardizer) discoverable to static
+    # analysis. The module is an optional runtime dependency resolved via
+    # ModuleService and never required by this package, so its classes are not on
+    # the autoload path; scanning this file lets the adapter type-check without
+    # the provider being installed.
+    scanFiles:
+        - %currentWorkingDirectory%/stubs/hh_occupation_standardizer.stub
+
     fileExtensions:
         - php
 

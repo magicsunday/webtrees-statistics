@@ -14,6 +14,8 @@ namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Tree;
 use Fisharebest\Webtrees\View;
+use MagicSunday\Webtrees\Statistic\Normalization\Contract\OccupationNormalizerInterface;
+use MagicSunday\Webtrees\Statistic\Normalization\RawOccupationNormalizer;
 use MagicSunday\Webtrees\Statistic\Statistic;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\Test;
@@ -177,6 +179,12 @@ final class TreeHealthPartnershipReachViewTest extends AbstractIntegrationTestCa
     private function renderTreeHealthTab(Tree $tree): string
     {
         Registry::container()->set(Tree::class, $tree);
+
+        // Mirror Module::boot(): the occupation normalizer is an interface with no
+        // autowirable implementation, so the container needs an explicit binding
+        // before it can build the Statistic facade. The identity default is the
+        // production behaviour on a site without a standardization provider.
+        Registry::container()->set(OccupationNormalizerInterface::class, new RawOccupationNormalizer());
 
         View::registerNamespace(
             self::MODULE,

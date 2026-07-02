@@ -1,0 +1,55 @@
+<?php
+
+/**
+ * PHPStan stub for the optional occupation-standardization provider
+ * (hartenthaler/hh_occupation_standardizer). The module is an optional runtime
+ * dependency resolved in-process via ModuleService; it is never required by this
+ * package, so its public-API classes are not on this package's autoload path.
+ * This stub declares exactly the public surface {@see StandardizerModuleNormalizer}
+ * consumes, so static analysis can type-check the adapter without the provider
+ * being installed. It mirrors the provider's published contract in
+ * docs/public-api.md.
+ */
+
+declare(strict_types=1);
+
+namespace Hartenthaler\Webtrees\Module\OccupationStandardizer\PublicApi;
+
+interface OccupationStandardizerInterface
+{
+    public function standardize(string $raw_occupation, ?string $language = null): ?StandardizedOccupation;
+
+    /**
+     * @param iterable<string> $raw_occupations
+     *
+     * @return array<string, StandardizedOccupation|null>
+     */
+    public function standardizeMany(iterable $raw_occupations, ?string $language = null): array;
+}
+
+final class StandardizedOccupation
+{
+    public function canonicalLabel(): string
+    {
+    }
+
+    public function canonicalKey(): string
+    {
+    }
+
+    public function displayLabel(string $language, ?string $sex = null): string
+    {
+    }
+
+    public function hiscoCode(): ?string
+    {
+    }
+
+    public function hisclass(): ?string
+    {
+    }
+
+    public function hiscamScore(): ?float
+    {
+    }
+}

@@ -152,7 +152,7 @@ final class TopNAggregatorTest extends TestCase
     {
         self::assertSame([], TopNAggregator::rankKeys([], 0));
         self::assertSame([], TopNAggregator::rankKeys([], 5));
-        self::assertSame([], TopNAggregator::rank([], static fn (string $key): string => $key, 3));
+        self::assertSame([], TopNAggregator::rank([], static fn (int|string $key): string => (string) $key, 3));
     }
 
     /**
@@ -165,7 +165,7 @@ final class TopNAggregatorTest extends TestCase
     {
         $result = TopNAggregator::rank(
             ['zebra' => 2, 'mango' => 3, 'apple' => 2],
-            static fn (string $key): string => ucfirst($key),
+            static fn (int|string $key): string => ucfirst((string) $key),
             0,
         );
 
@@ -187,10 +187,36 @@ final class TopNAggregatorTest extends TestCase
 
         $result = TopNAggregator::rank(
             ['a' => 2, 'b' => 2],
-            static fn (string $key): string => $display[$key] ?? self::fail(sprintf('Expected a display label for key "%s"', $key)),
+            static fn (int|string $key): string => $display[$key] ?? self::fail(sprintf('Expected a display label for key "%s"', $key)),
             1,
         );
 
         self::assertSame(['Z' => 2], $result);
+    }
+
+    /**
+     * Two distinct fold keys that resolve to the SAME display label — the shape
+     * a normalization provider produces when two grouping keys render to one
+     * localized label — have their counts SUMMED into a single bucket that is
+     * then ranked by the COMBINED total. Here `k1` (3) and `k2` (3) both display
+     * as `Trade` (total 6), while the non-colliding `mid` (4) ranks between them
+     * on per-key count. The merged `Trade` bucket must overtake `mid` on its
+     * total of 6, landing first. A regression that summed but left the bucket at
+     * the first colliding key's rank position would order `mid` (4) ahead of
+     * `Trade` (6) — and a `top(1)` would then surface `mid`, hiding the true top
+     * trade; the ordered assertion below pins the total-based rank.
+     */
+    #[Test]
+    public function rankSumsCollidingLabelsAndRanksByTheCombinedTotal(): void
+    {
+        $display = ['k1' => 'Trade', 'k2' => 'Trade', 'mid' => 'Mid'];
+
+        $result = TopNAggregator::rank(
+            ['k1' => 3, 'k2' => 3, 'mid' => 4],
+            static fn (int|string $key): string => $display[$key] ?? self::fail(sprintf('Expected a display label for key "%s"', $key)),
+            0,
+        );
+
+        self::assertSame(['Trade' => 6, 'Mid' => 4], $result);
     }
 }

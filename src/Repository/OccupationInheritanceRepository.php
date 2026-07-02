@@ -20,12 +20,15 @@ use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Query\Builder;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyFlowsPayload;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeySample;
+use MagicSunday\Webtrees\Statistic\Normalization\Contract\OccupationNormalizerInterface;
+use MagicSunday\Webtrees\Statistic\Normalization\OccupationFolding;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Sankey\BipartiteSankeyAssembler;
 use MagicSunday\Webtrees\Statistic\Support\Sankey\SankeySampleResolver;
 
+use function array_keys;
 use function count;
 use function mb_strtolower;
 
@@ -50,9 +53,11 @@ use function mb_strtolower;
  * string is one trade; recording distinct trades on separate lines is the
  * supported form. Pairs are dropped whenever either side lacks an occupation —
  * the diagram answers "given both worked, did the trade carry over?", so an
- * unknown end would only add noise. Occupations are case-folded before counting
- * so spelling variants (`Smith` / `smith`) merge; the first-seen casing becomes
- * the display label.
+ * unknown end would only add noise. Occupations are folded before counting so
+ * variants of one trade merge into a single flow: casing (`Smith` / `smith`)
+ * always, and — when an occupation-standardization provider is installed —
+ * spelling and language variants too (see {@see OccupationFolding}); the
+ * first-seen label of a fold becomes its display label.
  *
  * Privacy contract (matching the sibling migration Sankey): occupation node
  * labels are AGGREGATE facts and are not individually privacy-gated — a trade
@@ -96,12 +101,14 @@ final readonly class OccupationInheritanceRepository
     private const int MIN_FLOW_WEIGHT = 2;
 
     /**
-     * @param Tree                $tree      The tree the statistics are computed for
-     * @param ParentMapRepository $parentMap Shared child → [father, mother] resolver
+     * @param Tree                          $tree       The tree the statistics are computed for
+     * @param ParentMapRepository           $parentMap  Shared child → [father, mother] resolver
+     * @param OccupationNormalizerInterface $normalizer Resolves raw `1 OCCU` values to standardized trades so variants merge; the identity default leaves the aggregation unchanged
      */
     public function __construct(
         private Tree $tree,
         private ParentMapRepository $parentMap,
+        private OccupationNormalizerInterface $normalizer,
     ) {
     }
 
@@ -161,18 +168,37 @@ final readonly class OccupationInheritanceRepository
             ->select(['i_id AS xref', 'i_gedcom AS gedcom'])
             ->get();
 
-        // First pass: fold every individual's `1 OCCU` lines to their DISTINCT
-        // case-folded trades once, keyed by xref. Parsing here — rather than
-        // again for every child and every parent in the main loop — means a
-        // parent shared by several children is parsed a single time, and the
-        // resident map holds the small trade lists instead of the full GEDCOM
-        // blobs.
-        $tradesByXref = [];
+        // First pass: read every individual's raw `1 OCCU` lines once, keyed by
+        // xref, while collecting the tree-wide DISTINCT set of raw values.
+        // Parsing here — rather than again for every child and every parent in
+        // the main loop — means a parent shared by several children is parsed a
+        // single time, and the resident map holds the small trade lists instead
+        // of the full GEDCOM blobs.
+        $occupationsByXref = [];
+        $distinctRaw       = [];
 
         foreach ($rows as $row) {
-            $tradesByXref[RowCast::string($row, 'xref')] = $this->uniqueTrades(
-                GedcomScanner::extractAllTagValues(RowCast::string($row, 'gedcom'), 'OCCU'),
-            );
+            $occupations                                      = GedcomScanner::extractAllTagValues(RowCast::string($row, 'gedcom'), 'OCCU');
+            $occupationsByXref[RowCast::string($row, 'xref')] = $occupations;
+
+            foreach ($occupations as $occupation) {
+                $distinctRaw[$occupation] = true;
+            }
+        }
+
+        // Resolve the whole distinct set through the normalizer in one batch, so
+        // a standardization provider initialises its data a single time. Every
+        // raw value maps to its (fold key, display label); unknown values keep
+        // the pre-normalization case-fold, so the identity default leaves the
+        // aggregation byte-identical.
+        $folds = OccupationFolding::map(array_keys($distinctRaw), $this->normalizer, TreeScope::languageTag($this->tree));
+
+        // Fold every person's raw values to their DISTINCT trades under the
+        // resolved keys.
+        $tradesByXref = [];
+
+        foreach ($occupationsByXref as $xref => $occupations) {
+            $tradesByXref[$xref] = $this->uniqueTrades($occupations, $folds);
         }
 
         $parentOf = $this->parentMap->build();
@@ -286,23 +312,27 @@ final readonly class OccupationInheritanceRepository
     }
 
     /**
-     * Collapse a person's raw `1 OCCU` values to their DISTINCT trades, keyed by
-     * the case-folded trade and mapped to the first-seen display casing. Reading
+     * Collapse a person's raw `1 OCCU` values to their DISTINCT trades under the
+     * pre-resolved fold map, mapped to the first-seen display label. Reading
      * every OCCU line means a person who records the same trade on several lines
      * would otherwise pair it into the cross-product once per duplicate; folding
      * to distinct trades here bounds the pairing to the trades a person actually
-     * holds and merges casing variants (`Smith` / `smith`) in one place.
+     * holds and merges variants — casing (`Smith` / `smith`), and, once a
+     * standardization provider is present, spelling and language too — that
+     * share a fold key.
      *
-     * @param list<string> $occupations The raw `1 OCCU` values in recorded order
+     * @param list<string>                               $occupations The raw `1 OCCU` values in recorded order
+     * @param array<string, array{0: string, 1: string}> $folds       Raw value → [fold key, display label] from {@see OccupationFolding::map()}
      *
-     * @return array<string, string> Case-folded trade key → first-seen display casing
+     * @return array<string, string> Fold key → first-seen display label
      */
-    private function uniqueTrades(array $occupations): array
+    private function uniqueTrades(array $occupations, array $folds): array
     {
         $trades = [];
 
         foreach ($occupations as $occupation) {
-            $trades[mb_strtolower($occupation)] ??= $occupation;
+            [$key, $label] = $folds[$occupation] ?? [mb_strtolower($occupation), $occupation];
+            $trades[$key] ??= $label;
         }
 
         return $trades;

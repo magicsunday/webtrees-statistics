@@ -16,6 +16,10 @@ use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyFlowsPayload;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyLink;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeySample;
+use MagicSunday\Webtrees\Statistic\Normalization\NormalizedOccupation;
+use MagicSunday\Webtrees\Statistic\Normalization\OccupationFolding;
+use MagicSunday\Webtrees\Statistic\Normalization\RawOccupationNormalizer;
+use MagicSunday\Webtrees\Statistic\Normalization\Support\StringList;
 use MagicSunday\Webtrees\Statistic\Repository\OccupationInheritanceRepository;
 use MagicSunday\Webtrees\Statistic\Repository\ParentMapRepository;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
@@ -25,6 +29,7 @@ use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Sankey\BipartiteSankeyAssembler;
 use MagicSunday\Webtrees\Statistic\Support\Sankey\SankeySampleResolver;
 use MagicSunday\Webtrees\Statistic\Test\Support\Narrowing\PayloadNarrowing;
+use MagicSunday\Webtrees\Statistic\Test\Support\Normalization\StubOccupationNormalizer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
@@ -62,6 +67,11 @@ use function array_unique;
 #[UsesClass(BipartiteSankeyAssembler::class)]
 #[UsesClass(SankeySampleResolver::class)]
 #[UsesClass(RecordName::class)]
+#[UsesClass(RawOccupationNormalizer::class)]
+#[UsesClass(NormalizedOccupation::class)]
+#[UsesClass(OccupationFolding::class)]
+#[UsesClass(StubOccupationNormalizer::class)]
+#[UsesClass(StringList::class)]
 final class OccupationInheritanceRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     /**
@@ -78,7 +88,7 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
     public function occupationInheritanceReturnsTheExpectedAggregation(): void
     {
         $tree   = $this->importFixtureTree('occupation-inheritance.ged');
-        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree)))
+        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree), new RawOccupationNormalizer()))
             ->occupationInheritance(10, 1);
 
         // Eight distinct flows survive.
@@ -123,6 +133,48 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
     }
 
     /**
+     * When a standardization provider is present, spelling and language variants
+     * of one trade fold into a single flow. The fixture records two separate
+     * father → son Arzt lines, one spelled `Arzt` and one `Doctor`: with the
+     * identity default they stay two distinct weight-1 flows, but a provider that
+     * maps both spellings to the same grouping key collapses them into one
+     * `Arzt → Arzt` flow of weight 2. Asserting both halves pins the merge as the
+     * behavioural difference the normalizer makes — a regression that ignored the
+     * provider would leave two flows and fail the second assertion.
+     */
+    #[Test]
+    public function occupationInheritanceMergesLanguageVariantsThroughTheNormalizer(): void
+    {
+        $tree = $this->importFixtureTree('occupation-inheritance-language-variants.ged');
+
+        // Identity default: the two spellings never merge.
+        $rawResult = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree), new RawOccupationNormalizer()))
+            ->occupationInheritance(10, 1);
+
+        self::assertSame(
+            [['Arzt', 'Arzt'], ['Doctor', 'Doctor']],
+            $this->flowLabels($rawResult),
+            'without a provider the two spellings stay separate flows',
+        );
+
+        // A provider that folds `Arzt` and `Doctor` onto one trade merges the two
+        // father → son flows into a single weight-2 flow.
+        $arzt       = new NormalizedOccupation('de:Arzt', 'Arzt');
+        $normalizer = new StubOccupationNormalizer([
+            'Arzt'   => $arzt,
+            'Doctor' => $arzt,
+        ]);
+
+        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree), $normalizer))
+            ->occupationInheritance(10, 1);
+
+        self::assertCount(1, $result->links, 'the two variant flows collapse into one');
+        self::assertSame(['Arzt', 'Arzt'], $result->nodes, 'the merged flow shows the provider display label');
+        self::assertSame(2, $result->links[0]->value, 'the merged flow carries the combined weight');
+        self::assertSame(1, $normalizer->batchCalls(), 'the whole distinct trade set is resolved in one batch');
+    }
+
+    /**
      * Both parents are considered regardless of sex, so a daughter inherits a
      * father's trade (Weaver → Weaver) and a mother's trade reaches her daughter
      * (Seamstress → Seamstress) — the two flows the issue asked for that the
@@ -132,7 +184,7 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
     public function occupationInheritanceCountsBothParentSexesAndChildSexes(): void
     {
         $tree   = $this->importFixtureTree('occupation-inheritance.ged');
-        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree)))
+        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree), new RawOccupationNormalizer()))
             ->occupationInheritance(10, 1);
 
         $flows = $this->flowLabels($result);
@@ -158,7 +210,7 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
     public function occupationInheritanceCountsBothParentsOfOneChild(): void
     {
         $tree   = $this->importFixtureTree('occupation-inheritance.ged');
-        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree)))
+        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree), new RawOccupationNormalizer()))
             ->occupationInheritance(10, 1);
 
         $flows = $this->flowLabels($result);
@@ -190,7 +242,7 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
     public function occupationInheritanceCountsAChildOnceWhenBothParentsShareTheTrade(): void
     {
         $tree   = $this->importFixtureTree('occupation-inheritance-shared-parent-trade.ged');
-        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree)))
+        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree), new RawOccupationNormalizer()))
             ->occupationInheritance(10, 1);
 
         self::assertCount(1, $result->links, 'two same-trade parents feed one flow, not two');
@@ -212,7 +264,7 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
     public function occupationInheritanceReadsEveryParentOccupation(): void
     {
         $tree   = $this->importFixtureTree('occupation-inheritance.ged');
-        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree)))
+        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree), new RawOccupationNormalizer()))
             ->occupationInheritance(10, 1);
 
         $flows = $this->flowLabels($result);
@@ -235,7 +287,7 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
     public function occupationInheritanceCountsTheFullCrossProductOfMultipleOccupations(): void
     {
         $tree   = $this->importFixtureTree('occupation-inheritance-multi-occupation.ged');
-        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree)))
+        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree), new RawOccupationNormalizer()))
             ->occupationInheritance(10, 1);
 
         self::assertCount(4, $result->links, 'two 2-trade people yield the 2×2 cross-product');
@@ -265,7 +317,7 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
     public function occupationInheritanceFoldsRepeatedOccupationLinesToDistinctTrades(): void
     {
         $tree   = $this->importFixtureTree('occupation-inheritance-duplicate-occupation.ged');
-        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree)))
+        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree), new RawOccupationNormalizer()))
             ->occupationInheritance(10, 1);
 
         self::assertCount(2, $result->links, 'repeated occupation lines must not create duplicate flows');
@@ -288,7 +340,7 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
     public function occupationInheritanceDropsIncompletePairs(): void
     {
         $tree   = $this->importFixtureTree('occupation-inheritance.ged');
-        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree)))
+        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree), new RawOccupationNormalizer()))
             ->occupationInheritance(10, 1);
 
         // Tailor: child's trade, but his father has no occupation.
@@ -313,7 +365,7 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
     public function occupationInheritanceAttachesSampleChildrenPerLink(): void
     {
         $tree   = $this->importFixtureTree('occupation-inheritance.ged');
-        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree)))
+        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree), new RawOccupationNormalizer()))
             ->occupationInheritance(10, 1);
 
         $heaviest = PayloadNarrowing::sankeyLinkAt($result->links, 0);
@@ -351,7 +403,7 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
     public function occupationInheritanceRespectsTheTopLinksLimit(): void
     {
         $tree   = $this->importFixtureTree('occupation-inheritance.ged');
-        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree)))
+        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree), new RawOccupationNormalizer()))
             ->occupationInheritance(1, 1);
 
         self::assertCount(1, $result->links);
@@ -371,7 +423,7 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
     public function occupationInheritanceDropsOneOffFlowsBelowTheMinimumWeight(): void
     {
         $tree   = $this->importFixtureTree('occupation-inheritance.ged');
-        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree)))
+        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree), new RawOccupationNormalizer()))
             ->occupationInheritance();
 
         self::assertCount(1, $result->links, 'only the recurring flow survives the min-weight floor');
@@ -390,7 +442,7 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
     public function occupationInheritanceReturnsEmptyWhenNoFlowRecursUnderTheDisplayPolicy(): void
     {
         $tree   = $this->importFixtureTree('occupation-inheritance-multi-occupation.ged');
-        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree)))
+        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree), new RawOccupationNormalizer()))
             ->occupationInheritance();
 
         self::assertSame([], $result->nodes);
@@ -410,7 +462,7 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
     public function occupationInheritanceCountsAPersonAsBothChildAndParentAcrossGenerations(): void
     {
         $tree   = $this->importFixtureTree('occupation-inheritance-multigeneration.ged');
-        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree)))
+        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree), new RawOccupationNormalizer()))
             ->occupationInheritance(10, 1);
 
         // Two flows: Smith → Carpenter (grandfather → father) and Carpenter →
@@ -441,7 +493,7 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
     public function occupationInheritanceReturnsEmptyWhenNoOccupationsRecorded(): void
     {
         $tree   = $this->importFixtureTree('father-son-name-passdown.ged');
-        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree)))
+        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree), new RawOccupationNormalizer()))
             ->occupationInheritance(10, 1);
 
         self::assertSame([], $result->nodes);
@@ -476,7 +528,7 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
         // actually restricts visibility.
         Auth::logout();
 
-        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree)))
+        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree), new RawOccupationNormalizer()))
             ->occupationInheritance(10, 1);
         $heaviest = PayloadNarrowing::sankeyLinkAt($result->links, 0);
 
@@ -509,7 +561,7 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
 
         Auth::logout();
 
-        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree)))
+        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree), new RawOccupationNormalizer()))
             ->occupationInheritance(10, 1);
 
         $tailorToTailor = null;
@@ -538,7 +590,7 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
      */
     private function blacksmithFlowSampleNames(Tree $tree): array
     {
-        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree)))
+        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree), new RawOccupationNormalizer()))
             ->occupationInheritance(10, 1);
 
         return array_map(
