@@ -11,9 +11,11 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
+use Fisharebest\Webtrees\Site;
 use MagicSunday\Webtrees\Statistic\Normalization\NormalizedOccupation;
 use MagicSunday\Webtrees\Statistic\Normalization\OccupationFolding;
 use MagicSunday\Webtrees\Statistic\Normalization\RawOccupationNormalizer;
+use MagicSunday\Webtrees\Statistic\Normalization\Support\ContentLanguage;
 use MagicSunday\Webtrees\Statistic\Normalization\Support\StringList;
 use MagicSunday\Webtrees\Statistic\Repository\OccupationRepository;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\TopNAggregator;
@@ -47,6 +49,7 @@ use function array_keys;
 #[UsesClass(OccupationFolding::class)]
 #[UsesClass(StubOccupationNormalizer::class)]
 #[UsesClass(StringList::class)]
+#[UsesClass(ContentLanguage::class)]
 final class OccupationRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     /**
@@ -148,5 +151,31 @@ final class OccupationRepositoryIntegrationTest extends AbstractIntegrationTestC
         $result = (new OccupationRepository($tree, new RawOccupationNormalizer()))->top(10);
 
         self::assertSame(['1234' => 1, 'Farmer' => 1], $result);
+    }
+
+    /**
+     * The Top-N occupations card is the SECOND consumer of the site-language
+     * fix, so it gets its own propagation guard mirroring the inheritance card:
+     * with Site `LANGUAGE='de'` the normalizer must receive `'de'`. Without this
+     * the `OccupationRepository` call site could silently revert to forwarding
+     * null and no test would fail.
+     */
+    #[Test]
+    public function occupationNormalizerReceivesTheSiteContentLanguage(): void
+    {
+        $previous = Site::getPreference('LANGUAGE');
+
+        try {
+            Site::setPreference('LANGUAGE', 'de');
+
+            $tree       = $this->importFixtureTree('individual-facts.ged');
+            $normalizer = new StubOccupationNormalizer([]);
+
+            (new OccupationRepository($tree, $normalizer))->top(10);
+
+            self::assertSame('de', $normalizer->lastLanguage(), 'the site content language is forwarded to the provider');
+        } finally {
+            Site::setPreference('LANGUAGE', $previous);
+        }
     }
 }

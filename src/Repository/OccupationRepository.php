@@ -16,7 +16,7 @@ use Fisharebest\Webtrees\Tree;
 use Illuminate\Support\Collection;
 use MagicSunday\Webtrees\Statistic\Normalization\Contract\OccupationNormalizerInterface;
 use MagicSunday\Webtrees\Statistic\Normalization\OccupationFolding;
-use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
+use MagicSunday\Webtrees\Statistic\Normalization\Support\ContentLanguage;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 
 use function array_keys;
@@ -87,7 +87,7 @@ final class OccupationRepository extends AbstractGedcomTagTopNRepository
             }
         }
 
-        $folds = OccupationFolding::map(array_keys($distinctRaw), $this->normalizer, TreeScope::languageTag($this->tree()));
+        $folds = OccupationFolding::map(array_keys($distinctRaw), $this->normalizer, ContentLanguage::tag());
 
         return static fn (string $value): array => $folds[$value] ?? [mb_strtolower($value), $value];
     }

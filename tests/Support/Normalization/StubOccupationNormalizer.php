@@ -37,6 +37,12 @@ final class StubOccupationNormalizer implements OccupationNormalizerInterface
     private int $batchCalls = 0;
 
     /**
+     * The language hint passed on the most recent {@see self::normalizeMany()}
+     * call, so a test can assert which content language a consumer forwards.
+     */
+    private ?string $lastLanguage = null;
+
+    /**
      * @param array<string, NormalizedOccupation> $lookup Raw value => canned result; absent keys resolve to null
      */
     public function __construct(
@@ -53,17 +59,27 @@ final class StubOccupationNormalizer implements OccupationNormalizerInterface
     }
 
     /**
+     * The language hint received on the most recent {@see self::normalizeMany()}
+     * call, or null when none was supplied.
+     */
+    public function lastLanguage(): ?string
+    {
+        return $this->lastLanguage;
+    }
+
+    /**
      * Resolve each input from the canned lookup, recording that a batch pass ran
      * so the "provider is initialised once" contract can be asserted.
      *
      * @param iterable<string> $rawOccupations The distinct raw `1 OCCU` values to resolve
-     * @param string|null      $language       Ignored by the stub
+     * @param string|null      $language       Recorded for {@see self::lastLanguage()}; does not affect the lookup
      *
      * @return array<string, NormalizedOccupation|null> Keyed by each input; absent keys resolve to null
      */
     public function normalizeMany(iterable $rawOccupations, ?string $language = null): array
     {
         ++$this->batchCalls;
+        $this->lastLanguage = $language;
 
         $values = is_array($rawOccupations) ? $rawOccupations : iterator_to_array($rawOccupations, false);
 
