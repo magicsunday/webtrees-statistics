@@ -22,6 +22,7 @@ use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyFlowsPayload;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeySample;
 use MagicSunday\Webtrees\Statistic\Normalization\Contract\OccupationNormalizerInterface;
 use MagicSunday\Webtrees\Statistic\Normalization\OccupationFolding;
+use MagicSunday\Webtrees\Statistic\Normalization\Support\ContentLanguage;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
@@ -191,7 +192,7 @@ final readonly class OccupationInheritanceRepository
         // raw value maps to its (fold key, display label); unknown values keep
         // the pre-normalization case-fold, so the identity default leaves the
         // aggregation byte-identical.
-        $folds = OccupationFolding::map(array_keys($distinctRaw), $this->normalizer, TreeScope::languageTag($this->tree));
+        $folds = OccupationFolding::map(array_keys($distinctRaw), $this->normalizer, ContentLanguage::tag());
 
         // Fold every person's raw values to their DISTINCT trades under the
         // resolved keys.

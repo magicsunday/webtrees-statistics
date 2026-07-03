@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use Fisharebest\Webtrees\Auth;
+use Fisharebest\Webtrees\Site;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyFlowsPayload;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyLink;
@@ -19,6 +20,7 @@ use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeySample;
 use MagicSunday\Webtrees\Statistic\Normalization\NormalizedOccupation;
 use MagicSunday\Webtrees\Statistic\Normalization\OccupationFolding;
 use MagicSunday\Webtrees\Statistic\Normalization\RawOccupationNormalizer;
+use MagicSunday\Webtrees\Statistic\Normalization\Support\ContentLanguage;
 use MagicSunday\Webtrees\Statistic\Normalization\Support\StringList;
 use MagicSunday\Webtrees\Statistic\Repository\OccupationInheritanceRepository;
 use MagicSunday\Webtrees\Statistic\Repository\ParentMapRepository;
@@ -72,6 +74,7 @@ use function array_unique;
 #[UsesClass(OccupationFolding::class)]
 #[UsesClass(StubOccupationNormalizer::class)]
 #[UsesClass(StringList::class)]
+#[UsesClass(ContentLanguage::class)]
 final class OccupationInheritanceRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     /**
@@ -172,6 +175,33 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
         self::assertSame(['Arzt', 'Arzt'], $result->nodes, 'the merged flow shows the provider display label');
         self::assertSame(2, $result->links[0]->value, 'the merged flow carries the combined weight');
         self::assertSame(1, $normalizer->batchCalls(), 'the whole distinct trade set is resolved in one batch');
+    }
+
+    /**
+     * The content-language hint forwarded to the normalizer is the SITE default
+     * language (webtrees has no per-tree language). Regression guard for the
+     * bug where the hint was read from an unset per-tree `LANGUAGE` preference
+     * and therefore always arrived as null — leaving a language-gated provider
+     * unable to recognise anything.
+     */
+    #[Test]
+    public function occupationNormalizerReceivesTheSiteContentLanguage(): void
+    {
+        $previous = Site::getPreference('LANGUAGE');
+
+        try {
+            Site::setPreference('LANGUAGE', 'de');
+
+            $tree       = $this->importFixtureTree('occupation-inheritance-language-variants.ged');
+            $normalizer = new StubOccupationNormalizer([]);
+
+            (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree), $normalizer))
+                ->occupationInheritance(10, 1);
+
+            self::assertSame('de', $normalizer->lastLanguage(), 'the site content language is forwarded to the provider');
+        } finally {
+            Site::setPreference('LANGUAGE', $previous);
+        }
     }
 
     /**
