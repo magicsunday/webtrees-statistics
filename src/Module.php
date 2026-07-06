@@ -52,7 +52,7 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
 
     public const string CUSTOM_AUTHOR = 'Rico Sonntag';
 
-    public const string CUSTOM_VERSION = '1.8.4';
+    public const string CUSTOM_VERSION = '1.8.5-dev';
 
     /**
      * Webtrees renders this URL as the "For more information, see …" link
