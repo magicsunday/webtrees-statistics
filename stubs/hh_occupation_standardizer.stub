@@ -1,55 +1,134 @@
 <?php
 
 /**
- * PHPStan stub for the optional occupation-standardization provider
- * (hartenthaler/hh_occupation_standardizer). The module is an optional runtime
- * dependency resolved in-process via ModuleService; it is never required by this
- * package, so its public-API classes are not on this package's autoload path.
- * This stub declares exactly the public surface {@see StandardizerModuleNormalizer}
- * consumes, so static analysis can type-check the adapter without the provider
- * being installed. It mirrors the provider's published contract in
- * docs/public-api.md.
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
  */
 
 declare(strict_types=1);
 
 namespace Hartenthaler\Webtrees\Module\OccupationStandardizer\PublicApi;
 
+/*
+ * Faithful stand-in for the optional occupation-standardization provider
+ * (hartenthaler/hh_occupation_standardizer). The module is an optional runtime
+ * dependency resolved in-process via ModuleService; it is never required by this
+ * package, so its public-API classes are not on this package's autoload path.
+ *
+ * This stub mirrors the provider's published public-API surface from
+ * docs/public-api.md — the surface this package's StandardizerModuleNormalizer
+ * adapter consumes a subset of. It serves two callers from one source of truth:
+ * static analysis discovers it via phpstan's `scanFiles`, and the adapter's unit
+ * test loads it through the PHPUnit bootstrap to exercise the provider-present
+ * mapping without installing the provider. The methods therefore carry real,
+ * side-effect-free bodies; the constructor is a test-support convenience — the
+ * provider never exposes it to this package, which only ever reads the accessors
+ * below.
+ */
+
+/**
+ * Read-only contract a webtrees module publishes to let other modules
+ * standardize raw occupation strings without depending on it directly.
+ */
 interface OccupationStandardizerInterface
 {
+    /**
+     * Standardize a single raw occupation string.
+     *
+     * @param string      $raw_occupation The raw `1 OCCU` value to standardize
+     * @param string|null $language       BCP-47 language the value is written in, or null when unknown
+     *
+     * @return StandardizedOccupation|null The standardized result, or null when unrecognized
+     */
     public function standardize(string $raw_occupation, ?string $language = null): ?StandardizedOccupation;
 
     /**
-     * @param iterable<string> $raw_occupations
+     * Standardize a batch of raw occupation strings in one call.
      *
-     * @return array<string, StandardizedOccupation|null>
+     * @param iterable<string> $raw_occupations The distinct raw `1 OCCU` values to standardize
+     * @param string|null      $language        BCP-47 language every value is written in, or null when unknown
+     *
+     * @return array<string, StandardizedOccupation|null> Keyed by each input string; null when unrecognized
      */
     public function standardizeMany(iterable $raw_occupations, ?string $language = null): array;
 }
 
-final class StandardizedOccupation
+/**
+ * Immutable result of standardizing one raw occupation string.
+ */
+final readonly class StandardizedOccupation
 {
+    /**
+     * @param string                $canonicalKey     Language-independent grouping key under which every variant of this trade folds
+     * @param string                $canonicalLabel   Fallback label used when no per-language label matches
+     * @param array<string, string> $labelsByLanguage Display label per BCP-47 language tag; the empty-string key is the fallback used when the tree language is unknown
+     * @param string|null           $hiscoCode        Optional HISCO classification code, or null when unavailable
+     * @param string|null           $hisclass         Optional HISCLASS code, or null when unavailable
+     * @param float|null            $hiscamScore      Optional HISCAM social-status score, or null when unavailable
+     */
+    public function __construct(
+        private string $canonicalKey = '',
+        private string $canonicalLabel = '',
+        private array $labelsByLanguage = [],
+        private ?string $hiscoCode = null,
+        private ?string $hisclass = null,
+        private ?float $hiscamScore = null,
+    ) {
+    }
+
+    /**
+     * @return string The fallback label used when no per-language label matches
+     */
     public function canonicalLabel(): string
     {
+        return $this->canonicalLabel;
     }
 
+    /**
+     * @return string The language-independent grouping key under which every variant of this trade folds
+     */
     public function canonicalKey(): string
     {
+        return $this->canonicalKey;
     }
 
+    /**
+     * Resolve the readable label for the given language, falling back to the
+     * canonical label when no per-language label matches.
+     *
+     * @param string      $language The BCP-47 language to resolve the label for; the empty string requests the language-neutral fallback
+     * @param string|null $sex      Optional sex to resolve a gendered label for, or null for the neutral form
+     *
+     * @return string The resolved display label
+     */
     public function displayLabel(string $language, ?string $sex = null): string
     {
+        return $this->labelsByLanguage[$language] ?? $this->canonicalLabel;
     }
 
+    /**
+     * @return string|null The HISCO classification code, or null when unavailable
+     */
     public function hiscoCode(): ?string
     {
+        return $this->hiscoCode;
     }
 
+    /**
+     * @return string|null The HISCLASS code, or null when unavailable
+     */
     public function hisclass(): ?string
     {
+        return $this->hisclass;
     }
 
+    /**
+     * @return float|null The HISCAM social-status score, or null when unavailable
+     */
     public function hiscamScore(): ?float
     {
+        return $this->hiscamScore;
     }
 }
