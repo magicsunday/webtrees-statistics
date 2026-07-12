@@ -10,6 +10,7 @@
 declare(strict_types=1);
 
 use Fisharebest\Webtrees\Webtrees;
+use RuntimeException;
 
 /*
  * PHPUnit bootstrap.
@@ -42,9 +43,13 @@ require_once __DIR__ . '/../stubs/hh_occupation_standardizer.stub';
 $enCatalogue = Webtrees::ROOT_DIR . 'resources/lang/en-US/messages.php';
 
 if (!is_file($enCatalogue)) {
-    if (!is_dir(dirname($enCatalogue))) {
-        mkdir(dirname($enCatalogue), 0o755, true);
+    $directory = dirname($enCatalogue);
+
+    if (!is_dir($directory) && !mkdir($directory, 0o755, true) && !is_dir($directory)) {
+        throw new RuntimeException(sprintf('Unable to create the language directory "%s".', $directory));
     }
 
-    file_put_contents($enCatalogue, "<?php\n\nreturn [];\n");
+    if (file_put_contents($enCatalogue, "<?php\n\nreturn [];\n") === false) {
+        throw new RuntimeException(sprintf('Unable to seed the English source catalogue "%s".', $enCatalogue));
+    }
 }
