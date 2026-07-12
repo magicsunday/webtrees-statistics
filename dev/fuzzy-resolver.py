@@ -20,7 +20,7 @@ Rule set (trivial diffs the resolver auto-fixes):
     - ` — ` (em-dash with spaces)  ↔  ` · ` (middle-dot with spaces)
     - ` – ` (en-dash with spaces)  ↔  ` · ` (middle-dot with spaces)
     - ` — ` ↔ ` – ` (em ↔ en, both with spaces)
-    - `,` ↔ `;` ↔ `.` swap when the diff is exactly that one character
+    - ` - ` (spaced hyphen) ↔ the dash/middle-dot variants above
     - whitespace-only diffs
     - DE-specific: "Dekade"/"Dekaden" ↔ "Jahrzehnt"/"Jahrzehnten" in the
       msgstr (the user prefers Jahrzehnt; the diff itself lives in the
@@ -142,18 +142,31 @@ def extract_string_literal(block: str, prefix: str) -> str | None:
 
 
 def unescape_po_string(text: str) -> str:
-    """Decode PO backslash escapes (\\\\, \\", \\n, \\t, \\r) to their
-    literal characters. Inverse of encode_po_string, so extract → encode
+    """Decode PO backslash escapes (\\\\, \\", \\n, \\t, \\r, \\a, \\b, \\f, \\v)
+    to their literal characters. Inverse of encode_po_string, so extract → encode
     round-trips a value that contains quotes, backslashes or control
     characters instead of truncating or double-escaping it."""
-    mapping = {"\\": "\\", "\"": "\"", "n": "\n", "t": "\t", "r": "\r"}
+    mapping = {
+        "\\": "\\",
+        "\"": "\"",
+        "n": "\n",
+        "t": "\t",
+        "r": "\r",
+        "a": "\a",
+        "b": "\b",
+        "f": "\f",
+        "v": "\v",
+    }
     out: list[str] = []
     i = 0
     length = len(text)
     while i < length:
         ch = text[i]
         if (ch == "\\") and ((i + 1) < length):
-            out.append(mapping.get(text[i + 1], text[i + 1]))
+            # Preserve the backslash for an UNRECOGNISED escape (e.g. `\p`) rather than silently
+            # dropping it — stripping it would corrupt a value that legitimately contains a backslash
+            # followed by a non-escape character.
+            out.append(mapping.get(text[i + 1], "\\" + text[i + 1]))
             i += 2
         else:
             out.append(ch)
@@ -177,16 +190,19 @@ def encode_po_string(text: str) -> str:
     lines = ['""']
     remaining = escaped
     while remaining:
-        chunk = remaining[:76]
-        if len(remaining) > 76:
-            cut = chunk.rfind(" ")
-            if cut > 40:
-                chunk = remaining[: cut + 1]
-                remaining = remaining[cut + 1 :]
-            else:
-                remaining = remaining[76:]
-        else:
+        if len(remaining) <= 76:
+            chunk = remaining
             remaining = ""
+        else:
+            cut = remaining[:76].rfind(" ")
+            cut = cut + 1 if cut > 40 else 76
+            # Never end a chunk after an ODD run of backslashes: the trailing "\" would escape the
+            # closing quote of the line's string literal (`"…\"`), malforming the PO and breaking
+            # msgfmt. Back the cut off one char at a time until the prefix ends on an even backslash run.
+            while cut > 1 and (cut - len(remaining[:cut].rstrip("\\"))) % 2 == 1:
+                cut -= 1
+            chunk = remaining[:cut]
+            remaining = remaining[cut:]
         lines.append(f'"{chunk}"')
     return "\n".join(lines)
 
@@ -200,16 +216,21 @@ def rewrite_block(block: str, new_msgstr: str) -> str:
     # Drop `fuzzy,` and `, fuzzy` from a mixed flag line
     out = re.sub(r"#,\s*fuzzy\s*,\s*", "#, ", out)
     out = re.sub(r"(#,[^\n]*?),\s*fuzzy(\s*)", r"\1\2", out)
-    # Drop previous-msgid stubs
-    out = re.sub(r"^#\|\s*msgid.*(?:\n#\|\s*\".*\")*\n", "", out, flags=re.MULTILINE)
-    out = re.sub(r"^#\|\s*msgctxt.*\n", "", out, flags=re.MULTILINE)
-    # Replace msgstr block. A function replacement avoids re.sub treating
-    # backslashes in the encoded value (\n, \", \\) as group/escape refs.
+    # Drop every previous-definition stub (`#| msgid`, `#| msgid_plural`, `#| msgctxt`, and their
+    # `#| "…"` continuation lines): once the entry is resolved they are all obsolete, and matching only
+    # `#| msgid`/`#| msgctxt` by name would orphan a `#| msgid_plural` line and trip msgfmt.
+    out = re.sub(r"^#\|.*\n", "", out, flags=re.MULTILINE)
+    # Replace the msgstr block. Anchored to the start of a line (like
+    # extract_string_literal) so the word "msgstr" inside a comment or a
+    # msgid/msgctxt value is never mistaken for the entry's msgstr line. A
+    # function replacement avoids re.sub treating backslashes in the encoded
+    # value (\n, \", \\) as group/escape refs.
     out = re.sub(
-        r"msgstr\s+((?:" + _PO_LITERAL + r"\s*)+)",
+        r"^msgstr\s+((?:" + _PO_LITERAL + r"\s*)+)",
         lambda _m: f"msgstr {encode_po_string(new_msgstr)}",
         out,
         count=1,
+        flags=re.MULTILINE,
     )
     return out
 
@@ -271,7 +292,18 @@ def resolve_locale(po_path: Path) -> tuple[int, int, list[str]]:
         resolved += 1
         new_blocks.append(rewrite_block(block, migrated))
 
-    po_path.write_text("".join(new_blocks), encoding="utf-8")
+    # Only write when the content actually changed, so a clean PO (the common case — nothing fuzzy to
+    # resolve) is left untouched rather than rewritten, avoiding needless disk I/O and spurious
+    # file-watcher / build-tool triggers.
+    new_text = "".join(new_blocks)
+    if new_text != text:
+        # Write raw UTF-8 bytes so the "\n" line endings are preserved verbatim:
+        # write_text() with the default newline=None translates "\n" to
+        # os.linesep, which would rewrite the whole PO with CRLF (a spurious diff)
+        # if the script is ever run directly on a non-Unix host rather than inside
+        # the Linux toolbox. write_bytes is also version-independent.
+        po_path.write_bytes(new_text.encode("utf-8"))
+
     return resolved, remaining_fuzzy, unresolved
 
 
