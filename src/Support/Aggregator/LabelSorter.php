@@ -13,7 +13,11 @@ namespace MagicSunday\Webtrees\Statistic\Support\Aggregator;
 
 use Fisharebest\Webtrees\I18N;
 
+use function restore_error_handler;
+use function set_error_handler;
 use function uksort;
+
+use const E_USER_DEPRECATED;
 
 /**
  * Orders a `label => count` distribution alphabetically by its display label
@@ -44,7 +48,19 @@ final readonly class LabelSorter
      */
     public static function byLabel(array $map, ?string $pinLast = null): array
     {
-        $comparator = I18N::comparator();
+        // webtrees marks I18N::comparator() deprecated on dev-main (removed in 2.3,
+        // superseded by I18N::compare()), but compare() does not exist on the 2.2.x
+        // line this module also supports — so comparator() stays the only portable
+        // call. Swallow the transitional E_USER_DEPRECATED at this single call site
+        // (a scoped handler restored immediately after) so it neither fails the suite
+        // nor leaks as test output; migrate to compare() once the 2.2.x floor is dropped.
+        set_error_handler(static fn (): bool => true, E_USER_DEPRECATED);
+
+        try {
+            $comparator = I18N::comparator();
+        } finally {
+            restore_error_handler();
+        }
 
         uksort(
             $map,
