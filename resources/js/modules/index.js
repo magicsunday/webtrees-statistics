@@ -31,10 +31,26 @@ import {
     WorldMap,
 } from "@magicsunday/webtrees-chart-lib";
 
-const WORLD_GEOJSON_URL =
+// Fallback only. The real URL is resolved server-side and handed over on the
+// page root, because the module's route name derives from the installation
+// directory — which the admin chooses — and because assetUrl() appends a
+// filemtime hash that the one-year cache header otherwise defeats.
+const WORLD_GEOJSON_URL_FALLBACK =
     "/index.php?route=%2Fmodule%2F_webtrees-statistics_%2FAsset&asset=js/world-map.geojson";
 
 let cachedGeoJson = null;
+
+/**
+ * Reads the server-resolved GeoJSON URL from the page root.
+ *
+ * @returns {string} The asset URL, or the hard-coded fallback when the
+ *                   attribute is absent.
+ */
+function worldGeoJsonUrl() {
+    const host = document.querySelector("[data-geojson-url]");
+
+    return host?.getAttribute("data-geojson-url") || WORLD_GEOJSON_URL_FALLBACK;
+}
 
 /**
  * Lazily load (and cache) the world GeoJSON. The chart-lib WorldMap widget
@@ -46,7 +62,7 @@ let cachedGeoJson = null;
 async function loadWorldGeoJson() {
     if (cachedGeoJson === null) {
         const raw = /** @type {import("geojson").FeatureCollection} */ (
-            await json(WORLD_GEOJSON_URL)
+            await json(worldGeoJsonUrl())
         );
         // Drop Antarctica — no genealogy data is going to land in
         // AQ and the continent eats roughly a third of a Mercator
