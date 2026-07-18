@@ -100,11 +100,6 @@
     --wmstats-map-stroke:                  var(--border);
 
     --wmstats-progress-label-color:        var(--ink-2);
-    --wmstats-progress-bg-births-month:    var(--ochre-soft);
-    --wmstats-progress-bg-births-zodiac:   var(--slate-soft);
-    --wmstats-progress-bg-births-century:  var(--sage);
-    --wmstats-progress-bg-deaths-month:    var(--mute);
-    --wmstats-progress-bg-deaths-century:  var(--deceased);
 
     --wmstats-gradient-births-start:       color-mix(in srgb, var(--sage) 35%, var(--card));
     --wmstats-gradient-births-end:         var(--sage);
@@ -1971,38 +1966,6 @@
    value; gradient pairs let the colour itself encode magnitude.
    -------------------------------------------------------------- */
 
-.wt-statistics-chart .progress-births-month,
-.wt-statistics-chart .progress-deaths-month {
-    --bs-progress-label-gradient-start: color-mix(in srgb, var(--ochre) 35%, var(--card));
-    --bs-progress-label-gradient-end:   var(--ochre);
-}
-
-.wt-statistics-chart .progress-births-zodiac {
-    --bs-progress-label-gradient-start: color-mix(in srgb, var(--slate) 25%, var(--card));
-    --bs-progress-label-gradient-end:   var(--slate);
-}
-
-.wt-statistics-chart .progress-births-century,
-.wt-statistics-chart .progress-deaths-century {
-    --bs-progress-label-gradient-start: var(--wmstats-gradient-births-start);
-    --bs-progress-label-gradient-end:   var(--wmstats-gradient-births-end);
-}
-
-.wt-statistics-chart .progress-births-decade {
-    --bs-progress-label-gradient-start: var(--wmstats-gradient-births-start);
-    --bs-progress-label-gradient-end:   var(--wmstats-gradient-births-end);
-}
-
-.wt-statistics-chart .progress-place-dispersion {
-    --bs-progress-label-gradient-start: color-mix(in srgb, var(--sage) 30%, var(--card));
-    --bs-progress-label-gradient-end:   var(--sage);
-}
-
-.wt-statistics-chart .progress-generation-depth {
-    --bs-progress-label-gradient-start: color-mix(in srgb, var(--slate) 25%, var(--card));
-    --bs-progress-label-gradient-end:   var(--slate);
-}
-
 .wt-statistics-chart .wt-generation-chain-list {
     display:          flex;
     flex-wrap:        wrap;
@@ -2028,118 +1991,11 @@
    Tree-health rate bars + scalar readout
    -------------------------------------------------------------------- */
 
-.wt-statistics-chart .progress-tree-health {
-    --bs-progress-label-gradient-start: var(--wmstats-gradient-tree-health-start);
-    --bs-progress-label-gradient-end:   var(--wmstats-gradient-tree-health-end);
-}
-
-.wt-statistics-chart .progress-tree-health-gap {
-    --bs-progress-label-gradient-start: var(--wmstats-gradient-tree-health-gap-start);
-    --bs-progress-label-gradient-end:   var(--wmstats-gradient-tree-health-gap-end);
-}
-
-/* ----------------------------------------------------------------------
-   Progress-bar gradient pairs for the LifeSpan / Family tab widgets.
-   Every histogram / progress-list rendered through Partials/ProgressList
-   needs both `--bs-progress-label-gradient-start` and
-   `--bs-progress-label-gradient-end` set; the partial's `color-mix()`
-   blends between them based on the bar's width fraction. Without
-   the variables the `color-mix()` collapses to transparent and the
-   bar renders invisible.
-
-   Each grouping reuses the same gradient — the bar's CSS class is
-   really a category marker, not an individual colour.
-   -------------------------------------------------------------------- */
-
-.wt-statistics-chart .progress-age-at-death,
-.wt-statistics-chart .progress-oldest-deceased,
-.wt-statistics-chart .progress-oldest-living {
-    --bs-progress-label-gradient-start: color-mix(in srgb, var(--sage) 30%, var(--card));
-    --bs-progress-label-gradient-end:   var(--sage);
-}
-
 /* Sex-tinted gradients share the Overview-donut sex tokens so a
    palette adjustment in one place propagates to every sex-axis
    histogram. The start colour is a soft tint of the same hue —
    pinning gradient-end to the donut's full saturation keeps the
    brightest bars in lockstep with the donut. */
-
-.wt-statistics-chart .progress-age-at-marriage-m,
-.wt-statistics-chart .progress-age-at-divorce-m,
-.wt-statistics-chart .progress-age-first-child-m {
-    --bs-progress-label-gradient-start: color-mix(in srgb, var(--wmstats-sex-male) 22%, var(--card));
-    --bs-progress-label-gradient-end:   var(--wmstats-sex-male);
-}
-
-.wt-statistics-chart .progress-age-at-marriage-f,
-.wt-statistics-chart .progress-age-at-divorce-f,
-.wt-statistics-chart .progress-age-first-child-f {
-    --bs-progress-label-gradient-start: color-mix(in srgb, var(--wmstats-sex-female) 22%, var(--card));
-    --bs-progress-label-gradient-end:   var(--wmstats-sex-female);
-}
-
-.wt-statistics-chart .progress-marriage-duration,
-.wt-statistics-chart .progress-age-gap,
-.wt-statistics-chart .progress-weddings-century,
-.wt-statistics-chart .progress-weddings-month {
-    --bs-progress-label-gradient-start: color-mix(in srgb, var(--ochre) 30%, var(--card));
-    --bs-progress-label-gradient-end:   var(--ochre);
-}
-
-.wt-statistics-chart .progress-divorces-century,
-.wt-statistics-chart .progress-divorces-month,
-.wt-statistics-chart .progress-divorce-cohort {
-    --bs-progress-label-gradient-start: color-mix(in srgb, var(--wine) 25%, var(--card));
-    --bs-progress-label-gradient-end:   var(--wine);
-}
-
-.wt-statistics-chart .progress-children-per-family,
-.wt-statistics-chart .progress-sibling-gap,
-.wt-statistics-chart .progress-largest-families,
-.wt-statistics-chart .progress-first-child-month {
-    --bs-progress-label-gradient-start: color-mix(in srgb, var(--sage) 25%, var(--card));
-    --bs-progress-label-gradient-end:   var(--sage);
-}
-
-.wt-statistics-chart .progress-ancestor-count {
-    --bs-progress-label-gradient-start: color-mix(in srgb, var(--slate) 25%, var(--card));
-    --bs-progress-label-gradient-end:   var(--slate);
-}
-
-.wt-statistics-chart .progress-occupations {
-    --bs-progress-label-gradient-start: color-mix(in srgb, var(--ochre) 30%, var(--card));
-    --bs-progress-label-gradient-end:   var(--ochre);
-}
-
-.wt-statistics-chart .progress-religions {
-    --bs-progress-label-gradient-start: color-mix(in srgb, var(--slate) 25%, var(--card));
-    --bs-progress-label-gradient-end:   var(--slate);
-}
-
-.wt-statistics-chart .progress-death-causes {
-    --bs-progress-label-gradient-start: color-mix(in srgb, var(--wine) 25%, var(--card));
-    --bs-progress-label-gradient-end:   var(--wine);
-}
-
-.wt-statistics-chart .progress-migration-distance {
-    --bs-progress-label-gradient-start: color-mix(in srgb, var(--wine) 25%, var(--card));
-    --bs-progress-label-gradient-end:   var(--wine);
-}
-
-.wt-statistics-chart .progress-most-grandchildren {
-    --bs-progress-label-gradient-start: color-mix(in srgb, var(--sage) 25%, var(--card));
-    --bs-progress-label-gradient-end:   var(--sage);
-}
-
-.wt-statistics-chart .progress-record-inventory {
-    --bs-progress-label-gradient-start: color-mix(in srgb, var(--slate) 25%, var(--card));
-    --bs-progress-label-gradient-end:   var(--slate);
-}
-
-.wt-statistics-chart .progress-media-types {
-    --bs-progress-label-gradient-start: color-mix(in srgb, var(--ochre) 30%, var(--card));
-    --bs-progress-label-gradient-end:   var(--ochre);
-}
 
 /* Record inventory — stacked, independently-scaled bar groups
    (core vs. enrichment) on the tree-health tab. */
@@ -2566,30 +2422,6 @@
 .wt-statistics-chart svg.msc-stream-graph .msc-stream-graph-y-axis line,
 .wt-statistics-chart svg.msc-stream-graph .msc-stream-graph-y-axis path {
     display: none;
-}
-
-/* ----------------------------------------------------------------------
-   GeoMap / Places — gradient bridge used by the d3 world-map widget.
-   The widget reads --bs-progress-label-gradient-* via getComputedStyle,
-   so we map our theme tokens onto those names per-card.
-   -------------------------------------------------------------------- */
-
-.wt-statistics-chart #living-geo-map,
-.wt-statistics-chart .progress-births-country {
-    --bs-progress-label-gradient-start: var(--wmstats-gradient-births-start);
-    --bs-progress-label-gradient-end:   var(--wmstats-gradient-births-end);
-}
-
-.wt-statistics-chart #residences-geo-map,
-.wt-statistics-chart .progress-residences-country {
-    --bs-progress-label-gradient-start: var(--wmstats-gradient-residences-start);
-    --bs-progress-label-gradient-end:   var(--wmstats-gradient-residences-end);
-}
-
-.wt-statistics-chart #deaths-geo-map,
-.wt-statistics-chart .progress-deaths-country {
-    --bs-progress-label-gradient-start: var(--wmstats-gradient-deaths-start);
-    --bs-progress-label-gradient-end:   var(--wmstats-gradient-deaths-end);
 }
 
 .wt-statistics-chart .wt-stat-world-map-container {
