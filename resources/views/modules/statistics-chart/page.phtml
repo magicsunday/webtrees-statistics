@@ -21,6 +21,7 @@ use MagicSunday\Webtrees\Statistic\Model\Tree\HeroStats;
  * @var HeroStats            $hero       Aggregated headline metrics for the hero header
  * @var string               $javascript The javascript library to use
  * @var string               $stylesheet URL of the module-wide stylesheet
+ * @var string               $geoJsonUrl URL of the world-map GeoJSON, resolved through assetUrl()
  * @var array<string,string> $fontUrls   Map of self-hosted woff2 asset URLs
  */
 ?>
@@ -110,7 +111,8 @@ use MagicSunday\Webtrees\Statistic\Model\Tree\HeroStats;
     <?php echo $title; ?>
 </h2>
 
-<div class="wt-page-content wt-chart wt-statistics-chart" id="statistics-tabs">
+<div class="wt-page-content wt-chart wt-statistics-chart" id="statistics-tabs"
+     data-geojson-url="<?php echo e($geoJsonUrl); ?>">
     <div class="wt-stat-app">
         <?php echo view($module . '::modules/statistics-chart/components/hero', ['tree' => $tree, 'hero' => $hero]); ?>
 

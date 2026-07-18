@@ -196,6 +196,11 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
                 'hero'       => $statistic->getHeroStats(),
                 'javascript' => $this->assetUrl('js/statistics-' . self::CUSTOM_VERSION . '.min.js'),
                 'stylesheet' => $this->assetUrl('css/statistics.css'),
+                // Resolved server-side: the module's route name derives from
+                // the installation directory, which the admin chooses, and
+                // assetUrl() appends a filemtime hash so an updated GeoJSON
+                // reaches returning visitors despite the one-year cache header.
+                'geoJsonUrl' => $this->assetUrl('js/world-map.geojson'),
                 // Pre-resolved asset URLs for the two web-font families
                 // (latin + latin-ext subsets each). The `<link rel="preload">`
                 // tags in `page.phtml` need the final URLs at server-render
