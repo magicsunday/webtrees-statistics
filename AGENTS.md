@@ -191,6 +191,15 @@ All d3 modules are runtime `dependencies` in `package.json` — `d3-array`, `d3-
 - One class per file. Write tests for every class with **real value-equality assertions against curated fixtures**, not just shape checks — the `assertGreaterThan(0)` style hides regressions where the iterator shape changed but the count happens to land near zero. Use PHPUnit `#[Test]` attributes (not docblock annotations).
 - Prefer `array_find` / `array_any` / `array_all` over manual `foreach` for "find one" / "any match" / "all match" intents — but only on PHP 8.4+. While `composer.json` still allows PHP 8.3, manual `foreach` stays the portable form; do not introduce these calls until the floor moves to 8.4.
 
+## Commits & PRs
+- Commit subjects match `^(GH-<N>: )?[A-ZÄÖÜ]` — a capitalised imperative, with the
+  `GH-<N>: ` prefix on issue-tied work. **No conventional-commit prefixes**
+  (`feat:`, `fix:`, `chore:` …), no lowercase or path-like starts. Branches for an
+  issue are named exactly `GH-<N>`.
+- Never add a `Co-Authored-By:` trailer or any other AI attribution.
+- One concern per commit; style-only fixes stay separate from behaviour changes.
+- Every issue carries a type label **and** a `priority:` label from this repository's own set.
+
 ## Audit-loop discipline
 - Every issue umsetzen: spawn ALL relevant reviewers (correctness + maintainability + testing + project-standards always; conditional ones — adversarial / kieran / reliability / security / frontend — whenever their triggers match) in parallel before committing. Iterate fix → audit until 2× zero findings AND local `composer ci:test` green.
 - Keep `AGENTS.md` and the README in lockstep with code changes. If a section here references a behaviour the code no longer has, fix the doc in the same commit.
