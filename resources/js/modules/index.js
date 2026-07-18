@@ -67,13 +67,32 @@ async function loadWorldGeoJson() {
 }
 
 /**
+ * The renderer options as they cross the PHTML -> JSON -> JS boundary: the
+ * partial supplies `width`, `height` and `accent`, the dispatcher adds
+ * `emptyMessage` and `animateOnReveal`, and chart-lib's widget constructors
+ * declare the receiving end.
+ *
+ * Spelled out rather than left open: an option renamed on either side crosses
+ * three hops that nothing else checks, and a bare `object` — or an index
+ * signature — would let the rename through silently.
+ *
+ * @typedef {object} WidgetOptions
+ *
+ * @property {number}  [width]
+ * @property {number}  [height]
+ * @property {string}  [accent]
+ * @property {string}  [emptyMessage]
+ * @property {boolean} [animateOnReveal]
+ */
+
+/**
  * Adapter that turns a chart-lib widget class (`new Widget(node,
  * opts).draw(data)`) into the functional `(node, data, options)` shape the
  * dispatcher uses. Keeps the dispatch table flat.
  *
- * @param {{new (node: HTMLElement, options: object): {draw: (data: unknown) => unknown}}} Widget Chart-lib widget class.
+ * @param {{new (node: HTMLElement, options: WidgetOptions): {draw: (data: unknown) => unknown}}} Widget Chart-lib widget class.
  *
- * @returns {(node: HTMLElement, data: unknown, options: object) => unknown}
+ * @returns {(node: HTMLElement, data: unknown, options: WidgetOptions) => unknown}
  */
 function fromChartLib(Widget) {
     return (node, data, options) => {
@@ -89,9 +108,10 @@ function fromChartLib(Widget) {
  * projection. Same async return shape as the other widgets even though they
  * resolve synchronously, so callers never have to special-case the map.
  *
- * @param {HTMLElement} node
- * @param {unknown}     data
- * @param {object}      options
+ * @param {HTMLElement}   node
+ * @param {unknown}       data
+ * @param {WidgetOptions} options Only `emptyMessage` is read here; the rest is
+ *                                spread into the widget untouched.
  *
  * @returns {Promise<unknown>}
  */
@@ -134,7 +154,7 @@ async function drawWorldMap(node, data, options) {
  * Every widget is a chart-lib widget; the world map just needs a pre-fetch hop
  * to load the GeoJSON the widget consumes via its constructor.
  *
- * @type {Object<string, (node: HTMLElement, data: unknown, options: object) => unknown>}
+ * @type {Object<string, (node: HTMLElement, data: unknown, options: WidgetOptions) => unknown>}
  */
 const WIDGETS = {
     "donut-chart": fromChartLib(DonutChart),
@@ -197,6 +217,7 @@ export function renderWidgets(root) {
     // A Map (not a WeakMap) so a late `prefers-reduced-motion` toggle can iterate
     // the still-held entries and fast-forward them; entries are removed as each
     // card reveals, and the whole map is cleared on teardown.
+    /** @type {Map<Element, {playEntry?: () => void}>|null} */
     const held = revealOnScroll ? new Map() : null;
     // Collected during the draw pass and revealed in a second pass, so the
     // getBoundingClientRect reads batch into a single layout flush instead of
@@ -213,7 +234,7 @@ export function renderWidgets(root) {
      * Play a widget's held entrance if it exposes one. Idempotent — BaseWidget
      * clears the stored entry after the first call.
      *
-     * @param {object|null|undefined} instance
+     * @param {{playEntry?: () => void}|null|undefined} instance
      *
      * @returns {void}
      */
@@ -254,8 +275,8 @@ export function renderWidgets(root) {
      * page that cannot scroll the observer's trigger line into reach, which
      * would otherwise leave it invisible forever — else defer to the observer.
      *
-     * @param {Element}               node
-     * @param {object|null|undefined} instance
+     * @param {Element}                                  node
+     * @param {{playEntry?: () => void}|null|undefined} instance
      *
      * @returns {void}
      */
