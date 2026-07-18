@@ -47,19 +47,46 @@ final class ArchitectureTest
      * Per-widget DTO sub-namespaces under `Model\`. Listed explicitly so the
      * DTO structural rules below select exactly the wire-shape value objects
      * and not the root-level value objects (`FamilyRow`) which live alongside
-     * them. Add an entry here whenever a new widget shape ships its own DTOs.
+     * them. Add an entry here whenever a new widget shape ships its own DTOs —
+     * {@see \MagicSunday\Webtrees\Statistic\Test\Unit\Architecture\ModelNamespaceCoverageTest}
+     * fails if one is forgotten.
      *
      * @var list<string>
      */
-    private const array DTO_SUB_NAMESPACES = [
+    public const array DTO_SUB_NAMESPACES = [
         'Chord',
+        'Heatmap',
         'LineChart',
         'Metric',
+        'Pyramid',
+        'Ranking',
         'Record',
         'Sankey',
         'StackedBar',
         'StreamGraph',
         'Tree',
+    ];
+
+    /**
+     * Sub-namespaces under `Model\` holding domain value objects rather than
+     * wire shapes. They are deliberately outside the DTO rules — they carry no
+     * `jsonSerialize()` because nothing serialises them directly. An
+     * intermediate namespace that holds no class of its own belongs here too,
+     * for the same reason: it contributes no wire shape.
+     *
+     * Listed for the same reason as the DTOs: so
+     * {@see \MagicSunday\Webtrees\Statistic\Test\Unit\Architecture\ModelNamespaceCoverageTest}
+     * can prove the two lists together cover every sub-namespace that exists,
+     * and that each one sits in the list its classes actually justify. Without
+     * that proof a new sub-namespace silently falls outside both rule sets,
+     * which is how three wire DTOs came to be unguarded.
+     *
+     * @var list<string>
+     */
+    public const array DOMAIN_SUB_NAMESPACES = [
+        'Family',
+        'Marriage',
+        'Mortality',
     ];
 
     /**
