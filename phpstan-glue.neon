@@ -1,0 +1,45 @@
+# Static analysis for the PHP that lives outside src/: the data-preparation
+# prologues in the tab templates and the developer tooling under dev/.
+#
+# Deliberately a separate configuration at a lower level than src/. Template
+# variables arrive untyped from view(), so `max` would drown real findings in
+# `mixed` noise; level 6 still catches the class this exists for — wrong
+# argument counts, wrong argument types and calls to symbols that moved.
+includes:
+    - %currentWorkingDirectory%/.build/vendor/phpstan/phpstan-deprecation-rules/rules.neon
+
+parameters:
+    level: 6
+
+    tmpDir: %currentWorkingDirectory%/.build/cache/.phpstan-glue.cache
+
+    paths:
+        - %currentWorkingDirectory%/resources/views/
+        - %currentWorkingDirectory%/dev/
+
+    fileExtensions:
+        - php
+        - phtml
+
+    excludePaths:
+        - %currentWorkingDirectory%/.build/
+
+    ignoreErrors:
+        # A template documents its incoming view variables in one `@var` header
+        # and then defaults the optional ones with `??=`. PHPStan proves the
+        # defaults redundant *from that header* — but it cannot see the actual
+        # `view()` call sites, so the header is a contract, not an observation.
+        # Stripping the defaults would remove the only guard a caller passing
+        # less would hit.
+        - identifier: nullCoalesce.variable
+        - identifier: nullCoalesce.offset
+
+        # Two genuine findings from the first run of this configuration, both
+        # tied to where the `@var` header sits relative to the first statement.
+        # Suppressed by identifier and path, tracked in #249 — not silenced.
+        -
+            identifier: varTag.nativeType
+            path: %currentWorkingDirectory%/resources/views/modules/statistics-chart/widgets/donut-chart.phtml
+        -
+            identifier: notIdentical.alwaysFalse
+            path: %currentWorkingDirectory%/resources/views/modules/statistics-chart/widgets/name-timeline.phtml
