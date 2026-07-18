@@ -16,13 +16,14 @@ This repository hosts the webtrees statistics module — a six-tab dashboard of 
 
 ## Build & tests
 - **`composer ci:test` MUST run before every commit** — catches Biome lint, PHPStan, PHP-CS-Fixer, Rector, PHPUnit, Jest, and jscpd issues before they reach GitHub CI.
-- Individual checks: `composer ci:test:php:phpstan`, `composer ci:test:php:unit`, `composer ci:test:php:cgl`, `composer ci:test:php:rector`, `composer ci:test:php:lint`, `composer ci:test:js:lint`, `composer ci:test:js:unit`, `composer ci:test:js:format`, `composer ci:test:cpd`.
+- Individual checks: `composer ci:test:php:phpstan`, `composer ci:test:php:phpstan:glue`, `composer ci:test:php:unit`, `composer ci:test:php:cgl`, `composer ci:test:php:rector`, `composer ci:test:php:lint`, `composer ci:test:js:lint`, `composer ci:test:js:unit`, `composer ci:test:js:format`, `composer ci:test:cpd`.
 - Single PHPUnit test: `composer ci:test:php:unit -- --filter TestClassName`.
 - Auto-fix: `composer ci:cgl` (PHP style), `composer ci:rector` (Rector), `npm run lint:fix` + `npm run format` (Biome).
 - JS bundles: `make build` (rollup), `make watch` (dev rebuild loop).
 - Translations: `make lang` runs the full pipeline — extract `resources/lang/messages.pot` from `src/` + `resources/views/`, merge it into each locale's `messages.po` (seeding missing ones via `msginit`), auto-resolve fuzzy entries, and compile every PO to MO. Sub-targets `lang-extract`, `lang-merge`, `lang-resolve-fuzzy`, `lang-compile` exist for partial runs. The POT itself is gitignored (regenerated on demand); the PO + MO files are committed.
 - Add PHPUnit attribute-based coverage (positive AND negative cases) for every class/method introduced or modified — the project follows the "test every class" standard.
 - PHPStan runs at `level: max` against `src/` and `tests/` with no baseline. Every change fixes the underlying defect; the baseline file is intentionally absent so future drift cannot be ignored.
+- A second configuration, `phpstan-glue.neon`, covers the PHP that lives outside `src/`: the data-preparation prologues in `resources/views/` and the tooling in `dev/`. It runs at `level: 6` with `fileExtensions: [php, phtml]` — deliberately lower, because view variables arrive untyped through `view()` and `max` would bury real findings in `mixed` noise. Level 6 still catches what this exists for: wrong argument counts and types, and calls to symbols that moved. Both configurations run as their own CI step; a check wired only into the `ci:test` aggregate would never run on GitHub.
 
 ## Architecture
 

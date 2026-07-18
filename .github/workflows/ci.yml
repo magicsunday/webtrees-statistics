@@ -95,6 +95,12 @@ jobs:
               run: |
                   composer ci:test:php:phpstan -- --error-format=github
 
+            - id: phpstan-glue
+              name: PHPStan (templates and dev tooling)
+              if: ${{ always() && steps.install.conclusion == 'success' }}
+              run: |
+                  composer ci:test:php:phpstan:glue -- --error-format=github
+
             - id: rector
               name: Rector
               if: ${{ always() && steps.install.conclusion == 'success' }}
