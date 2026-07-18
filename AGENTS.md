@@ -159,7 +159,6 @@ Three-folder layout mirroring the chart modules' kebab-case convention:
 
 ### JS (`resources/js/modules/`)
 - **`index.js`** — exports `renderWidgets(root)`. Scans every `[data-widget]` element, parses `data-payload` / `data-options` JSON, and dispatches to the registered draw function. The world-map dispatch is async because it fetches the GeoJSON (cached per page load) before instantiating the chart-lib widget. Also initialises Bootstrap popovers attached to chart-header info buttons after each render.
-- **`dashboard-bus.js`** — Shared selection observable (see Cross-widget selection bus section below).
 
 All d3 modules are runtime `dependencies` in `package.json` — `d3-array`, `d3-axis`, `d3-ease`, `d3-fetch`, `d3-geo`, `d3-interpolate`, `d3-sankey`, `d3-scale`, `d3-scale-chromatic`, `d3-selection`, `d3-shape`, `d3-transition` — and are bundled into the UMD output by `@rollup/plugin-node-resolve` (they are not declared `external` in `rollup.config.js`).
 
@@ -170,7 +169,7 @@ All d3 modules are runtime `dependencies` in `package.json` — `d3-array`, `d3-
     2. `lang-merge`: `msgmerge` reconciles each locale's `messages.po` with the fresh POT, `msginit`-seeds any missing locale entry.
     3. `lang-resolve-fuzzy`: `dev/fuzzy-resolver.py` auto-clears fuzzy entries whose only change from the previous msgid is a trivial punctuation diff; non-trivial diffs stay fuzzy and surface as a list.
     4. `lang-compile`: `msgfmt` produces every `messages.mo` from its sibling `messages.po`. Webtrees core reads the MO at runtime via the module's resource loader.
-- The `*.pot` file is gitignored; PO + MO are committed. Adding a new locale: append the language code to the `LOCALES :=` list in `Make/lang.mk`, then run `make lang` once.
+- The `*.pot` file is gitignored; PO + MO are committed. Adding a new locale: create `resources/lang/<code>/messages.po` and run `make lang` once. `LOCALES` in `Make/lang.mk` is discovered from the existing per-locale directories, so no Makefile edit is needed.
 
 ## Key patterns
 - **Bucket precedence (per individual)**: current > divorced > widowed > single. Applied in `FamilyRepository::classifyOneIndividual()` so a remarried-after-widowed living person is classed as "current", not "widowed".
@@ -185,30 +184,6 @@ All d3 modules are runtime `dependencies` in `package.json` — `d3-array`, `d3-
 - **Plain-name labels**: `Individual::fullName()` / `Family::fullName()` return HTML markup (`<span class="NAME">…</span>`), which must be reduced to plain text before a name reaches a view (the partials just `e()`-escape the already-resolved `label`). Two accessors do this: the module's own `Support\Gedcom\RecordName::plain()` — used by the ranking / podium repositories (`FamilyRankingRepository`, `MarriageRepository`, `GenerationDepthRepository`, `FamilyRepository`) to plain the entity labels feeding the `progress-list` / `podium` partials — and module-base's `NameProcessor::getFullName()`, used by `LifeSpanRepository` for the oldest-individual record names.
 - **Privacy of Top-N / record widgets**: podium and single-record widgets rank on raw counts and keep every row in place — they never call `canShow()` to drop a row (that would shift ranks and surface a smaller-than-N podium). The name is privatised by `fullName()`, which substitutes webtrees' own "Private" placeholder when the viewer lacks access, and the ranked metric (count / age / duration) is always rendered. **Any additional sensitive attribute a row carries beyond the ranked metric must be gated on the resolved record's `canShow()` and suppressed (`null`) when the record is not visible** — name privatisation alone is not enough, because the surrounding fact can be more sensitive than a name plus a number. Today the only such attribute is the marriage end-cause (death vs divorce) in `MarriageRepository::getMarriageDurationExtremes()`; future record widgets that render an extra sensitive fact follow the same gate.
 - **Single chart tooltip element on `document.body`**: every chart-lib widget that supports hover-tooltips uses `createChartTooltip()` from chart-lib — one shared `position: fixed` element across the whole page, clamped to viewport edges, flipped above-cursor / left-of-cursor when the preferred placement would overflow.
-
-## Cross-widget selection bus
-
-`resources/js/modules/dashboard-bus.js` exposes a `DashboardBus` class — a tiny d3-dispatch wrapper that lets one widget broadcast a selection (e.g. "show me only the 1900s century") and every subscribed widget rebroadcast / re-filter against the same predicate.
-
-### Contract
-- `bus.emit({ source: "donut.births-century", predicate: { century: 1900 } })` — broadcast.
-- `bus.onSelectionChanged(callback)` — subscribe. Returns an `unsubscribe` function for clean teardown.
-- A `null` predicate means "clear filter".
-- Every subscriber receives every event. Callers ignore their own emissions by matching the `source` string.
-
-### Sequence
-```
-+--------+         +---------------+         +-----------+   +-----------+
-| Widget |--emit-->| DashboardBus  |--fanout-| Widget A  |   | Widget B  |
-| (donut)|         | (selection)   |--fanout-| (sankey)  |   | (heatmap) |
-+--------+         +---------------+         +-----------+   +-----------+
-```
-
-The bus carries no data shape — each widget interprets the predicate against its own dataset. This keeps the bus itself ~50 lines and pushes the schema decision to the widget pair that actually shares semantics (e.g. century filter only makes sense between widgets that bucket by century).
-
-### Status
-- The bus + 5 jest tests covering multi-subscriber broadcast, unsubscribe, null-predicate, and source-self-ignore contracts is shipped.
-- Widget-side wiring (donut slice click → bus.emit, sankey re-filter on incoming selection) is tracked in issue #14 + chart-lib#10 + stats#33 — chart-lib widgets need an `onSelectionChanged` hook before the pilot wiring lands.
 
 ## Design principles
 - Priority order on conflict: **KISS > SOLID > DRY > YAGNI > GRASP > Law of Demeter > Separation of Concerns > Convention over Configuration**.
