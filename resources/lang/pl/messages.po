@@ -23,7 +23,7 @@ msgstr ""
 "X-Poedit-SearchPath-1: resources/views\n"
 "|| n%100>=20) ? 1 : 2);\n"
 
-#: src/Repository/LifeSpanRepository.php:921
+#: src/Repository/LifeSpanRepository.php:914
 #, php-format
 msgid "%1$s %% (%2$s of %3$s individuals reached this age)"
 msgstr "%1$s %% (%2$s z %3$s osób osiągnęło ten wiek)"
@@ -96,8 +96,8 @@ msgstr ""
 msgid "%1$s sub-trees total · the largest covers %2$s%% of all individuals"
 msgstr ""
 
+#: src/Repository/LifeSpanRepository.php:805
 #: src/Repository/LifeSpanRepository.php:812
-#: src/Repository/LifeSpanRepository.php:819
 #: src/Repository/ParenthoodRepository.php:359
 #: src/Repository/ParenthoodRepository.php:372
 #, php-format
@@ -136,7 +136,7 @@ msgstr ""
 msgid "%1$s: %2$s deaths against an expected %3$s (Z-score %4$s)"
 msgstr ""
 
-#: src/Repository/LifeSpanRepository.php:1134
+#: src/Repository/LifeSpanRepository.php:1127
 #: src/Support/Locale/CenturyName.php:112
 #: src/Support/Locale/CenturyName.php:131 src/Support/Locale/DecadeName.php:53
 #: src/Support/Locale/DecadeName.php:84
@@ -858,7 +858,7 @@ msgstr "Po śmierci partnera"
 msgid "Age"
 msgstr "Wiek"
 
-#: src/Repository/LifeSpanRepository.php:919
+#: src/Repository/LifeSpanRepository.php:912
 #, php-format
 msgid "Age %s"
 msgstr "Wiek %s"
@@ -1735,7 +1735,7 @@ msgid "February"
 msgstr "Luty"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:421
-#: src/Repository/LifeSpanRepository.php:841 src/Statistic.php:228
+#: src/Repository/LifeSpanRepository.php:834 src/Statistic.php:228
 msgid "Female"
 msgstr "Kobieta"
 
@@ -2262,7 +2262,7 @@ msgid "Longevity"
 msgstr "Longevity"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:420
-#: src/Repository/LifeSpanRepository.php:834 src/Statistic.php:223
+#: src/Repository/LifeSpanRepository.php:827 src/Statistic.php:223
 msgid "Male"
 msgstr "Mężczyzna"
 
@@ -3463,8 +3463,8 @@ msgctxt "count word"
 msgid "nine"
 msgstr "nine"
 
+#: src/Repository/LifeSpanRepository.php:809
 #: src/Repository/LifeSpanRepository.php:816
-#: src/Repository/LifeSpanRepository.php:823
 #: src/Repository/NameRepository.php:659 src/Repository/NameRepository.php:663
 #: src/Repository/ParenthoodRepository.php:365
 #: src/Repository/ParenthoodRepository.php:378
