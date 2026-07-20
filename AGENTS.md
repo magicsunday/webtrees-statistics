@@ -192,10 +192,25 @@ All d3 modules are runtime `dependencies` in `package.json` — `d3-array`, `d3-
 - Prefer `array_find` / `array_any` / `array_all` over manual `foreach` for "find one" / "any match" / "all match" intents — but only on PHP 8.4+. While `composer.json` still allows PHP 8.3, manual `foreach` stays the portable form; do not introduce these calls until the floor moves to 8.4.
 
 ## Commits & PRs
-- Commit subjects match `^(GH-<N>: )?[A-ZÄÖÜ]` — a capitalised imperative, with the
-  `GH-<N>: ` prefix on issue-tied work. **No conventional-commit prefixes**
-  (`feat:`, `fix:`, `chore:` …), no lowercase or path-like starts. Branches for an
-  issue are named exactly `GH-<N>`.
+- A subject starting with `GH-` must match `^GH-\d+: [A-ZÄÖÜ]`; every other subject
+  must match `^[A-ZÄÖÜ]` — a capitalised imperative either way. The patterns check
+  only the leading capital; two starts are banned whatever their case:
+  **conventional-commit prefixes** (`feat:`, `Fix:`, `chore:` …) and path-like starts
+  (`src/Module.php: …`, `Src/Module.php: …`).
+    - The two patterns are deliberately kept separate: `^(GH-\d+: )?[A-ZÄÖÜ]` (wrong)
+      stops enforcing the capital *after* the prefix, because the optional group can
+      be skipped and the `G` of `GH-` then satisfies `[A-ZÄÖÜ]` on its own —
+      `GH-12: fix typo` would pass. Keying on the subject rather than on the branch
+      also keeps this check decidable for commits already on `main`, where the issue
+      branch no longer exists.
+    - The normative definition lives in
+      `magicsunday/.github/.github/workflows/commit-convention.yml@main`, which
+      self-tests a decision table before applying it. This repository does not call
+      that gate yet — fan-chart is piloting it — so the rule here is documentation
+      only.
+- Branches for an issue are named exactly `GH-<N>`, where `<N>` is the issue number.
+  Commits on such a branch must carry the `GH-<N>: ` subject prefix, except the merge
+  and revert commits git writes itself — those keep their generated subject.
 - Never add a `Co-Authored-By:` trailer or any other AI attribution.
 - One concern per commit; style-only fixes stay separate from behaviour changes.
 - Every issue carries a type label **and** a `priority:` label from this repository's own set.
