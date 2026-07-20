@@ -203,14 +203,22 @@ All d3 modules are runtime `dependencies` in `package.json` — `d3-array`, `d3-
       `GH-12: fix typo` would pass. Keying on the subject rather than on the branch
       also keeps this check decidable for commits already on `main`, where the issue
       branch no longer exists.
+    - The same two patterns apply to the **pull-request title**, which under
+      squash-merge is the subject that reaches `main`.
     - The normative definition lives in
       `magicsunday/.github/.github/workflows/commit-convention.yml@main`, which
-      self-tests a decision table before applying it. This repository does not call
-      that gate yet — fan-chart is piloting it — so the rule here is documentation
-      only.
+      self-tests a decision table before applying it. No workflow here calls that
+      gate, so the rule in this repository is documentation only; wherever it is
+      wired, the workflow is authoritative and this text is what gets fixed.
 - Branches for an issue are named exactly `GH-<N>`, where `<N>` is the issue number.
-  Commits on such a branch must carry the `GH-<N>: ` subject prefix, except the merge
-  and revert commits git writes itself — those keep their generated subject.
+  The `GH-<N>: ` prefix marks work that belongs to the issue — a commit on that
+  branch whose concern is something else (a drive-by lint fix, a catalogue resync)
+  keeps its own unprefixed subject, which is what the history actually does. Merge
+  and revert commits keep the subject git generates. Not every git-written subject
+  is exempt, though: `fixup!` and `squash!` start lowercase and violate the rule, so
+  autosquash them before opening the PR.
+- The PR body closes the issue with a `Closes #<N>` keyword. The `GH-<N>: ` subject
+  prefix is not a GitHub link and closes nothing.
 - Never add a `Co-Authored-By:` trailer or any other AI attribution.
 - One concern per commit; style-only fixes stay separate from behaviour changes.
 - Every issue carries a type label **and** a `priority:` label from this repository's own set.
