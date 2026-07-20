@@ -169,7 +169,7 @@ All d3 modules are runtime `dependencies` in `package.json` — `d3-array`, `d3-
     2. `lang-merge`: `msgmerge` reconciles each locale's `messages.po` with the fresh POT, `msginit`-seeds any missing locale entry.
     3. `lang-resolve-fuzzy`: `dev/fuzzy-resolver.py` auto-clears fuzzy entries whose only change from the previous msgid is a trivial punctuation diff; non-trivial diffs stay fuzzy and surface as a list.
     4. `lang-compile`: `msgfmt` produces every `messages.mo` from its sibling `messages.po`. Webtrees core reads the MO at runtime via the module's resource loader.
-- The `*.pot` file is gitignored; PO + MO are committed. Adding a new locale: create `resources/lang/<code>/messages.po` and run `make lang` once. `LOCALES` in `Make/lang.mk` is discovered from the existing per-locale directories, so no Makefile edit is needed.
+- The `*.pot` file is gitignored; PO + MO are committed. Adding a new locale: create the **directory** `resources/lang/<code>/` — empty — and run `make lang` once. `LOCALES` is globbed from the per-locale directories, so the directory alone is enough to be discovered and no Makefile edit is needed. Do not create `messages.po` yourself: `lang-merge` seeds it with `msginit` only when it does not exist, and a file you placed there takes the `msgmerge` branch instead, which has no catalogue header to merge against. For a region or script tag (`en-US`, `zh-Hans`) msginit leaves the `Plural-Forms` placeholder — set `nplurals`/`plural` once by hand; msgmerge preserves it afterwards.
 
 ## Key patterns
 - **Bucket precedence (per individual)**: current > divorced > widowed > single. Applied in `FamilyRepository::classifyOneIndividual()` so a remarried-after-widowed living person is classed as "current", not "widowed".
