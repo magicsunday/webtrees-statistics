@@ -84,9 +84,13 @@ final class ArchitectureTest
     /**
      * Every helper in `Support\` must be `final` so its contract (`private
      * __construct`, static-only API) cannot be subverted by a subclass.
-     * `readonly` is not required: a single helper caches a static lookup table
-     * to amortise its setup cost across the tree, and `readonly` would forbid
-     * that one mutation site.
+     *
+     * `readonly` is deliberately not part of the rule, because it governs
+     * instance state and this layer splits on exactly that: the helpers that
+     * carry constructor-promoted state already declare `final readonly class`
+     * themselves, while the remainder are pure static utilities with no
+     * instance property at all — for those the modifier would add no invariant,
+     * only a style constraint the rule has no business enforcing.
      */
     #[TestRule]
     public function supportClassesAreFinal(): Rule
