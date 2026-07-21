@@ -31,19 +31,24 @@ link-base: .logo ## Symlink .build/vendor/.../webtrees-module-base to the siblin
 		echo -e "${FRED} ✘${FRESET} Expected sibling clone at $(MODULE_BASE_CLONE)"; \
 		exit 1; \
 	fi
-	@rm -rf $(MODULE_BASE_VENDOR)
-	@ln -s "$$(cd $(MODULE_BASE_CLONE) && pwd)" $(MODULE_BASE_VENDOR)
+	@rm -rf "$(MODULE_BASE_VENDOR)"
+	@ln -s "$$(cd $(MODULE_BASE_CLONE) && pwd)" "$(MODULE_BASE_VENDOR)"
 	@echo -e "${FGREEN} ✔${FRESET} Symlinked $(MODULE_BASE_VENDOR) → $$(cd $(MODULE_BASE_CLONE) && pwd)"
 	@echo -e "${FYELLOW}   Note:${FRESET} composer install/update will replace this symlink with a fresh checkout."
 
-unlink-base: .logo ## Restore .build/vendor/.../webtrees-module-base from composer. Runs composer on the host shell — requires composer in $PATH.
-	@if ! command -v composer >/dev/null 2>&1; then \
-		echo -e "${FRED} ✘${FRESET} composer not found on PATH. Either install composer on the host or run \`docker compose run --rm buildbox composer install\` against your webtrees buildbox manually."; \
-		exit 1; \
+unlink-base: .logo ## Remove the module-base dev symlink; print how to restore the composer checkout.
+	@if [ ! -L "$(MODULE_BASE_VENDOR)" ]; then \
+		if [ -e "$(MODULE_BASE_VENDOR)" ]; then \
+			echo -e "${FYELLOW} ⚠${FRESET} $(MODULE_BASE_VENDOR) is a real checkout, not a symlink — leaving it untouched."; \
+		else \
+			echo -e "${FYELLOW} ⚠${FRESET} $(MODULE_BASE_VENDOR) does not exist — nothing to unlink."; \
+		fi; \
+	else \
+		rm -f "$(MODULE_BASE_VENDOR)"; \
+		echo -e "${FGREEN} ✔${FRESET} Removed the dev symlink $(MODULE_BASE_VENDOR)."; \
+		echo -e "${FYELLOW}   Restore the composer checkout by running composer install for this module"; \
+		echo -e "   through the webtrees buildbox (these repos ship no PHP/composer container of their own).${FRESET}"; \
 	fi
-	@rm -rf $(MODULE_BASE_VENDOR)
-	@composer install --quiet
-	@echo -e "${FGREEN} ✔${FRESET} Restored $(MODULE_BASE_VENDOR) from composer."
 
 link-chart-lib: .logo ## Symlink node_modules/.../webtrees-chart-lib to the sibling dev clone for live editing. Uses a RELATIVE target so the symlink resolves inside the node compose container too.
 	@if [ ! -d "$(CHART_LIB_CLONE)" ]; then \
