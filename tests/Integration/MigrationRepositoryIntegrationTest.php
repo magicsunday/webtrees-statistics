@@ -13,6 +13,7 @@ namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use Fisharebest\Webtrees\Auth;
 use Fisharebest\Webtrees\Tree;
+use MagicSunday\Webtrees\ModuleBase\Support\Locale\IsoCountryMap;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyFlowsPayload;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyLink;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeySample;
@@ -21,7 +22,6 @@ use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RecordName;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
-use MagicSunday\Webtrees\Statistic\Support\Locale\IsoCountryMap;
 use MagicSunday\Webtrees\Statistic\Support\Sankey\BipartiteSankeyAssembler;
 use MagicSunday\Webtrees\Statistic\Support\Sankey\SankeySampleResolver;
 use MagicSunday\Webtrees\Statistic\Test\Support\Narrowing\PayloadNarrowing;
@@ -54,7 +54,6 @@ use function array_unique;
 #[UsesClass(GedcomScanner::class)]
 #[UsesClass(RowCast::class)]
 #[UsesClass(BipartiteSankeyAssembler::class)]
-#[UsesClass(IsoCountryMap::class)]
 #[UsesClass(SankeySampleResolver::class)]
 #[UsesClass(RecordName::class)]
 final class MigrationRepositoryIntegrationTest extends AbstractIntegrationTestCase
