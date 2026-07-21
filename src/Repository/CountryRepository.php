@@ -14,11 +14,11 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\JoinClause;
+use MagicSunday\Webtrees\ModuleBase\Support\Locale\IsoCountryMap;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\TopNAggregator;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
-use MagicSunday\Webtrees\Statistic\Support\Locale\IsoCountryMap;
 
 use function str_ends_with;
 use function trim;

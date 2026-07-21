@@ -11,12 +11,12 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
+use MagicSunday\Webtrees\ModuleBase\Support\Locale\IsoCountryMap;
 use MagicSunday\Webtrees\Statistic\Repository\CountryRepository;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\TopNAggregator;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
-use MagicSunday\Webtrees\Statistic\Support\Locale\IsoCountryMap;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;

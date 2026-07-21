@@ -245,7 +245,8 @@ final class PlaceDispersionRepository
      * are trimmed and compared case-sensitively so `Berlin, Germany` and
      * `Berlin, germany` count as two — a choice that biases toward "more
      * places" but stays simple and predictable; ISO-folding the place names is
-     * a separate concern handled by IsoCountryMap.
+     * a separate concern, handled by the shared IsoCountryMap resolver that
+     * module-base provides.
      */
     private function distinctPlaceCount(string $gedcom): int
     {

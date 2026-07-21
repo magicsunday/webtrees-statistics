@@ -20,6 +20,7 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\ModuleBase\Processor\NameProcessor;
+use MagicSunday\Webtrees\ModuleBase\Support\Locale\IsoCountryMap;
 use MagicSunday\Webtrees\Statistic\Model\Heatmap\HeatmapPayload;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
@@ -43,7 +44,6 @@ use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
 use MagicSunday\Webtrees\Statistic\Support\Locale\HistoricalEventCatalog;
-use MagicSunday\Webtrees\Statistic\Support\Locale\IsoCountryMap;
 use MagicSunday\Webtrees\Statistic\Support\Locale\MonthName;
 
 use function array_column;
