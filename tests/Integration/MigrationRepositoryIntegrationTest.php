@@ -54,7 +54,6 @@ use function array_unique;
 #[UsesClass(GedcomScanner::class)]
 #[UsesClass(RowCast::class)]
 #[UsesClass(BipartiteSankeyAssembler::class)]
-#[UsesClass(IsoCountryMap::class)]
 #[UsesClass(SankeySampleResolver::class)]
 #[UsesClass(RecordName::class)]
 final class MigrationRepositoryIntegrationTest extends AbstractIntegrationTestCase

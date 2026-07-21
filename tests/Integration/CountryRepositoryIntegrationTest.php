@@ -41,7 +41,6 @@ use function sort;
 #[UsesClass(TreeScope::class)]
 #[UsesClass(GedcomScanner::class)]
 #[UsesClass(RowCast::class)]
-#[UsesClass(IsoCountryMap::class)]
 #[UsesClass(TopNAggregator::class)]
 final class CountryRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {

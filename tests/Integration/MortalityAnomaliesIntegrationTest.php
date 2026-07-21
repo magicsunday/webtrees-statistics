@@ -37,7 +37,6 @@ use PHPUnit\Framework\Attributes\UsesClass;
 #[UsesClass(MortalityAnomalies::class)]
 #[UsesClass(MortalityAnomaly::class)]
 #[UsesClass(HistoricalEventCatalog::class)]
-#[UsesClass(IsoCountryMap::class)]
 #[UsesClass(TreeScope::class)]
 #[UsesClass(RowCast::class)]
 final class MortalityAnomaliesIntegrationTest extends AbstractIntegrationTestCase
