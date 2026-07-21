@@ -29,6 +29,7 @@ use MagicSunday\Webtrees\Statistic\Model\Pyramid\PopulationPyramidPayload;
 use MagicSunday\Webtrees\Statistic\Model\Ranking\RankingEntry;
 use MagicSunday\Webtrees\Statistic\Model\Record\IndividualAgeRecord;
 use MagicSunday\Webtrees\Statistic\Support\Aggregator\EventMonthTally;
+use MagicSunday\Webtrees\Statistic\Support\Calc\AgeBuckets;
 use MagicSunday\Webtrees\Statistic\Support\Calc\CalendarSpan;
 use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
 use MagicSunday\Webtrees\Statistic\Support\Calc\HeatmapPeriodBinner;
@@ -201,13 +202,7 @@ final readonly class LifeSpanRepository
             ->groupBy('individuals.i_id')
             ->get();
 
-        $buckets = [];
-
-        for ($age = 0; $age < self::MAX_BUCKET; $age += self::BUCKET_WIDTH) {
-            $buckets[$this->bucketLabel($age)] = 0;
-        }
-
-        $buckets[$this->overflowLabel()] = 0;
+        $buckets = AgeBuckets::init(0, self::MAX_BUCKET, self::BUCKET_WIDTH);
 
         foreach ($rows as $row) {
             $cohort = $this->birthDeathCohortOrNull($row, $maxAge);
@@ -217,9 +212,7 @@ final readonly class LifeSpanRepository
             }
 
             $years = $cohort['years'];
-            $label = $years >= self::MAX_BUCKET
-                ? $this->overflowLabel()
-                : $this->bucketLabel(intdiv($years, self::BUCKET_WIDTH) * self::BUCKET_WIDTH);
+            $label = AgeBuckets::label($years, self::MAX_BUCKET, self::BUCKET_WIDTH);
 
             $buckets[$label] = ($buckets[$label] ?? 0) + 1;
         }
@@ -1434,14 +1427,6 @@ final readonly class LifeSpanRepository
     }
 
     /**
-     * "0–9", "10–19", … for a given lower-bound age.
-     */
-    private function bucketLabel(int $lowerAge): string
-    {
-        return $lowerAge . '–' . ($lowerAge + self::BUCKET_WIDTH - 1);
-    }
-
-    /**
      * The full age-at-death band axis in oldest-first order — "100+", "90–99",
      * …, "0–9" — so the population pyramid stacks the oldest cohort at the top
      * and the youngest at the base. Mirrors the bucketing of {@see
@@ -1451,13 +1436,11 @@ final readonly class LifeSpanRepository
      */
     private function ageBandLabels(): array
     {
-        $labels = [$this->overflowLabel()];
-
-        for ($age = self::MAX_BUCKET - self::BUCKET_WIDTH; $age >= 0; $age -= self::BUCKET_WIDTH) {
-            $labels[] = $this->bucketLabel($age);
-        }
-
-        return $labels;
+        return array_reverse(
+            array_keys(
+                AgeBuckets::init(0, self::MAX_BUCKET, self::BUCKET_WIDTH)
+            )
+        );
     }
 
     /**
@@ -1467,19 +1450,7 @@ final readonly class LifeSpanRepository
      */
     private function ageBandLabel(int $years): string
     {
-        if ($years >= self::MAX_BUCKET) {
-            return $this->overflowLabel();
-        }
-
-        return $this->bucketLabel(intdiv($years, self::BUCKET_WIDTH) * self::BUCKET_WIDTH);
-    }
-
-    /**
-     * Overflow bucket label for ages ≥ MAX_BUCKET.
-     */
-    private function overflowLabel(): string
-    {
-        return self::MAX_BUCKET . '+';
+        return AgeBuckets::label($years, self::MAX_BUCKET, self::BUCKET_WIDTH);
     }
 
     /**
