@@ -64,8 +64,17 @@ parameters:
                 - tests/Unit/Model/LineChart/LineChartPayloadTest.php
                 - tests/View/MarriageExtremesViewTest.php
 
+        # The query layer projects Eloquent result rows through callables (row
+        # mappers, per-group reducers) that legitimately propagate a checked
+        # domain exception; the callable is consumed immediately inside the same
+        # method, so shipmonk's "checked exception escapes a callable" concern
+        # does not apply. Scoped to the two query directories so the rule stays
+        # armed everywhere else in the strict tier.
         -
             identifier: shipmonk.checkedExceptionInCallable
+            paths:
+                - src/Repository/*
+                - src/Support/Database/*
 
         # JetBrains' PHP stub for ext-calendar still spells gregoriantojd
         # as PascalCase (`GregorianToJD`), while the official PHP manual
