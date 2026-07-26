@@ -1,0 +1,65 @@
+# Deptrac configuration — imports the shared magicsunday/coding-standard ruleset.
+# This repository installs its dev tooling into .build/vendor, so the import path
+# points there (as the PHPStan include does).
+imports:
+    - .build/vendor/magicsunday/coding-standard/deptrac/layers.yaml
+
+deptrac:
+    paths:
+        - src
+
+    # This module predates the canonical namespace scheme. Map its non-canonical
+    # namespaces onto the shared canonical layers by adding collectors — Deptrac
+    # MERGES a same-named layer's collectors with the imported definition, so the
+    # ruleset enforces them without any rename. The `Normalization` occupation seam
+    # mixes roles that map to different canonical layers, so each class is placed by
+    # an exact FQCN (a bare segment regex is unsafe, but an anchored first-party FQCN
+    # cannot collide with a vendor class):
+    #   - the normalized-result value object -> Model;
+    #   - the folding table and the normalizers/adapters that repositories fold
+    #     values through -> Support (Repository -> Support is allowed; the seam
+    #     never depends back on a repository, which the ruleset enforces);
+    #   - the seam's port lives in `Normalization\Contract\` and its helper in
+    #     `Normalization\Support\`, which the shared directory layers already cover.
+    # The public facade is the root `Statistic` class and the composition root is the
+    # root `Module` class — both are root-level files, not `\Facade\` / `\Module\`
+    # namespaces, so the shared directory layers miss them and each is mapped by its
+    # exact FQCN (which cannot collide with a vendor class).
+    layers:
+        -
+            name: Model
+            collectors:
+                -
+                    type: classNameRegex
+                    value: '#^MagicSunday\\Webtrees\\Statistic\\Normalization\\NormalizedOccupation$#'
+        -
+            name: Support
+            collectors:
+                -
+                    type: classNameRegex
+                    value: '#^MagicSunday\\Webtrees\\Statistic\\Normalization\\(OccupationFolding|RawOccupationNormalizer|StandardizerModuleNormalizer)$#'
+        -
+            name: Facade
+            collectors:
+                -
+                    type: classNameRegex
+                    value: '#^MagicSunday\\Webtrees\\Statistic\\Statistic$#'
+        -
+            name: Module
+            collectors:
+                -
+                    type: classNameRegex
+                    value: '#^MagicSunday\\Webtrees\\Statistic\\Module$#'
+
+    # Baseline — two genuine Model -> Support edges accepted while the architectural
+    # tidy-up is tracked separately (see GH-284). Both partnership report VOs carry
+    # live Fisharebest\Webtrees\Individual nodes and flatten them to the JSON wire
+    # shape via Support\Gedcom\IndividualWire::row() in jsonSerialize(). The clean
+    # fix (flatten at the Repository/Facade boundary so the Model never holds a
+    # framework object) is out of scope for the Deptrac adoption; skipping these two
+    # keeps the baseline honest without weakening the shared Model -> Support rule.
+    skip_violations:
+        MagicSunday\Webtrees\Statistic\Model\Tree\PartnershipGroupExcerpt:
+            - MagicSunday\Webtrees\Statistic\Support\Gedcom\IndividualWire
+        MagicSunday\Webtrees\Statistic\Model\Tree\PartnershipReachReport:
+            - MagicSunday\Webtrees\Statistic\Support\Gedcom\IndividualWire

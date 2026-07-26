@@ -24,19 +24,15 @@ use function array_map;
 
 /**
  * Architecture rules executed by phpat through PHPStan. Each `#[TestRule]`
- * method returns one rule that pins a structural invariant of the module so the
- * codebase cannot silently drift past the layering the rest of the production
- * code relies on.
+ * method returns one rule that pins a structural invariant of the module.
  *
- * Pyramid in this module (top = depends on layers below):
- *
- *   - Module               (composition root; wires Statistic → Repositories)
- *   - Statistic            (facade exposing widget-shaped getters to views)
- *   - Repository           (DB queries + GEDCOM scans, one per metric domain)
- *   - Model\<Widget>       (immutable wire-shape value objects returned by repositories)
- *   - Model (root)         (cross-cutting value objects: FamilyRow…)
- *   - Enum                 (cross-cutting domain enums: Sex, MaritalBucket, AgePairExtremum)
- *   - Support              (pure helpers: bucketing, GedcomScanner, ParentMap…)
+ * The layer-DEPENDENCY directions (Support/Model/Enum/DTO are leaves, nothing
+ * depends on the composition root, the normalization seam never depends back on a
+ * repository, …) are now enforced centrally by the shared Deptrac ruleset
+ * (`deptrac.yaml` imports `magicsunday/coding-standard`'s canonical layers), so
+ * they no longer live here. What remains are the checks Deptrac's namespace-layer
+ * model cannot express: structural "must be final" / "must implement" invariants
+ * and the confinement of raw Eloquent database access to the repository layer.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -49,7 +45,7 @@ final class ArchitectureTest
 
     /**
      * Per-widget DTO sub-namespaces under `Model\`. Listed explicitly so the
-     * DTO architecture rules below select exactly the wire-shape value objects
+     * DTO structural rules below select exactly the wire-shape value objects
      * and not the root-level value objects (`FamilyRow`) which live alongside
      * them. Add an entry here whenever a new widget shape ships its own DTOs.
      *
@@ -102,26 +98,6 @@ final class ArchitectureTest
     }
 
     /**
-     * Support helpers are a leaf layer: they may depend on PHP stdlib, the
-     * webtrees framework, and on each other, but never on a Repository or on
-     * the Statistic facade. The reverse flow — repositories importing helpers —
-     * is the architecture this module wants; the inverse would create a cycle
-     * that turns helpers into framework-coupled adapters.
-     */
-    #[TestRule]
-    public function supportDoesNotDependOnRepositoryOrFacade(): Rule
-    {
-        return PHPat::rule()
-            ->classes(Selector::inNamespace(self::NAMESPACE_ROOT . '\\Support'))
-            ->shouldNot()->dependOn()
-            ->classes(
-                Selector::inNamespace(self::NAMESPACE_ROOT . '\\Repository'),
-                Selector::classname(self::NAMESPACE_ROOT . '\\Statistic'),
-            )
-            ->because('Support is a leaf layer; repositories and the facade live above it');
-    }
-
-    /**
      * Repositories must be `final` so the contract that the `Statistic` facade
      * composes (immutable Tree dependency, single per-domain query surface)
      * cannot be subverted by a subclass. `readonly` is the standard shape
@@ -147,22 +123,6 @@ final class ArchitectureTest
     }
 
     /**
-     * Repositories must not depend on the Statistic facade. The direction is
-     * fixed: Statistic composes repositories, never the reverse. A repository
-     * pulling the facade in would short the composition graph and make
-     * individual repositories impossible to test in isolation.
-     */
-    #[TestRule]
-    public function repositoryDoesNotDependOnFacade(): Rule
-    {
-        return PHPat::rule()
-            ->classes(Selector::inNamespace(self::NAMESPACE_ROOT . '\\Repository'))
-            ->shouldNot()->dependOn()
-            ->classes(Selector::classname(self::NAMESPACE_ROOT . '\\Statistic'))
-            ->because('Statistic composes repositories; the inverse direction would create a cycle');
-    }
-
-    /**
      * Database access via Eloquent's `DB::table()` facade is the exclusive
      * responsibility of repositories and of the dedicated `Support\Database`
      * namespace that factors the recurring `DB::table(X)->where('X_file', …)` +
@@ -170,6 +130,10 @@ final class ArchitectureTest
      * Letting the Statistic facade or the composition root issue SQL directly
      * would scatter query-shape decisions across every layer and make it
      * impossible to reason about which class actually touches which table.
+     *
+     * This confinement is kept as a phpat rule because it targets a specific
+     * (framework) class rather than a layer, which the Deptrac layer model does
+     * not express.
      */
     #[TestRule]
     public function databaseAccessIsConfinedToRepositories(): Rule
@@ -186,29 +150,6 @@ final class ArchitectureTest
             ->shouldNot()->dependOn()
             ->classes(Selector::classname(Manager::class))
             ->because('Raw database access is only allowed inside repositories or in the dedicated Support\\Database namespace');
-    }
-
-    /**
-     * The composition root is `Module.php`. Nothing inside the production
-     * namespace tree may import it — services start reaching back into the
-     * wiring layer and the dependency graph develops a cycle that is invisible
-     * to PHP itself but lethal for testability. Tests are exempt because
-     * integration tests have to instantiate the composition root.
-     */
-    #[TestRule]
-    public function nothingDependsOnTheCompositionRoot(): Rule
-    {
-        return PHPat::rule()
-            ->classes(
-                Selector::AllOf(
-                    Selector::inNamespace(self::NAMESPACE_ROOT),
-                    Selector::Not(Selector::classname(self::NAMESPACE_ROOT . '\\Module')),
-                    Selector::Not(Selector::inNamespace(self::NAMESPACE_ROOT . '\\Test')),
-                ),
-            )
-            ->shouldNot()->dependOn()
-            ->classes(Selector::classname(self::NAMESPACE_ROOT . '\\Module'))
-            ->because('Module.php is the composition root and may only be referenced from module.php');
     }
 
     /**
@@ -244,85 +185,6 @@ final class ArchitectureTest
     }
 
     /**
-     * DTOs are pure value objects: they may not depend on a repository, the
-     * facade, the composition root, or even a Support helper. The dependency
-     * arrow points the other way — repositories construct DTOs from query
-     * results, the facade surfaces them, and the view layer consumes them. A
-     * DTO that pulled in a repository would turn into a service in disguise and
-     * break the layering this module relies on.
-     */
-    #[TestRule]
-    public function dtoDoesNotDependOnAnyOtherProductionLayer(): Rule
-    {
-        return PHPat::rule()
-            ->classes(...$this->dtoSelectors())
-            ->shouldNot()->dependOn()
-            ->classes(
-                Selector::inNamespace(self::NAMESPACE_ROOT . '\\Repository'),
-                Selector::inNamespace(self::NAMESPACE_ROOT . '\\Support'),
-                Selector::classname(self::NAMESPACE_ROOT . '\\Statistic'),
-                Selector::classname(self::NAMESPACE_ROOT . '\\Module'),
-            )
-            ->because('DTOs are leaf value objects; only repositories/facade construct them, never the reverse');
-    }
-
-    /**
-     * The root of the `Model` namespace holds cross-cutting value objects that
-     * classify webtrees data without carrying behaviour (currently
-     * `FamilyRow`). The same leaf-layer invariant as for the per-widget DTOs
-     * applies: they must not reach into repositories, the facade, the
-     * composition root, or Support helpers — they ARE the vocabulary those
-     * layers speak, not the other way around. The per-widget DTO sub-namespaces
-     * are excluded here because they already have their own stricter
-     * `dtoDoesNotDependOnAnyOtherProductionLayer` rule above.
-     */
-    #[TestRule]
-    public function modelDoesNotDependOnAnyOtherProductionLayer(): Rule
-    {
-        return PHPat::rule()
-            ->classes(
-                Selector::AllOf(
-                    Selector::inNamespace(self::NAMESPACE_ROOT . '\\Model'),
-                    ...array_map(
-                        Selector::Not(...),
-                        $this->dtoSelectors(),
-                    ),
-                ),
-            )
-            ->shouldNot()->dependOn()
-            ->classes(
-                Selector::inNamespace(self::NAMESPACE_ROOT . '\\Repository'),
-                Selector::inNamespace(self::NAMESPACE_ROOT . '\\Support'),
-                Selector::classname(self::NAMESPACE_ROOT . '\\Statistic'),
-                Selector::classname(self::NAMESPACE_ROOT . '\\Module'),
-            )
-            ->because('Model value objects are the vocabulary the rest of the module speaks; they cannot depend back into repositories, the facade, the composition root, or Support helpers');
-    }
-
-    /**
-     * Cross-cutting domain enums live under `Enum\` and follow the same
-     * leaf-layer invariant as the Model value objects: they define the
-     * vocabulary (`Sex`, `MaritalBucket`, `AgePairExtremum`) that repositories,
-     * the facade and the View builders consume. An enum that pulled in a
-     * Repository or the Statistic facade would turn into a service in disguise
-     * and break the dependency direction this module relies on.
-     */
-    #[TestRule]
-    public function enumDoesNotDependOnAnyOtherProductionLayer(): Rule
-    {
-        return PHPat::rule()
-            ->classes(Selector::inNamespace(self::NAMESPACE_ROOT . '\\Enum'))
-            ->shouldNot()->dependOn()
-            ->classes(
-                Selector::inNamespace(self::NAMESPACE_ROOT . '\\Repository'),
-                Selector::inNamespace(self::NAMESPACE_ROOT . '\\Support'),
-                Selector::classname(self::NAMESPACE_ROOT . '\\Statistic'),
-                Selector::classname(self::NAMESPACE_ROOT . '\\Module'),
-            )
-            ->because('Enums are the vocabulary the rest of the module speaks; they cannot depend back into the layers that consume them');
-    }
-
-    /**
      * Every concrete class in the occupation-normalization seam must be `final`
      * so its contract (identity default, immutable value object, single provider
      * adapter) cannot be subverted by a subclass. The `OccupationNormalizerInterface`
@@ -337,25 +199,5 @@ final class ArchitectureTest
             ->excluding(Selector::inNamespace(self::NAMESPACE_ROOT . '\\Normalization\\Contract'))
             ->should()->beFinal()
             ->because('Normalization seam classes must be final so their contract cannot be subverted by a subclass');
-    }
-
-    /**
-     * The normalization seam sits below the repositories: repositories fold
-     * their occupation values THROUGH it, never the reverse. It may depend on
-     * the webtrees framework (the adapter resolves the provider via
-     * ModuleService), but a dependency back onto a repository or the facade would
-     * invert the layering and make the seam impossible to test in isolation.
-     */
-    #[TestRule]
-    public function normalizationDoesNotDependOnRepositoryOrFacade(): Rule
-    {
-        return PHPat::rule()
-            ->classes(Selector::inNamespace(self::NAMESPACE_ROOT . '\\Normalization'))
-            ->shouldNot()->dependOn()
-            ->classes(
-                Selector::inNamespace(self::NAMESPACE_ROOT . '\\Repository'),
-                Selector::classname(self::NAMESPACE_ROOT . '\\Statistic'),
-            )
-            ->because('Repositories fold occupation values through the normalization seam; the inverse direction would create a cycle');
     }
 }
