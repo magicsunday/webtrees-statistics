@@ -1,21 +1,7 @@
 includes:
-    - %currentWorkingDirectory%/.build/vendor/phpstan/phpstan-strict-rules/rules.neon
-    - %currentWorkingDirectory%/.build/vendor/phpstan/phpstan-deprecation-rules/rules.neon
-    - %currentWorkingDirectory%/.build/vendor/phpstan/phpstan-phpunit/extension.neon
-    - %currentWorkingDirectory%/.build/vendor/phpstan/phpstan-phpunit/rules.neon
-    - %currentWorkingDirectory%/.build/vendor/phpat/phpat/extension.neon
-    - %currentWorkingDirectory%/.build/vendor/shipmonk/phpstan-rules/rules.neon
-    - %currentWorkingDirectory%/.build/vendor/symplify/phpstan-rules/config/services/services.neon
-    - %currentWorkingDirectory%/.build/vendor/symplify/phpstan-rules/config/code-complexity-rules.neon
-    - %currentWorkingDirectory%/.build/vendor/symplify/phpstan-rules/config/configurable-rules.neon
-    - %currentWorkingDirectory%/.build/vendor/symplify/phpstan-rules/config/naming-rules.neon
-    - %currentWorkingDirectory%/.build/vendor/symplify/phpstan-rules/config/static-rules.neon
-    - %currentWorkingDirectory%/.build/vendor/symplify/phpstan-rules/config/symfony-config-rules.neon
+    - %currentWorkingDirectory%/.build/vendor/magicsunday/coding-standard/phpstan/strict.neon
 
 parameters:
-    # You can currently choose from 11 levels (0 is the loosest and 10 is the strictest).
-    level: max
-
     # PHP Version to check against (PHP 8.3 as minimum target)
     phpVersion: 80300
 
@@ -34,28 +20,9 @@ parameters:
     scanFiles:
         - %currentWorkingDirectory%/stubs/hh_occupation_standardizer.stub
 
-    fileExtensions:
-        - php
-
     excludePaths:
         - %currentWorkingDirectory%/.build/
 
-    checkImplicitMixed: true
-    checkBenevolentUnionTypes: true
-    checkUninitializedProperties: true
-    checkMissingCallableSignature: true
-    checkTooWideReturnTypesInProtectedAndPublicMethods: true
-    reportAnyTypeWideningInVarTag: true
-    reportPossiblyNonexistentConstantArrayOffset: true
-    reportPossiblyNonexistentGeneralArrayOffset: true
-
-    # JetBrains' PHP stub for ext-calendar still spells gregoriantojd
-    # as PascalCase (`GregorianToJD`), while the official PHP manual
-    # at https://www.php.net/manual/en/function.gregoriantojd.php has
-    # been canonical lowercase for years. PHPStan inherits the stale
-    # PascalCase from the stub and raises `function.nameCase` for
-    # every call that uses the manual-canonical lowercase form.
-    # Suppress just this one mismatch until JetBrains fixes the stub.
     ignoreErrors:
         # symplify forbiddenNode bans traits + heredocs wholesale — both are
         # deliberate house idioms here: the module-base sharing traits and the
@@ -100,6 +67,13 @@ parameters:
         -
             identifier: shipmonk.checkedExceptionInCallable
 
+        # JetBrains' PHP stub for ext-calendar still spells gregoriantojd
+        # as PascalCase (`GregorianToJD`), while the official PHP manual
+        # at https://www.php.net/manual/en/function.gregoriantojd.php has
+        # been canonical lowercase for years. PHPStan inherits the stale
+        # PascalCase from the stub and raises `function.nameCase` for
+        # every call that uses the manual-canonical lowercase form.
+        # Suppress just this one mismatch until JetBrains fixes the stub.
         -
             identifier: function.nameCase
             path: src/Repository/LifeSpanRepository.php
@@ -143,9 +117,6 @@ parameters:
             identifier: return.type
             reportUnmatched: false
             path: src/Support/Database/DateAggregate.php
-
-    phpat:
-        show_rule_names: true
 
 services:
     -
