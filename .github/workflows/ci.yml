@@ -9,13 +9,27 @@ permissions:
     contents: read
 
 jobs:
-    build:
-        runs-on: ubuntu-latest
+    # The PHP gates come from the shared reusable so the canonical step list lives
+    # in one place (lint, phpstan, rector, cgl, unit, plus the template-lockstep
+    # guard this repository opts into). Copy-paste detection and the release-zip
+    # smoke test stay in the JS lane below: jscpd is a Node tool and `make dist`
+    # needs Node too.
+    # Analysis runs on 8.4/8.5 only: the strict PHPStan tier pulls
+    # symplify/phpstan-rules ^14, which (transitively, via symfony ^8.1 and
+    # phpunit/php-code-coverage 14) requires PHP >= 8.4, so `composer install`
+    # cannot resolve the dev dependencies on 8.3. Runtime support for 8.3 stays
+    # declared in require.php and is validated statically by PHPStan's
+    # phpVersion.min = 80300; it is simply not unit-tested on a real 8.3 runtime.
+    php:
+        uses: magicsunday/.github/.github/workflows/php-quality.yml@main
+        permissions:
+            contents: read
+        with:
+            php-versions: '["8.4", "8.5"]'
 
-        strategy:
-            fail-fast: false
-            matrix:
-                php: ['8.3', '8.4', '8.5']
+    js:
+        name: JS and release zip
+        runs-on: ubuntu-latest
 
         steps:
             - id: checkout
@@ -31,31 +45,19 @@ jobs:
                   node-version: 24
                   cache: npm
 
+            # 8.4, not the 8.3 runtime floor: this job runs `composer install`
+            # with dev dependencies, and the strict dev toolchain requires PHP
+            # >= 8.4 (see the `php:` job comment). The JS/dist lane does not test
+            # runtime PHP behaviour, so the interpreter version is irrelevant here.
             - id: setup_php
-              name: Set up PHP version ${{ matrix.php }}
+              name: Set up PHP
               uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
               with:
-                  php-version: ${{ matrix.php }}
+                  php-version: '8.4'
                   tools: composer:v2
 
             - name: Validate composer.json and composer.lock
               run: composer validate
-
-            - id: composer-cache-vars
-              name: Composer Cache Vars
-              run: |
-                  echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
-                  echo "timestamp=$(date +"%s")" >> $GITHUB_OUTPUT
-
-            - id: composer-cache-dependencies
-              name: Cache Composer dependencies
-              uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-              with:
-                  path: ${{ steps.composer-cache-vars.outputs.dir }}
-                  key: ${{ runner.os }}-composer-${{ matrix.php }}-${{ steps.composer-cache-vars.outputs.timestamp }}
-                  restore-keys: |
-                      ${{ runner.os }}-composer-${{ matrix.php }}-
-                      ${{ runner.os }}-composer-
 
             - id: install
               name: Install dependencies
@@ -66,69 +68,34 @@ jobs:
                   composer install --no-progress
                   npm ci
 
-            - id: php-lint
-              name: PHP Lint
-              if: ${{ always() && steps.install.conclusion == 'success' }}
-              run: |
-                  composer ci:test:php:lint
-
             - id: js-lint
               name: JS Lint
               if: ${{ always() && steps.install.conclusion == 'success' }}
-              run: |
-                  composer ci:test:js:lint
+              run: composer ci:test:js:lint
 
             - id: js-format
               name: JS Format
               if: ${{ always() && steps.install.conclusion == 'success' }}
-              run: |
-                  composer ci:test:js:format
+              run: composer ci:test:js:format
 
             - id: js-typecheck
               name: JS Typecheck
               if: ${{ always() && steps.install.conclusion == 'success' }}
-              run: |
-                  composer ci:test:js:typecheck
-
-            - id: phpstan
-              name: PHPStan
-              if: ${{ always() && steps.install.conclusion == 'success' }}
-              run: |
-                  composer ci:test:php:phpstan -- --error-format=github
-
-            - id: rector
-              name: Rector
-              if: ${{ always() && steps.install.conclusion == 'success' }}
-              run: |
-                  composer ci:test:php:rector
-
-            - id: cpd
-              name: Copy/Paste Detection
-              if: ${{ always() && steps.install.conclusion == 'success' }}
-              run: |
-                  composer ci:test:cpd
-
-            - id: php-unit
-              name: PHP Unit Tests
-              if: ${{ always() && steps.install.conclusion == 'success' }}
-              run: |
-                  composer ci:test:php:unit
+              run: composer ci:test:js:typecheck
 
             - id: js-unit
               name: JS Unit Tests
               if: ${{ always() && steps.install.conclusion == 'success' }}
-              run: |
-                  composer ci:test:js:unit
+              run: composer ci:test:js:unit
 
-            - id: cgl
-              name: CGL
+            - id: cpd
+              name: Copy/Paste Detection
               if: ${{ always() && steps.install.conclusion == 'success' }}
-              run: |
-                  composer ci:cgl -- --dry-run
+              run: composer ci:test:cpd
 
-            # Runs LAST: 'make dist' invokes 'composer install --no-dev'
-            # which strips dev packages (php-cs-fixer, phpstan, ...) from
-            # .build/vendor. Any later composer-driven step would fail.
+            # Runs LAST: 'make dist' invokes 'composer install --no-dev' which
+            # strips the dev packages from .build/vendor, so any later
+            # composer-driven step would fail.
             - id: dist-smoke
               name: Release zip smoke test
               if: ${{ success() }}
@@ -137,7 +104,7 @@ jobs:
                   make dist-smoke
                   rm -f *.zip
 
-    # The `build` job runs the test suite against in-memory SQLite, which does
+    # The `php` reusable runs the test suite against in-memory SQLite, which does
     # not implement ONLY_FULL_GROUP_BY and so silently tolerates a grouped
     # SELECT with a non-aggregated column. This job re-runs the DB-touching
     # integration tests against a real MySQL 8 — where webtrees' ANSI sql_mode
