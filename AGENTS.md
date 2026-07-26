@@ -15,8 +15,9 @@ This repository hosts the webtrees statistics module — a six-tab dashboard of 
 - After JS changes, verify in the browser via Playwright before claiming success.
 
 ## Build & tests
-- **`composer ci:test` MUST run before every commit** — catches Biome lint, PHPStan, PHP-CS-Fixer, Rector, PHPUnit, Jest, and jscpd issues before they reach GitHub CI.
-- Individual checks: `composer ci:test:php:phpstan`, `composer ci:test:php:unit`, `composer ci:test:php:cgl`, `composer ci:test:php:rector`, `composer ci:test:php:lint`, `composer ci:test:js:lint`, `composer ci:test:js:unit`, `composer ci:test:js:format`, `composer ci:test:cpd`.
+- **`composer ci:test` MUST run before every commit** — catches Biome lint, PHPStan, PHP-CS-Fixer, Rector, the Deptrac architecture-layer check, PHPUnit, Jest, and jscpd issues before they reach GitHub CI.
+- Individual checks: `composer ci:test:php:phpstan`, `composer ci:test:php:deptrac`, `composer ci:test:php:unit`, `composer ci:test:php:cgl`, `composer ci:test:php:rector`, `composer ci:test:php:lint`, `composer ci:test:js:lint`, `composer ci:test:js:unit`, `composer ci:test:js:format`, `composer ci:test:cpd`.
+- **Layered-architecture enforcement lives in Deptrac** (`deptrac.yaml` imports the shared `magicsunday/coding-standard` ruleset and maps this module's non-canonical namespaces onto the canonical layers). The phpat `ArchitectureTest` keeps only what Deptrac's layer model cannot express: the structural `final` / `JsonSerializable` rules and the framework-class database-access confinement.
 - Single PHPUnit test: `composer ci:test:php:unit -- --filter TestClassName`.
 - Auto-fix: `composer ci:cgl` (PHP style), `composer ci:rector` (Rector), `npm run lint:fix` + `npm run format` (Biome).
 - JS bundles: `make build` (rollup), `make watch` (dev rebuild loop).
