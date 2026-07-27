@@ -225,7 +225,7 @@ final readonly class Widget
     }
 
     /**
-     * Start a new name-timeline widget host. Pass the `{label, value, active}`
+     * Start a new name-timeline widget host. Pass the `{name, lastYear, total, isActive}`
      * rows via `withData(...)`.
      */
     public static function nameTimeline(string $module): self

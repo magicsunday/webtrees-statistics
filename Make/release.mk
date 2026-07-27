@@ -234,6 +234,9 @@ dist-smoke:
 	fi; \
 	if echo "$$paths" | grep -qE '^assets/'; then \
 		echo "Error: assets/ found in zip"; exit 1; \
+	fi; \
+	if echo "$$paths" | grep -qE '^dev/'; then \
+		echo "Error: dev/ found in zip"; exit 1; \
 	fi
 	@unzip -p $(MODULE_NAME).zip module.php | grep -qF 'MagicSunday\\$(SCOPE_NS)\\Webtrees\\ModuleBase' \
 		|| { echo "Error: module.php in zip is missing prefixed namespace ($(SCOPE_NS))"; exit 1; }
