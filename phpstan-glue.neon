@@ -4,13 +4,9 @@
 #
 # rector.php and .php-cs-fixer.dist.php stay out on purpose: their own gates
 # (ci:test:php:rector, ci:test:php:cgl) load and execute them on every matrix
-# leg, so a broken one fails CI by itself.
-#
-# The paths below have no gate of their own. Some templates are rendered by a
-# test and would break it, but which ones is an accident of test coverage rather
-# than a guarantee — three attempts to enumerate the exceptions here were each
-# incomplete, so the list is deliberately not repeated. Static analysis does not
-# depend on the enumeration being right.
+# leg, so a broken one fails CI by itself. The paths below have no gate that
+# type-checks them: ci:test:php:lint, extended to them in the same change,
+# parses only, so signature drift passes it unseen.
 #
 # Deliberately a separate configuration at a lower level than src/. Template
 # variables arrive untyped from view(), so `max` would drown real findings in
