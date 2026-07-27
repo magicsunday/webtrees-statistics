@@ -175,6 +175,27 @@ final class ModuleTest extends TestCase
     }
 
     /**
+     * The world-map GeoJSON is served through the same asset route, and neither
+     * the core `Mime::TYPES` map nor the module's own table knew the extension,
+     * so it shipped as `application/octet-stream` behind a one-year cache
+     * header. The consumer parses it regardless, which is exactly why the wrong
+     * type would have gone unnoticed.
+     */
+    #[Test]
+    public function getAssetActionServesGeoJsonWithGeoJsonMimeType(): void
+    {
+        $module  = new Module();
+        $request = (new ServerRequest('GET', '/'))
+            ->withQueryParams(['asset' => 'js/world-map.geojson']);
+
+        $response = $module->getAssetAction($request);
+
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame('application/geo+json', $response->getHeaderLine('content-type'));
+        self::assertGreaterThan(0, $response->getBody()->getSize());
+    }
+
+    /**
      * A directory-traversal attempt in the `asset` query parameter must be
      * rejected before any file read happens.
      */

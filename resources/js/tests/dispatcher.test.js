@@ -183,9 +183,12 @@ jest.unstable_mockModule("@magicsunday/webtrees-chart-lib", () => ({
 }));
 
 // world-map dispatch is async (geojson fetch); mock d3-fetch + d3-geo
-// so the fetch resolves to an empty FeatureCollection synchronously.
+// so the fetch resolves to an empty FeatureCollection synchronously. A spy
+// rather than a plain stub, so the requested URL can be asserted.
+const geoJsonFetchSpy = jest.fn(() => Promise.resolve({ type: "FeatureCollection", features: [] }));
+
 jest.unstable_mockModule("d3-fetch", () => ({
-    json: () => Promise.resolve({ type: "FeatureCollection", features: [] }),
+    json: geoJsonFetchSpy,
 }));
 jest.unstable_mockModule("d3-geo", () => ({
     geoMercator: () => ({ fitSize: () => {} }),
@@ -797,5 +800,79 @@ describe("renderWidgets", () => {
         // is NEVER re-observed on the disconnected observer.
         expect(worldMapPlayEntrySpy).toHaveBeenCalledTimes(1);
         expect(observers[0].observed).not.toContain(node);
+    });
+});
+
+describe("world-map GeoJSON URL", () => {
+    beforeEach(() => {
+        geoJsonFetchSpy.mockClear();
+        document.body.innerHTML = "";
+    });
+
+    afterEach(() => {
+        document.body.innerHTML = "";
+    });
+
+    // Each case imports the module afresh: `cachedGeoJson` is module-level and
+    // never reset, so whichever case ran first would otherwise satisfy the
+    // second before it ever resolves a URL.
+    const freshDispatcher = async () => {
+        jest.resetModules();
+
+        return (await import("../modules/index.js")).renderWidgets;
+    };
+
+    test("fetches the URL the server put on the page root", async () => {
+        const renderFresh = await freshDispatcher();
+        const serverUrl =
+            "/index.php?route=%2Fmodule%2Frenamed-install-dir%2FAsset&asset=js/world-map.geojson&hash=1234";
+
+        document.body.innerHTML = `
+            <div data-geojson-url="${serverUrl}">
+                <div data-widget="world-map" data-payload='[]'></div>
+            </div>
+        `;
+
+        renderFresh(document.body);
+        await Promise.resolve();
+        await Promise.resolve();
+
+        // The route segment is the installation directory, which the admin
+        // chooses — the hard-coded literal is wrong for any renamed install.
+        expect(geoJsonFetchSpy).toHaveBeenCalledTimes(1);
+        expect(geoJsonFetchSpy).toHaveBeenCalledWith(serverUrl);
+    });
+
+    test("falls back to the built-in route when the page root carries no URL", async () => {
+        const renderFresh = await freshDispatcher();
+
+        document.body.innerHTML = `<div data-widget="world-map" data-payload='[]'></div>`;
+
+        renderFresh(document.body);
+        await Promise.resolve();
+        await Promise.resolve();
+
+        expect(geoJsonFetchSpy).toHaveBeenCalledTimes(1);
+        expect(geoJsonFetchSpy).toHaveBeenCalledWith(
+            expect.stringContaining("_webtrees-statistics_"),
+        );
+    });
+
+    test("treats an empty attribute as absent rather than fetching the current page", async () => {
+        const renderFresh = await freshDispatcher();
+
+        document.body.innerHTML = `
+            <div data-geojson-url="">
+                <div data-widget="world-map" data-payload='[]'></div>
+            </div>
+        `;
+
+        renderFresh(document.body);
+        await Promise.resolve();
+        await Promise.resolve();
+
+        expect(geoJsonFetchSpy).toHaveBeenCalledWith(
+            expect.stringContaining("_webtrees-statistics_"),
+        );
     });
 });
