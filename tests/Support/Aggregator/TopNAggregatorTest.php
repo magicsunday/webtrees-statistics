@@ -18,8 +18,9 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 use function array_map;
+use function mb_strtoupper;
+use function mb_substr;
 use function sprintf;
-use function ucfirst;
 
 /**
  * Unit tests for {@see TopNAggregator}: case-folded counting, the first-seen
@@ -165,7 +166,8 @@ final class TopNAggregatorTest extends TestCase
     {
         $result = TopNAggregator::rank(
             ['zebra' => 2, 'mango' => 3, 'apple' => 2],
-            static fn (int|string $key): string => ucfirst((string) $key),
+            static fn (int|string $key): string => mb_strtoupper(mb_substr((string) $key, 0, 1, 'UTF-8'), 'UTF-8')
+                . mb_substr((string) $key, 1, null, 'UTF-8'),
             0,
         );
 

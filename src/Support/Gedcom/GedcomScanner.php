@@ -14,6 +14,7 @@ namespace MagicSunday\Webtrees\Statistic\Support\Gedcom;
 use function end;
 use function explode;
 use function in_array;
+use function mb_strtoupper;
 use function preg_match;
 use function preg_match_all;
 use function preg_quote;
@@ -24,7 +25,6 @@ use function str_ends_with;
 use function str_starts_with;
 use function strlen;
 use function strpos;
-use function strtoupper;
 use function substr;
 use function trim;
 
@@ -467,7 +467,7 @@ final readonly class GedcomScanner
 
         $magnitude = (float) $match[2];
 
-        return (strtoupper($match[1]) === $negativeHemisphere) ? -$magnitude : $magnitude;
+        return (mb_strtoupper($match[1], 'UTF-8') === $negativeHemisphere) ? -$magnitude : $magnitude;
     }
 
     /**

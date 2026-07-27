@@ -51,13 +51,15 @@
         "ext-dom": "*",
         "ext-intl": "*",
         "ext-json": "*",
+        "ext-mbstring": "*",
         "fisharebest/webtrees": "~2.2.0",
         "magicsunday/webtrees-module-base": "^3.0",
         "magicsunday/webtrees-module-installer-plugin": "^2.0"
     },
     "require-dev": {
-        "magicsunday/coding-standard": "^1.6",
+        "magicsunday/coding-standard": "^1.7",
         "shipmonk/phpstan-rules": "^4.0",
+        "spaze/phpstan-disallowed-calls": "^4.13",
         "symplify/phpstan-rules": "^14.0"
     },
     "minimum-stability": "dev",

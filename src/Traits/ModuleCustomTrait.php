@@ -23,10 +23,10 @@ use Psr\Http\Message\ServerRequestInterface;
 use function e;
 use function file_exists;
 use function file_get_contents;
+use function mb_strtoupper;
 use function pathinfo;
 use function response;
 use function str_contains;
-use function strtoupper;
 
 use const PATHINFO_EXTENSION;
 
@@ -83,7 +83,7 @@ trait ModuleCustomTrait
             throw new HttpNotFoundException(e($file));
         }
 
-        $extension = strtoupper(pathinfo($asset, PATHINFO_EXTENSION));
+        $extension = mb_strtoupper(pathinfo($asset, PATHINFO_EXTENSION), 'UTF-8');
         $mimeType  = static::ASSET_MIME_TYPES[$extension] ?? Mime::TYPES[$extension] ?? Mime::DEFAULT_TYPE;
 
         return response($content, StatusCodeInterface::STATUS_OK, [
