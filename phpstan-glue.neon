@@ -1,11 +1,12 @@
 # Static analysis for the PHP that lives outside src/: the module entry point
-# module.php, the data-preparation prologues in the tab templates, and the
-# developer tooling under dev/.
+# module.php, the data-preparation prologues in the view templates under
+# resources/views/, and the developer tooling under dev/.
 #
 # rector.php and .php-cs-fixer.dist.php stay out on purpose: their own gates
 # (ci:test:php:rector, ci:test:php:cgl) load and execute them on every matrix
-# leg, so drift there fails CI loudly. The files below have no such executor —
-# which is the gap this config exists to close.
+# leg, so drift there fails CI loudly. Almost nothing below has such an executor
+# — the exception is marriage-extremes.phtml, which MarriageExtremesViewTest
+# includes — which is the gap this config exists to close.
 #
 # Deliberately a separate configuration at a lower level than src/. Template
 # variables arrive untyped from view(), so `max` would drown real findings in
@@ -22,8 +23,9 @@ parameters:
     # a template's `@var` header as proven fact. That is backwards — the header
     # documents the contract a caller must satisfy, not an observation of what
     # view() actually passes, and PHPStan cannot see the call sites. Left at the
-    # default it reports every `??=` default and every `??` offset guard in the
-    # templates as redundant: 28 findings that are all correct code.
+    # default it reports every `??=` / `??` variable default and every `??`
+    # offset guard in the templates as redundant: 24 findings — 16 on variables,
+    # 8 on offsets — that are all correct code.
     treatPhpDocTypesAsCertain: false
 
     # Not inherited: this config is invoked directly, so phpstan.neon's setting
