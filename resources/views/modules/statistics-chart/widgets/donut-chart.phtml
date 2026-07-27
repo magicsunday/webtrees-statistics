@@ -21,6 +21,8 @@ use MagicSunday\Webtrees\Statistic\View\LegendPosition;
  * @var string|null                                                                 $emptyMessage   Optional override for the "no data" placeholder
  * @var LegendPosition|null                                                         $legendPosition LegendPosition::Right (default) places the legend next to the donut; LegendPosition::Bottom stacks it underneath
  */
+// Order matters: a ??= whose native type is narrower than the @var above it
+// conflicts with the docblock (varTag.nativeType). Keep a nullable default first.
 $centerLabel    ??= null;
 $emptyMessage   ??= EmptyStatePlaceholder::defaultMessage();
 $legendPosition ??= LegendPosition::Right;

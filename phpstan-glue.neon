@@ -4,9 +4,7 @@
 #
 # rector.php and .php-cs-fixer.dist.php stay out on purpose: their own gates
 # (ci:test:php:rector, ci:test:php:cgl) load and execute them on every matrix
-# leg, so a broken one fails CI by itself. The paths below have no gate that
-# type-checks them: ci:test:php:lint, extended to them in the same change,
-# parses only, so signature drift passes it unseen.
+# leg, so a broken one fails CI by itself.
 #
 # Deliberately a separate configuration at a lower level than src/. Template
 # variables arrive untyped from view(), so `max` would drown real findings in
@@ -23,9 +21,10 @@ parameters:
     # a template's `@var` header as proven fact. That is backwards — the header
     # documents the contract a caller must satisfy, not an observation of what
     # view() actually passes, and PHPStan cannot see the call sites. Left at the
-    # default it reports every `??=` / `??` variable default and every `??`
-    # offset guard in the templates as redundant: 24 findings — 16 on variables,
-    # 8 on offsets — that are all correct code.
+    # default it reports the `??=` / `??` defaults and the `??` offset guards in
+    # the templates as redundant, although they are all correct code. To see the
+    # current set, delete this line and run `composer ci:test:php:phpstan:glue`;
+    # the count moves with every template, so it is not frozen here.
     treatPhpDocTypesAsCertain: false
 
     # Not inherited: this config is invoked directly, so phpstan.neon's setting
