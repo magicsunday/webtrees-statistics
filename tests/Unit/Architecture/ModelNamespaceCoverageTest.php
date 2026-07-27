@@ -285,9 +285,11 @@ final class ModelNamespaceCoverageTest extends TestCase
 
         sort($claimed);
 
+        // Claimed list first: it is the expectation, the scan is the actual state,
+        // so a failure diff reads "the tree has one the lists do not".
         self::assertSame(
-            $this->actualSubNamespaces(),
             $claimed,
+            $this->actualSubNamespaces(),
             'Every sub-namespace under src/Model must appear in exactly one of '
             . 'ArchitectureTest::DTO_SUB_NAMESPACES or ::DOMAIN_SUB_NAMESPACES. '
             . 'An unlisted one is silently exempt from the DTO architecture rules.'
@@ -306,11 +308,10 @@ final class ModelNamespaceCoverageTest extends TestCase
 
         sort($pinned);
 
-        // Filesystem first, matching the sibling assertions, so a failure diff
-        // reads the same way in all of them.
+        // Pinned list first, as in the sibling assertions: expected, then actual.
         self::assertSame(
-            $this->actualRootLevelClasses(),
             $pinned,
+            $this->actualRootLevelClasses(),
             'A class directly under src/Model is covered by no DTO rule. Either '
             . 'move it into a wire-shape sub-namespace listed in '
             . 'ArchitectureTest::DTO_SUB_NAMESPACES, or add it to '
