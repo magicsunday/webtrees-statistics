@@ -70,9 +70,12 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
      * Module-specific MIME-type entries that supplement the core {@see
      * \Fisharebest\Webtrees\Mime::TYPES} map. Lookup order in {@see
      * ModuleCustomTrait::getAssetAction()} is class-level → core → default — so
-     * this table can both add missing types (WOFF / WOFF2 are absent from core,
-     * which would otherwise serve web fonts as `application/octet-stream`) and
-     * override the core defaults if ever needed.
+     * this table can both add missing types and override the core defaults if
+     * ever needed. Core knows neither the web-font types (which would ship as
+     * `application/octet-stream`, and Firefox then rejects with
+     * `NS_ERROR_CORRUPTED_CONTENT`) nor `GEOJSON` — core has only plain `JSON`,
+     * so the world-map payload would carry the same generic type behind a
+     * one-year cache header.
      *
      * Placed on the class instead of on the trait so a future webtrees core
      * release that adds an identically-named constant to its own
@@ -82,8 +85,9 @@ final class Module extends StatisticsChartModule implements ModuleAssetUrlInterf
      * @var array<string, string>
      */
     public const array ASSET_MIME_TYPES = [
-        'WOFF'  => 'font/woff',
-        'WOFF2' => 'font/woff2',
+        'GEOJSON' => 'application/geo+json',
+        'WOFF'    => 'font/woff',
+        'WOFF2'   => 'font/woff2',
     ];
 
     /**
