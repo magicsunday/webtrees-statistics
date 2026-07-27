@@ -161,22 +161,29 @@ final class TopNAggregatorTest extends TestCase
      * {@see TopNAggregator::rankKeys()}: the ranked fold keys are mapped to their
      * display labels while the counts are preserved.
      *
-     * The `éclair` row is the discriminating one: a strategy built on `ucfirst()`
-     * leaves it lowercase, because that function uppercases the first BYTE and the
-     * first character here is two bytes wide. Only a character-aware fold produces
-     * `Éclair`, so this row fails for any byte-wise implementation.
+     * The `éclair` row carries the multi-byte case. It ties on count with `apple`
+     * and `zebra` on purpose, so the tie-break actually runs on it: `rankKeys()`
+     * compares fold keys with `strcmp()`, i.e. byte order, which puts `éclair`
+     * (`0xC3…`) AFTER `zebra` (`0x7A`) rather than between `apple` and `zebra`
+     * where a collation-aware comparison would place it. The row therefore pins
+     * two production properties — the multi-byte fold key survives the cast and
+     * the byte-order tie-break, and the caller's multi-byte display label is used
+     * verbatim as the output key.
+     *
+     * Note the strategy closure itself is the caller's, not this class's: the
+     * aggregator performs no case folding at all.
      */
     #[Test]
     public function rankResolvesDisplayLabelsViaTheStrategy(): void
     {
         $result = TopNAggregator::rank(
-            ['zebra' => 2, 'mango' => 3, 'apple' => 2, 'éclair' => 4],
+            ['zebra' => 2, 'mango' => 3, 'apple' => 2, 'éclair' => 2],
             static fn (int|string $key): string => mb_strtoupper(mb_substr((string) $key, 0, 1, 'UTF-8'), 'UTF-8')
                 . mb_substr((string) $key, 1, null, 'UTF-8'),
             0,
         );
 
-        self::assertSame(['Éclair' => 4, 'Mango' => 3, 'Apple' => 2, 'Zebra' => 2], $result);
+        self::assertSame(['Mango' => 3, 'Apple' => 2, 'Zebra' => 2, 'Éclair' => 2], $result);
     }
 
     /**
