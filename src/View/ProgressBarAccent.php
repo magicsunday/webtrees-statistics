@@ -30,6 +30,8 @@ final readonly class ProgressBarAccent
     private const Accent FALLBACK = Accent::Wine;
 
     /**
+     * Maps each `progress-*` class used in a view onto its accent.
+     *
      * @var array<string, Accent>
      */
     private const array MAP = [

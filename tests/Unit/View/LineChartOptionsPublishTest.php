@@ -28,8 +28,8 @@ use function file_get_contents;
  *
  * Static file-content assertions only — the partial cannot be rendered
  * standalone because `view()` requires the full webtrees runtime. The pattern
- * mirrors `ProgressBarCssCoverageTest`, which locks a similar CSS-to-template
- * contract via static analysis.
+ * mirrors `MarriageChainWidgetCssCoverageTest`, which locks a similar
+ * CSS-to-template contract via static analysis.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
