@@ -101,18 +101,6 @@
 
     --wmstats-progress-label-color:        var(--ink-2);
 
-    --wmstats-gradient-births-start:       color-mix(in srgb, var(--sage) 35%, var(--card));
-    --wmstats-gradient-births-end:         var(--sage);
-    --wmstats-gradient-deaths-start:       color-mix(in srgb, var(--deceased) 25%, var(--card));
-    --wmstats-gradient-deaths-end:         var(--deceased);
-    --wmstats-gradient-residences-start:   color-mix(in srgb, var(--slate) 25%, var(--card));
-    --wmstats-gradient-residences-end:     var(--slate);
-
-    --wmstats-gradient-tree-health-start:  color-mix(in srgb, var(--sage) 35%, var(--card));
-    --wmstats-gradient-tree-health-end:    var(--sage);
-    --wmstats-gradient-tree-health-gap-start: color-mix(in srgb, var(--wine) 35%, var(--card));
-    --wmstats-gradient-tree-health-gap-end:   var(--wine);
-
     --wmstats-scalar-value:                var(--ink);
 
     --wmstats-sex-male:                    var(--slate);
@@ -1959,13 +1947,6 @@
     border-radius: var(--bs-progress-border-radius);
 }
 
-/* All progress bars use the gradient pattern: the partial mixes
-   start → end based on the bar's width fraction via color-mix().
-   The previous solid background-color overrides with !important
-   collapsed every bar to the same flat colour regardless of
-   value; gradient pairs let the colour itself encode magnitude.
-   -------------------------------------------------------------- */
-
 .wt-statistics-chart .wt-generation-chain-list {
     display:          flex;
     flex-wrap:        wrap;
@@ -1988,14 +1969,8 @@
 }
 
 /* ----------------------------------------------------------------------
-   Tree-health rate bars + scalar readout
+   Tree-health record inventory + scalar readout
    -------------------------------------------------------------------- */
-
-/* Sex-tinted gradients share the Overview-donut sex tokens so a
-   palette adjustment in one place propagates to every sex-axis
-   histogram. The start colour is a soft tint of the same hue —
-   pinning gradient-end to the donut's full saturation keeps the
-   brightest bars in lockstep with the donut. */
 
 /* Record inventory — stacked, independently-scaled bar groups
    (core vs. enrichment) on the tree-health tab. */
