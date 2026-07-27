@@ -21,8 +21,8 @@ use MagicSunday\Webtrees\Statistic\View\LegendPosition;
  * @var string|null                                                                 $emptyMessage   Optional override for the "no data" placeholder
  * @var LegendPosition|null                                                         $legendPosition LegendPosition::Right (default) places the legend next to the donut; LegendPosition::Bottom stacks it underneath
  */
-$emptyMessage   ??= EmptyStatePlaceholder::defaultMessage();
 $centerLabel    ??= null;
+$emptyMessage   ??= EmptyStatePlaceholder::defaultMessage();
 $legendPosition ??= LegendPosition::Right;
 
 $total = array_sum(array_column($data, 'value'));

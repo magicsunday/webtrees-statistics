@@ -11,41 +11,39 @@ includes:
 parameters:
     level: 6
 
+    # Not inherited from phpstan.neon: this config includes only the deprecation
+    # rules, so without this line it runs with PHPStan's default `true` and treats
+    # a template's `@var` header as proven fact. That is backwards — the header
+    # documents the contract a caller must satisfy, not an observation of what
+    # view() actually passes, and PHPStan cannot see the call sites. Left at the
+    # default it reports every `??=` default and every `??` offset guard in the
+    # templates as redundant: 31 findings that are all correct code.
+    treatPhpDocTypesAsCertain: false
+
     # Not inherited: this config is invoked directly, so phpstan.neon's setting
     # never reaches it. Without it PHPStan targets the running interpreter, and
     # the CI matrix has no 8.3 leg — the declared floor would go unchecked for
     # exactly the code this config exists to cover.
-    phpVersion: 80300
+    # A range, not a scalar: composer.json declares "php": "8.3 - 8.5", and the
+    # shared base.neon documents the range form for a multi-version repository.
+    # The reusable workflow runs this gate on every matrix leg precisely because
+    # PHPStan resolves language-level behaviour per interpreter — a hard scalar
+    # pin would make both legs identical and waste that.
+    phpVersion:
+        min: 80300
+        max: 80500
 
     tmpDir: %currentWorkingDirectory%/.build/cache/.phpstan-glue.cache
 
     paths:
+        # module.php is the file webtrees actually loads to instantiate the
+        # module, and it hand-wires a ClassLoader registration plus a container
+        # lookup — the canonical glue that drifts from refactored signatures
+        # unseen. It analyses clean here, so the coverage is free.
+        - %currentWorkingDirectory%/module.php
         - %currentWorkingDirectory%/resources/views/
         - %currentWorkingDirectory%/dev/
 
     fileExtensions:
         - php
         - phtml
-
-    excludePaths:
-        - %currentWorkingDirectory%/.build/
-
-    ignoreErrors:
-        # A template documents its incoming view variables in one `@var` header
-        # and then defaults the optional ones with `??=`. PHPStan proves the
-        # defaults redundant *from that header* — but it cannot see the actual
-        # `view()` call sites, so the header is a contract, not an observation.
-        # Stripping the defaults would remove the only guard a caller passing
-        # less would hit.
-        - identifier: nullCoalesce.variable
-        - identifier: nullCoalesce.offset
-
-        # Two genuine findings from the first run of this configuration, both
-        # tied to where the `@var` header sits relative to the first statement.
-        # Suppressed by identifier and path, tracked in #249 — not silenced.
-        -
-            identifier: varTag.nativeType
-            path: %currentWorkingDirectory%/resources/views/modules/statistics-chart/widgets/donut-chart.phtml
-        -
-            identifier: notIdentical.alwaysFalse
-            path: %currentWorkingDirectory%/resources/views/modules/statistics-chart/widgets/name-timeline.phtml
