@@ -31,10 +31,10 @@ $payload = [];
 
 foreach ($data as $row) {
     $payload[] = [
-        'label'  => (string) ($row['name'] ?? ''),
-        'value'  => (int) ($row['lastYear'] ?? 0),
-        'active' => (bool) ($row['isActive'] ?? false),
-        'meta'   => I18N::number((int) ($row['total'] ?? 0)) . '×',
+        'label'  => $row['name'],
+        'value'  => $row['lastYear'],
+        'active' => $row['isActive'],
+        'meta'   => I18N::number($row['total']) . '×',
     ];
 }
 

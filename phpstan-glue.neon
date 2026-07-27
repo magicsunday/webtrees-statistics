@@ -1,5 +1,11 @@
-# Static analysis for the PHP that lives outside src/: the data-preparation
-# prologues in the tab templates and the developer tooling under dev/.
+# Static analysis for the PHP that lives outside src/: the module entry point
+# module.php, the data-preparation prologues in the tab templates, and the
+# developer tooling under dev/.
+#
+# rector.php and .php-cs-fixer.dist.php stay out on purpose: their own gates
+# (ci:test:php:rector, ci:test:php:cgl) load and execute them on every matrix
+# leg, so drift there fails CI loudly. The files below have no such executor —
+# which is the gap this config exists to close.
 #
 # Deliberately a separate configuration at a lower level than src/. Template
 # variables arrive untyped from view(), so `max` would drown real findings in
@@ -17,21 +23,36 @@ parameters:
     # documents the contract a caller must satisfy, not an observation of what
     # view() actually passes, and PHPStan cannot see the call sites. Left at the
     # default it reports every `??=` default and every `??` offset guard in the
-    # templates as redundant: 31 findings that are all correct code.
+    # templates as redundant: 28 findings that are all correct code.
     treatPhpDocTypesAsCertain: false
 
     # Not inherited: this config is invoked directly, so phpstan.neon's setting
     # never reaches it. Without it PHPStan targets the running interpreter, and
-    # the CI matrix has no 8.3 leg — the declared floor would go unchecked for
+    # the CI matrix is 8.4/8.5 — the declared 8.3 floor would go unchecked for
     # exactly the code this config exists to cover.
-    # A range, not a scalar: composer.json declares "php": "8.3 - 8.5", and the
-    # shared base.neon documents the range form for a multi-version repository.
-    # The reusable workflow runs this gate on every matrix leg precisely because
-    # PHPStan resolves language-level behaviour per interpreter — a hard scalar
-    # pin would make both legs identical and waste that.
-    phpVersion:
-        min: 80300
-        max: 80500
+    #
+    # A scalar at the FLOOR, deliberately, although base.neon documents the
+    # min/max range for a multi-version repository. The trade-off is real and was
+    # measured with one implicitly-nullable parameter (deprecated in 8.4) as the
+    # probe:
+    #
+    #     phpVersion: 80300   -> not reported
+    #     phpVersion: 80500   -> reported
+    #     (unset, runtime 8.5)-> reported
+    #
+    # So pinning the floor — scalar or range, both behave this way — puts the
+    # >=8.4 deprecation class out of scope for this gate. That is accepted here:
+    # the gate exists BECAUSE the matrix is 8.4/8.5 and nothing else analyses the
+    # declared 8.3 floor, so floor coverage is the thing being bought. A range
+    # would additionally make PhpVersions::isAtLeast answer Maybe and buy nothing
+    # in return, hence the scalar. The >=8.4 gap is repo-wide (phpstan.neon pins
+    # 80300 as well) and tracked in #293, not introduced here.
+    #
+    # Note an explicit phpVersion overrides the interpreter, so this analysis is
+    # leg-independent. The gate still runs on every leg because `composer
+    # install` resolves a different dev-dependency tree per interpreter, so the
+    # third-party signatures under analysis differ.
+    phpVersion: 80300
 
     tmpDir: %currentWorkingDirectory%/.build/cache/.phpstan-glue.cache
 
