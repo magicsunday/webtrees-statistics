@@ -457,6 +457,17 @@ final class GedcomScannerTest extends TestCase
             [-22.9, -43.2],
         ];
 
+        // The hemisphere pattern is case-insensitive, so a lowercase letter is an
+        // accepted input shape and the upper-casing fold is the only thing that
+        // maps it onto the negative-hemisphere letter. Without this row the fold
+        // is an identity in every sample, and dropping it would silently flip
+        // these coordinates to positive.
+        yield 'lowercase hemisphere letters are folded before the sign test' => [
+            "\n0 @I1@ INDI\n1 BIRT\n2 PLAC Rio\n3 MAP\n4 LATI s22.9\n4 LONG w43.2",
+            'BIRT',
+            [-22.9, -43.2],
+        ];
+
         yield 'DEAT block resolves independently of BIRT' => [
             "\n0 @I1@ INDI\n1 BIRT\n2 PLAC Berlin\n3 MAP\n4 LATI N52.52\n4 LONG E13.405\n1 DEAT\n2 PLAC London\n3 MAP\n4 LATI N51.5\n4 LONG W0.12",
             'DEAT',

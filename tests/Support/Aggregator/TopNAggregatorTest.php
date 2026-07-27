@@ -18,8 +18,9 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 use function array_map;
+use function mb_strtoupper;
+use function mb_substr;
 use function sprintf;
-use function ucfirst;
 
 /**
  * Unit tests for {@see TopNAggregator}: case-folded counting, the first-seen
@@ -159,17 +160,31 @@ final class TopNAggregatorTest extends TestCase
      * {@see TopNAggregator::rank()} layers a display-resolution strategy over
      * {@see TopNAggregator::rankKeys()}: the ranked fold keys are mapped to their
      * display labels while the counts are preserved.
+     *
+     * The `éclair` row carries the multi-byte case. It ties on count with `apple`
+     * and `zebra` on purpose, so the tie-break actually runs on it: `rankKeys()`
+     * compares fold keys with `strcmp()`, i.e. byte order, which puts `éclair`
+     * (`0xC3…`) AFTER `zebra` (`0x7A`) rather than between `apple` and `zebra`
+     * where a collation-aware comparison would place it. The row therefore pins
+     * two production properties — the multi-byte fold key survives the cast and
+     * the byte-order tie-break, and the caller's multi-byte display label is used
+     * verbatim as the output key.
+     *
+     * Note the strategy closure is the caller's, not this class's: `rank()` and
+     * `rankKeys()` fold nothing themselves. The aggregator's own case fold lives
+     * in `topN()`'s default resolver, which this test does not go through.
      */
     #[Test]
     public function rankResolvesDisplayLabelsViaTheStrategy(): void
     {
         $result = TopNAggregator::rank(
-            ['zebra' => 2, 'mango' => 3, 'apple' => 2],
-            static fn (int|string $key): string => ucfirst((string) $key),
+            ['zebra' => 2, 'mango' => 3, 'apple' => 2, 'éclair' => 2],
+            static fn (int|string $key): string => mb_strtoupper(mb_substr((string) $key, 0, 1, 'UTF-8'), 'UTF-8')
+                . mb_substr((string) $key, 1, null, 'UTF-8'),
             0,
         );
 
-        self::assertSame(['Mango' => 3, 'Apple' => 2, 'Zebra' => 2], $result);
+        self::assertSame(['Mango' => 3, 'Apple' => 2, 'Zebra' => 2, 'Éclair' => 2], $result);
     }
 
     /**
