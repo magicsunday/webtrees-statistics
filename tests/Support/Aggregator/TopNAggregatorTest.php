@@ -170,8 +170,9 @@ final class TopNAggregatorTest extends TestCase
      * the byte-order tie-break, and the caller's multi-byte display label is used
      * verbatim as the output key.
      *
-     * Note the strategy closure itself is the caller's, not this class's: the
-     * aggregator performs no case folding at all.
+     * Note the strategy closure is the caller's, not this class's: `rank()` and
+     * `rankKeys()` fold nothing themselves. The aggregator's own case fold lives
+     * in `topN()`'s default resolver, which this test does not go through.
      */
     #[Test]
     public function rankResolvesDisplayLabelsViaTheStrategy(): void
