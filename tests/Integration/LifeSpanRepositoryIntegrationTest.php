@@ -20,6 +20,7 @@ use MagicSunday\Webtrees\Statistic\Model\Metric\WinterPeakScore;
 use MagicSunday\Webtrees\Statistic\Model\Pyramid\PopulationPyramidPayload;
 use MagicSunday\Webtrees\Statistic\Model\Ranking\RankingEntry;
 use MagicSunday\Webtrees\Statistic\Repository\LifeSpanRepository;
+use MagicSunday\Webtrees\Statistic\Support\Calc\AgeBuckets;
 use MagicSunday\Webtrees\Statistic\Support\Calc\HistogramTrim;
 use MagicSunday\Webtrees\Statistic\Support\Database\BirthDeathPairsQuery;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
@@ -63,6 +64,7 @@ use function sprintf;
 #[UsesClass(WinterPeakScore::class)]
 #[UsesClass(PopulationPyramidPayload::class)]
 #[UsesClass(RankingEntry::class)]
+#[UsesClass(AgeBuckets::class)]
 #[UsesClass(HistogramTrim::class)]
 #[UsesClass(BirthDeathPairsQuery::class)]
 #[UsesClass(DateAggregate::class)]
