@@ -160,18 +160,23 @@ final class TopNAggregatorTest extends TestCase
      * {@see TopNAggregator::rank()} layers a display-resolution strategy over
      * {@see TopNAggregator::rankKeys()}: the ranked fold keys are mapped to their
      * display labels while the counts are preserved.
+     *
+     * The `éclair` row is the discriminating one: a strategy built on `ucfirst()`
+     * leaves it lowercase, because that function uppercases the first BYTE and the
+     * first character here is two bytes wide. Only a character-aware fold produces
+     * `Éclair`, so this row fails for any byte-wise implementation.
      */
     #[Test]
     public function rankResolvesDisplayLabelsViaTheStrategy(): void
     {
         $result = TopNAggregator::rank(
-            ['zebra' => 2, 'mango' => 3, 'apple' => 2],
+            ['zebra' => 2, 'mango' => 3, 'apple' => 2, 'éclair' => 4],
             static fn (int|string $key): string => mb_strtoupper(mb_substr((string) $key, 0, 1, 'UTF-8'), 'UTF-8')
                 . mb_substr((string) $key, 1, null, 'UTF-8'),
             0,
         );
 
-        self::assertSame(['Mango' => 3, 'Apple' => 2, 'Zebra' => 2], $result);
+        self::assertSame(['Éclair' => 4, 'Mango' => 3, 'Apple' => 2, 'Zebra' => 2], $result);
     }
 
     /**
