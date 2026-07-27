@@ -11,6 +11,12 @@ includes:
 parameters:
     level: 6
 
+    # Not inherited: this config is invoked directly, so phpstan.neon's setting
+    # never reaches it. Without it PHPStan targets the running interpreter, and
+    # the CI matrix has no 8.3 leg — the declared floor would go unchecked for
+    # exactly the code this config exists to cover.
+    phpVersion: 80300
+
     tmpDir: %currentWorkingDirectory%/.build/cache/.phpstan-glue.cache
 
     paths:
