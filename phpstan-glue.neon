@@ -48,6 +48,9 @@ parameters:
     #     phpVersion: 80500                 -> reported
     #     (unset, runtime 8.5)              -> reported
     #
+    # Row 2 is why the pin is a scalar rather than a min/max range: the range
+    # measures identically, so the scalar is the simpler of two equivalent forms.
+    #
     # Two conditions carry this, and a floor bump breaks both. The probe only
     # discriminates while its deprecation version sits strictly ABOVE the pin: at
     # a floor of 8.4 the probe reports on every row, which reads as "the pin
