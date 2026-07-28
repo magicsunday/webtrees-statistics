@@ -28,41 +28,11 @@ parameters:
     treatPhpDocTypesAsCertain: false
 
     # Not inherited: this config is invoked directly, so phpstan.neon's setting
-    # never reaches it. Without it PHPStan targets the running interpreter, and
-    # the CI matrix is 8.4/8.5 — the declared 8.3 floor would go unchecked for
-    # exactly the code this config exists to cover.
-    #
-    # A scalar at the FLOOR, deliberately: the pin buys a check against the
-    # declared 8.3 floor, which the 8.4/8.5 matrix never exercises, and the price
-    # is that the >=8.4 deprecation class goes out of scope for this gate. To
-    # re-derive that trade-off, drop a probe into any analysed path —
-    # `function p(int $x = null): string { return $x; }`, whose implicitly
-    # nullable parameter is deprecated in 8.4 — and run
-    # `composer ci:test:php:phpstan:glue` once per setting. Its return type is the
-    # control: "should return string but returns int|null" is reported at every
-    # setting, so a silent row means analysed-and-silent rather than
-    # never-analysed. Without the control a silent row proves nothing.
-    #
-    #     phpVersion: 80300                 -> not reported
-    #     phpVersion: min 80300 / max 80500 -> not reported
-    #     phpVersion: 80500                 -> reported
-    #     (unset, runtime 8.5)              -> reported
-    #
-    # Row 2 is why the pin is a scalar rather than a min/max range: the range
-    # measures identically, so the scalar is the simpler of two equivalent forms.
-    #
-    # Two conditions carry this, and a floor bump breaks both. The probe only
-    # discriminates while its deprecation version sits strictly ABOVE the pin: at
-    # a floor of 8.4 the probe reports on every row, which reads as "the pin
-    # suppresses nothing" while the pin would in truth be hiding the >=8.5 class.
-    # Pick a probe deprecated above the NEW floor — a construct that was REMOVED
-    # will not do, it errors at every phpVersion. And the pin only buys anything
-    # while the floor sits OUTSIDE the CI matrix: with a matrix of 8.4/8.5, a
-    # floor of 8.4 is already analysed by the 8.4 leg, so the pin would cost the
-    # 8.5 leg its deprecations and buy nothing. Moving the floor into the matrix
-    # therefore means DELETING this pin, not raising it — together with
-    # phpstan.neon's, and with the 8.3 rationale in .github/workflows/ci.yml,
-    # whose premise dies with the same edit.
+    # never reaches it. Pinned at the declared 8.3 floor, which the 8.4/8.5 CI
+    # matrix never exercises; an explicit phpVersion overrides the interpreter,
+    # so the pin decides what is analysed, not the leg. The price is that the
+    # >=8.4 deprecation class is out of scope here. Once the floor moves INTO
+    # the matrix this pin should be deleted, not raised.
     phpVersion: 80300
 
     tmpDir: %currentWorkingDirectory%/.build/cache/.phpstan-glue.cache
