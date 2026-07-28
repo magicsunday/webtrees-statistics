@@ -15,7 +15,7 @@ jobs:
     # on the first matrix leg, glue-code PHPStan on every leg). Copy-paste
     # detection and the release-zip smoke test stay in the JS lane below: jscpd is
     # a Node tool, and the zip is worth building once rather than once per matrix
-    # leg (`make dist` itself needs only composer, git and zip).
+    # leg.
     # Analysis runs on 8.4/8.5 only — not because 8.3 fails to install. This
     # repository gitignores composer.lock, so CI resolves from scratch, and that
     # resolution SUCCEEDS on 8.3: the solver silently downgrades the strict
@@ -24,7 +24,8 @@ jobs:
     # the constraints are ranges, so re-derive with `composer update --dry-run`
     # in the 8.3 and 8.5 buildboxes rather than trusting those numbers). An 8.3
     # leg would therefore gate against a different rule set and a different test
-    # framework than the one that ships. Runtime support for 8.3 stays declared
+    # framework than the legs that actually gate the code. Runtime support for
+    # 8.3 stays declared
     # by composer.json's require.php constraint and is validated statically by
     # PHPStan's phpVersion: 80300; it is simply not unit-tested on a real 8.3
     # runtime.
