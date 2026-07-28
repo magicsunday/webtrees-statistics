@@ -11,8 +11,14 @@ permissions:
 jobs:
     # The PHP gates come from the shared reusable so the canonical step list lives
     # in one place (lint, phpstan, rector, cgl, unit, plus the opt-in gates this
-    # repository declares as composer scripts: the template lockstep and Deptrac
-    # on the first matrix leg, glue-code PHPStan on every leg). Copy-paste
+    # repository declares: the template lockstep and Deptrac on the first matrix
+    # leg, glue-code PHPStan on every leg). The reusable finds those three by
+    # EXACT composer script name, so renaming one here drops its CI step in
+    # silence — `composer ci:test` stays green locally and the run shows no
+    # skipped step to notice. It also carries gates no script can enable
+    # (run-psr4, run-infection are `with:` inputs); this call passes neither.
+    # Both mechanisms are visible in the reusable's `Detect optional consumer
+    # gates` step and its `inputs:` block. Copy-paste
     # detection and the release-zip smoke test stay in the JS lane below: jscpd is
     # a Node tool, and the zip is worth building once rather than once per matrix
     # leg.
@@ -34,6 +40,12 @@ jobs:
         permissions:
             contents: read
         with:
+            # These values name the job, and `php / Build (8.4)` and
+            # `php / Build (8.5)` are REQUIRED status checks on main. Editing the
+            # list without updating branch protection in the same change leaves
+            # every pull request at BLOCKED with all visible checks green.
+            # List the current set with:
+            # gh api repos/{owner}/{repo}/branches/main/protection --jq .required_status_checks.contexts
             php-versions: '["8.4", "8.5"]'
 
     js:

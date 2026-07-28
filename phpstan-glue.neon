@@ -58,6 +58,19 @@ parameters:
     # measured difference here. The >=8.4 gap is repo-wide (phpstan.neon pins
     # 80300 as well), not introduced here.
     #
+    # Two conditions carry all of this, and a floor bump breaks both. The probe
+    # only discriminates while its deprecation version sits strictly ABOVE the
+    # pin: at a floor of 8.4 the probe above reports on every row, which reads as
+    # "the pin suppresses nothing" while the pin would in truth be hiding the
+    # >=8.5 class. Pick a probe deprecated above the NEW floor — a construct that
+    # was REMOVED will not do, it errors at every phpVersion. And the pin only
+    # buys anything while the floor sits OUTSIDE the CI matrix: with a matrix of
+    # 8.4/8.5, a floor of 8.4 is already analysed by the 8.4 leg, so the pin
+    # would cost the 8.5 leg its deprecations and buy nothing. Moving the floor
+    # into the matrix therefore means DELETING this pin, not raising it —
+    # together with phpstan.neon's, and with the 8.3 rationale in
+    # .github/workflows/ci.yml, whose premise dies with the same edit.
+    #
     # Note an explicit phpVersion overrides the interpreter, so this analysis is
     # leg-independent. The shared reusable still runs it on every leg, placing
     # this step outside the first-leg-only condition its other opt-in gates
