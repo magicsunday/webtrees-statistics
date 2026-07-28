@@ -18,8 +18,9 @@ jobs:
     # symplify/phpstan-rules ^14, which (transitively, via symfony ^8.1 and
     # phpunit/php-code-coverage 14) requires PHP >= 8.4, so `composer install`
     # cannot resolve the dev dependencies on 8.3. Runtime support for 8.3 stays
-    # declared in require.php and is validated statically by PHPStan's
-    # phpVersion.min = 80300; it is simply not unit-tested on a real 8.3 runtime.
+    # declared by composer.json's require.php constraint and is validated
+    # statically by PHPStan's phpVersion: 80300; it is simply not unit-tested on
+    # a real 8.3 runtime.
     php:
         uses: magicsunday/.github/.github/workflows/php-quality.yml@main
         permissions:

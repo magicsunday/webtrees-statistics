@@ -34,20 +34,28 @@ parameters:
     #
     # A scalar at the FLOOR, deliberately, although base.neon documents the
     # min/max range for a multi-version repository. The trade-off is real and was
-    # measured with one implicitly-nullable parameter (deprecated in 8.4) as the
-    # probe:
+    # measured under phpstan/phpstan 2.2.5. To re-derive it, drop a probe into any
+    # analysed path — `function p(int $x = null): string { return $x; }`, whose
+    # implicitly-nullable parameter is deprecated in 8.4 — and run
+    # `composer ci:test:php:phpstan:glue` once per setting below. Its return type
+    # is the control: "should return string but returns int|null" is reported at
+    # every setting, so a "not reported" row means analysed-and-silent, never
+    # never-analysed. Keep the control — without it the two silent rows prove
+    # nothing.
     #
-    #     phpVersion: 80300   -> not reported
-    #     phpVersion: 80500   -> reported
-    #     (unset, runtime 8.5)-> reported
+    #     phpVersion: 80300                 -> not reported
+    #     phpVersion: min 80300 / max 80500 -> not reported
+    #     phpVersion: 80500                 -> reported
+    #     (unset, runtime 8.5)              -> reported
     #
-    # So pinning the floor — scalar or range, both behave this way — puts the
-    # >=8.4 deprecation class out of scope for this gate. That is accepted here:
-    # the gate exists BECAUSE the matrix is 8.4/8.5 and nothing else analyses the
-    # declared 8.3 floor, so floor coverage is the thing being bought. A range
-    # would additionally make PhpVersions::isAtLeast answer Maybe and buy nothing
-    # in return, hence the scalar. The >=8.4 gap is repo-wide (phpstan.neon pins
-    # 80300 as well) and tracked in #293, not introduced here.
+    # So pinning the floor — scalar or range, both behave this way, as the first
+    # two rows show — puts the >=8.4 deprecation class out of scope for this gate.
+    # That is accepted here: what the pin buys is a check against the declared 8.3
+    # floor, which the 8.4/8.5 matrix never exercises. The range form recovers
+    # none of that class either, so the deviation from base.neon's convention is
+    # not a claim that the range is worse — it is the simpler of two forms with no
+    # measured difference here. The >=8.4 gap is repo-wide (phpstan.neon pins
+    # 80300 as well), not introduced here.
     #
     # Note an explicit phpVersion overrides the interpreter, so this analysis is
     # leg-independent. The gate still runs on every leg because `composer
