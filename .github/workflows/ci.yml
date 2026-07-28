@@ -10,21 +10,37 @@ permissions:
 
 jobs:
     # The PHP gates come from the shared reusable so the canonical step list lives
-    # in one place (lint, phpstan, rector, cgl, unit, plus the template-lockstep
-    # guard this repository opts into). Copy-paste detection and the release-zip
-    # smoke test stay in the JS lane below: jscpd is a Node tool and `make dist`
-    # needs Node too.
-    # Analysis runs on 8.4/8.5 only: the strict PHPStan tier pulls
-    # symplify/phpstan-rules ^14, which (transitively, via symfony ^8.1 and
-    # phpunit/php-code-coverage 14) requires PHP >= 8.4, so `composer install`
-    # cannot resolve the dev dependencies on 8.3. Runtime support for 8.3 stays
-    # declared in require.php and is validated statically by PHPStan's
-    # phpVersion.min = 80300; it is simply not unit-tested on a real 8.3 runtime.
+    # in one place. Which optional gates this repository opts into is decided by
+    # the composer scripts it declares — `jq -r '.scripts | keys[] |
+    # select(startswith("ci:test:php:"))' composer.json`; the reusable's `Detect
+    # optional consumer gates` step logs what it probed and what it found on
+    # every run. Copy-paste detection and the release-zip smoke test stay in the
+    # JS lane below: jscpd is a Node tool, and the zip is worth building once
+    # rather than once per matrix leg.
+    # Analysis runs on 8.4/8.5 only — not because 8.3 fails to install. This
+    # repository gitignores composer.lock, so CI resolves from scratch, and that
+    # resolution SUCCEEDS on 8.3: the solver silently downgrades the strict
+    # toolchain to whatever still supports it, so an 8.3 leg would gate against a
+    # different rule set and a different test framework than the legs that
+    # actually gate the code. To see the current downgrade, run `composer update
+    # --dry-run` in the 8.3 and 8.5 buildboxes and diff the locked versions.
+    # Runtime support for 8.3 stays declared by composer.json's require.php
+    # constraint and is validated statically by PHPStan's phpVersion: 80300; it
+    # is simply not unit-tested on a real 8.3 runtime.
     php:
         uses: magicsunday/.github/.github/workflows/php-quality.yml@main
         permissions:
             contents: read
         with:
+            # These values name the job, and `php / Build (8.4)` and
+            # `php / Build (8.5)` are REQUIRED status checks on main. Removing or
+            # renaming one — or renaming the `php:` job id — strands a required
+            # context, and every pull request then sits at BLOCKED with all
+            # visible checks green. Adding one blocks nothing, but leaves the new
+            # leg ungated: a regression there cannot stop a merge. Either way,
+            # update branch protection in the same change.
+            # List the current set with:
+            # gh api repos/{owner}/{repo}/branches/main/protection --jq .required_status_checks.contexts
             php-versions: '["8.4", "8.5"]'
 
     js:
@@ -46,9 +62,11 @@ jobs:
                   cache: npm
 
             # 8.4, not the 8.3 runtime floor: this job runs `composer install`
-            # with dev dependencies, and the strict dev toolchain requires PHP
-            # >= 8.4 (see the `php:` job comment). The JS/dist lane does not test
-            # runtime PHP behaviour, so the interpreter version is irrelevant here.
+            # with dev dependencies, and pinning it to the analysed lane's
+            # interpreter keeps it resolving the same tree — on 8.3 the solver
+            # would quietly downgrade the strict dev toolchain (see the `php:` job
+            # comment). This lane exercises none of those packages, so the pin is
+            # about tree parity rather than a failure it would otherwise hit.
             - id: setup_php
               name: Set up PHP
               uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
@@ -93,9 +111,9 @@ jobs:
               if: ${{ always() && steps.install.conclusion == 'success' }}
               run: composer ci:test:cpd
 
-            # Runs LAST: 'make dist' invokes 'composer install --no-dev' which
-            # strips the dev packages from .build/vendor, so any later
-            # composer-driven step would fail.
+            # Runs LAST: 'make dist' invokes 'composer update --no-dev', which
+            # strips the dev packages from .build/vendor. Nothing placed after it
+            # may depend on that tree.
             - id: dist-smoke
               name: Release zip smoke test
               if: ${{ success() }}

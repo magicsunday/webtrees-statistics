@@ -28,31 +28,11 @@ parameters:
     treatPhpDocTypesAsCertain: false
 
     # Not inherited: this config is invoked directly, so phpstan.neon's setting
-    # never reaches it. Without it PHPStan targets the running interpreter, and
-    # the CI matrix is 8.4/8.5 — the declared 8.3 floor would go unchecked for
-    # exactly the code this config exists to cover.
-    #
-    # A scalar at the FLOOR, deliberately, although base.neon documents the
-    # min/max range for a multi-version repository. The trade-off is real and was
-    # measured with one implicitly-nullable parameter (deprecated in 8.4) as the
-    # probe:
-    #
-    #     phpVersion: 80300   -> not reported
-    #     phpVersion: 80500   -> reported
-    #     (unset, runtime 8.5)-> reported
-    #
-    # So pinning the floor — scalar or range, both behave this way — puts the
-    # >=8.4 deprecation class out of scope for this gate. That is accepted here:
-    # the gate exists BECAUSE the matrix is 8.4/8.5 and nothing else analyses the
-    # declared 8.3 floor, so floor coverage is the thing being bought. A range
-    # would additionally make PhpVersions::isAtLeast answer Maybe and buy nothing
-    # in return, hence the scalar. The >=8.4 gap is repo-wide (phpstan.neon pins
-    # 80300 as well) and tracked in #293, not introduced here.
-    #
-    # Note an explicit phpVersion overrides the interpreter, so this analysis is
-    # leg-independent. The gate still runs on every leg because `composer
-    # install` resolves a different dev-dependency tree per interpreter, so the
-    # third-party signatures under analysis differ.
+    # never reaches it. Pinned at the declared 8.3 floor, which the 8.4/8.5 CI
+    # matrix never exercises; an explicit phpVersion overrides the interpreter,
+    # so the pin decides what is analysed, not the leg. The price is that the
+    # >=8.4 deprecation class is out of scope here. Once the floor moves INTO
+    # the matrix this pin should be deleted, not raised.
     phpVersion: 80300
 
     tmpDir: %currentWorkingDirectory%/.build/cache/.phpstan-glue.cache
