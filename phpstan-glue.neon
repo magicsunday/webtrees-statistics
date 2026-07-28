@@ -59,13 +59,13 @@ parameters:
     # 80300 as well), not introduced here.
     #
     # Note an explicit phpVersion overrides the interpreter, so this analysis is
-    # leg-independent. It still runs on every leg because the shared reusable
-    # places this step outside the first-leg-only condition its other opt-in
-    # gates carry — not because the legs differ. composer.lock is gitignored, so
-    # a leg could in principle resolve a different dev tree and put different
-    # third-party signatures under analysis, but 8.4 and 8.5 currently resolve
-    # identically: `composer update --dry-run` in each buildbox, diffed over the
-    # sorted package lists.
+    # leg-independent. The shared reusable still runs it on every leg, placing
+    # this step outside the first-leg-only condition its other opt-in gates
+    # carry, because the step resolves language-level behaviour per interpreter —
+    # a rationale the pin neutralises here. What the extra legs could still catch
+    # is a differently-resolved dev tree, since composer.lock is gitignored; but
+    # 8.4 and 8.5 currently resolve identically (`composer update --dry-run` in
+    # each buildbox, diffed over the sorted package lists).
     phpVersion: 80300
 
     tmpDir: %currentWorkingDirectory%/.build/cache/.phpstan-glue.cache

@@ -15,10 +15,15 @@ jobs:
     # on the first matrix leg, glue-code PHPStan on every leg). Copy-paste
     # detection and the release-zip smoke test stay in the JS lane below: jscpd is
     # a Node tool and `make dist` needs Node too.
-    # Analysis runs on 8.4/8.5 only: the strict PHPStan tier pulls
-    # symplify/phpstan-rules ^14, which itself requires PHP ^8.4, so `composer
-    # install` cannot resolve the dev dependencies on 8.3. Runtime support for 8.3
-    # stays declared by composer.json's require.php constraint and is validated
+    # Analysis runs on 8.4/8.5 only — not because 8.3 fails to install. This
+    # repository gitignores composer.lock, so CI resolves from scratch, and that
+    # resolution SUCCEEDS on 8.3: the solver silently downgrades the strict
+    # toolchain to whatever still supports it (measured: symplify/phpstan-rules
+    # 14.12.0 -> 14.10.0, phpunit 13.2.5 -> 12.5.32). An 8.3 leg would therefore
+    # gate against a different rule set and a different test framework than the
+    # one that ships — worse than no leg at all. Re-derive with `composer update
+    # --dry-run` in the 8.3 and 8.5 buildboxes. Runtime support for 8.3 stays
+    # declared by composer.json's require.php constraint and is validated
     # statically by PHPStan's phpVersion: 80300; it is simply not unit-tested on
     # a real 8.3 runtime.
     php:
@@ -47,9 +52,10 @@ jobs:
                   cache: npm
 
             # 8.4, not the 8.3 runtime floor: this job runs `composer install`
-            # with dev dependencies, and the strict dev toolchain requires PHP
-            # >= 8.4 (see the `php:` job comment). The JS/dist lane does not test
-            # runtime PHP behaviour, so the interpreter version is irrelevant here.
+            # with dev dependencies, and on 8.3 the solver would quietly downgrade
+            # the strict dev toolchain (see the `php:` job comment). The JS/dist
+            # lane does not test runtime PHP behaviour, so the interpreter version
+            # is otherwise irrelevant here.
             - id: setup_php
               name: Set up PHP
               uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
