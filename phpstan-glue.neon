@@ -32,8 +32,9 @@ parameters:
     # the CI matrix is 8.4/8.5 — the declared 8.3 floor would go unchecked for
     # exactly the code this config exists to cover.
     #
-    # A scalar at the FLOOR, deliberately, although base.neon documents the
-    # min/max range for a multi-version repository. The trade-off is real and was
+    # A scalar at the FLOOR, deliberately, although the coding-standard's
+    # phpstan/base.neon documents the min/max range — a nested `min:`/`max:`
+    # mapping — for a multi-version repository. The trade-off is real and was
     # measured under phpstan/phpstan 2.2.5. To re-derive it, drop a probe into any
     # analysed path — `function p(int $x = null): string { return $x; }`, whose
     # implicitly-nullable parameter is deprecated in 8.4 — and run
@@ -58,9 +59,13 @@ parameters:
     # 80300 as well), not introduced here.
     #
     # Note an explicit phpVersion overrides the interpreter, so this analysis is
-    # leg-independent. The gate still runs on every leg because `composer
-    # install` resolves a different dev-dependency tree per interpreter, so the
-    # third-party signatures under analysis differ.
+    # leg-independent. It still runs on every leg because the shared reusable
+    # places this step outside the first-leg-only condition its other opt-in
+    # gates carry — not because the legs differ. composer.lock is gitignored, so
+    # a leg could in principle resolve a different dev tree and put different
+    # third-party signatures under analysis, but 8.4 and 8.5 currently resolve
+    # identically: `composer update --dry-run` in each buildbox, diffed over the
+    # sorted package lists.
     phpVersion: 80300
 
     tmpDir: %currentWorkingDirectory%/.build/cache/.phpstan-glue.cache
