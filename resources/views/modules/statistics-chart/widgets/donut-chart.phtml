@@ -21,8 +21,13 @@ use MagicSunday\Webtrees\Statistic\View\LegendPosition;
  * @var string|null                                                                 $emptyMessage   Optional override for the "no data" placeholder
  * @var LegendPosition|null                                                         $legendPosition LegendPosition::Right (default) places the legend next to the donut; LegendPosition::Bottom stacks it underneath
  */
-$emptyMessage   ??= EmptyStatePlaceholder::defaultMessage();
+// Order matters. The @var header binds to the FIRST statement below it, and
+// conflicts (varTag.nativeType) when that assignment's right-hand side is a call
+// whose declared return type is narrower than the tag. A literal default never
+// trips it, which is why the sibling widgets can lead with one. Keep the
+// method-call default off the first line.
 $centerLabel    ??= null;
+$emptyMessage   ??= EmptyStatePlaceholder::defaultMessage();
 $legendPosition ??= LegendPosition::Right;
 
 $total = array_sum(array_column($data, 'value'));

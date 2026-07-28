@@ -31,10 +31,10 @@ $payload = [];
 
 foreach ($data as $row) {
     $payload[] = [
-        'label'  => (string) ($row['name'] ?? ''),
-        'value'  => (int) ($row['lastYear'] ?? 0),
-        'active' => (bool) ($row['isActive'] ?? false),
-        'meta'   => I18N::number((int) ($row['total'] ?? 0)) . '×',
+        'label'  => $row['name'],
+        'value'  => $row['lastYear'],
+        'active' => $row['isActive'],
+        'meta'   => I18N::number($row['total']) . '×',
     ];
 }
 
@@ -49,7 +49,7 @@ if ($payload === []) {
 // current year, which anchors the right end at "today" so still-in-use names
 // sit at the far right.
 $defunctYears = array_column(
-    array_filter($data, static fn (array $row): bool => ($row['isActive'] ?? false) === false),
+    array_filter($data, static fn (array $row): bool => $row['isActive'] === false),
     'lastYear'
 );
 

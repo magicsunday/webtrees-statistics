@@ -29,7 +29,8 @@ declare(strict_types=1);
  * Override the webtrees root with WEBTREES_ROOT=/path when the layout differs
  * from the default `<root>/vendor/magicsunday/webtrees-statistics/dev`.
  *
- * Dev tooling only — never wired into the module runtime or CI.
+ * Dev tooling only — never executed by the module runtime or by CI, but linted
+ * and type-checked by it (ci:test:php:lint, ci:test:php:phpstan:glue).
  */
 
 use Fisharebest\Webtrees\Auth;

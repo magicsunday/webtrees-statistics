@@ -1,0 +1,71 @@
+# Static analysis for the PHP that lives outside src/: the module entry point
+# module.php, the data-preparation prologues in the view templates under
+# resources/views/, and the developer tooling under dev/.
+#
+# rector.php and .php-cs-fixer.dist.php stay out on purpose: their own gates
+# (ci:test:php:rector, ci:test:php:cgl) load and execute them on every matrix
+# leg, so a broken one fails CI by itself.
+#
+# Deliberately a separate configuration at a lower level than src/. Template
+# variables arrive untyped from view(), so `max` would drown real findings in
+# `mixed` noise; level 6 still catches the class this exists for — wrong
+# argument counts, wrong argument types and calls to symbols that moved.
+includes:
+    - %currentWorkingDirectory%/.build/vendor/phpstan/phpstan-deprecation-rules/rules.neon
+
+parameters:
+    level: 6
+
+    # Not inherited from phpstan.neon: this config includes only the deprecation
+    # rules, so without this line it runs with PHPStan's default `true` and treats
+    # a template's `@var` header as proven fact. That is backwards — the header
+    # documents the contract a caller must satisfy, not an observation of what
+    # view() actually passes, and PHPStan cannot see the call sites. Left at the
+    # default it reports the `??=` / `??` defaults and the `??` offset guards in
+    # the templates as redundant, although they are all correct code. To see the
+    # current set, delete this line and run `composer ci:test:php:phpstan:glue`;
+    # the count moves with every template, so it is not frozen here.
+    treatPhpDocTypesAsCertain: false
+
+    # Not inherited: this config is invoked directly, so phpstan.neon's setting
+    # never reaches it. Without it PHPStan targets the running interpreter, and
+    # the CI matrix is 8.4/8.5 — the declared 8.3 floor would go unchecked for
+    # exactly the code this config exists to cover.
+    #
+    # A scalar at the FLOOR, deliberately, although base.neon documents the
+    # min/max range for a multi-version repository. The trade-off is real and was
+    # measured with one implicitly-nullable parameter (deprecated in 8.4) as the
+    # probe:
+    #
+    #     phpVersion: 80300   -> not reported
+    #     phpVersion: 80500   -> reported
+    #     (unset, runtime 8.5)-> reported
+    #
+    # So pinning the floor — scalar or range, both behave this way — puts the
+    # >=8.4 deprecation class out of scope for this gate. That is accepted here:
+    # the gate exists BECAUSE the matrix is 8.4/8.5 and nothing else analyses the
+    # declared 8.3 floor, so floor coverage is the thing being bought. A range
+    # would additionally make PhpVersions::isAtLeast answer Maybe and buy nothing
+    # in return, hence the scalar. The >=8.4 gap is repo-wide (phpstan.neon pins
+    # 80300 as well) and tracked in #293, not introduced here.
+    #
+    # Note an explicit phpVersion overrides the interpreter, so this analysis is
+    # leg-independent. The gate still runs on every leg because `composer
+    # install` resolves a different dev-dependency tree per interpreter, so the
+    # third-party signatures under analysis differ.
+    phpVersion: 80300
+
+    tmpDir: %currentWorkingDirectory%/.build/cache/.phpstan-glue.cache
+
+    paths:
+        # module.php is the file webtrees actually loads to instantiate the
+        # module, and it hand-wires a ClassLoader registration plus a container
+        # lookup — the canonical glue that drifts from refactored signatures
+        # unseen. It analyses clean here, so the coverage is free.
+        - %currentWorkingDirectory%/module.php
+        - %currentWorkingDirectory%/resources/views/
+        - %currentWorkingDirectory%/dev/
+
+    fileExtensions:
+        - php
+        - phtml

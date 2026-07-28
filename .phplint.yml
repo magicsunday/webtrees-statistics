@@ -1,9 +1,13 @@
 path:
+    - ./module.php
     - ./src
     - ./tests
+    - ./resources/views
+    - ./dev
 jobs: 10
 cache-dir: .build/cache/.phplint.cache
 extensions:
     - php
+    - phtml
 exclude:
     - .build

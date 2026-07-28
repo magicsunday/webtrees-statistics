@@ -58,6 +58,7 @@
     },
     "require-dev": {
         "magicsunday/coding-standard": "^1.7",
+        "phpstan/phpstan-deprecation-rules": "^2.0",
         "shipmonk/phpstan-rules": "^4.0",
         "spaze/phpstan-disallowed-calls": "^4.13",
         "symplify/phpstan-rules": "^14.0"
@@ -89,6 +90,9 @@
         ],
         "ci:test:php:phpstan": [
             "phpstan analyze --configuration phpstan.neon --memory-limit=-1"
+        ],
+        "ci:test:php:phpstan:glue": [
+            "phpstan analyze --configuration phpstan-glue.neon --memory-limit=-1"
         ],
         "ci:test:php:rector": [
             "@ci:rector --dry-run"
@@ -127,6 +131,7 @@
             "@ci:test:js:typecheck",
             "@ci:test:php:cgl",
             "@ci:test:php:phpstan",
+            "@ci:test:php:phpstan:glue",
             "@ci:test:php:rector",
             "@ci:test:cpd",
             "@ci:test:php:templates",
