@@ -39,9 +39,9 @@ parameters:
     # implicitly-nullable parameter is deprecated in 8.4 — and run
     # `composer ci:test:php:phpstan:glue` once per setting below. Its return type
     # is the control: "should return string but returns int|null" is reported at
-    # every setting, so a "not reported" row means analysed-and-silent, never
-    # never-analysed. Keep the control — without it the two silent rows prove
-    # nothing.
+    # every setting, so a "not reported" row means analysed-and-silent rather
+    # than never-analysed. Keep the control — without it the two silent rows
+    # prove nothing.
     #
     #     phpVersion: 80300                 -> not reported
     #     phpVersion: min 80300 / max 80500 -> not reported
