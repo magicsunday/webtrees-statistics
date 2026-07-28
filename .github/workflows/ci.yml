@@ -104,9 +104,9 @@ jobs:
               if: ${{ always() && steps.install.conclusion == 'success' }}
               run: composer ci:test:cpd
 
-            # Runs LAST: 'make dist' invokes 'composer update --no-dev' which
-            # strips the dev packages from .build/vendor, so any later
-            # composer-driven step would fail.
+            # Runs LAST: 'make dist' invokes 'composer update --no-dev', which
+            # strips the dev packages from .build/vendor. Nothing placed after it
+            # may depend on that tree.
             - id: dist-smoke
               name: Release zip smoke test
               if: ${{ success() }}
