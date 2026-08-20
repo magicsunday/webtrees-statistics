@@ -234,17 +234,64 @@ export function renderWidgets(root) {
             : null;
     const reduceMotion = motionQuery?.matches === true;
     const revealOnScroll = reduceMotion === false && typeof IntersectionObserver !== "undefined";
-    // node → instance for cards whose entrance is HELD waiting to be revealed.
-    // A Map (not a WeakMap) so a late `prefers-reduced-motion` toggle can iterate
-    // the still-held entries and fast-forward them; entries are removed as each
-    // card reveals, and the whole map is cleared on teardown.
-    /** @type {Map<Element, {playEntry?: () => void}|null|undefined>|null} */
-    const held = revealOnScroll ? new Map() : null;
-    // Collected during the draw pass and revealed in a second pass, so the
-    // getBoundingClientRect reads batch into a single layout flush instead of
-    // forcing a reflow after every widget's draw.
-    /** @type {Array<{node: Element, instance: {playEntry?: () => void}}>|null} */
-    const pendingReveals = revealOnScroll ? [] : null;
+    // One object, not three independently-nullable bindings: `held`, `observer`
+    // and `pendingReveals` are correlated 1:1 with `revealOnScroll` — they were
+    // three separate `X ? Y : null` consts, and every reader had to hold that
+    // pairing in mind by convention rather than have it enforced. Now `reveal`
+    // either exists with a live Map/observer/array, or is null, and nothing
+    // downstream can reach for a half-initialised piece of it.
+    /**
+     * @type {{
+     *     held: Map<Element, {playEntry?: () => void}|null|undefined>,
+     *     observer: IntersectionObserver,
+     *     pendingReveals: Array<{node: Element, instance: {playEntry?: () => void}}>,
+     * }|null}
+     */
+    // An IIFE, not the object literal referencing its own `held` property inline:
+    // TypeScript cannot prove the IntersectionObserver callback never runs
+    // synchronously during construction (it never does — this is a real browser
+    // API — but nothing tells the type checker that), so a self-reference inside
+    // the literal stayed `X|null` throughout. Built here, `held` is a plain
+    // non-nullable Map for the whole closure.
+    const reveal = revealOnScroll
+        ? (() => {
+              // node → instance for cards whose entrance is HELD waiting to be
+              // revealed. A Map (not a WeakMap) so a late `prefers-reduced-motion`
+              // toggle can iterate the still-held entries and fast-forward them;
+              // entries are removed as each card reveals, the whole map is cleared
+              // on teardown.
+              const held = new Map();
+              const observer = new IntersectionObserver(
+                  (entries, obs) => {
+                      entries.forEach((entry) => {
+                          if (entry.isIntersecting === false) {
+                              return;
+                          }
+
+                          // One-shot per node: stop watching, then play (no re-draw).
+                          obs.unobserve(entry.target);
+                          playEntry(held.get(entry.target));
+                          held.delete(entry.target);
+                      });
+                  },
+                  // Negative bottom margin pulls the trigger line a quarter up
+                  // from the viewport bottom, so an off-screen card animates once
+                  // its top edge is a quarter of the way up — not at the first
+                  // sliver.
+                  { rootMargin: "0px 0px -25% 0px", threshold: 0 },
+              );
+
+              return {
+                  held,
+                  observer,
+                  // Collected during the draw pass and revealed in a second
+                  // pass, so the getBoundingClientRect reads batch into a single
+                  // layout flush instead of forcing a reflow after every
+                  // widget's draw.
+                  pendingReveals: [],
+              };
+          })()
+        : null;
     // Latched once the reveal machinery is retired — either by a late
     // reduced-motion switch or by an explicit disconnect(). The async world-map
     // arms its reveal in a `.then` that runs after this function returns, so it
@@ -270,30 +317,6 @@ export function renderWidgets(root) {
         }
     };
 
-    const observer = revealOnScroll
-        ? new IntersectionObserver(
-              (entries, obs) => {
-                  entries.forEach((entry) => {
-                      if (entry.isIntersecting === false) {
-                          return;
-                      }
-
-                      // One-shot per node: stop watching, then play (no re-draw).
-                      obs.unobserve(entry.target);
-
-                      if (held !== null) {
-                          playEntry(held.get(entry.target));
-                          held.delete(entry.target);
-                      }
-                  });
-              },
-              // Negative bottom margin pulls the trigger line a quarter up from
-              // the viewport bottom, so an off-screen card animates once its top
-              // edge is a quarter of the way up — not at the first sliver.
-              { rootMargin: "0px 0px -25% 0px", threshold: 0 },
-          )
-        : null;
-
     /**
      * Reveal a freshly-drawn widget: play its entrance now if the card is
      * already visible — above the fold, OR sitting in the bottom band of a short
@@ -312,9 +335,9 @@ export function renderWidgets(root) {
             return;
         }
 
-        if (held !== null && observer !== null) {
-            held.set(node, instance);
-            observer.observe(node);
+        if (reveal !== null) {
+            reveal.held.set(node, instance);
+            reveal.observer.observe(node);
         }
     };
 
@@ -337,15 +360,12 @@ export function renderWidgets(root) {
 
         revealRetired = true;
 
-        if (held !== null) {
-            held.forEach((instance) => {
+        if (reveal !== null) {
+            reveal.held.forEach((instance) => {
                 playEntry(instance);
             });
-            held.clear();
-        }
-
-        if (observer !== null) {
-            observer.disconnect();
+            reveal.held.clear();
+            reveal.observer.disconnect();
         }
 
         // One-shot: the machinery is now retired, so drop this listener and let
@@ -442,8 +462,8 @@ export function renderWidgets(root) {
         } else if (instance !== null && instance !== undefined) {
             widgets.push(instance);
 
-            if (pendingReveals !== null) {
-                pendingReveals.push({ node, instance });
+            if (reveal !== null) {
+                reveal.pendingReveals.push({ node, instance });
             }
         }
     };
@@ -455,8 +475,8 @@ export function renderWidgets(root) {
 
     // Pass 2: arm the reveals. All draws are done, so the getBoundingClientRect
     // reads here trigger a single layout flush rather than one per widget.
-    if (pendingReveals !== null) {
-        pendingReveals.forEach(({ node, instance }) => {
+    if (reveal !== null) {
+        reveal.pendingReveals.forEach(({ node, instance }) => {
             revealWhenSeen(node, instance);
         });
     }
@@ -476,16 +496,13 @@ export function renderWidgets(root) {
     const disconnect = () => {
         revealRetired = true;
 
-        if (observer !== null) {
-            observer.disconnect();
+        if (reveal !== null) {
+            reveal.observer.disconnect();
+            reveal.held.clear();
         }
 
         if (motionQuery !== null && typeof motionQuery.removeEventListener === "function") {
             motionQuery.removeEventListener("change", onMotionPreferenceChange);
-        }
-
-        if (held !== null) {
-            held.clear();
         }
     };
 
