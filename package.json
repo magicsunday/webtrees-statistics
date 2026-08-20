@@ -24,7 +24,7 @@
         "lint:fix": "biome lint --fix --unsafe resources/js/modules/",
         "format": "biome format --write resources/js/modules/ resources/js/tests/",
         "format:check": "biome format resources/js/modules/ resources/js/tests/",
-        "typecheck": "tsc --noEmit -p jsconfig.json"
+        "typecheck": "tsc --noEmit -p tsconfig.json"
     },
     "dependencies": {
         "@magicsunday/webtrees-chart-lib": "github:magicsunday/webtrees-chart-lib#1.17.0",
@@ -50,6 +50,7 @@
     },
     "devDependencies": {
         "@biomejs/biome": "2.5.7",
+        "@magicsunday/coding-standard": "github:magicsunday/coding-standard#1.8.0",
         "@rollup/plugin-node-resolve": "^16.0",
         "@rollup/plugin-terser": "^1.0",
         "@types/d3-fetch": "^3.0.7",

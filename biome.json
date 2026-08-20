@@ -1,10 +1,6 @@
 {
-    "$schema": "https://biomejs.dev/schemas/2.4.11/schema.json",
-    "vcs": {
-        "enabled": true,
-        "clientKind": "git",
-        "useIgnoreFile": true
-    },
+    "$schema": "https://biomejs.dev/schemas/2.5.7/schema.json",
+    "extends": ["@magicsunday/coding-standard/biome/base.json"],
     "files": {
         "includes": [
             "resources/js/modules/**/*.js",
@@ -12,70 +8,12 @@
             "!resources/js/modules/lib/**"
         ]
     },
-    "formatter": {
-        "enabled": true,
-        "indentStyle": "space",
-        "indentWidth": 4,
-        "lineWidth": 100,
-        "lineEnding": "lf"
-    },
     "linter": {
-        "enabled": true,
         "rules": {
-            "recommended": true,
-            "style": {
-                "useConst": "warn",
-                "useTemplate": "error",
-                "noParameterAssign": "warn",
-                "useDefaultParameterLast": "error",
-                "noNegationElse": "warn"
-            },
-            "suspicious": {
-                "noDoubleEquals": "error",
-                "noPrototypeBuiltins": "error",
-                "noShadowRestrictedNames": "error",
-                "useIsArray": "error"
-            },
-            "correctness": {
-                "noUnusedVariables": "warn",
-                "noUnusedImports": "warn",
-                "noUnusedFunctionParameters": "warn",
-                "useImportExtensions": "error"
-            },
             "complexity": {
                 "noStaticOnlyClass": "off",
-                "noArguments": "off",
-                "noExcessiveCognitiveComplexity": {
-                    "level": "warn",
-                    "options": {
-                        "maxAllowedComplexity": 25
-                    }
-                },
-                "useArrowFunction": "error"
-            },
-            "performance": {
-                "noDelete": "warn"
-            },
-            "security": {
-                "noDangerouslySetInnerHtml": "error"
+                "noArguments": "off"
             }
         }
-    },
-    "javascript": {
-        "formatter": {
-            "quoteStyle": "double",
-            "semicolons": "always",
-            "trailingCommas": "all",
-            "bracketSpacing": true
-        }
-    },
-    "assist": {
-        "enabled": true,
-        "actions": {
-            "source": {
-                "organizeImports": "on"
-            }
-        }
-    },
-    "overrides": []
+    }
 }

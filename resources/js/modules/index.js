@@ -38,6 +38,7 @@ import {
 const WORLD_GEOJSON_URL_FALLBACK =
     "/index.php?route=%2Fmodule%2F_webtrees-statistics_%2FAsset&asset=js/world-map.geojson";
 
+/** @type {import("geojson").FeatureCollection | null} */
 let cachedGeoJson = null;
 
 /**
@@ -106,7 +107,7 @@ async function loadWorldGeoJson() {
  * opts).draw(data)`) into the functional `(node, data, options)` shape the
  * dispatcher uses. Keeps the dispatch table flat.
  *
- * @param {{new (node: HTMLElement, options: WidgetOptions): {draw: (data: unknown) => unknown}}} Widget Chart-lib widget class.
+ * @param {{new (node: HTMLElement, options: WidgetOptions): {draw(data: unknown): unknown}}} Widget Chart-lib widget class.
  *
  * @returns {(node: HTMLElement, data: unknown, options: WidgetOptions) => unknown}
  */
@@ -156,7 +157,10 @@ async function drawWorldMap(node, data, options) {
     const widget = new WorldMap(node, {
         ...options,
         geojson,
-        projection: geoMercator(),
+        projection:
+            /** @type {{fitSize: (size: [number, number], object: object) => import("d3-geo").GeoProjection}} */ (
+                geoMercator()
+            ),
     });
     // The dispatcher carries every widget's payload as `unknown`; the WorldMap
     // draw signature is concrete, so narrow at this boundary the same way the
@@ -212,6 +216,7 @@ const WIDGETS = {
  */
 export function renderWidgets(root) {
     const nodes = /** @type {NodeListOf<HTMLElement>} */ (root.querySelectorAll("[data-widget]"));
+    /** @type {Array<object>} */
     const widgets = [];
 
     // Reveal-on-scroll: every widget is drawn up front — in the DOM immediately
@@ -233,11 +238,12 @@ export function renderWidgets(root) {
     // A Map (not a WeakMap) so a late `prefers-reduced-motion` toggle can iterate
     // the still-held entries and fast-forward them; entries are removed as each
     // card reveals, and the whole map is cleared on teardown.
-    /** @type {Map<Element, {playEntry?: () => void}>|null} */
+    /** @type {Map<Element, {playEntry?: () => void}|null|undefined>|null} */
     const held = revealOnScroll ? new Map() : null;
     // Collected during the draw pass and revealed in a second pass, so the
     // getBoundingClientRect reads batch into a single layout flush instead of
     // forcing a reflow after every widget's draw.
+    /** @type {Array<{node: Element, instance: {playEntry?: () => void}}>|null} */
     const pendingReveals = revealOnScroll ? [] : null;
     // Latched once the reveal machinery is retired — either by a late
     // reduced-motion switch or by an explicit disconnect(). The async world-map
@@ -274,8 +280,11 @@ export function renderWidgets(root) {
 
                       // One-shot per node: stop watching, then play (no re-draw).
                       obs.unobserve(entry.target);
-                      playEntry(held.get(entry.target));
-                      held.delete(entry.target);
+
+                      if (held !== null) {
+                          playEntry(held.get(entry.target));
+                          held.delete(entry.target);
+                      }
                   });
               },
               // Negative bottom margin pulls the trigger line a quarter up from
@@ -303,8 +312,10 @@ export function renderWidgets(root) {
             return;
         }
 
-        held.set(node, instance);
-        observer.observe(node);
+        if (held !== null && observer !== null) {
+            held.set(node, instance);
+            observer.observe(node);
+        }
     };
 
     /**
@@ -325,15 +336,21 @@ export function renderWidgets(root) {
         }
 
         revealRetired = true;
-        held.forEach((instance) => {
-            playEntry(instance);
-        });
-        held.clear();
-        observer.disconnect();
+
+        if (held !== null) {
+            held.forEach((instance) => {
+                playEntry(instance);
+            });
+            held.clear();
+        }
+
+        if (observer !== null) {
+            observer.disconnect();
+        }
 
         // One-shot: the machinery is now retired, so drop this listener and let
         // its closure be collected. disconnect() removing it again is harmless.
-        if (typeof motionQuery.removeEventListener === "function") {
+        if (motionQuery !== null && typeof motionQuery.removeEventListener === "function") {
             motionQuery.removeEventListener("change", onMotionPreferenceChange);
         }
     };
@@ -354,7 +371,7 @@ export function renderWidgets(root) {
      * @returns {void}
      */
     const renderNode = (node) => {
-        const widget = WIDGETS[node.dataset.widget];
+        const widget = WIDGETS[node.dataset.widget ?? ""];
 
         if (widget === undefined) {
             return;
