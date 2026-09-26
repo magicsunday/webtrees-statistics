@@ -105,9 +105,7 @@ final readonly class ChildMortalityRepository
 
             $century = CenturyName::fromYear($birthYear);
 
-            if (!isset($perCentury[$century])) {
-                $perCentury[$century] = [];
-            }
+            $perCentury[$century] ??= [];
 
             $perCentury[$century][] = [
                 'birthJd' => $pair['birthJd'],

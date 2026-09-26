@@ -157,9 +157,7 @@ final readonly class TreeHealthRepository
             $individualId = RowCast::string($birthRow, 'd_gid');
             $century      = CenturyName::fromYear($birthYear);
 
-            if (!isset($perCentury[$century])) {
-                $perCentury[$century] = ['total' => 0, 'sourced' => 0];
-            }
+            $perCentury[$century] ??= ['total' => 0, 'sourced' => 0];
 
             ++$perCentury[$century]['total'];
 

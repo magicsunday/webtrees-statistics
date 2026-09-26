@@ -586,9 +586,7 @@ final readonly class ChildrenRepository
                     $anchorJd = null;
                 }
 
-                if ($anchorJd === null) {
-                    $anchorJd = $child['jd'];
-                }
+                $anchorJd ??= $child['jd'];
 
                 $cluster[] = $child['id'];
             }
