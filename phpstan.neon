@@ -1,5 +1,9 @@
 includes:
     - %currentWorkingDirectory%/.build/vendor/magicsunday/coding-standard/phpstan/strict.neon
+    # coding-standard 2.0 no longer ships phpat. This repository keeps it for the
+    # structural rules Deptrac cannot express (final / implements) and loads the
+    # extension itself - see tests/Architecture/ArchitectureTest.php.
+    - %currentWorkingDirectory%/.build/vendor/phpat/phpat/extension.neon
 
 parameters:
     # PHP Version to check against (PHP 8.3 as minimum target)
@@ -63,18 +67,6 @@ parameters:
             paths:
                 - tests/Unit/Model/LineChart/LineChartPayloadTest.php
                 - tests/View/MarriageExtremesViewTest.php
-
-        # The query layer projects Eloquent result rows through callables (row
-        # mappers, per-group reducers) that legitimately propagate a checked
-        # domain exception; the callable is consumed immediately inside the same
-        # method, so shipmonk's "checked exception escapes a callable" concern
-        # does not apply. Scoped to the two query directories so the rule stays
-        # armed everywhere else in the strict tier.
-        -
-            identifier: shipmonk.checkedExceptionInCallable
-            paths:
-                - src/Repository/*
-                - src/Support/Database/*
 
         # JetBrains' PHP stub for ext-calendar still spells gregoriantojd
         # as PascalCase (`GregorianToJD`), while the official PHP manual
