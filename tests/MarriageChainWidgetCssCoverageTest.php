@@ -16,7 +16,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-use function dirname;
 use function file_get_contents;
 use function str_contains;
 
@@ -57,7 +56,7 @@ final class MarriageChainWidgetCssCoverageTest extends TestCase
     #[DataProvider('marriageWidgetSelectorProvider')]
     public function everyMarriageWidgetSelectorIsStyled(string $selector): void
     {
-        $css = file_get_contents(dirname(__DIR__) . '/resources/css/statistics.css');
+        $css = file_get_contents(__DIR__ . '/../resources/css/statistics.css');
 
         self::assertNotFalse($css, 'statistics.css must be readable');
 
