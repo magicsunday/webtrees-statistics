@@ -158,9 +158,14 @@ final class ArchitectureTest
      * would scatter query-shape decisions across every layer and make it
      * impossible to reason about which class actually touches which table.
      *
-     * This confinement is kept as a phpat rule because it targets a specific
-     * (framework) class rather than a layer, which the Deptrac layer model does
-     * not express.
+     * This confinement is kept as a phpat rule because Deptrac cannot draw its
+     * boundary exactly: the allowed callers include one sub-namespace,
+     * `Support\Database`, of the shared `Support` layer. Deptrac checks a class
+     * against every layer it belongs to, so granting DB access to the
+     * `Support\Database` classes is only possible by granting it to all of
+     * `Support` - verified against deptrac/deptrac 4.7 and the coding-standard
+     * 2.0 ruleset, where that variant passes but no longer rejects e.g.
+     * `Support\Gedcom` touching the database.
      */
     #[TestRule]
     public function databaseAccessIsConfinedToRepositories(): Rule

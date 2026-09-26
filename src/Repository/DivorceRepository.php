@@ -238,9 +238,7 @@ final readonly class DivorceRepository
 
             $cohort = intdiv($marrYear, 10) * 10;
 
-            if (!isset($perCohort[$cohort])) {
-                $perCohort[$cohort] = ['total' => 0, 'divorced' => 0];
-            }
+            $perCohort[$cohort] ??= ['total' => 0, 'divorced' => 0];
 
             ++$perCohort[$cohort]['total'];
 

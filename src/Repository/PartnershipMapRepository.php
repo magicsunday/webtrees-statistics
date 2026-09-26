@@ -103,13 +103,9 @@ final class PartnershipMapRepository
                 continue;
             }
 
-            if (!isset($adjacency[$husb])) {
-                $adjacency[$husb] = [];
-            }
+            $adjacency[$husb] ??= [];
 
-            if (!isset($adjacency[$wife])) {
-                $adjacency[$wife] = [];
-            }
+            $adjacency[$wife] ??= [];
 
             if (!isset($seen[$husb][$wife])) {
                 $adjacency[$husb][] = $wife;
