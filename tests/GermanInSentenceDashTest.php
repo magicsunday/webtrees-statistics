@@ -15,7 +15,6 @@ use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-use function dirname;
 use function file_get_contents;
 use function implode;
 use function ltrim;
@@ -56,7 +55,7 @@ final class GermanInSentenceDashTest extends TestCase
     #[Test]
     public function germanCatalogueHasNoInSentenceEmDash(): void
     {
-        $poFile = dirname(__DIR__) . '/resources/lang/de/messages.po';
+        $poFile = __DIR__ . '/../resources/lang/de/messages.po';
         $po     = file_get_contents($poFile);
 
         self::assertNotFalse($po, 'de/messages.po must be readable');

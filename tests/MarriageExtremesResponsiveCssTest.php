@@ -15,7 +15,6 @@ use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-use function dirname;
 use function file_get_contents;
 
 /**
@@ -41,7 +40,7 @@ final class MarriageExtremesResponsiveCssTest extends TestCase
     #[Test]
     public function stacksToOneColumnByDefaultAndSplitsAtMinWidthBreakpoint(): void
     {
-        $css = file_get_contents(dirname(__DIR__) . '/resources/css/statistics.css');
+        $css = file_get_contents(__DIR__ . '/../resources/css/statistics.css');
 
         self::assertNotFalse($css, 'statistics.css must be readable');
 
