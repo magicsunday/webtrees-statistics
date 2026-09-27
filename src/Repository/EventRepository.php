@@ -12,8 +12,8 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
-use MagicSunday\Webtrees\Statistic\Support\Aggregator\EventCenturyTally;
-use MagicSunday\Webtrees\Statistic\Support\Aggregator\EventMonthTally;
+use MagicSunday\Webtrees\Statistic\Aggregator\EventCenturyTally;
+use MagicSunday\Webtrees\Statistic\Aggregator\EventMonthTally;
 use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;

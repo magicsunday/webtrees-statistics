@@ -9,10 +9,10 @@
 
 declare(strict_types=1);
 
-namespace MagicSunday\Webtrees\Statistic\Test\Support\Aggregator;
+namespace MagicSunday\Webtrees\Statistic\Test\Aggregator;
 
+use MagicSunday\Webtrees\Statistic\Aggregator\CoupleAgeGapRowMapper;
 use MagicSunday\Webtrees\Statistic\Model\Pyramid\PopulationPyramidPayload;
-use MagicSunday\Webtrees\Statistic\Support\Aggregator\CoupleAgeGapRowMapper;
 use MagicSunday\Webtrees\Statistic\Test\Support\Narrowing\PayloadNarrowing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;

@@ -115,7 +115,7 @@ msgid ""
 "%1$s%% — %2$s of %3$s daughters share at least one given name with the mother"
 msgstr "%1$s %% — %2$s z %3$s córek dzieli co najmniej jedno imię z matką"
 
-#: src/Support/Aggregator/CenturyBarRowMapper.php:164
+#: src/Aggregator/CenturyBarRowMapper.php:164
 #, php-format
 msgid "%1$s%% — %2$s of %3$s individuals sourced"
 msgstr "%1$s %% — %2$s z %3$s osób ze źródłem"
@@ -145,7 +145,7 @@ msgid "%s BCE"
 msgstr "%s p.n.e."
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:124
-#: src/Support/Aggregator/CenturyBarRowMapper.php:57
+#: src/Aggregator/CenturyBarRowMapper.php:57
 #, php-format
 msgid "%s birth"
 msgid_plural "%s births"
@@ -163,11 +163,11 @@ msgstr "%s w."
 msgid "%s century"
 msgstr "%s. wiek"
 
+#: src/Aggregator/RecordRowMapper.php:171
+#: src/Aggregator/RecordRowMapper.php:195
 #: src/Repository/ChildrenRepository.php:338
 #: src/Repository/ChildrenRepository.php:343
 #: src/Repository/ChildrenRepository.php:348
-#: src/Support/Aggregator/RecordRowMapper.php:171
-#: src/Support/Aggregator/RecordRowMapper.php:195
 #, php-format
 msgid "%s child"
 msgid_plural "%s children"
@@ -220,7 +220,7 @@ msgstr[0] "%s para z zarejestrowanymi datami zgonu obojga partnerów"
 msgstr[1] "%s par z zarejestrowanymi datami zgonu obojga partnerów"
 msgstr[2] ""
 
-#: src/Support/Aggregator/RecordRowMapper.php:123
+#: src/Aggregator/RecordRowMapper.php:123
 #, php-format
 msgid "%s day"
 msgid_plural "%s days"
@@ -228,7 +228,7 @@ msgstr[0] "%s dzień"
 msgstr[1] "%s dni"
 msgstr[2] ""
 
-#: src/Support/Aggregator/CenturyBarRowMapper.php:81
+#: src/Aggregator/CenturyBarRowMapper.php:81
 #, php-format
 msgid "%s death"
 msgid_plural "%s deaths"
@@ -288,7 +288,7 @@ msgstr ""
 msgid "%s distinct surnames (top 15)"
 msgstr "%s distinct surnames (top 15)"
 
-#: src/Support/Aggregator/CenturyBarRowMapper.php:129
+#: src/Aggregator/CenturyBarRowMapper.php:129
 #, php-format
 msgid "%s divorce"
 msgid_plural "%s divorces"
@@ -319,7 +319,7 @@ msgstr[0] "%s rodzina"
 msgstr[1] "%s rodziny"
 msgstr[2] ""
 
-#: src/Support/Aggregator/MirrorBandRowMapper.php:104
+#: src/Aggregator/MirrorBandRowMapper.php:104
 #, php-format
 msgid "%s father"
 msgid_plural "%s fathers"
@@ -345,7 +345,7 @@ msgstr[1] "%s generations deep"
 msgid "%s generations"
 msgstr "pokolenia"
 
-#: src/Support/Aggregator/MirrorBandRowMapper.php:56
+#: src/Aggregator/MirrorBandRowMapper.php:56
 #, php-format
 msgid "%s husband"
 msgid_plural "%s husbands"
@@ -442,7 +442,7 @@ msgstr[0] "%s żyjąca osoba z datą urodzenia"
 msgstr[1] "%s żyjących osób z datą urodzenia"
 msgstr[2] ""
 
-#: src/Support/Aggregator/MirrorBandRowMapper.php:152
+#: src/Aggregator/MirrorBandRowMapper.php:152
 #, php-format
 msgid "%s man"
 msgid_plural "%s men"
@@ -450,8 +450,8 @@ msgstr[0] "%s man"
 msgstr[1] "%s men"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:101
-#: src/Support/Aggregator/CenturyBarRowMapper.php:105
-#: src/Support/Aggregator/RecordRowMapper.php:147
+#: src/Aggregator/CenturyBarRowMapper.php:105
+#: src/Aggregator/RecordRowMapper.php:147
 #, php-format
 msgid "%s marriage"
 msgid_plural "%s marriages"
@@ -479,7 +479,7 @@ msgstr[1] ""
 msgid "%s months"
 msgstr ""
 
-#: src/Support/Aggregator/MirrorBandRowMapper.php:128
+#: src/Aggregator/MirrorBandRowMapper.php:128
 #, php-format
 msgid "%s mother"
 msgid_plural "%s mothers"
@@ -491,7 +491,7 @@ msgstr[1] "%s mothers"
 msgid "%s or more children"
 msgstr "%s lub więcej dzieci"
 
-#: src/Support/Aggregator/SiblingGapRowMapper.php:73
+#: src/Aggregator/SiblingGapRowMapper.php:73
 #, php-format
 msgid "%s or more years"
 msgstr "%s lat lub więcej"
@@ -504,7 +504,7 @@ msgid_plural "%s outlier centuries not shown"
 msgstr[0] "%s odstające stulecie nie pokazane"
 msgstr[1] "%s odstających stuleci nie pokazanych"
 
-#: src/Support/Aggregator/SiblingGapRowMapper.php:71
+#: src/Aggregator/SiblingGapRowMapper.php:71
 #, php-format
 msgid "%s pair"
 msgid_plural "%s pairs"
@@ -601,22 +601,21 @@ msgid_plural "%s twin sets"
 msgstr[0] "%s zestaw bliźniąt"
 msgstr[1] "%s zestawów bliźniąt"
 
-#: src/Support/Aggregator/MirrorBandRowMapper.php:80
+#: src/Aggregator/MirrorBandRowMapper.php:80
 #, php-format
 msgid "%s wife"
 msgid_plural "%s wives"
 msgstr[0] "%s wife"
 msgstr[1] "%s wives"
 
-#: src/Support/Aggregator/MirrorBandRowMapper.php:176
+#: src/Aggregator/MirrorBandRowMapper.php:176
 #, php-format
 msgid "%s woman"
 msgid_plural "%s women"
 msgstr[0] "%s woman"
 msgstr[1] "%s women"
 
-#: src/Support/Aggregator/RecordRowMapper.php:75
-#: src/Support/Aggregator/RecordRowMapper.php:99
+#: src/Aggregator/RecordRowMapper.php:75 src/Aggregator/RecordRowMapper.php:99
 #, php-format
 msgid "%s year"
 msgid_plural "%s years"
@@ -628,22 +627,22 @@ msgstr[2] ""
 #: resources/views/modules/statistics-chart/tabs/family.phtml:114
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:89
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:186
-#: src/Support/Aggregator/MirrorBandRowMapper.php:55
-#: src/Support/Aggregator/MirrorBandRowMapper.php:79
-#: src/Support/Aggregator/MirrorBandRowMapper.php:103
-#: src/Support/Aggregator/MirrorBandRowMapper.php:127
-#: src/Support/Aggregator/MirrorBandRowMapper.php:151
-#: src/Support/Aggregator/MirrorBandRowMapper.php:175
+#: src/Aggregator/MirrorBandRowMapper.php:55
+#: src/Aggregator/MirrorBandRowMapper.php:79
+#: src/Aggregator/MirrorBandRowMapper.php:103
+#: src/Aggregator/MirrorBandRowMapper.php:127
+#: src/Aggregator/MirrorBandRowMapper.php:151
+#: src/Aggregator/MirrorBandRowMapper.php:175
 #, php-format
 msgid "%s years"
 msgstr "%s lat"
 
-#: src/Support/Aggregator/DivorceCohortRowMapper.php:57
+#: src/Aggregator/DivorceCohortRowMapper.php:57
 #, php-format
 msgid "%s%% divorced"
 msgstr "%s%% rozwiedzionych"
 
-#: src/Support/Aggregator/SiblingGapRowMapper.php:74
+#: src/Aggregator/SiblingGapRowMapper.php:74
 #, php-format
 msgid "%s-year gap"
 msgid_plural "%s-year gaps"
@@ -1253,7 +1252,7 @@ msgstr ""
 msgid "Connected and unconnected sub-trees"
 msgstr ""
 
-#: src/Support/Aggregator/SiblingGapRowMapper.php:81
+#: src/Aggregator/SiblingGapRowMapper.php:81
 msgid "Consecutive-sibling pairs"
 msgstr "Następujące po sobie pary rodzeństwa"
 
@@ -2587,7 +2586,7 @@ msgid "Origin & fate"
 msgstr "Origin & fate"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:51
-#: src/Support/Aggregator/MediaTypeLabeller.php:60
+#: src/Aggregator/MediaTypeLabeller.php:60
 msgid "Other"
 msgstr ""
 

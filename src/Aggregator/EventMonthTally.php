@@ -9,7 +9,7 @@
 
 declare(strict_types=1);
 
-namespace MagicSunday\Webtrees\Statistic\Support\Aggregator;
+namespace MagicSunday\Webtrees\Statistic\Aggregator;
 
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;

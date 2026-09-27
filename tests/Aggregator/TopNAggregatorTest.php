@@ -9,10 +9,10 @@
 
 declare(strict_types=1);
 
-namespace MagicSunday\Webtrees\Statistic\Test\Support\Aggregator;
+namespace MagicSunday\Webtrees\Statistic\Test\Aggregator;
 
 use Illuminate\Support\Collection;
-use MagicSunday\Webtrees\Statistic\Support\Aggregator\TopNAggregator;
+use MagicSunday\Webtrees\Statistic\Aggregator\TopNAggregator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

@@ -11,9 +11,9 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
+use MagicSunday\Webtrees\Statistic\Aggregator\SiblingGapRowMapper;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
-use MagicSunday\Webtrees\Statistic\Support\Aggregator\SiblingGapRowMapper;
 use MagicSunday\Webtrees\Statistic\Test\Support\Narrowing\PayloadNarrowing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;

@@ -12,8 +12,8 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use MagicSunday\Webtrees\ModuleBase\Support\Locale\IsoCountryMap;
+use MagicSunday\Webtrees\Statistic\Aggregator\TopNAggregator;
 use MagicSunday\Webtrees\Statistic\Repository\CountryRepository;
-use MagicSunday\Webtrees\Statistic\Support\Aggregator\TopNAggregator;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;

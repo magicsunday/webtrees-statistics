@@ -9,7 +9,7 @@
 
 declare(strict_types=1);
 
-namespace MagicSunday\Webtrees\Statistic\Support\Aggregator;
+namespace MagicSunday\Webtrees\Statistic\Aggregator;
 
 use function array_chunk;
 use function array_sum;

@@ -9,11 +9,11 @@
 
 declare(strict_types=1);
 
-namespace MagicSunday\Webtrees\Statistic\Test\Support\Aggregator;
+namespace MagicSunday\Webtrees\Statistic\Test\Aggregator;
 
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Webtrees;
-use MagicSunday\Webtrees\Statistic\Support\Aggregator\LabelSorter;
+use MagicSunday\Webtrees\Statistic\Aggregator\LabelSorter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

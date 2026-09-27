@@ -9,7 +9,7 @@
 
 declare(strict_types=1);
 
-namespace MagicSunday\Webtrees\Statistic\Support\Aggregator;
+namespace MagicSunday\Webtrees\Statistic\Aggregator;
 
 use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Registry;
@@ -22,7 +22,7 @@ use MagicSunday\Webtrees\Statistic\Model\Record\IndividualAgeRecord;
  * null when either input is missing or the xref can no longer be materialised
  * into a live `Individual` (e.g. the row pointed at a deleted record).
  *
- * Kept in the Support layer so the DTO itself stays free of service-location
+ * Kept in the Aggregator layer so the DTO itself stays free of service-location
  * and remains a pure value carrier. Parenthood, Marriage, and other
  * repositories that walk a tree-scoped pair-iterator and pick the youngest /
  * oldest candidate share a single resolver instead of inlining the same

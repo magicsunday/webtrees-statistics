@@ -18,6 +18,8 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 // jscpd:ignore-start
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Query\Builder;
+use MagicSunday\Webtrees\Statistic\Aggregator\Sankey\BipartiteSankeyAssembler;
+use MagicSunday\Webtrees\Statistic\Aggregator\Sankey\SankeySampleResolver;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyFlowsPayload;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeySample;
 use MagicSunday\Webtrees\Statistic\Normalization\Contract\OccupationNormalizerInterface;
@@ -26,8 +28,6 @@ use MagicSunday\Webtrees\Statistic\Normalization\Support\ContentLanguage;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
-use MagicSunday\Webtrees\Statistic\Support\Sankey\BipartiteSankeyAssembler;
-use MagicSunday\Webtrees\Statistic\Support\Sankey\SankeySampleResolver;
 
 use function array_keys;
 use function count;
