@@ -1,6 +1,20 @@
 # Deptrac configuration — imports the shared magicsunday/coding-standard ruleset.
 # This repository installs its dev tooling into .build/vendor, so the import path
 # points there (as the PHPStan include does).
+#
+# Deptrac UNITES rulesets across imports: every rule below only WIDENS what the
+# shared ruleset allows, never narrows it. The layer graph this file produces is
+# acyclic, which `check-deptrac-cycles.php` proves on every run, and it stays green
+# against both the 2.x ruleset and the strict 3.0 order
+#
+#   Support < Enum < Model, Configuration < Contract < Repository, Adapter, Service
+#           < Facade < Module
+#
+# with this package's own layers slotted in: View (presentation vocabulary, no
+# first-party dependency of its own) sits just above Support, and Aggregator (the
+# row mappers and tallies that build Model payloads) sits between Contract and
+# Repository. Every `src/` class belongs to a layer: `deptrac debug:unassigned`
+# runs in `composer ci:test:php:deptrac` and fails on one that does not.
 imports:
     - .build/vendor/magicsunday/coding-standard/deptrac/layers.yaml
 
@@ -16,15 +30,17 @@ deptrac:
     # an exact FQCN (a bare segment regex is unsafe, but an anchored first-party FQCN
     # cannot collide with a vendor class):
     #   - the normalized-result value object -> Model;
-    #   - the folding table and the normalizers/adapters that repositories fold
-    #     values through -> Support (Repository -> Support is allowed; the seam
-    #     never depends back on a repository, which the ruleset enforces);
-    #   - the seam's port lives in `Normalization\Contract\` and its helper in
+    #   - the identity default and the standardizer-module adapter both implement
+    #     the port -> Adapter; only the composition root wires them in;
+    #   - the folding table the repositories fold values through builds Model values
+    #     from the port -> Aggregator, next to the other row folds;
+    #   - the seam's port lives in `Normalization\Contract\` and its helpers in
     #     `Normalization\Support\`, which the shared directory layers already cover.
     # The public facade is the root `Statistic` class and the composition root is the
     # root `Module` class — both are root-level files, not `\Facade\` / `\Module\`
     # namespaces, so the shared directory layers miss them and each is mapped by its
-    # exact FQCN (which cannot collide with a vendor class).
+    # exact FQCN (which cannot collide with a vendor class). The `Traits\` helpers
+    # are mixed into `Module` only and belong to the composition root with it.
     layers:
         -
             name: Model
@@ -33,11 +49,11 @@ deptrac:
                     type: classNameRegex
                     value: '#^MagicSunday\\Webtrees\\Statistic\\Normalization\\NormalizedOccupation$#'
         -
-            name: Support
+            name: Adapter
             collectors:
                 -
                     type: classNameRegex
-                    value: '#^MagicSunday\\Webtrees\\Statistic\\Normalization\\(OccupationFolding|RawOccupationNormalizer|StandardizerModuleNormalizer)$#'
+                    value: '#^MagicSunday\\Webtrees\\Statistic\\Normalization\\(RawOccupationNormalizer|StandardizerModuleNormalizer)$#'
         -
             name: Facade
             collectors:
@@ -50,16 +66,141 @@ deptrac:
                 -
                     type: classNameRegex
                     value: '#^MagicSunday\\Webtrees\\Statistic\\Module$#'
+                -
+                    type: directory
+                    value: 'src/Traits/.*'
 
-    # Baseline — two genuine Model -> Support edges accepted while the architectural
-    # tidy-up is tracked separately (see GH-284). Both partnership report VOs carry
-    # live Fisharebest\Webtrees\Individual nodes and flatten them to the JSON wire
-    # shape via Support\Gedcom\IndividualWire::row() in jsonSerialize(). The clean
-    # fix (flatten at the Repository/Facade boundary so the Model never holds a
-    # framework object) is out of scope for the Deptrac adoption; skipping these two
-    # keeps the baseline honest without weakening the shared Model -> Support rule.
-    skip_violations:
-        MagicSunday\Webtrees\Statistic\Model\Tree\PartnershipGroupExcerpt:
-            - MagicSunday\Webtrees\Statistic\Support\Gedcom\IndividualWire
-        MagicSunday\Webtrees\Statistic\Model\Tree\PartnershipReachReport:
-            - MagicSunday\Webtrees\Statistic\Support\Gedcom\IndividualWire
+        # Package-local layers.
+        -
+            # Application logic between the repositories and the Model payloads: the
+            # row mappers, tallies and resolvers that fold a query result into a
+            # widget payload (GH-319 moved them out of Support, which must stay
+            # domain-agnostic).
+            name: Aggregator
+            collectors:
+                -
+                    type: directory
+                    value: 'src/Aggregator/.*'
+                -
+                    type: classNameRegex
+                    value: '#^MagicSunday\\Webtrees\\Statistic\\Normalization\\OccupationFolding$#'
+        -
+            # The card / section / widget builders and the presentation enums the
+            # view templates consume. Self-contained: no first-party dependency.
+            name: View
+            collectors:
+                -
+                    type: directory
+                    value: 'src/View/.*'
+        -
+            # The database manager. A vendor class, so it is matched by an anchored
+            # FQCN — a `directory` collector only sees analysed files — and it is a
+            # target only: nothing here depends on it except the two places granted
+            # below.
+            name: Database
+            collectors:
+                -
+                    type: classNameRegex
+                    value: '#^Illuminate\\Database\\Capsule\\Manager$#'
+        -
+            # OVERLAY: every src/ class outside Repository and Support\Database, a
+            # second time. Raw database access is confined to the repositories and to
+            # the dedicated Support\Database helpers; Support is a SHARED layer, so the
+            # Support\Database grant (`Support: [Database]` below) cannot be carved out
+            # of it locally. Instead the grant goes to all of Support, and this overlay
+            # — whose allow-list omits Database — takes it back from every class that
+            # is not in Support\Database. Deptrac checks a class against every layer it
+            # belongs to, so a `DB::` call from e.g. Support\Gedcom, Aggregator or the
+            # Statistic facade is reported here.
+            name: NoDatabaseAccess
+            collectors:
+                -
+                    type: bool
+                    must:
+                        -
+                            type: directory
+                            value: 'src/.*'
+                    must_not:
+                        -
+                            type: directory
+                            value: 'src/Repository/.*'
+                        -
+                            type: directory
+                            value: 'src/Support/Database/.*'
+
+    # The local widenings. Two things are listed on (nearly) every layer, both forced
+    # by the overlay: Deptrac skips an intra-layer edge only when both classes share
+    # EVERY layer, so a layer whose members also sit in NoDatabaseAccess lists itself,
+    # and every layer that depends on an overlaid class lists NoDatabaseAccess next to
+    # the class's own layer. The overlay in turn lists every layer but Database: the
+    # real layer of each member still decides what that member may depend on.
+    ruleset:
+        # Model -> Support: the two partnership report VOs flatten their live
+        # webtrees Individual nodes through Support\Gedcom\IndividualWire. The strict
+        # 3.0 order allows Model -> Support; the 2.x ruleset does not, so the edge is
+        # widened here rather than baselined (a baseline entry would be an unmatched
+        # skip — an error — against the strict ruleset).
+        Model:
+            - Model
+            - Support
+            - NoDatabaseAccess
+        Support:
+            - Support
+            - Database
+            - NoDatabaseAccess
+        Enum:
+            - Enum
+            - NoDatabaseAccess
+        Contract:
+            - Contract
+            - NoDatabaseAccess
+        View:
+            - View
+            - NoDatabaseAccess
+        Aggregator:
+            - Aggregator
+            - Support
+            - Enum
+            - Model
+            - Contract
+            - View
+            - NoDatabaseAccess
+        Repository:
+            - Repository
+            - Aggregator
+            - Database
+            - NoDatabaseAccess
+        Adapter:
+            - Adapter
+            - NoDatabaseAccess
+        Facade:
+            - Facade
+            - NoDatabaseAccess
+        Module:
+            - Module
+            - NoDatabaseAccess
+        NoDatabaseAccess:
+            - Support
+            - Enum
+            - Model
+            - Configuration
+            - Contract
+            - View
+            - Aggregator
+            - Repository
+            - Adapter
+            - Service
+            - Facade
+            - Module
+            - NoDatabaseAccess
+
+    formatters:
+        graphviz:
+            # The layer graph check-deptrac-cycles.php reads. NoDatabaseAccess is an
+            # overlay: every member also belongs to its real layer, so every real edge
+            # still appears there and a real cycle stays visible. Hiding it removes
+            # only the overlay <-> twin pairs its self-allowances produce — two names
+            # for the same classes, not a dependency between layers. Only overlays go
+            # here, never a layer whose classes belong to no other layer.
+            hidden_layers:
+                - NoDatabaseAccess

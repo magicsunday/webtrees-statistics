@@ -29,7 +29,7 @@ use Fisharebest\Webtrees\Individual;
  * keeps a positionally-identifiable node in a graph while its real birth year,
  * death year, sex and page link would leak. So for a non-visible person every
  * derived field is withheld (empty `birth`/`death`/`url`, unknown `sex`), exactly
- * the discipline {@see \MagicSunday\Webtrees\Statistic\Support\Aggregator\RecordRowMapper}
+ * the discipline {@see \MagicSunday\Webtrees\Statistic\Aggregator\RecordRowMapper}
  * documents — only `xref` (graph topology, never a label on its own) and the
  * already-privatised `label` survive.
  *

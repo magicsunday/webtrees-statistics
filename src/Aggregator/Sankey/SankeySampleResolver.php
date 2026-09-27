@@ -9,7 +9,7 @@
 
 declare(strict_types=1);
 
-namespace MagicSunday\Webtrees\Statistic\Support\Sankey;
+namespace MagicSunday\Webtrees\Statistic\Aggregator\Sankey;
 
 use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Registry;

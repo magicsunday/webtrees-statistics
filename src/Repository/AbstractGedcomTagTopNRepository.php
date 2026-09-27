@@ -14,7 +14,7 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 use Closure;
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Support\Collection;
-use MagicSunday\Webtrees\Statistic\Support\Aggregator\TopNAggregator;
+use MagicSunday\Webtrees\Statistic\Aggregator\TopNAggregator;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 
 use function array_slice;

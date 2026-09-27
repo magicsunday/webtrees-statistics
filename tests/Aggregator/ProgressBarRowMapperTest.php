@@ -9,10 +9,10 @@
 
 declare(strict_types=1);
 
-namespace MagicSunday\Webtrees\Statistic\Test\Support\Aggregator;
+namespace MagicSunday\Webtrees\Statistic\Test\Aggregator;
 
+use MagicSunday\Webtrees\Statistic\Aggregator\ProgressBarRowMapper;
 use MagicSunday\Webtrees\Statistic\Model\Ranking\RankingEntry;
-use MagicSunday\Webtrees\Statistic\Support\Aggregator\ProgressBarRowMapper;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;

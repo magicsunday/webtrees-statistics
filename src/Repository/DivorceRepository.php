@@ -13,9 +13,9 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Query\JoinClause;
+use MagicSunday\Webtrees\Statistic\Aggregator\EventCenturyTally;
+use MagicSunday\Webtrees\Statistic\Aggregator\EventMonthTally;
 use MagicSunday\Webtrees\Statistic\Enum\Sex;
-use MagicSunday\Webtrees\Statistic\Support\Aggregator\EventCenturyTally;
-use MagicSunday\Webtrees\Statistic\Support\Aggregator\EventMonthTally;
 use MagicSunday\Webtrees\Statistic\Support\Calc\AgeBuckets;
 use MagicSunday\Webtrees\Statistic\Support\Calc\CalendarSpan;
 use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;

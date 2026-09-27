@@ -11,28 +11,26 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Architecture;
 
-use Illuminate\Database\Capsule\Manager;
 use JsonSerializable;
 use PHPat\Selector\Selector;
-use PHPat\Selector\SelectorInterface;
 use PHPat\Test\Attributes\TestRule;
 use PHPat\Test\Builder\Rule;
 use PHPat\Test\PHPat;
 use PHPUnit\Framework\Attributes\CoversNothing;
 
-use function array_map;
-
 /**
  * Architecture rules executed by phpat through PHPStan. Each `#[TestRule]`
  * method returns one rule that pins a structural invariant of the module.
  *
- * The layer-DEPENDENCY directions (Support/Model/Enum/DTO are leaves, nothing
+ * Every layer-DEPENDENCY rule (Support/Model/Enum/DTO are leaves, nothing
  * depends on the composition root, the normalization seam never depends back on a
- * repository, …) are now enforced centrally by the shared Deptrac ruleset
- * (`deptrac.yaml` imports `magicsunday/coding-standard`'s canonical layers), so
- * they no longer live here. What remains are the checks Deptrac's namespace-layer
- * model cannot express: structural "must be final" / "must implement" invariants
- * and the confinement of raw Eloquent database access to the repository layer.
+ * repository, raw database access is confined to the repositories and
+ * `Support\Database`, …) lives in Deptrac: `deptrac.yaml` imports
+ * `magicsunday/coding-standard`'s canonical layers and adds this module's own
+ * layers and the `NoDatabaseAccess` overlay. What remains here are the checks
+ * Deptrac's layer model cannot express, because they are properties of a class
+ * rather than dependencies: the structural "must be final" / "must implement"
+ * invariants.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -50,6 +48,14 @@ final class ArchitectureTest
      * them. Add an entry here whenever a new widget shape ships its own DTOs —
      * {@see \MagicSunday\Webtrees\Statistic\Test\Unit\Architecture\ModelNamespaceCoverageTest}
      * fails if one is forgotten.
+     *
+     * The DTO rules select these sub-namespaces through one literal
+     * `Selector::inNamespace()` pattern each instead of building selectors from
+     * this list: the phpat subject guard (`check-phpat-subjects.php`) reads rule
+     * subjects statically and fails closed on a spread argument or on any constant
+     * but `NAMESPACE_ROOT`. `ModelNamespaceCoverageTest` proves each rule's pattern
+     * selects exactly the sub-namespaces listed here, so the two spellings cannot
+     * drift.
      *
      * @var list<string>
      */
@@ -90,21 +96,6 @@ final class ArchitectureTest
     ];
 
     /**
-     * Builds one `Selector::inNamespace` per DTO sub-namespace so the resulting
-     * list can be splat into `->classes(...)` (which takes a varargs
-     * disjunction) or wrapped in `Selector::AnyOf(...)`.
-     *
-     * @return list<SelectorInterface>
-     */
-    private function dtoSelectors(): array
-    {
-        return array_map(
-            static fn (string $subNamespace): SelectorInterface => Selector::inNamespace(self::NAMESPACE_ROOT . '\\Model\\' . $subNamespace),
-            self::DTO_SUB_NAMESPACES,
-        );
-    }
-
-    /**
      * Every helper in `Support\` must be `final` so its contract (`private
      * __construct`, static-only API) cannot be subverted by a subclass.
      *
@@ -122,6 +113,21 @@ final class ArchitectureTest
             ->classes(Selector::inNamespace(self::NAMESPACE_ROOT . '\\Support'))
             ->should()->beFinal()
             ->because('Support helpers must be final so their static-only contract cannot be subverted by a subclass');
+    }
+
+    /**
+     * Every class in `Aggregator\` must be `final`, for the same reason as the
+     * Support helpers it was split off from (GH-319): the row mappers, tallies and
+     * resolvers pin a widget's payload shape and a static-only or immutable
+     * contract, which a subclass could otherwise subvert.
+     */
+    #[TestRule]
+    public function aggregatorClassesAreFinal(): Rule
+    {
+        return PHPat::rule()
+            ->classes(Selector::inNamespace(self::NAMESPACE_ROOT . '\\Aggregator'))
+            ->should()->beFinal()
+            ->because('Aggregator classes must be final so the payload shape they pin cannot be subverted by a subclass');
     }
 
     /**
@@ -150,41 +156,6 @@ final class ArchitectureTest
     }
 
     /**
-     * Database access via Eloquent's `DB::table()` facade is the exclusive
-     * responsibility of repositories and of the dedicated `Support\Database`
-     * namespace that factors the recurring `DB::table(X)->where('X_file', …)` +
-     * birth/death-pair + date- table joins out of every repository call site.
-     * Letting the Statistic facade or the composition root issue SQL directly
-     * would scatter query-shape decisions across every layer and make it
-     * impossible to reason about which class actually touches which table.
-     *
-     * This confinement is kept as a phpat rule because Deptrac cannot draw its
-     * boundary exactly: the allowed callers include one sub-namespace,
-     * `Support\Database`, of the shared `Support` layer. Deptrac checks a class
-     * against every layer it belongs to, so granting DB access to the
-     * `Support\Database` classes is only possible by granting it to all of
-     * `Support` - verified against deptrac/deptrac 4.7 and the coding-standard
-     * 2.0 ruleset, where that variant passes but no longer rejects e.g.
-     * `Support\Gedcom` touching the database.
-     */
-    #[TestRule]
-    public function databaseAccessIsConfinedToRepositories(): Rule
-    {
-        return PHPat::rule()
-            ->classes(
-                Selector::AllOf(
-                    Selector::inNamespace(self::NAMESPACE_ROOT),
-                    Selector::Not(Selector::inNamespace(self::NAMESPACE_ROOT . '\\Repository')),
-                    Selector::Not(Selector::inNamespace(self::NAMESPACE_ROOT . '\\Support\\Database')),
-                    Selector::Not(Selector::inNamespace(self::NAMESPACE_ROOT . '\\Test')),
-                ),
-            )
-            ->shouldNot()->dependOn()
-            ->classes(Selector::classname(Manager::class))
-            ->because('Raw database access is only allowed inside repositories or in the dedicated Support\\Database namespace');
-    }
-
-    /**
      * Every DTO must be `final`. A subclass could add mutable state or override
      * `jsonSerialize` and silently drift the wire shape — the whole point of
      * moving repository return types from `array{…}` PHPDoc to typed DTOs is
@@ -194,7 +165,14 @@ final class ArchitectureTest
     public function dtoClassesAreFinal(): Rule
     {
         return PHPat::rule()
-            ->classes(...$this->dtoSelectors())
+            ->classes(
+                Selector::inNamespace(
+                    '/^MagicSunday\\\\Webtrees\\\\Statistic\\\\Model\\\\'
+                    . '(Chord|Heatmap|LineChart|Metric|Pyramid|Ranking|Record|Sankey|StackedBar|StreamGraph|Tree)'
+                    . '(\\\\|$)/',
+                    true,
+                ),
+            )
             ->should()->beFinal()
             ->because('DTOs must be final so the wire shape can never be subverted by a subclass');
     }
@@ -210,7 +188,14 @@ final class ArchitectureTest
     public function dtoClassesAreJsonSerializable(): Rule
     {
         return PHPat::rule()
-            ->classes(...$this->dtoSelectors())
+            ->classes(
+                Selector::inNamespace(
+                    '/^MagicSunday\\\\Webtrees\\\\Statistic\\\\Model\\\\'
+                    . '(Chord|Heatmap|LineChart|Metric|Pyramid|Ranking|Record|Sankey|StackedBar|StreamGraph|Tree)'
+                    . '(\\\\|$)/',
+                    true,
+                ),
+            )
             ->should()->implement()
             ->classes(Selector::classname(JsonSerializable::class))
             ->because('DTOs ship to the wire via json_encode; without JsonSerializable the JSON shape would drift away from PHPDoc');
