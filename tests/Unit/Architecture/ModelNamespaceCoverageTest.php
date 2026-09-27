@@ -14,7 +14,10 @@ namespace MagicSunday\Webtrees\Statistic\Test\Unit\Architecture;
 use FilesystemIterator;
 use JsonSerializable;
 use MagicSunday\Webtrees\Statistic\Test\Architecture\ArchitectureTest;
+use PHPat\Selector\ClassNamespace;
+use PHPat\Test\Builder\Rule;
 use PHPUnit\Framework\Attributes\CoversNothing;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use RecursiveDirectoryIterator;
@@ -23,9 +26,14 @@ use ReflectionClass;
 use SplFileInfo;
 
 use function array_merge;
+use function array_unique;
+use function array_values;
 use function class_exists;
 use function dirname;
+use function explode;
+use function in_array;
 use function interface_exists;
+use function preg_match;
 use function sort;
 use function str_replace;
 use function strlen;
@@ -268,6 +276,79 @@ final class ModelNamespaceCoverageTest extends TestCase
         }
 
         return $reflection->hasMethod('jsonSerialize');
+    }
+
+    /**
+     * Returns each DTO rule of {@see ArchitectureTest}, keyed by its method name.
+     *
+     * @return iterable<string, array{Rule}>
+     */
+    public static function dtoRuleProvider(): iterable
+    {
+        $rules = new ArchitectureTest();
+
+        yield 'dtoClassesAreFinal' => [$rules->dtoClassesAreFinal()];
+        yield 'dtoClassesAreJsonSerializable' => [$rules->dtoClassesAreJsonSerializable()];
+    }
+
+    /**
+     * The DTO rules cannot build their subject from
+     * {@see ArchitectureTest::DTO_SUB_NAMESPACES} — the phpat subject guard reads
+     * subjects statically and fails closed on a spread or a computed argument — so
+     * each spells the list out as one namespace pattern. This pins that pattern to
+     * the list: it must select every listed sub-namespace (and anything nested
+     * below one), and nothing else under `Model\`, the root level included. A
+     * sub-namespace added to the list but not to the pattern would otherwise
+     * escape the DTO rules silently.
+     */
+    #[Test]
+    #[DataProvider('dtoRuleProvider')]
+    public function dtoRuleSubjectSelectsExactlyTheListedSubNamespaces(Rule $rule): void
+    {
+        $subjects = $rule()->getSubjects();
+
+        self::assertCount(1, $subjects, 'A DTO rule is expected to carry exactly one subject selector.');
+
+        $subject = $subjects[0] ?? null;
+
+        self::assertInstanceOf(
+            ClassNamespace::class,
+            $subject,
+            'A DTO rule subject is expected to be a Selector::inNamespace() pattern.'
+        );
+
+        $candidates = array_values(array_unique(array_merge(
+            [''],
+            ArchitectureTest::DTO_SUB_NAMESPACES,
+            $this->actualSubNamespaces()
+        )));
+
+        $expected = [];
+        $selected = [];
+
+        foreach ($candidates as $subNamespace) {
+            $namespace = $subNamespace === ''
+                ? self::MODEL_NAMESPACE
+                : self::MODEL_NAMESPACE . '\\' . $subNamespace;
+
+            if (in_array(explode('\\', $subNamespace)[0], ArchitectureTest::DTO_SUB_NAMESPACES, true)) {
+                $expected[] = $namespace;
+            }
+
+            if (preg_match($subject->getName(), $namespace) === 1) {
+                $selected[] = $namespace;
+            }
+        }
+
+        sort($expected);
+        sort($selected);
+
+        self::assertSame(
+            $expected,
+            $selected,
+            'The DTO rule pattern and ArchitectureTest::DTO_SUB_NAMESPACES disagree. Update the '
+            . 'pattern in both DTO rules whenever the list changes.'
+        );
     }
 
     /**

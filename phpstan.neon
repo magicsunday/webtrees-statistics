@@ -1,9 +1,10 @@
 includes:
     - %currentWorkingDirectory%/.build/vendor/magicsunday/coding-standard/phpstan/strict.neon
-    # coding-standard 2.0 no longer ships phpat. This repository keeps it for the
-    # structural rules Deptrac cannot express (final / implements) and loads the
-    # extension itself - see tests/Architecture/ArchitectureTest.php.
-    - %currentWorkingDirectory%/.build/vendor/phpat/phpat/extension.neon
+    # The opt-in phpat preset (coding-standard 2.3+): loads phpat's extension and
+    # names the rule in every finding. phpat is required here, not by
+    # coding-standard, for the structural rules Deptrac cannot express (final /
+    # implements) - see tests/Architecture/ArchitectureTest.php.
+    - %currentWorkingDirectory%/.build/vendor/magicsunday/coding-standard/phpstan/phpat.neon
 
 parameters:
     # PHP Version to check against (PHP 8.3 as minimum target)

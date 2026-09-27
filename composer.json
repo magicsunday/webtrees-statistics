@@ -57,7 +57,7 @@
         "magicsunday/webtrees-module-installer-plugin": "^2.0"
     },
     "require-dev": {
-        "magicsunday/coding-standard": "^2.0",
+        "magicsunday/coding-standard": "^2.3",
         "phpat/phpat": "^0.12.4",
         "phpstan/phpstan-deprecation-rules": "^2.0",
         "shipmonk/phpstan-rules": "^4.0",
@@ -108,7 +108,14 @@
             "check-consumer-config.php ."
         ],
         "ci:test:php:deptrac": [
-            "deptrac analyse --no-progress"
+            "deptrac analyse --no-progress",
+            "deptrac debug:unassigned",
+            "@php -r \"is_dir('.build') || mkdir('.build', 0777, true);\"",
+            "deptrac analyse --no-progress --formatter=graphviz-dot --output=.build/deptrac-layers.dot",
+            "check-deptrac-cycles.php .build/deptrac-layers.dot"
+        ],
+        "ci:test:php:phpat-subjects": [
+            "check-phpat-subjects.php ."
         ],
         "ci:test:js:lint": [
             "npm run lint"
@@ -133,6 +140,7 @@
             "@ci:test:php:cgl",
             "@ci:test:php:phpstan",
             "@ci:test:php:phpstan:glue",
+            "@ci:test:php:phpat-subjects",
             "@ci:test:php:rector",
             "@ci:test:cpd",
             "@ci:test:php:templates",
