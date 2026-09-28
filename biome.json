@@ -1,5 +1,5 @@
 {
-    "$schema": "https://biomejs.dev/schemas/2.5.7/schema.json",
+    "$schema": "https://biomejs.dev/schemas/2.5.14/schema.json",
     "extends": ["@magicsunday/coding-standard/biome/base.json"],
     "files": {
         "includes": [
@@ -7,13 +7,5 @@
             "resources/js/tests/**/*.js",
             "!resources/js/modules/lib/**"
         ]
-    },
-    "linter": {
-        "rules": {
-            "complexity": {
-                "noStaticOnlyClass": "off",
-                "noArguments": "off"
-            }
-        }
     }
 }
