@@ -3,12 +3,14 @@
 # points there (as the PHPStan include does).
 #
 # Deptrac UNITES rulesets across imports: every rule below only WIDENS what the
-# shared ruleset allows, never narrows it. The layer graph this file produces is
-# acyclic, which `check-deptrac-cycles.php` proves on every run, and it stays green
-# against both the 2.x ruleset and the strict 3.0 order
+# shared ruleset allows, never narrows it. The shared ruleset (^3.0) is one strict,
+# acyclic order, a layer depending only on layers below it
 #
 #   Support < Enum < Model, Configuration < Contract < Repository, Adapter, Service
 #           < Facade < Module
+#
+# and the layer graph this file produces stays acyclic, which
+# `check-deptrac-cycles.php` proves on every run.
 #
 # with this package's own layers slotted in: View (presentation vocabulary, no
 # first-party dependency of its own) sits just above Support, and Aggregator (the
@@ -135,14 +137,8 @@ deptrac:
     # the class's own layer. The overlay in turn lists every layer but Database: the
     # real layer of each member still decides what that member may depend on.
     ruleset:
-        # Model -> Support: the two partnership report VOs flatten their live
-        # webtrees Individual nodes through Support\Gedcom\IndividualWire. The strict
-        # 3.0 order allows Model -> Support; the 2.x ruleset does not, so the edge is
-        # widened here rather than baselined (a baseline entry would be an unmatched
-        # skip — an error — against the strict ruleset).
         Model:
             - Model
-            - Support
             - NoDatabaseAccess
         Support:
             - Support
