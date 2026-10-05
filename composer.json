@@ -130,7 +130,7 @@
         "ci:test:js:unit": [
             "node --no-warnings --experimental-vm-modules node_modules/jest/bin/jest.js --passWithNoTests"
         ],
-        "ci:test:cpd": [
+        "ci:test:php:cpd": [
             "node_modules/.bin/jscpd --config .jscpd.json --skip-comments --no-tips --fail-on-empty"
         ],
         "ci:test": [
@@ -143,7 +143,7 @@
             "@ci:test:php:phpstan:glue",
             "@ci:test:php:phpat-subjects",
             "@ci:test:php:rector",
-            "@ci:test:cpd",
+            "@ci:test:php:cpd",
             "@ci:test:php:templates",
             "@ci:test:php:deptrac",
             "@ci:test:php:unit",
