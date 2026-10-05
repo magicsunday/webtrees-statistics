@@ -131,7 +131,7 @@
             "node --no-warnings --experimental-vm-modules node_modules/jest/bin/jest.js --passWithNoTests"
         ],
         "ci:test:cpd": [
-            "npx jscpd src tests resources/js/modules --config .jscpd.json --skip-comments --no-tips"
+            "node_modules/.bin/jscpd --config .jscpd.json --skip-comments --no-tips --fail-on-empty"
         ],
         "ci:test": [
             "@ci:test:php:lint",
