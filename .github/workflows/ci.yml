@@ -14,9 +14,10 @@ jobs:
     # the composer scripts it declares — `jq -r '.scripts | keys[] |
     # select(startswith("ci:test:php:"))' composer.json`; the reusable's `Detect
     # optional consumer gates` step logs what it probed and what it found on
-    # every run. Copy-paste detection and the release-zip smoke test stay in the
-    # JS lane below: jscpd is a Node tool, and the zip is worth building once
-    # rather than once per matrix leg.
+    # every run. Copy-paste detection runs in the shared Node-only lane below,
+    # since jscpd is a Node tool. The release-zip smoke test stays in the JS
+    # lane below, because the zip is worth building once rather than once per
+    # matrix leg.
     # Analysis runs on 8.4/8.5 only — not because 8.3 fails to install. This
     # repository gitignores composer.lock, so CI resolves from scratch, and that
     # resolution SUCCEEDS on 8.3: the solver silently downgrades the strict
@@ -42,6 +43,11 @@ jobs:
             # List the current set with:
             # gh api repos/{owner}/{repo}/branches/main/protection --jq .required_status_checks.contexts
             php-versions: '["8.4", "8.5"]'
+
+    cpd:
+        uses: magicsunday/.github/.github/workflows/cpd.yml@main
+        permissions:
+            contents: read
 
     js:
         name: JS and release zip
@@ -105,11 +111,6 @@ jobs:
               name: JS Unit Tests
               if: ${{ always() && steps.install.conclusion == 'success' }}
               run: composer ci:test:js:unit
-
-            - id: cpd
-              name: Copy/Paste Detection
-              if: ${{ always() && steps.install.conclusion == 'success' }}
-              run: composer ci:test:cpd
 
             # Runs LAST: 'make dist' invokes 'composer update --no-dev', which
             # strips the dev packages from .build/vendor. Nothing placed after it
