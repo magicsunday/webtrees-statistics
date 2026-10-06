@@ -297,8 +297,8 @@ final readonly class DivorceRepository
 
         $rates = [];
 
-        foreach ($window as $cohort => $tally) {
-            $rates[$cohort] = round($tally['divorced'] / $tally['total'], 4);
+        foreach ($window as $cohort => $cohortTally) {
+            $rates[$cohort] = round($cohortTally['divorced'] / $cohortTally['total'], 4);
         }
 
         return $rates;
