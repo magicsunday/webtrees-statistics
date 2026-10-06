@@ -79,6 +79,8 @@ msgstr[1] ""
 "%1$s z %2$s párů, kde oba manželé mají alespoň jednoho zaznamenaného rodiče, "
 "sdílí společného předka."
 msgstr[2] ""
+"%1$s z %2$s párů, kde oba manželé mají alespoň jednoho zaznamenaného rodiče, "
+"sdílí společného předka."
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:705
 #, php-format
@@ -141,7 +143,7 @@ msgstr ""
 #: src/Support/Locale/DecadeName.php:84
 #, php-format
 msgid "%s BCE"
-msgstr "%s př. n. l."
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:124
 #: src/Aggregator/CenturyBarRowMapper.php:57
@@ -150,7 +152,7 @@ msgid "%s birth"
 msgid_plural "%s births"
 msgstr[0] "%s narození"
 msgstr[1] "%s narození"
-msgstr[2] ""
+msgstr[2] "%s narození"
 
 #: src/Support/Locale/CenturyName.php:128
 #, php-format
@@ -170,8 +172,8 @@ msgstr "%s. století"
 #, php-format
 msgid "%s child"
 msgid_plural "%s children"
-msgstr[0] "%s dítě"
-msgstr[1] "%s děti"
+msgstr[0] ""
+msgstr[1] ""
 msgstr[2] ""
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:141
@@ -184,47 +186,47 @@ msgstr "%s children"
 msgid "%s consecutive-sibling pair"
 msgid_plural "%s consecutive-sibling pairs"
 msgstr[0] "%s pár po sobě jdoucích sourozenců"
-msgstr[1] "%s párů po sobě jdoucích sourozenců"
-msgstr[2] ""
+msgstr[1] "%s páry po sobě jdoucích sourozenců"
+msgstr[2] "%s párů po sobě jdoucích sourozenců"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:115
 #, php-format
 msgid "%s couple"
 msgid_plural "%s couples"
 msgstr[0] "%s pár"
-msgstr[1] "%s párů"
-msgstr[2] ""
+msgstr[1] "%s páry"
+msgstr[2] "%s párů"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:179
 #, php-format
 msgid "%s couple with a measurable duration"
 msgid_plural "%s couples with a measurable duration"
 msgstr[0] "%s pár s měřitelnou délkou"
-msgstr[1] "%s párů s měřitelnou délkou"
-msgstr[2] ""
+msgstr[1] "%s páry s měřitelnou délkou"
+msgstr[2] "%s párů s měřitelnou délkou"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:201
 #, php-format
 msgid "%s couple with both birth dates"
 msgid_plural "%s couples with both birth dates"
 msgstr[0] "%s pár s oběma daty narození"
-msgstr[1] "%s párů s oběma daty narození"
-msgstr[2] ""
+msgstr[1] "%s páry s oběma daty narození"
+msgstr[2] "%s párů s oběma daty narození"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:595
 #, php-format
 msgid "%s couple with both partners' death dates recorded"
 msgid_plural "%s couples with both partners' death dates recorded"
 msgstr[0] "%s pár se zaznamenanými daty úmrtí obou partnerů"
-msgstr[1] "%s párů se zaznamenanými daty úmrtí obou partnerů"
+msgstr[1] "%s páry se zaznamenanými daty úmrtí obou partnerů"
 msgstr[2] "%s párů se zaznamenanými daty úmrtí obou partnerů"
 
 #: src/Aggregator/RecordRowMapper.php:123
 #, php-format
 msgid "%s day"
 msgid_plural "%s days"
-msgstr[0] "%s den"
-msgstr[1] "%s dny"
+msgstr[0] ""
+msgstr[1] ""
 msgstr[2] ""
 
 #: src/Aggregator/CenturyBarRowMapper.php:81
@@ -233,7 +235,7 @@ msgid "%s death"
 msgid_plural "%s deaths"
 msgstr[0] "%s úmrtí"
 msgstr[1] "%s úmrtí"
-msgstr[2] ""
+msgstr[2] "%s úmrtí"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:570
 #, php-format
@@ -258,8 +260,9 @@ msgstr "%s distinct given names (top 15)"
 #, php-format
 msgid "%s distinct occupation"
 msgid_plural "%s distinct occupations"
-msgstr[0] "%s distinct occupation"
-msgstr[1] "%s distinct occupations"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:166
 #, php-format
@@ -275,8 +278,9 @@ msgstr "%s distinct places"
 #, php-format
 msgid "%s distinct religion"
 msgid_plural "%s distinct religions"
-msgstr[0] "%s distinct religion"
-msgstr[1] "%s distinct religions"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:185
 #, php-format
@@ -293,16 +297,16 @@ msgstr "%s distinct surnames (top 15)"
 msgid "%s divorce"
 msgid_plural "%s divorces"
 msgstr[0] "%s rozvod"
-msgstr[1] "%s rozvodů"
-msgstr[2] ""
+msgstr[1] "%s rozvody"
+msgstr[2] "%s rozvodů"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:537
 #, php-format
 msgid "%s divorce with a recorded month"
 msgid_plural "%s divorces with a recorded month"
 msgstr[0] "%s rozvod s uvedeným měsícem"
-msgstr[1] "%s rozvodů s uvedeným měsícem"
-msgstr[2] ""
+msgstr[1] "%s rozvody s uvedeným měsícem"
+msgstr[2] "%s rozvodů s uvedeným měsícem"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:384
 #, php-format
@@ -315,30 +319,33 @@ msgstr ""
 #, php-format
 msgid "%s family"
 msgid_plural "%s families"
-msgstr[0] "%s rodina"
-msgstr[1] "%s rodiny"
+msgstr[0] ""
+msgstr[1] ""
 msgstr[2] ""
 
 #: src/Aggregator/MirrorBandRowMapper.php:104
 #, php-format
 msgid "%s father"
 msgid_plural "%s fathers"
-msgstr[0] "%s father"
-msgstr[1] "%s fathers"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:286
 #, php-format
 msgid "%s first-born child"
 msgid_plural "%s first-born children"
-msgstr[0] "%s first-born child"
-msgstr[1] "%s first-born children"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:107
 #, php-format
 msgid "%s generation deep"
 msgid_plural "%s generations deep"
-msgstr[0] "%s generation deep"
-msgstr[1] "%s generations deep"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:106
 #, php-format
@@ -349,8 +356,9 @@ msgstr "generace"
 #, php-format
 msgid "%s husband"
 msgid_plural "%s husbands"
-msgstr[0] "%s husband"
-msgstr[1] "%s husbands"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:94
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:109
@@ -360,8 +368,8 @@ msgstr[1] "%s husbands"
 #, php-format
 msgid "%s individual"
 msgid_plural "%s individuals"
-msgstr[0] "%s osoba"
-msgstr[1] "%s osoby"
+msgstr[0] ""
+msgstr[1] ""
 msgstr[2] ""
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:80
@@ -369,7 +377,7 @@ msgstr[2] ""
 msgid "%s individual recorded"
 msgid_plural "%s individuals recorded"
 msgstr[0] "%s osoba zaznamenána"
-msgstr[1] "%s osob zaznamenáno"
+msgstr[1] "%s osoby zaznamenány"
 msgstr[2] "%s osob zaznamenáno"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:449
@@ -377,24 +385,24 @@ msgstr[2] "%s osob zaznamenáno"
 msgid "%s individual sampled"
 msgid_plural "%s individuals sampled"
 msgstr[0] "%s osoba zachycena"
-msgstr[1] "%s osob zachyceno"
-msgstr[2] ""
+msgstr[1] "%s osoby zachyceny"
+msgstr[2] "%s osob zachyceno"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:334
 #, php-format
 msgid "%s individual with a known zodiac sign"
 msgid_plural "%s individuals with a known zodiac sign"
 msgstr[0] "%s osoba se známým znamením zvěrokruhu"
-msgstr[1] "%s osob se známým znamením zvěrokruhu"
-msgstr[2] ""
+msgstr[1] "%s osoby se známým znamením zvěrokruhu"
+msgstr[2] "%s osob se známým znamením zvěrokruhu"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:318
 #, php-format
 msgid "%s individual with a recorded birth month"
 msgid_plural "%s individuals with a recorded birth month"
 msgstr[0] "%s osoba s uvedeným měsícem narození"
-msgstr[1] "%s osob s uvedeným měsícem narození"
-msgstr[2] ""
+msgstr[1] "%s osoby s uvedeným měsícem narození"
+msgstr[2] "%s osob s uvedeným měsícem narození"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:291
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:55
@@ -402,32 +410,32 @@ msgstr[2] ""
 msgid "%s individual with a recorded birth year"
 msgid_plural "%s individuals with a recorded birth year"
 msgstr[0] "%s osoba s uvedeným rokem narození"
-msgstr[1] "%s osob s uvedeným rokem narození"
-msgstr[2] ""
+msgstr[1] "%s osoby s uvedeným rokem narození"
+msgstr[2] "%s osob s uvedeným rokem narození"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:529
 #, php-format
 msgid "%s individual with a recorded death month"
 msgid_plural "%s individuals with a recorded death month"
 msgstr[0] "%s osoba s uvedeným měsícem úmrtí"
-msgstr[1] "%s osob s uvedeným měsícem úmrtí"
-msgstr[2] ""
+msgstr[1] "%s osoby s uvedeným měsícem úmrtí"
+msgstr[2] "%s osob s uvedeným měsícem úmrtí"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:502
 #, php-format
 msgid "%s individual with a recorded death year"
 msgid_plural "%s individuals with a recorded death year"
 msgstr[0] "%s osoba s uvedeným rokem úmrtí"
-msgstr[1] "%s osob s uvedeným rokem úmrtí"
-msgstr[2] ""
+msgstr[1] "%s osoby s uvedeným rokem úmrtí"
+msgstr[2] "%s osob s uvedeným rokem úmrtí"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:356
 #, php-format
 msgid "%s individual with both birth and death dates"
 msgid_plural "%s individuals with both birth and death dates"
 msgstr[0] "%s osoba s daty narození i úmrtí"
-msgstr[1] "%s osob s daty narození i úmrtí"
-msgstr[2] ""
+msgstr[1] "%s osoby s daty narození i úmrtí"
+msgstr[2] "%s osob s daty narození i úmrtí"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:119
 #, php-format
@@ -439,15 +447,16 @@ msgstr "%s known ancestors"
 msgid "%s living individual with a birth date"
 msgid_plural "%s living individuals with a birth date"
 msgstr[0] "%s žijící osoba s datem narození"
-msgstr[1] "%s žijících osob s datem narození"
-msgstr[2] ""
+msgstr[1] "%s žijící osoby s datem narození"
+msgstr[2] "%s žijících osob s datem narození"
 
 #: src/Aggregator/MirrorBandRowMapper.php:152
 #, php-format
 msgid "%s man"
 msgid_plural "%s men"
-msgstr[0] "%s man"
-msgstr[1] "%s men"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:101
 #: src/Aggregator/CenturyBarRowMapper.php:105
@@ -456,16 +465,16 @@ msgstr[1] "%s men"
 msgid "%s marriage"
 msgid_plural "%s marriages"
 msgstr[0] "%s sňatek"
-msgstr[1] "%s sňatků"
-msgstr[2] ""
+msgstr[1] "%s sňatky"
+msgstr[2] "%s sňatků"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:228
 #, php-format
 msgid "%s marriage with a recorded month"
 msgid_plural "%s marriages with a recorded month"
 msgstr[0] "%s sňatek s uvedeným měsícem"
-msgstr[1] "%s sňatků s uvedeným měsícem"
-msgstr[2] ""
+msgstr[1] "%s sňatky s uvedeným měsícem"
+msgstr[2] "%s sňatků s uvedeným měsícem"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:398
 #, php-format
@@ -484,8 +493,9 @@ msgstr ""
 #, php-format
 msgid "%s mother"
 msgid_plural "%s mothers"
-msgstr[0] "%s mother"
-msgstr[1] "%s mothers"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
 #: src/Repository/ChildrenRepository.php:353
 #, php-format
@@ -503,16 +513,16 @@ msgstr "%s nebo více let"
 msgid "%s outlier century not shown"
 msgid_plural "%s outlier centuries not shown"
 msgstr[0] "%s odlehlé století nezobrazeno"
-msgstr[1] "%s odlehlých století nezobrazeno"
-msgstr[2] ""
+msgstr[1] "%s odlehlá století nezobrazena"
+msgstr[2] "%s odlehlých století nezobrazeno"
 
 #: src/Aggregator/SiblingGapRowMapper.php:71
 #, php-format
 msgid "%s pair"
 msgid_plural "%s pairs"
 msgstr[0] "%s pár"
-msgstr[1] "%s párů"
-msgstr[2] ""
+msgstr[1] "%s páry"
+msgstr[2] "%s párů"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:279
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:316
@@ -533,31 +543,32 @@ msgstr ""
 #, php-format
 msgid "%s person"
 msgid_plural "%s persons"
-msgstr[0] "%s person"
-msgstr[1] "%s persons"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
 #: src/Repository/ChildrenRepository.php:759
 #, php-format
 msgid "%s quadruplet set"
 msgid_plural "%s quadruplet sets"
 msgstr[0] "%s soubor čtyřčat"
-msgstr[1] "%s souborů čtyřčat"
-msgstr[2] ""
+msgstr[1] "%s soubory čtyřčat"
+msgstr[2] "%s souborů čtyřčat"
 
 #: src/Repository/ChildrenRepository.php:749
 #, php-format
 msgid "%s quintuplet+ set"
 msgid_plural "%s quintuplet+ sets"
 msgstr[0] "%s soubor pětičat a více"
-msgstr[1] "%s souborů pětičat a více"
-msgstr[2] ""
+msgstr[1] "%s soubory pětičat a více"
+msgstr[2] "%s souborů pětičat a více"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:107
 #, php-format
 msgid "%s recorded birth date"
 msgid_plural "%s recorded birth dates"
 msgstr[0] "%s zaznamenané datum narození"
-msgstr[1] "%s zaznamenaných dat narození"
+msgstr[1] "%s zaznamenaná data narození"
 msgstr[2] "%s zaznamenaných dat narození"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:552
@@ -565,16 +576,16 @@ msgstr[2] "%s zaznamenaných dat narození"
 msgid "%s recorded divorce"
 msgid_plural "%s recorded divorces"
 msgstr[0] "%s zaznamenaný rozvod"
-msgstr[1] "%s zaznamenaných rozvodů"
-msgstr[2] ""
+msgstr[1] "%s zaznamenané rozvody"
+msgstr[2] "%s zaznamenaných rozvodů"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:243
 #, php-format
 msgid "%s recorded marriage"
 msgid_plural "%s recorded marriages"
 msgstr[0] "%s zaznamenaný sňatek"
-msgstr[1] "%s zaznamenaných sňatků"
-msgstr[2] ""
+msgstr[1] "%s zaznamenané sňatky"
+msgstr[2] "%s zaznamenaných sňatků"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:128
 #, php-format
@@ -597,37 +608,39 @@ msgstr[2] ""
 msgid "%s triplet set"
 msgid_plural "%s triplet sets"
 msgstr[0] "%s soubor trojčat"
-msgstr[1] "%s souborů trojčat"
-msgstr[2] ""
+msgstr[1] "%s soubory trojčat"
+msgstr[2] "%s souborů trojčat"
 
 #: src/Repository/ChildrenRepository.php:757
 #, php-format
 msgid "%s twin set"
 msgid_plural "%s twin sets"
 msgstr[0] "%s soubor dvojčat"
-msgstr[1] "%s souborů dvojčat"
-msgstr[2] ""
+msgstr[1] "%s soubory dvojčat"
+msgstr[2] "%s souborů dvojčat"
 
 #: src/Aggregator/MirrorBandRowMapper.php:80
 #, php-format
 msgid "%s wife"
 msgid_plural "%s wives"
-msgstr[0] "%s wife"
-msgstr[1] "%s wives"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
 #: src/Aggregator/MirrorBandRowMapper.php:176
 #, php-format
 msgid "%s woman"
 msgid_plural "%s women"
-msgstr[0] "%s woman"
-msgstr[1] "%s women"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
 #: src/Aggregator/RecordRowMapper.php:75 src/Aggregator/RecordRowMapper.php:99
 #, php-format
 msgid "%s year"
 msgid_plural "%s years"
-msgstr[0] "%s rok"
-msgstr[1] "%s roky"
+msgstr[0] ""
+msgstr[1] ""
 msgstr[2] ""
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:100
@@ -654,8 +667,8 @@ msgstr "%s%% rozvedeno"
 msgid "%s-year gap"
 msgid_plural "%s-year gaps"
 msgstr[0] "%s-letý odstup"
-msgstr[1] "%s-letých odstupů"
-msgstr[2] ""
+msgstr[1] "%s-leté odstupy"
+msgstr[2] "%s-leté odstupy"
 
 #: src/Support/Locale/DecadeName.php:53 src/Support/Locale/DecadeName.php:56
 #, php-format
@@ -816,11 +829,8 @@ msgid_plural ""
 "A statistical overview of %s centuries: births, marriages, migrations and "
 "gaps in the archive."
 msgstr[0] ""
-"A statistical reading of one family tree over a single century — births, "
-"marriages, migrations and gaps in the archive."
 msgstr[1] ""
-"A statistical reading of one family tree over %s centuries — births, "
-"marriages, migrations and gaps in the archive."
+msgstr[2] ""
 
 #: resources/views/modules/statistics-chart/components/hero.phtml:31
 msgid ""
@@ -848,7 +858,7 @@ msgid "Across %s individual with at least one recorded place."
 msgid_plural "Across %s individuals with at least one recorded place."
 msgstr[0] "Mezi %s osobou s alespoň jedním zaznamenaným místem."
 msgstr[1] "Mezi %s osobami s alespoň jedním zaznamenaným místem."
-msgstr[2] ""
+msgstr[2] "Mezi %s osobami s alespoň jedním zaznamenaným místem."
 
 #: resources/views/modules/statistics-chart/widgets/name-timeline.phtml:58
 msgid "Active"
@@ -862,7 +872,7 @@ msgstr "Po smrti partnera"
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:422
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:461
 msgid "Age"
-msgstr "Věk"
+msgstr ""
 
 #: src/Repository/LifeSpanRepository.php:913
 #, php-format
@@ -983,7 +993,7 @@ msgstr ""
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:544
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:551
 msgid "Ancestors"
-msgstr "Předci"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:482
 msgid "Anomaly"
@@ -1068,7 +1078,7 @@ msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:302
 msgid "Births by century"
-msgstr "Narození podle století"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:100
 msgid "Births by decade"
@@ -1162,7 +1172,7 @@ msgstr "Causes of death and infant mortality"
 #: resources/views/modules/statistics-chart/tabs/family.phtml:560
 #: src/Support/Locale/CenturyName.php:109
 msgid "Century"
-msgstr "Století"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:612
 msgid "Chains and clusters formed by partnership"
@@ -1313,7 +1323,7 @@ msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:498
 msgid "Deaths"
-msgstr "Úmrtí"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:253
 msgid "Deaths are evenly spread across the year."
@@ -1417,7 +1427,7 @@ msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:501
 msgid "Divorce"
-msgstr "Rozvod"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:524
 msgid "Divorce rate"
@@ -1672,7 +1682,7 @@ msgstr ""
 #: resources/views/modules/statistics-chart/components/hero.phtml:65
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:64
 msgid "Families"
-msgstr "Rodiny"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:481
 msgid "Families with a strongly one-sided ratio of sons to daughters"
@@ -1694,7 +1704,7 @@ msgstr "Rodiny s dětmi vs. bez dětí"
 #: resources/views/modules/statistics-chart/tabs/family.phtml:350
 #: src/Module.php:361
 msgid "Family"
-msgstr "Rodina"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/names.phtml:53
 msgid "Family names and given names by frequency across the tree"
@@ -1739,7 +1749,7 @@ msgstr "Únor"
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:421
 #: src/Repository/LifeSpanRepository.php:835 src/Statistic.php:228
 msgid "Female"
-msgstr "Žena"
+msgstr ""
 
 #: src/Support/Locale/HistoricalEventCatalog.php:246
 msgid "First World War (1914–1918)"
@@ -1958,7 +1968,7 @@ msgstr "Generation length"
 #: resources/views/modules/statistics-chart/components/hero.phtml:70
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:536
 msgid "Generations"
-msgstr "Generace"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:669
 msgid ""
@@ -1985,7 +1995,7 @@ msgstr "Geography"
 #: resources/views/modules/statistics-chart/tabs/names.phtml:73
 #: resources/views/modules/statistics-chart/tabs/names.phtml:88
 msgid "Given names"
-msgstr "Křestní jména"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/names.phtml:106
 msgid "Given-name popularity across decades"
@@ -2109,7 +2119,7 @@ msgstr "Husband older"
 #: resources/views/modules/statistics-chart/components/hero.phtml:60
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:63
 msgid "Individuals"
-msgstr "Jednotlivci"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:527
 msgid "Individuals N generations above their deepest descendant"
@@ -2219,11 +2229,11 @@ msgstr "Life-stage at divorce · men vs. women"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:351
 msgid "Lifespan"
-msgstr "Délka života"
+msgstr ""
 
 #: src/Statistic.php:247
 msgid "Living"
-msgstr "Žijící"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:108
 msgid "Living or deceased"
@@ -2244,7 +2254,7 @@ msgstr "Longest line in the tree, leaf to oldest ancestor"
 
 #: resources/views/modules/statistics-chart/components/records-grid.phtml:30
 msgid "Longest marriage"
-msgstr "Nejdelší manželství"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/components/marriage-extremes.phtml:42
 msgid "Longest marriages"
@@ -2263,7 +2273,7 @@ msgstr "Longevity"
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:420
 #: src/Repository/LifeSpanRepository.php:828 src/Statistic.php:223
 msgid "Male"
-msgstr "Muž"
+msgstr ""
 
 #: src/Support/Locale/MonthName.php:92
 msgctxt "NOMINATIVE"
@@ -2278,7 +2288,7 @@ msgstr "Rodinný stav"
 #: resources/views/modules/statistics-chart/tabs/family.phtml:180
 #: resources/views/modules/statistics-chart/tabs/family.phtml:204
 msgid "Marriage"
-msgstr "Sňatek"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:178
 #: resources/views/modules/statistics-chart/tabs/family.phtml:195
@@ -2466,7 +2476,7 @@ msgstr "Míra vícečetných porodů podle století"
 
 #: src/Module.php:359
 msgid "Names"
-msgstr "Jména"
+msgstr ""
 
 #: src/Support/Locale/HistoricalEventCatalog.php:232
 msgid "Napoleonic Wars (1803–1815)"
@@ -2531,7 +2541,7 @@ msgstr "Nejstarší zemřelý"
 
 #: resources/views/modules/statistics-chart/components/records-grid.phtml:41
 msgid "Oldest father"
-msgstr "Nejstarší otec"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/components/records-grid.phtml:34
 msgid "Oldest husband"
@@ -2543,7 +2553,7 @@ msgstr "Nejstarší žijící"
 
 #: resources/views/modules/statistics-chart/components/records-grid.phtml:42
 msgid "Oldest mother"
-msgstr "Nejstarší matka"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/components/records-grid.phtml:35
 msgid "Oldest wife"
@@ -2709,7 +2719,7 @@ msgstr "Zaznamenané rezidence"
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:228
 msgid "Records"
-msgstr "Záznamy"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:73
 msgid "Repositories"
@@ -2834,7 +2844,7 @@ msgstr ""
 
 #: resources/views/modules/statistics-chart/components/records-grid.phtml:31
 msgid "Shortest marriage"
-msgstr "Nejkratší manželství"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/components/marriage-extremes.phtml:41
 msgid "Shortest marriages"
@@ -2893,7 +2903,7 @@ msgstr ""
 
 #: src/Module.php:127
 msgid "Statistics"
-msgstr "Statistika"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/components/hero.phtml:47
 msgctxt "hero title"
@@ -2903,7 +2913,7 @@ msgstr "Statistika"
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:110
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:125
 msgid "Status"
-msgstr "Stav"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:437
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:500
@@ -2923,7 +2933,7 @@ msgstr "Surname × surname marriage matrix"
 
 #: resources/views/modules/statistics-chart/tabs/names.phtml:58
 msgid "Surnames"
-msgstr "Příjmení"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:445
 msgid "Survival curve"
@@ -3035,7 +3045,7 @@ msgstr "Three views of every individual · birth, residence, death"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:457
 msgid "Time"
-msgstr "Čas"
+msgstr ""
 
 #: src/Support/Locale/HistoricalEventCatalog.php:216
 msgid "Time of Troubles (1598–1613)"
@@ -3055,7 +3065,7 @@ msgstr "Time-distribution of births"
 #: resources/views/modules/statistics-chart/tabs/names.phtml:108
 #: resources/views/modules/statistics-chart/tabs/names.phtml:122
 msgid "Timeline"
-msgstr "Časová osa"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:372
 msgid "Today living"
@@ -3140,7 +3150,7 @@ msgstr ""
 
 #: src/Statistic.php:233
 msgid "Unknown"
-msgstr "Neznámé"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:75
 #, php-format
@@ -3322,7 +3332,7 @@ msgstr ""
 
 #: resources/views/modules/statistics-chart/components/records-grid.phtml:39
 msgid "Youngest father"
-msgstr "Nejmladší otec"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/components/records-grid.phtml:32
 msgid "Youngest husband"
@@ -3330,7 +3340,7 @@ msgstr "Youngest husband"
 
 #: resources/views/modules/statistics-chart/components/records-grid.phtml:40
 msgid "Youngest mother"
-msgstr "Nejmladší matka"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/components/records-grid.phtml:33
 msgid "Youngest wife"
@@ -3566,7 +3576,7 @@ msgstr[2] ""
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:423
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:176
 msgid "years"
-msgstr "roky"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/components/hero.phtml:76
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:477
