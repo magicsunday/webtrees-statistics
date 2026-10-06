@@ -236,9 +236,8 @@ final class CatalogueStructureTest extends TestCase
     }
 
     /**
-     * An empty plural form is kept by the compiler as soon as another form is filled,
-     * and webtrees returns it unchanged. The number that selects it would render as
-     * nothing.
+     * An empty plural form behind a filled first form is kept by the compiler, and
+     * webtrees returns it unchanged. The number that selects it would render as nothing.
      */
     #[Test]
     #[DataProvider('shippedLocales')]
@@ -268,8 +267,8 @@ final class CatalogueStructureTest extends TestCase
      * from an older source would let the checks above pass on stale data. The two
      * readers return the entries in different order, which carries no meaning. The PO
      * reader keeps an entry marked fuzzy in the source, while the compiler leaves it out
-     * of the compiled file, so such an entry shows up here as a mismatch until its flag
-     * is resolved.
+     * of the compiled file, and it leaves out a plural entry whose first form is empty
+     * as well. Such an entry shows up here as a mismatch until it is resolved.
      */
     #[Test]
     #[DataProvider('shippedLocales')]
@@ -285,7 +284,8 @@ final class CatalogueStructureTest extends TestCase
             $source,
             $compiled,
             sprintf(
-                '%s: messages.mo is out of date, run `make lang`, or the source holds a fuzzy entry',
+                '%s: messages.mo is out of date, run `make lang`, or the source holds a fuzzy entry'
+                . ' or a plural entry with an empty first form',
                 $locale,
             ),
         );
