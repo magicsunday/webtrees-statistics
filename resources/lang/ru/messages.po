@@ -80,6 +80,8 @@ msgstr[1] ""
 "%1$s из %2$s пар, у обоих супругов которых зарегистрирован хотя бы один "
 "родитель, имеют общего предка."
 msgstr[2] ""
+"%1$s из %2$s пар, у обоих супругов которых зарегистрирован хотя бы один "
+"родитель, имеют общего предка."
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:705
 #, php-format
@@ -142,7 +144,7 @@ msgstr ""
 #: src/Support/Locale/DecadeName.php:84
 #, php-format
 msgid "%s BCE"
-msgstr "%s до н. э."
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:124
 #: src/Aggregator/CenturyBarRowMapper.php:57
@@ -150,8 +152,8 @@ msgstr "%s до н. э."
 msgid "%s birth"
 msgid_plural "%s births"
 msgstr[0] "%s рождение"
-msgstr[1] "%s рождений"
-msgstr[2] ""
+msgstr[1] "%s рождения"
+msgstr[2] "%s рождений"
 
 #: src/Support/Locale/CenturyName.php:128
 #, php-format
@@ -171,8 +173,8 @@ msgstr "%s век"
 #, php-format
 msgid "%s child"
 msgid_plural "%s children"
-msgstr[0] "%s ребёнок"
-msgstr[1] "%s ребёнка"
+msgstr[0] ""
+msgstr[1] ""
 msgstr[2] ""
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:141
@@ -185,47 +187,47 @@ msgstr "%s children"
 msgid "%s consecutive-sibling pair"
 msgid_plural "%s consecutive-sibling pairs"
 msgstr[0] "%s пара последовательных братьев/сестёр"
-msgstr[1] "%s пар последовательных братьев/сестёр"
-msgstr[2] ""
+msgstr[1] "%s пары последовательных братьев/сестёр"
+msgstr[2] "%s пар последовательных братьев/сестёр"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:115
 #, php-format
 msgid "%s couple"
 msgid_plural "%s couples"
 msgstr[0] "%s пара"
-msgstr[1] "%s пар"
-msgstr[2] ""
+msgstr[1] "%s пары"
+msgstr[2] "%s пар"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:179
 #, php-format
 msgid "%s couple with a measurable duration"
 msgid_plural "%s couples with a measurable duration"
 msgstr[0] "%s пара с измеримой продолжительностью"
-msgstr[1] "%s пар с измеримой продолжительностью"
-msgstr[2] ""
+msgstr[1] "%s пары с измеримой продолжительностью"
+msgstr[2] "%s пар с измеримой продолжительностью"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:201
 #, php-format
 msgid "%s couple with both birth dates"
 msgid_plural "%s couples with both birth dates"
 msgstr[0] "%s пара с обеими датами рождения"
-msgstr[1] "%s пар с обеими датами рождения"
-msgstr[2] ""
+msgstr[1] "%s пары с обеими датами рождения"
+msgstr[2] "%s пар с обеими датами рождения"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:595
 #, php-format
 msgid "%s couple with both partners' death dates recorded"
 msgid_plural "%s couples with both partners' death dates recorded"
 msgstr[0] "%s пара с зарегистрированными датами смерти обоих партнёров"
-msgstr[1] "%s пар с зарегистрированными датами смерти обоих партнёров"
+msgstr[1] "%s пары с зарегистрированными датами смерти обоих партнёров"
 msgstr[2] "%s пар с зарегистрированными датами смерти обоих партнёров"
 
 #: src/Aggregator/RecordRowMapper.php:123
 #, php-format
 msgid "%s day"
 msgid_plural "%s days"
-msgstr[0] "%s день"
-msgstr[1] "%s дня"
+msgstr[0] ""
+msgstr[1] ""
 msgstr[2] ""
 
 #: src/Aggregator/CenturyBarRowMapper.php:81
@@ -233,8 +235,8 @@ msgstr[2] ""
 msgid "%s death"
 msgid_plural "%s deaths"
 msgstr[0] "%s смерть"
-msgstr[1] "%s смертей"
-msgstr[2] ""
+msgstr[1] "%s смерти"
+msgstr[2] "%s смертей"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:570
 #, php-format
@@ -259,8 +261,9 @@ msgstr "%s distinct given names (top 15)"
 #, php-format
 msgid "%s distinct occupation"
 msgid_plural "%s distinct occupations"
-msgstr[0] "%s distinct occupation"
-msgstr[1] "%s distinct occupations"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:166
 #, php-format
@@ -276,8 +279,9 @@ msgstr "%s distinct places"
 #, php-format
 msgid "%s distinct religion"
 msgid_plural "%s distinct religions"
-msgstr[0] "%s distinct religion"
-msgstr[1] "%s distinct religions"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:185
 #, php-format
@@ -294,16 +298,16 @@ msgstr "%s distinct surnames (top 15)"
 msgid "%s divorce"
 msgid_plural "%s divorces"
 msgstr[0] "%s развод"
-msgstr[1] "%s разводов"
-msgstr[2] ""
+msgstr[1] "%s развода"
+msgstr[2] "%s разводов"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:537
 #, php-format
 msgid "%s divorce with a recorded month"
 msgid_plural "%s divorces with a recorded month"
 msgstr[0] "%s развод с зарегистрированным месяцем"
-msgstr[1] "%s разводов с зарегистрированным месяцем"
-msgstr[2] ""
+msgstr[1] "%s развода с зарегистрированным месяцем"
+msgstr[2] "%s разводов с зарегистрированным месяцем"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:384
 #, php-format
@@ -316,30 +320,33 @@ msgstr ""
 #, php-format
 msgid "%s family"
 msgid_plural "%s families"
-msgstr[0] "%s семья"
-msgstr[1] "%s семей"
+msgstr[0] ""
+msgstr[1] ""
 msgstr[2] ""
 
 #: src/Aggregator/MirrorBandRowMapper.php:104
 #, php-format
 msgid "%s father"
 msgid_plural "%s fathers"
-msgstr[0] "%s father"
-msgstr[1] "%s fathers"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:286
 #, php-format
 msgid "%s first-born child"
 msgid_plural "%s first-born children"
-msgstr[0] "%s first-born child"
-msgstr[1] "%s first-born children"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:107
 #, php-format
 msgid "%s generation deep"
 msgid_plural "%s generations deep"
-msgstr[0] "%s generation deep"
-msgstr[1] "%s generations deep"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:106
 #, php-format
@@ -350,8 +357,9 @@ msgstr "поколений"
 #, php-format
 msgid "%s husband"
 msgid_plural "%s husbands"
-msgstr[0] "%s husband"
-msgstr[1] "%s husbands"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:94
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:109
@@ -361,8 +369,8 @@ msgstr[1] "%s husbands"
 #, php-format
 msgid "%s individual"
 msgid_plural "%s individuals"
-msgstr[0] "%s лицо"
-msgstr[1] "%s персоны"
+msgstr[0] ""
+msgstr[1] ""
 msgstr[2] ""
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:80
@@ -370,7 +378,7 @@ msgstr[2] ""
 msgid "%s individual recorded"
 msgid_plural "%s individuals recorded"
 msgstr[0] "%s человек зарегистрирован"
-msgstr[1] "%s человек зарегистрировано"
+msgstr[1] "%s человека зарегистрировано"
 msgstr[2] "%s человек зарегистрировано"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:449
@@ -378,24 +386,24 @@ msgstr[2] "%s человек зарегистрировано"
 msgid "%s individual sampled"
 msgid_plural "%s individuals sampled"
 msgstr[0] "%s человек выбран"
-msgstr[1] "%s человек выбрано"
-msgstr[2] ""
+msgstr[1] "%s человека выбрано"
+msgstr[2] "%s человек выбрано"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:334
 #, php-format
 msgid "%s individual with a known zodiac sign"
 msgid_plural "%s individuals with a known zodiac sign"
 msgstr[0] "%s человек с известным знаком зодиака"
-msgstr[1] "%s человек с известным знаком зодиака"
-msgstr[2] ""
+msgstr[1] "%s человека с известным знаком зодиака"
+msgstr[2] "%s человек с известным знаком зодиака"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:318
 #, php-format
 msgid "%s individual with a recorded birth month"
 msgid_plural "%s individuals with a recorded birth month"
 msgstr[0] "%s человек с зарегистрированным месяцем рождения"
-msgstr[1] "%s человек с зарегистрированным месяцем рождения"
-msgstr[2] ""
+msgstr[1] "%s человека с зарегистрированным месяцем рождения"
+msgstr[2] "%s человек с зарегистрированным месяцем рождения"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:291
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:55
@@ -403,32 +411,32 @@ msgstr[2] ""
 msgid "%s individual with a recorded birth year"
 msgid_plural "%s individuals with a recorded birth year"
 msgstr[0] "%s человек с зарегистрированным годом рождения"
-msgstr[1] "%s человек с зарегистрированным годом рождения"
-msgstr[2] ""
+msgstr[1] "%s человека с зарегистрированным годом рождения"
+msgstr[2] "%s человек с зарегистрированным годом рождения"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:529
 #, php-format
 msgid "%s individual with a recorded death month"
 msgid_plural "%s individuals with a recorded death month"
 msgstr[0] "%s человек с зарегистрированным месяцем смерти"
-msgstr[1] "%s человек с зарегистрированным месяцем смерти"
-msgstr[2] ""
+msgstr[1] "%s человека с зарегистрированным месяцем смерти"
+msgstr[2] "%s человек с зарегистрированным месяцем смерти"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:502
 #, php-format
 msgid "%s individual with a recorded death year"
 msgid_plural "%s individuals with a recorded death year"
 msgstr[0] "%s человек с зарегистрированным годом смерти"
-msgstr[1] "%s человек с зарегистрированным годом смерти"
-msgstr[2] ""
+msgstr[1] "%s человека с зарегистрированным годом смерти"
+msgstr[2] "%s человек с зарегистрированным годом смерти"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:356
 #, php-format
 msgid "%s individual with both birth and death dates"
 msgid_plural "%s individuals with both birth and death dates"
 msgstr[0] "%s человек с датами рождения и смерти"
-msgstr[1] "%s человек с датами рождения и смерти"
-msgstr[2] ""
+msgstr[1] "%s человека с датами рождения и смерти"
+msgstr[2] "%s человек с датами рождения и смерти"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:119
 #, php-format
@@ -440,15 +448,16 @@ msgstr "%s known ancestors"
 msgid "%s living individual with a birth date"
 msgid_plural "%s living individuals with a birth date"
 msgstr[0] "%s живой человек с датой рождения"
-msgstr[1] "%s живых человек с датой рождения"
-msgstr[2] ""
+msgstr[1] "%s живых человека с датой рождения"
+msgstr[2] "%s живых человек с датой рождения"
 
 #: src/Aggregator/MirrorBandRowMapper.php:152
 #, php-format
 msgid "%s man"
 msgid_plural "%s men"
-msgstr[0] "%s man"
-msgstr[1] "%s men"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:101
 #: src/Aggregator/CenturyBarRowMapper.php:105
@@ -457,16 +466,16 @@ msgstr[1] "%s men"
 msgid "%s marriage"
 msgid_plural "%s marriages"
 msgstr[0] "%s брак"
-msgstr[1] "%s браков"
-msgstr[2] ""
+msgstr[1] "%s брака"
+msgstr[2] "%s браков"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:228
 #, php-format
 msgid "%s marriage with a recorded month"
 msgid_plural "%s marriages with a recorded month"
 msgstr[0] "%s брак с зарегистрированным месяцем"
-msgstr[1] "%s браков с зарегистрированным месяцем"
-msgstr[2] ""
+msgstr[1] "%s брака с зарегистрированным месяцем"
+msgstr[2] "%s браков с зарегистрированным месяцем"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:398
 #, php-format
@@ -485,8 +494,9 @@ msgstr ""
 #, php-format
 msgid "%s mother"
 msgid_plural "%s mothers"
-msgstr[0] "%s mother"
-msgstr[1] "%s mothers"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
 #: src/Repository/ChildrenRepository.php:353
 #, php-format
@@ -504,16 +514,16 @@ msgstr "%s или больше лет"
 msgid "%s outlier century not shown"
 msgid_plural "%s outlier centuries not shown"
 msgstr[0] "%s выбросный век не показан"
-msgstr[1] "%s выбросных веков не показаны"
-msgstr[2] ""
+msgstr[1] "%s выбросных века не показаны"
+msgstr[2] "%s выбросных веков не показаны"
 
 #: src/Aggregator/SiblingGapRowMapper.php:71
 #, php-format
 msgid "%s pair"
 msgid_plural "%s pairs"
 msgstr[0] "%s пара"
-msgstr[1] "%s пар"
-msgstr[2] ""
+msgstr[1] "%s пары"
+msgstr[2] "%s пар"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:279
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:316
@@ -534,31 +544,32 @@ msgstr ""
 #, php-format
 msgid "%s person"
 msgid_plural "%s persons"
-msgstr[0] "%s person"
-msgstr[1] "%s persons"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
 #: src/Repository/ChildrenRepository.php:759
 #, php-format
 msgid "%s quadruplet set"
 msgid_plural "%s quadruplet sets"
 msgstr[0] "%s набор четверни"
-msgstr[1] "%s наборов четверни"
-msgstr[2] ""
+msgstr[1] "%s набора четверни"
+msgstr[2] "%s наборов четверни"
 
 #: src/Repository/ChildrenRepository.php:749
 #, php-format
 msgid "%s quintuplet+ set"
 msgid_plural "%s quintuplet+ sets"
 msgstr[0] "%s набор пятерни+"
-msgstr[1] "%s наборов пятерни+"
-msgstr[2] ""
+msgstr[1] "%s набора пятерни+"
+msgstr[2] "%s наборов пятерни+"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:107
 #, php-format
 msgid "%s recorded birth date"
 msgid_plural "%s recorded birth dates"
 msgstr[0] "%s записанная дата рождения"
-msgstr[1] "%s записанных дат рождения"
+msgstr[1] "%s записанные даты рождения"
 msgstr[2] "%s записанных дат рождения"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:552
@@ -566,16 +577,16 @@ msgstr[2] "%s записанных дат рождения"
 msgid "%s recorded divorce"
 msgid_plural "%s recorded divorces"
 msgstr[0] "%s зарегистрированный развод"
-msgstr[1] "%s зарегистрированных разводов"
-msgstr[2] ""
+msgstr[1] "%s зарегистрированных развода"
+msgstr[2] "%s зарегистрированных разводов"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:243
 #, php-format
 msgid "%s recorded marriage"
 msgid_plural "%s recorded marriages"
 msgstr[0] "%s зарегистрированный брак"
-msgstr[1] "%s зарегистрированных браков"
-msgstr[2] ""
+msgstr[1] "%s зарегистрированных брака"
+msgstr[2] "%s зарегистрированных браков"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:128
 #, php-format
@@ -598,37 +609,39 @@ msgstr[2] ""
 msgid "%s triplet set"
 msgid_plural "%s triplet sets"
 msgstr[0] "%s набор тройни"
-msgstr[1] "%s наборов тройни"
-msgstr[2] ""
+msgstr[1] "%s набора тройни"
+msgstr[2] "%s наборов тройни"
 
 #: src/Repository/ChildrenRepository.php:757
 #, php-format
 msgid "%s twin set"
 msgid_plural "%s twin sets"
 msgstr[0] "%s набор близнецов"
-msgstr[1] "%s наборов близнецов"
-msgstr[2] ""
+msgstr[1] "%s набора близнецов"
+msgstr[2] "%s наборов близнецов"
 
 #: src/Aggregator/MirrorBandRowMapper.php:80
 #, php-format
 msgid "%s wife"
 msgid_plural "%s wives"
-msgstr[0] "%s wife"
-msgstr[1] "%s wives"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
 #: src/Aggregator/MirrorBandRowMapper.php:176
 #, php-format
 msgid "%s woman"
 msgid_plural "%s women"
-msgstr[0] "%s woman"
-msgstr[1] "%s women"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
 #: src/Aggregator/RecordRowMapper.php:75 src/Aggregator/RecordRowMapper.php:99
 #, php-format
 msgid "%s year"
 msgid_plural "%s years"
-msgstr[0] "%s год"
-msgstr[1] "%s года"
+msgstr[0] ""
+msgstr[1] ""
 msgstr[2] ""
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:100
@@ -655,8 +668,8 @@ msgstr "%s%% разведено"
 msgid "%s-year gap"
 msgid_plural "%s-year gaps"
 msgstr[0] "%s-летний промежуток"
-msgstr[1] "%s-летних промежутков"
-msgstr[2] ""
+msgstr[1] "%s-летние промежутки"
+msgstr[2] "%s-летние промежутки"
 
 #: src/Support/Locale/DecadeName.php:53 src/Support/Locale/DecadeName.php:56
 #, php-format
@@ -817,11 +830,8 @@ msgid_plural ""
 "A statistical overview of %s centuries: births, marriages, migrations and "
 "gaps in the archive."
 msgstr[0] ""
-"A statistical reading of one family tree over a single century — births, "
-"marriages, migrations and gaps in the archive."
 msgstr[1] ""
-"A statistical reading of one family tree over %s centuries — births, "
-"marriages, migrations and gaps in the archive."
+msgstr[2] ""
 
 #: resources/views/modules/statistics-chart/components/hero.phtml:31
 msgid ""
@@ -849,7 +859,7 @@ msgid "Across %s individual with at least one recorded place."
 msgid_plural "Across %s individuals with at least one recorded place."
 msgstr[0] "Среди %s человека хотя бы с одним зарегистрированным местом."
 msgstr[1] "Среди %s человек хотя бы с одним зарегистрированным местом."
-msgstr[2] ""
+msgstr[2] "Среди %s человек хотя бы с одним зарегистрированным местом."
 
 #: resources/views/modules/statistics-chart/widgets/name-timeline.phtml:58
 msgid "Active"
@@ -863,7 +873,7 @@ msgstr "После смерти партнёра"
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:422
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:461
 msgid "Age"
-msgstr "Возраст"
+msgstr ""
 
 #: src/Repository/LifeSpanRepository.php:913
 #, php-format
@@ -986,7 +996,7 @@ msgstr ""
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:544
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:551
 msgid "Ancestors"
-msgstr "Предки"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:482
 msgid "Anomaly"
@@ -1071,7 +1081,7 @@ msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:302
 msgid "Births by century"
-msgstr "Рождения по столетиям"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:100
 msgid "Births by decade"
@@ -1165,7 +1175,7 @@ msgstr "Causes of death and infant mortality"
 #: resources/views/modules/statistics-chart/tabs/family.phtml:560
 #: src/Support/Locale/CenturyName.php:109
 msgid "Century"
-msgstr "Век"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:612
 msgid "Chains and clusters formed by partnership"
@@ -1318,7 +1328,7 @@ msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:498
 msgid "Deaths"
-msgstr "Смерти"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:253
 msgid "Deaths are evenly spread across the year."
@@ -1422,7 +1432,7 @@ msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:501
 msgid "Divorce"
-msgstr "Развод"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:524
 msgid "Divorce rate"
@@ -1679,7 +1689,7 @@ msgstr ""
 #: resources/views/modules/statistics-chart/components/hero.phtml:65
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:64
 msgid "Families"
-msgstr "Семьи"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:481
 msgid "Families with a strongly one-sided ratio of sons to daughters"
@@ -1701,7 +1711,7 @@ msgstr "Семьи с детьми и без"
 #: resources/views/modules/statistics-chart/tabs/family.phtml:350
 #: src/Module.php:361
 msgid "Family"
-msgstr "Семья"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/names.phtml:53
 msgid "Family names and given names by frequency across the tree"
@@ -1746,7 +1756,7 @@ msgstr "Февраль"
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:421
 #: src/Repository/LifeSpanRepository.php:835 src/Statistic.php:228
 msgid "Female"
-msgstr "Жен"
+msgstr ""
 
 #: src/Support/Locale/HistoricalEventCatalog.php:246
 msgid "First World War (1914–1918)"
@@ -1968,7 +1978,7 @@ msgstr "Generation length"
 #: resources/views/modules/statistics-chart/components/hero.phtml:70
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:536
 msgid "Generations"
-msgstr "Поколения"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:669
 msgid ""
@@ -1995,7 +2005,7 @@ msgstr "Geography"
 #: resources/views/modules/statistics-chart/tabs/names.phtml:73
 #: resources/views/modules/statistics-chart/tabs/names.phtml:88
 msgid "Given names"
-msgstr "Имя (имена)"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/names.phtml:106
 msgid "Given-name popularity across decades"
@@ -2119,7 +2129,7 @@ msgstr "Husband older"
 #: resources/views/modules/statistics-chart/components/hero.phtml:60
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:63
 msgid "Individuals"
-msgstr "Персоны"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:527
 msgid "Individuals N generations above their deepest descendant"
@@ -2231,11 +2241,11 @@ msgstr "Life-stage at divorce · men vs. women"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:351
 msgid "Lifespan"
-msgstr "Продолжительность жизни"
+msgstr ""
 
 #: src/Statistic.php:247
 msgid "Living"
-msgstr "Живые"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:108
 msgid "Living or deceased"
@@ -2256,7 +2266,7 @@ msgstr "Longest line in the tree, leaf to oldest ancestor"
 
 #: resources/views/modules/statistics-chart/components/records-grid.phtml:30
 msgid "Longest marriage"
-msgstr "Самый долгий брак"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/components/marriage-extremes.phtml:42
 msgid "Longest marriages"
@@ -2275,7 +2285,7 @@ msgstr "Longevity"
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:420
 #: src/Repository/LifeSpanRepository.php:828 src/Statistic.php:223
 msgid "Male"
-msgstr "Муж."
+msgstr ""
 
 #: src/Support/Locale/MonthName.php:92
 msgctxt "NOMINATIVE"
@@ -2290,7 +2300,7 @@ msgstr "Семейное положение"
 #: resources/views/modules/statistics-chart/tabs/family.phtml:180
 #: resources/views/modules/statistics-chart/tabs/family.phtml:204
 msgid "Marriage"
-msgstr "Брак"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:178
 #: resources/views/modules/statistics-chart/tabs/family.phtml:195
@@ -2478,7 +2488,7 @@ msgstr "Доля многоплодных родов по векам"
 
 #: src/Module.php:359
 msgid "Names"
-msgstr "Имена"
+msgstr ""
 
 #: src/Support/Locale/HistoricalEventCatalog.php:232
 msgid "Napoleonic Wars (1803–1815)"
@@ -2543,7 +2553,7 @@ msgstr "Самый старый умерший"
 
 #: resources/views/modules/statistics-chart/components/records-grid.phtml:41
 msgid "Oldest father"
-msgstr "Самый пожилой отец"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/components/records-grid.phtml:34
 msgid "Oldest husband"
@@ -2555,7 +2565,7 @@ msgstr "Самый старый живущий"
 
 #: resources/views/modules/statistics-chart/components/records-grid.phtml:42
 msgid "Oldest mother"
-msgstr "Самая пожилая мать"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/components/records-grid.phtml:35
 msgid "Oldest wife"
@@ -2722,7 +2732,7 @@ msgstr "Зарегистрированные места жительства"
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:228
 msgid "Records"
-msgstr "Записей"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:73
 msgid "Repositories"
@@ -2846,7 +2856,7 @@ msgstr ""
 
 #: resources/views/modules/statistics-chart/components/records-grid.phtml:31
 msgid "Shortest marriage"
-msgstr "Самый короткий брак"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/components/marriage-extremes.phtml:41
 msgid "Shortest marriages"
@@ -2905,7 +2915,7 @@ msgstr ""
 
 #: src/Module.php:127
 msgid "Statistics"
-msgstr "Статистика"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/components/hero.phtml:47
 msgctxt "hero title"
@@ -2915,7 +2925,7 @@ msgstr "Статистика"
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:110
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:125
 msgid "Status"
-msgstr "Статус"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:437
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:500
@@ -2935,7 +2945,7 @@ msgstr "Surname × surname marriage matrix"
 
 #: resources/views/modules/statistics-chart/tabs/names.phtml:58
 msgid "Surnames"
-msgstr "Фамилии"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:445
 msgid "Survival curve"
@@ -3047,7 +3057,7 @@ msgstr "Three views of every individual · birth, residence, death"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:457
 msgid "Time"
-msgstr "Время"
+msgstr ""
 
 #: src/Support/Locale/HistoricalEventCatalog.php:216
 msgid "Time of Troubles (1598–1613)"
@@ -3067,7 +3077,7 @@ msgstr "Time-distribution of births"
 #: resources/views/modules/statistics-chart/tabs/names.phtml:108
 #: resources/views/modules/statistics-chart/tabs/names.phtml:122
 msgid "Timeline"
-msgstr "Шкала времени"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:372
 msgid "Today living"
@@ -3152,7 +3162,7 @@ msgstr ""
 
 #: src/Statistic.php:233
 msgid "Unknown"
-msgstr "Неизвестно"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/overview.phtml:75
 #, php-format
@@ -3334,7 +3344,7 @@ msgstr ""
 
 #: resources/views/modules/statistics-chart/components/records-grid.phtml:39
 msgid "Youngest father"
-msgstr "Самый молодой отец"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/components/records-grid.phtml:32
 msgid "Youngest husband"
@@ -3342,7 +3352,7 @@ msgstr "Youngest husband"
 
 #: resources/views/modules/statistics-chart/components/records-grid.phtml:40
 msgid "Youngest mother"
-msgstr "Самая молодая мать"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/components/records-grid.phtml:33
 msgid "Youngest wife"
@@ -3578,7 +3588,7 @@ msgstr[2] ""
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:423
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:176
 msgid "years"
-msgstr "года(лет)"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/components/hero.phtml:76
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:477
