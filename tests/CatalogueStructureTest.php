@@ -48,9 +48,9 @@ use const PREG_SET_ORDER;
  * webtrees merges the compiled catalogue of a module over its own, so an entry that
  * webtrees cannot use does not just degrade the module. A plural entry with the wrong
  * number of forms makes webtrees fall back to English, and one with an empty form
- * renders an empty string for every number that selects that form. Because the entry
- * replaces the webtrees translation of the same text, the damage reaches pages that
- * have nothing to do with this module.
+ * behind a filled first form renders an empty string for every number that selects
+ * that form. Because the entry replaces the webtrees translation of the same text,
+ * the damage reaches pages that have nothing to do with this module.
  *
  * The expected number of forms is taken from the plural rule class webtrees itself
  * uses for the locale, never from the PO header, which webtrees does not read.
@@ -293,9 +293,9 @@ final class CatalogueStructureTest extends TestCase
 
     /**
      * Renders every plural entry the way webtrees does, for every number up to the
-     * highest one. A form that is empty shows up as an empty result for the numbers
-     * that select it. A wrong form count is not seen here, because webtrees then shows
-     * the English text, which the form count test above covers.
+     * highest one. An empty form behind a filled first form shows up as an empty result
+     * for the numbers that select it. A wrong form count is not seen here, because
+     * webtrees then shows the English text, which the form count test above covers.
      */
     #[Test]
     #[DataProvider('shippedLocales')]
