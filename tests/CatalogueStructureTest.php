@@ -331,7 +331,8 @@ final class CatalogueStructureTest extends TestCase
     /**
      * A form that drops or invents a placeholder breaks the sentence it is formatted
      * into. Every form must use the placeholders of the singular or of the plural
-     * source text.
+     * source text. Only the string and integer placeholders (`%s`, `%d`, numbered ones
+     * included) are compared, the source texts use no other conversion.
      */
     #[Test]
     #[DataProvider('shippedLocales')]
