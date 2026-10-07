@@ -113,7 +113,7 @@ final readonly class MonthName
      * shipping a capitalised catalogue entry, which would replace the core month
      * name in every date webtrees renders.
      *
-     * @param Closure(string): string|null $translate Maps an English month name to its translation; the NOMINATIVE core translation when omitted
+     * @param Closure(string): string|null $translate Maps an English month name to its translation. The NOMINATIVE core translation is used when omitted
      *
      * @return array<string, string>
      */
@@ -131,6 +131,10 @@ final readonly class MonthName
      * Upper-case the first character of a month name, leaving the rest as it is.
      * The multibyte functions keep an initial such as the Czech "Ú" or "Č" intact,
      * which a byte-wise `ucfirst` would leave lowercase.
+     *
+     * @param string $name The month name as the webtrees core catalogue spells it
+     *
+     * @return string The same name with its first character upper-cased
      */
     private static function capitalise(string $name): string
     {

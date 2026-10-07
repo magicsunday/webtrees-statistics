@@ -21,10 +21,12 @@ use function strip_tags;
  * Pure helper mirroring webtrees core's private `centuryName()` so widgets that
  * produce century data outside of `StatisticsData::countEventsByCentury` (e.g.
  * the child-mortality aggregator, which needs a self-joined dates query) can
- * label their cohorts identically to the rest of the chart.
+ * label their cohorts consistently across the chart.
  *
- * Reuses the existing core PO translation context `CENTURY`, so no new
- * translation strings are introduced.
+ * The ordinals live under the module's own `century ordinal` context and not
+ * under the core `CENTURY` context. The module writes plain-text ordinals on
+ * purpose, and an entry under the core context would replace the century labels
+ * webtrees core renders on its own pages.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
