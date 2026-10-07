@@ -18,6 +18,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
+use function file_get_contents;
+use function preg_match;
+
 /**
  * Locks the compact {@see MonthName::abbreviated()} column axis the period ×
  * month heatmap renders: the twelve names cut to three characters, January
@@ -61,7 +64,7 @@ final class MonthNameTest extends TestCase
 
     /**
      * The webtrees core catalogue spells the nominative month names lowercase in
-     * several locales (Czech, Dutch, French, Italian, Polish, Russian). The chart
+     * several locales, Czech and Dutch among them. The chart
      * labels want a capital, so the name is capitalised here instead of the module
      * shipping its own capitalised catalogue entry, which would replace the core
      * month name in every date webtrees renders. Czech carries multibyte initials
@@ -101,6 +104,27 @@ final class MonthNameTest extends TestCase
                 'DEC' => 'Prosinec',
             ],
             MonthName::byAbbreviation(static fn (string $month): string => $translated[$month] ?? $month),
+        );
+    }
+
+    /**
+     * Without a translation function the month names come from the core catalogue
+     * under its `NOMINATIVE` context, so the module needs no catalogue entry of its
+     * own. The test runtime ships no non-English catalogue, and under the English
+     * source language every context returns the source text, so the context is
+     * pinned in the source: a module context or the plain text would shadow or miss
+     * the core month names without a single English assertion noticing.
+     */
+    #[Test]
+    public function byAbbreviationDefaultsToTheCoreNominativeContext(): void
+    {
+        $source = file_get_contents(__DIR__ . '/../../../src/Support/Locale/MonthName.php');
+
+        self::assertIsString($source);
+        self::assertSame(
+            1,
+            preg_match('/I18N::translateContext\(\'NOMINATIVE\', \$month\)/', $source),
+            'The default month translation must use the core NOMINATIVE context',
         );
     }
 
