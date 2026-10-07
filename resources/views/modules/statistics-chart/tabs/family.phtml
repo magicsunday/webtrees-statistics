@@ -368,13 +368,13 @@ echo Card::for($module, I18N::translate('Sibling age gap'))
     ->render();
 
 echo Card::for($module, I18N::translate('Family size composition share by decade'))
-    ->withSub(I18N::translate('Normalised to 100 %% · shift from large to small families'))
+    ->withSub(I18N::translate('Normalized to 100 %% · shift from large to small families'))
     ->withEyebrow(I18N::translate('Shift'))
     ->withAccent(Accent::Wine)
     ->withIllustration(Illustration::Family)
     ->withInfo(
         I18N::translate(
-            'For every marriage decade the bar is split into four family-size segments: 1, 2, 3 and 4 or more children. Childless families are excluded, so each bar shows the make-up of families with at least one recorded child. Each bar is normalised to 100 %%, so decades with very different family counts can be compared side by side.'
+            'For every marriage decade the bar is split into four family-size segments: 1, 2, 3 and 4 or more children. Childless families are excluded, so each bar shows the make-up of families with at least one recorded child. Each bar is normalized to 100 %%, so decades with very different family counts can be compared side by side.'
         ),
         $aboutThisChart,
         $aboutThisChart
@@ -647,7 +647,7 @@ echo Card::for($module, I18N::translate('Shortest & longest marriages'))
     ->withIllustration(Illustration::Rings)
     ->withInfo(
         I18N::translate(
-            'The shortest- and longest-lasting marriages where the end is datable — either a recorded divorce or the earlier death of a spouse. Each marriage is measured from the wedding to that first ending event and labelled with how it ended. Marriages spanning more than 90 years are treated as data errors and left out.'
+            'The shortest- and longest-lasting marriages where the end is datable — either a recorded divorce or the earlier death of a spouse. Each marriage is measured from the wedding to that first ending event and labeled with how it ended. Marriages spanning more than 90 years are treated as data errors and left out.'
         ),
         $aboutThisChart,
         $aboutThisChart
