@@ -15,6 +15,7 @@ use Fisharebest\Webtrees\I18N;
 
 use function abs;
 use function intdiv;
+use function str_contains;
 use function strip_tags;
 
 /**
@@ -23,10 +24,11 @@ use function strip_tags;
  * the child-mortality aggregator, which needs a self-joined dates query) can
  * label their cohorts consistently across the chart.
  *
- * The ordinals live under the module's own `century ordinal` context and not
- * under the core `CENTURY` context. The module writes plain-text ordinals on
- * purpose, and an entry under the core context would replace the century labels
- * webtrees core renders on its own pages.
+ * The ordinals are the ones webtrees core translates under its `CENTURY`
+ * context, stripped of markup. The module carries no ordinal of its own,
+ * because an entry under that context would replace the century labels core
+ * renders on its own pages. A language whose core ordinal already names the
+ * century (Chinese) is not followed by the century noun a second time.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -67,36 +69,49 @@ final readonly class CenturyName
 
     /**
      * Localise a positive 1-based century number to its bare ordinal string
-     * ("1st", "21st", …). The single place the per-locale ordinal table lives;
+     * ("1st", "21st", …) from the core catalogue. The single place the ordinals are looked up;
      * {@see compactLabel()} and {@see longLabel()} both build on it so the BCE
      * era marker can be appended LAST, after the century noun.
      */
     private static function ordinal(int $century): string
     {
         return strip_tags(match ($century) {
-            21      => I18N::translateContext('century ordinal', '21st'),
-            20      => I18N::translateContext('century ordinal', '20th'),
-            19      => I18N::translateContext('century ordinal', '19th'),
-            18      => I18N::translateContext('century ordinal', '18th'),
-            17      => I18N::translateContext('century ordinal', '17th'),
-            16      => I18N::translateContext('century ordinal', '16th'),
-            15      => I18N::translateContext('century ordinal', '15th'),
-            14      => I18N::translateContext('century ordinal', '14th'),
-            13      => I18N::translateContext('century ordinal', '13th'),
-            12      => I18N::translateContext('century ordinal', '12th'),
-            11      => I18N::translateContext('century ordinal', '11th'),
-            10      => I18N::translateContext('century ordinal', '10th'),
-            9       => I18N::translateContext('century ordinal', '9th'),
-            8       => I18N::translateContext('century ordinal', '8th'),
-            7       => I18N::translateContext('century ordinal', '7th'),
-            6       => I18N::translateContext('century ordinal', '6th'),
-            5       => I18N::translateContext('century ordinal', '5th'),
-            4       => I18N::translateContext('century ordinal', '4th'),
-            3       => I18N::translateContext('century ordinal', '3rd'),
-            2       => I18N::translateContext('century ordinal', '2nd'),
-            1       => I18N::translateContext('century ordinal', '1st'),
+            21      => I18N::translateContext('CENTURY', '21st'),
+            20      => I18N::translateContext('CENTURY', '20th'),
+            19      => I18N::translateContext('CENTURY', '19th'),
+            18      => I18N::translateContext('CENTURY', '18th'),
+            17      => I18N::translateContext('CENTURY', '17th'),
+            16      => I18N::translateContext('CENTURY', '16th'),
+            15      => I18N::translateContext('CENTURY', '15th'),
+            14      => I18N::translateContext('CENTURY', '14th'),
+            13      => I18N::translateContext('CENTURY', '13th'),
+            12      => I18N::translateContext('CENTURY', '12th'),
+            11      => I18N::translateContext('CENTURY', '11th'),
+            10      => I18N::translateContext('CENTURY', '10th'),
+            9       => I18N::translateContext('CENTURY', '9th'),
+            8       => I18N::translateContext('CENTURY', '8th'),
+            7       => I18N::translateContext('CENTURY', '7th'),
+            6       => I18N::translateContext('CENTURY', '6th'),
+            5       => I18N::translateContext('CENTURY', '5th'),
+            4       => I18N::translateContext('CENTURY', '4th'),
+            3       => I18N::translateContext('CENTURY', '3rd'),
+            2       => I18N::translateContext('CENTURY', '2nd'),
+            1       => I18N::translateContext('CENTURY', '1st'),
             default => I18N::translate('%s century', (string) $century),
         });
+    }
+
+    /**
+     * Whether an ordinal already carries the word for "century". Core spells the
+     * Chinese ordinal with it, so appending the noun a second time would read
+     * "二十世纪 世纪".
+     *
+     * @param string $ordinal The localised ordinal of a century
+     * @param string $noun    The localised word for "century"
+     */
+    public static function namesTheCentury(string $ordinal, string $noun): bool
+    {
+        return ($noun !== '') && str_contains($ordinal, $noun);
     }
 
     /**
@@ -108,7 +123,9 @@ final readonly class CenturyName
      */
     public static function longLabel(int $century): string
     {
-        $label = self::ordinal(abs($century)) . ' ' . I18N::translate('Century');
+        $ordinal = self::ordinal(abs($century));
+        $noun    = I18N::translate('Century');
+        $label   = self::namesTheCentury($ordinal, $noun) ? $ordinal : $ordinal . ' ' . $noun;
 
         if ($century < 0) {
             return I18N::translate('%s BCE', $label);
@@ -127,7 +144,8 @@ final readonly class CenturyName
      */
     public static function compactLabel(int $century): string
     {
-        $label = I18N::translate('%s cent.', self::ordinal(abs($century)));
+        $ordinal = self::ordinal(abs($century));
+        $label   = self::namesTheCentury($ordinal, I18N::translate('Century')) ? $ordinal : I18N::translate('%s cent.', $ordinal);
 
         if ($century < 0) {
             return I18N::translate('%s BCE', $label);

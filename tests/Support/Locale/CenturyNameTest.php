@@ -137,4 +137,35 @@ final class CenturyNameTest extends TestCase
 
         self::assertSame($expected, CenturyName::longLabel($century));
     }
+
+    /**
+     * An ordinal that already carries the century word is not followed by the
+     * noun again, and an ordinal without it is. Chinese core writes the ordinal
+     * "二十世纪" while the noun is "世纪", which would read "二十世纪 世纪".
+     *
+     * @return array<string, array{string, string, bool}>
+     */
+    public static function namesTheCenturyProvider(): array
+    {
+        return [
+            'Chinese ordinal holds the noun' => ['二十世纪', '世纪', true],
+            'German ordinal is a number'     => ['20.', 'Jahrhundert', false],
+            'Roman ordinal is a number'      => ['XX', 'secolo', false],
+            'an empty noun matches nothing'  => ['20th', '', false],
+        ];
+    }
+
+    /**
+     * The noun is appended only where the ordinal lacks it.
+     *
+     * @param string $ordinal  The localised ordinal of a century
+     * @param string $noun     The localised word for "century"
+     * @param bool   $expected Whether the ordinal already names the century
+     */
+    #[Test]
+    #[DataProvider('namesTheCenturyProvider')]
+    public function namesTheCenturyDetectsAnOrdinalThatCarriesTheNoun(string $ordinal, string $noun, bool $expected): void
+    {
+        self::assertSame($expected, CenturyName::namesTheCentury($ordinal, $noun));
+    }
 }
