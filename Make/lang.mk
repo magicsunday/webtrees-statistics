@@ -24,7 +24,7 @@ POT_FILE  := resources/lang/messages.pot
 # release of the minor line composer.json requires, the first one is the floor of
 # that constraint, and a release core ships later is added to it.
 CORE_OWNED    := dev/core-owned.pot
-CORE_RELEASES := 2.2.0 2.2.1 2.2.2 2.2.3 2.2.4 2.2.5 2.2.6
+CORE_RELEASES := 2.2.2 2.2.3 2.2.4 2.2.5 2.2.6
 PO_FILES  := $(foreach loc,$(LOCALES),resources/lang/$(loc)/messages.po)
 MO_FILES  := $(PO_FILES:.po=.mo)
 

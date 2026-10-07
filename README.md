@@ -27,7 +27,7 @@ mirror-histogram / gauge / box-plot / heatmap / treemap / event-timeline widgets
 
 
 ## Installation
-Requires **webtrees 2.2** and **PHP 8.3** or later.
+Requires **webtrees 2.2.2** or a later 2.2 release and **PHP 8.3** or later.
 
 ### Manual installation
 

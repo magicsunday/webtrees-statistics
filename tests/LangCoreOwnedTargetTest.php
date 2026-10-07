@@ -92,8 +92,8 @@ final class LangCoreOwnedTargetTest extends TestCase
         return [
             'no checkout given'                       => [null, false, [], 'pass CORE='],
             'a directory that is no git checkout'     => [[], false, [], 'CORE is not a git checkout'],
-            'a checkout with only the last release'   => [['2.2.6'], true, [], 'lacks the tag 2.2.0'],
-            'a checkout with only the first release'  => [['2.2.0'], true, [], 'lacks the tag 2.2.1'],
+            'a checkout with only the last release'   => [['2.2.6'], true, [], 'lacks the tag 2.2.2'],
+            'a checkout with only the first release'  => [['2.2.2'], true, [], 'lacks the tag 2.2.3'],
             'a release line that composer.json lacks' => [['2.3.0'], true, ['CORE_RELEASES=2.3.0'], 'does not match the webtrees constraint'],
         ];
     }
