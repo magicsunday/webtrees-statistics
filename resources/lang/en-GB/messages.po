@@ -1461,7 +1461,7 @@ msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/places.phtml:66
 msgid ""
-"Each individual is bucketed by the great-circle distance in kilometres "
+"Each individual is bucketed by the great-circle distance in kilometers "
 "between their birth place and death place. Only individuals whose birth AND "
 "death place both carry map coordinates (a PLAC:MAP sub-tag) are counted — "
 "the module reads no external geocoder — so the chart covers the "
@@ -1469,6 +1469,13 @@ msgid ""
 "bound on real mobility rather than a complete picture. The chart is hidden "
 "when too few individuals qualify."
 msgstr ""
+"Each individual is bucketed by the great-circle distance in kilometres "
+"between their birth place and death place. Only individuals whose birth AND "
+"death place both carry map coordinates (a PLAC:MAP sub-tag) are counted — "
+"the module reads no external geocoder — so the chart covers the "
+"documentation-limited subset of records that were geocoded at all, a lower "
+"bound on real mobility rather than a complete picture. The chart is hidden "
+"when too few individuals qualify."
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:399
 msgid ""
