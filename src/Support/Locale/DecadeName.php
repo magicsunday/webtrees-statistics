@@ -38,8 +38,9 @@ final readonly class DecadeName
 
     /**
      * Short decade-suffix label used on chart X-axes and as the primary
-     * category label across every per-decade widget. Reuses the existing core
-     * PO translation `'%ss'`, so no new translation strings are introduced.
+     * category label across every per-decade widget. The text `'%ss'` belongs to
+     * the module, because core translates no such text, so a language without a
+     * module catalogue shows the English "1900s".
      *
      * A negative decade-start key is a BCE decade grouped by magnitude — `-50`
      * is the "50s BCE" decade (years 50–59 BCE) — and the BCE era marker is
