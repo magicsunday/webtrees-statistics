@@ -23,7 +23,8 @@ use function dirname;
 use function file_get_contents;
 use function glob;
 use function preg_match_all;
-use function sprintf;
+use function range;
+use function sort;
 use function str_starts_with;
 
 use const PREG_SET_ORDER;
@@ -90,24 +91,44 @@ final class CenturyOrdinalCatalogueTest extends TestCase
     }
 
     /**
-     * Every century label `CenturyName` translates goes through the core context.
-     * A call under a module context would show the English ordinal in every
-     * language the module ships no catalogue for.
+     * Every century ordinal `CenturyName` translates goes through the core
+     * context, and none is left out. The check names the exact set of ordinals, so
+     * a single arm that falls back to a plain translation or to another context
+     * turns the test red, where a test that only validates the calls it finds
+     * would stay green on the other arms. A module context would show the English
+     * ordinal in every language the module ships no catalogue for.
      */
     #[Test]
-    public function theProductionCodeTranslatesTheOrdinalsUnderTheCoreContext(): void
+    public function theProductionCodeTranslatesEveryOrdinalUnderTheCoreContext(): void
     {
+        $expected = [];
+
+        foreach (range(1, 21) as $century) {
+            $expected[] = [self::CORE_CONTEXT, $century . $this->englishSuffix($century)];
+        }
+
         $calls = $this->translateContextCalls();
 
-        self::assertNotSame([], $calls, 'CenturyName holds no translateContext() call to pin');
+        sort($calls);
+        sort($expected);
 
-        foreach ($calls as [$context, $ordinal]) {
-            self::assertSame(
-                self::CORE_CONTEXT,
-                $context,
-                sprintf('The ordinal "%s" is translated under the context "%s"', $ordinal, $context),
-            );
-        }
+        self::assertSame($expected, $calls, 'CenturyName must translate the ordinals 1st to 21st under the core context');
+    }
+
+    /**
+     * The English ordinal suffix of a century number from 1 to 21.
+     *
+     * @param int $number The century number
+     */
+    private function englishSuffix(int $number): string
+    {
+        return match (true) {
+            ($number >= 4) && ($number <= 20) => 'th',
+            ($number % 10) === 1              => 'st',
+            ($number % 10) === 2              => 'nd',
+            ($number % 10) === 3              => 'rd',
+            default                           => 'th',
+        };
     }
 
     /**

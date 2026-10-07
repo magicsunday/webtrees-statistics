@@ -140,48 +140,49 @@ final class CenturyNameTest extends TestCase
 
     /**
      * The label of a language whose core ordinal already holds the century word
-     * (Chinese: "二十世纪" with the noun "世纪") stays the ordinal alone, in the long
-     * and the compact form and with the BCE marker last. A language whose
-     * ordinal is a bare number keeps the noun or the abbreviation. The runtime
-     * loads no such language, so the localised parts are passed in.
+     * (Chinese: "二十世纪" with the noun "世纪") stays the ordinal alone, whichever
+     * fallback the caller builds and with the BCE marker last. A language whose
+     * ordinal is a bare number gets the fallback, the full noun in the long form
+     * and the abbreviation in the compact form. The runtime loads no such
+     * language, so the localised parts are passed in.
      *
-     * @return array<string, array{int, string, string, string, string, string}>
+     * @return array<string, array{int, string, string, string, string}>
      */
     public static function localisedPartsProvider(): array
     {
         return [
-            'Chinese CE'  => [20, '二十世纪', '世纪', '二十世纪 世纪', '二十世纪', '二十世纪'],
-            'Chinese BCE' => [-2, '二世纪', '世纪', '二世纪 世纪', '二世纪 BCE', '二世纪 BCE'],
-            'German CE'   => [20, '20.', 'Jahrhundert', '20. Jh.', '20. Jahrhundert', '20. Jh.'],
-            'German BCE'  => [-2, '2.', 'Jahrhundert', '2. Jh.', '2. Jahrhundert BCE', '2. Jh. BCE'],
+            'Chinese long CE'    => [20, '二十世纪', '世纪', '二十世纪 世纪', '二十世纪'],
+            'Chinese compact CE' => [20, '二十世纪', '世纪', '二十世纪 世纪', '二十世纪'],
+            'Chinese long BCE'   => [-2, '二世纪', '世纪', '二世纪 世纪', '二世纪 BCE'],
+            'German long CE'     => [20, '20.', 'Jahrhundert', '20. Jahrhundert', '20. Jahrhundert'],
+            'German compact CE'  => [20, '20.', 'Jahrhundert', '20. Jh.', '20. Jh.'],
+            'German long BCE'    => [-2, '2.', 'Jahrhundert', '2. Jahrhundert', '2. Jahrhundert BCE'],
+            'German compact BCE' => [-2, '2.', 'Jahrhundert', '2. Jh.', '2. Jh. BCE'],
         ];
     }
 
     /**
-     * Both labels are composed from the localised parts the way the language
-     * needs it.
+     * The label is composed from the localised parts the way the language needs
+     * it.
      *
-     * @param int    $century     The signed century number
-     * @param string $ordinal     The localised ordinal
-     * @param string $noun        The localised word for "century"
-     * @param string $abbreviated The ordinal with the abbreviated noun
-     * @param string $long        The expected long label
-     * @param string $compact     The expected compact label
+     * @param int    $century  The signed century number
+     * @param string $ordinal  The localised ordinal
+     * @param string $noun     The localised word for "century"
+     * @param string $fallback The label for an ordinal that lacks the noun
+     * @param string $expected The expected label
      */
     #[Test]
     #[DataProvider('localisedPartsProvider')]
-    public function labelsComposeFromTheLocalisedParts(
+    public function labelFromComposesTheLocalisedParts(
         int $century,
         string $ordinal,
         string $noun,
-        string $abbreviated,
-        string $long,
-        string $compact,
+        string $fallback,
+        string $expected,
     ): void {
         (new Webtrees())->bootstrap();
         I18N::init('en-US', true);
 
-        self::assertSame($long, CenturyName::longLabelFrom($century, $ordinal, $noun));
-        self::assertSame($compact, CenturyName::compactLabelFrom($century, $ordinal, $noun, $abbreviated));
+        self::assertSame($expected, CenturyName::labelFrom($century, $ordinal, $noun, $fallback));
     }
 }
