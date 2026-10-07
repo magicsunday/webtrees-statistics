@@ -134,7 +134,8 @@ final class LangCoreOwnedTargetTest extends TestCase
     /**
      * Create a git repository with one commit and the given tags.
      *
-     * @param list<string> $tags
+     * @param string       $path The directory the repository is created in
+     * @param list<string> $tags The tags to put on the commit
      */
     private function initRepository(string $path, array $tags): void
     {
@@ -153,7 +154,7 @@ final class LangCoreOwnedTargetTest extends TestCase
     /**
      * Run the make target from the module root.
      *
-     * @param list<string> $arguments
+     * @param list<string> $arguments The extra make arguments of the case
      *
      * @return array{int, string} The exit code and the combined output
      */
@@ -167,9 +168,10 @@ final class LangCoreOwnedTargetTest extends TestCase
      * kept from looking above the scratch directory, so a directory the case
      * means to be no checkout is not taken for one that lies higher up.
      *
-     * @param list<string> $command
+     * @param list<string> $command   The program and its arguments
+     * @param string       $directory The working directory of the command
      *
-     * @return array{int, string}
+     * @return array{int, string} The exit code and the combined output
      */
     private function execute(array $command, string $directory): array
     {
@@ -190,6 +192,8 @@ final class LangCoreOwnedTargetTest extends TestCase
 
     /**
      * Remove a directory tree.
+     *
+     * @param string $path The directory to remove with everything below it
      */
     private function remove(string $path): void
     {

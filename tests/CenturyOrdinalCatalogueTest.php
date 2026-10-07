@@ -123,6 +123,8 @@ final class CenturyOrdinalCatalogueTest extends TestCase
     /**
      * Every ordinal `CenturyName` translates has a translation under the module's
      * own context. An ordinal missing there renders the English text.
+     *
+     * @param string $file The path of the compiled catalogue under test
      */
     #[Test]
     #[DataProvider('catalogueProvider')]
@@ -147,6 +149,8 @@ final class CenturyOrdinalCatalogueTest extends TestCase
     /**
      * No entry sits under the core context, because it would replace the century
      * labels webtrees core renders on its own pages.
+     *
+     * @param string $file The path of the compiled catalogue under test
      */
     #[Test]
     #[DataProvider('catalogueProvider')]

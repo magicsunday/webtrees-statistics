@@ -113,7 +113,7 @@ final readonly class MonthName
      * shipping a capitalised catalogue entry, which would replace the core month
      * name in every date webtrees renders.
      *
-     * @param Closure(string): string|null $translate Maps an English month name to its translation. The NOMINATIVE core translation is used when omitted
+     * @param (Closure(string): string)|null $translate Maps an English month name to its translation. The NOMINATIVE core translation is used when omitted
      *
      * @return array<string, string>
      */
