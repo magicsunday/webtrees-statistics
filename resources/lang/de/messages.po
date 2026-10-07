@@ -65,21 +65,6 @@ msgstr ""
 "%1$s von %2$s Kindern starben vor dem 5. Lebensjahr: die dunkelste Kohorte "
 "im Stammbaum."
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:574
-#, php-format
-msgid ""
-"%1$s of %2$s couple where both spouses had at least one recorded parent "
-"share a common ancestor."
-msgid_plural ""
-"%1$s of %2$s couples where both spouses had at least one recorded parent "
-"share a common ancestor."
-msgstr[0] ""
-"%1$s von %2$s Paar, bei dem beide Ehepartner mindestens einen erfassten "
-"Elternteil haben, teilt einen gemeinsamen Vorfahren."
-msgstr[1] ""
-"%1$s von %2$s Paaren, bei denen beide Ehepartner mindestens einen erfassten "
-"Elternteil haben, teilen einen gemeinsamen Vorfahren."
-
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:705
 #, php-format
 msgid "%1$s of %2$s shown"
@@ -992,6 +977,21 @@ msgstr "Chronik"
 #, php-format
 msgid "Coincides with: %s"
 msgstr "Fällt zeitlich zusammen mit: %s"
+
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:574
+#, php-format
+msgid ""
+"Common ancestor: %1$s of %2$s couple where both spouses had at least one "
+"recorded parent."
+msgid_plural ""
+"Common ancestor: %1$s of %2$s couples where both spouses had at least one "
+"recorded parent."
+msgstr[0] ""
+"Gemeinsamer Vorfahre: %1$s von %2$s Paar, bei dem beide Ehepartner "
+"mindestens einen erfassten Elternteil haben."
+msgstr[1] ""
+"Gemeinsamer Vorfahre: %1$s von %2$s Paaren, bei denen beide Ehepartner "
+"mindestens einen erfassten Elternteil haben."
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:566
 msgid "Common causes of death"
