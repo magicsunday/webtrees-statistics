@@ -78,6 +78,10 @@ lang-core-owned: ## Rebuild dev/core-owned.pot from a webtrees git checkout (COR
 # msgmerge would otherwise copy into every PO header on each run, producing
 # a spurious diff. Pinning it keeps the catalogue byte-stable so the CI
 # diff-gate fires only on real string drift.
+# The exclusion of the core-owned texts has no PHPUnit test of its own. The
+# required CI check `catalogue / Pipeline freshness` runs `make lang` and fails
+# when the committed catalogues differ from its result, which they do as soon as
+# the exclusion stops applying.
 $(POT_FILE): $(CORE_OWNED) $(shell find src resources/views -type f \( -name '*.php' -o -name '*.phtml' \) 2>/dev/null)
 	@$(COMPOSE_RUN) sh -c 'set -eu; \
 		command -v xgettext >/dev/null 2>&1 || apk add --no-cache gettext >/dev/null 2>&1; \
