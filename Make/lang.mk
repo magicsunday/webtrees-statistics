@@ -54,6 +54,9 @@ lang-extract: $(POT_FILE) ## Extract translatable strings from src/ + resources/
 # what the freshness gate checks `make lang` against.
 lang-core-owned: ## Rebuild dev/core-owned.pot from a webtrees git checkout (CORE=/path/to/webtrees).
 	@test -n "$(CORE)" || { echo "  ✘ pass CORE=<path to a webtrees git checkout>"; exit 1; }
+	@git -C "$(CORE)" rev-parse --git-dir >/dev/null 2>&1 || { echo "  ✘ CORE is not a git checkout"; exit 1; }
+	@git -C "$(CORE)" rev-parse --verify --quiet "refs/tags/$(CORE_MINOR).0" >/dev/null || { echo "  ✘ the checkout lacks the tag $(CORE_MINOR).0, so it holds only part of the release line"; exit 1; }
+	@grep -qF '"fisharebest/webtrees": "~$(CORE_MINOR).0"' composer.json || { echo "  ✘ CORE_MINOR does not match the webtrees constraint of composer.json"; exit 1; }
 	@rm -rf .build/core-pots && mkdir -p .build/core-pots
 	@for tag in $$(git -C "$(CORE)" tag -l '$(CORE_MINOR).*' | grep -E '^$(subst .,\.,$(CORE_MINOR))\.[0-9]+$$' | sort -V); do \
 		git -C "$(CORE)" show "$$tag:resources/lang/webtrees.pot" > ".build/core-pots/$$tag.pot" || exit 1; \
