@@ -64,21 +64,6 @@ msgid ""
 msgstr ""
 "%1$s of %2$s children died before age 5 — the darkest cohort in the tree."
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:574
-#, php-format
-msgid ""
-"%1$s of %2$s couple where both spouses had at least one recorded parent "
-"share a common ancestor."
-msgid_plural ""
-"%1$s of %2$s couples where both spouses had at least one recorded parent "
-"share a common ancestor."
-msgstr[0] ""
-"%1$s af %2$s par, hvor begge ægtefæller har mindst én registreret forælder, "
-"deler en fælles forfader."
-msgstr[1] ""
-"%1$s af %2$s par, hvor begge ægtefæller har mindst én registreret forælder, "
-"deler en fælles forfader."
-
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:705
 #, php-format
 msgid "%1$s of %2$s shown"
@@ -976,6 +961,21 @@ msgstr "Krønike"
 #, php-format
 msgid "Coincides with: %s"
 msgstr ""
+
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:574
+#, php-format
+msgid ""
+"Common ancestor: %1$s of %2$s couple where both spouses had at least one "
+"recorded parent."
+msgid_plural ""
+"Common ancestor: %1$s of %2$s couples where both spouses had at least one "
+"recorded parent."
+msgstr[0] ""
+"Fælles forfader: %1$s af %2$s par, hvor begge ægtefæller har mindst én "
+"registreret forælder."
+msgstr[1] ""
+"Fælles forfader: %1$s af %2$s par, hvor begge ægtefæller har mindst én "
+"registreret forælder."
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:566
 msgid "Common causes of death"

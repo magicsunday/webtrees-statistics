@@ -64,16 +64,6 @@ msgid ""
 msgstr ""
 "%1$s of %2$s children died before age 5 — the darkest cohort in the tree."
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:574
-#, php-format
-msgid ""
-"%1$s of %2$s couple where both spouses had at least one recorded parent "
-"share a common ancestor."
-msgid_plural ""
-"%1$s of %2$s couples where both spouses had at least one recorded parent "
-"share a common ancestor."
-msgstr[0] "%2$s 对夫妇中有 %1$s 对(双方都有至少一位父母记录)共享一位共同祖先。"
-
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:705
 #, php-format
 msgid "%1$s of %2$s shown"
@@ -913,6 +903,16 @@ msgstr "Chronicle"
 #, php-format
 msgid "Coincides with: %s"
 msgstr ""
+
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:574
+#, php-format
+msgid ""
+"Common ancestor: %1$s of %2$s couple where both spouses had at least one "
+"recorded parent."
+msgid_plural ""
+"Common ancestor: %1$s of %2$s couples where both spouses had at least one "
+"recorded parent."
+msgstr[0] "共同祖先:%2$s 对夫妇中有 %1$s 对(双方都有至少一位父母记录)。"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:566
 msgid "Common causes of death"

@@ -65,21 +65,6 @@ msgstr ""
 "%1$s van de %2$s kinderen overleden vóór de leeftijd van 5 jaar: de cohort "
 "met de hoogste sterfte in de stamboom."
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:574
-#, php-format
-msgid ""
-"%1$s of %2$s couple where both spouses had at least one recorded parent "
-"share a common ancestor."
-msgid_plural ""
-"%1$s of %2$s couples where both spouses had at least one recorded parent "
-"share a common ancestor."
-msgstr[0] ""
-"%1$s van %2$s paar waarvan beide echtgenoten ten minste één geregistreerde "
-"ouder hebben deelt een gemeenschappelijke voorouder."
-msgstr[1] ""
-"%1$s van %2$s paren waarvan beide echtgenoten ten minste één geregistreerde "
-"ouder hebben delen een gemeenschappelijke voorouder."
-
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:705
 #, php-format
 msgid "%1$s of %2$s shown"
@@ -997,6 +982,21 @@ msgstr "Kroniek"
 #, php-format
 msgid "Coincides with: %s"
 msgstr "Valt samen met: %s"
+
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:574
+#, php-format
+msgid ""
+"Common ancestor: %1$s of %2$s couple where both spouses had at least one "
+"recorded parent."
+msgid_plural ""
+"Common ancestor: %1$s of %2$s couples where both spouses had at least one "
+"recorded parent."
+msgstr[0] ""
+"Gemeenschappelijke voorouder: %1$s van %2$s paar waarvan beide echtgenoten "
+"ten minste één geregistreerde ouder hebben."
+msgstr[1] ""
+"Gemeenschappelijke voorouder: %1$s van %2$s paren waarvan beide echtgenoten "
+"ten minste één geregistreerde ouder hebben."
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:566
 msgid "Common causes of death"

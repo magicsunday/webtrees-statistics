@@ -65,21 +65,6 @@ msgstr ""
 "%1$s bambini su %2$s sono morti prima dei 5 anni — la coorte più cupa "
 "dell'albero."
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:574
-#, php-format
-msgid ""
-"%1$s of %2$s couple where both spouses had at least one recorded parent "
-"share a common ancestor."
-msgid_plural ""
-"%1$s of %2$s couples where both spouses had at least one recorded parent "
-"share a common ancestor."
-msgstr[0] ""
-"%1$s su %2$s coppia in cui entrambi i coniugi hanno almeno un genitore "
-"registrato condivide un antenato comune."
-msgstr[1] ""
-"%1$s su %2$s coppie in cui entrambi i coniugi hanno almeno un genitore "
-"registrato condividono un antenato comune."
-
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:705
 #, php-format
 msgid "%1$s of %2$s shown"
@@ -981,6 +966,21 @@ msgstr "Cronaca"
 #, php-format
 msgid "Coincides with: %s"
 msgstr ""
+
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:574
+#, php-format
+msgid ""
+"Common ancestor: %1$s of %2$s couple where both spouses had at least one "
+"recorded parent."
+msgid_plural ""
+"Common ancestor: %1$s of %2$s couples where both spouses had at least one "
+"recorded parent."
+msgstr[0] ""
+"Antenato comune: %1$s su %2$s coppia in cui entrambi i coniugi hanno almeno "
+"un genitore registrato."
+msgstr[1] ""
+"Antenato comune: %1$s su %2$s coppie in cui entrambi i coniugi hanno almeno "
+"un genitore registrato."
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:566
 msgid "Common causes of death"

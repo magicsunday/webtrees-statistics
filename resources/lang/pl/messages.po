@@ -65,24 +65,6 @@ msgid ""
 msgstr ""
 "%1$s of %2$s children died before age 5 — the darkest cohort in the tree."
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:574
-#, php-format
-msgid ""
-"%1$s of %2$s couple where both spouses had at least one recorded parent "
-"share a common ancestor."
-msgid_plural ""
-"%1$s of %2$s couples where both spouses had at least one recorded parent "
-"share a common ancestor."
-msgstr[0] ""
-"%1$s z %2$s pary, w której oboje małżonkowie mają co najmniej jednego "
-"zarejestrowanego rodzica, dzieli wspólnego przodka."
-msgstr[1] ""
-"%1$s z %2$s par, w których oboje małżonkowie mają co najmniej jednego "
-"zarejestrowanego rodzica, dzieli wspólnego przodka."
-msgstr[2] ""
-"%1$s z %2$s par, w których oboje małżonkowie mają co najmniej jednego "
-"zarejestrowanego rodzica, dzieli wspólnego przodka."
-
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:705
 #, php-format
 msgid "%1$s of %2$s shown"
@@ -1024,6 +1006,24 @@ msgstr "Chronicle"
 #, php-format
 msgid "Coincides with: %s"
 msgstr ""
+
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:574
+#, php-format
+msgid ""
+"Common ancestor: %1$s of %2$s couple where both spouses had at least one "
+"recorded parent."
+msgid_plural ""
+"Common ancestor: %1$s of %2$s couples where both spouses had at least one "
+"recorded parent."
+msgstr[0] ""
+"Wspólny przodek: %1$s z %2$s pary, w której oboje małżonkowie mają co "
+"najmniej jednego zarejestrowanego rodzica."
+msgstr[1] ""
+"Wspólny przodek: %1$s z %2$s par, w których oboje małżonkowie mają co "
+"najmniej jednego zarejestrowanego rodzica."
+msgstr[2] ""
+"Wspólny przodek: %1$s z %2$s par, w których oboje małżonkowie mają co "
+"najmniej jednego zarejestrowanego rodzica."
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:566
 msgid "Common causes of death"
