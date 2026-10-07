@@ -111,7 +111,7 @@ final readonly class CenturyName
      */
     private static function namesTheCentury(string $ordinal, string $noun): bool
     {
-        return ($noun !== '') && str_contains($ordinal, $noun);
+        return str_contains($ordinal, $noun);
     }
 
     /**

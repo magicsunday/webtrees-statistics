@@ -139,6 +139,55 @@ final class CenturyNameTest extends TestCase
     }
 
     /**
+     * Every century from the 1st to the 21st reads its own ordinal, so two
+     * ordinals that swapped places in the translation table would show.
+     *
+     * @return array<string, array{int, string}>
+     */
+    public static function everyOrdinalProvider(): array
+    {
+        return [
+            '1st'  => [1, '1st'],
+            '2nd'  => [2, '2nd'],
+            '3rd'  => [3, '3rd'],
+            '4th'  => [4, '4th'],
+            '5th'  => [5, '5th'],
+            '6th'  => [6, '6th'],
+            '7th'  => [7, '7th'],
+            '8th'  => [8, '8th'],
+            '9th'  => [9, '9th'],
+            '10th' => [10, '10th'],
+            '11th' => [11, '11th'],
+            '12th' => [12, '12th'],
+            '13th' => [13, '13th'],
+            '14th' => [14, '14th'],
+            '15th' => [15, '15th'],
+            '16th' => [16, '16th'],
+            '17th' => [17, '17th'],
+            '18th' => [18, '18th'],
+            '19th' => [19, '19th'],
+            '20th' => [20, '20th'],
+            '21st' => [21, '21st'],
+        ];
+    }
+
+    /**
+     * The long label of each century carries the ordinal of that century.
+     *
+     * @param int    $century  The century number
+     * @param string $expected The English ordinal expected in the label
+     */
+    #[Test]
+    #[DataProvider('everyOrdinalProvider')]
+    public function longLabelCarriesTheOrdinalOfItsOwnCentury(int $century, string $expected): void
+    {
+        (new Webtrees())->bootstrap();
+        I18N::init('en-US', true);
+
+        self::assertSame($expected . ' Century', CenturyName::longLabel($century));
+    }
+
+    /**
      * The label of a language whose core ordinal already holds the century word
      * (Chinese: "二十世纪" with the noun "世纪") stays the ordinal alone, whichever
      * fallback the caller builds and with the BCE marker last. A language whose
