@@ -571,8 +571,8 @@ echo Card::for($module, I18N::translate('Endogamy rate'))
                 ->with(
                     'caption',
                     I18N::plural(
-                        '%1$s of %2$s couple where both spouses had at least one recorded parent share a common ancestor.',
-                        '%1$s of %2$s couples where both spouses had at least one recorded parent share a common ancestor.',
+                        'Common ancestor: %1$s of %2$s couple where both spouses had at least one recorded parent.',
+                        'Common ancestor: %1$s of %2$s couples where both spouses had at least one recorded parent.',
                         $endogamy->total,
                         I18N::number($endogamy->endogamous),
                         I18N::number($endogamy->total),
