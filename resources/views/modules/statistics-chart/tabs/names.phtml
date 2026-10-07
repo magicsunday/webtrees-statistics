@@ -33,7 +33,7 @@ $surnameMarriageMatrix = $statistic->getSurnameMarriageMatrix(8);
 $namePassdown          = $statistic->getSameSexNamePassdownByCentury();
 
 $streamGraphExplanation = I18N::translate(
-    "Each band stands for one of the most common given names in the tree. The band's vertical thickness in a given decade shows how many individuals born in that decade carried that name. The silhouette layout centres each band around zero, so the chart reads as relative magnitudes. Hover any band to see absolute counts and its peak decade."
+    "Each band stands for one of the most common given names in the tree. The band's vertical thickness in a given decade shows how many individuals born in that decade carried that name. The silhouette layout centers each band around zero, so the chart reads as relative magnitudes. Hover any band to see absolute counts and its peak decade."
 );
 
 $surnameMarriageMatrixExplanation = I18N::translate(
@@ -138,7 +138,7 @@ echo Card::for($module, I18N::translate('Same-sex name passdown'))
     ->withIllustration(Illustration::Tree)
     ->withInfo(
         I18N::translate(
-            'For every parent-child pair of the same sex (father / son and mother / daughter) where both individuals carry a recorded given name, the widget tokenises each name and counts the pair as a match when at least one token appears on both sides. Order and position do not matter. The chart carries one series per sex pairing on a shared X axis, so the two traditions can be compared at a glance. Centuries with fewer than 10 recorded pairs are suppressed independently per series because a single match would swing the rate by more than 10 percentage points.'
+            'For every parent-child pair of the same sex (father / son and mother / daughter) where both individuals carry a recorded given name, the widget tokenizes each name and counts the pair as a match when at least one token appears on both sides. Order and position do not matter. The chart carries one series per sex pairing on a shared X axis, so the two traditions can be compared at a glance. Centuries with fewer than 10 recorded pairs are suppressed independently per series because a single match would swing the rate by more than 10 percentage points.'
         ),
         $aboutThisChart,
         $aboutThisChart
