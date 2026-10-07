@@ -49,8 +49,9 @@ lang-extract: $(POT_FILE) ## Extract translatable strings from src/ + resources/
 # Rebuild the list of core-owned texts from a git checkout of webtrees:
 # `make lang-core-owned CORE=/path/to/webtrees`. Run it when the supported
 # webtrees range moves, then `make lang` to drop the texts the new list covers.
-# The Composer archive of webtrees carries no POT files, so this cannot run in CI
-# and the committed file is what the freshness gate checks `make lang` against.
+# A Composer install holds a single webtrees release while the list needs every
+# release of the minor line, so this cannot run in CI and the committed file is
+# what the freshness gate checks `make lang` against.
 lang-core-owned: ## Rebuild dev/core-owned.pot from a webtrees git checkout (CORE=/path/to/webtrees).
 	@test -n "$(CORE)" || { echo "  ✘ pass CORE=<path to a webtrees git checkout>"; exit 1; }
 	@rm -rf .build/core-pots && mkdir -p .build/core-pots
