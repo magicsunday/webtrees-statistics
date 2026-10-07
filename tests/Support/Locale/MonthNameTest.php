@@ -132,7 +132,7 @@ final class MonthNameTest extends TestCase
      * under its `NOMINATIVE` context, so the module needs no catalogue entry of its
      * own. The test runtime ships no non-English catalogue, and under the English
      * source language every context returns the source text, so the context is
-     * pinned in the source: a module context or the plain text would shadow or miss
+     * pinned in the source. A module context or the plain text would shadow or miss
      * the core month names without a single English assertion noticing.
      */
     #[Test]

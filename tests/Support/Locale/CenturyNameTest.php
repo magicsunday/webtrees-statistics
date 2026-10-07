@@ -189,11 +189,11 @@ final class CenturyNameTest extends TestCase
 
     /**
      * The label of a language whose core ordinal already holds the century word
-     * (Chinese: "二十世纪" with the noun "世纪") stays the ordinal alone, whichever
-     * fallback the caller builds and with the BCE marker last. A language whose
-     * ordinal is a bare number gets the fallback, the full noun in the long form
-     * and the abbreviation in the compact form. The runtime loads no such
-     * language, so the localised parts are passed in.
+     * (Chinese, where the ordinal "二十世纪" holds the noun "世纪") stays the
+     * ordinal alone, whichever fallback the caller builds and with the BCE marker
+     * last. A language whose ordinal is a bare number gets the fallback, the full
+     * noun in the long form and the abbreviation in the compact form. The runtime
+     * loads no such language, so the localised parts are passed in.
      *
      * @return array<string, array{int, string, string, string, string}>
      */
