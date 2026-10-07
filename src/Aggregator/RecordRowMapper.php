@@ -96,7 +96,7 @@ final readonly class RecordRowMapper
         return [
             'cat'   => $cat->value,
             'label' => $label,
-            'value' => I18N::plural('%s year', '%s years', $record->durationYears, I18N::number($record->durationYears)),
+            'value' => I18N::plural('%s year married', '%s years married', $record->durationYears, I18N::number($record->durationYears)),
             'who'   => $record->family->fullName(),
             'url'   => $record->family->url(),
         ];
