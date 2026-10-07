@@ -4,7 +4,7 @@
 
 #### Language & Translations
 
-.PHONY: lang lang-check lang-extract lang-merge lang-resolve-fuzzy lang-compile setup-hooks
+.PHONY: lang lang-check lang-extract lang-merge lang-resolve-fuzzy lang-compile lang-core-owned setup-hooks
 
 # Locales the module ships translations for. Auto-discovered from the
 # existing per-locale directories rather than a hardcoded list, so a
@@ -14,6 +14,17 @@
 LOCALES := $(notdir $(patsubst %/,%,$(wildcard resources/lang/*/)))
 
 POT_FILE  := resources/lang/messages.pot
+
+# The texts webtrees core already owns. A text that every supported core
+# release carries is translated by core, and a module catalogue entry for it
+# would replace the core wording in the whole installation. xgettext leaves
+# these texts out of the POT, so no catalogue lists them and no translation tool
+# offers them. The file is the intersection of the core POT files of the
+# releases named below, rebuilt by `lang-core-owned`. The list holds every
+# release of the minor line composer.json requires, the first one is the floor of
+# that constraint, and a release core ships later is added to it.
+CORE_OWNED    := dev/core-owned.pot
+CORE_RELEASES := 2.2.0 2.2.1 2.2.2 2.2.3 2.2.4 2.2.5 2.2.6
 PO_FILES  := $(foreach loc,$(LOCALES),resources/lang/$(loc)/messages.po)
 MO_FILES  := $(PO_FILES:.po=.mo)
 
@@ -37,6 +48,29 @@ lang-check: lang ## Fail if the committed catalogue is stale (local mirror of th
 
 lang-extract: $(POT_FILE) ## Extract translatable strings from src/ + resources/ into the POT.
 
+# Rebuild the list of core-owned texts from a git checkout of webtrees:
+# `make lang-core-owned CORE=/path/to/webtrees`. Run it when `CORE_RELEASES`
+# changes, then `make lang` to drop the texts the new list covers. A Composer
+# install holds a single webtrees release while the list needs all of them, so
+# this cannot run in CI and the committed file is what the freshness gate checks
+# `make lang` against.
+lang-core-owned: ## Rebuild dev/core-owned.pot from a webtrees git checkout (CORE=/path/to/webtrees).
+	@test -n "$(CORE)" || { echo "  ✘ pass CORE=<path to a webtrees git checkout>"; exit 1; }
+	@git -C "$(CORE)" rev-parse --git-dir >/dev/null 2>&1 || { echo "  ✘ CORE is not a git checkout"; exit 1; }
+	@for tag in $(CORE_RELEASES); do \
+		git -C "$(CORE)" rev-parse --verify --quiet "refs/tags/$$tag" >/dev/null || { echo "  ✘ the checkout lacks the tag $$tag"; exit 1; }; \
+	done
+	@grep -qF '"fisharebest/webtrees": "~$(firstword $(CORE_RELEASES))"' composer.json || { echo "  ✘ CORE_RELEASES does not match the webtrees constraint of composer.json"; exit 1; }
+	@rm -rf .build/core-pots && mkdir -p .build/core-pots
+	@for tag in $(CORE_RELEASES); do \
+		git -C "$(CORE)" show "$$tag:resources/lang/webtrees.pot" > ".build/core-pots/$$tag.pot" || exit 1; \
+	done
+	@$(COMPOSE_RUN) sh -c 'set -eu; \
+		command -v msgcomm >/dev/null 2>&1 || apk add --no-cache gettext >/dev/null 2>&1; \
+		msgcomm --no-location --sort-output --more-than=$$(( $(words $(CORE_RELEASES)) - 1 )) .build/core-pots/*.pot --output-file=.build/core-owned.pot'
+	@cat .build/core-owned.pot > $(CORE_OWNED)
+	@echo "  ✔ $(CORE_OWNED) rebuilt ($$(grep -c '^msgid ".' $(CORE_OWNED)) texts)"
+
 # xgettext walks every PHP / PHTML source for the I18N::translate
 # family. The keyword list mirrors webtrees core's helpers — adding
 # a new context-aware variant means extending this list. POT-Creation-Date
@@ -44,7 +78,11 @@ lang-extract: $(POT_FILE) ## Extract translatable strings from src/ + resources/
 # msgmerge would otherwise copy into every PO header on each run, producing
 # a spurious diff. Pinning it keeps the catalogue byte-stable so the CI
 # diff-gate fires only on real string drift.
-$(POT_FILE): $(shell find src resources/views -type f \( -name '*.php' -o -name '*.phtml' \) 2>/dev/null)
+# The exclusion of the core-owned texts has no PHPUnit test of its own. The
+# required CI check `catalogue / Pipeline freshness` runs `make lang` and fails
+# when the committed catalogues differ from its result, which they do as soon as
+# the exclusion stops applying.
+$(POT_FILE): $(CORE_OWNED) $(shell find src resources/views -type f \( -name '*.php' -o -name '*.phtml' \) 2>/dev/null)
 	@$(COMPOSE_RUN) sh -c 'set -eu; \
 		command -v xgettext >/dev/null 2>&1 || apk add --no-cache gettext >/dev/null 2>&1; \
 		mkdir -p resources/lang; \
@@ -59,6 +97,7 @@ $(POT_FILE): $(shell find src resources/views -type f \( -name '*.php' -o -name 
 			--copyright-holder="Rico Sonntag" \
 			--msgid-bugs-address="https://github.com/magicsunday/webtrees-statistics/issues" \
 			--sort-output \
+			--exclude-file=$(CORE_OWNED) \
 			--output=$(POT_FILE) \
 			$$(find src resources/views -type f \( -name "*.php" -o -name "*.phtml" \) | sort); \
 		sed -i "s/POT-Creation-Date: [0-9-]* [0-9:+-]*/POT-Creation-Date: 1970-01-01 00:00+0000/" $(POT_FILE); \

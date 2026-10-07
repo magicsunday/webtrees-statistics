@@ -11,11 +11,15 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Support\Locale;
 
+use Closure;
 use Fisharebest\Webtrees\I18N;
 
 use function array_map;
 use function array_values;
+use function mb_convert_case;
 use function mb_substr;
+
+use const MB_CASE_TITLE;
 
 /**
  * Pure helper for the localised NOMINATIVE month names every per-month widget
@@ -56,6 +60,29 @@ final readonly class MonthName
     ];
 
     /**
+     * The English source name of every month keyed by its GEDCOM three-letter
+     * code, in calendar order. The webtrees core catalogue translates these
+     * under the NOMINATIVE context, so the module ships no catalogue entry of
+     * its own for them.
+     *
+     * @var array<string, string>
+     */
+    private const array NAMES = [
+        'JAN' => 'January',
+        'FEB' => 'February',
+        'MAR' => 'March',
+        'APR' => 'April',
+        'MAY' => 'May',
+        'JUN' => 'June',
+        'JUL' => 'July',
+        'AUG' => 'August',
+        'SEP' => 'September',
+        'OCT' => 'October',
+        'NOV' => 'November',
+        'DEC' => 'December',
+    ];
+
+    /**
      * Prevent instantiation — static-only utility.
      */
     private function __construct()
@@ -82,24 +109,41 @@ final readonly class MonthName
      * adjacent lookups expose, so a month tally keyed by abbreviation folds onto
      * this map in one pass.
      *
+     * The name is the one the webtrees core catalogue holds, with its first
+     * character capitalised, because several locales spell the month lowercase
+     * and a chart label wants a capital. Capitalising here keeps the module from
+     * shipping a capitalised catalogue entry, which would replace the core month
+     * name in every date webtrees renders.
+     *
+     * @param (Closure(string): string)|null $translate Maps an English month name to its translation. The NOMINATIVE core translation is used when omitted
+     *
      * @return array<string, string>
      */
-    public static function byAbbreviation(): array
+    public static function byAbbreviation(?Closure $translate = null): array
     {
-        return [
-            'JAN' => I18N::translateContext('NOMINATIVE', 'January'),
-            'FEB' => I18N::translateContext('NOMINATIVE', 'February'),
-            'MAR' => I18N::translateContext('NOMINATIVE', 'March'),
-            'APR' => I18N::translateContext('NOMINATIVE', 'April'),
-            'MAY' => I18N::translateContext('NOMINATIVE', 'May'),
-            'JUN' => I18N::translateContext('NOMINATIVE', 'June'),
-            'JUL' => I18N::translateContext('NOMINATIVE', 'July'),
-            'AUG' => I18N::translateContext('NOMINATIVE', 'August'),
-            'SEP' => I18N::translateContext('NOMINATIVE', 'September'),
-            'OCT' => I18N::translateContext('NOMINATIVE', 'October'),
-            'NOV' => I18N::translateContext('NOMINATIVE', 'November'),
-            'DEC' => I18N::translateContext('NOMINATIVE', 'December'),
-        ];
+        $translate ??= static fn (string $month): string => I18N::translateContext('NOMINATIVE', $month);
+
+        return array_map(
+            static fn (string $month): string => self::capitalise($translate($month)),
+            self::NAMES,
+        );
+    }
+
+    /**
+     * Capitalise the first character of a month name, leaving the rest as it is.
+     * The multibyte functions keep an initial such as the Czech "Ú" or "Č" intact,
+     * which a byte-wise `ucfirst` would leave lowercase. The title-case mapping
+     * is used and not the upper-case one, so a script without capitals keeps its
+     * letters, where the upper-case mapping turns a Georgian initial into its
+     * headline form, and a digraph initial such as "ǆ" becomes "ǅ" and not "Ǆ".
+     *
+     * @param string $name The month name as the webtrees core catalogue spells it
+     *
+     * @return string The same name with its first character capitalised
+     */
+    private static function capitalise(string $name): string
+    {
+        return mb_convert_case(mb_substr($name, 0, 1, 'UTF-8'), MB_CASE_TITLE, 'UTF-8') . mb_substr($name, 1, null, 'UTF-8');
     }
 
     /**

@@ -15,16 +15,21 @@ use Fisharebest\Webtrees\I18N;
 
 use function abs;
 use function intdiv;
+use function str_contains;
 use function strip_tags;
 
 /**
  * Pure helper mirroring webtrees core's private `centuryName()` so widgets that
  * produce century data outside of `StatisticsData::countEventsByCentury` (e.g.
  * the child-mortality aggregator, which needs a self-joined dates query) can
- * label their cohorts identically to the rest of the chart.
+ * label their cohorts consistently across the chart.
  *
- * Reuses the existing core PO translation context `CENTURY`, so no new
- * translation strings are introduced.
+ * The ordinals are the ones webtrees core translates under its `CENTURY`
+ * context, stripped of markup. The module carries no ordinal of its own,
+ * because an entry under that context would replace the century labels core
+ * renders on its own pages. A language whose core ordinal already names the
+ * century (Chinese and Korean) is not followed by the century noun a second
+ * time.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -65,9 +70,9 @@ final readonly class CenturyName
 
     /**
      * Localise a positive 1-based century number to its bare ordinal string
-     * ("1st", "21st", …). The single place the per-locale ordinal table lives;
-     * {@see compactLabel()} and {@see longLabel()} both build on it so the BCE
-     * era marker can be appended LAST, after the century noun.
+     * ("1st", "21st", …) from the core catalogue. The single place the ordinals
+     * are looked up. {@see compactLabel()} and {@see longLabel()} both build on
+     * it so the BCE era marker can be appended LAST, after the century noun.
      */
     private static function ordinal(int $century): string
     {
@@ -98,6 +103,19 @@ final readonly class CenturyName
     }
 
     /**
+     * Whether an ordinal already carries the word for "century". Core spells the
+     * Chinese and Korean ordinals with it, so appending the noun a second time would read
+     * "二十世纪 世纪".
+     *
+     * @param string $ordinal The localised ordinal of a century
+     * @param string $noun    The localised word for "century"
+     */
+    private static function namesTheCentury(string $ordinal, string $noun): bool
+    {
+        return str_contains($ordinal, $noun);
+    }
+
+    /**
      * Long-form century label widget tooltips use ("20th Century" / "20.
      * Jahrhundert"). The BCE era marker is appended LAST, after the "Century"
      * noun, so a negative century reads "2nd Century BCE" / "2. Jahrhundert
@@ -106,13 +124,10 @@ final readonly class CenturyName
      */
     public static function longLabel(int $century): string
     {
-        $label = self::ordinal(abs($century)) . ' ' . I18N::translate('Century');
+        $ordinal = self::ordinal(abs($century));
+        $noun    = I18N::translate('Century');
 
-        if ($century < 0) {
-            return I18N::translate('%s BCE', $label);
-        }
-
-        return $label;
+        return self::labelFrom($century, $ordinal, $noun, $ordinal . ' ' . $noun);
     }
 
     /**
@@ -125,7 +140,31 @@ final readonly class CenturyName
      */
     public static function compactLabel(int $century): string
     {
-        $label = I18N::translate('%s cent.', self::ordinal(abs($century)));
+        $ordinal = self::ordinal(abs($century));
+
+        return self::labelFrom(
+            $century,
+            $ordinal,
+            I18N::translate('Century'),
+            I18N::translate('%s cent.', $ordinal),
+        );
+    }
+
+    /**
+     * Compose a century label from the localised parts. The ordinal alone is the
+     * label when it already holds the century noun (Chinese and Korean), the fallback is the
+     * label otherwise, and the BCE era marker comes last. The parts are
+     * parameters so a test can feed the wording of a language the runtime does
+     * not load.
+     *
+     * @param int    $century  The signed century number, negative for BCE
+     * @param string $ordinal  The localised ordinal of the century
+     * @param string $noun     The localised word for "century"
+     * @param string $fallback The label for an ordinal that lacks the noun ("20. Jahrhundert", "20. Jh.")
+     */
+    public static function labelFrom(int $century, string $ordinal, string $noun, string $fallback): string
+    {
+        $label = self::namesTheCentury($ordinal, $noun) ? $ordinal : $fallback;
 
         if ($century < 0) {
             return I18N::translate('%s BCE', $label);
