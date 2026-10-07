@@ -28,7 +28,8 @@ use function strip_tags;
  * context, stripped of markup. The module carries no ordinal of its own,
  * because an entry under that context would replace the century labels core
  * renders on its own pages. A language whose core ordinal already names the
- * century (Chinese) is not followed by the century noun a second time.
+ * century (Chinese and Korean) is not followed by the century noun a second
+ * time.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -103,7 +104,7 @@ final readonly class CenturyName
 
     /**
      * Whether an ordinal already carries the word for "century". Core spells the
-     * Chinese ordinal with it, so appending the noun a second time would read
+     * Chinese and Korean ordinals with it, so appending the noun a second time would read
      * "二十世纪 世纪".
      *
      * @param string $ordinal The localised ordinal of a century
@@ -151,7 +152,7 @@ final readonly class CenturyName
 
     /**
      * Compose a century label from the localised parts. The ordinal alone is the
-     * label when it already holds the century noun (Chinese), the fallback is the
+     * label when it already holds the century noun (Chinese and Korean), the fallback is the
      * label otherwise, and the BCE era marker comes last. The parts are
      * parameters so a test can feed the wording of a language the runtime does
      * not load.

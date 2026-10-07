@@ -16,8 +16,10 @@ use Fisharebest\Webtrees\I18N;
 
 use function array_map;
 use function array_values;
-use function mb_strtoupper;
+use function mb_convert_case;
 use function mb_substr;
+
+use const MB_CASE_TITLE;
 
 /**
  * Pure helper for the localised NOMINATIVE month names every per-month widget
@@ -128,17 +130,20 @@ final readonly class MonthName
     }
 
     /**
-     * Upper-case the first character of a month name, leaving the rest as it is.
+     * Capitalise the first character of a month name, leaving the rest as it is.
      * The multibyte functions keep an initial such as the Czech "Ú" or "Č" intact,
-     * which a byte-wise `ucfirst` would leave lowercase.
+     * which a byte-wise `ucfirst` would leave lowercase. The title-case mapping
+     * is used and not the upper-case one, so a script without capitals keeps its
+     * letters, where the upper-case mapping turns a Georgian initial into its
+     * headline form, and a digraph initial such as "ǆ" becomes "ǅ" and not "Ǆ".
      *
      * @param string $name The month name as the webtrees core catalogue spells it
      *
-     * @return string The same name with its first character upper-cased
+     * @return string The same name with its first character capitalised
      */
     private static function capitalise(string $name): string
     {
-        return mb_strtoupper(mb_substr($name, 0, 1, 'UTF-8'), 'UTF-8') . mb_substr($name, 1, null, 'UTF-8');
+        return mb_convert_case(mb_substr($name, 0, 1, 'UTF-8'), MB_CASE_TITLE, 'UTF-8') . mb_substr($name, 1, null, 'UTF-8');
     }
 
     /**

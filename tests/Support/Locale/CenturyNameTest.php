@@ -201,7 +201,7 @@ final class CenturyNameTest extends TestCase
     {
         return [
             'Chinese long CE'    => [20, '二十世纪', '世纪', '二十世纪 世纪', '二十世纪'],
-            'Chinese compact CE' => [20, '二十世纪', '世纪', '二十世纪 世纪', '二十世纪'],
+            'Chinese compact CE' => [20, '二十世纪', '世纪', '二十世纪 cent.', '二十世纪'],
             'Chinese long BCE'   => [-2, '二世纪', '世纪', '二世纪 世纪', '二世纪 BCE'],
             'German long CE'     => [20, '20.', 'Jahrhundert', '20. Jahrhundert', '20. Jahrhundert'],
             'German compact CE'  => [20, '20.', 'Jahrhundert', '20. Jh.', '20. Jh.'],

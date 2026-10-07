@@ -108,6 +108,26 @@ final class MonthNameTest extends TestCase
     }
 
     /**
+     * The first character is capitalised with the title-case mapping, so a script
+     * without capitals keeps its letters and a digraph initial gets its title
+     * form. Georgian core month names are written in the lowercase-looking script
+     * and the upper-case mapping would turn the initial into its headline form.
+     */
+    #[Test]
+    public function byAbbreviationKeepsAScriptWithoutCapitalsAndTitleCasesADigraph(): void
+    {
+        $translated = [
+            'January'  => 'იანვარი',
+            'February' => 'ǆubre',
+        ];
+
+        $names = MonthName::byAbbreviation(static fn (string $month): string => $translated[$month] ?? $month);
+
+        self::assertSame('იანვარი', $names['JAN'] ?? null);
+        self::assertSame('ǅubre', $names['FEB'] ?? null);
+    }
+
+    /**
      * Without a translation function the month names come from the core catalogue
      * under its `NOMINATIVE` context, so the module needs no catalogue entry of its
      * own. The test runtime ships no non-English catalogue, and under the English
