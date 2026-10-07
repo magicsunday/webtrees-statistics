@@ -19,10 +19,12 @@ POT_FILE  := resources/lang/messages.pot
 # release carries is translated by core, and a module catalogue entry for it
 # would replace the core wording in the whole installation. xgettext leaves
 # these texts out of the POT, so no catalogue lists them and no translation tool
-# offers them. The file is the intersection of the core POT files of every
-# release of the minor line composer.json requires, rebuilt by `lang-core-owned`.
-CORE_OWNED := dev/core-owned.pot
-CORE_MINOR := 2.2
+# offers them. The file is the intersection of the core POT files of the
+# releases named below, rebuilt by `lang-core-owned`. The list holds every
+# release of the minor line composer.json requires, the first one is the floor of
+# that constraint, and a release core ships later is added to it.
+CORE_OWNED    := dev/core-owned.pot
+CORE_RELEASES := 2.2.0 2.2.1 2.2.2 2.2.3 2.2.4 2.2.5 2.2.6
 PO_FILES  := $(foreach loc,$(LOCALES),resources/lang/$(loc)/messages.po)
 MO_FILES  := $(PO_FILES:.po=.mo)
 
@@ -47,25 +49,25 @@ lang-check: lang ## Fail if the committed catalogue is stale (local mirror of th
 lang-extract: $(POT_FILE) ## Extract translatable strings from src/ + resources/ into the POT.
 
 # Rebuild the list of core-owned texts from a git checkout of webtrees:
-# `make lang-core-owned CORE=/path/to/webtrees`. Run it when the supported
-# webtrees range moves, then `make lang` to drop the texts the new list covers.
-# A Composer install holds a single webtrees release while the list needs every
-# release of the minor line, so this cannot run in CI and the committed file is
-# what the freshness gate checks `make lang` against.
+# `make lang-core-owned CORE=/path/to/webtrees`. Run it when `CORE_RELEASES`
+# changes, then `make lang` to drop the texts the new list covers. A Composer
+# install holds a single webtrees release while the list needs all of them, so
+# this cannot run in CI and the committed file is what the freshness gate checks
+# `make lang` against.
 lang-core-owned: ## Rebuild dev/core-owned.pot from a webtrees git checkout (CORE=/path/to/webtrees).
 	@test -n "$(CORE)" || { echo "  ✘ pass CORE=<path to a webtrees git checkout>"; exit 1; }
 	@git -C "$(CORE)" rev-parse --git-dir >/dev/null 2>&1 || { echo "  ✘ CORE is not a git checkout"; exit 1; }
-	@git -C "$(CORE)" rev-parse --verify --quiet "refs/tags/$(CORE_MINOR).0" >/dev/null || { echo "  ✘ the checkout lacks the tag $(CORE_MINOR).0, so it holds only part of the release line"; exit 1; }
-	@grep -qF '"fisharebest/webtrees": "~$(CORE_MINOR).0"' composer.json || { echo "  ✘ CORE_MINOR does not match the webtrees constraint of composer.json"; exit 1; }
+	@for tag in $(CORE_RELEASES); do \
+		git -C "$(CORE)" rev-parse --verify --quiet "refs/tags/$$tag" >/dev/null || { echo "  ✘ the checkout lacks the tag $$tag"; exit 1; }; \
+	done
+	@grep -qF '"fisharebest/webtrees": "~$(firstword $(CORE_RELEASES))"' composer.json || { echo "  ✘ CORE_RELEASES does not match the webtrees constraint of composer.json"; exit 1; }
 	@rm -rf .build/core-pots && mkdir -p .build/core-pots
-	@for tag in $$(git -C "$(CORE)" tag -l '$(CORE_MINOR).*' | grep -E '^$(subst .,\.,$(CORE_MINOR))\.[0-9]+$$' | sort -V); do \
+	@for tag in $(CORE_RELEASES); do \
 		git -C "$(CORE)" show "$$tag:resources/lang/webtrees.pot" > ".build/core-pots/$$tag.pot" || exit 1; \
 	done
 	@$(COMPOSE_RUN) sh -c 'set -eu; \
 		command -v msgcomm >/dev/null 2>&1 || apk add --no-cache gettext >/dev/null 2>&1; \
-		count=$$(ls .build/core-pots/*.pot | wc -l); \
-		[ "$$count" -gt 0 ] || { echo "  ✘ no $(CORE_MINOR) release found in $(CORE)"; exit 1; }; \
-		msgcomm --no-location --sort-output --more-than=$$((count - 1)) .build/core-pots/*.pot --output-file=.build/core-owned.pot'
+		msgcomm --no-location --sort-output --more-than=$$(( $(words $(CORE_RELEASES)) - 1 )) .build/core-pots/*.pot --output-file=.build/core-owned.pot'
 	@cat .build/core-owned.pot > $(CORE_OWNED)
 	@echo "  ✔ $(CORE_OWNED) rebuilt ($$(grep -c '^msgid ".' $(CORE_OWNED)) texts)"
 

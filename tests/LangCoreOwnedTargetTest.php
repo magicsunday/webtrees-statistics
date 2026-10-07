@@ -37,11 +37,11 @@ use function unlink;
 
 /**
  * Pins the guards of `make lang-core-owned`. The list of core-owned texts is the
- * intersection of the core POT files over every release of the required minor
- * line, so a checkout that holds only part of the line, or a minor line that no
- * longer matches the webtrees constraint of `composer.json`, would silently write
- * a list that removes translations on the next `make lang`. Each guard stops the
- * target before it reaches the container, so the cases run without Docker.
+ * intersection of the core POT files over the releases named in `CORE_RELEASES`,
+ * so a checkout that lacks any of them, or a release line that no longer matches
+ * the webtrees constraint of `composer.json`, would silently write a list that
+ * removes translations on the next `make lang`. Each guard stops the target
+ * before it reaches the container, so the cases run without Docker.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -56,6 +56,9 @@ final class LangCoreOwnedTargetTest extends TestCase
      */
     private string $scratch = '';
 
+    /**
+     * Create the scratch directory of the test.
+     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -65,6 +68,9 @@ final class LangCoreOwnedTargetTest extends TestCase
         mkdir($this->scratch, 0o700, true);
     }
 
+    /**
+     * Remove the scratch directory of the test with everything the case built in it.
+     */
     protected function tearDown(): void
     {
         $this->remove($this->scratch);
@@ -73,32 +79,46 @@ final class LangCoreOwnedTargetTest extends TestCase
     }
 
     /**
-     * The cases the target refuses, each with the part of the message that names
-     * the guard that stopped it. A case that fails for another reason does not
-     * match its message.
+     * The cases the target refuses. A case names the tags of the repository it
+     * points `CORE` at (`null` passes no `CORE` at all), whether that directory is
+     * a git repository, the extra make arguments and the part of the message that
+     * names the guard that stopped it. A case that fails for another reason does
+     * not match its message.
      *
-     * @return array<string, array{string, list<string>, string}>
+     * @return array<string, array{list<string>|null, bool, list<string>, string}>
      */
     public static function refusedCaseProvider(): array
     {
         return [
-            'no checkout given'                     => ['none', [], 'pass CORE='],
-            'a directory that is no git checkout'   => ['plain', [], 'CORE is not a git checkout'],
-            'a checkout without the first release'  => ['partial', [], 'lacks the tag 2.2.0'],
-            'a minor line that composer.json lacks' => ['other-line', ['CORE_MINOR=2.3'], 'does not match the webtrees constraint'],
+            'no checkout given'                       => [null, false, [], 'pass CORE='],
+            'a directory that is no git checkout'     => [[], false, [], 'CORE is not a git checkout'],
+            'a checkout with only the last release'   => [['2.2.6'], true, [], 'lacks the tag 2.2.0'],
+            'a checkout with only the first release'  => [['2.2.0'], true, [], 'lacks the tag 2.2.1'],
+            'a release line that composer.json lacks' => [['2.3.0'], true, ['CORE_RELEASES=2.3.0'], 'does not match the webtrees constraint'],
         ];
     }
 
     /**
-     * @param list<string> $arguments Extra make arguments for the case
+     * The target stops with an error and names the guard that refused the checkout.
+     *
+     * @param list<string>|null $tags      The tags of the repository `CORE` points at, or null for no `CORE`
+     * @param bool              $git       Whether the directory is a git repository
+     * @param list<string>      $arguments Extra make arguments for the case
+     * @param string            $message   The part of the output that names the guard
      */
     #[Test]
     #[DataProvider('refusedCaseProvider')]
-    public function theTargetRefusesAnUnsafeCheckout(string $case, array $arguments, string $message): void
+    public function theTargetRefusesAnUnsafeCheckout(?array $tags, bool $git, array $arguments, string $message): void
     {
-        $core = $this->prepareCheckout($case);
+        if ($tags !== null) {
+            $core = $this->scratch . '/checkout';
 
-        if ($core !== '') {
+            if ($git) {
+                $this->initRepository($core, $tags);
+            } else {
+                mkdir($core, 0o700, true);
+            }
+
             $arguments[] = 'CORE=' . $core;
         }
 
@@ -109,29 +129,6 @@ final class LangCoreOwnedTargetTest extends TestCase
             str_contains($output, $message),
             sprintf('The output does not name the guard "%s": %s', $message, $output),
         );
-    }
-
-    /**
-     * Build the directory a case points `CORE` at, and return its path, or an
-     * empty string for the case that passes no `CORE` at all.
-     */
-    private function prepareCheckout(string $case): string
-    {
-        $path = $this->scratch . '/' . $case;
-
-        if ($case === 'none') {
-            return '';
-        }
-
-        if ($case === 'plain') {
-            mkdir($path, 0o700, true);
-
-            return $path;
-        }
-
-        $this->initRepository($path, $case === 'partial' ? ['2.2.6'] : ['2.3.0']);
-
-        return $path;
     }
 
     /**
