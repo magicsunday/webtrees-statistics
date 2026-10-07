@@ -69,9 +69,9 @@ final readonly class CenturyName
 
     /**
      * Localise a positive 1-based century number to its bare ordinal string
-     * ("1st", "21st", …) from the core catalogue. The single place the ordinals are looked up;
-     * {@see compactLabel()} and {@see longLabel()} both build on it so the BCE
-     * era marker can be appended LAST, after the century noun.
+     * ("1st", "21st", …) from the core catalogue. The single place the ordinals
+     * are looked up; {@see compactLabel()} and {@see longLabel()} both build on
+     * it so the BCE era marker can be appended LAST, after the century noun.
      */
     private static function ordinal(int $century): string
     {
@@ -109,7 +109,7 @@ final readonly class CenturyName
      * @param string $ordinal The localised ordinal of a century
      * @param string $noun    The localised word for "century"
      */
-    public static function namesTheCentury(string $ordinal, string $noun): bool
+    private static function namesTheCentury(string $ordinal, string $noun): bool
     {
         return ($noun !== '') && str_contains($ordinal, $noun);
     }
@@ -123,9 +123,22 @@ final readonly class CenturyName
      */
     public static function longLabel(int $century): string
     {
-        $ordinal = self::ordinal(abs($century));
-        $noun    = I18N::translate('Century');
-        $label   = self::namesTheCentury($ordinal, $noun) ? $ordinal : $ordinal . ' ' . $noun;
+        return self::longLabelFrom($century, self::ordinal(abs($century)), I18N::translate('Century'));
+    }
+
+    /**
+     * Compose the long-form label from the localised parts. The noun is left out
+     * when the ordinal already holds it, and the BCE era marker comes last. The
+     * parts are parameters so a test can feed the wording of a language the
+     * runtime does not load.
+     *
+     * @param int    $century The signed century number, negative for BCE
+     * @param string $ordinal The localised ordinal of the century
+     * @param string $noun    The localised word for "century"
+     */
+    public static function longLabelFrom(int $century, string $ordinal, string $noun): string
+    {
+        $label = self::namesTheCentury($ordinal, $noun) ? $ordinal : $ordinal . ' ' . $noun;
 
         if ($century < 0) {
             return I18N::translate('%s BCE', $label);
@@ -145,7 +158,28 @@ final readonly class CenturyName
     public static function compactLabel(int $century): string
     {
         $ordinal = self::ordinal(abs($century));
-        $label   = self::namesTheCentury($ordinal, I18N::translate('Century')) ? $ordinal : I18N::translate('%s cent.', $ordinal);
+
+        return self::compactLabelFrom(
+            $century,
+            $ordinal,
+            I18N::translate('Century'),
+            I18N::translate('%s cent.', $ordinal),
+        );
+    }
+
+    /**
+     * Compose the compact label from the localised parts. The abbreviated form is
+     * left out for the ordinal alone when the ordinal already holds the century
+     * noun, and the BCE era marker comes last.
+     *
+     * @param int    $century     The signed century number, negative for BCE
+     * @param string $ordinal     The localised ordinal of the century
+     * @param string $noun        The localised word for "century"
+     * @param string $abbreviated The ordinal with the abbreviated noun ("20. Jh.")
+     */
+    public static function compactLabelFrom(int $century, string $ordinal, string $noun, string $abbreviated): string
+    {
+        $label = self::namesTheCentury($ordinal, $noun) ? $ordinal : $abbreviated;
 
         if ($century < 0) {
             return I18N::translate('%s BCE', $label);

@@ -139,33 +139,49 @@ final class CenturyNameTest extends TestCase
     }
 
     /**
-     * An ordinal that already carries the century word is not followed by the
-     * noun again, and an ordinal without it is. Chinese core writes the ordinal
-     * "二十世纪" while the noun is "世纪", which would read "二十世纪 世纪".
+     * The label of a language whose core ordinal already holds the century word
+     * (Chinese: "二十世纪" with the noun "世纪") stays the ordinal alone, in the long
+     * and the compact form and with the BCE marker last. A language whose
+     * ordinal is a bare number keeps the noun or the abbreviation. The runtime
+     * loads no such language, so the localised parts are passed in.
      *
-     * @return array<string, array{string, string, bool}>
+     * @return array<string, array{int, string, string, string, string, string}>
      */
-    public static function namesTheCenturyProvider(): array
+    public static function localisedPartsProvider(): array
     {
         return [
-            'Chinese ordinal holds the noun' => ['二十世纪', '世纪', true],
-            'German ordinal is a number'     => ['20.', 'Jahrhundert', false],
-            'Roman ordinal is a number'      => ['XX', 'secolo', false],
-            'an empty noun matches nothing'  => ['20th', '', false],
+            'Chinese CE'  => [20, '二十世纪', '世纪', '二十世纪 世纪', '二十世纪', '二十世纪'],
+            'Chinese BCE' => [-2, '二世纪', '世纪', '二世纪 世纪', '二世纪 BCE', '二世纪 BCE'],
+            'German CE'   => [20, '20.', 'Jahrhundert', '20. Jh.', '20. Jahrhundert', '20. Jh.'],
+            'German BCE'  => [-2, '2.', 'Jahrhundert', '2. Jh.', '2. Jahrhundert BCE', '2. Jh. BCE'],
         ];
     }
 
     /**
-     * The noun is appended only where the ordinal lacks it.
+     * Both labels are composed from the localised parts the way the language
+     * needs it.
      *
-     * @param string $ordinal  The localised ordinal of a century
-     * @param string $noun     The localised word for "century"
-     * @param bool   $expected Whether the ordinal already names the century
+     * @param int    $century     The signed century number
+     * @param string $ordinal     The localised ordinal
+     * @param string $noun        The localised word for "century"
+     * @param string $abbreviated The ordinal with the abbreviated noun
+     * @param string $long        The expected long label
+     * @param string $compact     The expected compact label
      */
     #[Test]
-    #[DataProvider('namesTheCenturyProvider')]
-    public function namesTheCenturyDetectsAnOrdinalThatCarriesTheNoun(string $ordinal, string $noun, bool $expected): void
-    {
-        self::assertSame($expected, CenturyName::namesTheCentury($ordinal, $noun));
+    #[DataProvider('localisedPartsProvider')]
+    public function labelsComposeFromTheLocalisedParts(
+        int $century,
+        string $ordinal,
+        string $noun,
+        string $abbreviated,
+        string $long,
+        string $compact,
+    ): void {
+        (new Webtrees())->bootstrap();
+        I18N::init('en-US', true);
+
+        self::assertSame($long, CenturyName::longLabelFrom($century, $ordinal, $noun));
+        self::assertSame($compact, CenturyName::compactLabelFrom($century, $ordinal, $noun, $abbreviated));
     }
 }
