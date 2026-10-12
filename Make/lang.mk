@@ -127,20 +127,40 @@ lang-merge: lang-extract ## Update each locale's PO from the latest POT (drops o
 			done; \
 		fi'
 
-# Heuristic resolver for entries msgmerge marked as fuzzy due to
-# trivial punctuation drift (em-dash ↔ middle dot, en-dash ↔ middle
-# dot, comma/period swap, whitespace, "Dekade" ↔ "Jahrzehnt" in DE).
-# Walks every fuzzy entry, compares the previous msgid (#| msgid
-# stub written by msgmerge --previous) against the current msgid,
-# and when the diff falls under the trivial-punctuation rule set,
-# rewrites the msgstr with the same swap applied and drops the
-# fuzzy flag. Non-trivial diffs stay fuzzy and surface as a list at
-# the end so a human picks them up. Idempotent: a clean PO is a
-# no-op.
-lang-resolve-fuzzy: lang-merge ## Auto-resolve fuzzy entries with trivial punctuation diffs in the new msgid.
+# Resolves the fuzzy entries msgmerge left behind whose source text only
+# changed in punctuation or whitespace, with the resolve-fuzzy binary of
+# magicsunday/webtrees-module-base. Every other fuzzy entry stays fuzzy and is
+# listed for a person to judge, and the pre-commit hook blocks committing it.
+# The binary is PHP, so the recipe installs PHP and Composer on demand, like the
+# gettext tools above. It installs the Composer dependencies only into a checkout
+# that has no vendor directory yet, which is the CI case, and hands what that
+# install created back to the owner of the checkout, even when the install fails,
+# so the root user of the container leaves no files behind that block a later
+# Composer run on the host. A checkout that already has a vendor directory
+# without the binary is not touched, because a Composer install without the dev
+# packages would remove them. The recipe stops there and names the command that
+# brings the binary in. The Composer platform requirements are ignored and the
+# security policy blocking is off, because the resolver needs none of the
+# dependencies those checks guard and a translation run must not fail on them.
+# The PHP package names follow the PHP release of the Alpine image, so a new
+# image release can need the names changed. A catalogue the resolver refuses
+# fails the recipe, and the refused catalogue is named in its report.
+lang-resolve-fuzzy: lang-merge ## Auto-resolve fuzzy entries that only differ in punctuation, with the shared resolve-fuzzy binary.
 	@$(COMPOSE_RUN) sh -c 'set -eu; \
-		command -v python3 >/dev/null 2>&1 || apk add --no-cache python3 >/dev/null 2>&1; \
-		python3 dev/fuzzy-resolver.py'
+		command -v msgmerge >/dev/null 2>&1 || apk add --no-cache gettext >/dev/null 2>&1; \
+		command -v php >/dev/null 2>&1 || { \
+			apk add --no-cache composer php85 php85-ctype php85-curl php85-dom php85-iconv php85-intl php85-mbstring php85-openssl php85-phar php85-simplexml php85-tokenizer php85-xml php85-xmlwriter php85-zip >/dev/null 2>&1; \
+			ln -s /usr/bin/php85 /usr/local/bin/php; \
+		}; \
+		[ -x .build/bin/resolve-fuzzy ] || [ -e .build/vendor ] || { \
+			trap "chown -R $$(stat -c %u:%g .) .build composer.lock 2>/dev/null || true" EXIT; \
+			COMPOSER_ALLOW_SUPERUSER=1 COMPOSER_NO_BLOCKING=1 composer install --no-dev --no-interaction --no-progress --no-scripts --no-plugins --ignore-platform-reqs --quiet; \
+		}; \
+		[ -x .build/bin/resolve-fuzzy ] || { \
+			echo "  ✘ .build/bin/resolve-fuzzy is missing, run composer update magicsunday/webtrees-module-base in the buildbox"; \
+			exit 1; \
+		}; \
+		.build/bin/resolve-fuzzy $(POT_FILE) $(PO_FILES)'
 
 # Point this clone's git at .githooks so the pre-commit gate runs on
 # every `git commit`. Idempotent — a fresh clone has to call it once.
