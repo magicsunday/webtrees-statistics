@@ -29,14 +29,12 @@ parameters:
         - %currentWorkingDirectory%/.build/
 
     ignoreErrors:
-        # symplify forbiddenNode bans traits + heredocs wholesale — both are
-        # deliberate house idioms here: the module-base sharing traits and the
-        # heredoc HTML blocks in the card renderer.
+        # symplify forbiddenTrait bans traits wholesale. They are a deliberate
+        # house idiom here, the module-base sharing traits.
         -
-            identifier: symplify.forbiddenNode
+            identifier: symplify.forbiddenTrait
             paths:
                 - src/Traits/*
-                - src/View/Card.php
 
         # &-references are in/out accumulators (depth cache, visited set) for
         # recursive graph traversal; copy-free, an explicit return would force a
