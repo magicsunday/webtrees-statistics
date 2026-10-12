@@ -130,21 +130,17 @@ lang-merge: lang-extract ## Update each locale's PO from the latest POT (drops o
 # Resolves the fuzzy entries msgmerge left behind whose source text only
 # changed in punctuation or whitespace, with the resolve-fuzzy binary of
 # magicsunday/webtrees-module-base. Every other fuzzy entry stays fuzzy and is
-# listed for a person to judge, and the pre-commit hook blocks committing it.
+# listed for a person to judge, and the pre-commit hook blocks committing it. A
+# catalogue the resolver refuses fails the recipe.
 # The binary is PHP, so the recipe installs PHP and Composer on demand, like the
-# gettext tools above. It installs the Composer dependencies only into a checkout
-# that has no vendor directory yet, which is the CI case, and hands what that
-# install created back to the owner of the checkout, even when the install fails,
-# so the root user of the container leaves no files behind that block a later
-# Composer run on the host. A checkout that already has a vendor directory
-# without the binary is not touched, because a Composer install without the dev
-# packages would remove them. The recipe stops there and names the command that
-# brings the binary in. The Composer platform requirements are ignored and the
-# security policy blocking is off, because the resolver needs none of the
-# dependencies those checks guard and a translation run must not fail on them.
-# The PHP package names follow the PHP release of the Alpine image, so a new
-# image release can need the names changed. A catalogue the resolver refuses
-# fails the recipe, and the refused catalogue is named in its report.
+# gettext tools above. The Composer install runs only in a checkout without a
+# vendor directory, which is the CI case, and hands its files back to the owner
+# of the checkout, also when it fails, so the root user of the container leaves
+# nothing behind that blocks a later Composer run on the host. A checkout that
+# has a vendor directory is left alone, it holds the dev packages, and the recipe
+# stops with the command that brings the binary in. Platform checks and security
+# blocking are off, a translation run must not fail on them. The PHP package
+# names follow the PHP release of the Alpine image.
 lang-resolve-fuzzy: lang-merge ## Auto-resolve fuzzy entries that only differ in punctuation, with the shared resolve-fuzzy binary.
 	@$(COMPOSE_RUN) sh -c 'set -eu; \
 		command -v msgmerge >/dev/null 2>&1 || apk add --no-cache gettext >/dev/null 2>&1; \
