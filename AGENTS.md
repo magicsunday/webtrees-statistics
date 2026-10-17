@@ -14,6 +14,14 @@ This repository hosts the webtrees statistics module — a six-tab dashboard of 
 - After PHP or JS changes that should be visible in the browser, restart the PHP-FPM service.
 - After JS changes, verify in the browser via Playwright before claiming success.
 
+### Convention for new advisory ignores
+
+Before adding an entry, check the following. Is the package a direct dependency (`composer why`)? Does a public fix exist? Does an exact pin of webtrees alone block that fix (`composer why-not <package> <fixed version>`)? Update instead of ignoring whenever the fix is reachable.
+
+- An advisory that webtrees' exact pin keeps unresolved is ignored by its **advisory ID** under `config.policy.advisories.ignore-id`, so later advisories on the same package keep blocking. Never ignore by package name under `ignore`, because that also hides every later advisory of the package.
+- The reason starts with a prefix that says why the entry exists, followed by the CVE and the condition for removing it. `UPSTREAM-PINNED:` marks a fix that exists publicly but is held back by the exact pin of webtrees. `ACCEPTED:` is reserved for a conscious risk acceptance with a low severity and no attack path in this package.
+- Remove the entry once the supported webtrees range no longer pins an affected version.
+
 ## Build & tests
 - **`composer ci:test` MUST run before every commit** — catches Biome lint, PHPStan, PHP-CS-Fixer, Rector, the Deptrac architecture-layer check, PHPUnit, Jest, and jscpd issues before they reach GitHub CI.
 - Individual checks: `composer ci:test:php:phpstan`, `composer ci:test:php:phpstan:glue`, `composer ci:test:php:deptrac`, `composer ci:test:php:phpat-subjects`, `composer ci:test:php:unit`, `composer ci:test:php:cgl`, `composer ci:test:php:rector`, `composer ci:test:php:lint`, `composer ci:test:js:lint`, `composer ci:test:js:unit`, `composer ci:test:js:format`, `composer ci:test:php:cpd`.
