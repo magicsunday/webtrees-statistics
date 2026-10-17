@@ -46,12 +46,13 @@ parameters:
                 - src/Support/Calc/PartnershipChains.php
                 - src/Repository/IslandRepository.php
 
-        # Module::CUSTOM_* is the webtrees custom-module convention the module-base
-        # ModuleCustomTrait reads via self::CUSTOM_*; there is no interface contract
-        # to route it through.
+        # ModuleCustomTrait reads Module::ASSET_MIME_TYPES via static::. Module is
+        # final and the only class using the trait, so the lookup always resolves
+        # to Module itself. PHPStan reports the trait line against the using class,
+        # hence the Module path.
         -
             identifier: symplify.forbiddenStaticClassConstFetch
-            path: src/Traits/ModuleCustomTrait.php
+            path: src/Module.php
 
         # method_exists() is a legitimate API-presence probe in this contract test.
         -

@@ -3,8 +3,8 @@
 # points there (as the PHPStan include does).
 #
 # Deptrac UNITES rulesets across imports: every rule below only WIDENS what the
-# shared ruleset allows, never narrows it. The shared ruleset (^3.0) is one strict,
-# acyclic order, a layer depending only on layers below it
+# shared ruleset allows, never narrows it. The shared ruleset (since coding-standard
+# 3.0) is one strict, acyclic order, a layer depending only on layers below it
 #
 #   Support < Enum < Model, Configuration < Contract < Repository, Adapter, Service
 #           < Facade < Module
