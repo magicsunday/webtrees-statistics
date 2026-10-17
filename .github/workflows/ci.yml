@@ -20,11 +20,11 @@ jobs:
     # matrix leg.
     # Analysis runs on 8.4/8.5 only — not because 8.3 fails to install. This
     # repository gitignores composer.lock, so CI resolves from scratch, and that
-    # resolution SUCCEEDS on 8.3: the solver silently downgrades the strict
-    # toolchain to whatever still supports it, so an 8.3 leg would gate against a
-    # different rule set and a different test framework than the legs that
-    # actually gate the code. To see the current downgrade, run `composer update
-    # --dry-run` in the 8.3 and 8.5 buildboxes and diff the locked versions.
+    # resolution SUCCEEDS on 8.3: the solver picks a PHPUnit line that still
+    # supports it, so an 8.3 leg would gate against a different test framework
+    # than the legs that actually gate the code. To see the current difference,
+    # run `composer update --dry-run` in the 8.3 and 8.5 buildboxes and diff the
+    # locked versions.
     # Runtime support for 8.3 stays declared by composer.json's require.php
     # constraint and is validated statically by PHPStan's phpVersion: 80300; it
     # is simply not unit-tested on a real 8.3 runtime.
@@ -70,7 +70,7 @@ jobs:
             # 8.4, not the 8.3 runtime floor: this job runs `composer install`
             # with dev dependencies, and pinning it to the analysed lane's
             # interpreter keeps it resolving the same tree — on 8.3 the solver
-            # would quietly downgrade the strict dev toolchain (see the `php:` job
+            # would pick another PHPUnit line (see the `php:` job
             # comment). This lane exercises none of those packages, so the pin is
             # about tree parity rather than a failure it would otherwise hit.
             - id: setup_php
