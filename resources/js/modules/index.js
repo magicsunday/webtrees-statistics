@@ -29,7 +29,7 @@ import {
     StreamGraph,
     Treemap,
     WorldMap,
-} from "@magicsunday/webtrees-chart-lib";
+} from "@magicsunday/webtrees-chart-lib/widgets";
 
 // Fallback only. The real URL is resolved server-side and handed over on the
 // page root, because the module's route name derives from the installation
