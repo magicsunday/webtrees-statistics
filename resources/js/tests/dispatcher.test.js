@@ -159,7 +159,7 @@ class SequenceChain {
     }
 }
 
-jest.unstable_mockModule("@magicsunday/webtrees-chart-lib", () => ({
+jest.unstable_mockModule("@magicsunday/webtrees-chart-lib/widgets", () => ({
     DonutChart,
     StreamGraph,
     SankeyFlow,
