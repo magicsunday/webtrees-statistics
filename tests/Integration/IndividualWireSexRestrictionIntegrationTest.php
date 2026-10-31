@@ -28,14 +28,16 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
 
+use function array_column;
+
 /**
  * Fact-level boundary of the {@see IndividualWire} flattener. A record the
  * viewer may see still keeps a restricted SEX fact back, either through an
- * explicit `RESN` on the fact or through the tree's default fact restriction,
- * and the wire row must then carry the unknown sex instead of the stored value.
- * A viewer who is allowed to see the fact still receives the real value, and
- * both partnership report serializers flatten their people through the same
- * path.
+ * explicit `RESN` on the fact itself or through a default restriction of the
+ * tree or of the individual, and the wire row must then carry the unknown sex
+ * instead of the stored value. A viewer who is allowed to see the fact still
+ * receives the real value, and both partnership report serializers flatten
+ * their people through the same path.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -47,6 +49,11 @@ use PHPUnit\Framework\Attributes\UsesClass;
 #[UsesClass(PartnershipGroupExcerpt::class)]
 final class IndividualWireSexRestrictionIntegrationTest extends AbstractIntegrationTestCase
 {
+    /**
+     * Import the fixture and set the tree privacy so living people are hidden
+     * while dead people stay visible to everyone, the situation of a visible
+     * deceased person whose SEX fact alone is restricted.
+     */
     private function tree(): Tree
     {
         $tree = $this->importFixtureTree('individual-wire-sex-restriction.ged');
@@ -56,6 +63,14 @@ final class IndividualWireSexRestrictionIntegrationTest extends AbstractIntegrat
         return $tree;
     }
 
+    /**
+     * Resolve one fixture individual through the registry as the current user.
+     *
+     * @param Tree   $tree The imported fixture tree
+     * @param string $xref The XREF of the individual
+     *
+     * @return Individual The individual record
+     */
     private function individual(Tree $tree, string $xref): Individual
     {
         $individual = Registry::individualFactory()->make($xref, $tree);
@@ -67,6 +82,11 @@ final class IndividualWireSexRestrictionIntegrationTest extends AbstractIntegrat
     /**
      * Rebuild the individual against a tree object that reads the default
      * restriction rows afresh, because a tree caches them on first use.
+     *
+     * @param Tree   $tree The imported fixture tree
+     * @param string $xref The XREF of the individual
+     *
+     * @return Individual The individual bound to the reloaded tree
      */
     private function individualWithFreshDefaults(Tree $tree, string $xref): Individual
     {
@@ -82,6 +102,12 @@ final class IndividualWireSexRestrictionIntegrationTest extends AbstractIntegrat
         );
     }
 
+    /**
+     * Log in a user whose role in the tree is member, which is the access level
+     * of a `RESN privacy` restriction but below a `RESN confidential` one.
+     *
+     * @param Tree $tree The imported fixture tree
+     */
     private function loginAsMember(Tree $tree): void
     {
         $member = (new UserService())->create('member', 'Member', 'member@example.test', 'secret');
@@ -89,6 +115,11 @@ final class IndividualWireSexRestrictionIntegrationTest extends AbstractIntegrat
         Auth::login($member);
     }
 
+    /**
+     * The record of I1 is visible, but its SEX fact carries `RESN confidential`.
+     * A guest gets the unknown sex, while the unrestricted birth and death years
+     * of the same visible record stay on the wire row.
+     */
     #[Test]
     public function explicitFactRestrictionGivesGuestTheUnknownSex(): void
     {
@@ -108,6 +139,10 @@ final class IndividualWireSexRestrictionIntegrationTest extends AbstractIntegrat
         self::assertSame('1960', $row['death']);
     }
 
+    /**
+     * The importing administrator may see a confidential fact, so the real sex
+     * of I1 reaches the wire row.
+     */
     #[Test]
     public function explicitFactRestrictionKeepsTheRealSexForAnAdministrator(): void
     {
@@ -116,6 +151,10 @@ final class IndividualWireSexRestrictionIntegrationTest extends AbstractIntegrat
         self::assertSame('M', IndividualWire::row($this->individual($tree, 'I1'))['sex']);
     }
 
+    /**
+     * I3 carries `RESN privacy` on its SEX fact. A guest gets the unknown sex,
+     * a member is released and gets the real value.
+     */
     #[Test]
     public function memberLevelFactRestrictionIsHonoredForGuestAndReleasedForMember(): void
     {
@@ -128,6 +167,10 @@ final class IndividualWireSexRestrictionIntegrationTest extends AbstractIntegrat
         self::assertSame('F', IndividualWire::row($this->individual($tree, 'I3'))['sex']);
     }
 
+    /**
+     * A `RESN confidential` fact is for managers only, so a member still gets
+     * the unknown sex for I1.
+     */
     #[Test]
     public function managerOnlyFactRestrictionStaysWithheldFromAMember(): void
     {
@@ -138,6 +181,11 @@ final class IndividualWireSexRestrictionIntegrationTest extends AbstractIntegrat
         self::assertSame('U', IndividualWire::row($this->individual($tree, 'I1'))['sex']);
     }
 
+    /**
+     * The tree restricts every SEX fact by default. I2 has no restriction of
+     * its own, so the administrator keeps the real sex and a guest gets the
+     * unknown one.
+     */
     #[Test]
     public function treeDefaultFactRestrictionGivesGuestTheUnknownSexAndAdministratorTheRealOne(): void
     {
@@ -160,6 +208,10 @@ final class IndividualWireSexRestrictionIntegrationTest extends AbstractIntegrat
         self::assertSame('U', IndividualWire::row($individual)['sex']);
     }
 
+    /**
+     * A default restriction that names one individual and the SEX tag withholds
+     * the fact of I2 from a guest, although the record itself is visible.
+     */
     #[Test]
     public function individualDefaultFactRestrictionGivesGuestTheUnknownSex(): void
     {
@@ -179,6 +231,10 @@ final class IndividualWireSexRestrictionIntegrationTest extends AbstractIntegrat
         self::assertSame('U', IndividualWire::row($individual)['sex']);
     }
 
+    /**
+     * A visible record without any restriction keeps its sex, birth year and
+     * page link for a guest, so the fix does not blank unrestricted people.
+     */
     #[Test]
     public function visibleUnrestrictedRecordKeepsItsSexForGuest(): void
     {
@@ -193,6 +249,9 @@ final class IndividualWireSexRestrictionIntegrationTest extends AbstractIntegrat
         self::assertNotSame('', $row['url']);
     }
 
+    /**
+     * The value X is a recognised sex and passes through for a guest.
+     */
     #[Test]
     public function nonBinarySexValueSurvivesForGuest(): void
     {
@@ -203,6 +262,10 @@ final class IndividualWireSexRestrictionIntegrationTest extends AbstractIntegrat
         self::assertSame('X', IndividualWire::row($this->individual($tree, 'I5'))['sex']);
     }
 
+    /**
+     * I4 is a living record with a record-level `RESN confidential`. The node
+     * stays but every derived field is withheld, as before the fact-level gate.
+     */
     #[Test]
     public function hiddenRecordStillWithholdsEveryDerivedFact(): void
     {
@@ -222,6 +285,11 @@ final class IndividualWireSexRestrictionIntegrationTest extends AbstractIntegrat
         self::assertSame('', $row['url']);
     }
 
+    /**
+     * The partnership reach report and its group excerpt flatten their people
+     * through the wire row, so the restricted sex of I1 reads unknown in the
+     * chain, in the group nodes and in the excerpt serialized on its own.
+     */
     #[Test]
     public function partnershipReportSerializersFlattenThroughTheRestrictedSexPath(): void
     {

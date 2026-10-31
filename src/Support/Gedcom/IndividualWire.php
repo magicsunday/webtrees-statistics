@@ -24,10 +24,10 @@ use Fisharebest\Webtrees\Individual;
  * Privacy: the label is the record's own `fullName()` (markup stripped,
  * entities decoded), so a non-visible person already reads as "Private" without
  * any caller-side gate. The DERIVED facts are NOT privatised by `fullName()`,
- * though — `getBirthDate()` / `getDeathDate()` / `sex()` read the raw record and
- * `url()` is an xref deep-link, so a `!canShow()` (typically living) person
- * keeps a positionally-identifiable node in a graph while its real birth year,
- * death year, sex and page link would leak. So for a non-visible person every
+ * though — `sex()` reads the unprivatised record and `url()` is an xref
+ * deep-link, so a `!canShow()` (typically living) person
+ * keeps a positionally-identifiable node in a graph while its real sex and page
+ * link would leak. So for a non-visible person every
  * derived field is withheld (empty `birth`/`death`/`url`, unknown `sex`), exactly
  * the discipline {@see \MagicSunday\Webtrees\Statistic\Aggregator\RecordRowMapper}
  * documents — only `xref` (graph topology, never a label on its own) and the
