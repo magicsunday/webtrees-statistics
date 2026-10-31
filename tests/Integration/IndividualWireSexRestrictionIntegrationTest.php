@@ -25,6 +25,7 @@ use MagicSunday\Webtrees\Statistic\Model\Tree\PartnershipReachReport;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\IndividualWire;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RecordName;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
 
@@ -260,6 +261,40 @@ final class IndividualWireSexRestrictionIntegrationTest extends AbstractIntegrat
         Auth::logout();
 
         self::assertSame('X', IndividualWire::row($this->individual($tree, 'I5'))['sex']);
+    }
+
+    /**
+     * A visible record whose SEX fact is the explicit unknown value, carries a
+     * value outside the recognised set or has no SEX fact at all gives a guest
+     * the unknown sex, never the stored text.
+     *
+     * @return array<string, array{0: string}>
+     */
+    public static function unrecognisedSexProvider(): array
+    {
+        return [
+            'explicit unknown value' => ['I6'],
+            'unrecognised value'     => ['I7'],
+            'no SEX fact'            => ['I8'],
+        ];
+    }
+
+    /**
+     * The record is visible to the guest, so only the SEX value decides, and
+     * anything outside the recognised set reads as the unknown sex.
+     */
+    #[Test]
+    #[DataProvider('unrecognisedSexProvider')]
+    public function unrecognisedOrMissingSexReadsAsUnknownForGuest(string $xref): void
+    {
+        $tree = $this->tree();
+
+        Auth::logout();
+
+        $individual = $this->individual($tree, $xref);
+        self::assertTrue($individual->canShow(), 'precondition: the record itself is visible');
+
+        self::assertSame('U', IndividualWire::row($individual)['sex']);
     }
 
     /**
