@@ -18,14 +18,10 @@ use MagicSunday\Webtrees\Statistic\Model\Tree\PartnershipGroupExcerpt;
 use MagicSunday\Webtrees\Statistic\Model\Tree\PartnershipReachReport;
 use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
 use MagicSunday\Webtrees\Statistic\Support\Calc\PartnershipChains;
-use MagicSunday\Webtrees\Statistic\Support\Database\ChunkedWhereIn;
-use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
 use MagicSunday\Webtrees\Statistic\Support\Database\GedcomByXref;
-use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 
 use function array_fill_keys;
-use function array_unique;
-use function array_values;
+use function array_push;
 use function count;
 use function strcmp;
 
@@ -38,13 +34,16 @@ use function strcmp;
  * max-degree hub, and a median birth+death year), and the depth-vs-breadth
  * ratio components.
  *
- * Person resolution goes through ONE bulk gedcom fetch ({@see
- * ChunkedWhereIn}) — exactly the {@see GenerationDepthRepository::summary()}
- * discipline — so the report's xref-to-{@see Individual} step issues a single
- * chunked query rather than one `IndividualFactory::make()` round-trip per
- * person. Privacy follows the same convention: every node stays in place and
- * `Individual::fullName()` substitutes the "Private" placeholder for a
- * non-visible person, so the group/chain counts never shift by viewer.
+ * Person resolution goes through ONE bulk gedcom fetch ({@see GedcomByXref}),
+ * exactly the {@see GenerationDepthRepository::summary()} discipline, so the
+ * report's xref-to-{@see Individual} step issues a single chunked query rather
+ * than one `IndividualFactory::make()` round-trip per person. Privacy follows
+ * the same convention: every node stays in place and `Individual::fullName()`
+ * substitutes the "Private" placeholder for a non-visible person, so the
+ * group and chain counts never shift by viewer. The median year is the
+ * exception that follows the viewer on purpose. It is formed over the birth and
+ * death years the viewer can see on the resolved people, so it never reflects a
+ * year that the wire rows of the same payload withhold.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -121,18 +120,21 @@ final readonly class PartnershipReachRepository
         $shownMembers = $excerpt['members'];
         $shownEdges   = $excerpt['edges'];
 
-        $medianYear = PartnershipChains::medianYear(
-            $this->birthDeathYears($members),
-        );
+        // Resolve every group member from a single bulk gedcom fetch, never one
+        // IndividualFactory::make() per id. The members are a superset of the
+        // shown excerpt and of the chain, so the same fetch serves all of them.
+        $gedcomByXref = GedcomByXref::fetch($this->tree, $members);
 
-        // Resolve every shown node AND every chain member from a single bulk
-        // gedcom fetch — never one IndividualFactory::make() per id. The union
-        // keeps the fetched row set (and the placeholder budget) minimal when the
-        // chain runs through the shown excerpt, as it normally does.
-        $gedcomByXref = GedcomByXref::fetch(
-            $this->tree,
-            array_values(array_unique([...$shownMembers, ...$longestChain])),
-        );
+        // The median is formed over the years the viewer can see on the resolved
+        // people, the same host accessors the wire rows use, so it never reflects
+        // a year that the rows of the same payload withhold.
+        $visibleYears = [];
+
+        foreach ($this->resolveIndividuals($members, $gedcomByXref) as $member) {
+            array_push($visibleYears, ...$this->visibleLifeYears($member));
+        }
+
+        $medianYear = PartnershipChains::medianYear($visibleYears);
 
         return new PartnershipReachReport(
             longestChainLength: count($longestChain),
@@ -228,62 +230,30 @@ final readonly class PartnershipReachRepository
     }
 
     /**
-     * The combined multiset of birth AND death years of the given members,
-     * fed to {@see PartnershipChains::medianYear()}. Each member contributes at most
-     * ONE birth and ONE death year — the lower-bound representative of an
-     * imprecise date, not both encoded rows — and the value is converted to the
-     * Gregorian scale via {@see GregorianDate::year()}, so a non-Gregorian
-     * calendar contributes a comparable year rather than its native one. A member
-     * with neither a dated birth nor death simply contributes nothing.
+     * The Gregorian birth and death years of one person, as far as the current
+     * viewer may see them. The years come from the host date accessors, which
+     * read the facts through the privacy-aware fact path, so a record the viewer
+     * cannot see and a restricted BIRT or DEAT fact yield an empty date and
+     * contribute nothing. Each person gives at most ONE birth and ONE death year,
+     * the lower bound of an imprecise date, converted to the Gregorian scale via
+     * {@see GregorianDate::year()} so a non-Gregorian calendar stays comparable.
+     * An undated fact contributes nothing.
      *
-     * @param list<string> $members The group's people whose years to collect
-     *
-     * @return list<int>
-     */
-    private function birthDeathYears(array $members): array
-    {
-        return [
-            ...$this->factYears($members, 'BIRT'),
-            ...$this->factYears($members, 'DEAT'),
-        ];
-    }
-
-    /**
-     * The Gregorian years of one dated fact for the given members — exactly ONE
-     * representative year per person. webtrees writes TWO `dates` rows for a
-     * genuine two-bound range (`BET … AND …`, `FROM … TO …`): a lower-bound row
-     * and an upper-bound row carrying DISTINCT years (a `BET 1889 AND 1891` birth
-     * stores 1889 and 1891). Feeding both into the multiset would DOUBLE-WEIGHT
-     * that person in this per-person "median life year" statistic. (A year-only /
-     * `ABT` / month-only date keeps a single row, so it is unaffected either way.)
-     * Each member is therefore collapsed to its lower-bound row via the shared
-     * {@see DedupedEventDates} query — the minimum-`d_julianday1` representative,
-     * exactly the {@see BirthDeathPairsQuery} pin — and the year is derived from
-     * that pinned row's `d_type` / `d_year` so the value stays calendar-coherent.
-     * The deduped query already emits one row per `d_gid`; {@see ChunkedWhereIn}
-     * only narrows it to the requested members.
-     *
-     * @param list<string> $members The people whose years to read
-     * @param string       $fact    The GEDCOM fact tag (`BIRT` / `DEAT`)
+     * @param Individual $individual The resolved group member
      *
      * @return list<int>
      */
-    private function factYears(array $members, string $fact): array
+    private function visibleLifeYears(Individual $individual): array
     {
-        if ($members === []) {
-            return [];
-        }
-
-        $rows = ChunkedWhereIn::get(DedupedEventDates::query($this->tree, $fact), 'd_gid', $members);
-
         $years = [];
 
-        foreach ($rows as $row) {
-            $year = GregorianDate::year(
-                RowCast::string($row, 'd_type'),
-                RowCast::int($row, 'd_year'),
-                RowCast::int($row, 'd_julianday1'),
-            );
+        foreach ([$individual->getBirthDate(), $individual->getDeathDate()] as $date) {
+            if (!$date->isOK()) {
+                continue;
+            }
+
+            $lowerBound = $date->minimumDate();
+            $year       = GregorianDate::year($lowerBound->format('%@'), $lowerBound->year, $lowerBound->minimumJulianDay());
 
             if ($year === 0) {
                 continue;
