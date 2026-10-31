@@ -54,6 +54,8 @@ final class IndividualWireSexRestrictionIntegrationTest extends AbstractIntegrat
      * Import the fixture and set the tree privacy so living people are hidden
      * while dead people stay visible to everyone, the situation of a visible
      * deceased person whose SEX fact alone is restricted.
+     *
+     * @return Tree The imported fixture tree
      */
     private function tree(): Tree
     {
@@ -264,9 +266,8 @@ final class IndividualWireSexRestrictionIntegrationTest extends AbstractIntegrat
     }
 
     /**
-     * A visible record whose SEX fact is the explicit unknown value, carries a
-     * value outside the recognised set or has no SEX fact at all gives a guest
-     * the unknown sex, never the stored text.
+     * Provides the XREFs of visible records whose SEX fact is the explicit
+     * unknown value, an unrecognised value or missing altogether.
      *
      * @return array<string, array{0: string}>
      */
@@ -282,6 +283,8 @@ final class IndividualWireSexRestrictionIntegrationTest extends AbstractIntegrat
     /**
      * The record is visible to the guest, so only the SEX value decides, and
      * anything outside the recognised set reads as the unknown sex.
+     *
+     * @param string $xref The XREF of the fixture individual
      */
     #[Test]
     #[DataProvider('unrecognisedSexProvider')]
@@ -299,7 +302,7 @@ final class IndividualWireSexRestrictionIntegrationTest extends AbstractIntegrat
 
     /**
      * I4 is a living record with a record-level `RESN confidential`. The node
-     * stays but every derived field is withheld, as before the fact-level gate.
+     * stays but every derived field is withheld.
      */
     #[Test]
     public function hiddenRecordStillWithholdsEveryDerivedFact(): void

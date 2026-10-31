@@ -24,12 +24,11 @@ use Fisharebest\Webtrees\Individual;
  * Privacy: the label is the record's own `fullName()` (markup stripped,
  * entities decoded), so a non-visible person already reads as "Private" without
  * any caller-side gate. The DERIVED facts are NOT privatised by `fullName()`,
- * though — `sex()` reads the unprivatised record and `url()` is an xref
- * deep-link, so a `!canShow()` (typically living) person
- * keeps a positionally-identifiable node in a graph while its real sex and page
- * link would leak. So for a non-visible person every
- * derived field is withheld (empty `birth`/`death`/`url`, unknown `sex`), exactly
- * the discipline {@see \MagicSunday\Webtrees\Statistic\Aggregator\RecordRowMapper}
+ * though — `sex()` reads the unprivatised record and `url()` is an xref deep-link, so a
+ * `!canShow()` (typically living) person keeps a positionally-identifiable node in a
+ * graph while its real sex and page link would leak. So for a non-visible person every
+ * derived field is withheld (empty `birth`/`death`/`url`, unknown `sex`), exactly the
+ * discipline {@see \MagicSunday\Webtrees\Statistic\Aggregator\RecordRowMapper}
  * documents — only `xref` (graph topology, never a label on its own) and the
  * already-privatised `label` survive.
  *
@@ -92,6 +91,10 @@ final readonly class IndividualWire
      * individual default restriction) or carries no recognised value. Unlike
      * `Individual::sex()`, which reads the unprivatised record, this goes
      * through `Individual::facts()` and so honors the fact-level privacy.
+     *
+     * @param Individual $individual The visible person whose sex is read
+     *
+     * @return string One of `M`, `F`, `X` or `U`
      */
     private static function visibleSex(Individual $individual): string
     {
