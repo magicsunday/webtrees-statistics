@@ -32,12 +32,57 @@ Before adding an entry, check the following. Is the package a direct dependency 
 - **The JS tooling config is the shared one.** `biome.json` extends `@magicsunday/coding-standard/biome/base.json` and `tsconfig.json` extends `@magicsunday/coding-standard/tsconfig/base`; the npm dev dependency pins a coding-standard tag of its own (`github:magicsunday/coding-standard#<tag>`), and `@biomejs/biome` / `typescript` stay this module's own dev dependencies within that package's `peerDependencies`. Keep `biome.json` to what is module-specific (`files.includes`, the `$schema` of the installed Biome); a rule turned off locally needs a stated reason. `composer ci:test:php:templates` rejects switching off a rule the shared Biome config sets explicitly and setting a strict flag of the shared tsconfig back to `false`. `.jscpd.json` names jscpd *format* names (`php`, `javascript`), never file extensions, which would scan nothing.
 - JS bundles: `make build` (rollup), `make watch` (dev rebuild loop).
 - Translations: `make lang` runs the full pipeline — extract `resources/lang/messages.pot` from `src/` + `resources/views/`, merge it into each locale's `messages.po` (seeding missing ones via `msginit`), auto-resolve fuzzy entries, and compile every PO to MO. Sub-targets `lang-extract`, `lang-merge`, `lang-resolve-fuzzy`, `lang-compile` exist for partial runs. The POT itself is gitignored (regenerated on demand); the PO + MO files are committed.
-- Add PHPUnit attribute-based coverage (positive AND negative cases) for every class/method introduced or modified — the project follows the "test every class" standard.
+- Add PHPUnit tests (positive and negative cases) for the behavior that the testing policy below names, and do not write a test for a class only because it exists.
 - PHPStan runs at `level: max` against `src/` and `tests/` with no baseline. Every change fixes the underlying defect; the baseline file is intentionally absent so future drift cannot be ignored.
 - A second configuration, `phpstan-glue.neon`, covers the PHP that lives outside `src/`: the module entry point `module.php`, the data-preparation prologues in the view templates under `resources/views/`, and the tooling in `dev/`. It runs at `level: 6` with `fileExtensions: [php, phtml]` — deliberately lower, because view variables arrive untyped through `view()` and `max` would bury real findings in `mixed` noise. Level 6 still catches what this exists for: wrong argument counts and types, and calls to symbols that moved. Both configurations run as their own CI step. The glue step is an **exact-name opt-in**: the shared reusable workflow probes for the literal script name `ci:test:php:phpstan:glue`, so renaming or restructuring that script makes the GitHub step disappear silently while `composer ci:test` stays green locally. It carries no `ignoreErrors`: it sets `treatPhpDocTypesAsCertain: false` like the shared base config, without which PHPStan reads a template's `@var` header as proven fact and reports correct defaults as redundant — the file itself explains the mechanism, so it is not restated here. Note it includes neither the shared base nor the strict config, so neither the case-folding ban above nor `phpstan-strict-rules` applies in these trees.
 - The shared strict ruleset bans the byte-wise case-folding functions (`strtoupper`, `strtolower`, `ucfirst`, `lcfirst`, `ucwords`): they fold ASCII A–Z only and silently leave every multi-byte character alone, which mangles the names and places this module handles. Use the `mb_` counterpart instead, or compare case-insensitively rather than folding; pass `'UTF-8'` explicitly when writing such a call, so it does not depend on the process-wide `mb_internal_encoding()`. A call site whose input is provably ASCII may be re-allowed per entry via `allowIn` in `phpstan.neon` — none is today, so prefer the `mb_` form over adding the first exception. Pre-existing `mb_*` calls without an explicit encoding are deliberately left alone: `mb_internal_encoding()` derives from `default_charset` and is UTF-8 here, so the concern does not manifest.
 
 Note the constraint floor matters here: the gate ships from coding-standard 1.7.0. A `^1.6` floor happens to resolve to 1.7.0 on a lock-free install, but it does not *require* it — a pinned developer `composer.lock` (gitignored in this repo) or a downgrade forced by another constraint would land on 1.6.1, whose `strict.neon` does not include `disallowed-calls.neon`, and PHPStan would still report green. The `^1.7` floor makes the gate's presence a resolver guarantee rather than a coincidence. The current `^3.8` floor does the same for the `check-deptrac-cycles.php` layer-cycle gate, which `ci:test:php:deptrac` calls and which ships from 2.3.0, and for the strict, acyclic shared Deptrac ruleset, which ships from 3.0.0.
+
+<!-- testing-policy:begin v1 -->
+## Testing policy
+
+Tests protect behavior whose regression would be materially incorrect, unsafe,
+destructive or hard to notice before release. They are not a coverage target and
+they are not a mutation-score target.
+
+Protect these with durable tests:
+- security and privacy boundaries, including untrusted data reaching a path,
+  archive member, URL, header, query, command or DOM sink
+- confidentiality outside access checks (secrets or personal data in logs,
+  exceptions, temporary files, caches, exports, URLs)
+- data integrity across import, export, update and migration
+- lifecycle and failure semantics: atomic writes, rollback, cleanup, idempotency,
+  retries, partial failure, and ordering where the order is the protocol
+- calculation and decision rules, including their boundaries
+- compatibility boundaries: public API, serialized formats, extension interfaces,
+  persisted configuration keys, producer and consumer contracts
+- every fixed behavioral bug (some test must fail on the old behavior). A bug
+  that is only a wrong label, CSS class or default is not behavioral unless a
+  named consumer breaks on it.
+
+For side effects assert the postcondition and the identity of the affected
+resource, not only that a collaborator was called.
+
+Do not add tests whose only content is:
+- a getter, setter, constructor that only stores values, DTO, enum or constant,
+  unless it carries a persisted key or a serialized format from the list above
+- a CSS class list, a label or message text, or a default value, unless the exact
+  value is a documented interface that a named consumer breaks on. Prefer testing
+  the consuming behavior over the producer literal and pin only the minimum literal.
+- transparent delegation that adds no argument selection, ordering, error
+  translation or security context
+- the text of source files instead of the behavior they produce
+
+Order and default assertions are fine when they encode a safety property, for
+example authorize before the side effect, write before rename, private unless
+made public.
+
+A test that a reviewer, human or agent, questions must show the observable
+behavior or invariant it protects, a plausible faulty change it rejects, and for
+a pinned literal the consumer that would break. Mutating the code or reverting
+the fix and watching the test fail is the way to show it.
+<!-- testing-policy:end -->
 
 ## Architecture
 
@@ -242,7 +287,7 @@ All d3 modules are runtime `dependencies` in `package.json` — `d3-array`, `d3-
 ## Design principles
 - Priority order on conflict: **KISS > SOLID > DRY > YAGNI > GRASP > Law of Demeter > Separation of Concerns > Convention over Configuration**.
 - `declare(strict_types=1)`, no `mixed`, no `empty()`, no `@deprecated`, typed class constants, `final readonly` where applicable, qualified `use function` imports, PHPDoc on every class and method, English-only comments.
-- One class per file. Write tests for every class with **real value-equality assertions against curated fixtures**, not just shape checks — the `assertGreaterThan(0)` style hides regressions where the iterator shape changed but the count happens to land near zero. Use PHPUnit `#[Test]` attributes (not docblock annotations).
+- One class per file. Where the testing policy asks for a test, write it with **real value-equality assertions against curated fixtures**, not just shape checks. The `assertGreaterThan(0)` style hides regressions where the iterator shape changed but the count happens to land near zero. Use PHPUnit `#[Test]` attributes (not docblock annotations).
 - Prefer `array_find` / `array_any` / `array_all` over manual `foreach` for "find one" / "any match" / "all match" intents — but only on PHP 8.4+. While `composer.json` still allows PHP 8.3, manual `foreach` stays the portable form; do not introduce these calls until the floor moves to 8.4.
 
 ## Commits & PRs
