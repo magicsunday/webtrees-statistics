@@ -413,4 +413,30 @@ final class TagAggregationPrivacyIntegrationTest extends AbstractIntegrationTest
 
         self::assertSame(['Baker', 'Mason', 'Weaver'], $received);
     }
+
+    /**
+     * The row prefilter keeps every row the scanners read a value from. The
+     * fixture has the tags at level one, at level two under an event fact and
+     * under a non-event fact, and also longer tags that only start with the
+     * scanned tag, a stored row with lower case tags and tags without a value.
+     * Only the first group gives values.
+     */
+    #[Test]
+    public function rowPrefilterKeepsEveryRowTheScannersReadFrom(): void
+    {
+        $tree = $this->importFixtureTree('tag-aggregation-prefilter.ged');
+
+        // The import turns tags into upper case, so the lower case lines are
+        // written into a stored row directly.
+        DB::table('individuals')
+            ->where('i_file', '=', $tree->id())
+            ->where('i_id', '=', 'I9')
+            ->update([
+                'i_gedcom' => "0 @I9@ INDI\n1 NAME Nine /Lower/\n1 occu Cobbler\n1 reli Quaker\n1 DEAT\n2 DATE 1 FEB 1922\n2 caus Flu",
+            ]);
+
+        self::assertSame(['Baker' => 1], $this->occupations($tree));
+        self::assertSame(['Jain' => 1, 'Lutheran' => 1, 'Orthodox' => 1], $this->religions($tree));
+        self::assertSame(['Fever' => 1], $this->causes($tree));
+    }
 }

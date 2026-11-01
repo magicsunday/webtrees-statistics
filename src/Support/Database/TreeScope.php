@@ -97,12 +97,28 @@ final readonly class TreeScope
      * {@see \MagicSunday\Webtrees\Statistic\Support\Gedcom\VisibleGedcomRow}
      * before they scan it, while PlaceDispersion reads the raw blob as it is.
      *
+     * With `$likePatterns` only the rows whose blob matches at least one of the
+     * LIKE patterns are loaded, which spares the transfer and the later work for
+     * rows that cannot carry the scanned tag. `null` loads every row.
+     *
+     * @param Tree              $tree         The tree whose individuals to load
+     * @param list<string>|null $likePatterns LIKE patterns on `i_gedcom`, a row matching any one is loaded, null or an empty list loads every row
+     *
      * @return Collection<int, stdClass>
      */
-    public static function individualGedcoms(Tree $tree): Collection
+    public static function individualGedcoms(Tree $tree, ?array $likePatterns = null): Collection
     {
-        return self::table($tree, 'individuals')
-            ->select(['i_id AS xref', 'i_gedcom AS gedcom'])
-            ->get();
+        $query = self::table($tree, 'individuals')
+            ->select(['i_id AS xref', 'i_gedcom AS gedcom']);
+
+        if ($likePatterns !== null) {
+            $query->where(static function (Builder $group) use ($likePatterns): void {
+                foreach ($likePatterns as $pattern) {
+                    $group->orWhere('i_gedcom', 'like', $pattern);
+                }
+            });
+        }
+
+        return $query->get();
     }
 }

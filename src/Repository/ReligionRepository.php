@@ -52,4 +52,18 @@ final class ReligionRepository extends AbstractGedcomTagTopNRepository
             ...GedcomScanner::extractAllSubTagValues($gedcom, 'RELI'),
         ];
     }
+
+    /**
+     * Selects the rows that carry the tag `1 RELI` or `2 RELI`, because a row without such a
+     * line gives no value to `extract()`.
+     *
+     * @return list<string>
+     */
+    protected function rowFilterPatterns(): array
+    {
+        return [
+            ...GedcomScanner::anchoredLikePatterns('RELI'),
+            ...GedcomScanner::anchoredSubTagLikePatterns('RELI'),
+        ];
+    }
 }

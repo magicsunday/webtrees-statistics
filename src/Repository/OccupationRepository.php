@@ -66,6 +66,17 @@ final class OccupationRepository extends AbstractGedcomTagTopNRepository
     }
 
     /**
+     * Selects the rows that carry the tag `1 OCCU`, because a row without such a
+     * line gives no value to `extract()`.
+     *
+     * @return list<string>
+     */
+    protected function rowFilterPatterns(): array
+    {
+        return GedcomScanner::anchoredLikePatterns('OCCU');
+    }
+
+    /**
      * Resolve every distinct occupation once through the normalizer, then fold
      * each counted value under its grouping key and display label. Batching over
      * the whole tree here means a standardization provider initialises its data

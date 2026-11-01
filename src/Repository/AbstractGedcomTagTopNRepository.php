@@ -78,6 +78,20 @@ abstract class AbstractGedcomTagTopNRepository
     abstract protected function extract(string $gedcom): array;
 
     /**
+     * LIKE patterns on the raw INDI text that select the rows which can carry a
+     * value for this aggregation. A row that matches none of them yields no
+     * value, so it is not loaded. The default `null` loads every row. A subclass
+     * returns patterns that match at least every row its {@see extract()} reads a
+     * value from.
+     *
+     * @return list<string>|null
+     */
+    protected function rowFilterPatterns(): ?array
+    {
+        return null;
+    }
+
+    /**
      * Optional per-value fold resolver handed to {@see TopNAggregator::topN()}.
      * The default is `null`, which folds every value by case alone — the exact
      * behaviour the Top-N counters have always had. A subclass whose values want
@@ -139,7 +153,7 @@ abstract class AbstractGedcomTagTopNRepository
             return $this->cache;
         }
 
-        $gedcoms = VisibleGedcomRow::collect($this->tree, TreeScope::individualGedcoms($this->tree));
+        $gedcoms = VisibleGedcomRow::collect($this->tree, TreeScope::individualGedcoms($this->tree, $this->rowFilterPatterns()));
 
         return $this->cache = TopNAggregator::topN(
             $gedcoms,

@@ -487,4 +487,25 @@ final readonly class GedcomScanner
             "%\n1 " . $tag,
         ];
     }
+
+    /**
+     * Build the LIKE patterns that select every record carrying a `2 <subTag>`
+     * line, the level-2 counterpart of {@see anchoredLikePatterns()}. The scanner
+     * reads a value only from a line that starts with the level, one space and
+     * the tag, so a record without such a line yields no value. Whether a LIKE
+     * match is case sensitive depends on the database collation, which can only
+     * widen the selection, never narrow it.
+     *
+     * @param string $subTag Level-2 tag to anchor
+     *
+     * @return array{0: string, 1: string, 2: string}
+     */
+    public static function anchoredSubTagLikePatterns(string $subTag): array
+    {
+        return [
+            "%\n2 " . $subTag . ' %',
+            "%\n2 " . $subTag . "\n%",
+            "%\n2 " . $subTag,
+        ];
+    }
 }

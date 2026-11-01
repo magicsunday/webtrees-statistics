@@ -42,4 +42,15 @@ final class DeathCauseRepository extends AbstractGedcomTagTopNRepository
 
         return $cause === null ? [] : [$cause];
     }
+
+    /**
+     * Selects the rows that carry the tag `2 CAUS`, because a row without such a
+     * line gives no value to `extract()`.
+     *
+     * @return list<string>
+     */
+    protected function rowFilterPatterns(): array
+    {
+        return GedcomScanner::anchoredSubTagLikePatterns('CAUS');
+    }
 }

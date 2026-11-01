@@ -1,0 +1,64 @@
+0 HEAD
+1 SOUR webtrees-statistics-fixture
+2 NAME tag-aggregation-prefilter
+1 DEST ANSTFILE
+1 CHAR UTF-8
+1 SUBM @SUBM1@
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+0 @SUBM1@ SUBM
+1 NAME Fixture
+0 @I1@ INDI
+1 NAME One /Occupation/
+1 SEX M
+1 OCCU Baker
+0 @I2@ INDI
+1 NAME Two /Religion/
+1 SEX M
+1 RELI Lutheran
+0 @I3@ INDI
+1 NAME Three /Event/
+1 SEX M
+1 BAPM
+2 DATE 1 JAN 1850
+2 RELI Orthodox
+0 @I4@ INDI
+1 NAME Four /Residence/
+1 SEX M
+1 RESI
+2 DATE 1 JAN 1860
+2 PLAC Somewhere
+2 RELI Jain
+0 @I5@ INDI
+1 NAME Five /Cause/
+1 SEX M
+1 DEAT
+2 DATE 1 FEB 1920
+2 PLAC Town
+2 CAUS Fever
+0 @I6@ INDI
+1 NAME Six /Longer/
+1 SEX M
+1 OCCUX Teacher
+1 RELIX Buddhist
+1 BAPM
+2 DATE 1 JAN 1851
+2 RELIX Shinto
+1 DEAT
+2 DATE 1 FEB 1921
+2 CAUSX Wound
+0 @I8@ INDI
+1 NAME Eight /Empty/
+1 SEX M
+1 OCCU
+1 RELI
+1 DEAT
+2 DATE 1 FEB 1923
+2 CAUS
+0 @I9@ INDI
+1 NAME Nine /Nothing/
+1 SEX M
+1 BIRT
+2 DATE 1 JAN 1840
+0 TRLR
