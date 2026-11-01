@@ -74,7 +74,7 @@ final class RecordRowMapperPrivacyIntegrationTest extends AbstractIntegrationTes
                 static fn (Tree $tree): ?array => RecordRowMapper::years(
                     RecordCategory::Life,
                     'Oldest living',
-                    new IndividualAgeRecord(self::individual($tree), 15),
+                    new IndividualAgeRecord(self::livingIndividual($tree), 15),
                 ),
                 '15 years',
             ],
@@ -101,7 +101,7 @@ final class RecordRowMapperPrivacyIntegrationTest extends AbstractIntegrationTes
                 static fn (Tree $tree): ?array => RecordRowMapper::marriages(
                     RecordCategory::Family,
                     'Most spouses',
-                    new IndividualCountRecord(self::individual($tree), 2),
+                    new IndividualCountRecord(self::livingIndividual($tree), 2),
                 ),
                 '2 marriages',
             ],
@@ -110,7 +110,7 @@ final class RecordRowMapperPrivacyIntegrationTest extends AbstractIntegrationTes
                 static fn (Tree $tree): ?array => RecordRowMapper::children(
                     RecordCategory::Family,
                     'Most children',
-                    new IndividualCountRecord(self::individual($tree), 3),
+                    new IndividualCountRecord(self::livingIndividual($tree), 3),
                 ),
                 '3 children',
             ],
@@ -141,7 +141,7 @@ final class RecordRowMapperPrivacyIntegrationTest extends AbstractIntegrationTes
     {
         $tree = $this->livingTree();
 
-        $holder = ($holderKind === 'individual') ? self::individual($tree) : self::family($tree);
+        $holder = ($holderKind === 'individual') ? self::livingIndividual($tree) : self::family($tree);
 
         self::assertTrue($holder->canShow(), 'The importing admin has to see the living holder');
 
@@ -155,7 +155,7 @@ final class RecordRowMapperPrivacyIntegrationTest extends AbstractIntegrationTes
 
         Auth::logout();
 
-        $visitorHolder = ($holderKind === 'individual') ? self::individual($tree) : self::family($tree);
+        $visitorHolder = ($holderKind === 'individual') ? self::livingIndividual($tree) : self::family($tree);
 
         self::assertFalse($visitorHolder->canShow(), 'The visitor must not see the living holder');
         self::assertNull($map($tree), 'the derived value and the URL must not reach a visitor');
@@ -164,7 +164,7 @@ final class RecordRowMapperPrivacyIntegrationTest extends AbstractIntegrationTes
     /**
      * The living holder I1, resolved for the current viewer.
      */
-    private static function individual(Tree $tree): Individual
+    private static function livingIndividual(Tree $tree): Individual
     {
         $individual = Registry::individualFactory()->make('I1', $tree);
         self::assertInstanceOf(Individual::class, $individual);

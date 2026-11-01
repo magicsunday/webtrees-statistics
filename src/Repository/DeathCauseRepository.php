@@ -15,10 +15,10 @@ use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 
 /**
  * Top-N aggregation over the `2 CAUS` sub-tag within each individual's `1 DEAT`
- * block — the GEDCOM cause-of-death field. Each INDI contributes at most one
- * value (only one death per person). The extract closure projects the optional
- * single value into a list so it slots into the same harvester shape the base
- * class expects.
+ * block, the GEDCOM cause-of-death field. The cause is read from the first
+ * `1 DEAT` fact that the viewer may see, and each INDI contributes at most one
+ * value. The extract closure projects the optional single value into a list so
+ * it slots into the same harvester shape the base class expects.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -32,7 +32,7 @@ final class DeathCauseRepository extends AbstractGedcomTagTopNRepository
      * nothing (empty list); the projection to a single-element list keeps the
      * harvester shape uniform with the multi-tag siblings.
      *
-     * @param string $gedcom The raw INDI GEDCOM record to scan
+     * @param string $gedcom The INDI record text to scan, the header line plus the facts the viewer may see
      *
      * @return list<string>
      */
@@ -41,5 +41,16 @@ final class DeathCauseRepository extends AbstractGedcomTagTopNRepository
         $cause = GedcomScanner::extractEventSubValue($gedcom, 'DEAT', 'CAUS');
 
         return $cause === null ? [] : [$cause];
+    }
+
+    /**
+     * Selects the rows that carry the tag `2 CAUS`, because a row without such a
+     * line gives no value to `extract()`.
+     *
+     * @return list<string>
+     */
+    protected function rowFilterPatterns(): array
+    {
+        return GedcomScanner::anchoredSubTagLikePatterns('CAUS');
     }
 }

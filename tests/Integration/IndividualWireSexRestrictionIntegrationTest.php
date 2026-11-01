@@ -12,13 +12,11 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use Fisharebest\Webtrees\Auth;
-use Fisharebest\Webtrees\Contracts\UserInterface;
 use Fisharebest\Webtrees\DB;
 use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Services\GedcomImportService;
 use Fisharebest\Webtrees\Services\TreeService;
-use Fisharebest\Webtrees\Services\UserService;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Model\Tree\PartnershipGroupExcerpt;
 use MagicSunday\Webtrees\Statistic\Model\Tree\PartnershipReachReport;
@@ -66,22 +64,6 @@ final class IndividualWireSexRestrictionIntegrationTest extends AbstractIntegrat
     }
 
     /**
-     * Resolve one fixture individual through the registry as the current user.
-     *
-     * @param Tree   $tree The imported fixture tree
-     * @param string $xref The XREF of the individual
-     *
-     * @return Individual The individual record
-     */
-    private function individual(Tree $tree, string $xref): Individual
-    {
-        $individual = Registry::individualFactory()->make($xref, $tree);
-        self::assertInstanceOf(Individual::class, $individual);
-
-        return $individual;
-    }
-
-    /**
      * Rebuild the individual against a tree object that reads the default
      * restriction rows afresh, because a tree caches them on first use.
      *
@@ -102,19 +84,6 @@ final class IndividualWireSexRestrictionIntegrationTest extends AbstractIntegrat
             null,
             $freshTree,
         );
-    }
-
-    /**
-     * Log in a user whose role in the tree is member, which is the access level
-     * of a `RESN privacy` restriction but below a `RESN confidential` one.
-     *
-     * @param Tree $tree The imported fixture tree
-     */
-    private function loginAsMember(Tree $tree): void
-    {
-        $member = (new UserService())->create('member', 'Member', 'member@example.test', 'secret');
-        $tree->setUserPreference($member, UserInterface::PREF_TREE_ROLE, UserInterface::ROLE_MEMBER);
-        Auth::login($member);
     }
 
     /**

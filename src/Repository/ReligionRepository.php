@@ -41,7 +41,7 @@ final class ReligionRepository extends AbstractGedcomTagTopNRepository
      * from the INDI record. The two sources are merged into one flat list so
      * the case-folded frequency rollup treats them as the same fact.
      *
-     * @param string $gedcom The raw INDI GEDCOM record to scan
+     * @param string $gedcom The INDI record text to scan, the header line plus the facts the viewer may see
      *
      * @return list<string>
      */
@@ -50,6 +50,20 @@ final class ReligionRepository extends AbstractGedcomTagTopNRepository
         return [
             ...GedcomScanner::extractAllTagValues($gedcom, 'RELI'),
             ...GedcomScanner::extractAllSubTagValues($gedcom, 'RELI'),
+        ];
+    }
+
+    /**
+     * Selects the rows that carry the tag `1 RELI` or `2 RELI`, because a row
+     * without such a line gives no value to `extract()`.
+     *
+     * @return list<string>
+     */
+    protected function rowFilterPatterns(): array
+    {
+        return [
+            ...GedcomScanner::anchoredLikePatterns('RELI'),
+            ...GedcomScanner::anchoredSubTagLikePatterns('RELI'),
         ];
     }
 }

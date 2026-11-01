@@ -25,7 +25,7 @@ use function mb_strtolower;
 
 /**
  * Top-N aggregation over the `1 OCCU` (occupation) facts attached to
- * individuals. Multiple OCCU lines per INDI all contribute.
+ * individuals. Each OCCU line of an INDI that the viewer may see contributes.
  *
  * Unlike the other Top-N counters, the occupation values are folded through an
  * {@see OccupationNormalizerInterface} before counting: when a standardization provider
@@ -56,7 +56,7 @@ final class OccupationRepository extends AbstractGedcomTagTopNRepository
      * individual carrying two recorded occupations contributes two entries to
      * the frequency rollup.
      *
-     * @param string $gedcom The raw INDI GEDCOM record to scan
+     * @param string $gedcom The INDI record text to scan, the header line plus the facts the viewer may see
      *
      * @return list<string>
      */
@@ -66,12 +66,23 @@ final class OccupationRepository extends AbstractGedcomTagTopNRepository
     }
 
     /**
+     * Selects the rows that carry the tag `1 OCCU`, because a row without such a
+     * line gives no value to `extract()`.
+     *
+     * @return list<string>
+     */
+    protected function rowFilterPatterns(): array
+    {
+        return GedcomScanner::anchoredLikePatterns('OCCU');
+    }
+
+    /**
      * Resolve every distinct occupation once through the normalizer, then fold
      * each counted value under its grouping key and display label. Batching over
      * the whole tree here means a standardization provider initialises its data
      * a single time rather than once per counted line.
      *
-     * @param Collection<int, object> $gedcoms The individual GEDCOM rows about to be counted
+     * @param Collection<int, object> $gedcoms The visible individual rows about to be counted, with the facts the viewer may see
      *
      * @return Closure(string): array{0: string, 1: string}
      */

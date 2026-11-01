@@ -14,7 +14,7 @@
 1 SEX M
 1 OCCU Blacksmith
 1 DEAT
-2 DATE 1 FEB 1900
+2 DATE 1 FEB 1850
 1 FAMS @F1@
 0 @I2@ INDI
 1 NAME Anton /Public/
@@ -50,13 +50,13 @@
 1 SEX M
 1 OCCU Tailor
 1 DEAT
-2 DATE 1 FEB 1905
+2 DATE 1 FEB 1850
 1 FAMS @F2@
 0 @I7@ INDI
 1 NAME Heinrich /Secret/
 1 SEX M
 1 RESN confidential
-1 OCCU Tailor
+1 OCCU Draper
 1 DEAT
 2 DATE 1 FEB 1930
 1 FAMC @F2@
@@ -64,18 +64,63 @@
 1 NAME Ingo /Secret/
 1 SEX M
 1 RESN confidential
-1 OCCU Tailor
+1 OCCU Draper
 1 DEAT
 2 DATE 1 FEB 1931
 1 FAMC @F2@
+0 @I9@ INDI
+1 NAME Emil /Public/
+1 SEX M
+1 OCCU Glazier
+2 RESN confidential
+1 DEAT
+2 DATE 1 FEB 1929
+1 FAMC @F1@
+0 @I10@ INDI
+1 NAME Jakob /Cooper/
+1 SEX M
+1 RESN confidential
+1 OCCU Cooper
+1 DEAT
+2 DATE 1 FEB 1850
+1 FAMS @F3@
+0 @I11@ INDI
+1 NAME Kaspar /Cooper/
+1 SEX M
+1 OCCU Cooper
+1 DEAT
+2 DATE 1 FEB 1930
+1 FAMC @F3@
+0 @I12@ INDI
+1 NAME Lorenz /Potter/
+1 SEX M
+1 OCCU Potter
+2 RESN confidential
+1 DEAT
+2 DATE 1 FEB 1850
+1 FAMS @F4@
+0 @I13@ INDI
+1 NAME Moritz /Potter/
+1 SEX M
+1 OCCU Potterling
+1 DEAT
+2 DATE 1 FEB 1930
+1 FAMC @F4@
 0 @F1@ FAM
 1 HUSB @I1@
 1 CHIL @I2@
 1 CHIL @I3@
 1 CHIL @I4@
 1 CHIL @I5@
+1 CHIL @I9@
 0 @F2@ FAM
 1 HUSB @I6@
 1 CHIL @I7@
 1 CHIL @I8@
+0 @F3@ FAM
+1 HUSB @I10@
+1 CHIL @I11@
+0 @F4@ FAM
+1 HUSB @I12@
+1 CHIL @I13@
 0 TRLR

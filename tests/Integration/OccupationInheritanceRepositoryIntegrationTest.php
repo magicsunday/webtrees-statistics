@@ -12,6 +12,9 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use Fisharebest\Webtrees\Auth;
+use Fisharebest\Webtrees\DB;
+use Fisharebest\Webtrees\Individual;
+use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Site;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Aggregator\Sankey\BipartiteSankeyAssembler;
@@ -30,6 +33,7 @@ use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RecordName;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\VisibleGedcomRow;
 use MagicSunday\Webtrees\Statistic\Test\Support\Narrowing\PayloadNarrowing;
 use MagicSunday\Webtrees\Statistic\Test\Support\Normalization\StubOccupationNormalizer;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -39,6 +43,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
 use function array_map;
 use function array_slice;
 use function array_unique;
+use function sort;
 
 /**
  * End-to-end test of the parent → child occupation-inheritance aggregator. The
@@ -66,6 +71,7 @@ use function array_unique;
 #[UsesClass(TreeScope::class)]
 #[UsesClass(GedcomScanner::class)]
 #[UsesClass(RowCast::class)]
+#[UsesClass(VisibleGedcomRow::class)]
 #[UsesClass(BipartiteSankeyAssembler::class)]
 #[UsesClass(SankeySampleResolver::class)]
 #[UsesClass(RecordName::class)]
@@ -531,98 +537,148 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
     }
 
     /**
-     * Hover samples are resolved through the record factory, so a sample child
-     * the current user cannot see is dropped and the next deterministic child
-     * takes its slot — the private name never reaches the tooltip. The fixture
-     * has one Blacksmith → Blacksmith flow with FOUR children in xref order
-     * (Anton, Bernd, Carl, Dirk); Bernd carries `1 RESN confidential`. As the
-     * importing admin all four are visible, so the cap of three holds the first
-     * three (Anton, Bernd, Carl) — this proves Bernd sits inside the cap window,
-     * making the visitor assertion a real discriminator rather than a
-     * fixture-ordering artefact. As an anonymous visitor Bernd is skipped and
-     * Dirk is promoted into the freed slot, while the flow weight stays at four.
+     * Occupations enter the flows from the facts the viewer may see. In the
+     * fixture, I3 is a Blacksmith child behind a confidential record
+     * restriction. A guest gets the Blacksmith flow weight without it, so the
+     * weight and the samples both come from the same visible children, and the
+     * samples are the first of them in xref order up to the sample cap. I9 holds
+     * only a Glazier occupation behind a confidential fact restriction, so it
+     * adds no weight to the Blacksmith to Blacksmith flow for any viewer. The
+     * importing administrator sees I3, and the samples are the first children in
+     * xref order up to the sample cap.
      */
     #[Test]
-    public function occupationInheritanceDropsSamplesTheUserCannotSeeAndPromotesTheNext(): void
+    public function occupationInheritanceCountsOnlyTheChildrenTheViewerMaySee(): void
     {
         $tree = $this->importFixtureTree('occupation-inheritance-privacy.ged');
         $this->hideLivingPeople($tree);
 
-        // Control: as the importing admin every child is visible, so the
-        // confidential Bernd occupies a cap slot.
-        $adminNames = $this->blacksmithFlowSampleNames($tree);
-        self::assertContains('Bernd Secret', $adminNames, 'the confidential sample sits inside the cap window for an admin');
+        $adminFlow = $this->flowByTrades($tree, 'Blacksmith', 'Blacksmith');
+        self::assertNotNull($adminFlow, 'precondition: the administrator sees the Blacksmith flow');
+        self::assertSame(4, $adminFlow->value);
+        self::assertSame(
+            ['Anton Public', 'Bernd Secret', 'Carl Public'],
+            array_map(static fn (SankeySample $sample): string => $sample->name, $adminFlow->samples),
+        );
 
-        // Drop to an anonymous visitor so the `1 RESN confidential` marker
-        // actually restricts visibility.
         Auth::logout();
 
-        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree), new RawOccupationNormalizer()))
-            ->occupationInheritance(10, 1);
-        $heaviest = PayloadNarrowing::sankeyLinkAt($result->links, 0);
+        $individual = Registry::individualFactory()->make('I3', $tree);
+        self::assertInstanceOf(Individual::class, $individual);
+        self::assertFalse($individual->canShow(), 'precondition: the record I3 is hidden from the guest');
 
-        // The flow weight still reflects all four children — dropping a private
-        // sample must not distort the aggregate.
-        self::assertSame(4, $heaviest->value, 'the flow weight is counted independently of the samples');
-        self::assertCount(3, $heaviest->samples, 'the cap still holds three samples after the private one is skipped');
-
-        $names = array_map(static fn (SankeySample $sample): string => $sample->name, $heaviest->samples);
-
-        self::assertNotContains('Bernd Secret', $names, 'a sample the visitor cannot see must not leak into the tooltip');
-        self::assertContains('Dirk Public', $names, 'the next deterministic child is promoted into the freed slot');
-        self::assertSame(['Anton Public', 'Carl Public', 'Dirk Public'], $names);
+        $guestFlow = $this->flowByTrades($tree, 'Blacksmith', 'Blacksmith');
+        self::assertNotNull($guestFlow, 'the visible children still form the flow');
+        self::assertSame(3, $guestFlow->value, 'the weight counts the visible children only');
+        self::assertSame(
+            ['Anton Public', 'Carl Public', 'Dirk Public'],
+            array_map(static fn (SankeySample $sample): string => $sample->name, $guestFlow->samples),
+        );
     }
 
     /**
-     * A flow whose every contributing child is hidden from the current user
-     * keeps its full weight but surfaces no sample names — the weight is counted
-     * from the child scan, independent of whether any representative can be
-     * shown. The fixture's Tailor → Tailor flow has two children, both `1 RESN
-     * confidential`, so an anonymous visitor sees a weight of two with an empty
-     * sample list rather than a leaked name or a dropped flow.
+     * A flow disappears for a guest when its children are hidden records, when
+     * its parent is a hidden record or when the occupation of the parent is
+     * withheld. The administrator keeps those flows.
      */
     #[Test]
-    public function occupationInheritanceKeepsTheWeightButOmitsSamplesWhenEveryContributorIsPrivate(): void
+    public function occupationInheritanceDropsFlowsWithHiddenEndsForGuest(): void
+    {
+        $tree = $this->importFixtureTree('occupation-inheritance-privacy.ged');
+        $tree->setPreference('HIDE_LIVE_PEOPLE', '1');
+        $tree->setPreference('SHOW_DEAD_PEOPLE', (string) Auth::PRIV_PRIVATE);
+
+        $adminTailor = $this->flowByTrades($tree, 'Tailor', 'Draper');
+        self::assertNotNull($adminTailor, 'precondition: the administrator sees the flow of the hidden children');
+        self::assertSame(2, $adminTailor->value);
+        self::assertNotNull($this->flowByTrades($tree, 'Cooper', 'Cooper'), 'precondition: the administrator sees the flow of the hidden parent');
+        self::assertNotNull($this->flowByTrades($tree, 'Potter', 'Potterling'), 'precondition: the administrator sees the flow of the withheld parent occupation');
+
+        Auth::logout();
+
+        self::assertNull($this->flowByTrades($tree, 'Tailor', 'Draper'));
+        self::assertNull($this->flowByTrades($tree, 'Cooper', 'Cooper'));
+        self::assertNull($this->flowByTrades($tree, 'Potter', 'Potterling'));
+    }
+
+    /**
+     * The normalizer receives the occupation values of visible facts only. The
+     * values Draper and Glazier sit behind a hidden record or a withheld fact,
+     * Potter sits behind a withheld fact, and Cooper is held by a hidden record
+     * and by a visible person. A guest reaches the normalizer with the trades of
+     * the visible facts.
+     */
+    #[Test]
+    public function occupationInheritanceNormalizerReceivesVisibleValuesOnly(): void
     {
         $tree = $this->importFixtureTree('occupation-inheritance-privacy.ged');
         $this->actAsVisitorWithLivingHidden($tree);
 
-        $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree), new RawOccupationNormalizer()))
+        $normalizer = new StubOccupationNormalizer([]);
+
+        (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree), $normalizer))
             ->occupationInheritance(10, 1);
 
-        $tailorToTailor = null;
+        $received = $normalizer->receivedValues();
+        sort($received);
 
-        foreach ($result->links as $link) {
-            $targetNode = $result->nodes[$link->target] ?? self::fail('link target index missing from the node table');
-
-            if ($targetNode === 'Tailor') {
-                $tailorToTailor = $link;
-
-                break;
-            }
-        }
-
-        self::assertNotNull($tailorToTailor, 'the all-private flow is still present');
-        self::assertSame(2, $tailorToTailor->value, 'the weight counts both private contributors');
-        self::assertSame([], $tailorToTailor->samples, 'no private name leaks into the sample list');
+        self::assertSame(['Blacksmith', 'Cooper', 'Potterling', 'Tailor'], $received);
     }
 
     /**
-     * Resolve the Blacksmith → Blacksmith flow's sample names for the current
-     * user. Helper for the privacy discriminator above so the admin control and
-     * the visitor assertion read the same flow the same way.
-     *
-     * @return list<string>
+     * A visible child whose death fact is withheld from the guest counts in the
+     * flow and its name appears in the sample list.
      */
-    private function blacksmithFlowSampleNames(Tree $tree): array
+    #[Test]
+    public function occupationInheritanceSampleResolvesForAChildWithAWithheldDeathFact(): void
+    {
+        $tree = $this->importFixtureTree('occupation-inheritance-death-fact-hidden.ged');
+        $tree->setPreference('HIDE_LIVE_PEOPLE', '1');
+        $tree->setPreference('SHOW_DEAD_PEOPLE', (string) Auth::PRIV_PRIVATE);
+
+        Auth::logout();
+
+        $rawGedcom = DB::table('individuals')
+            ->where('i_file', '=', $tree->id())
+            ->where('i_id', '=', 'I2')
+            ->value('i_gedcom');
+        self::assertIsString($rawGedcom);
+
+        $individual = Registry::individualFactory()->new('I2', $rawGedcom, null, $tree);
+        self::assertCount(0, $individual->facts(['DEAT']), 'precondition: the death fact of the child is withheld');
+        self::assertTrue($individual->canShow(), 'precondition: the child record is visible');
+
+        $flow = $this->flowByTrades($tree, 'Blacksmith', 'Blacksmith');
+
+        self::assertNotNull($flow);
+        self::assertSame(
+            ['Greta Public'],
+            array_map(static fn (SankeySample $sample): string => $sample->name, $flow->samples),
+        );
+    }
+
+    /**
+     * Find the flow between two trades for the current viewer.
+     *
+     * @param Tree   $tree        The tree to aggregate
+     * @param string $sourceTrade The label of the parent trade
+     * @param string $targetTrade The label of the child trade
+     */
+    private function flowByTrades(Tree $tree, string $sourceTrade, string $targetTrade): ?SankeyLink
     {
         $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree), new RawOccupationNormalizer()))
             ->occupationInheritance(10, 1);
 
-        return array_map(
-            static fn (SankeySample $sample): string => $sample->name,
-            PayloadNarrowing::sankeyLinkAt($result->links, 0)->samples,
-        );
+        foreach ($result->links as $link) {
+            if (
+                (($result->nodes[$link->source] ?? null) === $sourceTrade)
+                && (($result->nodes[$link->target] ?? null) === $targetTrade)
+            ) {
+                return $link;
+            }
+        }
+
+        return null;
     }
 
     /**

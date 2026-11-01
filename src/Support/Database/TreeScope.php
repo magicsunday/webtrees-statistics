@@ -89,19 +89,36 @@ final readonly class TreeScope
     }
 
     /**
-     * Convenience overload for the most-repeated repository pattern — load
-     * every individual's `i_gedcom` blob for the active tree as a
-     * `Collection<int, stdClass{gedcom: string}>`. Used by the downstream
-     * GEDCOM scanners (Religion, DeathCause, Occupation, PlaceDispersion) that
-     * pull text-level tag values out of the raw blob rather than the normalised
-     * tables.
+     * Convenience overload for the most-repeated repository pattern, loading
+     * every individual's `i_id` and `i_gedcom` blob for the active tree as a
+     * `Collection<int, stdClass{xref: string, gedcom: string}>`. The raw blob is
+     * not privacy filtered. The tag aggregations (Religion, DeathCause,
+     * Occupation) reduce each row to the facts the viewer may see through
+     * {@see \MagicSunday\Webtrees\Statistic\Support\Gedcom\VisibleGedcomRow}
+     * before they scan it, while PlaceDispersion reads the raw blob as it is.
      *
-     * @return Collection<int, stdClass>
+     * With `$likePatterns` only the rows whose blob matches at least one of the
+     * LIKE patterns are loaded, which spares the transfer and the later work for
+     * rows that cannot carry the scanned tag. `null` loads every row.
+     *
+     * @param Tree              $tree         The tree whose individuals to load
+     * @param list<string>|null $likePatterns LIKE patterns on `i_gedcom`, a row matching any one is loaded, null or an empty list loads every row
+     *
+     * @return Collection<int, stdClass> Rows with the `xref` and `gedcom` columns
      */
-    public static function individualGedcoms(Tree $tree): Collection
+    public static function individualGedcoms(Tree $tree, ?array $likePatterns = null): Collection
     {
-        return self::table($tree, 'individuals')
-            ->select(['i_gedcom AS gedcom'])
-            ->get();
+        $query = self::table($tree, 'individuals')
+            ->select(['i_id AS xref', 'i_gedcom AS gedcom']);
+
+        if ($likePatterns !== null) {
+            $query->where(static function (Builder $group) use ($likePatterns): void {
+                foreach ($likePatterns as $pattern) {
+                    $group->orWhere('i_gedcom', 'like', $pattern);
+                }
+            });
+        }
+
+        return $query->get();
     }
 }

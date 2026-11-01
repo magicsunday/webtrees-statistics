@@ -43,6 +43,14 @@ final class StubOccupationNormalizer implements OccupationNormalizerInterface
     private ?string $lastLanguage = null;
 
     /**
+     * Every raw value received across all {@see self::normalizeMany()} calls, in
+     * the order received, so a test can assert which values reached the seam.
+     *
+     * @var list<string>
+     */
+    private array $receivedValues = [];
+
+    /**
      * @param array<string, NormalizedOccupation> $lookup Raw value => canned result; absent keys resolve to null
      */
     public function __construct(
@@ -56,6 +64,16 @@ final class StubOccupationNormalizer implements OccupationNormalizerInterface
     public function batchCalls(): int
     {
         return $this->batchCalls;
+    }
+
+    /**
+     * The raw values received across all {@see self::normalizeMany()} calls.
+     *
+     * @return list<string>
+     */
+    public function receivedValues(): array
+    {
+        return $this->receivedValues;
     }
 
     /**
@@ -86,7 +104,8 @@ final class StubOccupationNormalizer implements OccupationNormalizerInterface
         $result = [];
 
         foreach ($values as $rawValue) {
-            $result[$rawValue] = $this->lookup[$rawValue] ?? null;
+            $this->receivedValues[] = (string) $rawValue;
+            $result[$rawValue]      = $this->lookup[$rawValue] ?? null;
         }
 
         return $result;

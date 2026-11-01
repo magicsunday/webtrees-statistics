@@ -16,6 +16,7 @@ use Fisharebest\Webtrees\Tree;
 use Illuminate\Support\Collection;
 use MagicSunday\Webtrees\Statistic\Aggregator\TopNAggregator;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\VisibleGedcomRow;
 
 use function array_slice;
 use function count;
@@ -28,6 +29,11 @@ use function count;
  * tree, the case-folded frequency rollup, the descending sort, and the
  * per-instance memoisation that lets `top()` and `countDistinct()` share a
  * single INDI scan.
+ *
+ * Each INDI row is reduced to the facts the current viewer may see
+ * ({@see VisibleGedcomRow}) before the subclasses harvest values, so a value of
+ * a hidden record or of a withheld fact is not counted for that viewer and the
+ * aggregation depends on who looks.
  *
  * The memoised aggregation lives in a single nullable cache field — the
  * contract is "first call computes, subsequent calls reuse". Repository
@@ -65,16 +71,29 @@ abstract class AbstractGedcomTagTopNRepository
      * base class's job — subclasses just return the raw list of values per
      * INDI.
      *
-     * @param string $gedcom The raw INDI GEDCOM record to scan
+     * @param string $gedcom The INDI record text to scan, the header line plus the facts the viewer may see
      *
      * @return list<string>
      */
     abstract protected function extract(string $gedcom): array;
 
     /**
+     * LIKE patterns on the raw INDI text that select the rows which can carry a
+     * value for this aggregation. A row that matches none of them yields no
+     * value, so it is not loaded. The default `null` loads every row. A subclass
+     * returns patterns that match at least every row its {@see extract()} reads a
+     * value from.
+     *
+     * @return list<string>|null
+     */
+    protected function rowFilterPatterns(): ?array
+    {
+        return null;
+    }
+
+    /**
      * Optional per-value fold resolver handed to {@see TopNAggregator::topN()}.
-     * The default is `null`, which folds every value by case alone — the exact
-     * behaviour the Top-N counters have always had. A subclass whose values want
+     * The default is `null`, which folds the values by case alone. A subclass whose values want
      * standardization (the occupation counter) overrides this to return a
      * `Closure(string): array{0: string, 1: string}` mapping a raw value to its
      * [fold key, display label]; the whole individual set is passed so the
@@ -133,7 +152,9 @@ abstract class AbstractGedcomTagTopNRepository
             return $this->cache;
         }
 
-        $gedcoms = TreeScope::individualGedcoms($this->tree);
+        $rows = TreeScope::individualGedcoms($this->tree, $this->rowFilterPatterns());
+
+        $gedcoms = VisibleGedcomRow::collect($this->tree, $rows);
 
         return $this->cache = TopNAggregator::topN(
             $gedcoms,

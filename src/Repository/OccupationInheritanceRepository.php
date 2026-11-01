@@ -28,6 +28,7 @@ use MagicSunday\Webtrees\Statistic\Normalization\Support\ContentLanguage;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\VisibleGedcomRow;
 
 use function array_keys;
 use function count;
@@ -60,13 +61,14 @@ use function mb_strtolower;
  * spelling and language variants too (see {@see OccupationFolding}); the
  * first-seen label of a fold becomes its display label.
  *
- * Privacy contract (matching the sibling migration Sankey): occupation node
- * labels are AGGREGATE facts and are not individually privacy-gated — a trade
- * practised by a privacy-restricted parent or child can appear as a node label,
- * exactly as the statistics module surfaces aggregate counts everywhere else.
- * Only the per-flow sample children are routed through the privacy layer (see
- * {@see SankeySampleResolver}): a child the current user may not see is dropped
- * from the tooltip, while the flow weight still counts them.
+ * Privacy contract. The occupations come from the facts the current viewer may
+ * see ({@see VisibleGedcomRow}). A person whose record is hidden from the viewer,
+ * and a person whose OCCU fact is withheld, have no occupation and drop out of
+ * the flows as child or as parent, so the flow weights depend on the viewer. The
+ * per-flow sample children are routed through the privacy layer as well (see
+ * {@see SankeySampleResolver}), and a child the viewer may not see is dropped
+ * from the tooltip. The weight and the samples come from the same visible
+ * occupations, so a name is not shown next to a withheld occupation.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -169,18 +171,25 @@ final readonly class OccupationInheritanceRepository
             ->select(['i_id AS xref', 'i_gedcom AS gedcom'])
             ->get();
 
-        // First pass: read every individual's raw `1 OCCU` lines once, keyed by
-        // xref, while collecting the tree-wide DISTINCT set of raw values.
-        // Parsing here — rather than again for every child and every parent in
-        // the main loop — means a parent shared by several children is parsed a
-        // single time, and the resident map holds the small trade lists instead
-        // of the full GEDCOM blobs.
+        // First pass. Read every individual's `1 OCCU` lines once, keyed by
+        // xref, while collecting the tree-wide DISTINCT set of raw values. The
+        // lines come from the facts the viewer may see (a hidden record and a
+        // withheld OCCU fact give none), while the raw row text stays with the
+        // row for the sample resolver. Parsing here rather than again for every
+        // child and every parent in the main loop means a parent shared by
+        // several children is parsed a single time, and the resident map holds
+        // the small trade lists instead of the full GEDCOM blobs.
         $occupationsByXref = [];
         $distinctRaw       = [];
 
         foreach ($rows as $row) {
-            $occupations                                      = GedcomScanner::extractAllTagValues(RowCast::string($row, 'gedcom'), 'OCCU');
-            $occupationsByXref[RowCast::string($row, 'xref')] = $occupations;
+            $xref        = RowCast::string($row, 'xref');
+            $occupations = GedcomScanner::extractAllTagValues(
+                VisibleGedcomRow::text($this->tree, $xref, RowCast::string($row, 'gedcom')),
+                'OCCU',
+            );
+
+            $occupationsByXref[$xref] = $occupations;
 
             foreach ($occupations as $occupation) {
                 $distinctRaw[$occupation] = true;
@@ -215,8 +224,9 @@ final readonly class OccupationInheritanceRepository
             $childXref   = RowCast::string($row, 'xref');
             $childGedcom = RowCast::string($row, 'gedcom');
 
-            // The child's distinct trades were folded in the first pass; the raw
-            // GEDCOM is still read below for the privacy-gated sample.
+            // The child's distinct trades were folded in the first pass from the
+            // visible facts. The raw GEDCOM goes to the sample resolver, which
+            // builds the registry record from it and applies the viewer check.
             $childTrades = $tradesByXref[$childXref] ?? [];
 
             if ($childTrades === []) {
