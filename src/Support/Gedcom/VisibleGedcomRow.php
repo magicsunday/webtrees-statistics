@@ -22,24 +22,33 @@ use function preg_match;
 use function preg_match_all;
 use function strstr;
 
+use const PREG_SET_ORDER;
+
 /**
  * One individual row reduced to the facts that the current viewer may see. The
  * `gedcom` text is the header line of the record followed by the raw text of
- * every fact that `Individual::facts()` returns and that carries a value, so the
- * GEDCOM scanners select values the same way as on the raw row, for well formed
- * rows, but only over what the host shows to the viewer. The host applies the
- * record visibility, an explicit `RESN` on the fact and the tree and individual
- * fact privacy defaults there.
+ * the facts that `Individual::facts()` returns for the tags of the row that
+ * occur at least once with a value other than a pointer. A `1 BAPM` without a
+ * value counts, because it can hold `2 RELI` lines. The GEDCOM scanners select
+ * values from that text the same way as on the raw row, for well formed rows,
+ * but only over what the host shows to the viewer. The host applies the record
+ * visibility, an explicit `RESN` on the fact and the tree and individual fact
+ * privacy defaults there.
  *
- * A fact whose value is a pointer to another record (`1 FAMC @F1@`) is left
- * out, which spares the host from resolving its target. An escaped free text
- * value such as `@@Home` is no pointer and is kept. A row that the host rejects
- * as facts, for example a fact line without a valid tag, yields the header line
- * alone and contributes no values.
+ * A tag that occurs only as pointer facts (`1 FAMC @F1@`) is not passed to the
+ * host, which spares resolving the targets. When a tag occurs as a pointer and
+ * with another value, the host resolves the pointer target and the pointer fact
+ * is dropped afterwards. A value is a pointer when it has the form the host
+ * resolves as a record reference, so an escaped free text value such as
+ * `@@Home` is kept. A row that the host rejects as facts, for example a fact
+ * line without a valid tag, yields the header line alone and contributes no
+ * values.
  *
  * The record is built from the committed row text without pending changes and
  * is not registered in the record factory cache, so it cannot be bound to a
- * stale tree object.
+ * stale tree object. The visibility entry that the host keeps per record in the
+ * request cache can therefore differ from the one of the registry record for an
+ * editor with a pending restriction change.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -48,10 +57,12 @@ use function strstr;
 final readonly class VisibleGedcomRow
 {
     /**
-     * Pattern of a real pointer value, an XREF between at signs. A leading
-     * escaped at sign and a calendar escape such as `@#DJULIAN@` do not match.
+     * Pattern of a pointer value, the XREF class that the host uses in
+     * `Fact::target()` between at signs. An escaped value such as `@@x@`, a value
+     * with spaces such as `@Home town@` and a calendar escape such as
+     * `@#DJULIAN@` do not match.
      */
-    private const string POINTER_VALUE = '@[^@#][^@]*@';
+    private const string POINTER_VALUE = '@[A-Za-z0-9:_.-]{1,20}@';
 
     /**
      * @param string $gedcom The header line plus the raw text of the facts the viewer may see
@@ -68,7 +79,7 @@ final readonly class VisibleGedcomRow
      * @param string $xref   The individual's XREF
      * @param string $gedcom The raw `i_gedcom` text of the row
      *
-     * @return string The header line plus the raw text of the visible value facts
+     * @return string The header line plus the raw text of the visible non-pointer facts
      */
     public static function text(Tree $tree, string $xref, string $gedcom): string
     {
@@ -77,7 +88,7 @@ final readonly class VisibleGedcomRow
 
         $tags = self::valueFactTags($gedcom);
 
-        // Without a value fact there is nothing to scan, and an empty tag list
+        // Without a non-pointer fact there is nothing to scan, and an empty tag list
         // would select every fact in the host call below.
         if ($tags === []) {
             return $header;
@@ -128,9 +139,10 @@ final readonly class VisibleGedcomRow
     }
 
     /**
-     * The tags of the level-1 facts that carry a value other than a pointer. A
-     * tag that occurs only as a pointer is left out, so the host does not
-     * resolve the targets of such facts to decide on their visibility.
+     * The tags of the level-1 facts that occur at least once with a value other
+     * than a pointer or without a value. A tag that occurs only as a pointer is
+     * left out, so the host does not resolve the targets of such facts to decide
+     * on their visibility.
      *
      * @param string $gedcom The raw `i_gedcom` text of the row
      *

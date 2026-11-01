@@ -69,8 +69,9 @@ final class TreeScopeIndividualGedcomsIntegrationTest extends AbstractIntegratio
 
     /**
      * Patterns of the second level load the rows with such a line under a fact.
-     * I3 carries it under an event fact, I4 under a non-event fact and I8 as a
-     * line without a value, while I6 has the longer tag RELIX.
+     * I3 carries it under an event fact and I4 under a non-event fact. I6 has
+     * only the longer tag RELIX at level two and I8 only a level one RELI line,
+     * so neither of them is loaded.
      */
     #[Test]
     public function subTagPatternsLoadTheRowsWithALevelTwoLine(): void

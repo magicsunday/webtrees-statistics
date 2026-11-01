@@ -15,10 +15,10 @@ use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 
 /**
  * Top-N aggregation over the `2 CAUS` sub-tag within each individual's `1 DEAT`
- * block — the GEDCOM cause-of-death field. Each INDI contributes at most one
- * value (only one death per person). The extract closure projects the optional
- * single value into a list so it slots into the same harvester shape the base
- * class expects.
+ * block, the GEDCOM cause-of-death field. The cause is read from the first
+ * `1 DEAT` fact that the viewer may see, and each INDI contributes at most one
+ * value. The extract closure projects the optional single value into a list so
+ * it slots into the same harvester shape the base class expects.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0

@@ -25,7 +25,7 @@ use function mb_strtolower;
 
 /**
  * Top-N aggregation over the `1 OCCU` (occupation) facts attached to
- * individuals. Multiple OCCU lines per INDI all contribute.
+ * individuals. Each OCCU line of an INDI contributes.
  *
  * Unlike the other Top-N counters, the occupation values are folded through an
  * {@see OccupationNormalizerInterface} before counting: when a standardization provider

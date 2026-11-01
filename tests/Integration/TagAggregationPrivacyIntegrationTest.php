@@ -40,7 +40,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
 
+use function is_string;
 use function sort;
+use function str_contains;
 
 // jscpd:ignore-end
 
@@ -365,9 +367,11 @@ final class TagAggregationPrivacyIntegrationTest extends AbstractIntegrationTest
     }
 
     /**
-     * A level-1 pointer fact is not part of the visible text, so a RELI line
-     * inside it does not count, while the other values of the same person do.
-     * The same holds for a person whose only facts are pointer facts.
+     * A RELI line inside a level-1 pointer fact does not count, while the other
+     * values of the same person do. The test checks the returned values for a
+     * person with a pointer fact next to a value fact and for a person with
+     * pointer facts only. It does not show whether the tag was passed to the
+     * host.
      */
     #[Test]
     public function valueInsidePointerFactIsNotRead(): void
@@ -445,7 +449,9 @@ final class TagAggregationPrivacyIntegrationTest extends AbstractIntegrationTest
 
     /**
      * A free text value that starts with an escaped at sign is no pointer and
-     * counts, for an occupation, a religion and a death cause.
+     * counts, for an occupation, a religion and a death cause. So do values
+     * that end with an at sign but are no record reference for the host, one
+     * with an escaped start, one with a space and one that is a calendar escape.
      */
     #[Test]
     public function escapedAtSignValuesCount(): void
@@ -462,6 +468,19 @@ final class TagAggregationPrivacyIntegrationTest extends AbstractIntegrationTest
         self::assertSame(1, $this->occupations($tree)['@@Home'] ?? 0);
         self::assertSame(1, $this->religions($tree)['@@Faith'] ?? 0);
         self::assertSame(1, $this->causes($tree)['@@Cause'] ?? 0);
+
+        DB::table('individuals')
+            ->where('i_file', '=', $tree->id())
+            ->where('i_id', '=', 'I5')
+            ->update([
+                'i_gedcom' => "0 @I5@ INDI\n1 NAME Five /Escaped/\n1 OCCU @@x@\n1 OCCU @Home town@\n1 OCCU @#DJULIAN@",
+            ]);
+
+        $occupations = $this->occupations($tree);
+
+        self::assertSame(1, $occupations['@@x@'] ?? 0);
+        self::assertSame(1, $occupations['@Home town@'] ?? 0);
+        self::assertSame(1, $occupations['@#DJULIAN@'] ?? 0);
     }
 
     /**
@@ -506,5 +525,61 @@ final class TagAggregationPrivacyIntegrationTest extends AbstractIntegrationTest
         self::assertFalse($this->individual($tree, 'I9')->canShow(), 'precondition: the guest cannot see the living person');
         self::assertArrayNotHasKey('Miller', $this->occupations($tree));
         self::assertArrayNotHasKey('Methodist', $this->religions($tree));
+    }
+
+    /**
+     * Each repository hands its own LIKE patterns to the row loader. The
+     * recorded queries on the individuals table carry exactly the patterns of
+     * the scanned tag, at the level the scanner reads.
+     */
+    #[Test]
+    public function eachRepositoryLoadsRowsWithItsOwnPatterns(): void
+    {
+        $tree = $this->tree();
+
+        self::assertSame(
+            ["%\n1 OCCU %", "%\n1 OCCU\n%", "%\n1 OCCU"],
+            $this->likeBindings(fn (): array => $this->occupations($tree)),
+        );
+        self::assertSame(
+            ["%\n1 RELI %", "%\n1 RELI\n%", "%\n1 RELI", "%\n2 RELI %", "%\n2 RELI\n%", "%\n2 RELI"],
+            $this->likeBindings(fn (): array => $this->religions($tree)),
+        );
+        self::assertSame(
+            ["%\n2 CAUS %", "%\n2 CAUS\n%", "%\n2 CAUS"],
+            $this->likeBindings(fn (): array => $this->causes($tree)),
+        );
+    }
+
+    /**
+     * The string bindings of the queries on the individuals table that one
+     * aggregation issues, in the order the database received them.
+     *
+     * @param callable(): array<string, int> $aggregation The aggregation to run
+     *
+     * @return list<string>
+     */
+    private function likeBindings(callable $aggregation): array
+    {
+        DB::connection()->flushQueryLog();
+        DB::connection()->enableQueryLog();
+
+        $aggregation();
+
+        $bindings = [];
+
+        foreach (DB::connection()->getQueryLog() as $entry) {
+            if (str_contains($entry['query'], 'like')) {
+                foreach ($entry['bindings'] as $binding) {
+                    if (is_string($binding)) {
+                        $bindings[] = $binding;
+                    }
+                }
+            }
+        }
+
+        DB::connection()->disableQueryLog();
+
+        return $bindings;
     }
 }

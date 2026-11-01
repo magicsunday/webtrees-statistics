@@ -61,7 +61,7 @@ use function mb_strtolower;
  * spelling and language variants too (see {@see OccupationFolding}); the
  * first-seen label of a fold becomes its display label.
  *
- * Privacy contract: the occupations come from the facts the current viewer may
+ * Privacy contract. The occupations come from the facts the current viewer may
  * see ({@see VisibleGedcomRow}). A person whose record is hidden from the viewer,
  * and a person whose OCCU fact is withheld, have no occupation and drop out of
  * the flows as child or as parent, so the flow weights depend on the viewer. The
@@ -171,7 +171,7 @@ final readonly class OccupationInheritanceRepository
             ->select(['i_id AS xref', 'i_gedcom AS gedcom'])
             ->get();
 
-        // First pass: read every individual's `1 OCCU` lines once, keyed by
+        // First pass. Read every individual's `1 OCCU` lines once, keyed by
         // xref, while collecting the tree-wide DISTINCT set of raw values. The
         // lines come from the facts the viewer may see (a hidden record and a
         // withheld OCCU fact give none), while the raw row text stays with the

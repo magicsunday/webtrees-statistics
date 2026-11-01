@@ -29,7 +29,7 @@ use MagicSunday\Webtrees\Statistic\Support\Gedcom\RecordName;
  * place.
  *
  * The caller skips a `null` result and lets the next deterministic contributor
- * fill the sample slot: the flow weight does not depend on which samples are
+ * fill the sample slot. The flow weight does not depend on which samples are
  * shown, so dropping a private sample does not change the weight. The weight of
  * the occupation inheritance flows depends on the viewer through the occupations
  * that the viewer may see, see that repository.
