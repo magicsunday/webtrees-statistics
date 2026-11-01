@@ -32,6 +32,9 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
 
 use function array_map;
+use function count;
+use function implode;
+use function sprintf;
 use function strcmp;
 
 /**
@@ -112,6 +115,34 @@ final class PartnershipReachRepositoryIntegrationTest extends AbstractIntegratio
         // that counts is the lower bound.
         self::assertContains($result->group->hubId, $this->nodeXrefs($result));
         self::assertSame(1893, $result->group->medianYear, 'lower median of the visible lower-bound years');
+    }
+
+    /**
+     * A group over the excerpt cap draws only the cap's worth of people, while
+     * the legend figures keep reporting the whole group. The partnership count
+     * of the legend is the real edge count of all members and not the edge
+     * count of the drawn excerpt. The generated cluster is a spine of couples
+     * with one further partner on every spine person.
+     */
+    #[Test]
+    public function summaryReportsTheWholeGroupAboveTheExcerptCap(): void
+    {
+        $spineLength = 40;
+        $tree        = $this->importGedcomTree('over-cap', $this->spineWithPartnersGedcom($spineLength));
+        $result      = $this->repository($tree)->summary();
+
+        self::assertInstanceOf(PartnershipReachReport::class, $result);
+
+        $people = 2 * $spineLength;
+
+        self::assertGreaterThan(PartnershipReachRepository::NETWORK_CAP, $people, 'precondition: the group exceeds the cap');
+
+        self::assertSame($people, $result->group->totalCount);
+        self::assertSame($people - 1, $result->group->totalEdgeCount, 'the legend counts the partnerships of the whole group');
+
+        self::assertSame(PartnershipReachRepository::NETWORK_CAP, $result->group->shownCount);
+        self::assertCount(PartnershipReachRepository::NETWORK_CAP, $result->group->nodes);
+        self::assertLessThan($result->group->totalEdgeCount, count($result->group->edges), 'the drawn excerpt holds fewer partnerships than the group');
     }
 
     /**
@@ -223,5 +254,45 @@ final class PartnershipReachRepositoryIntegrationTest extends AbstractIntegratio
         }
 
         return $xrefs;
+    }
+
+    /**
+     * GEDCOM for one connected partnership cluster. A spine of people S01, S02
+     * and so on with alternating sex, each married to the next one, and one
+     * further partner P01, P02 and so on of the other sex married to every spine
+     * person. A spine of n people gives 2n people and 2n - 1 partnerships.
+     */
+    private function spineWithPartnersGedcom(int $spineLength): string
+    {
+        $lines = ['0 HEAD', '1 CHAR UTF-8', '1 GEDC', '2 VERS 5.5.1', '2 FORM LINEAGE-LINKED'];
+
+        for ($index = 1; $index <= $spineLength; ++$index) {
+            $number      = sprintf('%02d', $index);
+            $spineSex    = ($index % 2 === 1) ? 'M' : 'F';
+            $partnerSex  = ($spineSex === 'M') ? 'F' : 'M';
+            $spineRole   = ($spineSex === 'M') ? 'HUSB' : 'WIFE';
+            $partnerRole = ($spineSex === 'M') ? 'WIFE' : 'HUSB';
+            $lines[]     = '0 @S' . $number . '@ INDI';
+            $lines[]     = '1 NAME Spine ' . $number . ' /Cluster/';
+            $lines[]     = '1 SEX ' . $spineSex;
+            $lines[]     = '0 @P' . $number . '@ INDI';
+            $lines[]     = '1 NAME Partner ' . $number . ' /Cluster/';
+            $lines[]     = '1 SEX ' . $partnerSex;
+            $lines[]     = '0 @FP' . $number . '@ FAM';
+            $lines[]     = '1 ' . $spineRole . ' @S' . $number . '@';
+            $lines[]     = '1 ' . $partnerRole . ' @P' . $number . '@';
+
+            if ($index < $spineLength) {
+                $next     = sprintf('%02d', $index + 1);
+                $nextRole = ($spineSex === 'M') ? 'WIFE' : 'HUSB';
+                $lines[]  = '0 @FS' . $number . '@ FAM';
+                $lines[]  = '1 ' . $spineRole . ' @S' . $number . '@';
+                $lines[]  = '1 ' . $nextRole . ' @S' . $next . '@';
+            }
+        }
+
+        $lines[] = '0 TRLR';
+
+        return implode("\n", $lines);
     }
 }

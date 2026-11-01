@@ -181,14 +181,12 @@ final class PartnershipChainsExcerptTest extends TestCase
     }
 
     /**
-     * D12 — the foot legend pairs the WHOLE group's people count with the whole
-     * group's partnership count, so the partnership figure must come from
-     * {@see PartnershipChains::largestGroup()} (the full-group `(Σ degree) / 2`),
-     * NOT from the capped excerpt's edge list. This pins the divergence the
-     * repository relies on: over the cap, the full-group edge count stays the
-     * real total while the drawn excerpt's edges are trimmed. Sourcing the legend
-     * from the excerpt would understate the partnership count on any cluster larger
-     * than the cap.
+     * D12 — over the cap the excerpt trims the drawn edges while
+     * {@see PartnershipChains::largestGroup()} keeps reporting the edge count
+     * of the whole group. That is the divergence a caller sees when it reads the
+     * partnership figure of a legend from the group and the drawn edges from the
+     * excerpt. Which of the two the legend reads is decided in the repository and
+     * pinned by its own integration test, not here.
      */
     #[Test]
     public function largestGroupEdgeCountExceedsTheCappedExcerptEdgeCount(): void
@@ -208,14 +206,9 @@ final class PartnershipChainsExcerptTest extends TestCase
         // Full group: (n - 1) spine edges + n pendant edges = 2n - 1 = 159.
         self::assertSame((2 * 80) - 1, $largest['edges'], 'largestGroup() reports the whole-group edge count');
 
-        // The capped excerpt holds CAP nodes, so it can carry at most CAP - 1
-        // edges — strictly fewer than the full group. The legend must read the
-        // former, never the latter.
-        self::assertLessThan(
-            $largest['edges'],
-            count($excerpt['edges']),
-            'the capped excerpt edge count must be strictly below the full-group total',
-        );
+        // The capped excerpt holds CAP nodes, so it carries at most CAP - 1
+        // edges, which is fewer than the full group.
+        self::assertLessThanOrEqual(self::CAP - 1, count($excerpt['edges']), 'the excerpt trims the edges to the cap');
     }
 
     /**
