@@ -55,11 +55,11 @@ final class TreeHealthRepositoryIntegrationTest extends AbstractIntegrationTestC
     }
 
     /**
-     * The fixture seeds known missing-event counts. BIRT is missing on 2 of 6
-     * individuals (the no-events-stub and the sparse child). The BIRT place is
-     * missing additionally on the half-data parent, 3 of 6 in total. DEAT is
-     * missing on 4 of 6 (the sourced parent and the documented child have a
-     * death event). The DEAT place is missing on the same 4.
+     * The fixture seeds known missing-event counts, and the assertions pin the
+     * values. BIRT is missing on the no-events stub and the sparse child. The
+     * BIRT place is missing additionally on the half-data parent. DEAT is missing
+     * on the individuals other than the sourced parent and the documented child,
+     * and the DEAT place is missing on the same individuals.
      */
     #[Test]
     public function missingEventGapsReturnTheExpectedCounts(): void

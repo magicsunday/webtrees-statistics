@@ -135,7 +135,7 @@ final class PartnershipReachRepositoryIntegrationTest extends AbstractIntegratio
 
         $people = 2 * $spineLength;
 
-        self::assertGreaterThan(PartnershipReachRepository::NETWORK_CAP, $people, 'precondition: the group exceeds the cap');
+        self::assertGreaterThan(PartnershipReachRepository::NETWORK_CAP, $people, 'The group has to exceed the cap');
 
         self::assertSame($people, $result->group->totalCount);
         self::assertSame($people - 1, $result->group->totalEdgeCount, 'the legend counts the partnerships of the group');

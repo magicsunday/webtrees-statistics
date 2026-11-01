@@ -909,7 +909,9 @@ describe("widget registry", () => {
                 return;
             }
 
-            for (const match of readFileSync(path, "utf8").matchAll(/data-widget="([^"]+)"/g)) {
+            // An attribute follows white space, which a mention in backticks inside a
+            // template docblock does not.
+            for (const match of readFileSync(path, "utf8").matchAll(/\sdata-widget="([^"]+)"/g)) {
                 types.add(match[1]);
             }
         });
@@ -934,9 +936,14 @@ describe("widget registry", () => {
 
             const { widgets } = renderWidgets(document.body);
 
-            // The world map resolves through a Promise, flush the microtask queue.
-            await Promise.resolve();
-            await Promise.resolve();
+            // The world map joins `widgets` once its GeoJSON request has resolved, which
+            // takes more than a microtask when the module cache is still empty. Give the
+            // dispatch a bounded number of macrotasks to settle, so the case does not
+            // depend on which test ran before it. A type without an entry in the dispatch
+            // table does not join, so the loop ends with an empty list.
+            for (let attempt = 0; attempt < 50 && widgets.length === 0; attempt += 1) {
+                await new Promise((resolve) => setTimeout(resolve, 0));
+            }
 
             expect(widgets).toHaveLength(1);
         },

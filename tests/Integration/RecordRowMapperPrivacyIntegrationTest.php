@@ -143,7 +143,7 @@ final class RecordRowMapperPrivacyIntegrationTest extends AbstractIntegrationTes
 
         $holder = ($holderKind === 'individual') ? self::individual($tree) : self::family($tree);
 
-        self::assertTrue($holder->canShow(), 'precondition: the importing admin can see the living holder');
+        self::assertTrue($holder->canShow(), 'The importing admin has to see the living holder');
 
         $row = $map($tree);
 
@@ -157,7 +157,7 @@ final class RecordRowMapperPrivacyIntegrationTest extends AbstractIntegrationTes
 
         $visitorHolder = ($holderKind === 'individual') ? self::individual($tree) : self::family($tree);
 
-        self::assertFalse($visitorHolder->canShow(), 'precondition: the visitor cannot see the living holder');
+        self::assertFalse($visitorHolder->canShow(), 'The visitor must not see the living holder');
         self::assertNull($map($tree), 'the derived value and the URL must not reach a visitor');
     }
 

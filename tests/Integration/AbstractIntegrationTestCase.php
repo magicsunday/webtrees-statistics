@@ -439,10 +439,11 @@ abstract class AbstractIntegrationTestCase extends TestCase
     }
 
     /**
-     * Hide living individuals from everyone who is not allowed to see them, so a
-     * record without a death event becomes private for a visitor. The viewer
-     * stays the logged-in administrator until {@see Auth::logout()} is called,
-     * which lets a test read a control result before it drops to a visitor.
+     * Hide living individuals from everyone who is not allowed to see them. An
+     * individual without a death event who was born long enough ago to be taken
+     * as deceased stays visible to a visitor. The viewer stays the logged-in
+     * administrator until {@see Auth::logout()} is called, which lets a test
+     * read a control result before it drops to a visitor.
      *
      * @param Tree $tree Tree whose privacy preferences are set
      */
