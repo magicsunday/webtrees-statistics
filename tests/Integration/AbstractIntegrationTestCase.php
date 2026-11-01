@@ -380,9 +380,28 @@ abstract class AbstractIntegrationTestCase extends TestCase
      */
     final protected function importFixtureTree(string $fixture): Tree
     {
+        $gedcom = file_get_contents(__DIR__ . '/../fixtures/' . $fixture);
+
+        if ($gedcom === false) {
+            throw new RuntimeException('Fixture not readable: ' . $fixture);
+        }
+
+        return $this->importGedcomTree(basename($fixture, '.ged'), $gedcom);
+    }
+
+    /**
+     * Import GEDCOM text into a fresh tree of the given name and return the
+     * resulting Tree. Importing a second tree next to an earlier one gives a
+     * test two trees in one database.
+     *
+     * @param string $name   Tree name, unique within the database
+     * @param string $gedcom GEDCOM records separated by newlines
+     */
+    final protected function importGedcomTree(string $name, string $gedcom): Tree
+    {
         $gedcomImportService = new GedcomImportService();
         $treeService         = new TreeService($gedcomImportService);
-        $tree                = $treeService->create(basename($fixture, '.ged'), basename($fixture, '.ged'));
+        $tree                = $treeService->create($name, $name);
 
         // TreeService::create seeds a placeholder header + INDI — wipe
         // before importing the fixture so the assertions are deterministic.
@@ -407,12 +426,6 @@ abstract class AbstractIntegrationTestCase extends TestCase
             Capsule::table($table)
                 ->where($column, '=', $treeId)
                 ->delete();
-        }
-
-        $gedcom = file_get_contents(__DIR__ . '/../fixtures/' . $fixture);
-
-        if ($gedcom === false) {
-            throw new RuntimeException('Fixture not readable: ' . $fixture);
         }
 
         $splitRecords = preg_split('/\n(?=0)/', $gedcom);
