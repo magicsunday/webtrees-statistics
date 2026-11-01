@@ -38,6 +38,13 @@ updates:
             npm:
                 patterns:
                     - "*"
+                # Only minor and patch updates share a group. A major update of
+                # a tool that gates CI (typecheck, lint, copy-paste detection,
+                # unit tests) arrives as its own pull request and gets its own
+                # review instead of hiding among routine bumps.
+                update-types:
+                    - "minor"
+                    - "patch"
                 # The chart-lib bundle is baked into the committed *.min.js at
                 # `make build` time, which Dependabot cannot run. Keep it out of
                 # the grouped, auto-merged PR so it always arrives as its own
