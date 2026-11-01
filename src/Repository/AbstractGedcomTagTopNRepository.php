@@ -16,6 +16,7 @@ use Fisharebest\Webtrees\Tree;
 use Illuminate\Support\Collection;
 use MagicSunday\Webtrees\Statistic\Aggregator\TopNAggregator;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\VisibleGedcomRow;
 
 use function array_slice;
 use function count;
@@ -28,6 +29,11 @@ use function count;
  * tree, the case-folded frequency rollup, the descending sort, and the
  * per-instance memoisation that lets `top()` and `countDistinct()` share a
  * single INDI scan.
+ *
+ * Each INDI row is reduced to the facts the current viewer may see
+ * ({@see VisibleGedcomRow}) before the subclasses harvest values, so a value of
+ * a hidden record or of a withheld fact is not counted for that viewer and the
+ * aggregation depends on who looks.
  *
  * The memoised aggregation lives in a single nullable cache field — the
  * contract is "first call computes, subsequent calls reuse". Repository
@@ -65,7 +71,7 @@ abstract class AbstractGedcomTagTopNRepository
      * base class's job — subclasses just return the raw list of values per
      * INDI.
      *
-     * @param string $gedcom The raw INDI GEDCOM record to scan
+     * @param string $gedcom The INDI record text to scan, the header line plus the facts the viewer may see
      *
      * @return list<string>
      */
@@ -133,7 +139,7 @@ abstract class AbstractGedcomTagTopNRepository
             return $this->cache;
         }
 
-        $gedcoms = TreeScope::individualGedcoms($this->tree);
+        $gedcoms = VisibleGedcomRow::collect($this->tree, TreeScope::individualGedcoms($this->tree));
 
         return $this->cache = TopNAggregator::topN(
             $gedcoms,

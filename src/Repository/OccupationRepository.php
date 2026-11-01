@@ -56,7 +56,7 @@ final class OccupationRepository extends AbstractGedcomTagTopNRepository
      * individual carrying two recorded occupations contributes two entries to
      * the frequency rollup.
      *
-     * @param string $gedcom The raw INDI GEDCOM record to scan
+     * @param string $gedcom The INDI record text to scan, the header line plus the facts the viewer may see
      *
      * @return list<string>
      */

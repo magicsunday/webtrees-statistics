@@ -32,7 +32,7 @@ final class DeathCauseRepository extends AbstractGedcomTagTopNRepository
      * nothing (empty list); the projection to a single-element list keeps the
      * harvester shape uniform with the multi-tag siblings.
      *
-     * @param string $gedcom The raw INDI GEDCOM record to scan
+     * @param string $gedcom The INDI record text to scan, the header line plus the facts the viewer may see
      *
      * @return list<string>
      */

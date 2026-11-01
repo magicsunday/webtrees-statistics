@@ -89,19 +89,20 @@ final readonly class TreeScope
     }
 
     /**
-     * Convenience overload for the most-repeated repository pattern — load
-     * every individual's `i_gedcom` blob for the active tree as a
-     * `Collection<int, stdClass{gedcom: string}>`. Used by the downstream
-     * GEDCOM scanners (Religion, DeathCause, Occupation, PlaceDispersion) that
-     * pull text-level tag values out of the raw blob rather than the normalised
-     * tables.
+     * Convenience overload for the most-repeated repository pattern, loading
+     * every individual's `i_id` and `i_gedcom` blob for the active tree as a
+     * `Collection<int, stdClass{xref: string, gedcom: string}>`. The raw blob is
+     * not privacy filtered. The tag aggregations (Religion, DeathCause,
+     * Occupation) reduce each row to the facts the viewer may see through
+     * {@see \MagicSunday\Webtrees\Statistic\Support\Gedcom\VisibleGedcomRow}
+     * before they scan it, while PlaceDispersion reads the raw blob as it is.
      *
      * @return Collection<int, stdClass>
      */
     public static function individualGedcoms(Tree $tree): Collection
     {
         return self::table($tree, 'individuals')
-            ->select(['i_gedcom AS gedcom'])
+            ->select(['i_id AS xref', 'i_gedcom AS gedcom'])
             ->get();
     }
 }

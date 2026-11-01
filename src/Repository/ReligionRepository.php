@@ -41,7 +41,7 @@ final class ReligionRepository extends AbstractGedcomTagTopNRepository
      * from the INDI record. The two sources are merged into one flat list so
      * the case-folded frequency rollup treats them as the same fact.
      *
-     * @param string $gedcom The raw INDI GEDCOM record to scan
+     * @param string $gedcom The INDI record text to scan, the header line plus the facts the viewer may see
      *
      * @return list<string>
      */
