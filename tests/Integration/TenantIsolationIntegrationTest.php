@@ -29,12 +29,15 @@ use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 
+use function array_column;
+use function array_sum;
 use function explode;
 use function file_get_contents;
 use function implode;
 use function preg_match;
 use function preg_replace;
 use function preg_replace_callback;
+use function print_r;
 use function str_replace;
 
 /**
@@ -53,79 +56,134 @@ use function str_replace;
 final class TenantIsolationIntegrationTest extends AbstractIntegrationTestCase
 {
     /**
-     * Each case names a fixture and a query over the tree imported from it.
-     * The query returns a value that carries the counts or measures the
-     * repository computes. The optional third element rewrites the twin
-     * GEDCOM further, where shifted dates, names and sexes alone leave the
-     * links the query reads identical to the links of the tree under test.
+     * Each case names a fixture and a query over the tree imported from it. The
+     * query returns the digest of the repository result and a witness. The
+     * witness is true when the result carries data that an empty tree cannot
+     * yield, such as a counted row or a total above zero. The optional third
+     * element rewrites the twin GEDCOM further, where shifted dates, names and
+     * sexes alone leave the links the query reads identical to the links of the
+     * tree under test.
      *
-     * @return array<string, array{0: string, 1: Closure(Tree): mixed, 2?: Closure(string): string}>
+     * @return array<string, array{0: string, 1: Closure(Tree): array{digest: string, witnessed: bool}, 2?: Closure(string): string}>
      */
     public static function scopedQueries(): array
     {
         return [
             'top surnames' => [
                 'name-trends.ged',
-                static fn (Tree $tree): mixed => (new NameRepository($tree))->topSurnames(20),
+                static function (Tree $tree): array {
+                    $result = (new NameRepository($tree))->topSurnames(20);
+
+                    return self::outcome($result, $result !== []);
+                },
             ],
             'distinct surnames' => [
                 'name-trends.ged',
-                static fn (Tree $tree): mixed => (new NameRepository($tree))->countDistinctSurnames(),
+                static function (Tree $tree): array {
+                    $result = (new NameRepository($tree))->countDistinctSurnames();
+
+                    return self::outcome($result, $result > 0);
+                },
             ],
             'top given names of one sex' => [
                 'name-trends.ged',
-                static fn (Tree $tree): mixed => (new NameRepository($tree))->topGivenNames('M', 1, 20),
+                static function (Tree $tree): array {
+                    $result = (new NameRepository($tree))->topGivenNames('M', 1, 20);
+
+                    return self::outcome($result, $result !== []);
+                },
             ],
             'top given names of all sexes' => [
                 'name-trends.ged',
-                static fn (Tree $tree): mixed => (new NameRepository($tree))->topGivenNames(NameRepository::SEX_ALL, 1, 20),
+                static function (Tree $tree): array {
+                    $result = (new NameRepository($tree))->topGivenNames(NameRepository::SEX_ALL, 1, 20);
+
+                    return self::outcome($result, $result !== []);
+                },
             ],
             'name passdown by century' => [
                 'father-son-name-passdown.ged',
-                static fn (Tree $tree): mixed => (new NameRepository($tree))->sameSexNamePassdownByCentury(),
+                static function (Tree $tree): array {
+                    $result = (new NameRepository($tree))->sameSexNamePassdownByCentury();
+
+                    return self::outcome($result, ($result->categories !== []) && ($result->series !== []));
+                },
             ],
             'given names by decade' => [
                 'name-trends.ged',
-                static fn (Tree $tree): mixed => (new GivenNameTrendsRepository($tree))->countByDecade(20),
+                static function (Tree $tree): array {
+                    $result = (new GivenNameTrendsRepository($tree))->countByDecade(20);
+
+                    return self::outcome($result, ($result->decades !== []) && ($result->names !== []));
+                },
             ],
             'connected components' => [
                 'islands.ged',
-                static fn (Tree $tree): mixed => (new IslandRepository($tree))->getConnectedComponents(20),
+                static function (Tree $tree): array {
+                    $result = (new IslandRepository($tree))->getConnectedComponents(20);
+
+                    return self::outcome($result, $result->totalPersons > 0);
+                },
             ],
             'surname marriage matrix' => [
                 'surname-marriage-matrix.ged',
-                static fn (Tree $tree): mixed => (new MarriageMatrixRepository($tree))->surnameMarriageMatrix(20),
+                static function (Tree $tree): array {
+                    $result = (new MarriageMatrixRepository($tree))->surnameMarriageMatrix(20);
+
+                    return self::outcome($result, $result->labels !== []);
+                },
             ],
             'top grandchild families' => [
                 'grandchild-families.ged',
-                static fn (Tree $tree): mixed => (new FamilyRankingRepository($tree, new StatisticsData($tree, new UserService())))->topGrandchildFamilies(20),
+                static function (Tree $tree): array {
+                    $result = self::familyRanking($tree)->topGrandchildFamilies(20);
+
+                    return self::outcome($result, $result !== []);
+                },
             ],
             'most children of one person' => [
                 'children.ged',
                 static function (Tree $tree): array {
-                    $record = (new FamilyRankingRepository($tree, new StatisticsData($tree, new UserService())))->mostChildrenPerPersonRecord();
+                    $record = self::familyRanking($tree)->mostChildrenPerPersonRecord();
+                    $result = ($record instanceof IndividualCountRecord) ? [$record->individual->xref(), $record->count] : [];
 
-                    return ($record instanceof IndividualCountRecord) ? [$record->individual->xref(), $record->count] : [];
+                    return self::outcome($result, $result !== []);
                 },
             ],
             'source citation coverage' => [
                 'tree-health.ged',
-                static fn (Tree $tree): mixed => (new TreeHealthRepository($tree))->sourceCitationCoverage(),
+                static function (Tree $tree): array {
+                    $result = (new TreeHealthRepository($tree))->sourceCitationCoverage();
+
+                    return self::outcome($result, ($result->total > 0) && ($result->value > 0));
+                },
                 static fn (string $gedcom): string => self::afterEachIndividual($gedcom, '1 SOUR @S1@'),
             ],
             'source citation coverage by century' => [
                 'source-coverage-by-century.ged',
-                static fn (Tree $tree): mixed => (new TreeHealthRepository($tree))->sourceCitationCoverageByCentury(),
+                static function (Tree $tree): array {
+                    $result = (new TreeHealthRepository($tree))->sourceCitationCoverageByCentury();
+
+                    return self::outcome($result, $result !== []);
+                },
                 static fn (string $gedcom): string => self::afterEachIndividual($gedcom, '1 SOUR @S1@'),
             ],
             'missing event gaps' => [
                 'tree-health.ged',
-                static fn (Tree $tree): mixed => (new TreeHealthRepository($tree))->missingEventGaps(),
+                static function (Tree $tree): array {
+                    $result = (new TreeHealthRepository($tree))->missingEventGaps();
+
+                    return self::outcome($result, array_sum(array_column($result, 'value')) > 0);
+                },
                 static fn (string $gedcom): string => self::afterEachIndividual($gedcom, '1 FAMS @F1@'),
             ],
             'average generation length' => [
                 'tree-health.ged',
-                static fn (Tree $tree): mixed => (new TreeHealthRepository($tree))->averageGenerationLength(),
+                static function (Tree $tree): array {
+                    $result = (new TreeHealthRepository($tree))->averageGenerationLength();
+
+                    return self::outcome($result, $result !== null);
+                },
                 static fn (string $gedcom): string => str_replace(
                     ['1 CHIL @I3@', '1 CHIL @I4@'],
                     ['1 CHIL @I5@', '1 CHIL @I6@'],
@@ -134,7 +192,11 @@ final class TenantIsolationIntegrationTest extends AbstractIntegrationTestCase
             ],
             'living marital status' => [
                 'marital-status.ged',
-                static fn (Tree $tree): mixed => (new FamilyRepository($tree))->classifyLivingIndividuals(),
+                static function (Tree $tree): array {
+                    $result = (new FamilyRepository($tree))->classifyLivingIndividuals();
+
+                    return self::outcome($result, array_sum($result) > 0);
+                },
                 static fn (string $gedcom): string => str_replace(
                     '1 WIFE @I4@',
                     '1 WIFE @I2@',
@@ -143,22 +205,31 @@ final class TenantIsolationIntegrationTest extends AbstractIntegrationTestCase
             ],
             'sex ratio anomalies' => [
                 'sex-ratio-anomalies.ged',
-                static fn (Tree $tree): mixed => (new FamilyRepository($tree))->getSexRatioAnomalies(),
+                static function (Tree $tree): array {
+                    $result = (new FamilyRepository($tree))->getSexRatioAnomalies();
+
+                    return self::outcome($result, $result !== []);
+                },
             ],
             'sibling death clusters' => [
                 'sibling-death-clusters.ged',
-                static fn (Tree $tree): mixed => (new FamilyRepository($tree))->getSiblingDeathClusters(),
+                static function (Tree $tree): array {
+                    $result = (new FamilyRepository($tree))->getSiblingDeathClusters();
+
+                    return self::outcome($result, $result !== []);
+                },
             ],
         ];
     }
 
     /**
      * The result for a tree is the same as for the same data alone in the
-     * database, with a twin tree imported before and after it, and it is not
-     * trivially empty.
+     * database, with a twin tree imported before and after it. The tree alone
+     * yields a result that the witness of the case recognises as data, so the
+     * comparison is not made between empty results.
      *
-     * @param Closure(Tree): mixed         $query
-     * @param Closure(string): string|null $tweakTwin
+     * @param Closure(Tree): array{digest: string, witnessed: bool} $query
+     * @param Closure(string): string|null                          $tweakTwin
      */
     #[Test]
     #[DataProvider('scopedQueries')]
@@ -171,14 +242,14 @@ final class TenantIsolationIntegrationTest extends AbstractIntegrationTestCase
         $alone    = $this->importGedcomTree('alone', $gedcom);
         $baseline = $query($alone);
 
-        self::assertNotEmpty($baseline, 'The fixture has to produce a result, else the comparison is vacuous.');
+        self::assertTrue($baseline['witnessed'], 'The tree alone has to yield data that the witness of the case accepts.');
 
         (new TreeService(new GedcomImportService()))->delete($alone);
 
         // The twin trees sit before and after the tree under test, so the row
-        // order of the tables cannot hide a leak in either direction.
-        // The twin after it also swaps the sexes, so a leak that a sex filter
-        // would hide in that twin still shows in the other one.
+        // order of the tables cannot hide a leak in either direction. The twin
+        // after it also swaps the sexes, so a leak that a sex filter would hide
+        // in that twin still shows in the other one.
         $twinBefore = $this->shiftedTwin($gedcom, false);
         $twinAfter  = $this->shiftedTwin($gedcom, true);
 
@@ -191,7 +262,27 @@ final class TenantIsolationIntegrationTest extends AbstractIntegrationTestCase
         $tree = $this->importGedcomTree('subject', $gedcom);
         $this->importGedcomTree('twin after', $twinAfter);
 
-        self::assertEquals($baseline, $query($tree));
+        self::assertSame($baseline['digest'], $query($tree)['digest']);
+    }
+
+    /**
+     * The ranking repository for a tree.
+     */
+    private static function familyRanking(Tree $tree): FamilyRankingRepository
+    {
+        return new FamilyRankingRepository($tree, new StatisticsData($tree, new UserService()));
+    }
+
+    /**
+     * Pair the digest of a repository result with the witness of its case.
+     *
+     * @param array<array-key, int|float|string|object|array<array-key, int|float|string|object|null>|null>|object|int|float|null $result
+     *
+     * @return array{digest: string, witnessed: bool}
+     */
+    private static function outcome(array|object|int|float|null $result, bool $witnessed): array
+    {
+        return ['digest' => print_r($result, true), 'witnessed' => $witnessed];
     }
 
     /**
@@ -203,9 +294,9 @@ final class TenantIsolationIntegrationTest extends AbstractIntegrationTestCase
     }
 
     /**
-     * Build a GEDCOM that keeps the xrefs of the input and changes the dates
-     * and the names, and the sexes on request, so a row of the twin that leaks into a query of the
-     * original tree moves its result.
+     * Build a GEDCOM that keeps the xrefs of the input and changes the dates and
+     * the names, and the sexes on request, so a row of the twin that leaks into
+     * a query of the original tree moves its result.
      */
     private function shiftedTwin(string $gedcom, bool $swapSexes): string
     {

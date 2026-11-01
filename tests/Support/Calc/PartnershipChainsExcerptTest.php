@@ -183,7 +183,7 @@ final class PartnershipChainsExcerptTest extends TestCase
     /**
      * D12, over the cap the excerpt trims the drawn edges while
      * {@see PartnershipChains::largestGroup()} keeps reporting the edge count
-     * of the whole group. That is the divergence a caller sees when it reads the
+     * of the group. That is the divergence a caller sees when it reads the
      * partnership figure of a legend from the group and the drawn edges from the
      * excerpt. Which of them the legend reads is decided in the repository and
      * pinned by its own integration test, not here.
@@ -206,9 +206,14 @@ final class PartnershipChainsExcerptTest extends TestCase
         // Full group: (n - 1) spine edges + n pendant edges = 2n - 1 = 159.
         self::assertSame((2 * 80) - 1, $largest['edges'], 'largestGroup() reports the whole-group edge count');
 
-        // The capped excerpt holds CAP nodes, so it carries at most CAP - 1
-        // edges, which is fewer than the full group.
+        // The capped excerpt holds CAP nodes. For this tree-shaped fixture it
+        // carries at most CAP - 1 edges, which is fewer than the full group.
         self::assertLessThanOrEqual(self::CAP - 1, count($excerpt['edges']), 'the excerpt trims the edges to the cap');
+        self::assertLessThan(
+            $largest['edges'],
+            count($excerpt['edges']),
+            'the capped excerpt edge count is below the full-group total',
+        );
     }
 
     /**

@@ -514,6 +514,9 @@ final class GedcomScannerTest extends TestCase
     }
 
     /**
+     * Record bodies with a tag to look for and whether the tag counts as present
+     * as a complete level-1 tag.
+     *
      * @return iterable<string, array{0: string, 1: string, 2: bool}>
      */
     public static function tagAnchoredSamples(): iterable
@@ -528,7 +531,7 @@ final class GedcomScannerTest extends TestCase
     }
 
     /**
-     * hasTagAnchored finds a level-1 tag as a whole tag, so a tag that
+     * hasTagAnchored finds a level-1 tag as a complete tag, so a tag that
      * merely starts like the one asked for, a deeper level and a mention inside
      * a value do not count.
      *
@@ -582,6 +585,9 @@ final class GedcomScannerTest extends TestCase
     }
 
     /**
+     * Record bodies with an event tag and the places that the event occurrences
+     * carry, in record order.
+     *
      * @return iterable<string, array{0: string, 1: string, 2: list<string>}>
      */
     public static function allEventPlacesSamples(): iterable
@@ -596,12 +602,12 @@ final class GedcomScannerTest extends TestCase
             'RESI',
             ['Berlin'],
         ];
-        yield 'an occurrence without a place adds nothing' => [
+        yield 'an occurrence without a place adds no place' => [
             "\n0 @I1@ INDI\n1 RESI\n2 DATE 1 JAN 1900\n1 RESI\n2 PLAC Hamburg",
             'RESI',
             ['Hamburg'],
         ];
-        yield 'an empty place adds nothing' => [
+        yield 'an empty place adds no place' => [
             "\n0 @I1@ INDI\n1 RESI\n2 PLAC\n3 NOTE pending\n1 RESI\n2 PLAC    ",
             'RESI',
             [],

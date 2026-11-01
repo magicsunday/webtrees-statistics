@@ -118,11 +118,11 @@ final class PartnershipReachRepositoryIntegrationTest extends AbstractIntegratio
     }
 
     /**
-     * A group over the excerpt cap draws the number of people that the cap allows, while
-     * the legend figures keep reporting the whole group. The partnership count
-     * of the legend is the edge count of the group and not the edge
-     * count of the drawn excerpt. The generated cluster is a spine of couples
-     * with one further partner on each spine person.
+     * A group over the excerpt cap draws the number of people that the cap
+     * allows, while the legend figures keep reporting the group. The partnership
+     * count of the legend is the edge count of the group and not the edge count
+     * of the drawn excerpt. The generated cluster is a spine of couples with one
+     * further partner on each spine person.
      */
     #[Test]
     public function summaryReportsTheWholeGroupAboveTheExcerptCap(): void
@@ -138,7 +138,7 @@ final class PartnershipReachRepositoryIntegrationTest extends AbstractIntegratio
         self::assertGreaterThan(PartnershipReachRepository::NETWORK_CAP, $people, 'precondition: the group exceeds the cap');
 
         self::assertSame($people, $result->group->totalCount);
-        self::assertSame($people - 1, $result->group->totalEdgeCount, 'the legend counts the partnerships of the whole group');
+        self::assertSame($people - 1, $result->group->totalEdgeCount, 'the legend counts the partnerships of the group');
 
         self::assertSame(PartnershipReachRepository::NETWORK_CAP, $result->group->shownCount);
         self::assertCount(PartnershipReachRepository::NETWORK_CAP, $result->group->nodes);

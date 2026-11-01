@@ -133,31 +133,49 @@ final class RowCastTest extends TestCase
     {
         return [
             'float value' => [new readonly class(52.5) {
+                /**
+                 * @param float $lat Value of the column the row stands in for
+                 */
                 public function __construct(public float $lat)
                 {
                 }
             }, 'lat', 52.5],
             'numeric string' => [new readonly class('13.25') {
+                /**
+                 * @param string $lat Value of the column the row stands in for
+                 */
                 public function __construct(public string $lat)
                 {
                 }
             }, 'lat', 13.25],
             'integer value' => [new readonly class(7) {
+                /**
+                 * @param int $lat Value of the column the row stands in for
+                 */
                 public function __construct(public int $lat)
                 {
                 }
             }, 'lat', 7.0],
             'zero is a value' => [new readonly class('0') {
+                /**
+                 * @param string $lat Value of the column the row stands in for
+                 */
                 public function __construct(public string $lat)
                 {
                 }
             }, 'lat', 0.0],
             'non-numeric string' => [new readonly class('north') {
+                /**
+                 * @param string $lat Value of the column the row stands in for
+                 */
                 public function __construct(public string $lat)
                 {
                 }
             }, 'lat', null],
             'null value' => [new readonly class(null) {
+                /**
+                 * @param ?string $lat Value of the column the row stands in for
+                 */
                 public function __construct(public ?string $lat)
                 {
                 }

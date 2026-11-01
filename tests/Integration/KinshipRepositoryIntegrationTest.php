@@ -67,10 +67,11 @@ final class KinshipRepositoryIntegrationTest extends AbstractIntegrationTestCase
     }
 
     /**
-     * Average pedigree completeness across the six fixture individuals. Vater
+     * Average pedigree completeness across the fixture individuals. Vater
      * contributes 2/2 at gen 1 + 0 elsewhere = 1/4 = 0.25. Kind contributes 2/2
      * at gen 1 + 2/4 at gen 2 + 0 elsewhere = 0.25 + 0.125 = 0.375. The other
-     * four have 0.0. Average = (0.25 + 0.375 + 0 + 0 + 0 + 0) / 6 ≈ 0.1042 after rounding.
+     * individuals have 0.0, so the average is (0.25 + 0.375) / 6, which is
+     * about 0.1042 after rounding.
      */
     #[Test]
     public function averagePedigreeCompletenessAggregatesAcrossPopulation(): void
