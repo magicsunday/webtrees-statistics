@@ -380,9 +380,28 @@ abstract class AbstractIntegrationTestCase extends TestCase
      */
     final protected function importFixtureTree(string $fixture): Tree
     {
+        $gedcom = file_get_contents(__DIR__ . '/../fixtures/' . $fixture);
+
+        if ($gedcom === false) {
+            throw new RuntimeException('Fixture not readable: ' . $fixture);
+        }
+
+        return $this->importGedcomTree(basename($fixture, '.ged'), $gedcom);
+    }
+
+    /**
+     * Import GEDCOM text into a fresh tree of the given name and return the
+     * resulting Tree. Importing a further tree next to an earlier one gives a
+     * test a database with more than one tree.
+     *
+     * @param string $name   Tree name, unique within the database
+     * @param string $gedcom GEDCOM records separated by newlines
+     */
+    final protected function importGedcomTree(string $name, string $gedcom): Tree
+    {
         $gedcomImportService = new GedcomImportService();
         $treeService         = new TreeService($gedcomImportService);
-        $tree                = $treeService->create(basename($fixture, '.ged'), basename($fixture, '.ged'));
+        $tree                = $treeService->create($name, $name);
 
         // TreeService::create seeds a placeholder header + INDI — wipe
         // before importing the fixture so the assertions are deterministic.
@@ -409,12 +428,6 @@ abstract class AbstractIntegrationTestCase extends TestCase
                 ->delete();
         }
 
-        $gedcom = file_get_contents(__DIR__ . '/../fixtures/' . $fixture);
-
-        if ($gedcom === false) {
-            throw new RuntimeException('Fixture not readable: ' . $fixture);
-        }
-
         $splitRecords = preg_split('/\n(?=0)/', $gedcom);
         $records      = ($splitRecords !== false) ? $splitRecords : [];
 
@@ -423,6 +436,33 @@ abstract class AbstractIntegrationTestCase extends TestCase
         }
 
         return $tree;
+    }
+
+    /**
+     * Hide living individuals from everyone who is not allowed to see them. An
+     * individual without a death event who was born long enough ago to be taken
+     * as deceased stays visible to a visitor. The viewer stays the logged-in
+     * administrator until {@see Auth::logout()} is called, which lets a test
+     * read a control result before it drops to a visitor.
+     *
+     * @param Tree $tree Tree whose privacy preferences are set
+     */
+    final protected function hideLivingPeople(Tree $tree): void
+    {
+        $tree->setPreference('HIDE_LIVE_PEOPLE', '1');
+        $tree->setPreference('SHOW_DEAD_PEOPLE', (string) Auth::PRIV_PRIVATE);
+    }
+
+    /**
+     * Hide living individuals and continue as an anonymous visitor.
+     *
+     * @param Tree $tree Tree whose privacy preferences are set
+     */
+    final protected function actAsVisitorWithLivingHidden(Tree $tree): void
+    {
+        $this->hideLivingPeople($tree);
+
+        Auth::logout();
     }
 
     /**

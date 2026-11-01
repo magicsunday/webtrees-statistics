@@ -239,8 +239,7 @@ final class FamilyRankingRepositoryIntegrationTest extends AbstractIntegrationTe
     public function topGrandchildFamiliesCountsRawAndIgnoresGrandchildPrivacy(): void
     {
         $tree = $this->importFixtureTree('grandchild-families-privacy.ged');
-        $tree->setPreference('HIDE_LIVE_PEOPLE', '1');
-        $tree->setPreference('SHOW_DEAD_PEOPLE', (string) Auth::PRIV_PRIVATE);
+        $this->hideLivingPeople($tree);
         // Without this the relationship walk bypasses privacy (access level
         // PRIV_HIDE), so the confidential spouse-family would stay visible and
         // the record-layer/raw divergence could not be exercised.

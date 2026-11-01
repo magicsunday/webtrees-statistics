@@ -55,11 +55,11 @@ final class TreeHealthRepositoryIntegrationTest extends AbstractIntegrationTestC
     }
 
     /**
-     * The fixture seeds known missing-event counts: BIRT missing on 2 of 6
-     * individuals (the no-events-stub and the sparse child); BIRT place missing
-     * additionally on the half-data parent (5 of 6); DEAT missing on 4 of 6
-     * (only the sourced parent and the documented child have a death event);
-     * DEAT place missing on the same 4.
+     * The fixture seeds known missing-event counts, and the assertions pin the
+     * values. BIRT is missing on the no-events stub and the sparse child. The
+     * BIRT place is missing additionally on the half-data parent. DEAT is missing
+     * on the individuals other than the sourced parent and the documented child,
+     * and the DEAT place is missing on the same individuals.
      */
     #[Test]
     public function missingEventGapsReturnTheExpectedCounts(): void
@@ -79,6 +79,37 @@ final class TreeHealthRepositoryIntegrationTest extends AbstractIntegrationTestC
 
         $deatPlace = $gaps['DEAT_place'] ?? self::fail('Missing DEAT_place gap row');
         self::assertSame(4, $deatPlace['value']);
+
+        // The spouses of the family have a marriage event without a place.
+        $marrEvent = $gaps['MARR_event'] ?? self::fail('Missing MARR_event gap row');
+        self::assertSame(0, $marrEvent['value']);
+        self::assertSame(2, $marrEvent['total']);
+
+        $marrPlace = $gaps['MARR_place'] ?? self::fail('Missing MARR_place gap row');
+        self::assertSame(2, $marrPlace['value']);
+        self::assertSame(2, $marrPlace['total']);
+    }
+
+    /**
+     * A family with a dated and placed marriage, a family with a dated marriage
+     * and no place, and a family without a marriage event. The spouses of the
+     * last family miss the event, the spouses of the middle one miss the place,
+     * and a spouse without a marriage event is not counted again as missing a
+     * place.
+     */
+    #[Test]
+    public function missingEventGapsCountSpousesWithoutAMarriageEventOrPlace(): void
+    {
+        $tree = $this->importFixtureTree('tree-health-marriage-gaps.ged');
+        $gaps = (new TreeHealthRepository($tree))->missingEventGaps();
+
+        $marrEvent = $gaps['MARR_event'] ?? self::fail('Missing MARR_event gap row');
+        self::assertSame(2, $marrEvent['value']);
+        self::assertSame(6, $marrEvent['total']);
+
+        $marrPlace = $gaps['MARR_place'] ?? self::fail('Missing MARR_place gap row');
+        self::assertSame(2, $marrPlace['value']);
+        self::assertSame(6, $marrPlace['total']);
     }
 
     /**

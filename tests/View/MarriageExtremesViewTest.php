@@ -74,6 +74,29 @@ final class MarriageExtremesViewTest extends TestCase
     }
 
     /**
+     * The couple label arrives as plain text, which can carry characters that
+     * HTML treats as markup. The partial writes it escaped, so a label with an
+     * ampersand, angle brackets and quotes reaches the page as text and not as
+     * an element.
+     */
+    #[Test]
+    public function coupleLabelIsEscapedForHtml(): void
+    {
+        $html = $this->render([
+            'shortest' => [
+                new MarriageDurationExtreme('F1', 'Anton & <b>"Berta"</b>', 31, 0, MarriageEndReason::Death),
+            ],
+            'longest' => [],
+        ]);
+
+        self::assertStringContainsString(
+            '<div class="wt-stat-marriage-extremes-couple">Anton &amp; &lt;b&gt;&quot;Berta&quot;&lt;/b&gt;</div>',
+            $html,
+        );
+        self::assertStringNotContainsString('<b>', $html);
+    }
+
+    /**
      * A row whose end-cause was suppressed to null keeps its couple label and
      * its ranked duration, and still emits an empty reason line — same element,
      * no cause label — so its height matches a visible row and the column does

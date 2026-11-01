@@ -60,8 +60,7 @@ final class IndividualWireSexRestrictionIntegrationTest extends AbstractIntegrat
     private function tree(): Tree
     {
         $tree = $this->importFixtureTree('individual-wire-sex-restriction.ged');
-        $tree->setPreference('HIDE_LIVE_PEOPLE', '1');
-        $tree->setPreference('SHOW_DEAD_PEOPLE', (string) Auth::PRIV_PRIVATE);
+        $this->hideLivingPeople($tree);
 
         return $tree;
     }

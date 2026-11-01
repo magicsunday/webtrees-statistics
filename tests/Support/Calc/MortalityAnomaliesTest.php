@@ -201,7 +201,10 @@ final class MortalityAnomaliesTest extends TestCase
     }
 
     /**
-     * Two spikes with an identical score are ordered by year ascending.
+     * Spikes with an identical score are returned in chronological order, and
+     * when the cap keeps one of them the earlier year is the one that survives.
+     * The final chronological sort hides the selection order, so the capped
+     * call is what pins the tie-break.
      */
     #[Test]
     public function equalScoresAreTieBrokenByYearAscending(): void
@@ -221,6 +224,8 @@ final class MortalityAnomaliesTest extends TestCase
 
         self::assertSame([5, 105], array_column($result, 'year'));
         self::assertEqualsWithDelta($firstRow['zScore'], $secondRow['zScore'], 0.0001);
+
+        self::assertSame([5], array_column(MortalityAnomalies::detect($series, 2.0, 1), 'year'));
     }
 
     /**

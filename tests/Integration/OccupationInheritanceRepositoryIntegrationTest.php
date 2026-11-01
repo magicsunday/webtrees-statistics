@@ -546,8 +546,7 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
     public function occupationInheritanceDropsSamplesTheUserCannotSeeAndPromotesTheNext(): void
     {
         $tree = $this->importFixtureTree('occupation-inheritance-privacy.ged');
-        $tree->setPreference('HIDE_LIVE_PEOPLE', '1');
-        $tree->setPreference('SHOW_DEAD_PEOPLE', (string) Auth::PRIV_PRIVATE);
+        $this->hideLivingPeople($tree);
 
         // Control: as the importing admin every child is visible, so the
         // confidential Bernd occupies a cap slot.
@@ -586,10 +585,7 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
     public function occupationInheritanceKeepsTheWeightButOmitsSamplesWhenEveryContributorIsPrivate(): void
     {
         $tree = $this->importFixtureTree('occupation-inheritance-privacy.ged');
-        $tree->setPreference('HIDE_LIVE_PEOPLE', '1');
-        $tree->setPreference('SHOW_DEAD_PEOPLE', (string) Auth::PRIV_PRIVATE);
-
-        Auth::logout();
+        $this->actAsVisitorWithLivingHidden($tree);
 
         $result = (new OccupationInheritanceRepository($tree, new ParentMapRepository($tree), new RawOccupationNormalizer()))
             ->occupationInheritance(10, 1);

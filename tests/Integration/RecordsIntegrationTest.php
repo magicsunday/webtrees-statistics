@@ -52,11 +52,10 @@ use PHPUnit\Framework\Attributes\UsesClass;
  *       I18 PolygamistA who has two FAMS but zero children).
  *
  *   F4 YoungParent + YoungParentWife → EarlyChild (BIRT 1915,
- *       parents born 1900 / 1905) — youngest father (15 years)
- *       AND youngest mother (10 years … below MIN_PLAUSIBLE_AGE)
- *       — actually the youngest-mother case in this fixture
- *       falls outside the plausibility band and returns null;
- *       use that as the negative control.
+ *       parents born 1900 / 1905), youngest father (15 years).
+ *       The mother's age at that birth (10 years) is below
+ *       MIN_PLAUSIBLE_AGE, so the youngest-mother record skips
+ *       her and names the next mother instead.
  *
  *   I18 PolygamistA has FAMS @F5@ + @F6@ — exercises the
  *       most-spouses record on the Marriage side.
@@ -220,6 +219,23 @@ final class RecordsIntegrationTest extends AbstractIntegrationTestCase
         self::assertNotNull($record);
         self::assertSame('915', $record->individual->xref());
         self::assertSame(15, $record->ageYears);
+    }
+
+    /**
+     * Youngest mother at first child. YoungParentWife (BIRT 1905) was 10 years
+     * old at EarlyChild's birth (1915), which is below MIN_PLAUSIBLE_AGE (12) and
+     * is dropped as a data-entry error. The record therefore names BigMom (I8,
+     * BIRT 1905, first child 1925) at 20 years.
+     */
+    #[Test]
+    public function youngestMotherAtFirstChildSkipsTheImplausiblyYoungMother(): void
+    {
+        $tree   = $this->importFixtureTree('records.ged');
+        $record = (new ParenthoodRepository($tree))->youngestParentAtFirstChildRecord('F');
+
+        self::assertNotNull($record);
+        self::assertSame('I8', $record->individual->xref());
+        self::assertSame(20, $record->ageYears);
     }
 
     /**

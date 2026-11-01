@@ -701,8 +701,7 @@ final class MarriageRepositoryIntegrationTest extends AbstractIntegrationTestCas
     public function getMarriageDurationExtremesSuppressesEndReasonForRecordsNotVisibleToTheUser(): void
     {
         $tree = $this->importFixtureTree('marriage-extremes-privacy.ged');
-        $tree->setPreference('HIDE_LIVE_PEOPLE', '1');
-        $tree->setPreference('SHOW_DEAD_PEOPLE', (string) Auth::PRIV_PRIVATE);
+        $this->hideLivingPeople($tree);
 
         // Drop from the importing admin to an anonymous visitor so the
         // family-level RESN confidential marker actually restricts visibility.
@@ -741,10 +740,7 @@ final class MarriageRepositoryIntegrationTest extends AbstractIntegrationTestCas
     public function getMarriageDurationExtremesSuppressesEndReasonForALivingCouple(): void
     {
         $tree = $this->importFixtureTree('marriage-extremes-privacy-living.ged');
-        $tree->setPreference('HIDE_LIVE_PEOPLE', '1');
-        $tree->setPreference('SHOW_DEAD_PEOPLE', (string) Auth::PRIV_PRIVATE);
-
-        Auth::logout();
+        $this->actAsVisitorWithLivingHidden($tree);
 
         $shortest = $this->repository($tree)->getMarriageDurationExtremes()['shortest'];
 

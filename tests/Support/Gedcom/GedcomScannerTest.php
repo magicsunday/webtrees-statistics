@@ -17,6 +17,10 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
+use function preg_match;
+use function preg_quote;
+use function str_replace;
+
 /**
  * Locks the edge-case behaviour the audit loop on Issue #11 surfaced: empty
  * PLAC sub-lines, range-style date markers, and event-block boundary detection.
@@ -507,5 +511,136 @@ final class GedcomScannerTest extends TestCase
     public function extractEventCoordinatesReadsTheMapSubTag(string $gedcom, string $tag, ?array $expected): void
     {
         self::assertSame($expected, GedcomScanner::extractEventCoordinates($gedcom, $tag));
+    }
+
+    /**
+     * Record bodies with a tag to look for and whether the tag counts as present
+     * as a complete level-1 tag.
+     *
+     * @return iterable<string, array{0: string, 1: string, 2: bool}>
+     */
+    public static function tagAnchoredSamples(): iterable
+    {
+        yield 'tag followed by a value' => ["\n0 @I1@ INDI\n1 BIRT Y\n2 DATE 1 JAN 1900", 'BIRT', true];
+        yield 'tag followed by a line break' => ["\n0 @I1@ INDI\n1 BIRT\n2 DATE 1 JAN 1900", 'BIRT', true];
+        yield 'tag ending the record' => ["\n0 @I1@ INDI\n1 NAME John /Doe/\n1 BIRT", 'BIRT', true];
+        yield 'longer tag with the same start' => ["\n0 @F1@ FAM\n1 DIVF\n2 DATE 1 JAN 1900", 'DIV', false];
+        yield 'tag at level two' => ["\n0 @I1@ INDI\n1 EVEN\n2 BIRT", 'BIRT', false];
+        yield 'tag mentioned inside a value' => ["\n0 @I1@ INDI\n1 NOTE the BIRT was late", 'BIRT', false];
+        yield 'tag absent' => ["\n0 @I1@ INDI\n1 NAME John /Doe/", 'BIRT', false];
+    }
+
+    /**
+     * hasTagAnchored finds a level-1 tag as a complete tag, so a tag that
+     * merely starts like the one asked for, a deeper level and a mention inside
+     * a value do not count.
+     *
+     * @param string $gedcom   Raw GEDCOM record body
+     * @param string $tag      Level-1 tag to test for
+     * @param bool   $expected Whether the tag counts as present
+     */
+    #[Test]
+    #[DataProvider('tagAnchoredSamples')]
+    public function hasTagAnchoredMatchesOnlyAWholeLevelOneTag(string $gedcom, string $tag, bool $expected): void
+    {
+        self::assertSame($expected, GedcomScanner::hasTagAnchored($gedcom, $tag));
+    }
+
+    /**
+     * The LIKE patterns of a tag, in the order of value, line break and end of
+     * record.
+     */
+    #[Test]
+    public function anchoredLikePatternsListTheThreeAnchorings(): void
+    {
+        self::assertSame(
+            ["%\n1 BIRT %", "%\n1 BIRT\n%", "%\n1 BIRT"],
+            GedcomScanner::anchoredLikePatterns('BIRT'),
+        );
+    }
+
+    /**
+     * A record matches one of the LIKE patterns when hasTagAnchored finds the
+     * tag, so the SQL filter and the PHP scan agree on the samples.
+     *
+     * @param string $gedcom   Raw GEDCOM record body
+     * @param string $tag      Level-1 tag to test for
+     * @param bool   $expected Whether the tag counts as present
+     */
+    #[Test]
+    #[DataProvider('tagAnchoredSamples')]
+    public function anchoredLikePatternsAgreeWithHasTagAnchored(string $gedcom, string $tag, bool $expected): void
+    {
+        $matchesAPattern = false;
+
+        foreach (GedcomScanner::anchoredLikePatterns($tag) as $pattern) {
+            $regex = '/^' . str_replace('%', '.*', preg_quote($pattern, '/')) . '$/s';
+
+            if (preg_match($regex, $gedcom) === 1) {
+                $matchesAPattern = true;
+            }
+        }
+
+        self::assertSame($expected, $matchesAPattern);
+    }
+
+    /**
+     * Record bodies with an event tag and the places that the event occurrences
+     * carry, in record order.
+     *
+     * @return iterable<string, array{0: string, 1: string, 2: list<string>}>
+     */
+    public static function allEventPlacesSamples(): iterable
+    {
+        yield 'one place per occurrence' => [
+            "\n0 @I1@ INDI\n1 RESI\n2 PLAC Berlin\n1 RESI\n2 PLAC Hamburg",
+            'RESI',
+            ['Berlin', 'Hamburg'],
+        ];
+        yield 'values are trimmed' => [
+            "\n0 @I1@ INDI\n1 RESI\n2 PLAC   Berlin   ",
+            'RESI',
+            ['Berlin'],
+        ];
+        yield 'an occurrence without a place adds no place' => [
+            "\n0 @I1@ INDI\n1 RESI\n2 DATE 1 JAN 1900\n1 RESI\n2 PLAC Hamburg",
+            'RESI',
+            ['Hamburg'],
+        ];
+        yield 'an empty place adds no place' => [
+            "\n0 @I1@ INDI\n1 RESI\n2 PLAC\n3 NOTE pending\n1 RESI\n2 PLAC    ",
+            'RESI',
+            [],
+        ];
+        yield 'a place of another event is not collected' => [
+            "\n0 @I1@ INDI\n1 BIRT\n2 PLAC Berlin\n1 RESI\n2 PLAC Hamburg",
+            'RESI',
+            ['Hamburg'],
+        ];
+        yield 'deeper levels before the place do not end the block' => [
+            "\n0 @I1@ INDI\n1 RESI\n2 DATE 1 JAN 1900\n3 TIME 10:00\n2 PLAC Berlin\n3 MAP\n4 LATI N52.5",
+            'RESI',
+            ['Berlin'],
+        ];
+        yield 'event absent' => [
+            "\n0 @I1@ INDI\n1 NAME John /Doe/",
+            'RESI',
+            [],
+        ];
+    }
+
+    /**
+     * extractAllEventPlaces collects the trimmed, non-empty place of each
+     * occurrence of one level-1 event and no place of another event.
+     *
+     * @param string       $gedcom   Raw GEDCOM record body
+     * @param string       $tag      Level-1 event tag whose places to collect
+     * @param list<string> $expected Expected places in record order
+     */
+    #[Test]
+    #[DataProvider('allEventPlacesSamples')]
+    public function extractAllEventPlacesCollectsEveryNonEmptyPlaceOfTheEvent(string $gedcom, string $tag, array $expected): void
+    {
+        self::assertSame($expected, GedcomScanner::extractAllEventPlaces($gedcom, $tag));
     }
 }

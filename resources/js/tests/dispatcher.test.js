@@ -9,6 +9,10 @@
  * @jest-environment jsdom
  */
 
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
+
 import { describe, expect, jest, test, beforeEach, afterEach } from "@jest/globals";
 
 // Mock the chart-lib widget classes so the dispatcher's wiring
@@ -874,5 +878,128 @@ describe("world-map GeoJSON URL", () => {
         expect(geoJsonFetchSpy).toHaveBeenCalledWith(
             expect.stringContaining("_webtrees-statistics_"),
         );
+    });
+});
+
+describe("widget registry", () => {
+    afterEach(() => {
+        document.body.innerHTML = "";
+    });
+
+    /**
+     * Collect the `data-widget` values found in the view templates.
+     *
+     * @param {string} directory Directory to scan recursively.
+     *
+     * @returns {Set<string>}
+     */
+    const widgetTypesInTemplates = (directory) => {
+        const types = new Set();
+
+        readdirSync(directory, { withFileTypes: true }).forEach((entry) => {
+            const path = join(directory, entry.name);
+
+            if (entry.isDirectory()) {
+                widgetTypesInTemplates(path).forEach((type) => types.add(type));
+
+                return;
+            }
+
+            if (entry.name.endsWith(".phtml") === false) {
+                return;
+            }
+
+            // An attribute follows white space, which a mention in backticks inside a
+            // template docblock does not.
+            for (const match of readFileSync(path, "utf8").matchAll(/\sdata-widget="([^"]+)"/g)) {
+                types.add(match[1]);
+            }
+        });
+
+        return types;
+    };
+
+    const templateTypes = [
+        ...widgetTypesInTemplates(fileURLToPath(new URL("../../views", import.meta.url))),
+    ].sort();
+
+    test("finds the widget types of the templates", () => {
+        expect(templateTypes).toContain("donut-chart");
+    });
+
+    // An unknown type is skipped silently and leaves a blank card, so each
+    // type found in the templates has to reach a widget.
+    test.each(templateTypes)(
+        "the dispatcher draws a widget for the template type %s",
+        async (type) => {
+            document.body.innerHTML = `<div data-widget="${type}" data-payload="[]"></div>`;
+
+            const { widgets } = renderWidgets(document.body);
+
+            // The world map joins `widgets` once its GeoJSON request has resolved, which
+            // takes more than a microtask when the module cache is still empty. Give the
+            // dispatch a bounded number of macrotasks to settle, so the case does not
+            // depend on which test ran before it. A type without an entry in the dispatch
+            // table does not join, so the loop ends with an empty list.
+            for (let attempt = 0; attempt < 50 && widgets.length === 0; attempt += 1) {
+                await new Promise((resolve) => setTimeout(resolve, 0));
+            }
+
+            expect(widgets).toHaveLength(1);
+        },
+    );
+});
+
+describe("places panel tabs", () => {
+    const panelMarkup = `
+        <div class="wt-stat-places" data-wt-stat-places data-view="birth">
+            <button type="button" class="wt-stat-places-tab is-active" aria-selected="true" data-view="birth"></button>
+            <button type="button" class="wt-stat-places-tab" aria-selected="false" data-view="death"></button>
+            <button type="button" class="wt-stat-places-tab" aria-selected="false"></button>
+            <div class="wt-stat-places-panel is-active" data-view="birth"></div>
+            <div class="wt-stat-places-panel" data-view="death"></div>
+        </div>
+    `;
+
+    beforeEach(() => {
+        document.body.innerHTML = panelMarkup;
+        renderWidgets(document.body);
+    });
+
+    afterEach(() => {
+        document.body.innerHTML = "";
+    });
+
+    const tabFor = (view) => document.querySelector(`.wt-stat-places-tab[data-view="${view}"]`);
+    const panelFor = (view) => document.querySelector(`.wt-stat-places-panel[data-view="${view}"]`);
+
+    test("a click on a tab activates its panel and deactivates the other one", () => {
+        tabFor("death").click();
+
+        expect(panelFor("death").classList.contains("is-active")).toBe(true);
+        expect(panelFor("birth").classList.contains("is-active")).toBe(false);
+    });
+
+    test("a click on a tab moves the active flag and the aria state to it", () => {
+        tabFor("death").click();
+
+        expect(tabFor("death").classList.contains("is-active")).toBe(true);
+        expect(tabFor("death").getAttribute("aria-selected")).toBe("true");
+        expect(tabFor("birth").classList.contains("is-active")).toBe(false);
+        expect(tabFor("birth").getAttribute("aria-selected")).toBe("false");
+    });
+
+    test("a click on a tab hands the view to the wrapper for the accent colour", () => {
+        tabFor("death").click();
+
+        expect(document.querySelector("[data-wt-stat-places]").dataset.view).toBe("death");
+    });
+
+    test("a click on a tab without a view leaves the panel unchanged", () => {
+        document.querySelectorAll(".wt-stat-places-tab")[2].click();
+
+        expect(tabFor("birth").classList.contains("is-active")).toBe(true);
+        expect(panelFor("birth").classList.contains("is-active")).toBe(true);
+        expect(document.querySelector("[data-wt-stat-places]").dataset.view).toBe("birth");
     });
 });

@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
+use Fisharebest\Webtrees\Auth;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\ModuleBase\Support\Locale\IsoCountryMap;
 use MagicSunday\Webtrees\Statistic\Model\Heatmap\HeatmapPayload;
@@ -139,8 +140,8 @@ final class LifeSpanRepositoryIntegrationTest extends AbstractIntegrationTestCas
     }
 
     /**
-     * topOldestDeceased returns Carl first (120y) then Berta (95y) then Anna
-     * (75y); Franz is alive and never shows up.
+     * topOldestDeceased returns Carl first (120y) then Berta (95y), Anna (75y),
+     * Emil (53y) and Doris (3y). Franz is alive and is not part of the ranking.
      */
     #[Test]
     public function topOldestDeceasedRanksByAgeDesc(): void
@@ -148,19 +149,54 @@ final class LifeSpanRepositoryIntegrationTest extends AbstractIntegrationTestCas
         $tree   = $this->importFixtureTree('life-span.ged');
         $result = $this->repository($tree)->topOldestDeceased(10);
 
-        $first = $result[0] ?? self::fail('Expected at least one ranked deceased individual');
-        self::assertGreaterThanOrEqual(120, $first->value);
+        self::assertSame(
+            [['I3', 120], ['I2', 95], ['I1', 75], ['I5', 53], ['I4', 3]],
+            array_map(static fn (RankingEntry $entry): array => [$entry->xref, $entry->value], $result),
+        );
+    }
 
-        // The displayed age is calendar-aware and not monotonic in the raw day
-        // span the core query orders by, so the shaper must re-rank: every
-        // adjacent pair has to read non-increasing.
-        $counter = count($result);
+    /**
+     * A deceased individual whose record a visitor cannot see is left out of
+     * the oldest-deceased ranking for the visitor, while the administrator
+     * gets it at the top.
+     */
+    #[Test]
+    public function topOldestDeceasedOmitsARecordAVisitorCannotSee(): void
+    {
+        $tree = $this->importFixtureTree('life-span-privacy.ged');
+        $this->hideLivingPeople($tree);
 
-        for ($i = 1; $i < $counter; ++$i) {
-            $current  = $result[$i] ?? self::fail(sprintf('Expected a ranked entry at index %d', $i));
-            $previous = $result[$i - 1] ?? self::fail(sprintf('Expected a ranked entry at index %d', $i - 1));
-            self::assertGreaterThanOrEqual($current->value, $previous->value);
-        }
+        $asAdministrator = $this->repository($tree)->topOldestDeceased(10);
+
+        self::assertSame(['DHID', 'DPUB'], array_map(static fn (RankingEntry $entry): string => $entry->xref, $asAdministrator));
+
+        Auth::logout();
+
+        $asVisitor = $this->repository($tree)->topOldestDeceased(10);
+
+        self::assertSame(['DPUB'], array_map(static fn (RankingEntry $entry): string => $entry->xref, $asVisitor));
+    }
+
+    /**
+     * A living individual a visitor cannot see is left out of the oldest-living
+     * ranking for the visitor. An individual born long enough ago to be taken as
+     * deceased stays visible, so the visitor ranking is not simply empty.
+     */
+    #[Test]
+    public function topOldestLivingOmitsALivingPersonAVisitorCannotSee(): void
+    {
+        $tree = $this->importFixtureTree('life-span-privacy.ged');
+        $this->hideLivingPeople($tree);
+
+        $asAdministrator = $this->repository($tree)->topOldestLiving(10);
+
+        self::assertSame(['LOLD', 'LNEW'], array_map(static fn (RankingEntry $entry): string => $entry->xref, $asAdministrator));
+
+        Auth::logout();
+
+        $asVisitor = $this->repository($tree)->topOldestLiving(10);
+
+        self::assertSame(['LOLD'], array_map(static fn (RankingEntry $entry): string => $entry->xref, $asVisitor));
     }
 
     /**
