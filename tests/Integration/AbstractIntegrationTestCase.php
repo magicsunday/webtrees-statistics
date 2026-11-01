@@ -19,6 +19,7 @@ use Fisharebest\Webtrees\Gedcom;
 use Fisharebest\Webtrees\GuestUser;
 use Fisharebest\Webtrees\Http\Routes\WebRoutes;
 use Fisharebest\Webtrees\I18N;
+use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Services\GedcomImportService;
 use Fisharebest\Webtrees\Services\MigrationService;
@@ -463,6 +464,36 @@ abstract class AbstractIntegrationTestCase extends TestCase
         $this->hideLivingPeople($tree);
 
         Auth::logout();
+    }
+
+    /**
+     * Resolve one individual of the imported tree through the registry as the
+     * current viewer.
+     *
+     * @param Tree   $tree The tree the individual belongs to
+     * @param string $xref The XREF of the individual
+     *
+     * @return Individual The individual record
+     */
+    final protected function individual(Tree $tree, string $xref): Individual
+    {
+        $individual = Registry::individualFactory()->make($xref, $tree);
+        self::assertInstanceOf(Individual::class, $individual);
+
+        return $individual;
+    }
+
+    /**
+     * Log in a user whose role in the tree is member, which is the access level
+     * of a `RESN privacy` restriction but below a `RESN confidential` one.
+     *
+     * @param Tree $tree The imported fixture tree
+     */
+    final protected function loginAsMember(Tree $tree): void
+    {
+        $member = (new UserService())->create('member', 'Member', 'member@example.test', 'secret');
+        $tree->setUserPreference($member, UserInterface::PREF_TREE_ROLE, UserInterface::ROLE_MEMBER);
+        Auth::login($member);
     }
 
     /**

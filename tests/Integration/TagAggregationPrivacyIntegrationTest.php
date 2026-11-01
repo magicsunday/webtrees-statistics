@@ -17,13 +17,10 @@ namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 // bodies stay covered.
 // jscpd:ignore-start
 use Fisharebest\Webtrees\Auth;
-use Fisharebest\Webtrees\Contracts\UserInterface;
 use Fisharebest\Webtrees\DB;
-use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Services\GedcomImportService;
 use Fisharebest\Webtrees\Services\TreeService;
-use Fisharebest\Webtrees\Services\UserService;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Aggregator\TopNAggregator;
 use MagicSunday\Webtrees\Statistic\Normalization\OccupationFolding;
@@ -109,34 +106,6 @@ final class TagAggregationPrivacyIntegrationTest extends AbstractIntegrationTest
         Registry::cache()->array()->forget('all-trees');
 
         return (new TreeService(new GedcomImportService()))->find($tree->id());
-    }
-
-    /**
-     * Resolve one fixture individual as the current viewer.
-     *
-     * @param Tree   $tree The imported fixture tree
-     * @param string $xref The XREF of the individual
-     *
-     * @return Individual The individual record
-     */
-    private function individual(Tree $tree, string $xref): Individual
-    {
-        $individual = Registry::individualFactory()->make($xref, $tree);
-        self::assertInstanceOf(Individual::class, $individual);
-
-        return $individual;
-    }
-
-    /**
-     * Log in a user whose role in the tree is member.
-     *
-     * @param Tree $tree The imported fixture tree
-     */
-    private function loginAsMember(Tree $tree): void
-    {
-        $member = (new UserService())->create('member', 'Member', 'member@example.test', 'secret');
-        $tree->setUserPreference($member, UserInterface::PREF_TREE_ROLE, UserInterface::ROLE_MEMBER);
-        Auth::login($member);
     }
 
     /**
