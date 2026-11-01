@@ -19,7 +19,7 @@
     "scripts": {
         "prepare": "rollup --config rollup.config.js",
         "watch": "rollup --watch --config rollup.config.js",
-        "test": "node --no-warnings --experimental-vm-modules node_modules/jest/bin/jest.js --passWithNoTests",
+        "test": "node --no-warnings --experimental-vm-modules node_modules/jest/bin/jest.js",
         "lint": "biome lint --error-on-warnings resources/js/modules/",
         "lint:fix": "biome lint --fix --unsafe resources/js/modules/",
         "format": "biome format --write resources/js/modules/ resources/js/tests/",
