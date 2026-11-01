@@ -82,7 +82,7 @@ final class OccupationRepository extends AbstractGedcomTagTopNRepository
      * the whole tree here means a standardization provider initialises its data
      * a single time rather than once per counted line.
      *
-     * @param Collection<int, object> $gedcoms The individual GEDCOM rows about to be counted
+     * @param Collection<int, object> $gedcoms The visible individual rows about to be counted, with the facts the viewer may see
      *
      * @return Closure(string): array{0: string, 1: string}
      */

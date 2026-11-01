@@ -17,23 +17,29 @@ use Illuminate\Support\Collection;
 use InvalidArgumentException;
 
 use function array_values;
+use function explode;
+use function preg_match;
 use function preg_match_all;
-use function str_starts_with;
 use function strstr;
 
 /**
  * One individual row reduced to the facts that the current viewer may see. The
  * `gedcom` text is the header line of the record followed by the raw text of
- * every value fact that `Individual::facts()` returns, so the GEDCOM scanners
- * select values the same way as on the raw row but only over what the host
- * shows to the viewer. A fact whose value points to another record is left out,
- * which spares the host from resolving its target. The host applies the record visibility, an explicit `RESN` on the fact
- * and the tree and individual fact privacy defaults there.
+ * every fact that `Individual::facts()` returns and that carries a value, so the
+ * GEDCOM scanners select values the same way as on the raw row, for well formed
+ * rows, but only over what the host shows to the viewer. The host applies the
+ * record visibility, an explicit `RESN` on the fact and the tree and individual
+ * fact privacy defaults there.
+ *
+ * A fact whose value is a pointer to another record (`1 FAMC @F1@`) is left
+ * out, which spares the host from resolving its target. An escaped free text
+ * value such as `@@Home` is no pointer and is kept. A row that the host rejects
+ * as facts, for example a fact line without a valid tag, yields the header line
+ * alone and contributes no values.
  *
  * The record is built from the committed row text without pending changes and
  * is not registered in the record factory cache, so it cannot be bound to a
- * stale tree object. A row that the host cannot parse as facts yields the header
- * line alone and contributes no values.
+ * stale tree object.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -42,11 +48,15 @@ use function strstr;
 final readonly class VisibleGedcomRow
 {
     /**
-     * @param string $xref   The individual's XREF
+     * Pattern of a real pointer value, an XREF between at signs. A leading
+     * escaped at sign and a calendar escape such as `@#DJULIAN@` do not match.
+     */
+    private const string POINTER_VALUE = '@[^@#][^@]*@';
+
+    /**
      * @param string $gedcom The header line plus the raw text of the facts the viewer may see
      */
     public function __construct(
-        public string $xref,
         public string $gedcom,
     ) {
     }
@@ -57,8 +67,10 @@ final readonly class VisibleGedcomRow
      * @param Tree   $tree   The tree the individual belongs to
      * @param string $xref   The individual's XREF
      * @param string $gedcom The raw `i_gedcom` text of the row
+     *
+     * @return string The header line plus the raw text of the visible value facts
      */
-    public static function of(Tree $tree, string $xref, string $gedcom): self
+    public static function text(Tree $tree, string $xref, string $gedcom): string
     {
         $header = strstr($gedcom, "\n", true);
         $header = ($header === false) ? $gedcom : $header;
@@ -68,7 +80,7 @@ final readonly class VisibleGedcomRow
         // Without a value fact there is nothing to scan, and an empty tag list
         // would select every fact in the host call below.
         if ($tags === []) {
-            return new self($xref, $header);
+            return $header;
         }
 
         try {
@@ -77,20 +89,48 @@ final readonly class VisibleGedcomRow
             $visible = $header;
 
             foreach ($individual->facts($tags) as $fact) {
-                $visible .= "\n" . $fact->gedcom();
+                $factGedcom = $fact->gedcom();
+
+                // A tag can occur as a pointer and with an inline value, so the
+                // pointer facts are dropped per fact and not per tag.
+                if (self::hasPointerValue($factGedcom)) {
+                    continue;
+                }
+
+                $visible .= "\n" . $factGedcom;
             }
         } catch (InvalidArgumentException) {
-            return new self($xref, $header);
+            return $header;
         }
 
-        return new self($xref, $visible);
+        return $visible;
     }
 
     /**
-     * The tags of the level-1 facts that carry a value. A fact whose value is a
-     * pointer to another record (`1 FAMC @F1@`, `1 SOUR @S1@`) is left out, so
-     * the host does not resolve its target to decide on its visibility, and the
-     * text of such a fact is not part of the visible text.
+     * Reduce every loaded individual row to its visible facts.
+     *
+     * @param Tree                    $tree The tree the rows belong to
+     * @param Collection<int, object> $rows Rows carrying the `xref` and `gedcom` columns of {@see \MagicSunday\Webtrees\Statistic\Support\Database\TreeScope::individualGedcoms()}
+     *
+     * @return Collection<int, self>
+     */
+    public static function collect(Tree $tree, Collection $rows): Collection
+    {
+        return $rows->map(
+            static fn (object $row): self => new self(
+                self::text(
+                    $tree,
+                    RowCast::string($row, 'xref'),
+                    RowCast::string($row, 'gedcom'),
+                ),
+            ),
+        )->values();
+    }
+
+    /**
+     * The tags of the level-1 facts that carry a value other than a pointer. A
+     * tag that occurs only as a pointer is left out, so the host does not
+     * resolve the targets of such facts to decide on their visibility.
      *
      * @param string $gedcom The raw `i_gedcom` text of the row
      *
@@ -105,9 +145,7 @@ final readonly class VisibleGedcomRow
         $tags = [];
 
         foreach ($matches as $match) {
-            $value = $match[2] ?? '';
-
-            if (str_starts_with($value, '@')) {
+            if (preg_match('/^' . self::POINTER_VALUE . '$/', $match[2] ?? '') === 1) {
                 continue;
             }
 
@@ -118,21 +156,14 @@ final readonly class VisibleGedcomRow
     }
 
     /**
-     * Reduce every loaded individual row to its visible facts.
+     * Whether the first line of a fact carries a real pointer as its value.
      *
-     * @param Tree                    $tree The tree the rows belong to
-     * @param Collection<int, object> $rows Rows carrying the `xref` and `gedcom` columns of {@see \MagicSunday\Webtrees\Statistic\Support\Database\TreeScope::individualGedcoms()}
-     *
-     * @return Collection<int, self>
+     * @param string $factGedcom The raw text of one level-1 fact
      */
-    public static function collect(Tree $tree, Collection $rows): Collection
+    private static function hasPointerValue(string $factGedcom): bool
     {
-        return $rows->map(
-            static fn (object $row): self => self::of(
-                $tree,
-                RowCast::string($row, 'xref'),
-                RowCast::string($row, 'gedcom'),
-            ),
-        )->values();
+        $firstLine = explode("\n", $factGedcom, 2)[0];
+
+        return preg_match('/^1 [A-Z0-9_]+ ' . self::POINTER_VALUE . '$/', $firstLine) === 1;
     }
 }

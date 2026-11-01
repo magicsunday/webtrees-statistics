@@ -104,7 +104,7 @@ final readonly class TreeScope
      * @param Tree              $tree         The tree whose individuals to load
      * @param list<string>|null $likePatterns LIKE patterns on `i_gedcom`, a row matching any one is loaded, null or an empty list loads every row
      *
-     * @return Collection<int, stdClass>
+     * @return Collection<int, stdClass> Rows with the `xref` and `gedcom` columns
      */
     public static function individualGedcoms(Tree $tree, ?array $likePatterns = null): Collection
     {

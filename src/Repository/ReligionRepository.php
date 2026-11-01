@@ -54,8 +54,8 @@ final class ReligionRepository extends AbstractGedcomTagTopNRepository
     }
 
     /**
-     * Selects the rows that carry the tag `1 RELI` or `2 RELI`, because a row without such a
-     * line gives no value to `extract()`.
+     * Selects the rows that carry the tag `1 RELI` or `2 RELI`, because a row
+     * without such a line gives no value to `extract()`.
      *
      * @return list<string>
      */

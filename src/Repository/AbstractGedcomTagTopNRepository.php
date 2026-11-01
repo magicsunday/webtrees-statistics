@@ -93,7 +93,7 @@ abstract class AbstractGedcomTagTopNRepository
 
     /**
      * Optional per-value fold resolver handed to {@see TopNAggregator::topN()}.
-     * The default is `null`, which folds every value by case alone — the exact
+     * The default is `null`, which folds every value by case alone, the exact
      * behaviour the Top-N counters have always had. A subclass whose values want
      * standardization (the occupation counter) overrides this to return a
      * `Closure(string): array{0: string, 1: string}` mapping a raw value to its
@@ -153,7 +153,9 @@ abstract class AbstractGedcomTagTopNRepository
             return $this->cache;
         }
 
-        $gedcoms = VisibleGedcomRow::collect($this->tree, TreeScope::individualGedcoms($this->tree, $this->rowFilterPatterns()));
+        $rows = TreeScope::individualGedcoms($this->tree, $this->rowFilterPatterns());
+
+        $gedcoms = VisibleGedcomRow::collect($this->tree, $rows);
 
         return $this->cache = TopNAggregator::topN(
             $gedcoms,

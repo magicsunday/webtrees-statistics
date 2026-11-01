@@ -198,8 +198,8 @@ final class TagAggregationPrivacyIntegrationTest extends AbstractIntegrationTest
     }
 
     /**
-     * A member gets the values that carry a member level restriction but not
-     * the ones that need a manager.
+     * A member gets the values that carry a member level restriction and the
+     * values of the living person, but not the ones that need a manager.
      */
     #[Test]
     public function memberGetsMemberLevelValuesOnly(): void
@@ -212,9 +212,9 @@ final class TagAggregationPrivacyIntegrationTest extends AbstractIntegrationTest
         self::assertCount(0, $this->individual($tree, 'I3')->facts(['RELI']), 'precondition: the RELI of I3 stays withheld');
         self::assertFalse($this->individual($tree, 'I2')->canShow(), 'precondition: the record I2 stays hidden');
 
-        self::assertSame(['Baker' => 1, 'Mason' => 1, 'Tanner' => 1, 'Weaver' => 1], $this->occupations($tree));
+        self::assertSame(['Baker' => 1, 'Mason' => 1, 'Miller' => 1, 'Tanner' => 1, 'Weaver' => 1], $this->occupations($tree));
         self::assertSame(
-            ['Alpha' => 1, 'Baptist' => 1, 'Beta' => 1, 'Gamma' => 1, 'Lutheran' => 1, 'Orthodox' => 1, 'Shaker' => 1],
+            ['Alpha' => 1, 'Baptist' => 1, 'Beta' => 1, 'Gamma' => 1, 'Lutheran' => 1, 'Methodist' => 1, 'Orthodox' => 1, 'Shaker' => 1],
             $this->religions($tree),
         );
         self::assertSame(['Fever' => 1, 'Gout' => 1, 'Visible' => 1], $this->causes($tree));
@@ -233,7 +233,7 @@ final class TagAggregationPrivacyIntegrationTest extends AbstractIntegrationTest
         self::assertCount(1, $this->individual($tree, 'I3')->facts(['DEAT']), 'precondition: the DEAT of I3 is visible');
 
         self::assertSame(
-            ['Baker' => 1, 'Cooper' => 1, 'Mason' => 1, 'Smith' => 1, 'Tanner' => 1, 'Weaver' => 1],
+            ['Baker' => 1, 'Cooper' => 1, 'Mason' => 1, 'Miller' => 1, 'Smith' => 1, 'Tanner' => 1, 'Weaver' => 1],
             $this->occupations($tree),
         );
         self::assertSame(
@@ -245,6 +245,7 @@ final class TagAggregationPrivacyIntegrationTest extends AbstractIntegrationTest
                 'Hussite'   => 1,
                 'Lutheran'  => 1,
                 'Mennonite' => 1,
+                'Methodist' => 1,
                 'Orthodox'  => 1,
                 'Quaker'    => 1,
                 'Shaker'    => 1,
@@ -270,7 +271,7 @@ final class TagAggregationPrivacyIntegrationTest extends AbstractIntegrationTest
         $confidential = $this->treeWithDefault($tree, 'OCCU', 'confidential');
 
         self::assertSame(
-            ['Baker' => 1, 'Cooper' => 1, 'Mason' => 1, 'Smith' => 1, 'Tanner' => 1, 'Weaver' => 1],
+            ['Baker' => 1, 'Cooper' => 1, 'Mason' => 1, 'Miller' => 1, 'Smith' => 1, 'Tanner' => 1, 'Weaver' => 1],
             $this->occupations($confidential),
         );
 
@@ -419,7 +420,9 @@ final class TagAggregationPrivacyIntegrationTest extends AbstractIntegrationTest
      * fixture has the tags at level one, at level two under an event fact and
      * under a non-event fact, and also longer tags that only start with the
      * scanned tag, a stored row with lower case tags and tags without a value.
-     * Only the first group gives values.
+     * Only the first group gives values. The test pins the values the
+     * repositories return, and the rows the prefilter loads are pinned by the
+     * test of the row loader.
      */
     #[Test]
     public function rowPrefilterKeepsEveryRowTheScannersReadFrom(): void
@@ -438,5 +441,70 @@ final class TagAggregationPrivacyIntegrationTest extends AbstractIntegrationTest
         self::assertSame(['Baker' => 1], $this->occupations($tree));
         self::assertSame(['Jain' => 1, 'Lutheran' => 1, 'Orthodox' => 1], $this->religions($tree));
         self::assertSame(['Fever' => 1], $this->causes($tree));
+    }
+
+    /**
+     * A free text value that starts with an escaped at sign is no pointer and
+     * counts, for an occupation, a religion and a death cause.
+     */
+    #[Test]
+    public function escapedAtSignValuesCount(): void
+    {
+        $tree = $this->tree();
+
+        DB::table('individuals')
+            ->where('i_file', '=', $tree->id())
+            ->where('i_id', '=', 'I5')
+            ->update([
+                'i_gedcom' => "0 @I5@ INDI\n1 NAME Five /Escaped/\n1 OCCU @@Home\n1 RELI @@Faith\n1 DEAT\n2 DATE 1 FEB 1924\n2 CAUS @@Cause",
+            ]);
+
+        self::assertSame(1, $this->occupations($tree)['@@Home'] ?? 0);
+        self::assertSame(1, $this->religions($tree)['@@Faith'] ?? 0);
+        self::assertSame(1, $this->causes($tree)['@@Cause'] ?? 0);
+    }
+
+    /**
+     * A tag that occurs as a pointer fact next to an inline fact is read from
+     * the inline fact only. The RELI line inside the pointer fact does not
+     * count, and the one inside the inline fact does.
+     */
+    #[Test]
+    public function pointerFactNextToInlineFactOfTheSameTagIsSkipped(): void
+    {
+        $tree = $this->tree();
+
+        DB::table('individuals')
+            ->where('i_file', '=', $tree->id())
+            ->where('i_id', '=', 'I5')
+            ->update([
+                'i_gedcom' => "0 @I5@ INDI\n1 NAME Five /Mixed/\n1 SOUR @S1@\n2 RELI Cited\n1 SOUR inline\n2 RELI Anabaptist",
+            ]);
+
+        $religions = $this->religions($tree);
+
+        self::assertArrayNotHasKey('Cited', $religions);
+        self::assertSame(1, $religions['Anabaptist'] ?? 0);
+    }
+
+    /**
+     * A living person without any dates is hidden from a guest and visible to
+     * the administrator, so the values of the person count for the
+     * administrator only.
+     */
+    #[Test]
+    public function livingPersonCountsForTheAdministratorOnly(): void
+    {
+        $tree = $this->tree();
+
+        self::assertTrue($this->individual($tree, 'I9')->canShow(), 'precondition: the administrator sees the living person');
+        self::assertSame(1, $this->occupations($tree)['Miller'] ?? 0);
+        self::assertSame(1, $this->religions($tree)['Methodist'] ?? 0);
+
+        Auth::logout();
+
+        self::assertFalse($this->individual($tree, 'I9')->canShow(), 'precondition: the guest cannot see the living person');
+        self::assertArrayNotHasKey('Miller', $this->occupations($tree));
+        self::assertArrayNotHasKey('Methodist', $this->religions($tree));
     }
 }

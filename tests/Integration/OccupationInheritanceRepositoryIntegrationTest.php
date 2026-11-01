@@ -537,14 +537,14 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
     }
 
     /**
-     * Occupations enter the flows only from the facts the viewer may see. In the
+     * Occupations enter the flows from the facts the viewer may see. In the
      * fixture, I3 is a Blacksmith child behind a confidential record
-     * restriction and I9 holds its only occupation behind a confidential fact
-     * restriction. A guest gets neither in the Blacksmith flow weight, so the
+     * restriction. A guest gets the Blacksmith flow weight without it, so the
      * weight and the samples both come from the same visible children, and the
-     * samples are the first three of them in xref order. The importing
-     * administrator sees the child behind the record restriction and the
-     * samples are the first three children in xref order.
+     * samples are the first three of them in xref order. I9 holds only a
+     * Glazier occupation behind a confidential fact restriction, so it adds no
+     * Blacksmith weight for any viewer. The importing administrator sees I3,
+     * and the samples are the first three children in xref order.
      */
     #[Test]
     public function occupationInheritanceCountsOnlyTheChildrenTheViewerMaySee(): void
@@ -602,10 +602,10 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
 
     /**
      * The normalizer receives the occupation values of visible facts only. The
-     * values Draper, Glazier and Potter sit behind a hidden record or a
-     * withheld fact, and Cooper and Potterling are also held by a visible
-     * person, so a guest reaches the normalizer with exactly the trades of the
-     * visible facts.
+     * values Draper and Glazier sit behind a hidden record or a withheld fact,
+     * Potter sits behind a withheld fact, and Cooper is held by a hidden record
+     * and by a visible person. A guest reaches the normalizer with the trades of
+     * the visible facts.
      */
     #[Test]
     public function occupationInheritanceNormalizerReceivesVisibleValuesOnly(): void

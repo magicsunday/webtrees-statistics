@@ -185,7 +185,7 @@ final readonly class OccupationInheritanceRepository
         foreach ($rows as $row) {
             $xref        = RowCast::string($row, 'xref');
             $occupations = GedcomScanner::extractAllTagValues(
-                VisibleGedcomRow::of($this->tree, $xref, RowCast::string($row, 'gedcom'))->gedcom,
+                VisibleGedcomRow::text($this->tree, $xref, RowCast::string($row, 'gedcom')),
                 'OCCU',
             );
 

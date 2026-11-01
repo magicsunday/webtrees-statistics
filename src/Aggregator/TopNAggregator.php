@@ -64,7 +64,7 @@ final readonly class TopNAggregator
      * supplies a resolver so spelling and language variants of one trade collapse
      * under a standardization provider's grouping key.
      *
-     * @param Collection<int, object>                             $rows      Result set from a DB::table('individuals')->...->get() call
+     * @param Collection<int, object>                             $rows      Rows with a `gedcom` property, the INDI text that the repository hands over (the facts the viewer may see)
      * @param Closure(string): list<string>                       $extract   Returns the list of label values for one row's gedcom blob
      * @param int                                                 $limit     Maximum number of entries to return; 0 or negative returns the full list
      * @param (Closure(string): array{0: string, 1: string})|null $foldValue Maps a raw value to [fold key, display label]; null folds by case alone
