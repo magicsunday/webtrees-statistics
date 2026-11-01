@@ -80,8 +80,8 @@ final readonly class PartnershipReachRepository
      * larger — its internal edges, the longest path's xrefs, the max-degree hub,
      * its real and shown sizes, and the median year over the visible BIRT and DEAT
      * facts), and the depth-vs-breadth ratio components. Returns `null` when no
-     * partnership group reaches {@see PartnershipChains::MIN_GROUP_SIZE} people, since there is then no
-     * chain to report.
+     * partnership group reaches {@see PartnershipChains::MIN_GROUP_SIZE} people,
+     * since there is then no chain to report.
      */
     public function summary(): ?PartnershipReachReport
     {

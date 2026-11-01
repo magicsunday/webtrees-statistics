@@ -138,8 +138,8 @@ final class PartnershipReachMedianPrivacyIntegrationTest extends AbstractIntegra
     /**
      * A guest sees neither the member-level birth of I2, the manager-level
      * death of I3 nor the record I4 that carries a confidential restriction, so
-     * the median is formed over the remaining years. The lower bound of the imprecise birth of I5 is the
-     * year that counts.
+     * the median is formed over the remaining years. The lower bound of the
+     * imprecise birth of I5 is the year that counts.
      */
     #[Test]
     public function guestMedianExcludesEveryWithheldYear(): void
@@ -174,7 +174,8 @@ final class PartnershipReachMedianPrivacyIntegrationTest extends AbstractIntegra
     }
 
     /**
-     * The administrator sees every year, including the record I4 that carries a confidential restriction.
+     * The administrator also gets the years of the withheld facts and the years
+     * of the record I4 that carries a confidential restriction.
      */
     #[Test]
     public function administratorMedianCoversTheRealYears(): void
@@ -188,7 +189,7 @@ final class PartnershipReachMedianPrivacyIntegrationTest extends AbstractIntegra
     }
 
     /**
-     * A group without any restriction gives a guest the same median as an
+     * A group without a restriction gives a guest the same median as an
      * administrator, and the Hebrew birth counts with its Gregorian year
      * rather than its native year number.
      */
@@ -209,8 +210,8 @@ final class PartnershipReachMedianPrivacyIntegrationTest extends AbstractIntegra
     }
 
     /**
-     * A tree default restriction on DEAT withholds every death year from a
-     * guest, so only the birth years of the visible group remain.
+     * A tree default restriction on DEAT withholds the death years of the group
+     * from a guest, so the birth years of the group remain.
      */
     #[Test]
     public function treeDefaultDeathRestrictionIsHonoredForGuest(): void
@@ -270,16 +271,16 @@ final class PartnershipReachMedianPrivacyIntegrationTest extends AbstractIntegra
     }
 
     /**
-     * I1 has three birth facts and the smallest year sits between a larger and
-     * an even larger one, so only the smallest year counts as the lower bound of
-     * the person, whatever the order of the facts.
+     * I1 has four birth facts. The smallest year is neither the first nor the
+     * last of them, and it is the one that counts as the lower bound of the
+     * person.
      */
     #[Test]
     public function smallestOfSeveralBirthYearsCounts(): void
     {
         $tree = $this->restrictedTree('partnership-median-two-births.ged');
 
-        self::assertCount(3, $this->individual($tree, 'I1')->facts(['BIRT']), 'precondition: I1 has several birth facts');
+        self::assertCount(4, $this->individual($tree, 'I1')->facts(['BIRT']), 'precondition: I1 has four birth facts');
         self::assertSame(1844, $this->medianYear($tree, 3));
     }
 }
