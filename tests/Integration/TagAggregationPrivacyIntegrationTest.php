@@ -47,7 +47,7 @@ use function str_repeat;
 
 /**
  * Record and fact visibility of the value aggregations over OCCU, RELI and the
- * DEAT cause. A value counts for a viewer only when the host shows the record
+ * DEAT cause. A value counts for a viewer when the host shows the record
  * and the fact that carries the value. The fixture people are dead and visible
  * unless a record restriction hides them, with living people hidden by the tree
  * preference, so the tests pin which restriction removes which value.
@@ -275,8 +275,9 @@ final class TagAggregationPrivacyIntegrationTest extends AbstractIntegrationTest
 
     /**
      * An unrestricted record gives the values of the level two RELI lines under
-     * an event fact and under a non-event fact, and two such lines under one
-     * fact count separately.
+     * an event fact and under a non-event fact. For a guest, the two lines under
+     * the one event fact (Alpha and Beta) and the line under the non-event fact
+     * (Gamma) each count once.
      */
     #[Test]
     public function unrestrictedSubTagValuesCountAsRead(): void
@@ -391,7 +392,7 @@ final class TagAggregationPrivacyIntegrationTest extends AbstractIntegrationTest
     }
 
     /**
-     * The row prefilter keeps every row the scanners read a value from. The
+     * The row prefilter keeps the rows the scanners read a value from. The
      * fixture has the tags at level one, at level two under an event fact and
      * under a non-event fact, and also longer tags that only start with the
      * scanned tag, a stored row with lower case tags and tags without a value.
@@ -479,11 +480,11 @@ final class TagAggregationPrivacyIntegrationTest extends AbstractIntegrationTest
 
     /**
      * A living person without any dates is hidden from a guest and visible to
-     * the administrator, so the values of the person count for the
-     * administrator only.
+     * the administrator. The values of the person are missing for the guest and
+     * present for the administrator.
      */
     #[Test]
-    public function livingPersonCountsForTheAdministratorOnly(): void
+    public function livingPersonIsHiddenFromGuest(): void
     {
         $tree = $this->tree();
 
@@ -499,9 +500,9 @@ final class TagAggregationPrivacyIntegrationTest extends AbstractIntegrationTest
     }
 
     /**
-     * Each repository hands its own LIKE patterns to the row loader. The
-     * recorded queries on the individuals table carry exactly the patterns of
-     * the scanned tag, at the level the scanner reads.
+     * Each repository hands its own LIKE patterns to the row loader. The string
+     * bindings of the recorded queries whose SQL contains `like` are the
+     * patterns of the scanned tag, at the level the scanner reads.
      */
     #[Test]
     public function eachRepositoryLoadsRowsWithItsOwnPatterns(): void
@@ -524,7 +525,8 @@ final class TagAggregationPrivacyIntegrationTest extends AbstractIntegrationTest
 
     /**
      * The string bindings of the queries whose SQL contains `like` that one
-     * aggregation issues, in the order the database received them.
+     * aggregation issues, in the order the database received them. The `finally`
+     * only switches the query log off again.
      *
      * @param callable(): array<string, int> $aggregation The aggregation to run
      *

@@ -37,10 +37,10 @@ use const PREG_SET_ORDER;
  * A tag that occurs only as pointer facts (`1 FAMC @F1@`) is not passed to the
  * host, which spares resolving the targets. When a tag occurs as a pointer and
  * with another value, the host resolves the pointer target and the pointer fact
- * is dropped afterwards. A value is a pointer when it is exactly an XREF
- * between at signs of the class the host uses for record references, with no
- * surrounding whitespace, so an escaped free text value such as `@@Home` is
- * kept. A row that the host rejects as facts, for example a fact
+ * is dropped afterwards. A fact is a pointer fact when the value in its first
+ * line is exactly an XREF between at signs of the class the host uses for
+ * record references, with no surrounding whitespace. Continuation lines are not
+ * looked at. An escaped free text value such as `@@Home` is kept. A row that the host rejects as facts, for example a fact
  * line without a valid tag, yields the header line alone and contributes no
  * values.
  *
@@ -54,10 +54,10 @@ use const PREG_SET_ORDER;
 final readonly class VisibleGedcomRow
 {
     /**
-     * Pattern of a pointer value, the XREF class that the host uses in
-     * `Fact::target()` between at signs. An escaped value such as `@@x@`, a value
-     * with spaces such as `@Home town@` and a calendar escape such as
-     * `@#DJULIAN@` do not match.
+     * Pattern of the value in the first line of a pointer fact, an XREF of the
+     * class that the host uses in `Fact::target()` between at signs. An escaped
+     * value such as `@@x@`, a value with spaces such as `@Home town@` and a
+     * calendar escape such as `@#DJULIAN@` do not match.
      */
     private const string POINTER_VALUE = '@[A-Za-z0-9:_.-]{1,20}@';
 

@@ -93,8 +93,7 @@ abstract class AbstractGedcomTagTopNRepository
 
     /**
      * Optional per-value fold resolver handed to {@see TopNAggregator::topN()}.
-     * The default is `null`, which folds every value by case alone, the exact
-     * behaviour the Top-N counters have always had. A subclass whose values want
+     * The default is `null`, which folds the values by case alone. A subclass whose values want
      * standardization (the occupation counter) overrides this to return a
      * `Closure(string): array{0: string, 1: string}` mapping a raw value to its
      * [fold key, display label]; the whole individual set is passed so the

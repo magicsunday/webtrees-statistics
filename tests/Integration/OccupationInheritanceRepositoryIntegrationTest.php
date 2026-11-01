@@ -541,10 +541,11 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
      * fixture, I3 is a Blacksmith child behind a confidential record
      * restriction. A guest gets the Blacksmith flow weight without it, so the
      * weight and the samples both come from the same visible children, and the
-     * samples are the first three of them in xref order. I9 holds only a
-     * Glazier occupation behind a confidential fact restriction, so it adds no
-     * Blacksmith weight for any viewer. The importing administrator sees I3,
-     * and the samples are the first three children in xref order.
+     * samples are the first of them in xref order up to the sample cap. I9 holds
+     * only a Glazier occupation behind a confidential fact restriction, so it
+     * adds no weight to the Blacksmith to Blacksmith flow for any viewer. The
+     * importing administrator sees I3, and the samples are the first children in
+     * xref order up to the sample cap.
      */
     #[Test]
     public function occupationInheritanceCountsOnlyTheChildrenTheViewerMaySee(): void
@@ -578,7 +579,7 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
     /**
      * A flow disappears for a guest when its children are hidden records, when
      * its parent is a hidden record or when the occupation of the parent is
-     * withheld. The administrator keeps all of them.
+     * withheld. The administrator keeps those flows.
      */
     #[Test]
     public function occupationInheritanceDropsFlowsWithHiddenEndsForGuest(): void
