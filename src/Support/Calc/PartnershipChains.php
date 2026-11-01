@@ -301,9 +301,9 @@ final readonly class PartnershipChains
     }
 
     /**
-     * Return the median of the supplied year multiset — later fed the combined
-     * birth AND death years of the largest group's members — or `null` when the
-     * list is empty.
+     * Return the median of the supplied year multiset, later fed the years of the
+     * visible BIRT and DEAT facts of the largest group's members, or `null` when
+     * the list is empty.
      *
      * An odd count yields the single middle value; an EVEN count yields the
      * LOWER of the two middle values, never their average — a year must stay an
@@ -312,7 +312,7 @@ final readonly class PartnershipChains
      * local copy is sorted before the middle value is picked, so the caller's
      * array is never mutated and the result is independent of the input order.
      *
-     * @param list<int> $years The birth+death year multiset
+     * @param list<int> $years The years of the visible BIRT and DEAT facts
      *
      * @return int|null The lower-median year, or `null` when the list is empty
      */

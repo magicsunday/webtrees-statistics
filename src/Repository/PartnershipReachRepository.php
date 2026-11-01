@@ -31,9 +31,8 @@ use function strcmp;
  * connected-component / longest-path calculator ({@see PartnershipChains}) into a
  * renderable {@see PartnershipReachReport}: the longest unbroken partnership chain,
  * the single largest connected partnership group (with its internal edges, its
- * max-degree hub, and the median year over the visible BIRT and DEAT facts),
- * and the depth-vs-breadth
- * ratio components.
+ * max-degree hub, and the median year over the visible BIRT and DEAT facts), and
+ * the depth-vs-breadth ratio components.
  *
  * Person resolution goes through ONE bulk gedcom fetch ({@see GedcomByXref}),
  * exactly the {@see GenerationDepthRepository::summary()} discipline, so the
@@ -41,11 +40,10 @@ use function strcmp;
  * than one `IndividualFactory::make()` round-trip per person. Privacy follows
  * the same convention: every node stays in place and `Individual::fullName()`
  * substitutes the "Private" placeholder for a non-visible person, so the
- * group and chain counts never shift by viewer. The median year is the
- * exception that follows the viewer on purpose. It is formed over the years of
- * the birth and death facts (BIRT and DEAT) that the viewer can see on the
- * resolved people, so it does not reflect a year that the wire rows of the same
- * payload withhold.
+ * group and chain counts never shift by viewer. The median year is the exception
+ * that follows the viewer on purpose. It is formed over the years of the birth and
+ * death facts (BIRT and DEAT) that the viewer can see on the resolved people, so it
+ * does not reflect a year that the wire rows of the same payload withhold.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -81,9 +79,8 @@ final readonly class PartnershipReachRepository
      * (its people — excerpted to {@see NETWORK_CAP} when the real cluster is
      * larger — its internal edges, the longest path's xrefs, the max-degree hub,
      * its real and shown sizes, and the median year over the visible BIRT and DEAT
-     * facts), and the
-     * depth-vs-breadth ratio components. Returns `null` when no partnership group
-     * reaches {@see PartnershipChains::MIN_GROUP_SIZE} people, since there is then no
+     * facts), and the depth-vs-breadth ratio components. Returns `null` when no
+     * partnership group reaches {@see PartnershipChains::MIN_GROUP_SIZE} people, since there is then no
      * chain to report.
      */
     public function summary(): ?PartnershipReachReport
@@ -273,7 +270,11 @@ final readonly class PartnershipReachRepository
             }
 
             if ($lowerBound !== null) {
-                $years[] = GregorianDate::year($lowerBound->format('%@'), $lowerBound->year, $lowerBound->minimumJulianDay());
+                $years[] = GregorianDate::year(
+                    $lowerBound->format('%@'),
+                    $lowerBound->year,
+                    $lowerBound->minimumJulianDay(),
+                );
             }
         }
 

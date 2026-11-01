@@ -137,8 +137,8 @@ final class PartnershipReachMedianPrivacyIntegrationTest extends AbstractIntegra
 
     /**
      * A guest sees neither the member-level birth of I2, the manager-level
-     * death of I3 nor the hidden living record I4, so the median is formed over
-     * the remaining years. The lower bound of the imprecise birth of I5 is the
+     * death of I3 nor the record I4 that carries a confidential restriction, so
+     * the median is formed over the remaining years. The lower bound of the imprecise birth of I5 is the
      * year that counts.
      */
     #[Test]
@@ -157,7 +157,7 @@ final class PartnershipReachMedianPrivacyIntegrationTest extends AbstractIntegra
 
     /**
      * A member sees the member-level birth of I2, but still not the
-     * manager-level death of I3 and not the hidden record of I4.
+     * manager-level death of I3 and not the confidential record I4.
      */
     #[Test]
     public function memberMedianIncludesOnlyTheMemberLevelYears(): void
@@ -174,7 +174,7 @@ final class PartnershipReachMedianPrivacyIntegrationTest extends AbstractIntegra
     }
 
     /**
-     * The administrator sees every year, including the hidden living record.
+     * The administrator sees every year, including the record I4 that carries a confidential restriction.
      */
     #[Test]
     public function administratorMedianCoversTheRealYears(): void
@@ -270,15 +270,16 @@ final class PartnershipReachMedianPrivacyIntegrationTest extends AbstractIntegra
     }
 
     /**
-     * I1 has two birth facts and the later one in the record carries the
-     * smaller year, so the smaller year counts as the lower bound of the person.
+     * I1 has three birth facts and the smallest year sits between a larger and
+     * an even larger one, so only the smallest year counts as the lower bound of
+     * the person, whatever the order of the facts.
      */
     #[Test]
     public function smallestOfSeveralBirthYearsCounts(): void
     {
         $tree = $this->restrictedTree('partnership-median-two-births.ged');
 
-        self::assertCount(2, $this->individual($tree, 'I1')->facts(['BIRT']), 'precondition: I1 has two birth facts');
+        self::assertCount(3, $this->individual($tree, 'I1')->facts(['BIRT']), 'precondition: I1 has several birth facts');
         self::assertSame(1844, $this->medianYear($tree, 3));
     }
 }
