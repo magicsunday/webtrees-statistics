@@ -29,11 +29,10 @@ use const PREG_SET_ORDER;
  * `gedcom` text is the header line of the record followed by the raw text of
  * the facts that `Individual::facts()` returns for the tags of the row that
  * occur at least once with a value other than a pointer. A `1 BAPM` without a
- * value counts, because it can hold `2 RELI` lines. The GEDCOM scanners select
- * values from that text the same way as on the raw row, for well formed rows,
- * but only over what the host shows to the viewer. The host applies the record
- * visibility, an explicit `RESN` on the fact and the tree and individual fact
- * privacy defaults there.
+ * value counts, because it can hold `2 RELI` lines. The GEDCOM scanners run on
+ * that text, so they see only what the host shows to the viewer. The host
+ * applies the record visibility, an explicit `RESN` on the fact and the tree and
+ * individual fact privacy defaults there.
  *
  * A tag that occurs only as pointer facts (`1 FAMC @F1@`) is not passed to the
  * host, which spares resolving the targets. When a tag occurs as a pointer and
@@ -45,10 +44,7 @@ use const PREG_SET_ORDER;
  * values.
  *
  * The record is built from the committed row text without pending changes and
- * is not registered in the record factory cache, so it cannot be bound to a
- * stale tree object. The visibility entry that the host keeps per record in the
- * request cache can therefore differ from the one of the registry record for an
- * editor with a pending restriction change.
+ * is not registered in the record factory cache.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0

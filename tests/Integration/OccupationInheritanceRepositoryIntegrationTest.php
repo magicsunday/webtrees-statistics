@@ -625,8 +625,8 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
     }
 
     /**
-     * A visible child whose death fact is withheld from the guest still counts
-     * in the flow and still resolves its name for the sample list.
+     * A visible child whose death fact is withheld from the guest counts in the
+     * flow and its name appears in the sample list.
      */
     #[Test]
     public function occupationInheritanceSampleResolvesForAChildWithAWithheldDeathFact(): void

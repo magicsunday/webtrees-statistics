@@ -37,12 +37,14 @@ use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\VisibleGedcomRow;
 use MagicSunday\Webtrees\Statistic\Test\Support\Normalization\StubOccupationNormalizer;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
 
 use function is_string;
 use function sort;
 use function str_contains;
+use function str_repeat;
 
 // jscpd:ignore-end
 
@@ -223,8 +225,9 @@ final class TagAggregationPrivacyIntegrationTest extends AbstractIntegrationTest
     }
 
     /**
-     * The administrator gets every fixture value. From the person I6 the first
-     * death fact carries the cause, as the scanner reads it.
+     * The administrator gets the values of the restricted records and facts, the
+     * confidential ones among them. From the person I6 with two death facts the
+     * first one supplies the cause.
      */
     #[Test]
     public function administratorGetsTheValuesOfTheRestrictedRecordsAndFacts(): void
@@ -261,9 +264,8 @@ final class TagAggregationPrivacyIntegrationTest extends AbstractIntegrationTest
     }
 
     /**
-     * A tree default restriction on OCCU withholds the occupations from a
-     * guest and leaves them to the administrator. A default that hides the fact
-     * from everyone removes it for the administrator too.
+     * A tree default restriction of the confidential kind on OCCU withholds the
+     * occupations from a guest and leaves them to the administrator.
      */
     #[Test]
     public function treeDefaultOccupationRestrictionFollowsTheViewer(): void
@@ -552,7 +554,7 @@ final class TagAggregationPrivacyIntegrationTest extends AbstractIntegrationTest
     }
 
     /**
-     * The string bindings of the queries on the individuals table that one
+     * The string bindings of the queries whose SQL contains `like` that one
      * aggregation issues, in the order the database received them.
      *
      * @param callable(): array<string, int> $aggregation The aggregation to run
@@ -564,7 +566,11 @@ final class TagAggregationPrivacyIntegrationTest extends AbstractIntegrationTest
         DB::connection()->flushQueryLog();
         DB::connection()->enableQueryLog();
 
-        $aggregation();
+        try {
+            $aggregation();
+        } finally {
+            DB::connection()->disableQueryLog();
+        }
 
         $bindings = [];
 
@@ -578,8 +584,85 @@ final class TagAggregationPrivacyIntegrationTest extends AbstractIntegrationTest
             }
         }
 
-        DB::connection()->disableQueryLog();
-
         return $bindings;
+    }
+
+    /**
+     * Values in the form of a host record reference, an XREF between at signs,
+     * for each character of the XREF class and for the longest allowed length.
+     *
+     * @return array<string, array{0: string}>
+     */
+    public static function pointerValueProvider(): array
+    {
+        return [
+            'lowercase letter' => ['@a@'],
+            'uppercase letter' => ['@Z@'],
+            'digit'            => ['@1@'],
+            'hyphen'           => ['@a-b@'],
+            'colon'            => ['@a:b@'],
+            'underscore'       => ['@a_b@'],
+            'dot'              => ['@a.b@'],
+            'longest xref'     => ['@' . str_repeat('x', 20) . '@'],
+        ];
+    }
+
+    /**
+     * Values that look like a record reference but exceed the XREF length.
+     *
+     * @return array<string, array{0: string}>
+     */
+    public static function textValueProvider(): array
+    {
+        return [
+            'one character too long' => ['@' . str_repeat('x', 21) . '@'],
+        ];
+    }
+
+    /**
+     * An occupation that is a record reference is a pointer and does not count.
+     *
+     * @param string $value The value of the OCCU line
+     */
+    #[Test]
+    #[DataProvider('pointerValueProvider')]
+    public function recordReferenceValueIsNotCounted(string $value): void
+    {
+        $tree = $this->tree();
+
+        $this->replaceRowOfI5($tree, '1 OCCU ' . $value);
+
+        self::assertArrayNotHasKey($value, $this->occupations($tree));
+    }
+
+    /**
+     * An occupation that is not a record reference for the host is a text and
+     * counts.
+     *
+     * @param string $value The value of the OCCU line
+     */
+    #[Test]
+    #[DataProvider('textValueProvider')]
+    public function overlongReferenceValueCountsAsText(string $value): void
+    {
+        $tree = $this->tree();
+
+        $this->replaceRowOfI5($tree, '1 OCCU ' . $value);
+
+        self::assertSame(1, $this->occupations($tree)[$value] ?? 0);
+    }
+
+    /**
+     * Replace the stored row of the person I5 by a row with the given fact line.
+     *
+     * @param Tree   $tree The imported fixture tree
+     * @param string $fact The level one fact line to store
+     */
+    private function replaceRowOfI5(Tree $tree, string $fact): void
+    {
+        DB::table('individuals')
+            ->where('i_file', '=', $tree->id())
+            ->where('i_id', '=', 'I5')
+            ->update(['i_gedcom' => "0 @I5@ INDI\n1 NAME Five /Pointer/\n" . $fact]);
     }
 }
