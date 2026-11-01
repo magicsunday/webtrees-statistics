@@ -121,4 +121,61 @@ final class RowCastTest extends TestCase
     {
         self::assertSame($expected, RowCast::string($row, $column, $default));
     }
+
+    /**
+     * Each row maps one branch of {@see RowCast::nullableFloat()} to its outcome.
+     * A missing column and a non-numeric value stay `null`, because `0.0` would
+     * be a wrong coordinate on the equator rather than no value.
+     *
+     * @return array<string, array{0: object, 1: string, 2: ?float}>
+     */
+    public static function nullableFloatProvider(): array
+    {
+        return [
+            'float value' => [new readonly class(52.5) {
+                public function __construct(public float $lat)
+                {
+                }
+            }, 'lat', 52.5],
+            'numeric string' => [new readonly class('13.25') {
+                public function __construct(public string $lat)
+                {
+                }
+            }, 'lat', 13.25],
+            'integer value' => [new readonly class(7) {
+                public function __construct(public int $lat)
+                {
+                }
+            }, 'lat', 7.0],
+            'zero is a value' => [new readonly class('0') {
+                public function __construct(public string $lat)
+                {
+                }
+            }, 'lat', 0.0],
+            'non-numeric string' => [new readonly class('north') {
+                public function __construct(public string $lat)
+                {
+                }
+            }, 'lat', null],
+            'null value' => [new readonly class(null) {
+                public function __construct(public ?string $lat)
+                {
+                }
+            }, 'lat', null],
+            'missing column' => [new class {
+            }, 'lat', null],
+        ];
+    }
+
+    /**
+     * Drives every branch of {@see RowCast::nullableFloat()}: floats, integers
+     * and numeric strings are cast, zero stays a value, and a missing column, a
+     * null and a non-numeric string stay null.
+     */
+    #[Test]
+    #[DataProvider('nullableFloatProvider')]
+    public function nullableFloatHandlesAllDocumentedBranches(object $row, string $column, ?float $expected): void
+    {
+        self::assertSame($expected, RowCast::nullableFloat($row, $column));
+    }
 }
