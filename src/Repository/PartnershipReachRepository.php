@@ -41,9 +41,10 @@ use function strcmp;
  * the same convention: every node stays in place and `Individual::fullName()`
  * substitutes the "Private" placeholder for a non-visible person, so the
  * group and chain counts never shift by viewer. The median year is the
- * exception that follows the viewer on purpose. It is formed over the birth and
- * death years the viewer can see on the resolved people, so it never reflects a
- * year that the wire rows of the same payload withhold.
+ * exception that follows the viewer on purpose. It is formed over the years of
+ * the birth and death facts (BIRT and DEAT) that the viewer can see on the
+ * resolved people, so it does not reflect a year that the wire rows of the same
+ * payload withhold.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -231,11 +232,13 @@ final readonly class PartnershipReachRepository
 
     /**
      * The Gregorian birth and death years of one person, as far as the current
-     * viewer may see them. The years come from the host date accessors, which
-     * read the facts through the privacy-aware fact path, so a record the viewer
-     * cannot see and a restricted BIRT or DEAT fact yield an empty date and
-     * contribute nothing. Each person gives at most ONE birth and ONE death year,
-     * the lower bound of an imprecise date, converted to the Gregorian scale via
+     * viewer may see them. The years come from the birth and death facts (BIRT
+     * and DEAT), read through the privacy-aware fact path, so a record the viewer
+     * cannot see and a restricted BIRT or DEAT fact contribute nothing. The
+     * fallback events of the host date accessors (christening, burial and the
+     * like) are no source. Each person gives at most ONE birth and ONE death
+     * year, the lower bound over the visible facts of that tag (the date with the
+     * smallest minimum Julian day), converted to the Gregorian scale via
      * {@see GregorianDate::year()} so a non-Gregorian calendar stays comparable.
      * An undated fact contributes nothing.
      *
@@ -247,19 +250,29 @@ final readonly class PartnershipReachRepository
     {
         $years = [];
 
-        foreach ([$individual->getBirthDate(), $individual->getDeathDate()] as $date) {
-            if (!$date->isOK()) {
-                continue;
+        foreach (['BIRT', 'DEAT'] as $tag) {
+            $lowerBound = null;
+
+            foreach ($individual->facts([$tag]) as $fact) {
+                $date = $fact->date();
+
+                if (!$date->isOK()) {
+                    continue;
+                }
+
+                $candidate = $date->minimumDate();
+
+                if (
+                    ($lowerBound === null)
+                    || ($candidate->minimumJulianDay() < $lowerBound->minimumJulianDay())
+                ) {
+                    $lowerBound = $candidate;
+                }
             }
 
-            $lowerBound = $date->minimumDate();
-            $year       = GregorianDate::year($lowerBound->format('%@'), $lowerBound->year, $lowerBound->minimumJulianDay());
-
-            if ($year === 0) {
-                continue;
+            if ($lowerBound !== null) {
+                $years[] = GregorianDate::year($lowerBound->format('%@'), $lowerBound->year, $lowerBound->minimumJulianDay());
             }
-
-            $years[] = $year;
         }
 
         return $years;

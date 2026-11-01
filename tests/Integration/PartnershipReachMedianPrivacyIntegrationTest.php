@@ -72,11 +72,13 @@ final class PartnershipReachMedianPrivacyIntegrationTest extends AbstractIntegra
      * Import the restricted fixture with living people hidden and dead people
      * visible to everyone.
      *
+     * @param string $fixture The fixture file name
+     *
      * @return Tree The imported fixture tree
      */
-    private function restrictedTree(): Tree
+    private function restrictedTree(string $fixture = 'partnership-median-privacy.ged'): Tree
     {
-        $tree = $this->importFixtureTree('partnership-median-privacy.ged');
+        $tree = $this->importFixtureTree($fixture);
         $tree->setPreference('HIDE_LIVE_PEOPLE', '1');
         $tree->setPreference('SHOW_DEAD_PEOPLE', (string) Auth::PRIV_PRIVATE);
 
@@ -150,7 +152,7 @@ final class PartnershipReachMedianPrivacyIntegrationTest extends AbstractIntegra
         self::assertCount(0, $this->individual($tree, 'I3')->facts(['DEAT']), 'precondition: the DEAT of I3 is withheld');
         self::assertFalse($this->individual($tree, 'I4')->canShow(), 'precondition: the record of I4 is hidden');
 
-        self::assertSame(1818, $this->medianYear($tree, 5));
+        self::assertSame(1796, $this->medianYear($tree, 5));
     }
 
     /**
@@ -168,7 +170,7 @@ final class PartnershipReachMedianPrivacyIntegrationTest extends AbstractIntegra
         self::assertCount(0, $this->individual($tree, 'I3')->facts(['DEAT']), 'precondition: the DEAT of I3 stays withheld');
         self::assertFalse($this->individual($tree, 'I4')->canShow(), 'precondition: the record of I4 stays hidden');
 
-        self::assertSame(1832, $this->medianYear($tree, 5));
+        self::assertSame(1856, $this->medianYear($tree, 5));
     }
 
     /**
@@ -182,7 +184,7 @@ final class PartnershipReachMedianPrivacyIntegrationTest extends AbstractIntegra
         self::assertCount(1, $this->individual($tree, 'I3')->facts(['DEAT']), 'precondition: the DEAT of I3 is visible');
         self::assertTrue($this->individual($tree, 'I4')->canShow(), 'precondition: the record of I4 is visible');
 
-        self::assertSame(1856, $this->medianYear($tree, 5));
+        self::assertSame(1838, $this->medianYear($tree, 5));
     }
 
     /**
@@ -197,12 +199,12 @@ final class PartnershipReachMedianPrivacyIntegrationTest extends AbstractIntegra
         $tree->setPreference('HIDE_LIVE_PEOPLE', '1');
         $tree->setPreference('SHOW_DEAD_PEOPLE', (string) Auth::PRIV_PRIVATE);
 
-        $administratorMedian = $this->medianYear($tree, 3);
+        $administratorMedian = $this->medianYear($tree, 4);
 
         Auth::logout();
 
         self::assertTrue($this->individual($tree, 'I2')->canShow(), 'precondition: the group is visible to the guest');
-        self::assertSame($administratorMedian, $this->medianYear($tree, 3));
+        self::assertSame($administratorMedian, $this->medianYear($tree, 4));
         self::assertSame(1839, $administratorMedian);
     }
 
@@ -230,6 +232,53 @@ final class PartnershipReachMedianPrivacyIntegrationTest extends AbstractIntegra
         Auth::logout();
 
         self::assertCount(0, $this->individual($freshTree, 'I1')->facts(['DEAT']), 'precondition: the tree default withholds the DEAT facts');
-        self::assertSame(1820, $this->medianYear($freshTree, 3));
+        self::assertSame(1820, $this->medianYear($freshTree, 4));
+    }
+
+    /**
+     * I1 has a BIRT that only the administrator may see and a visible
+     * christening with another year. A guest gets no birth year for I1 at all,
+     * since the christening is no substitute for the withheld birth. The
+     * administrator gets the birth year and not the christening year.
+     */
+    #[Test]
+    public function withheldBirthIsNotReplacedByAVisibleChristening(): void
+    {
+        $tree = $this->restrictedTree('partnership-median-fallback-birth.ged');
+
+        self::assertSame(1832, $this->medianYear($tree, 3));
+
+        Auth::logout();
+
+        self::assertCount(0, $this->individual($tree, 'I1')->facts(['BIRT']), 'precondition: the BIRT of I1 is withheld');
+        self::assertCount(1, $this->individual($tree, 'I1')->facts(['CHR']), 'precondition: the christening of I1 is visible');
+        self::assertSame(1866, $this->medianYear($tree, 3));
+    }
+
+    /**
+     * I1 has a burial but no death fact, so even the administrator gets no
+     * death year for I1.
+     */
+    #[Test]
+    public function burialWithoutDeathFactContributesNoDeathYear(): void
+    {
+        $tree = $this->restrictedTree('partnership-median-fallback-death.ged');
+
+        self::assertCount(0, $this->individual($tree, 'I1')->facts(['DEAT']), 'precondition: I1 has no death fact');
+        self::assertCount(1, $this->individual($tree, 'I1')->facts(['BURI']), 'precondition: I1 has a burial');
+        self::assertSame(1878, $this->medianYear($tree, 3));
+    }
+
+    /**
+     * I1 has two birth facts and the later one in the record carries the
+     * smaller year, so the smaller year counts as the lower bound of the person.
+     */
+    #[Test]
+    public function smallestOfSeveralBirthYearsCounts(): void
+    {
+        $tree = $this->restrictedTree('partnership-median-two-births.ged');
+
+        self::assertCount(2, $this->individual($tree, 'I1')->facts(['BIRT']), 'precondition: I1 has two birth facts');
+        self::assertSame(1844, $this->medianYear($tree, 3));
     }
 }
