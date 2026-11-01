@@ -11,7 +11,9 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
+use Fisharebest\Webtrees\Auth;
 use Fisharebest\Webtrees\DB;
+use Fisharebest\Webtrees\Individual;
 use MagicSunday\Webtrees\Statistic\Model\Ranking\RankingEntry;
 use MagicSunday\Webtrees\Statistic\Model\Tree\GenerationDepthReport;
 use MagicSunday\Webtrees\Statistic\Repository\GenerationDepthRepository;
@@ -197,6 +199,77 @@ final class GenerationDepthRepositoryIntegrationTest extends AbstractIntegration
         self::assertSame('I1', $result[1]->xref);
         self::assertSame(1, $result[1]->value, 'Parent follows with one descendant (the child)');
         self::assertStringContainsString('Parent', $result[1]->label);
+    }
+
+    /**
+     * The podium ranks by the raw descendant count, but a living ancestor a
+     * visitor cannot see keeps only a privatised label. The row stays in the
+     * ranking, and the real name does not reach the visitor.
+     */
+    #[Test]
+    public function topAncestorsByDescendantCountPrivatisesTheLabelOfALivingAncestorForAVisitor(): void
+    {
+        $tree = $this->importFixtureTree('generation-depth.ged');
+        $this->hideLivingPeople($tree);
+
+        $repository = new GenerationDepthRepository($tree, new ParentMapRepository($tree));
+
+        $asAdministrator = $repository->topAncestorsByDescendantCount(10);
+
+        $leader = $asAdministrator[0] ?? self::fail('Expected a ranked ancestor');
+
+        self::assertStringContainsString('Grandparent', $leader->label);
+
+        Auth::logout();
+
+        $asVisitor = $repository->topAncestorsByDescendantCount(10);
+
+        self::assertSame(
+            [['I2', 2], ['I1', 1]],
+            array_map(static fn (RankingEntry $entry): array => [$entry->xref, $entry->value], $asVisitor),
+        );
+
+        foreach ($asVisitor as $entry) {
+            self::assertStringNotContainsString('Test', $entry->label);
+        }
+    }
+
+    /**
+     * The longest chains keep every member for a visitor, with the names of the
+     * living members privatised.
+     */
+    #[Test]
+    public function summaryKeepsTheChainMembersWithPrivatisedNamesForAVisitor(): void
+    {
+        $tree = $this->importFixtureTree('generation-depth.ged');
+        $this->hideLivingPeople($tree);
+
+        $repository = new GenerationDepthRepository($tree, new ParentMapRepository($tree));
+
+        $xrefsOf = static fn (GenerationDepthReport $report): array => array_map(
+            static fn (array $chain): array => array_map(static fn (Individual $member): string => $member->xref(), $chain),
+            $report->chains,
+        );
+
+        $asAdministrator = $repository->summary();
+
+        self::assertSame([['I2', 'I1', 'I3']], $xrefsOf($asAdministrator));
+        $administratorChain = $asAdministrator->chains[0] ?? self::fail('Expected a chain');
+        $root               = $administratorChain[0] ?? self::fail('Expected a chain member');
+
+        self::assertStringContainsString('Grandparent', $root->fullName());
+
+        Auth::logout();
+
+        $asVisitor = $repository->summary();
+
+        self::assertSame([['I2', 'I1', 'I3']], $xrefsOf($asVisitor));
+
+        $visitorChain = $asVisitor->chains[0] ?? self::fail('Expected a chain');
+
+        foreach ($visitorChain as $member) {
+            self::assertStringNotContainsString('Test', $member->fullName());
+        }
     }
 
     /**
