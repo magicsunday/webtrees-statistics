@@ -31,7 +31,8 @@ use function strcmp;
  * connected-component / longest-path calculator ({@see PartnershipChains}) into a
  * renderable {@see PartnershipReachReport}: the longest unbroken partnership chain,
  * the single largest connected partnership group (with its internal edges, its
- * max-degree hub, and a median birth+death year), and the depth-vs-breadth
+ * max-degree hub, and the median year over the visible BIRT and DEAT facts),
+ * and the depth-vs-breadth
  * ratio components.
  *
  * Person resolution goes through ONE bulk gedcom fetch ({@see GedcomByXref}),
@@ -79,7 +80,8 @@ final readonly class PartnershipReachRepository
      * ordered {@see Individual} objects, the largest connected partnership group
      * (its people — excerpted to {@see NETWORK_CAP} when the real cluster is
      * larger — its internal edges, the longest path's xrefs, the max-degree hub,
-     * its real and shown sizes, and the median birth+death year), and the
+     * its real and shown sizes, and the median year over the visible BIRT and DEAT
+     * facts), and the
      * depth-vs-breadth ratio components. Returns `null` when no partnership group
      * reaches {@see PartnershipChains::MIN_GROUP_SIZE} people, since there is then no
      * chain to report.
@@ -126,9 +128,9 @@ final readonly class PartnershipReachRepository
         // shown excerpt and of the chain, so the same fetch serves all of them.
         $gedcomByXref = GedcomByXref::fetch($this->tree, $members);
 
-        // The median is formed over the years the viewer can see on the resolved
-        // people, the same host accessors the wire rows use, so it never reflects
-        // a year that the rows of the same payload withhold.
+        // The median is formed over the years of the BIRT and DEAT facts that the
+        // viewer may see through Individual::facts(), so it does not reflect a
+        // year that the wire rows of the same payload withhold.
         $visibleYears = [];
 
         foreach ($this->resolveIndividuals($members, $gedcomByXref) as $member) {
