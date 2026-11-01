@@ -683,9 +683,9 @@ final readonly class Statistic
      * objects, the single largest connected partnership group (its people —
      * excerpted when the real cluster exceeds the network cap — its internal
      * edges, the longest path's xrefs, the max-degree hub, its real and shown
-     * sizes, and the median birth+death year), and the depth-vs-breadth ratio
-     * components. Returns `null` when no partnership group is large enough to carry
-     * a reportable chain.
+     * sizes, and the median year over the visible BIRT and DEAT facts),
+     * and the depth-vs-breadth ratio components. Returns `null` when no
+     * partnership group is large enough to carry a reportable chain.
      */
     public function getPartnershipReachSummary(): ?PartnershipReachReport
     {

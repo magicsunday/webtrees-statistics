@@ -106,17 +106,12 @@ final class PartnershipReachRepositoryIntegrationTest extends AbstractIntegratio
         self::assertGreaterThan(0, $hubIncidentEdges, 'the hub must have at least one partnership');
         self::assertSame($hubIncidentEdges, $result->group->hubDegree, 'under the cap the hub degree equals its incident shown edges');
 
-        // The hub is a real group member; the median is the LOWER-median of the
-        // group's collapsed birth+death years (one representative year per
-        // person). I21 carries an imprecise `BET 1889 AND 1891` birth, which
-        // webtrees stores as two `dates` rows (years 1889 and 1891). Collapsing
-        // each person to a single lower-bound year keeps the multiset at 67
-        // values whose lower-median is 1893; feeding BOTH of I21's rows (the
-        // pre-fix double-count) would add the upper bound 1891 too, dragging the
-        // lower-median down to 1892. Pinning 1893 therefore fails RED the moment
-        // the per-person collapse is removed.
+        // The hub is a real group member. The median is the lower median over one
+        // lower-bound year per person and tag, taken from the visible BIRT and DEAT
+        // facts. I21 carries an imprecise `BET 1889 AND 1891` birth, so the year
+        // that counts is the lower bound.
         self::assertContains($result->group->hubId, $this->nodeXrefs($result));
-        self::assertSame(1893, $result->group->medianYear, 'lower-median of the collapsed birth+death years');
+        self::assertSame(1893, $result->group->medianYear, 'lower median of the visible lower-bound years');
     }
 
     /**

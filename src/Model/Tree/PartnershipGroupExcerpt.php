@@ -43,7 +43,7 @@ final readonly class PartnershipGroupExcerpt implements JsonSerializable
      * @param int                               $totalCount     The group's real size
      * @param int                               $totalEdgeCount The group's real internal partnership-edge count over the WHOLE group, not just the shown excerpt
      * @param int                               $shownCount     The number of nodes actually drawn (≤ `$totalCount`, ≤ the excerpt cap)
-     * @param int|null                          $medianYear     The median of the group's combined birth+death years, or `null` when none are dated
+     * @param int|null                          $medianYear     The median of the group's combined years of the BIRT and DEAT facts that the viewer can see, or `null` when none are visible and dated
      */
     public function __construct(
         public array $nodes,
