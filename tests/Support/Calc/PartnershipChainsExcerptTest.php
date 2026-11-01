@@ -181,11 +181,11 @@ final class PartnershipChainsExcerptTest extends TestCase
     }
 
     /**
-     * D12 — over the cap the excerpt trims the drawn edges while
+     * D12, over the cap the excerpt trims the drawn edges while
      * {@see PartnershipChains::largestGroup()} keeps reporting the edge count
      * of the whole group. That is the divergence a caller sees when it reads the
      * partnership figure of a legend from the group and the drawn edges from the
-     * excerpt. Which of the two the legend reads is decided in the repository and
+     * excerpt. Which of them the legend reads is decided in the repository and
      * pinned by its own integration test, not here.
      */
     #[Test]

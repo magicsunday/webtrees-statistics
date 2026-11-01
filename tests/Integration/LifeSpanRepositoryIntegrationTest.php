@@ -141,7 +141,7 @@ final class LifeSpanRepositoryIntegrationTest extends AbstractIntegrationTestCas
 
     /**
      * topOldestDeceased returns Carl first (120y) then Berta (95y), Anna (75y),
-     * Emil (53y) and Doris (3y). Franz is alive and never shows up.
+     * Emil (53y) and Doris (3y). Franz is alive and is not part of the ranking.
      */
     #[Test]
     public function topOldestDeceasedRanksByAgeDesc(): void

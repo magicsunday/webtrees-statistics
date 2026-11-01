@@ -40,7 +40,7 @@ use function str_replace;
 /**
  * Pins that a repository scoped to one tree returns the same result whether or
  * not other trees sit in the same database. The other trees are built from the
- * same fixture with shifted dates and renamed people, so they reuse every xref
+ * same fixture with shifted dates and renamed people, so they reuse the xrefs
  * of the first tree. A query that drops the tree condition of a join lets rows
  * of another tree match on the shared xref, and the result of the first tree
  * changes.
@@ -195,7 +195,7 @@ final class TenantIsolationIntegrationTest extends AbstractIntegrationTestCase
     }
 
     /**
-     * Insert the given line below the header line of every individual record.
+     * Insert the given line below the header line of each individual record.
      */
     private static function afterEachIndividual(string $gedcom, string $line): string
     {
@@ -203,7 +203,7 @@ final class TenantIsolationIntegrationTest extends AbstractIntegrationTestCase
     }
 
     /**
-     * Build a GEDCOM that keeps every xref of the input and changes the dates
+     * Build a GEDCOM that keeps the xrefs of the input and changes the dates
      * and the names, and the sexes on request, so a row of the twin that leaks into a query of the
      * original tree moves its result.
      */

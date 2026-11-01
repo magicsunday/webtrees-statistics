@@ -52,7 +52,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
  *       I18 PolygamistA who has two FAMS but zero children).
  *
  *   F4 YoungParent + YoungParentWife → EarlyChild (BIRT 1915,
- *       parents born 1900 / 1905) — youngest father (15 years).
+ *       parents born 1900 / 1905), youngest father (15 years).
  *       The mother's age at that birth (10 years) is below
  *       MIN_PLAUSIBLE_AGE, so the youngest-mother record skips
  *       her and names the next mother instead.
@@ -222,7 +222,7 @@ final class RecordsIntegrationTest extends AbstractIntegrationTestCase
     }
 
     /**
-     * Youngest mother at first child — YoungParentWife (BIRT 1905) was 10 years
+     * Youngest mother at first child. YoungParentWife (BIRT 1905) was 10 years
      * old at EarlyChild's birth (1915), which is below MIN_PLAUSIBLE_AGE (12) and
      * is dropped as a data-entry error. The record therefore names BigMom (I8,
      * BIRT 1905, first child 1925) at 20 years.

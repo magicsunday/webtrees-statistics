@@ -118,11 +118,11 @@ final class PartnershipReachRepositoryIntegrationTest extends AbstractIntegratio
     }
 
     /**
-     * A group over the excerpt cap draws only the cap's worth of people, while
+     * A group over the excerpt cap draws the number of people that the cap allows, while
      * the legend figures keep reporting the whole group. The partnership count
-     * of the legend is the real edge count of all members and not the edge
+     * of the legend is the edge count of the group and not the edge
      * count of the drawn excerpt. The generated cluster is a spine of couples
-     * with one further partner on every spine person.
+     * with one further partner on each spine person.
      */
     #[Test]
     public function summaryReportsTheWholeGroupAboveTheExcerptCap(): void
@@ -259,7 +259,7 @@ final class PartnershipReachRepositoryIntegrationTest extends AbstractIntegratio
     /**
      * GEDCOM for one connected partnership cluster. A spine of people S01, S02
      * and so on with alternating sex, each married to the next one, and one
-     * further partner P01, P02 and so on of the other sex married to every spine
+     * further partner P01, P02 and so on of the other sex married to each spine
      * person. A spine of n people gives 2n people and 2n - 1 partnerships.
      */
     private function spineWithPartnersGedcom(int $spineLength): string

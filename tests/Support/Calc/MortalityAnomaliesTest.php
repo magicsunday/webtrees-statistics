@@ -201,9 +201,8 @@ final class MortalityAnomaliesTest extends TestCase
     }
 
     /**
-     * Two spikes with an identical score are both returned in chronological
-     * order, and when the cap keeps only one of them the earlier year is the
-     * one that survives. The final chronological sort hides the selection
+     * Spikes with an identical score are returned in chronological order, and
+     * when the cap keeps one of them the earlier year is the one that survives. The final chronological sort hides the selection
      * order, so the capped call is what pins the tie-break.
      */
     #[Test]

@@ -168,7 +168,7 @@ final class RowCastTest extends TestCase
     }
 
     /**
-     * Drives every branch of {@see RowCast::nullableFloat()}: floats, integers
+     * Drives the branches of {@see RowCast::nullableFloat()}: floats, integers
      * and numeric strings are cast, zero stays a value, and a missing column, a
      * null and a non-numeric string stay null.
      */

@@ -887,7 +887,7 @@ describe("widget registry", () => {
     });
 
     /**
-     * Collect every `data-widget` value that a view template emits.
+     * Collect the `data-widget` values found in the view templates.
      *
      * @param {string} directory Directory to scan recursively.
      *
@@ -925,8 +925,8 @@ describe("widget registry", () => {
         expect(templateTypes).toContain("donut-chart");
     });
 
-    // An unknown type is skipped silently and leaves a blank card, so every
-    // type a template emits has to reach a widget.
+    // An unknown type is skipped silently and leaves a blank card, so each
+    // type found in the templates has to reach a widget.
     test.each(templateTypes)(
         "the dispatcher draws a widget for the template type %s",
         async (type) => {

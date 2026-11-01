@@ -99,7 +99,7 @@ final class TabAccessIntegrationTest extends AbstractIntegrationTestCase
 
     /**
      * With the chart component open to visitors, the same actions serve an
-     * anonymous visitor. A gate that denies every viewer passes the denial test
+     * anonymous visitor. A gate that refuses any viewer passes the denial test
      * above, so this is the control that tells a gate from a blanket refusal.
      */
     #[Test]

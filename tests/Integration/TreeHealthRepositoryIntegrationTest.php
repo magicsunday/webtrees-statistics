@@ -55,11 +55,11 @@ final class TreeHealthRepositoryIntegrationTest extends AbstractIntegrationTestC
     }
 
     /**
-     * The fixture seeds known missing-event counts: BIRT missing on 2 of 6
-     * individuals (the no-events-stub and the sparse child); BIRT place missing
-     * additionally on the half-data parent (3 of 6 in total); DEAT missing on 4 of 6
-     * (only the sourced parent and the documented child have a death event);
-     * DEAT place missing on the same 4.
+     * The fixture seeds known missing-event counts. BIRT is missing on 2 of 6
+     * individuals (the no-events-stub and the sparse child). The BIRT place is
+     * missing additionally on the half-data parent, 3 of 6 in total. DEAT is
+     * missing on 4 of 6 (the sourced parent and the documented child have a
+     * death event). The DEAT place is missing on the same 4.
      */
     #[Test]
     public function missingEventGapsReturnTheExpectedCounts(): void
@@ -80,7 +80,7 @@ final class TreeHealthRepositoryIntegrationTest extends AbstractIntegrationTestC
         $deatPlace = $gaps['DEAT_place'] ?? self::fail('Missing DEAT_place gap row');
         self::assertSame(4, $deatPlace['value']);
 
-        // Both spouses of the one family have a marriage event without a place.
+        // The spouses of the family have a marriage event without a place.
         $marrEvent = $gaps['MARR_event'] ?? self::fail('Missing MARR_event gap row');
         self::assertSame(0, $marrEvent['value']);
         self::assertSame(2, $marrEvent['total']);
@@ -91,11 +91,11 @@ final class TreeHealthRepositoryIntegrationTest extends AbstractIntegrationTestC
     }
 
     /**
-     * Three couples: one family with a dated and placed marriage, one with a
-     * dated marriage and no place, one without a marriage event. The spouses
-     * of the last family miss the event, the spouses of the middle one miss
-     * the place, and a spouse without any marriage event is not counted again
-     * as missing a place.
+     * A family with a dated and placed marriage, a family with a dated marriage
+     * and no place, and a family without a marriage event. The spouses of the
+     * last family miss the event, the spouses of the middle one miss the place,
+     * and a spouse without a marriage event is not counted again as missing a
+     * place.
      */
     #[Test]
     public function missingEventGapsCountSpousesWithoutAMarriageEventOrPlace(): void

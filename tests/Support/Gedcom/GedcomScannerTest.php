@@ -528,7 +528,7 @@ final class GedcomScannerTest extends TestCase
     }
 
     /**
-     * hasTagAnchored finds a level-1 tag only as a whole tag, so a tag that
+     * hasTagAnchored finds a level-1 tag as a whole tag, so a tag that
      * merely starts like the one asked for, a deeper level and a mention inside
      * a value do not count.
      *
@@ -544,8 +544,8 @@ final class GedcomScannerTest extends TestCase
     }
 
     /**
-     * The three LIKE patterns of a tag, in the order of value, line break and
-     * end of record.
+     * The LIKE patterns of a tag, in the order of value, line break and end of
+     * record.
      */
     #[Test]
     public function anchoredLikePatternsListTheThreeAnchorings(): void
@@ -557,8 +557,8 @@ final class GedcomScannerTest extends TestCase
     }
 
     /**
-     * A record matches one of the LIKE patterns exactly when hasTagAnchored
-     * finds the tag, so the SQL filter and the PHP scan agree on every sample.
+     * A record matches one of the LIKE patterns when hasTagAnchored finds the
+     * tag, so the SQL filter and the PHP scan agree on the samples.
      *
      * @param string $gedcom   Raw GEDCOM record body
      * @param string $tag      Level-1 tag to test for
@@ -624,8 +624,8 @@ final class GedcomScannerTest extends TestCase
     }
 
     /**
-     * extractAllEventPlaces collects the trimmed, non-empty place of every
-     * occurrence of one level-1 event and nothing else.
+     * extractAllEventPlaces collects the trimmed, non-empty place of each
+     * occurrence of one level-1 event and no place of another event.
      *
      * @param string       $gedcom   Raw GEDCOM record body
      * @param string       $tag      Level-1 event tag whose places to collect

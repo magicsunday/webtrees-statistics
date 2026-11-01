@@ -70,7 +70,7 @@ final class KinshipRepositoryIntegrationTest extends AbstractIntegrationTestCase
      * Average pedigree completeness across the six fixture individuals. Vater
      * contributes 2/2 at gen 1 + 0 elsewhere = 1/4 = 0.25. Kind contributes 2/2
      * at gen 1 + 2/4 at gen 2 + 0 elsewhere = 0.25 + 0.125 = 0.375. The other
-     * four have 0.0. Average = (0.25 + 0.375 + 0 + 0 + 0 + 0) / 6 = 0.1042 after rounding to four decimals.
+     * four have 0.0. Average = (0.25 + 0.375 + 0 + 0 + 0 + 0) / 6 ≈ 0.1042 after rounding.
      */
     #[Test]
     public function averagePedigreeCompletenessAggregatesAcrossPopulation(): void
@@ -78,7 +78,7 @@ final class KinshipRepositoryIntegrationTest extends AbstractIntegrationTestCase
         $tree   = $this->importFixtureTree('kinship.ged');
         $result = $this->repository($tree)->averagePedigreeCompleteness();
 
-        // (0.25 + 0.375) / 6 = 0.104166..., rounded to four decimals.
+        // (0.25 + 0.375) / 6 = 0.104166..., rounded the way the source rounds it.
         self::assertSame(0.1042, $result);
     }
 }

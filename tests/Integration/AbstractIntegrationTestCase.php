@@ -391,8 +391,8 @@ abstract class AbstractIntegrationTestCase extends TestCase
 
     /**
      * Import GEDCOM text into a fresh tree of the given name and return the
-     * resulting Tree. Importing a second tree next to an earlier one gives a
-     * test two trees in one database.
+     * resulting Tree. Importing a further tree next to an earlier one gives a
+     * test a database with more than one tree.
      *
      * @param string $name   Tree name, unique within the database
      * @param string $gedcom GEDCOM records separated by newlines

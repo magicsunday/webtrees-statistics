@@ -203,7 +203,7 @@ final class GenerationDepthRepositoryIntegrationTest extends AbstractIntegration
 
     /**
      * The podium ranks by the raw descendant count, but a living ancestor a
-     * visitor cannot see keeps only a privatised label. The row stays in the
+     * visitor cannot see keeps a privatised label. The row stays in the
      * ranking, and the real name does not reach the visitor.
      */
     #[Test]
@@ -235,7 +235,7 @@ final class GenerationDepthRepositoryIntegrationTest extends AbstractIntegration
     }
 
     /**
-     * The longest chains keep every member for a visitor, with the names of the
+     * The longest chains keep their members for a visitor, with the names of the
      * living members privatised.
      */
     #[Test]
