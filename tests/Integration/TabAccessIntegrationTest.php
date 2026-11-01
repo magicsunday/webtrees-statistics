@@ -15,11 +15,15 @@ use Fisharebest\Webtrees\Auth;
 use Fisharebest\Webtrees\GuestUser;
 use Fisharebest\Webtrees\Http\Exceptions\HttpAccessDeniedException;
 use Fisharebest\Webtrees\Module\AbstractModule;
+use Fisharebest\Webtrees\Module\StatisticsChartModule;
+use Fisharebest\Webtrees\Registry;
+use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Module;
 use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use ReflectionProperty;
 
@@ -91,5 +95,44 @@ final class TabAccessIntegrationTest extends AbstractIntegrationTestCase
         /** @var callable(ServerRequestInterface):mixed $action */
         $action = [$module, $method];
         $action($request);
+    }
+
+    /**
+     * With the chart component open to visitors, the same actions serve an
+     * anonymous visitor. A gate that denies every viewer passes the denial test
+     * above, so this is the control that tells a gate from a blanket refusal.
+     */
+    #[Test]
+    #[DataProvider('tabActionProvider')]
+    public function tabActionServesAVisitorWhenTheChartIsOpenToVisitors(string $method): void
+    {
+        $tree   = $this->importFixtureTree('father-son-name-passdown.ged');
+        $module = new Module();
+
+        $accessLevel = new ReflectionProperty(AbstractModule::class, 'access_level');
+        $accessLevel->setValue($module, Auth::PRIV_PRIVATE);
+
+        // The web middleware binds the tree of the request, and the statistics
+        // facade is resolved from the container for that tree. The module's
+        // boot registers its view namespace and the normalizer binding.
+        Registry::container()->set(Tree::class, $tree);
+        $module->setName('_webtrees-statistics_');
+        $module->boot();
+
+        Auth::logout();
+
+        $request = (new ServerRequest('GET', '/'))
+            ->withAttribute('tree', $tree)
+            ->withAttribute('user', new GuestUser())
+            ->withParsedBody([
+                'x-as' => StatisticsChartModule::X_AXIS_BIRTH_MONTH,
+                'y-as' => StatisticsChartModule::Y_AXIS_NUMBERS,
+                'z-as' => StatisticsChartModule::Z_AXIS_ALL,
+            ]);
+
+        /** @var callable(ServerRequestInterface):ResponseInterface $action */
+        $action = [$module, $method];
+
+        self::assertSame(200, $action($request)->getStatusCode());
     }
 }
