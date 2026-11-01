@@ -79,8 +79,7 @@ final class PartnershipReachMedianPrivacyIntegrationTest extends AbstractIntegra
     private function restrictedTree(string $fixture = 'partnership-median-privacy.ged'): Tree
     {
         $tree = $this->importFixtureTree($fixture);
-        $tree->setPreference('HIDE_LIVE_PEOPLE', '1');
-        $tree->setPreference('SHOW_DEAD_PEOPLE', (string) Auth::PRIV_PRIVATE);
+        $this->hideLivingPeople($tree);
 
         return $tree;
     }
@@ -197,8 +196,7 @@ final class PartnershipReachMedianPrivacyIntegrationTest extends AbstractIntegra
     public function unrestrictedGroupGivesGuestTheFullMedian(): void
     {
         $tree = $this->importFixtureTree('partnership-median-plain.ged');
-        $tree->setPreference('HIDE_LIVE_PEOPLE', '1');
-        $tree->setPreference('SHOW_DEAD_PEOPLE', (string) Auth::PRIV_PRIVATE);
+        $this->hideLivingPeople($tree);
 
         $administratorMedian = $this->medianYear($tree, 4);
 
@@ -217,8 +215,7 @@ final class PartnershipReachMedianPrivacyIntegrationTest extends AbstractIntegra
     public function treeDefaultDeathRestrictionIsHonoredForGuest(): void
     {
         $tree = $this->importFixtureTree('partnership-median-plain.ged');
-        $tree->setPreference('HIDE_LIVE_PEOPLE', '1');
-        $tree->setPreference('SHOW_DEAD_PEOPLE', (string) Auth::PRIV_PRIVATE);
+        $this->hideLivingPeople($tree);
 
         DB::table('default_resn')->insert([
             'gedcom_id' => $tree->id(),

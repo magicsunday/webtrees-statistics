@@ -73,8 +73,7 @@ final class SankeySampleResolverIntegrationTest extends AbstractIntegrationTestC
     public function resolveReturnsNullForARecordTheUserCannotSee(): void
     {
         $tree = $this->importFixtureTree('migration-flows-privacy.ged');
-        $tree->setPreference('HIDE_LIVE_PEOPLE', '1');
-        $tree->setPreference('SHOW_DEAD_PEOPLE', (string) Auth::PRIV_PRIVATE);
+        $this->hideLivingPeople($tree);
 
         $gedcom = $this->gedcomOf($tree, 'I2');
 

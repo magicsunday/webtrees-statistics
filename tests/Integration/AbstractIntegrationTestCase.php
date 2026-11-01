@@ -439,6 +439,32 @@ abstract class AbstractIntegrationTestCase extends TestCase
     }
 
     /**
+     * Hide living individuals from everyone who is not allowed to see them, so a
+     * record without a death event becomes private for a visitor. The viewer
+     * stays the logged-in administrator until {@see Auth::logout()} is called,
+     * which lets a test read a control result before it drops to a visitor.
+     *
+     * @param Tree $tree Tree whose privacy preferences are set
+     */
+    final protected function hideLivingPeople(Tree $tree): void
+    {
+        $tree->setPreference('HIDE_LIVE_PEOPLE', '1');
+        $tree->setPreference('SHOW_DEAD_PEOPLE', (string) Auth::PRIV_PRIVATE);
+    }
+
+    /**
+     * Hide living individuals and continue as an anonymous visitor.
+     *
+     * @param Tree $tree Tree whose privacy preferences are set
+     */
+    final protected function actAsVisitorWithLivingHidden(Tree $tree): void
+    {
+        $this->hideLivingPeople($tree);
+
+        Auth::logout();
+    }
+
+    /**
      * Build a {@see StatisticsData} accessor scoped to the imported tree —
      * every Integration test that wires a repository depending on core's stats
      * facade needs this exact construction, so it lives here once instead of

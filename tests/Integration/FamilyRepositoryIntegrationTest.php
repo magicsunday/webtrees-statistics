@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
-use Fisharebest\Webtrees\Auth;
 use MagicSunday\Webtrees\Statistic\Enum\MaritalBucket;
 use MagicSunday\Webtrees\Statistic\Model\Family\SexRatioAnomaly;
 use MagicSunday\Webtrees\Statistic\Model\Family\SiblingDeathCluster;
@@ -231,10 +230,7 @@ final class FamilyRepositoryIntegrationTest extends AbstractIntegrationTestCase
     public function getSexRatioAnomaliesShowsAHiddenFamilyWithAPrivatisedLabel(): void
     {
         $tree = $this->importFixtureTree('sex-ratio-living.ged');
-        $tree->setPreference('HIDE_LIVE_PEOPLE', '1');
-        $tree->setPreference('SHOW_DEAD_PEOPLE', (string) Auth::PRIV_PRIVATE);
-
-        Auth::logout();
+        $this->actAsVisitorWithLivingHidden($tree);
 
         $result = (new FamilyRepository($tree))->getSexRatioAnomalies();
 

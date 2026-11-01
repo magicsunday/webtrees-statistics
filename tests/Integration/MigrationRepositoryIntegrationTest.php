@@ -295,8 +295,7 @@ final class MigrationRepositoryIntegrationTest extends AbstractIntegrationTestCa
     public function flowsByCountryDropsSamplesTheUserCannotSeeAndPromotesTheNext(): void
     {
         $tree = $this->importFixtureTree('migration-flows-privacy.ged');
-        $tree->setPreference('HIDE_LIVE_PEOPLE', '1');
-        $tree->setPreference('SHOW_DEAD_PEOPLE', (string) Auth::PRIV_PRIVATE);
+        $this->hideLivingPeople($tree);
 
         // Control: as the importing admin every contributor is visible, so the
         // confidential Berta occupies a cap slot.
@@ -334,10 +333,7 @@ final class MigrationRepositoryIntegrationTest extends AbstractIntegrationTestCa
     public function flowsByCountryKeepsTheWeightButOmitsSamplesWhenEveryContributorIsPrivate(): void
     {
         $tree = $this->importFixtureTree('migration-flows-privacy.ged');
-        $tree->setPreference('HIDE_LIVE_PEOPLE', '1');
-        $tree->setPreference('SHOW_DEAD_PEOPLE', (string) Auth::PRIV_PRIVATE);
-
-        Auth::logout();
+        $this->actAsVisitorWithLivingHidden($tree);
 
         $result = (new MigrationRepository($tree, new IsoCountryMap()))->flowsByCountry(10);
 
