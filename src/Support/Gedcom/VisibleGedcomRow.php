@@ -37,9 +37,10 @@ use const PREG_SET_ORDER;
  * A tag that occurs only as pointer facts (`1 FAMC @F1@`) is not passed to the
  * host, which spares resolving the targets. When a tag occurs as a pointer and
  * with another value, the host resolves the pointer target and the pointer fact
- * is dropped afterwards. A value is a pointer when it has the form the host
- * resolves as a record reference, so an escaped free text value such as
- * `@@Home` is kept. A row that the host rejects as facts, for example a fact
+ * is dropped afterwards. A value is a pointer when it is exactly an XREF
+ * between at signs of the class the host uses for record references, with no
+ * surrounding whitespace, so an escaped free text value such as `@@Home` is
+ * kept. A row that the host rejects as facts, for example a fact
  * line without a valid tag, yields the header line alone and contributes no
  * values.
  *

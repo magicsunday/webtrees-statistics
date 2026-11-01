@@ -558,7 +558,8 @@ final class TagAggregationPrivacyIntegrationTest extends AbstractIntegrationTest
 
     /**
      * Values in the form of a host record reference, an XREF between at signs,
-     * for each character of the XREF class and for the longest allowed length.
+     * with one sample for each range of the XREF class, each of its punctuation
+     * characters and the longest allowed length.
      *
      * @return array<string, array{0: string}>
      */
