@@ -212,7 +212,7 @@ final readonly class GivenNameNormalizer
         static $transliterator = null;
         static $resolved       = false;
 
-        if (!$resolved) {
+        if ($resolved === false) {
             $transliterator = Transliterator::create(self::FOLD_TRANSFORM);
             $resolved       = true;
         }
