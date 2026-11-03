@@ -11,8 +11,9 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Aggregator;
 
-use Fisharebest\Webtrees\I18N;
+use Fisharebest\Webtrees\Elements\SourceMediaType;
 use Fisharebest\Webtrees\Registry;
+use MagicSunday\Webtrees\Statistic\Support\Wording;
 
 /**
  * Resolves raw `source_media_type` tokens to their translated, human-readable
@@ -54,10 +55,17 @@ final readonly class MediaTypeLabeller
         $labelled = [];
 
         foreach ($byType as $token => $count) {
-            $label = $values[$element->canonical((string) $token)] ?? '';
+            $canonicalToken = $element->canonical((string) $token);
+
+            // The registry label of the catch-all token comes from the core wording, while
+            // unresolved tokens take the wording of the module, so both are routed to one label
+            // to keep them in a single bucket.
+            $label = ($canonicalToken === SourceMediaType::VALUE_OTHER)
+                ? ''
+                : ($values[$canonicalToken] ?? '');
 
             if ($label === '') {
-                $label = I18N::translate('Other');
+                $label = Wording::other();
             }
 
             $labelled[$label] = ($labelled[$label] ?? 0) + $count;
