@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Aggregator;
 
-use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Registry;
+use MagicSunday\Webtrees\Statistic\Support\Wording;
 
 /**
  * Resolves raw `source_media_type` tokens to their translated, human-readable
@@ -57,7 +57,7 @@ final readonly class MediaTypeLabeller
             $label = $values[$element->canonical((string) $token)] ?? '';
 
             if ($label === '') {
-                $label = I18N::translate('Other');
+                $label = Wording::other();
             }
 
             $labelled[$label] = ($labelled[$label] ?? 0) + $count;
