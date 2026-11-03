@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
+use MagicSunday\Webtrees\ModuleBase\Testing\EnglishLocaleFixture;
 use MagicSunday\Webtrees\Statistic\Aggregator\MediaTypeLabeller;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -66,6 +67,29 @@ final class MediaTypeLabellerTest extends AbstractIntegrationTestCase
             ],
             MediaTypeLabeller::label([
                 'PHOTO'        => 2,
+                ''             => 1,
+                'NOSUCHTYPEXY' => 3,
+            ]),
+        );
+    }
+
+    /**
+     * The stored catch-all token carries the core wording in the registry, while blank and
+     * unknown tokens take the wording of the module. All of them end up in one summed bucket
+     * under the wording of the module.
+     */
+    #[Test]
+    public function foldsTheStoredOtherTokenIntoTheSameBucketAsUnknownTokens(): void
+    {
+        EnglishLocaleFixture::install([
+            'Other'                        => 'core wording',
+            "webtrees-statistics\x04Other" => 'module wording',
+        ]);
+
+        self::assertSame(
+            ['module wording' => 6],
+            MediaTypeLabeller::label([
+                'OTHER'        => 2,
                 ''             => 1,
                 'NOSUCHTYPEXY' => 3,
             ]),
