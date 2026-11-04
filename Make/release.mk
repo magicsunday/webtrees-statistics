@@ -237,6 +237,15 @@ dist-smoke:
 	fi; \
 	if echo "$$paths" | grep -qE '^dev/'; then \
 		echo "Error: dev/ found in zip"; exit 1; \
+	fi; \
+	if echo "$$paths" | grep -qE '^\.githooks/'; then \
+		echo "Error: .githooks/ found in zip"; exit 1; \
+	fi; \
+	if echo "$$paths" | grep -qE '^deptrac\.ya?ml$$'; then \
+		echo "Error: deptrac.yaml found in zip"; exit 1; \
+	fi; \
+	if echo "$$paths" | grep -qE '(^|/)tsconfig\.json$$'; then \
+		echo "Error: tsconfig.json found in zip"; exit 1; \
 	fi
 	@unzip -p $(MODULE_NAME).zip module.php | grep -qF 'MagicSunday\\$(SCOPE_NS)\\Webtrees\\ModuleBase' \
 		|| { echo "Error: module.php in zip is missing prefixed namespace ($(SCOPE_NS))"; exit 1; }
