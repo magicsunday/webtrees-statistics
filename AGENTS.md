@@ -10,6 +10,7 @@ This repository hosts the webtrees statistics module — a six-tab dashboard of 
   cd app/vendor/magicsunday/webtrees-statistics
   ```
 - Build JS bundles from the module directory via the node container: `make install`, `make build`. Additional targets: `make watch` (dev rebuild loop), `make clean` (remove node_modules), `make lint` / `make lint-fix` (Biome on JS sources), `make test` (Jest unit tests). Run `make help` to list the full target catalog.
+- `install`, `build`, `watch`, `lint-fix` and `unlink-chart-lib` run npm as the numeric user of the caller, so they leave no root-owned files. If `node_modules` has permission issues (left by a run as root before that), run `make clean`.
 - For live editing against sibling dev clones, use `make link-base` / `make link-chart-lib` to symlink `webtrees-module-base` and `webtrees-chart-lib` into this module's vendor / node_modules; restore via `make unlink-base` / `make unlink-chart-lib`.
 - After PHP or JS changes that should be visible in the browser, restart the PHP-FPM service.
 - After JS changes, verify in the browser via Playwright before claiming success.
