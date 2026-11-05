@@ -16,6 +16,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
+use function array_key_exists;
 use function dirname;
 use function file_put_contents;
 use function is_dir;
@@ -62,10 +63,10 @@ final class DistSmokeTest extends TestCase
     }
 
     /**
-     * A well-formed archive without developer files passes, so the failing cases below are caused by their entry.
+     * A well-formed archive passes, so the failing cases below are caused by their change alone.
      */
     #[Test]
-    public function acceptsAnArchiveWithoutDeveloperFiles(): void
+    public function acceptsAWellFormedArchive(): void
     {
         $this->buildArchive();
 
@@ -76,13 +77,29 @@ final class DistSmokeTest extends TestCase
     }
 
     /**
-     * Each developer file in the archive fails the smoke test with its own message.
+     * A TypeScript configuration in the archive fails the smoke test, at the root and in a subdirectory.
      */
     #[Test]
-    #[DataProvider('developerFiles')]
-    public function rejectsAnArchiveWithADeveloperFile(string $entry, string $message): void
+    #[DataProvider('typeScriptConfigurations')]
+    public function rejectsAnArchiveWithATypeScriptConfiguration(string $path): void
     {
-        $this->buildArchive($entry);
+        $this->buildArchive([$path => "{}\n"]);
+
+        [$status, $output] = $this->smoke();
+
+        self::assertNotSame(0, $status);
+        self::assertStringContainsString('Error: tsconfig.json found in zip', $output);
+        self::assertStringNotContainsString('dist-smoke passed', $output);
+    }
+
+    /**
+     * An entry that the archive must not carry fails the smoke test with the message of its own check.
+     */
+    #[Test]
+    #[DataProvider('forbiddenEntries')]
+    public function rejectsAnArchiveWithAForbiddenEntry(string $path, string $message): void
+    {
+        $this->buildArchive([$path => "content\n"]);
 
         [$status, $output] = $this->smoke();
 
@@ -92,36 +109,170 @@ final class DistSmokeTest extends TestCase
     }
 
     /**
-     * @return array<string, array{string, string}>
+     * An entry that only resembles a forbidden one passes, so the checks reject exactly their own paths.
      */
-    public static function developerFiles(): array
+    #[Test]
+    #[DataProvider('lookalikeEntries')]
+    public function acceptsAnEntryThatOnlyLooksForbidden(string $path): void
+    {
+        $this->buildArchive([$path => "content\n"]);
+
+        [$status, $output] = $this->smoke();
+
+        self::assertSame(0, $status, $output);
+        self::assertStringContainsString('dist-smoke passed', $output);
+    }
+
+    /**
+     * The unprefixed module-base namespace in module.php fails the smoke test in either spelling.
+     */
+    #[Test]
+    #[DataProvider('unprefixedNamespaces')]
+    public function rejectsAnArchiveWithAnUnprefixedNamespace(string $namespace): void
+    {
+        $this->buildArchive([
+            'module.php' => "<?php\n\n// MagicSunday\\\\StatisticsVendor\\\\Webtrees\\\\ModuleBase\n// " . $namespace . "\n",
+        ]);
+
+        [$status, $output] = $this->smoke();
+
+        self::assertNotSame(0, $status);
+        self::assertStringContainsString('Error: module.php in zip still contains unprefixed', $output);
+        self::assertStringNotContainsString('dist-smoke passed', $output);
+    }
+
+    /**
+     * A module.php without the scoped module-base namespace fails the smoke test.
+     */
+    #[Test]
+    public function rejectsAnArchiveWithoutTheScopedNamespace(): void
+    {
+        $this->buildArchive(['module.php' => "<?php\n"]);
+
+        [$status, $output] = $this->smoke();
+
+        self::assertNotSame(0, $status);
+        self::assertStringContainsString('Error: module.php in zip is missing prefixed namespace', $output);
+        self::assertStringNotContainsString('dist-smoke passed', $output);
+    }
+
+    /**
+     * A bundled module-base source directory without a PHP file fails the smoke test after the extraction.
+     */
+    #[Test]
+    #[DataProvider('sourceDirectories')]
+    public function rejectsAnArchiveWithASourceDirectoryWithoutPhpFiles(string $directory): void
+    {
+        $sources = 'vendor/magicsunday/webtrees-module-base/src/' . $directory . '/';
+
+        $this->buildArchive([$sources . 'README.md' => "text\n"], [$sources . 'Entry.php']);
+
+        [$status, $output] = $this->smoke();
+
+        self::assertNotSame(0, $status);
+        self::assertStringContainsString(
+            'Error: bundled module-base src/' . $directory . ' has no PHP files in extracted zip',
+            $output
+        );
+        self::assertStringNotContainsString('dist-smoke passed', $output);
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function typeScriptConfigurations(): array
     {
         return [
-            'git hook'          => ['.githooks/pre-commit', 'Error: .githooks/ found in zip'],
-            'deptrac ruleset'   => ['deptrac.yaml', 'Error: deptrac.yaml found in zip'],
-            'typescript config' => ['tsconfig.json', 'Error: tsconfig.json found in zip'],
+            'root'         => ['tsconfig.json'],
+            'subdirectory' => ['resources/tsconfig.json'],
         ];
     }
 
     /**
-     * Builds an archive that satisfies every other check of the smoke test, plus the given extra entry.
+     * @return array<string, array{string, string}>
      */
-    private function buildArchive(?string $extraEntry = null): void
+    public static function forbiddenEntries(): array
+    {
+        return [
+            'composer manifest'        => ['composer.json', 'Error: composer.json found in zip'],
+            'nested composer manifest' => ['resources/composer.json', 'Error: composer.json found in zip'],
+            'assets directory'         => ['assets/logo.png', 'Error: assets/ found in zip'],
+            'dev directory'            => ['dev/tool.sh', 'Error: dev/ found in zip'],
+            'git hooks'                => ['.githooks/pre-commit', 'Error: .githooks/ found in zip'],
+            'deptrac yaml'             => ['deptrac.yaml', 'Error: deptrac.yaml found in zip'],
+            'deptrac short yaml'       => ['deptrac.yml', 'Error: deptrac.yaml found in zip'],
+        ];
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function lookalikeEntries(): array
+    {
+        return [
+            'character before git hooks' => ['agithooks/pre-commit'],
+            'nested git hooks'           => ['resources/.githooks/pre-commit'],
+            'nested dev directory'       => ['resources/dev/tool.sh'],
+            'nested assets directory'    => ['resources/assets/logo.png'],
+            'character in composer file' => ['composerxjson'],
+            'nested deptrac file'        => ['resources/deptrac.yaml'],
+            'text after deptrac file'    => ['deptrac.yaml.dist'],
+        ];
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function sourceDirectories(): array
+    {
+        return [
+            'contracts'  => ['Contract'],
+            'models'     => ['Model'],
+            'modules'    => ['Module'],
+            'processors' => ['Processor'],
+        ];
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function unprefixedNamespaces(): array
+    {
+        return [
+            'doubled backslashes' => ['MagicSunday\\\\Webtrees\\\\ModuleBase'],
+            'single backslashes'  => ['MagicSunday\\Webtrees\\ModuleBase'],
+        ];
+    }
+
+    /**
+     * Builds an archive that satisfies every check of the smoke test, with the given changes.
+     *
+     * @param array<string, string> $overrides Entries to add or to replace, by path.
+     * @param list<string>          $omitted   Entries to leave out of the archive.
+     */
+    private function buildArchive(array $overrides = [], array $omitted = []): void
     {
         $scopedNamespace = 'MagicSunday\\\\StatisticsVendor\\\\Webtrees\\\\ModuleBase';
+        $base            = 'vendor/magicsunday/webtrees-module-base/';
 
         $files = [
-            'module.php'                                                      => "<?php\n\n// " . $scopedNamespace . "\n",
-            'LICENSE'                                                         => "license\n",
-            'resources/js/statistics-1.min.js'                                => "bundle\n",
-            'vendor/magicsunday/webtrees-module-base/src/Contract/Entry.php'  => "<?php\n",
-            'vendor/magicsunday/webtrees-module-base/src/Model/Entry.php'     => "<?php\n",
-            'vendor/magicsunday/webtrees-module-base/src/Module/Entry.php'    => "<?php\n",
-            'vendor/magicsunday/webtrees-module-base/src/Processor/Entry.php' => "<?php\n",
+            'module.php'                       => "<?php\n\n// " . $scopedNamespace . "\n",
+            'LICENSE'                          => "license\n",
+            'resources/js/statistics-1.min.js' => "bundle\n",
+            $base . 'src/Contract/Entry.php'   => "<?php\n",
+            $base . 'src/Model/Entry.php'      => "<?php\n",
+            $base . 'src/Module/Entry.php'     => "<?php\n",
+            $base . 'src/Processor/Entry.php'  => "<?php\n",
         ];
 
-        if ($extraEntry !== null) {
-            $files[$extraEntry] = "x\n";
+        foreach ($overrides as $path => $content) {
+            $files[$path] = $content;
+        }
+
+        foreach ($omitted as $path) {
+            self::assertTrue(array_key_exists($path, $files), $path);
+
+            unset($files[$path]);
         }
 
         foreach ($files as $path => $content) {
