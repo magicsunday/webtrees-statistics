@@ -32,6 +32,12 @@ COMPOSE_BIN := $(shell \
 
 COMPOSE_RUN := $(COMPOSE_BIN) run --rm node
 
+# The webtrees core releases whose catalogues define the texts that core owns. A text that
+# every one of them carries is left out of the POT, see Make/lang.mk and dev/core-owned.pot.
+# The list holds every release of the minor line composer.json requires, the first one is the
+# floor of that constraint, and a release core ships later is added to it.
+CORE_RELEASES := 2.2.2 2.2.3 2.2.4 2.2.5 2.2.6
+
 # Includes
 -include Make/*.mk
 -include Make/**/*.mk
