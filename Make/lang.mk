@@ -65,8 +65,7 @@ lang-core-owned: ## Rebuild dev/core-owned.pot from a webtrees git checkout (COR
 	@for tag in $(CORE_RELEASES); do \
 		git -C "$(CORE)" show "$$tag:resources/lang/webtrees.pot" > ".build/core-pots/$$tag.pot" || exit 1; \
 	done
-	@$(COMPOSE_RUN) sh -c 'set -eu; \
-		command -v msgcomm >/dev/null 2>&1 || apk add --no-cache gettext >/dev/null 2>&1; \
+	@$(COMPOSE_RUN_USER) sh -c 'set -eu; \
 		msgcomm --no-location --sort-output --more-than=$$(( $(words $(CORE_RELEASES)) - 1 )) .build/core-pots/*.pot --output-file=.build/core-owned.pot'
 	@cat .build/core-owned.pot > $(CORE_OWNED)
 	@echo "  ✔ $(CORE_OWNED) rebuilt ($$(grep -c '^msgid ".' $(CORE_OWNED)) texts)"
@@ -83,8 +82,7 @@ lang-core-owned: ## Rebuild dev/core-owned.pot from a webtrees git checkout (COR
 # when the committed catalogues differ from its result, which they do as soon as
 # the exclusion stops applying.
 $(POT_FILE): $(CORE_OWNED) $(shell find src resources/views -type f \( -name '*.php' -o -name '*.phtml' \) 2>/dev/null)
-	@$(COMPOSE_RUN) sh -c 'set -eu; \
-		command -v xgettext >/dev/null 2>&1 || apk add --no-cache gettext >/dev/null 2>&1; \
+	@$(COMPOSE_RUN_USER) sh -c 'set -eu; \
 		mkdir -p resources/lang; \
 		xgettext \
 			--language=PHP \
@@ -108,8 +106,7 @@ $(POT_FILE): $(CORE_OWNED) $(shell find src resources/views -type f \( -name '*.
 # (msgmerge itself only marks them obsolete); git history retains them if a
 # removed string ever needs its old translation back.
 lang-merge: lang-extract ## Update each locale's PO from the latest POT (drops obsolete entries, seeds missing locales).
-	@$(COMPOSE_RUN) sh -c 'set -eu; \
-		command -v msgmerge >/dev/null 2>&1 || apk add --no-cache gettext >/dev/null 2>&1; \
+	@$(COMPOSE_RUN_USER) sh -c 'set -eu; \
 		if [ -n "$(LOCALES)" ]; then \
 			for loc in $(LOCALES); do \
 				po="resources/lang/$$loc/messages.po"; \
@@ -132,25 +129,16 @@ lang-merge: lang-extract ## Update each locale's PO from the latest POT (drops o
 # magicsunday/webtrees-module-base. Every other fuzzy entry stays fuzzy and is
 # listed for a person to judge, and the pre-commit hook blocks committing it. A
 # catalogue the resolver refuses fails the recipe.
-# The binary is PHP, so the recipe installs PHP and Composer on demand, like the
-# gettext tools above. The Composer install runs only in a checkout without a
-# vendor directory, which is the CI case, and hands its files back to the owner
-# of the checkout, also when it fails, so the root user of the container leaves
-# nothing behind that blocks a later Composer run on the host. A checkout that
-# has a vendor directory is left alone, it holds the dev packages, and the recipe
-# stops with the command that brings the binary in. Platform checks and security
-# blocking are off, a translation run must not fail on them. The PHP package
-# names follow the PHP release of the Alpine image.
+# The binary is PHP and the tooling image carries PHP and Composer. The Composer
+# install runs only in a checkout without a vendor directory, which is the CI
+# case, as the calling user like every lang recipe. A checkout that has a vendor
+# directory is left alone, it holds the dev packages, and the recipe stops with
+# the command that brings the binary in. Platform checks and security blocking
+# are off, a translation run must not fail on them.
 lang-resolve-fuzzy: lang-merge ## Auto-resolve fuzzy entries that only differ in punctuation, with the shared resolve-fuzzy binary.
-	@$(COMPOSE_RUN) sh -c 'set -eu; \
-		command -v msgmerge >/dev/null 2>&1 || apk add --no-cache gettext >/dev/null 2>&1; \
-		command -v php >/dev/null 2>&1 || { \
-			apk add --no-cache composer php85 php85-ctype php85-curl php85-dom php85-iconv php85-intl php85-mbstring php85-openssl php85-phar php85-simplexml php85-tokenizer php85-xml php85-xmlwriter php85-zip >/dev/null 2>&1; \
-			ln -s /usr/bin/php85 /usr/local/bin/php; \
-		}; \
+	@$(COMPOSE_RUN_USER) sh -c 'set -eu; \
 		[ -x .build/bin/resolve-fuzzy ] || [ -e .build/vendor ] || { \
-			trap "chown -R $$(stat -c %u:%g .) .build composer.lock 2>/dev/null || true" EXIT; \
-			COMPOSER_ALLOW_SUPERUSER=1 COMPOSER_NO_BLOCKING=1 composer install --no-dev --no-interaction --no-progress --no-scripts --no-plugins --ignore-platform-reqs --quiet; \
+			COMPOSER_NO_BLOCKING=1 composer install --no-dev --no-interaction --no-progress --no-scripts --no-plugins --ignore-platform-reqs --quiet; \
 		}; \
 		[ -x .build/bin/resolve-fuzzy ] || { \
 			echo "  ✘ .build/bin/resolve-fuzzy is missing, run composer update magicsunday/webtrees-module-base in the buildbox"; \
@@ -165,8 +153,7 @@ setup-hooks: ## Activate the tracked .githooks/ directory for this clone.
 		echo "  ✔ core.hooksPath = .githooks (pre-commit gate active)"
 
 lang-compile: lang-resolve-fuzzy ## Compile every messages.po to its sibling messages.mo.
-	@$(COMPOSE_RUN) sh -c 'set -eu; \
-		command -v msgfmt >/dev/null 2>&1 || apk add --no-cache gettext >/dev/null 2>&1; \
+	@$(COMPOSE_RUN_USER) sh -c 'set -eu; \
 		for po in resources/lang/*/messages.po; do \
 			[ -f "$$po" ] || continue; \
 			dir=$$(dirname "$$po"); \
