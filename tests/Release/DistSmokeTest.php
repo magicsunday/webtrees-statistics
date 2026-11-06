@@ -38,8 +38,6 @@ use function unlink;
 #[CoversNothing]
 final class DistSmokeTest extends TestCase
 {
-    private const string BASE_VIEWS = 'vendor/magicsunday/webtrees-module-base/resources/views/';
-
     private const string BASE_SOURCES = 'vendor/magicsunday/webtrees-module-base/src/';
 
     private string $workDir = '';
@@ -97,76 +95,6 @@ final class DistSmokeTest extends TestCase
     }
 
     /**
-     * A shared view that is missing from the file list of the archive fails the smoke test.
-     */
-    #[Test]
-    #[DataProvider('sharedViews')]
-    public function rejectsAnArchiveWithoutASharedView(string $view): void
-    {
-        $this->buildArchive([], [self::BASE_VIEWS . $view . '.phtml']);
-
-        [$status, $output] = $this->smoke();
-
-        self::assertNotSame(0, $status);
-        self::assertStringContainsString(
-            'Error: required prefix has no entries in zip: ' . self::BASE_VIEWS . $view . '.phtml',
-            $output
-        );
-        self::assertStringNotContainsString('dist-smoke passed', $output);
-    }
-
-    /**
-     * A required file that is missing from the file list of the archive fails the smoke test.
-     */
-    #[Test]
-    #[DataProvider('requiredFiles')]
-    public function rejectsAnArchiveWithoutARequiredFile(string $file): void
-    {
-        $this->buildArchive([], [$file]);
-
-        [$status, $output] = $this->smoke();
-
-        self::assertNotSame(0, $status);
-        self::assertStringContainsString('Error: required file missing from zip: ' . $file, $output);
-        self::assertStringNotContainsString('dist-smoke passed', $output);
-    }
-
-    /**
-     * A required prefix without any entry in the archive fails the smoke test with the message of the prefix.
-     */
-    #[Test]
-    #[DataProvider('requiredPrefixes')]
-    public function rejectsAnArchiveWithoutARequiredPrefix(string $entry, string $prefix): void
-    {
-        $this->buildArchive([], [$entry]);
-
-        [$status, $output] = $this->smoke();
-
-        self::assertNotSame(0, $status);
-        self::assertStringContainsString('Error: required prefix has no entries in zip: ' . $prefix, $output);
-        self::assertStringNotContainsString('dist-smoke passed', $output);
-    }
-
-    /**
-     * An empty shared view fails the smoke test after the extraction.
-     */
-    #[Test]
-    #[DataProvider('sharedViews')]
-    public function rejectsAnArchiveWithAnEmptySharedView(string $view): void
-    {
-        $this->buildArchive([self::BASE_VIEWS . $view . '.phtml' => '']);
-
-        [$status, $output] = $this->smoke();
-
-        self::assertNotSame(0, $status);
-        self::assertStringContainsString(
-            'Error: bundled module-base view ' . $view . ' is missing or empty in extracted zip',
-            $output
-        );
-        self::assertStringNotContainsString('dist-smoke passed', $output);
-    }
-
-    /**
      * An entry that the archive must not carry fails the smoke test with the message of its own check.
      */
     #[Test]
@@ -205,13 +133,45 @@ final class DistSmokeTest extends TestCase
     public function rejectsAnArchiveWithAnUnprefixedNamespace(string $namespace): void
     {
         $this->buildArchive([
-            'module.php' => "<?php\n\n// MagicSunday\\\\StatisticVendor\\\\Webtrees\\\\ModuleBase\n// " . $namespace . "\n",
+            'module.php' => "<?php\n\n// MagicSunday\\\\StatisticsVendor\\\\Webtrees\\\\ModuleBase\n// " . $namespace . "\n",
         ]);
 
         [$status, $output] = $this->smoke();
 
         self::assertNotSame(0, $status);
         self::assertStringContainsString('Error: module.php in zip still contains unprefixed', $output);
+        self::assertStringNotContainsString('dist-smoke passed', $output);
+    }
+
+    /**
+     * A required file that is missing from the file list of the archive fails the smoke test.
+     */
+    #[Test]
+    #[DataProvider('requiredFiles')]
+    public function rejectsAnArchiveWithoutARequiredFile(string $file): void
+    {
+        $this->buildArchive([], [$file]);
+
+        [$status, $output] = $this->smoke();
+
+        self::assertNotSame(0, $status);
+        self::assertStringContainsString('Error: required file missing from zip: ' . $file, $output);
+        self::assertStringNotContainsString('dist-smoke passed', $output);
+    }
+
+    /**
+     * A required prefix without any entry in the archive fails the smoke test with the message of the prefix.
+     */
+    #[Test]
+    #[DataProvider('requiredPrefixes')]
+    public function rejectsAnArchiveWithoutARequiredPrefix(string $entry, string $prefix): void
+    {
+        $this->buildArchive([], [$entry]);
+
+        [$status, $output] = $this->smoke();
+
+        self::assertNotSame(0, $status);
+        self::assertStringContainsString('Error: required prefix has no entries in zip: ' . $prefix, $output);
         self::assertStringNotContainsString('dist-smoke passed', $output);
     }
 
@@ -263,46 +223,6 @@ final class DistSmokeTest extends TestCase
     }
 
     /**
-     * @return array<string, array{string}>
-     */
-    public static function requiredFiles(): array
-    {
-        return [
-            'module entry point' => ['module.php'],
-            'license'            => ['LICENSE'],
-        ];
-    }
-
-    /**
-     * Provides the one entry whose omission leaves a required prefix without entries, with the prefix that the
-     * check names.
-     *
-     * @return array<string, array{string, string}>
-     */
-    public static function requiredPrefixes(): array
-    {
-        return [
-            'versioned bundle' => ['resources/js/statistics-1.min.js', 'resources/js/statistics-[0-9]'],
-            'contracts'        => [self::BASE_SOURCES . 'Contract/Entry.php', self::BASE_SOURCES . 'Contract/'],
-            'models'           => [self::BASE_SOURCES . 'Model/Entry.php', self::BASE_SOURCES . 'Model/'],
-            'modules'          => [self::BASE_SOURCES . 'Module/Entry.php', self::BASE_SOURCES . 'Module/'],
-            'processors'       => [self::BASE_SOURCES . 'Processor/Entry.php', self::BASE_SOURCES . 'Processor/'],
-        ];
-    }
-
-    /**
-     * @return array<string, array{string}>
-     */
-    public static function sharedViews(): array
-    {
-        return [
-            'detail panel'  => ['detail-panel'],
-            'help popover'  => ['help-popover'],
-            'toolbar style' => ['toolbar-style'],
-        ];
-    }
-
-    /**
      * @return array<string, array{string, string}>
      */
     public static function forbiddenEntries(): array
@@ -331,6 +251,34 @@ final class DistSmokeTest extends TestCase
             'character in composer file' => ['composerxjson'],
             'nested deptrac file'        => ['resources/deptrac.yaml'],
             'text after deptrac file'    => ['deptrac.yaml.dist'],
+        ];
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function requiredFiles(): array
+    {
+        return [
+            'module entry point' => ['module.php'],
+            'license'            => ['LICENSE'],
+        ];
+    }
+
+    /**
+     * Provides the one entry whose omission leaves a required prefix without entries, with the prefix that the
+     * check names.
+     *
+     * @return array<string, array{string, string}>
+     */
+    public static function requiredPrefixes(): array
+    {
+        return [
+            'versioned bundle' => ['resources/js/statistics-1.min.js', 'resources/js/statistics-[0-9]'],
+            'contracts'        => [self::BASE_SOURCES . 'Contract/Entry.php', self::BASE_SOURCES . 'Contract/'],
+            'models'           => [self::BASE_SOURCES . 'Model/Entry.php', self::BASE_SOURCES . 'Model/'],
+            'modules'          => [self::BASE_SOURCES . 'Module/Entry.php', self::BASE_SOURCES . 'Module/'],
+            'processors'       => [self::BASE_SOURCES . 'Processor/Entry.php', self::BASE_SOURCES . 'Processor/'],
         ];
     }
 
@@ -366,21 +314,17 @@ final class DistSmokeTest extends TestCase
      */
     private function buildArchive(array $overrides = [], array $omitted = []): void
     {
-        $scopedNamespace = 'MagicSunday\\\\StatisticVendor\\\\Webtrees\\\\ModuleBase';
+        $scopedNamespace = 'MagicSunday\\\\StatisticsVendor\\\\Webtrees\\\\ModuleBase';
         $base            = 'vendor/magicsunday/webtrees-module-base/';
 
         $files = [
-            'module.php'                             => "<?php\n\n// " . $scopedNamespace . "\n",
-            'LICENSE'                                => "license\n",
-            'resources/js/statistics-1.min.js'       => "bundle\n",
-            $base . 'src/Contract/Entry.php'         => "<?php\n",
-            $base . 'src/Model/Entry.php'            => "<?php\n",
-            $base . 'src/Module/Entry.php'           => "<?php\n",
-            $base . 'src/Processor/Entry.php'        => "<?php\n",
-            $base . 'src/View/SharedViews.php'       => "<?php\n\n// 'webtrees-module-base-statistics'\n",
-            self::BASE_VIEWS . 'detail-panel.phtml'  => "view\n",
-            self::BASE_VIEWS . 'help-popover.phtml'  => "view\n",
-            self::BASE_VIEWS . 'toolbar-style.phtml' => "view\n",
+            'module.php'                       => "<?php\n\n// " . $scopedNamespace . "\n",
+            'LICENSE'                          => "license\n",
+            'resources/js/statistics-1.min.js' => "bundle\n",
+            $base . 'src/Contract/Entry.php'   => "<?php\n",
+            $base . 'src/Model/Entry.php'      => "<?php\n",
+            $base . 'src/Module/Entry.php'     => "<?php\n",
+            $base . 'src/Processor/Entry.php'  => "<?php\n",
         ];
 
         foreach ($overrides as $path => $content) {
