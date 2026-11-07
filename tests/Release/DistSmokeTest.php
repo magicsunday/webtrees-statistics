@@ -23,9 +23,14 @@ use function is_dir;
 use function mkdir;
 use function proc_close;
 use function proc_open;
+use function str_repeat;
 use function stream_get_contents;
+use function strpos;
+use function substr;
+use function substr_count;
 use function sys_get_temp_dir;
 use function tempnam;
+use function trim;
 use function unlink;
 
 /**
@@ -38,6 +43,8 @@ use function unlink;
 #[CoversNothing]
 final class DistSmokeTest extends TestCase
 {
+    private const string BASE_SOURCES = 'vendor/magicsunday/webtrees-module-base/src/';
+
     private string $workDir = '';
 
     protected function setUp(): void
@@ -142,6 +149,107 @@ final class DistSmokeTest extends TestCase
     }
 
     /**
+     * An archive without the commit that it was built on fails the smoke test, because the publish step could not
+     * tell which commit the archive belongs to.
+     */
+    #[Test]
+    public function rejectsAnArchiveWithoutTheBuildCommit(): void
+    {
+        $this->buildArchive([], [], false);
+
+        [$status, $output] = $this->smoke();
+
+        self::assertNotSame(0, $status);
+        self::assertStringContainsString('Error: the zip carries no build commit', $output);
+        self::assertStringNotContainsString('dist-smoke passed', $output);
+    }
+
+    /**
+     * The stamp target writes the commit of the commit file into the comment of the archive and removes the file,
+     * and the archive passes the smoke test afterwards.
+     */
+    #[Test]
+    public function stampsTheArchiveWithTheCommitOfTheCommitFile(): void
+    {
+        $commit = str_repeat('b', 40);
+
+        $this->buildArchive([], [], false);
+        file_put_contents($this->workDir . '/module/webtrees-statistics.commit', $commit . "\n");
+
+        [$status, $output] = $this->execute(['make', 'dist-stamp'], $this->workDir . '/module');
+
+        self::assertSame(0, $status, $output);
+        self::assertFileDoesNotExist($this->workDir . '/module/webtrees-statistics.commit');
+
+        [$status, $comment] = $this->execute(
+            ['unzip', '-z', $this->workDir . '/module/webtrees-statistics.zip'],
+            $this->workDir . '/module'
+        );
+
+        self::assertSame(0, $status, $comment);
+        self::assertSame($commit, substr(trim($comment), -40));
+
+        [$status, $output] = $this->smoke();
+
+        self::assertSame(0, $status, $output);
+    }
+
+    /**
+     * The dist target resolves the commit once, archives that commit and stamps the same one, in this order. The
+     * dry run lists the commands, so a recipe that resolves HEAD again for the stamp turns the test red.
+     */
+    #[Test]
+    public function archivesAndStampsTheCommitThatWasResolvedFirst(): void
+    {
+        [$status, $output] = $this->execute(['make', '-n', 'dist'], $this->workDir . '/module');
+
+        self::assertSame(0, $status, $output);
+
+        $resolved = strpos($output, 'git rev-parse HEAD > webtrees-statistics.commit');
+        $archived = strpos($output, 'git archive --prefix=webtrees-statistics/ "$(cat webtrees-statistics.commit)"');
+        $stamped  = strpos($output, 'zip --quiet -z webtrees-statistics.zip < webtrees-statistics.commit');
+
+        self::assertNotFalse($resolved, $output);
+        self::assertNotFalse($archived, $output);
+        self::assertNotFalse($stamped, $output);
+        self::assertLessThan($archived, $resolved);
+        self::assertLessThan($stamped, $archived);
+        self::assertSame(1, substr_count($output, 'git rev-parse HEAD'), $output);
+    }
+
+    /**
+     * A required file that is missing from the file list of the archive fails the smoke test.
+     */
+    #[Test]
+    #[DataProvider('requiredFiles')]
+    public function rejectsAnArchiveWithoutARequiredFile(string $file): void
+    {
+        $this->buildArchive([], [$file]);
+
+        [$status, $output] = $this->smoke();
+
+        self::assertNotSame(0, $status);
+        self::assertStringContainsString('Error: required file missing from zip: ' . $file, $output);
+        self::assertStringNotContainsString('dist-smoke passed', $output);
+    }
+
+    /**
+     * A required prefix without any entry in the archive fails the smoke test with the message of the prefix.
+     */
+    #[Test]
+    #[DataProvider('requiredPrefixes')]
+    public function rejectsAnArchiveWithoutARequiredPrefix(string $entry, string $prefix): void
+    {
+        $this->buildArchive([], [$entry]);
+
+        [$status, $output] = $this->smoke();
+
+        self::assertNotSame(0, $status);
+        self::assertStringContainsString('Error: required prefix has no entries in zip: ' . $prefix, $output);
+        self::assertStringNotContainsString('dist-smoke passed', $output);
+    }
+
+    /**
      * A module.php without the scoped module-base namespace fails the smoke test.
      */
     #[Test]
@@ -223,6 +331,34 @@ final class DistSmokeTest extends TestCase
     /**
      * @return array<string, array{string}>
      */
+    public static function requiredFiles(): array
+    {
+        return [
+            'module entry point' => ['module.php'],
+            'license'            => ['LICENSE'],
+        ];
+    }
+
+    /**
+     * Provides the one entry whose omission leaves a required prefix without entries, with the prefix that the
+     * check names.
+     *
+     * @return array<string, array{string, string}>
+     */
+    public static function requiredPrefixes(): array
+    {
+        return [
+            'versioned bundle' => ['resources/js/statistics-1.min.js', 'resources/js/statistics-[0-9]'],
+            'contracts'        => [self::BASE_SOURCES . 'Contract/Entry.php', self::BASE_SOURCES . 'Contract/'],
+            'models'           => [self::BASE_SOURCES . 'Model/Entry.php', self::BASE_SOURCES . 'Model/'],
+            'modules'          => [self::BASE_SOURCES . 'Module/Entry.php', self::BASE_SOURCES . 'Module/'],
+            'processors'       => [self::BASE_SOURCES . 'Processor/Entry.php', self::BASE_SOURCES . 'Processor/'],
+        ];
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
     public static function sourceDirectories(): array
     {
         return [
@@ -249,8 +385,9 @@ final class DistSmokeTest extends TestCase
      *
      * @param array<string, string> $overrides Entries to add or to replace, by path.
      * @param list<string>          $omitted   Entries to leave out of the archive.
+     * @param bool                  $stamp     Whether the archive carries the commit that it was built on.
      */
-    private function buildArchive(array $overrides = [], array $omitted = []): void
+    private function buildArchive(array $overrides = [], array $omitted = [], bool $stamp = true): void
     {
         $scopedNamespace = 'MagicSunday\\\\StatisticsVendor\\\\Webtrees\\\\ModuleBase';
         $base            = 'vendor/magicsunday/webtrees-module-base/';
@@ -287,6 +424,17 @@ final class DistSmokeTest extends TestCase
 
         [$status, $output] = $this->execute(
             ['zip', '-qr', $this->workDir . '/module/webtrees-statistics.zip', '.'],
+            $this->workDir . '/stage'
+        );
+
+        self::assertSame(0, $status, $output);
+
+        if (!$stamp) {
+            return;
+        }
+
+        [$status, $output] = $this->execute(
+            ['sh', '-c', 'printf "%s\n" "$0" | zip -q -z "$1"', str_repeat('a', 40), $this->workDir . '/module/webtrees-statistics.zip'],
             $this->workDir . '/stage'
         );
 
