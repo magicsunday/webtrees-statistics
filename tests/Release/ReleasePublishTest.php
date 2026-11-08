@@ -28,12 +28,9 @@ use function implode;
 use function is_dir;
 use function is_file;
 use function mkdir;
-use function proc_close;
-use function proc_open;
 use function scandir;
 use function shell_exec;
 use function str_starts_with;
-use function stream_get_contents;
 use function sys_get_temp_dir;
 use function tempnam;
 use function trim;
@@ -49,10 +46,17 @@ use function unlink;
 #[CoversNothing]
 final class ReleasePublishTest extends TestCase
 {
+    /**
+     * Runs the commands of the scratch copy.
+     */
+    private ProcessRunner $processRunner;
+
     private string $workDir = '';
 
     protected function setUp(): void
     {
+        $this->processRunner = new ProcessRunner();
+
         $base = tempnam(sys_get_temp_dir(), 'release-publish-');
         self::assertIsString($base);
 
@@ -66,7 +70,7 @@ final class ReleasePublishTest extends TestCase
 
         $root = dirname(__DIR__, 2);
 
-        $this->execute(['cp', '-R', $root . '/Makefile', $root . '/Make', $this->workDir . '/module/'], $this->workDir);
+        $this->processRunner->execute(['cp', '-R', $root . '/Makefile', $root . '/Make', $this->workDir . '/module/'], $this->workDir);
 
         file_put_contents($this->workDir . '/module/webtrees-statistics.zip', 'archive');
 
@@ -76,7 +80,7 @@ final class ReleasePublishTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->execute(['rm', '-rf', $this->workDir], sys_get_temp_dir());
+        $this->processRunner->execute(['rm', '-rf', $this->workDir], sys_get_temp_dir());
     }
 
     /**
@@ -542,7 +546,7 @@ final class ReleasePublishTest extends TestCase
      */
     private function runTarget(string $target): array
     {
-        return $this->execute(
+        return $this->processRunner->execute(
             ['make', $target, 'VERSION=9.9.9'],
             $this->workDir . '/module',
             [
@@ -679,7 +683,7 @@ final class ReleasePublishTest extends TestCase
      */
     private function publish(array $arguments = [], array $environment = []): array
     {
-        return $this->execute(
+        return $this->processRunner->execute(
             ['make', 'release-publish', 'VERSION=9.9.9', ...$arguments],
             $this->workDir . '/module',
             [
@@ -689,34 +693,5 @@ final class ReleasePublishTest extends TestCase
                 ...$environment,
             ]
         );
-    }
-
-    /**
-     * @param list<string>          $command
-     * @param array<string, string> $environment
-     *
-     * @return array{int, string}
-     */
-    private function execute(array $command, string $workingDirectory, array $environment = ['PATH' => '/usr/local/bin:/usr/bin:/bin']): array
-    {
-        $process = proc_open(
-            $command,
-            [1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
-            $pipes,
-            $workingDirectory,
-            $environment
-        );
-
-        self::assertIsResource($process);
-
-        $standardOutput = $pipes[1] ?? null;
-        $standardError  = $pipes[2] ?? null;
-
-        self::assertIsResource($standardOutput);
-        self::assertIsResource($standardError);
-
-        $output = stream_get_contents($standardOutput) . stream_get_contents($standardError);
-
-        return [proc_close($process), $output];
     }
 }
