@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test;
 
 use FilesystemIterator;
+use MagicSunday\Webtrees\Statistic\Test\Release\ProcessRunner;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -25,13 +26,10 @@ use function dirname;
 use function getenv;
 use function is_dir;
 use function mkdir;
-use function proc_close;
-use function proc_open;
 use function random_bytes;
 use function rmdir;
 use function sprintf;
 use function str_contains;
-use function stream_get_contents;
 use function sys_get_temp_dir;
 use function unlink;
 
@@ -57,13 +55,19 @@ final class LangCoreOwnedTargetTest extends TestCase
     private string $scratch = '';
 
     /**
+     * Runs the git and make commands of the cases.
+     */
+    private ProcessRunner $processRunner;
+
+    /**
      * Create the scratch directory of the test.
      */
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->scratch = sys_get_temp_dir() . '/lang-core-owned-' . bin2hex(random_bytes(6));
+        $this->processRunner = new ProcessRunner();
+        $this->scratch       = sys_get_temp_dir() . '/lang-core-owned-' . bin2hex(random_bytes(6));
 
         mkdir($this->scratch, 0o700, true);
     }
@@ -177,17 +181,7 @@ final class LangCoreOwnedTargetTest extends TestCase
     {
         $environment = ['GIT_CEILING_DIRECTORIES' => $this->scratch, 'PATH' => (string) getenv('PATH'), 'HOME' => $this->scratch];
 
-        $process = proc_open($command, [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, $directory, $environment);
-
-        self::assertIsResource($process);
-
-        $output = '';
-
-        foreach ($pipes as $pipe) {
-            $output .= (string) stream_get_contents($pipe);
-        }
-
-        return [proc_close($process), $output];
+        return $this->processRunner->execute($command, $directory, $environment);
     }
 
     /**

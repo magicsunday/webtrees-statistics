@@ -21,10 +21,7 @@ use function dirname;
 use function file_put_contents;
 use function is_dir;
 use function mkdir;
-use function proc_close;
-use function proc_open;
 use function str_repeat;
-use function stream_get_contents;
 use function strpos;
 use function substr;
 use function substr_count;
@@ -47,8 +44,15 @@ final class DistSmokeTest extends TestCase
 
     private string $workDir = '';
 
+    /**
+     * Runs the commands of the scratch copy.
+     */
+    private ProcessRunner $processRunner;
+
     protected function setUp(): void
     {
+        $this->processRunner = new ProcessRunner();
+
         $base = tempnam(sys_get_temp_dir(), 'dist-smoke-');
         self::assertIsString($base);
 
@@ -61,12 +65,12 @@ final class DistSmokeTest extends TestCase
 
         $root = dirname(__DIR__, 2);
 
-        $this->execute(['cp', '-R', $root . '/Makefile', $root . '/Make', $this->workDir . '/module/'], $this->workDir);
+        $this->processRunner->execute(['cp', '-R', $root . '/Makefile', $root . '/Make', $this->workDir . '/module/'], $this->workDir);
     }
 
     protected function tearDown(): void
     {
-        $this->execute(['rm', '-rf', $this->workDir], sys_get_temp_dir());
+        $this->processRunner->execute(['rm', '-rf', $this->workDir], sys_get_temp_dir());
     }
 
     /**
@@ -193,12 +197,12 @@ final class DistSmokeTest extends TestCase
         $this->buildArchive([], [], false);
         file_put_contents($this->workDir . '/module/webtrees-statistics.commit', $commit . "\n");
 
-        [$status, $output] = $this->execute(['make', 'dist-stamp'], $this->workDir . '/module');
+        [$status, $output] = $this->processRunner->execute(['make', 'dist-stamp'], $this->workDir . '/module');
 
         self::assertSame(0, $status, $output);
         self::assertFileDoesNotExist($this->workDir . '/module/webtrees-statistics.commit');
 
-        [$status, $comment] = $this->execute(
+        [$status, $comment] = $this->processRunner->execute(
             ['unzip', '-z', $this->workDir . '/module/webtrees-statistics.zip'],
             $this->workDir . '/module'
         );
@@ -218,7 +222,7 @@ final class DistSmokeTest extends TestCase
     #[Test]
     public function archivesAndStampsTheCommitThatWasResolvedFirst(): void
     {
-        [$status, $output] = $this->execute(['make', '-n', 'dist'], $this->workDir . '/module');
+        [$status, $output] = $this->processRunner->execute(['make', '-n', 'dist'], $this->workDir . '/module');
 
         self::assertSame(0, $status, $output);
 
@@ -457,7 +461,7 @@ final class DistSmokeTest extends TestCase
             file_put_contents($this->workDir . '/stage/' . $path, $content);
         }
 
-        [$status, $output] = $this->execute(
+        [$status, $output] = $this->processRunner->execute(
             ['zip', '-qr', $this->workDir . '/module/webtrees-statistics.zip', '.'],
             $this->workDir . '/stage'
         );
@@ -468,7 +472,7 @@ final class DistSmokeTest extends TestCase
             return;
         }
 
-        [$status, $output] = $this->execute(
+        [$status, $output] = $this->processRunner->execute(
             [
                 'sh',
                 '-c',
@@ -487,34 +491,6 @@ final class DistSmokeTest extends TestCase
      */
     private function smoke(): array
     {
-        return $this->execute(['make', 'dist-smoke'], $this->workDir . '/module');
-    }
-
-    /**
-     * @param list<string> $command
-     *
-     * @return array{int, string}
-     */
-    private function execute(array $command, string $workingDirectory): array
-    {
-        $process = proc_open(
-            $command,
-            [1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
-            $pipes,
-            $workingDirectory,
-            ['PATH' => '/usr/local/bin:/usr/bin:/bin']
-        );
-
-        self::assertIsResource($process);
-
-        $standardOutput = $pipes[1] ?? null;
-        $standardError  = $pipes[2] ?? null;
-
-        self::assertIsResource($standardOutput);
-        self::assertIsResource($standardError);
-
-        $output = stream_get_contents($standardOutput) . stream_get_contents($standardError);
-
-        return [proc_close($process), $output];
+        return $this->processRunner->execute(['make', 'dist-smoke'], $this->workDir . '/module');
     }
 }
