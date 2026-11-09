@@ -127,7 +127,8 @@ final class ReleasePublishTest extends TestCase
     }
 
     /**
-     * A tag without a release is the normal case, the release is created and nothing is deleted.
+     * A tag without a release is the normal case. The stub answers the lookup with a failure, which counts as no
+     * release, so the release is created and nothing is deleted.
      */
     #[Test]
     public function createsTheReleaseWhenTheTagHasNone(): void
@@ -176,6 +177,7 @@ final class ReleasePublishTest extends TestCase
         self::assertNotSame(0, $status);
         self::assertStringNotContainsString('RELEASE_PUBLISHED', $output);
         self::assertSame(['release view', 'release delete'], $this->releaseCalls());
+        self::assertStringContainsString("release delete 9.9.9 --yes\n", $this->ghCalls());
         self::assertFileExists($this->workDir . '/module/webtrees-statistics.zip');
         self::assertSame([], $this->leftoverTemporaryFiles());
     }
@@ -580,7 +582,8 @@ final class ReleasePublishTest extends TestCase
     /**
      * Installs a gh stub that logs every call and answers the lookup of the release of the tag.
      *
-     * @param string $lookupReply What the lookup prints, an empty string for a tag without a release
+     * @param string $lookupReply  What the lookup prints, an empty string for a tag without a release
+     * @param int    $deleteStatus The exit status of the delete call
      */
     private function installReleaseStateStub(string $lookupReply, int $deleteStatus = 0): void
     {
@@ -597,6 +600,9 @@ final class ReleasePublishTest extends TestCase
         );
     }
 
+    /**
+     * The lookup asks for the draft state of the tag under test.
+     */
     private function assertLookupAskedForTheDraftStateOfTheTag(): void
     {
         self::assertStringContainsString("release view 9.9.9 --json isDraft --jq .isDraft\n", $this->ghCalls());
@@ -609,7 +615,7 @@ final class ReleasePublishTest extends TestCase
     private function assertReleaseCreatedForTheTagWithTheArchive(): void
     {
         self::assertMatchesRegularExpression(
-            '/^release create 9\.9\.9 --title 9\.9\.9 --notes-file \S+ --target main webtrees-statistics\.zip$/m',
+            '/^release create 9\.9\.9 --title 9\.9\.9 --notes-file .+ --target main webtrees-statistics\.zip$/m',
             $this->ghCalls()
         );
     }
