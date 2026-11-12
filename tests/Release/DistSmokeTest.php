@@ -18,8 +18,10 @@ use PHPUnit\Framework\TestCase;
 
 use function array_key_exists;
 use function dirname;
+use function file_get_contents;
 use function file_put_contents;
 use function is_dir;
+use function json_encode;
 use function mkdir;
 use function str_repeat;
 use function strpos;
@@ -29,6 +31,8 @@ use function sys_get_temp_dir;
 use function tempnam;
 use function trim;
 use function unlink;
+
+use const JSON_THROW_ON_ERROR;
 
 /**
  * Tests the dist-smoke target of Make/release.mk against small archives built for each case.
@@ -40,18 +44,31 @@ use function unlink;
 #[CoversNothing]
 final class DistSmokeTest extends TestCase
 {
-    private const string BASE_SOURCES = 'vendor/magicsunday/webtrees-module-base/src/';
+    /**
+     * The directory of the bundled module base inside the archive, with the trailing slash.
+     */
+    private const string BASE = 'vendor/magicsunday/webtrees-module-base/';
 
-    private string $workDir = '';
+    private const string BASE_VIEWS = self::BASE . 'resources/views/';
+
+    private const string BASE_SOURCES = self::BASE . 'src/';
 
     /**
      * Runs the commands of the scratch copy.
      */
     private ProcessRunner $processRunner;
 
+    /**
+     * The package name of the module, read from its parameter file.
+     */
+    private string $moduleName = '';
+
+    private string $workDir = '';
+
     protected function setUp(): void
     {
         $this->processRunner = new ProcessRunner();
+        $this->moduleName    = ModuleParameters::moduleName();
 
         $base = tempnam(sys_get_temp_dir(), 'dist-smoke-');
         self::assertIsString($base);
@@ -104,51 +121,23 @@ final class DistSmokeTest extends TestCase
     }
 
     /**
-     * An entry that the archive must not carry fails the smoke test with the message of its own check.
+     * A shared view that is missing from the file list of the archive fails the smoke test.
      */
     #[Test]
-    #[DataProvider('forbiddenEntries')]
-    public function rejectsAnArchiveWithAForbiddenEntry(string $path, string $message): void
+    #[DataProvider('sharedViews')]
+    public function rejectsAnArchiveWithoutASharedView(string $view): void
     {
-        $this->buildArchive([$path => "content\n"]);
+        $this->skipWithoutSharedViews($view);
+
+        $this->buildArchive([], [self::BASE_VIEWS . $view . '.phtml']);
 
         [$status, $output] = $this->smoke();
 
         self::assertNotSame(0, $status);
-        self::assertStringContainsString($message, $output);
-        self::assertStringNotContainsString('dist-smoke passed', $output);
-    }
-
-    /**
-     * An entry that only resembles a forbidden one passes, so the checks reject exactly their own paths.
-     */
-    #[Test]
-    #[DataProvider('lookalikeEntries')]
-    public function acceptsAnEntryThatOnlyLooksForbidden(string $path): void
-    {
-        $this->buildArchive([$path => "content\n"]);
-
-        [$status, $output] = $this->smoke();
-
-        self::assertSame(0, $status, $output);
-        self::assertStringContainsString('dist-smoke passed', $output);
-    }
-
-    /**
-     * The unprefixed module-base namespace in module.php fails the smoke test in either spelling.
-     */
-    #[Test]
-    #[DataProvider('unprefixedNamespaces')]
-    public function rejectsAnArchiveWithAnUnprefixedNamespace(string $namespace): void
-    {
-        $this->buildArchive([
-            'module.php' => "<?php\n\n// MagicSunday\\\\StatisticsVendor\\\\Webtrees\\\\ModuleBase\n// " . $namespace . "\n",
-        ]);
-
-        [$status, $output] = $this->smoke();
-
-        self::assertNotSame(0, $status);
-        self::assertStringContainsString('Error: module.php in zip still contains unprefixed', $output);
+        self::assertStringContainsString(
+            'Error: required prefix has no entries in zip: ' . self::BASE_VIEWS . $view . '.phtml',
+            $output
+        );
         self::assertStringNotContainsString('dist-smoke passed', $output);
     }
 
@@ -195,15 +184,15 @@ final class DistSmokeTest extends TestCase
         $commit = str_repeat('b', 40);
 
         $this->buildArchive([], [], false);
-        file_put_contents($this->workDir . '/module/webtrees-statistics.commit', $commit . "\n");
+        file_put_contents($this->workDir . '/module/' . $this->moduleName . '.commit', $commit . "\n");
 
         [$status, $output] = $this->processRunner->execute(['make', 'dist-stamp'], $this->workDir . '/module');
 
         self::assertSame(0, $status, $output);
-        self::assertFileDoesNotExist($this->workDir . '/module/webtrees-statistics.commit');
+        self::assertFileDoesNotExist($this->workDir . '/module/' . $this->moduleName . '.commit');
 
         [$status, $comment] = $this->processRunner->execute(
-            ['unzip', '-z', $this->workDir . '/module/webtrees-statistics.zip'],
+            ['unzip', '-z', $this->workDir . '/module/' . $this->moduleName . '.zip'],
             $this->workDir . '/module'
         );
 
@@ -226,9 +215,9 @@ final class DistSmokeTest extends TestCase
 
         self::assertSame(0, $status, $output);
 
-        $resolved = strpos($output, 'git rev-parse HEAD > webtrees-statistics.commit');
-        $archived = strpos($output, 'git archive --prefix=webtrees-statistics/ "$(cat webtrees-statistics.commit)"');
-        $stamped  = strpos($output, 'zip --quiet -z webtrees-statistics.zip < webtrees-statistics.commit');
+        $resolved = strpos($output, 'git rev-parse HEAD > ' . $this->moduleName . '.commit');
+        $archived = strpos($output, 'git archive --prefix=' . $this->moduleName . '/ "$(cat ' . $this->moduleName . '.commit)"');
+        $stamped  = strpos($output, 'zip --quiet -z ' . $this->moduleName . '.zip < ' . $this->moduleName . '.commit');
 
         self::assertNotFalse($resolved, $output);
         self::assertNotFalse($archived, $output);
@@ -236,6 +225,115 @@ final class DistSmokeTest extends TestCase
         self::assertLessThan($archived, $resolved);
         self::assertLessThan($stamped, $archived);
         self::assertSame(1, substr_count($output, 'git rev-parse HEAD'), $output);
+    }
+
+    /**
+     * An archive without the version of the bundled module base fails the smoke test, because nothing in the archive
+     * would say which module base it carries.
+     */
+    #[Test]
+    public function rejectsAnArchiveWithoutTheModuleBaseVersion(): void
+    {
+        $this->buildArchive([], [self::BASE . 'VERSION']);
+
+        [$status, $output] = $this->smoke();
+
+        self::assertNotSame(0, $status);
+        self::assertStringContainsString('Error: the zip carries no well-formed module base version', $output);
+        self::assertStringNotContainsString('dist-smoke passed', $output);
+    }
+
+    /**
+     * An entry that is not a single release version fails the smoke test, whether it is a branch, a short version,
+     * free text, empty, padded or spread over two lines.
+     */
+    #[Test]
+    #[DataProvider('malformedModuleBaseVersions')]
+    public function rejectsAnArchiveWithAMalformedModuleBaseVersion(string $entry): void
+    {
+        $this->buildArchive([self::BASE . 'VERSION' => $entry]);
+
+        [$status, $output] = $this->smoke();
+
+        self::assertNotSame(0, $status);
+        self::assertStringContainsString('Error: the zip carries no well-formed module base version', $output);
+        self::assertStringNotContainsString('dist-smoke passed', $output);
+    }
+
+    /**
+     * A release version of the module base passes the smoke test, with or without a pre-release suffix or a tag
+     * prefix.
+     */
+    #[Test]
+    #[DataProvider('wellFormedModuleBaseVersions')]
+    public function acceptsAnArchiveWithAWellFormedModuleBaseVersion(string $entry): void
+    {
+        $this->buildArchive([self::BASE . 'VERSION' => $entry]);
+
+        [$status, $output] = $this->smoke();
+
+        self::assertSame(0, $status, $output);
+        self::assertStringContainsString('dist-smoke passed', $output);
+    }
+
+    /**
+     * The version target writes the version that composer resolved for the module base into the bundled copy, and
+     * leaves the versions of the other packages alone.
+     */
+    #[Test]
+    public function recordsTheVersionThatComposerResolvedForTheModuleBase(): void
+    {
+        $this->prepareResolvedPackages([
+            ['name' => 'psr/log', 'version' => '9.9.9'],
+            ['name' => 'magicsunday/webtrees-module-base', 'version' => '3.4.0'],
+        ]);
+
+        [$status, $output] = $this->processRunner->execute(['make', 'dist-base-version'], $this->workDir . '/module');
+
+        self::assertSame(0, $status, $output);
+        self::assertSame("3.4.0\n", file_get_contents($this->baseVersionFile()));
+    }
+
+    /**
+     * The version target stops when composer resolved no release version of the module base, so a build from a
+     * branch or without the package cannot produce an archive without a version.
+     *
+     * @param list<array{name: string, version: string}> $packages The packages as composer lists them.
+     */
+    #[Test]
+    #[DataProvider('unusableResolvedPackages')]
+    public function refusesToRecordWhenComposerResolvedNoReleaseOfTheModuleBase(array $packages): void
+    {
+        $this->prepareResolvedPackages($packages);
+
+        [$status, $output] = $this->processRunner->execute(['make', 'dist-base-version'], $this->workDir . '/module');
+
+        self::assertNotSame(0, $status);
+        self::assertStringContainsString('Error: no well-formed version of the module base', $output);
+    }
+
+    /**
+     * The dist target records the version after it bundled the module base and before it packs the archive, and it
+     * builds without the flag that switches the advisory blocking of composer off.
+     */
+    #[Test]
+    public function recordsTheModuleBaseVersionBeforePackingAndKeepsSecurityBlockingOn(): void
+    {
+        [$status, $output] = $this->processRunner->execute(['make', '-n', 'dist'], $this->workDir . '/module');
+
+        self::assertSame(0, $status, $output);
+
+        $bundled  = strpos($output, 'cp -L .build/vendor/magicsunday/webtrees-module-base/LICENSE');
+        $recorded = strpos($output, '> ' . $this->moduleName . '/' . self::BASE . 'VERSION');
+        $packed   = strpos($output, 'zip --quiet --recurse-paths');
+
+        self::assertNotFalse($bundled, $output);
+        self::assertNotFalse($recorded, $output);
+        self::assertNotFalse($packed, $output);
+        self::assertLessThan($recorded, $bundled);
+        self::assertLessThan($packed, $recorded);
+        self::assertStringContainsString('composer update --no-dev', $output);
+        self::assertStringNotContainsString('--no-security-blocking', $output);
     }
 
     /**
@@ -271,6 +369,76 @@ final class DistSmokeTest extends TestCase
     }
 
     /**
+     * An empty shared view fails the smoke test after the extraction.
+     */
+    #[Test]
+    #[DataProvider('sharedViews')]
+    public function rejectsAnArchiveWithAnEmptySharedView(string $view): void
+    {
+        $this->skipWithoutSharedViews($view);
+
+        $this->buildArchive([self::BASE_VIEWS . $view . '.phtml' => '']);
+
+        [$status, $output] = $this->smoke();
+
+        self::assertNotSame(0, $status);
+        self::assertStringContainsString(
+            'Error: bundled module-base view ' . $view . ' is missing or empty in extracted zip',
+            $output
+        );
+        self::assertStringNotContainsString('dist-smoke passed', $output);
+    }
+
+    /**
+     * An entry that the archive must not carry fails the smoke test with the message of its own check.
+     */
+    #[Test]
+    #[DataProvider('forbiddenEntries')]
+    public function rejectsAnArchiveWithAForbiddenEntry(string $path, string $message): void
+    {
+        $this->buildArchive([$path => "content\n"]);
+
+        [$status, $output] = $this->smoke();
+
+        self::assertNotSame(0, $status);
+        self::assertStringContainsString($message, $output);
+        self::assertStringNotContainsString('dist-smoke passed', $output);
+    }
+
+    /**
+     * An entry that only resembles a forbidden one passes, so the checks reject exactly their own paths.
+     */
+    #[Test]
+    #[DataProvider('lookalikeEntries')]
+    public function acceptsAnEntryThatOnlyLooksForbidden(string $path): void
+    {
+        $this->buildArchive([$path => "content\n"]);
+
+        [$status, $output] = $this->smoke();
+
+        self::assertSame(0, $status, $output);
+        self::assertStringContainsString('dist-smoke passed', $output);
+    }
+
+    /**
+     * The unprefixed module-base namespace in module.php fails the smoke test in either spelling.
+     */
+    #[Test]
+    #[DataProvider('unprefixedNamespaces')]
+    public function rejectsAnArchiveWithAnUnprefixedNamespace(string $namespace): void
+    {
+        $this->buildArchive([
+            'module.php' => "<?php\n\n// MagicSunday\\\\" . ModuleParameters::scopeNamespace() . "\\\\Webtrees\\\\ModuleBase\n// " . $namespace . "\n",
+        ]);
+
+        [$status, $output] = $this->smoke();
+
+        self::assertNotSame(0, $status);
+        self::assertStringContainsString('Error: module.php in zip still contains unprefixed', $output);
+        self::assertStringNotContainsString('dist-smoke passed', $output);
+    }
+
+    /**
      * A module.php without the scoped module-base namespace fails the smoke test.
      */
     #[Test]
@@ -292,7 +460,7 @@ final class DistSmokeTest extends TestCase
     #[DataProvider('sourceDirectories')]
     public function rejectsAnArchiveWithASourceDirectoryWithoutPhpFiles(string $directory): void
     {
-        $sources = 'vendor/magicsunday/webtrees-module-base/src/' . $directory . '/';
+        $sources = self::BASE_SOURCES . $directory . '/';
 
         $this->buildArchive([$sources . 'README.md' => "text\n"], [$sources . 'Entry.php']);
 
@@ -315,6 +483,111 @@ final class DistSmokeTest extends TestCase
             'root'         => ['tsconfig.json'],
             'subdirectory' => ['resources/tsconfig.json'],
         ];
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function malformedBuildCommits(): array
+    {
+        return [
+            'short'     => ['c0ffee'],
+            'not hex'   => [str_repeat('g', 40)],
+            'uppercase' => [str_repeat('A', 40)],
+            'too long'  => [str_repeat('a', 41)],
+        ];
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function malformedModuleBaseVersions(): array
+    {
+        return [
+            'branch'          => ["dev-main\n"],
+            'prefixed branch' => ["dev-fix-1.2.3\n"],
+            'short'           => ["3.4\n"],
+            'text'            => ["latest\n"],
+            'empty'           => [''],
+            'padded'          => ["3.4.0 \n"],
+            'two lines'       => ["3.4.0\n3.4.1\n"],
+            'extra line'      => ["3.4.0\nnote\n"],
+            'bare suffix'     => ["3.4.0-\n"],
+        ];
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function wellFormedModuleBaseVersions(): array
+    {
+        return [
+            'release'     => ["3.4.0\n"],
+            'pre-release' => ["3.4.0-rc.1\n"],
+            'tag prefix'  => ["v3.4.0\n"],
+            'no newline'  => ['3.4.0'],
+        ];
+    }
+
+    /**
+     * @return array<string, array{list<array{name: string, version: string}>}>
+     */
+    public static function unusableResolvedPackages(): array
+    {
+        return [
+            'branch'          => [[['name' => 'magicsunday/webtrees-module-base', 'version' => 'dev-main']]],
+            'prefixed branch' => [[['name' => 'magicsunday/webtrees-module-base', 'version' => 'dev-fix-1.2.3']]],
+            'absent'          => [[['name' => 'psr/log', 'version' => '3.0.0']]],
+            'no list'         => [[]],
+        ];
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function requiredFiles(): array
+    {
+        return [
+            'module entry point' => ['module.php'],
+            'license'            => ['LICENSE'],
+        ];
+    }
+
+    /**
+     * Provides the one entry whose omission leaves a required prefix without entries, with the prefix that the
+     * check names.
+     *
+     * @return array<string, array{string, string}>
+     */
+    public static function requiredPrefixes(): array
+    {
+        return [
+            'versioned bundle' => [
+                'resources/js/' . ModuleParameters::scriptName() . '-1.min.js',
+                'resources/js/' . ModuleParameters::scriptName() . '-[0-9]',
+            ],
+            'contracts'  => [self::BASE_SOURCES . 'Contract/Entry.php', self::BASE_SOURCES . 'Contract/'],
+            'models'     => [self::BASE_SOURCES . 'Model/Entry.php', self::BASE_SOURCES . 'Model/'],
+            'modules'    => [self::BASE_SOURCES . 'Module/Entry.php', self::BASE_SOURCES . 'Module/'],
+            'processors' => [self::BASE_SOURCES . 'Processor/Entry.php', self::BASE_SOURCES . 'Processor/'],
+        ];
+    }
+
+    /**
+     * The shared views that the module bundles, by name. A module without shared views gets one row with an empty
+     * name, so that the cases that need a view are reported as skipped and not as an empty data provider.
+     *
+     * @return array<string, array{string}>
+     */
+    public static function sharedViews(): array
+    {
+        $views = [];
+
+        foreach (ModuleParameters::sharedViews() as $view) {
+            $views[$view] = [$view];
+        }
+
+        return $views === [] ? ['no shared views' => ['']] : $views;
     }
 
     /**
@@ -346,47 +619,6 @@ final class DistSmokeTest extends TestCase
             'character in composer file' => ['composerxjson'],
             'nested deptrac file'        => ['resources/deptrac.yaml'],
             'text after deptrac file'    => ['deptrac.yaml.dist'],
-        ];
-    }
-
-    /**
-     * @return array<string, array{string}>
-     */
-    public static function malformedBuildCommits(): array
-    {
-        return [
-            'short'     => ['c0ffee'],
-            'not hex'   => [str_repeat('g', 40)],
-            'uppercase' => [str_repeat('A', 40)],
-            'too long'  => [str_repeat('a', 41)],
-        ];
-    }
-
-    /**
-     * @return array<string, array{string}>
-     */
-    public static function requiredFiles(): array
-    {
-        return [
-            'module entry point' => ['module.php'],
-            'license'            => ['LICENSE'],
-        ];
-    }
-
-    /**
-     * Provides the one entry whose omission leaves a required prefix without entries, with the prefix that the
-     * check names.
-     *
-     * @return array<string, array{string, string}>
-     */
-    public static function requiredPrefixes(): array
-    {
-        return [
-            'versioned bundle' => ['resources/js/statistics-1.min.js', 'resources/js/statistics-[0-9]'],
-            'contracts'        => [self::BASE_SOURCES . 'Contract/Entry.php', self::BASE_SOURCES . 'Contract/'],
-            'models'           => [self::BASE_SOURCES . 'Model/Entry.php', self::BASE_SOURCES . 'Model/'],
-            'modules'          => [self::BASE_SOURCES . 'Module/Entry.php', self::BASE_SOURCES . 'Module/'],
-            'processors'       => [self::BASE_SOURCES . 'Processor/Entry.php', self::BASE_SOURCES . 'Processor/'],
         ];
     }
 
@@ -428,18 +660,27 @@ final class DistSmokeTest extends TestCase
         bool $stamp = true,
         ?string $stampText = null,
     ): void {
-        $scopedNamespace = 'MagicSunday\\\\StatisticsVendor\\\\Webtrees\\\\ModuleBase';
-        $base            = 'vendor/magicsunday/webtrees-module-base/';
+        $scopedNamespace = 'MagicSunday\\\\' . ModuleParameters::scopeNamespace() . '\\\\Webtrees\\\\ModuleBase';
+        $base            = self::BASE;
 
         $files = [
-            'module.php'                       => "<?php\n\n// " . $scopedNamespace . "\n",
-            'LICENSE'                          => "license\n",
-            'resources/js/statistics-1.min.js' => "bundle\n",
-            $base . 'src/Contract/Entry.php'   => "<?php\n",
-            $base . 'src/Model/Entry.php'      => "<?php\n",
-            $base . 'src/Module/Entry.php'     => "<?php\n",
-            $base . 'src/Processor/Entry.php'  => "<?php\n",
+            'module.php'                                                   => "<?php\n\n// " . $scopedNamespace . "\n",
+            'LICENSE'                                                      => "license\n",
+            'resources/js/' . ModuleParameters::scriptName() . '-1.min.js' => "bundle\n",
+            $base . 'src/Contract/Entry.php'                               => "<?php\n",
+            $base . 'src/Model/Entry.php'                                  => "<?php\n",
+            $base . 'src/Module/Entry.php'                                 => "<?php\n",
+            $base . 'src/Processor/Entry.php'                              => "<?php\n",
+            $base . 'VERSION'                                              => "3.4.0\n",
         ];
+
+        if (ModuleParameters::sharedViews() !== []) {
+            $files[$base . 'src/View/SharedViews.php'] = "<?php\n\n// '" . ModuleParameters::scopeViewNamespace() . "'\n";
+
+            foreach (ModuleParameters::sharedViews() as $view) {
+                $files[self::BASE_VIEWS . $view . '.phtml'] = "view\n";
+            }
+        }
 
         foreach ($overrides as $path => $content) {
             $files[$path] = $content;
@@ -462,7 +703,7 @@ final class DistSmokeTest extends TestCase
         }
 
         [$status, $output] = $this->processRunner->execute(
-            ['zip', '-qr', $this->workDir . '/module/webtrees-statistics.zip', '.'],
+            ['zip', '-qr', $this->workDir . '/module/' . $this->moduleName . '.zip', '.'],
             $this->workDir . '/stage'
         );
 
@@ -478,12 +719,48 @@ final class DistSmokeTest extends TestCase
                 '-c',
                 'printf "%s\n" "$0" | zip -q -z "$1"',
                 $stampText ?? str_repeat('a', 40),
-                $this->workDir . '/module/webtrees-statistics.zip',
+                $this->workDir . '/module/' . $this->moduleName . '.zip',
             ],
             $this->workDir . '/stage'
         );
 
         self::assertSame(0, $status, $output);
+    }
+
+    /**
+     * Gives the scratch copy the composer metadata of a build and the bundled module base that the version target
+     * writes into.
+     *
+     * @param list<array{name: string, version: string}> $packages The packages as composer lists them.
+     */
+    private function prepareResolvedPackages(array $packages): void
+    {
+        mkdir($this->workDir . '/module/.build/vendor/composer', 0o777, true);
+        mkdir(dirname($this->baseVersionFile()), 0o777, true);
+
+        file_put_contents(
+            $this->workDir . '/module/.build/vendor/composer/installed.json',
+            json_encode(['packages' => $packages], JSON_THROW_ON_ERROR)
+        );
+    }
+
+    /**
+     * Returns the path of the version file that the version target writes into the bundled module base of the
+     * scratch copy.
+     */
+    private function baseVersionFile(): string
+    {
+        return $this->workDir . '/module/' . $this->moduleName . '/' . self::BASE . 'VERSION';
+    }
+
+    /**
+     * Skips the case when the module bundles no shared views, which the data provider reports as an empty view name.
+     */
+    private function skipWithoutSharedViews(string $view): void
+    {
+        if ($view === '') {
+            self::markTestSkipped('The module bundles no shared module-base views.');
+        }
     }
 
     /**
