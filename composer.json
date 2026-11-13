@@ -122,6 +122,10 @@
         "ci:test:php:integration": [
             "phpunit --configuration phpunit.xml --display-all-issues tests/Integration"
         ],
+        "ci:test:php:advisories": [
+            "@composer audit --format=json > .build/composer-audit.json || true",
+            "@php scripts/check-stale-advisory-ignores.php composer.json .build/composer-audit.json"
+        ],
         "ci:test:php:templates": [
             "check-consumer-config.php ."
         ],
@@ -163,6 +167,7 @@
             "@ci:test:php:cpd",
             "@ci:test:php:templates",
             "@ci:test:php:deptrac",
+            "@ci:test:php:advisories",
             "@ci:test:php:unit",
             "@ci:test:js:unit"
         ]
