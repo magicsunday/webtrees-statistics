@@ -27,7 +27,7 @@ mirror-histogram / gauge / box-plot / heatmap / treemap / event-timeline widgets
 
 
 ## Installation
-Requires **webtrees 2.2.2** or a later 2.2 release and **PHP 8.3** or later.
+Requires **webtrees 2.2.2** or a later 2.2 release and **PHP 8.3** or a later PHP 8 release.
 
 ### Manual installation
 
@@ -153,7 +153,7 @@ The dashboard ships with light- and dark-mode visuals; the module reads `data-bs
 
 **The Statistics menu entry is missing**
 - Make sure the module is enabled in the Control Panel under Modules > Charts.
-- Check that your PHP version is 8.3 or later.
+- Check that your PHP version is 8.3 or a later PHP 8 release.
 
 **Charts do not render / tabs are empty**
 - Clear your browser cache and reload the page.

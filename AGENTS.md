@@ -2,7 +2,7 @@
 This repository hosts the webtrees statistics module — a six-tab dashboard of tree-wide statistics built on the chart-lib widgets, installed as a Composer package inside webtrees. The tabs, in nav order, are: Overview (population summary), Names (surnames + given names + decade trends), Life span (births + deaths + age distributions), Family (marriage / divorce / children / kinship aggregates), Places (geographical distributions), Tree health (data-quality).
 
 ## Setup/env
-- PHP 8.3+ with extensions dom, json and intl is required; composer installs dependencies into `.build/vendor` and binaries into `.build/bin`.
+- PHP 8.3 up to but not including 9 with extensions dom, json and intl is required. The constraint is `>=8.3 <9` and the CI matrix states what is tested. Composer installs dependencies into `.build/vendor` and binaries into `.build/bin`.
 - Node.js tooling is used for asset builds (rollup). Install dev dependencies via `npm install` when touching frontend resources.
 - Run all PHP and Node tooling inside the webtrees buildbox container — never on the host:
   ```
