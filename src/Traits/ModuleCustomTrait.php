@@ -84,7 +84,7 @@ trait ModuleCustomTrait
         }
 
         $extension = mb_strtoupper(pathinfo($asset, PATHINFO_EXTENSION), 'UTF-8');
-        $mimeType  = static::ASSET_MIME_TYPES[$extension] ?? Mime::TYPES[$extension] ?? Mime::DEFAULT_TYPE;
+        $mimeType  = self::ASSET_MIME_TYPES[$extension] ?? Mime::TYPES[$extension] ?? Mime::DEFAULT_TYPE;
 
         return response($content, StatusCodeInterface::STATUS_OK, [
             'cache-control' => 'public,max-age=31536000',
