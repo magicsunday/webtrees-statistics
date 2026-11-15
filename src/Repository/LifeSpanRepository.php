@@ -1217,10 +1217,6 @@ final readonly class LifeSpanRepository
 
         $years = CalendarSpan::wholeYears($birthJd, $deathJd);
 
-        if ($years < 0) {
-            return null;
-        }
-
         if ($years > $maxAge) {
             return null;
         }
