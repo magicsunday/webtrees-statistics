@@ -662,6 +662,34 @@ describe("renderWidgets", () => {
         expect(removeListenerSpy).toHaveBeenCalledTimes(1);
     });
 
+    test("a disconnect() drops the held entrances so a late observer callback plays nothing", () => {
+        const observers = [];
+        global.IntersectionObserver = class {
+            constructor(callback) {
+                this.callback = callback;
+                observers.push(this);
+            }
+            observe() {}
+            unobserve() {}
+            disconnect() {}
+        };
+
+        document.body.innerHTML = `<div id="d1" data-widget="donut-chart" data-payload='[]'></div>`;
+        const node = document.getElementById("d1");
+        const result = renderWidgets(document.body);
+
+        // Off-screen at render (default jsdom rect), so the entrance is held.
+        expect(donutPlayEntrySpy).not.toHaveBeenCalled();
+
+        result.disconnect();
+
+        // A callback that was already queued when disconnect() ran must find the
+        // held map empty and play nothing.
+        observers[0].callback([{ isIntersecting: true, target: node }], observers[0]);
+
+        expect(donutPlayEntrySpy).not.toHaveBeenCalled();
+    });
+
     test("fast-forwards held entrances and stops arming when reduced-motion turns on after render", () => {
         const observers = [];
         global.IntersectionObserver = class {
