@@ -32,8 +32,8 @@ use function sprintf;
  * Every helper is TYPED end to end (no `mixed` escape hatch): the accessors
  * return the concrete element type so a chained `->property` / `[$offset]`
  * access stays statically sound, and {@see assertValueAt()} keeps the value at
- * the assertion boundary. Implemented as a static-only utility (not a trait —
- * the project's Symplify `ForbiddenNodeRule` bans traits) and routed through
+ * the assertion boundary. Implemented as a static-only utility (not a trait,
+ * because the Symplify `ForbiddenTraitRule` forbids traits) and routed through
  * `PHPUnit\Framework\Assert` statically, so it resolves cleanly whether the
  * consuming class is an `AbstractIntegrationTestCase` subclass or a stand-alone test.
  *
