@@ -11,9 +11,12 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test;
 
+use Fisharebest\Webtrees\Factories\ResponseFactory;
 use Fisharebest\Webtrees\Http\Exceptions\HttpAccessDeniedException;
 use Fisharebest\Webtrees\Http\Exceptions\HttpNotFoundException;
+use Fisharebest\Webtrees\Registry;
 use MagicSunday\Webtrees\Statistic\Module;
+use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -55,6 +58,18 @@ final class ModuleTest extends TestCase
         'Places',
         'TreeHealth',
     ];
+
+    /**
+     * The asset handler builds its response through the webtrees registry, whose
+     * response factory is only set once the application has booted. Wiring it
+     * the way the core does lets every test of this class run on its own.
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        Registry::responseFactory(new ResponseFactory(new Psr17Factory(), new Psr17Factory()));
+    }
 
     /**
      * One row per tab action — extend whenever a new tab is added, and the
