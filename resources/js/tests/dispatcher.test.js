@@ -845,9 +845,9 @@ describe("world-map GeoJSON URL", () => {
         document.body.innerHTML = "";
     });
 
-    // Each case imports the module afresh: `cachedGeoJson` is module-level and
-    // never reset, so whichever case ran first would otherwise satisfy the
-    // second before it ever resolves a URL.
+    // Each case imports the module afresh: `geoJsonPromise` is module-level and
+    // nothing clears it between cases, so whichever case ran first would
+    // otherwise satisfy the second before it ever resolves a URL.
     const freshDispatcher = async () => {
         jest.resetModules();
 
@@ -906,6 +906,46 @@ describe("world-map GeoJSON URL", () => {
         expect(geoJsonFetchSpy).toHaveBeenCalledWith(
             expect.stringContaining("_webtrees-statistics_"),
         );
+    });
+
+    test("requests the GeoJSON once for several maps rendered in one pass", async () => {
+        const renderFresh = await freshDispatcher();
+
+        document.body.innerHTML = `
+            <div data-widget="world-map" data-payload='[]'></div>
+            <div data-widget="world-map" data-payload='[]'></div>
+            <div data-widget="world-map" data-payload='[]'></div>
+        `;
+
+        renderFresh(document.body);
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        expect(geoJsonFetchSpy).toHaveBeenCalledTimes(1);
+    });
+
+    test("requests the GeoJSON again on a later render after a failed request", async () => {
+        const renderFresh = await freshDispatcher();
+        const consoleError = jest.spyOn(console, "error").mockImplementation(() => {});
+
+        try {
+            geoJsonFetchSpy.mockImplementationOnce(() => Promise.reject(new Error("offline")));
+
+            document.body.innerHTML = `<div data-widget="world-map" data-payload='[]'></div>`;
+
+            renderFresh(document.body);
+            await new Promise((resolve) => setTimeout(resolve, 0));
+
+            expect(geoJsonFetchSpy).toHaveBeenCalledTimes(1);
+
+            document.body.innerHTML = `<div data-widget="world-map" data-payload='[]'></div>`;
+
+            renderFresh(document.body);
+            await new Promise((resolve) => setTimeout(resolve, 0));
+
+            expect(geoJsonFetchSpy).toHaveBeenCalledTimes(2);
+        } finally {
+            consoleError.mockRestore();
+        }
     });
 });
 
