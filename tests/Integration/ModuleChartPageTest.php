@@ -12,13 +12,14 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use Aura\Router\Route;
+use DOMDocument;
+use DOMElement;
 use Fisharebest\Webtrees\Auth;
 use Fisharebest\Webtrees\Module\ModuleThemeInterface;
 use Fisharebest\Webtrees\Module\WebtreesTheme;
 use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Services\ModuleService;
 use Fisharebest\Webtrees\Tree;
-use Fisharebest\Webtrees\Validator;
 use Fisharebest\Webtrees\View;
 use Illuminate\Support\Collection;
 use MagicSunday\Webtrees\Statistic\Module;
@@ -28,6 +29,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ServerRequestInterface;
 
+use function libxml_clear_errors;
+use function libxml_use_internal_errors;
 use function realpath;
 
 /**
@@ -47,18 +50,32 @@ use function realpath;
 final class ModuleChartPageTest extends AbstractIntegrationTestCase
 {
     /**
-     * The chart root carries the world-map URL, resolved through the asset route
-     * of the module, so a renamed attribute in the view or a dropped payload key
-     * in the action leaves the front-end on its fallback route unnoticed.
+     * The chart root carries the world-map URL exactly as the module resolves it
+     * through its asset route, so a renamed attribute in the view or a dropped or
+     * altered payload key in the action leaves the front-end on its fallback route
+     * unnoticed. The root is selected by its id, which the tab navigation relies
+     * on as well.
      */
     #[Test]
     public function chartRootCarriesTheWorldMapAssetUrl(): void
     {
-        $html = $this->renderChartPage();
+        $module = new Module();
+        $module->setName('webtrees-statistics');
 
-        self::assertMatchesRegularExpression(
-            '/id="statistics-tabs"[^>]*data-geojson-url="[^"]*world-map\.geojson[^"]*"/',
-            $html,
+        $html     = $this->renderChartPage($module);
+        $document = new DOMDocument();
+
+        $previousErrorHandling = libxml_use_internal_errors(true);
+        $document->loadHTML($html);
+        libxml_clear_errors();
+        libxml_use_internal_errors($previousErrorHandling);
+
+        $chartRoot = $document->getElementById('statistics-tabs');
+
+        self::assertInstanceOf(DOMElement::class, $chartRoot);
+        self::assertSame(
+            $module->assetUrl('js/world-map.geojson'),
+            $chartRoot->getAttribute('data-geojson-url'),
         );
     }
 
@@ -67,7 +84,7 @@ final class ModuleChartPageTest extends AbstractIntegrationTestCase
      * into the request, register the view namespace of the module and let the
      * action build the response.
      */
-    private function renderChartPage(): string
+    private function renderChartPage(Module $module): string
     {
         $tree = $this->importFixtureTree('oldest-ties.ged');
 
@@ -98,11 +115,6 @@ final class ModuleChartPageTest extends AbstractIntegrationTestCase
 
         // The layout reads the request again from the container.
         Registry::container()->set(ServerRequestInterface::class, $request);
-
-        $module = new Module();
-        $module->setName('webtrees-statistics');
-
-        self::assertSame($tree, Validator::attributes($request)->tree());
 
         return (string) $module->getChartAction($request)->getBody();
     }
