@@ -88,10 +88,10 @@ final readonly class TreeHealthRepository
      * which rely on family lore. Per-century companion to {@see
      * sourceCitationCoverage()}.
      *
-     * Two queries feed the breakdown: one collects the earliest gregorian /
-     * julian birth year per individual ({@see MIN()} + `GROUP BY d_gid` so
-     * multi-row pairs persisted by webtrees' minimum/maximum date storage do
-     * not double-count), the other collects the set of individual ids that have
+     * Two queries feed the breakdown: one collects the birth year per individual
+     * from {@see DedupedEventDates}, which collapses the multi-row pairs persisted
+     * by webtrees' minimum/maximum date storage to a single row so no individual
+     * is counted twice, the other collects the set of individual ids that have
      * at least one SOUR citation. The view-side intersection happens in PHP
      * rather than as an EXISTS subquery so the planner can hit each table's
      * indices independently. The SOUR-link query joins to `individuals` so

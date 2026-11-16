@@ -847,10 +847,6 @@ final readonly class ChildrenRepository
             for ($i = 1; $i < $counter; ++$i) {
                 $gap = CalendarSpan::wholeYears($jds[$i - 1] ?? 0, $jds[$i] ?? 0);
 
-                if ($gap < 0) {
-                    continue;
-                }
-
                 $label           = $this->siblingBucketLabel($gap);
                 $buckets[$label] = ($buckets[$label] ?? 0) + 1;
             }
