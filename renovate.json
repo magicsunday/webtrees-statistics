@@ -2,5 +2,17 @@
     "$schema": "https://docs.renovatebot.com/renovate-schema.json",
     "extends": [
         "local>magicsunday/.github:renovate-config"
+    ],
+    "packageRules": [
+        {
+            "description": "The integration job stays on the 8.4 line of MySQL, the long-term support line, and does not follow the next major. Raising the line is a deliberate change of this rule.",
+            "matchDatasources": [
+                "docker"
+            ],
+            "matchPackageNames": [
+                "mysql"
+            ],
+            "allowedVersions": "/^8\\.4(\\.|$)/"
+        }
     ]
 }
