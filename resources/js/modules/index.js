@@ -38,8 +38,8 @@ import {
 const WORLD_GEOJSON_URL_FALLBACK =
     "/index.php?route=%2Fmodule%2F_webtrees-statistics_%2FAsset&asset=js/world-map.geojson";
 
-/** @type {import("geojson").FeatureCollection | null} */
-let cachedGeoJson = null;
+/** @type {Promise<import("geojson").FeatureCollection> | null} */
+let geoJsonPromise = null;
 
 /**
  * Reads the server-resolved GeoJSON URL from the page root.
@@ -55,21 +55,22 @@ function worldGeoJsonUrl() {
 
 /**
  * Lazily load (and cache) the world GeoJSON. The chart-lib WorldMap widget
- * needs the FeatureCollection up-front in its options; we fetch it once per
- * page load and reuse for every map render.
+ * needs the FeatureCollection up-front in its options. The request itself is
+ * cached, not its result, so that maps rendered in the same pass share one
+ * in-flight request instead of each starting their own. A failed request is
+ * dropped from the cache so that a later render can try again.
  *
- * @returns {Promise<object>} The parsed FeatureCollection.
+ * @returns {Promise<import("geojson").FeatureCollection>} The parsed FeatureCollection.
  */
-async function loadWorldGeoJson() {
-    if (cachedGeoJson === null) {
-        const raw = /** @type {import("geojson").FeatureCollection} */ (
-            await json(worldGeoJsonUrl())
-        );
-        // Drop Antarctica — no genealogy data is going to land in
-        // AQ and the continent eats roughly a third of a Mercator
-        // projection's vertical space, squishing every populated
-        // landmass.
-        cachedGeoJson = {
+function loadWorldGeoJson() {
+    if (geoJsonPromise === null) {
+        const request = /** @type {Promise<import("geojson").FeatureCollection>} */ (
+            json(worldGeoJsonUrl())
+        ).then((raw) => ({
+            // Drop Antarctica. No genealogy data is going to land in
+            // AQ and the continent eats roughly a third of a Mercator
+            // projection's vertical space, squishing every populated
+            // landmass.
             ...raw,
             features: raw.features.filter((feature) => {
                 const iso =
@@ -78,9 +79,16 @@ async function loadWorldGeoJson() {
                     feature?.properties?.iso_a2;
                 return iso !== "AQ";
             }),
-        };
+        }));
+
+        geoJsonPromise = request;
+
+        request.catch(() => {
+            geoJsonPromise = null;
+        });
     }
-    return cachedGeoJson;
+
+    return geoJsonPromise;
 }
 
 /**
