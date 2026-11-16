@@ -53,6 +53,7 @@ use function array_key_last;
 use function array_keys;
 use function array_map;
 use function array_reverse;
+use function array_slice;
 use function count;
 use function getdate;
 use function gregoriantojd;
@@ -604,10 +605,12 @@ final readonly class LifeSpanRepository
         //
         // The core query applies its row cap BEFORE this privacy/parse filter,
         // so a single unparseable birth date among the oldest rows would leave
-        // the card one entry short. Over-fetch a margin and stop once $limit
-        // valid entries are collected (the query is already oldest-first).
+        // the card one entry short. Over-fetch a margin, then rank the valid
+        // rows here. The core query orders by birth day only, so rows with an
+        // equal birth day come back in an engine-chosen order, and the cap must
+        // not decide between the fetched rows.
         $todayJulianDay = $this->todayJulianDay();
-        $entries        = [];
+        $candidates     = [];
 
         $overFetch = ($limit > 0) ? ($limit * 3) : $limit;
 
@@ -624,30 +627,51 @@ final readonly class LifeSpanRepository
                 continue;
             }
 
-            $years     = CalendarSpan::wholeYears($birthJd, $todayJulianDay);
-            $entries[] = new RankingEntry($individual->xref(), $this->plainName($individual), $years);
-
-            if (($limit > 0) && (count($entries) >= $limit)) {
-                break;
-            }
+            $candidates[] = [
+                'individual' => $individual,
+                'birthJd'    => $birthJd,
+                'years'      => CalendarSpan::wholeYears($birthJd, $todayJulianDay),
+            ];
         }
 
-        return $entries;
+        usort(
+            $candidates,
+            static fn (array $a, array $b): int => [$a['birthJd'], $a['individual']->xref()]
+                <=> [$b['birthJd'], $b['individual']->xref()],
+        );
+
+        if ($limit > 0) {
+            $candidates = array_slice($candidates, 0, $limit);
+        }
+
+        return array_map(
+            fn (array $candidate): RankingEntry => new RankingEntry(
+                $candidate['individual']->xref(),
+                $this->plainName($candidate['individual']),
+                $candidate['years'],
+            ),
+            $candidates,
+        );
     }
 
     /**
-     * Single oldest-deceased record holder: the individual with the largest
-     * DEAT − BIRT julian-day delta, capped at 120 years so a single typo cannot
-     * win the slot. Used by the Hall-of-Fame widget on the Overview tab.
+     * Single oldest-deceased record holder: the individual with the highest
+     * shown age (ties go to the larger DEAT − BIRT julian-day delta, then to the
+     * lower XREF), capped at the tree's MAX_ALIVE_AGE preference so a single typo
+     * cannot win the slot. Used by the Hall-of-Fame widget on the Overview tab.
      */
     public function oldestDeceasedRecord(): ?IndividualAgeRecord
     {
         $maxAge = $this->maxPlausibleAge();
 
-        // Walk top-N until a plausible age (≤ MAX_ALIVE_AGE) wins;
-        // data-entry typos like "DEAT 9999" otherwise steal the
-        // slot. Scan depth 10 is enough — real outliers always
-        // have a real record-holder just below them.
+        // Scan the top-N for the plausible ages (≤ MAX_ALIVE_AGE), because
+        // data-entry typos like "DEAT 9999" otherwise steal the slot. Scan
+        // depth 10 is enough, real outliers always have a real record-holder
+        // just below them. The core query orders by the raw day span only, so
+        // the winner is picked here by the shown age, the exact span and the
+        // XREF, the order of the ranking list.
+        $candidates = [];
+
         foreach ($this->data->topTenOldestQuery('ALL', 10) as $entry) {
             $span = $this->resolveDeceasedSpan($entry);
 
@@ -665,24 +689,41 @@ final readonly class LifeSpanRepository
                 continue;
             }
 
-            return new IndividualAgeRecord(individual: $span['individual'], ageYears: $years);
+            $candidates[] = [
+                'individual' => $span['individual'],
+                'years'      => $years,
+                'span'       => $span['deathJd'] - $span['birthJd'],
+            ];
         }
 
-        return null;
+        if ($candidates === []) {
+            return null;
+        }
+
+        usort(
+            $candidates,
+            static fn (array $a, array $b): int => [$b['years'], $b['span'], $a['individual']->xref()]
+                <=> [$a['years'], $a['span'], $b['individual']->xref()],
+        );
+
+        return new IndividualAgeRecord(individual: $candidates[0]['individual'], ageYears: $candidates[0]['years']);
     }
 
     /**
      * Single oldest-living record holder: the individual without a recorded
-     * DEAT whose BIRT julian-day is earliest in the tree, capped at 120 years
-     * to discard implausible BIRT typos.
+     * DEAT whose BIRT julian-day is earliest in the tree, capped at the tree's
+     * MAX_ALIVE_AGE preference to discard implausible BIRT typos.
      */
     public function oldestLivingRecord(): ?IndividualAgeRecord
     {
         $todayJulianDay = $this->todayJulianDay();
         $maxAge         = $this->maxPlausibleAge();
 
-        // Same walk-until-plausible loop as oldestDeceasedRecord —
-        // an obviously-wrong BIRT year cannot drag the slot empty.
+        // Same scan as oldestDeceasedRecord, so an obviously-wrong BIRT year
+        // cannot drag the slot empty. Among the fetched rows with an equal birth
+        // day the lowest XREF wins.
+        $candidates = [];
+
         foreach ($this->data->topTenOldestAliveQuery('ALL', 10) as $individual) {
             $birthDate = $individual->getBirthDate();
 
@@ -706,10 +747,20 @@ final readonly class LifeSpanRepository
                 continue;
             }
 
-            return new IndividualAgeRecord(individual: $individual, ageYears: $years);
+            $candidates[] = ['individual' => $individual, 'birthJd' => $birthJd, 'years' => $years];
         }
 
-        return null;
+        if ($candidates === []) {
+            return null;
+        }
+
+        usort(
+            $candidates,
+            static fn (array $a, array $b): int => [$a['birthJd'], $a['individual']->xref()]
+                <=> [$b['birthJd'], $b['individual']->xref()],
+        );
+
+        return new IndividualAgeRecord(individual: $candidates[0]['individual'], ageYears: $candidates[0]['years']);
     }
 
     /**

@@ -11,10 +11,16 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
+use Fisharebest\Webtrees\Individual;
+use Fisharebest\Webtrees\Services\UserService;
+use Fisharebest\Webtrees\StatisticsData;
+use Fisharebest\Webtrees\Tree;
+use Illuminate\Support\Collection;
 use MagicSunday\Webtrees\ModuleBase\Support\Locale\IsoCountryMap;
 use MagicSunday\Webtrees\Statistic\Aggregator\IndividualAgeRecordResolver;
 use MagicSunday\Webtrees\Statistic\Enum\AgePairExtremum;
 use MagicSunday\Webtrees\Statistic\Enum\Sex;
+use MagicSunday\Webtrees\Statistic\Model\Ranking\RankingEntry;
 use MagicSunday\Webtrees\Statistic\Model\Record\FamilyCountRecord;
 use MagicSunday\Webtrees\Statistic\Model\Record\FamilyDurationDaysRecord;
 use MagicSunday\Webtrees\Statistic\Model\Record\FamilyDurationYearsRecord;
@@ -31,6 +37,8 @@ use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
+
+use function array_map;
 
 /**
  * End-to-end tests for the Hall-of-Fame record-holder methods across LifeSpan /
@@ -75,6 +83,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
 #[UsesClass(FamilyDurationYearsRecord::class)]
 #[UsesClass(IndividualAgeRecord::class)]
 #[UsesClass(IndividualCountRecord::class)]
+#[UsesClass(RankingEntry::class)]
 #[UsesClass(IndividualAgeRecordResolver::class)]
 #[UsesClass(DateAggregate::class)]
 #[UsesClass(DateJoin::class)]
@@ -420,5 +429,82 @@ final class RecordsIntegrationTest extends AbstractIntegrationTestCase
         self::assertNotNull($record);
         self::assertSame('I3', $record->individual->xref(), 'The ranged birth must not invent a younger 40-year-old I1');
         self::assertSame(45, $record->ageYears);
+    }
+
+    /**
+     * The statistics accessor of core ranks the oldest individuals by one key
+     * only, so rows with an equal key arrive in an order that the database engine
+     * chooses. This double keeps the core ranking and puts every group of rows
+     * with an equal key into the least convenient order, descending by XREF, so
+     * a test fails whenever the repository leaves that order to the engine.
+     */
+    private function statisticsDataWithTiesInReverseXrefOrder(Tree $tree): StatisticsData
+    {
+        return new readonly class($tree, new UserService()) extends StatisticsData {
+            /**
+             * @return Collection<int, Individual>
+             */
+            public function topTenOldestAliveQuery(string $sex, int $limit): Collection
+            {
+                return parent::topTenOldestAliveQuery($sex, $limit)
+                    ->sort(static fn (Individual $a, Individual $b): int => [$a->getBirthDate()->minimumJulianDay(), $b->xref()]
+                        <=> [$b->getBirthDate()->minimumJulianDay(), $a->xref()])
+                    ->values();
+            }
+
+            /**
+             * @return Collection<int, object{individual: Individual, days: int}>
+             */
+            public function topTenOldestQuery(string $sex, int $limit): Collection
+            {
+                return parent::topTenOldestQuery($sex, $limit)
+                    ->sort(static fn (object $a, object $b): int => [$b->days, $b->individual->xref()]
+                        <=> [$a->days, $a->individual->xref()])
+                    ->values();
+            }
+        };
+    }
+
+    /**
+     * Three living individuals share one birth date. The top list must name
+     * them in XREF order, whatever order the database engine returned them in.
+     */
+    #[Test]
+    public function topOldestLivingBreaksTiesByXref(): void
+    {
+        $tree       = $this->importFixtureTree('oldest-ties.ged');
+        $repository = new LifeSpanRepository($tree, $this->statisticsDataWithTiesInReverseXrefOrder($tree), new IsoCountryMap());
+
+        $xrefs = array_map(static fn (RankingEntry $entry): string => $entry->xref, $repository->topOldestLiving(2));
+
+        self::assertSame(['T1', 'T2'], $xrefs, 'equal ages are ordered by XREF and the cut-off keeps the lowest XREFs');
+    }
+
+    /**
+     * Two living individuals share the earliest birth date. The record holder
+     * is the one with the lowest XREF.
+     */
+    #[Test]
+    public function oldestLivingRecordBreaksTiesByXref(): void
+    {
+        $tree   = $this->importFixtureTree('oldest-ties.ged');
+        $record = (new LifeSpanRepository($tree, $this->statisticsDataWithTiesInReverseXrefOrder($tree), new IsoCountryMap()))->oldestLivingRecord();
+
+        self::assertNotNull($record);
+        self::assertSame('T1', $record->individual->xref(), 'equal birth dates are resolved by XREF');
+    }
+
+    /**
+     * Two deceased individuals have the same birth and death date. The record
+     * holder is the one with the lowest XREF.
+     */
+    #[Test]
+    public function oldestDeceasedRecordBreaksTiesByXref(): void
+    {
+        $tree   = $this->importFixtureTree('oldest-ties.ged');
+        $record = (new LifeSpanRepository($tree, $this->statisticsDataWithTiesInReverseXrefOrder($tree), new IsoCountryMap()))->oldestDeceasedRecord();
+
+        self::assertNotNull($record);
+        self::assertSame('D1', $record->individual->xref(), 'equal lifespans are resolved by XREF');
     }
 }
