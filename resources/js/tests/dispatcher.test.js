@@ -690,6 +690,41 @@ describe("renderWidgets", () => {
         expect(donutPlayEntrySpy).not.toHaveBeenCalled();
     });
 
+    test("plays an async (world-map) entrance inline when disconnect() ran before its promise resolved", async () => {
+        const observers = [];
+        global.IntersectionObserver = class {
+            constructor(callback) {
+                this.callback = callback;
+                this.observed = [];
+                observers.push(this);
+            }
+            observe(node) {
+                this.observed.push(node);
+            }
+            unobserve() {}
+            disconnect() {}
+        };
+
+        // Off-screen (the default jsdom rect), so an armed reveal would observe
+        // the node and hold the entrance instead of playing it.
+        document.body.innerHTML = `<div id="w1" data-widget="world-map" data-payload='[]'></div>`;
+        const node = document.getElementById("w1");
+
+        const result = renderWidgets(document.body);
+
+        result.disconnect();
+
+        // Flush the geojson Promise + the .then chain.
+        await new Promise((resolve) => {
+            setTimeout(resolve, 0);
+        });
+
+        // The machinery was retired before the instance existed, so the entrance
+        // plays inline and the disconnected observer never sees the node.
+        expect(worldMapPlayEntrySpy).toHaveBeenCalledTimes(1);
+        expect(observers[0].observed).not.toContain(node);
+    });
+
     test("fast-forwards held entrances and stops arming when reduced-motion turns on after render", () => {
         const observers = [];
         global.IntersectionObserver = class {
