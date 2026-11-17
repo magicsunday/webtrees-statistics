@@ -83,6 +83,10 @@ final class ModuleChartPageTest extends AbstractIntegrationTestCase
      * Render the page the way the chart route does: bind the tree and the user
      * into the request, register the view namespace of the module and let the
      * action build the response.
+     *
+     * @param Module $module The module whose chart action renders the page
+     *
+     * @return string The markup of the page
      */
     private function renderChartPage(Module $module): string
     {

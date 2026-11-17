@@ -665,8 +665,8 @@ final readonly class LifeSpanRepository
         $maxAge = $this->maxPlausibleAge();
 
         // Scan the top-N for the plausible ages (≤ MAX_ALIVE_AGE), because
-        // data-entry typos like "DEAT 9999" otherwise steal the slot. Scan
-        // depth 10 is enough, real outliers always have a real record-holder
+        // data-entry typos like "DEAT 9999" otherwise steal the slot. The scan
+        // depth below is enough, real outliers always have a real record-holder
         // just below them. The core query orders by the raw day span only, so
         // the winner is picked here by the shown age, the exact span and the
         // XREF, the order of the ranking list.

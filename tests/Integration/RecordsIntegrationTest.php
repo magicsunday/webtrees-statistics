@@ -466,8 +466,8 @@ final class RecordsIntegrationTest extends AbstractIntegrationTestCase
     }
 
     /**
-     * Three living individuals share one birth date. The top list must name
-     * them in XREF order, whatever order the database engine returned them in.
+     * Living individuals share one birth date. The top list must name them in
+     * XREF order, whatever order the database engine returned them in.
      */
     #[Test]
     public function topOldestLivingBreaksTiesByXref(): void
@@ -481,8 +481,8 @@ final class RecordsIntegrationTest extends AbstractIntegrationTestCase
     }
 
     /**
-     * Two living individuals share the earliest birth date. The record holder
-     * is the one with the lowest XREF.
+     * Living individuals share the earliest birth date. The record holder is
+     * the one with the lowest XREF.
      */
     #[Test]
     public function oldestLivingRecordBreaksTiesByXref(): void
@@ -495,7 +495,7 @@ final class RecordsIntegrationTest extends AbstractIntegrationTestCase
     }
 
     /**
-     * Two deceased individuals have the same birth and death date. The record
+     * Deceased individuals have the same birth and death date. The record
      * holder is the one with the lowest XREF.
      */
     #[Test]

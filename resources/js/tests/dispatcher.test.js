@@ -880,7 +880,7 @@ describe("world-map GeoJSON URL", () => {
         document.body.innerHTML = "";
     });
 
-    // Each case imports the module afresh: `geoJsonPromise` is module-level and
+    // Each case imports the module afresh. `geoJsonPromise` is module-level and
     // nothing clears it between cases, so whichever case ran first would
     // otherwise satisfy the second before it ever resolves a URL.
     const freshDispatcher = async () => {
