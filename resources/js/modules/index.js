@@ -68,8 +68,8 @@ function loadWorldGeoJson() {
             json(worldGeoJsonUrl())
         ).then((raw) => ({
             // Drop Antarctica. No genealogy data is going to land in
-            // AQ and the continent eats roughly a third of a Mercator
-            // projection's vertical space, squishing every populated
+            // AQ and the continent takes a large share of the vertical
+            // space of a Mercator projection, squeezing every populated
             // landmass.
             ...raw,
             features: raw.features.filter((feature) => {
