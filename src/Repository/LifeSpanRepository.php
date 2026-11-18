@@ -598,47 +598,12 @@ final readonly class LifeSpanRepository
      */
     public function topOldestLiving(int $limit): array
     {
-        // `topTenOldestAliveQuery` returns Individual objects directly
-        // (not the `{individual, days}` shape `topTenOldestQuery` uses)
-        // — the query has no DEAT date to compute age from, so we
-        // derive age from today minus BIRT julianday ourselves.
-        //
-        // The core query applies its row cap BEFORE this privacy/parse filter,
-        // so a single unparseable birth date among the oldest rows would leave
-        // the card one entry short. Over-fetch a margin, then rank the valid
-        // rows here. The core query orders by birth day only, so rows with an
-        // equal birth day come back in an engine-chosen order, and the cap must
-        // not decide between the fetched rows.
-        $todayJulianDay = $this->todayJulianDay();
-        $candidates     = [];
-
-        $overFetch = ($limit > 0) ? ($limit * 3) : $limit;
-
-        foreach ($this->data->topTenOldestAliveQuery('ALL', $overFetch) as $individual) {
-            $birthDate = $individual->getBirthDate();
-
-            if (!$birthDate->isOK()) {
-                continue;
-            }
-
-            $birthJd = $birthDate->minimumJulianDay();
-
-            if ($birthJd <= 0) {
-                continue;
-            }
-
-            $candidates[] = [
-                'individual' => $individual,
-                'birthJd'    => $birthJd,
-                'years'      => CalendarSpan::wholeYears($birthJd, $todayJulianDay),
-            ];
-        }
-
-        usort(
-            $candidates,
-            static fn (array $a, array $b): int => [$a['birthJd'], $a['individual']->xref()]
-                <=> [$b['birthJd'], $b['individual']->xref()],
-        );
+        // The core query applies its row cap BEFORE the privacy and parse
+        // filter of the candidates, so a single unparseable birth date among
+        // the oldest rows would leave the card one entry short. Over-fetch a
+        // margin, then rank the valid rows here.
+        $overFetch  = ($limit > 0) ? ($limit * 3) : $limit;
+        $candidates = $this->oldestLivingCandidates($overFetch);
 
         if ($limit > 0) {
             $candidates = array_slice($candidates, 0, $limit);
@@ -716,15 +681,43 @@ final readonly class LifeSpanRepository
      */
     public function oldestLivingRecord(): ?IndividualAgeRecord
     {
-        $todayJulianDay = $this->todayJulianDay();
-        $maxAge         = $this->maxPlausibleAge();
+        $maxAge = $this->maxPlausibleAge();
 
         // Same scan as oldestDeceasedRecord, so an obviously-wrong BIRT year
-        // cannot drag the slot empty. Among the fetched rows with an equal birth
-        // day the lowest XREF wins.
-        $candidates = [];
+        // cannot drag the slot empty. The candidates come sorted, so the first
+        // plausible one is the record holder, and among equal birth days the
+        // lowest XREF wins.
+        foreach ($this->oldestLivingCandidates(10) as $candidate) {
+            if (
+                ($candidate['years'] > 0)
+                && ($candidate['years'] <= $maxAge)
+            ) {
+                return new IndividualAgeRecord(individual: $candidate['individual'], ageYears: $candidate['years']);
+            }
+        }
 
-        foreach ($this->data->topTenOldestAliveQuery('ALL', 10) as $individual) {
+        return null;
+    }
+
+    /**
+     * The oldest living individuals the core query returns, with a usable birth
+     * date, ordered by birth day and then by XREF. `topTenOldestAliveQuery`
+     * returns Individual objects directly, not the `{individual, days}` shape of
+     * `topTenOldestQuery`. The query has no DEAT date to compute an age from, so
+     * the age is today minus the BIRT Julian day. The core query orders by birth
+     * day only, so rows with an equal birth day come back in an order the engine
+     * chooses, and the XREF decides between them here.
+     *
+     * @param int $fetch How many rows to ask the core query for.
+     *
+     * @return list<array{individual: Individual, birthJd: int, years: int}>
+     */
+    private function oldestLivingCandidates(int $fetch): array
+    {
+        $todayJulianDay = $this->todayJulianDay();
+        $candidates     = [];
+
+        foreach ($this->data->topTenOldestAliveQuery('ALL', $fetch) as $individual) {
             $birthDate = $individual->getBirthDate();
 
             if (!$birthDate->isOK()) {
@@ -737,21 +730,11 @@ final readonly class LifeSpanRepository
                 continue;
             }
 
-            $years = CalendarSpan::wholeYears($birthJd, $todayJulianDay);
-
-            if ($years <= 0) {
-                continue;
-            }
-
-            if ($years > $maxAge) {
-                continue;
-            }
-
-            $candidates[] = ['individual' => $individual, 'birthJd' => $birthJd, 'years' => $years];
-        }
-
-        if ($candidates === []) {
-            return null;
+            $candidates[] = [
+                'individual' => $individual,
+                'birthJd'    => $birthJd,
+                'years'      => CalendarSpan::wholeYears($birthJd, $todayJulianDay),
+            ];
         }
 
         usort(
@@ -760,7 +743,7 @@ final readonly class LifeSpanRepository
                 <=> [$b['birthJd'], $b['individual']->xref()],
         );
 
-        return new IndividualAgeRecord(individual: $candidates[0]['individual'], ageYears: $candidates[0]['years']);
+        return $candidates;
     }
 
     /**

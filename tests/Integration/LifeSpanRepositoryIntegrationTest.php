@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
+use DateTimeImmutable;
 use Fisharebest\Webtrees\Auth;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\ModuleBase\Support\Locale\IsoCountryMap;
@@ -197,6 +198,43 @@ final class LifeSpanRepositoryIntegrationTest extends AbstractIntegrationTestCas
         $asVisitor = $this->repository($tree)->topOldestLiving(10);
 
         self::assertSame(['LOLD'], array_map(static fn (RankingEntry $entry): string => $entry->xref, $asVisitor));
+    }
+
+    /**
+     * The core query cuts the oldest living rows before it drops the ones the viewer may not see.
+     * The confidential people are older than the public ones, so a member who asks for two
+     * entries only gets them when more rows than the limit are fetched.
+     */
+    #[Test]
+    public function topOldestLivingFetchesPastTheRowsTheViewerMayNotSee(): void
+    {
+        $tree = $this->importFixtureTree('oldest-living-hidden-first.ged');
+
+        $asAdministrator = $this->repository($tree)->topOldestLiving(2);
+
+        self::assertSame(['C1', 'C2'], array_map(static fn (RankingEntry $entry): string => $entry->xref, $asAdministrator));
+
+        $this->loginAsMember($tree);
+
+        $asMember = $this->repository($tree)->topOldestLiving(2);
+
+        self::assertSame(['P1', 'P2'], array_map(static fn (RankingEntry $entry): string => $entry->xref, $asMember));
+    }
+
+    /**
+     * A living person who is not yet one year old has no whole year to show, so the record slot
+     * stays empty instead of naming a record holder of zero years.
+     */
+    #[Test]
+    public function oldestLivingRecordIgnoresAPersonWithoutAWholeYear(): void
+    {
+        $birthYear = (new DateTimeImmutable('now'))->format('Y');
+        $tree      = $this->importGedcomTree(
+            'oldest-living-newborn',
+            "0 HEAD\n1 CHAR UTF-8\n0 @N1@ INDI\n1 NAME Newborn /Living/\n1 SEX F\n1 BIRT\n2 DATE 1 JAN " . $birthYear . "\n0 TRLR\n",
+        );
+
+        self::assertNull($this->repository($tree)->oldestLivingRecord());
     }
 
     /**
