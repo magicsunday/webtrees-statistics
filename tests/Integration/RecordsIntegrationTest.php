@@ -495,6 +495,39 @@ final class RecordsIntegrationTest extends AbstractIntegrationTestCase
     }
 
     /**
+     * Two lifespans have the same exact span in days, and the one with the higher XREF has one
+     * more whole year, because its birth date lies earlier in the calendar year. The shown age
+     * decides before the span and the XREF, so the record holder is the person with more whole
+     * years.
+     */
+    #[Test]
+    public function oldestDeceasedRecordPrefersMoreWholeYearsOverTheXrefOfAnEqualSpan(): void
+    {
+        $tree   = $this->importFixtureTree('oldest-deceased-years.ged');
+        $record = (new LifeSpanRepository($tree, $this->statisticsData($tree), new IsoCountryMap()))->oldestDeceasedRecord();
+
+        self::assertNotNull($record);
+        self::assertSame('D2', $record->individual->xref(), 'the shown age decides before the XREF');
+        self::assertSame(100, $record->ageYears);
+    }
+
+    /**
+     * Two lifespans have the same whole years and the person with the higher XREF lived one day
+     * longer. The exact span decides before the XREF, so the record holder is the person with the
+     * longer span.
+     */
+    #[Test]
+    public function oldestDeceasedRecordPrefersTheLongerSpanOverTheXrefOfEqualYears(): void
+    {
+        $tree   = $this->importFixtureTree('oldest-deceased-span.ged');
+        $record = (new LifeSpanRepository($tree, $this->statisticsData($tree), new IsoCountryMap()))->oldestDeceasedRecord();
+
+        self::assertNotNull($record);
+        self::assertSame('D2', $record->individual->xref(), 'the exact span decides before the XREF');
+        self::assertSame(49, $record->ageYears);
+    }
+
+    /**
      * Deceased individuals have the same birth and death date. The record
      * holder is the one with the lowest XREF.
      */
