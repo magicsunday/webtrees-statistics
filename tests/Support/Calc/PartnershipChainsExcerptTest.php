@@ -68,6 +68,7 @@ final class PartnershipChainsExcerptTest extends TestCase
             $spine = sprintf('I%03d', $index);
             $leaf  = sprintf('L%03d', $index);
 
+            /** @var list<string> $neighbours */
             $neighbours = [$leaf];
 
             if ($index > 1) {
