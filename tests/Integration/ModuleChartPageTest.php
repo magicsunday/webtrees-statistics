@@ -14,6 +14,7 @@ namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 use Aura\Router\Route;
 use DOMDocument;
 use DOMElement;
+use DOMXPath;
 use Fisharebest\Webtrees\Auth;
 use Fisharebest\Webtrees\Module\ModuleThemeInterface;
 use Fisharebest\Webtrees\Module\WebtreesTheme;
@@ -32,6 +33,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use function libxml_clear_errors;
 use function libxml_use_internal_errors;
 use function realpath;
+use function trim;
 
 /**
  * Render-level test of the chart page that hosts the tab navigation. The page
@@ -62,6 +64,49 @@ final class ModuleChartPageTest extends AbstractIntegrationTestCase
         $module = new Module();
         $module->setName('webtrees-statistics');
 
+        $document  = $this->renderChartDocument($module);
+        $chartRoot = $document->getElementById('statistics-tabs');
+
+        self::assertInstanceOf(DOMElement::class, $chartRoot);
+        self::assertSame(
+            $module->assetUrl('js/world-map.geojson'),
+            $chartRoot->getAttribute('data-geojson-url'),
+        );
+    }
+
+    /**
+     * The tab navigation is a second navigation landmark next to the primary navigation
+     * of the host theme. Assistive technology tells landmarks of one role apart by their
+     * accessible name, so the tab navigation has to carry one.
+     */
+    #[Test]
+    public function tabNavigationLandmarkHasAnAccessibleName(): void
+    {
+        $module = new Module();
+        $module->setName('webtrees-statistics');
+
+        $document    = $this->renderChartDocument($module);
+        $navigations = (new DOMXPath($document))->query('//nav[contains(concat(" ", normalize-space(@class), " "), " wt-stat-nav ")]');
+
+        self::assertNotFalse($navigations);
+        self::assertCount(1, $navigations);
+
+        $navigation = $navigations->item(0);
+
+        self::assertInstanceOf(DOMElement::class, $navigation);
+        self::assertNotSame('', trim($navigation->getAttribute('aria-label')));
+    }
+
+    /**
+     * Render the chart page and parse its markup into a document, keeping the
+     * libxml error handling of the caller untouched.
+     *
+     * @param Module $module The module whose chart action renders the page
+     *
+     * @return DOMDocument The parsed page
+     */
+    private function renderChartDocument(Module $module): DOMDocument
+    {
         $html     = $this->renderChartPage($module);
         $document = new DOMDocument();
 
@@ -70,13 +115,7 @@ final class ModuleChartPageTest extends AbstractIntegrationTestCase
         libxml_clear_errors();
         libxml_use_internal_errors($previousErrorHandling);
 
-        $chartRoot = $document->getElementById('statistics-tabs');
-
-        self::assertInstanceOf(DOMElement::class, $chartRoot);
-        self::assertSame(
-            $module->assetUrl('js/world-map.geojson'),
-            $chartRoot->getAttribute('data-geojson-url'),
-        );
+        return $document;
     }
 
     /**

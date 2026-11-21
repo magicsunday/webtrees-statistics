@@ -116,7 +116,7 @@ use MagicSunday\Webtrees\Statistic\Model\Tree\HeroStats;
     <div class="wt-stat-app">
         <?php echo view($module . '::modules/statistics-chart/components/hero', ['tree' => $tree, 'hero' => $hero]); ?>
 
-        <nav class="wt-stat-nav">
+        <nav class="wt-stat-nav" aria-label="<?php echo e($title); ?>">
             <ul class="nav nav-tabs wt-stat-nav-tabs" role="tablist">
                 <?php $tabIndex = 0; ?>
                 <?php foreach ($tabs as $label => $url) { ?>
