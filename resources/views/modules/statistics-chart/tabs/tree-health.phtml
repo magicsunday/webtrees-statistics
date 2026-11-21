@@ -15,6 +15,7 @@ use MagicSunday\Webtrees\Statistic\Aggregator\HistogramBucketAggregator;
 use MagicSunday\Webtrees\Statistic\Aggregator\LabelSorter;
 use MagicSunday\Webtrees\Statistic\Aggregator\MediaTypeLabeller;
 use MagicSunday\Webtrees\Statistic\Statistic;
+use MagicSunday\Webtrees\Statistic\Support\Calc\GenerationDepth;
 use MagicSunday\Webtrees\Statistic\Support\Wording;
 use MagicSunday\Webtrees\Statistic\View\Accent;
 use MagicSunday\Webtrees\Statistic\View\Card;
@@ -517,7 +518,7 @@ echo Card::for($module, I18N::translate('Maximum generation depth'))
             ->with(
                 'caption',
                 $generationDepth->capped
-                    ? I18N::translate('Walk reached the safety cap (100 generations) — check the tree for cyclic FAMC/FAMS edits.')
+                    ? I18N::translate('Walk reached the safety cap (%s generations) — check the tree for cyclic FAMC/FAMS edits.', I18N::number(GenerationDepth::MAX_DEPTH))
                     : I18N::translate('Each step is one parent–child link upward.')
             )
             ->render()
