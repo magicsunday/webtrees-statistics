@@ -10,7 +10,7 @@ COMPOSE_RUN_USER = $(COMPOSE_BIN) run --rm --user $(shell id -u):$(shell id -g) 
 
 #### Node.js & Assets
 
-.PHONY: install build watch clean
+.PHONY: install build watch clean world-map
 
 install: .logo ## Install node dependencies.
 	@$(COMPOSE_RUN_USER) npm install
@@ -19,6 +19,11 @@ install: .logo ## Install node dependencies.
 build: .logo ## Build JavaScript bundles.
 	@$(COMPOSE_RUN_USER) npm run prepare
 	@echo -e "${FGREEN} ✔${FRESET} JavaScript bundles built"
+
+world-map: .logo ## Reduce a Natural Earth admin-0 GeoJSON (SOURCE=path inside this directory) to resources/js/world-map.geojson.
+	@test -n "$(SOURCE)" || { echo -e "${FRED} ✘${FRESET} Set SOURCE to the path of the Natural Earth GeoJSON"; exit 1; }
+	@$(COMPOSE_RUN_USER) node dev/reduce-world-map.mjs $(SOURCE) resources/js/world-map.geojson
+	@echo -e "${FGREEN} ✔${FRESET} resources/js/world-map.geojson written"
 
 watch: .logo ## Watch for changes and rebuild automatically.
 	@$(COMPOSE_RUN_USER) npm run watch
