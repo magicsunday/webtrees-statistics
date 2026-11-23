@@ -5,8 +5,8 @@
 #
 # Resolution path on a block:
 #   1) `make lang-resolve-fuzzy` — auto-fixes punctuation-only drift.
-#   2) If anything stays fuzzy, edit the msgstr by hand (or the dev/i18n
-#      JSON catalogue) and re-run `make lang` to recompile.
+#   2) If anything stays fuzzy, edit the msgstr by hand (or write it with
+#      `write-translations`, see AGENTS.md) and re-run `make lang` to recompile.
 #   3) Override for a deliberate hand-off: `AUDIT_BYPASS=1 git commit …`.
 #
 # The hook only runs when a PO file is part of the staged change set, so
