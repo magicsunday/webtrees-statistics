@@ -429,10 +429,12 @@ final readonly class LifeSpanRepository
     /**
      * Age-at-death samples grouped by birth century. Each entry carries the raw
      * integer ages so the consumer (typically the chart-lib BoxPlot widget) can
-     * compute quartiles, whiskers and outliers itself. Sub-day fractions are
-     * dropped via {@see CalendarSpan::wholeYears()}; non-positive ages and ages
-     * above the tree's plausible-age cap are filtered out. BCE birth years fold
-     * into negative centuries rather than being dropped.
+     * compute quartiles, whiskers and outliers itself. Ages are whole years via
+     * {@see CalendarSpan::wholeYears()}, so a death before the first birthday is
+     * a valid age of zero, also when both events fall on the same day. A death
+     * before the birth date and an age above the tree's plausible-age cap are
+     * filtered out. BCE birth years fold into negative centuries rather than
+     * being dropped.
      *
      * Cohorts below {@see self::MIN_COHORT_SIZE} samples are skipped — a
      * five-number summary on a 1-person cohort is noise.
@@ -441,33 +443,11 @@ final readonly class LifeSpanRepository
      */
     public function deathAgeDistributionByCentury(): array
     {
-        $maxAge = $this->maxPlausibleAge();
-
-        $rows = BirthDeathPairsQuery::for($this->tree)
-            ->select($this->aggregatedPairColumns())
-            ->groupBy('individuals.i_id')
-            ->get();
-
         /** @var array<int, list<int>> $cohorts */
         $cohorts = [];
 
-        foreach ($rows as $row) {
-            $cohort = $this->birthDeathCohortOrNull($row, $maxAge);
-
-            if ($cohort === null) {
-                continue;
-            }
-
-            // Box-plot summary excludes zero-year lifespans for the
-            // same reason as the mean-lifespan sibling — a five-number
-            // summary built on a same-year-as-birth row would carry
-            // no information. Survival-curve keeps these rows since
-            // they anchor the age-0 denominator.
-            if ($cohort['years'] === 0) {
-                continue;
-            }
-
-            $cohorts[$cohort['century']][] = $cohort['years'];
+        foreach ($this->lifespanObservations() as $observation) {
+            $cohorts[$observation['century']][] = $observation['years'];
         }
 
         if ($cohorts === []) {
@@ -752,7 +732,8 @@ final readonly class LifeSpanRepository
      * LineChart multi-series render path — categories are the localised century
      * labels in chronological order, two series (Male / Female). Per-cohort
      * sample counts below {@see MIN_COHORT_SIZE} are suppressed (replaced with
-     * zero) so a single outlier doesn't dominate the visual.
+     * zero) so a single outlier doesn't dominate the visual. Lifespans are whole
+     * years, and a death before the first birthday counts as zero years.
      */
     public function averageLifespanBySexAndCentury(): LineChartPayload
     {
@@ -779,15 +760,6 @@ final readonly class LifeSpanRepository
             $cohort = $this->birthDeathCohortOrNull($row, $maxAge);
 
             if ($cohort === null) {
-                continue;
-            }
-
-            // Mean-lifespan excludes rows that round to zero years
-            // (any lifespan under one calendar year) because their `years`
-            // contribution would drag the numerator without adding
-            // to the lived-years total. The survival-curve sibling
-            // keeps these rows since they count at the age-0 anchor.
-            if ($cohort['years'] === 0) {
                 continue;
             }
 
@@ -889,26 +861,13 @@ final readonly class LifeSpanRepository
      */
     public function survivalFunctionByCentury(): LineChartPayload
     {
-        $maxAge = $this->maxPlausibleAge();
-
-        $rows = BirthDeathPairsQuery::for($this->tree)
-            ->select($this->aggregatedPairColumns())
-            ->groupBy('individuals.i_id')
-            ->get();
-
         /** @var array<int, array{size: int, ages: list<int>}> $cohorts */
         $cohorts = [];
 
-        foreach ($rows as $row) {
-            $cohort = $this->birthDeathCohortOrNull($row, $maxAge);
-
-            if ($cohort === null) {
-                continue;
-            }
-
-            $cohorts[$cohort['century']] ??= ['size' => 0, 'ages' => []];
-            ++$cohorts[$cohort['century']]['size'];
-            $cohorts[$cohort['century']]['ages'][] = $cohort['years'];
+        foreach ($this->lifespanObservations() as $observation) {
+            $cohorts[$observation['century']] ??= ['size' => 0, 'ages' => []];
+            ++$cohorts[$observation['century']]['size'];
+            $cohorts[$observation['century']]['ages'][] = $observation['years'];
         }
 
         if ($cohorts === []) {
@@ -976,10 +935,10 @@ final readonly class LifeSpanRepository
      * payload behind the population-pyramid widget. Reuses the exact cohort
      * definition the box-plot sibling ({@see deathAgeDistributionByCentury()})
      * applies: one BIRT+DEAT pair per individual, birth-century classification,
-     * age in whole years capped at the tree's plausibility ceiling. Unlike the
-     * cohort-mean and box-plot metrics, zero-year lifespans are KEPT — an infant
-     * death belongs in the youngest band and carries real demographic signal in
-     * a pyramid.
+     * age in whole years capped at the tree's plausibility ceiling. Zero-year
+     * lifespans are kept, like in the cohort-mean and box-plot metrics — an
+     * infant death belongs in the youngest band and carries real demographic
+     * signal in a pyramid.
      *
      * Bands are emitted oldest-first (100+ at the top) so the chart reads as a
      * conventional pyramid with the youngest cohort at the base. Centuries with
@@ -1215,10 +1174,10 @@ final readonly class LifeSpanRepository
      * tuple, applying every date-validity guard that every cohort metric on
      * this repository shares. Returns null when the row should be skipped — the
      * degenerate unparseable year 0, missing julian-day anchors, death-before-
-     * birth, or a lifespan above the plausibility ceiling. BCE (negative) birth
-     * years are kept and fold into negative centuries through {@see
-     * CenturyName::fromYear()}. Caller-side filters (e.g. drop zero-day
-     * lifespans for cohort means) sit on top of the tuple value.
+     * birth, or a lifespan above the plausibility ceiling. A death on the day of
+     * birth is a valid lifespan of zero years. BCE (negative) birth years are
+     * kept and fold into negative centuries through {@see
+     * CenturyName::fromYear()}. Callers use the tuple as it is.
      *
      * @return array{century: int, years: int}|null
      */
@@ -1245,7 +1204,7 @@ final readonly class LifeSpanRepository
             return null;
         }
 
-        if ($deathJd <= $birthJd) {
+        if ($deathJd < $birthJd) {
             return null;
         }
 
@@ -1259,6 +1218,37 @@ final readonly class LifeSpanRepository
             'century' => CenturyName::fromYear($year),
             'years'   => $years,
         ];
+    }
+
+    /**
+     * One observation per individual with a plausible birth and death date:
+     * the Gregorian birth century and the lifespan in whole years. A death
+     * before the first birthday is a valid observation of zero years.
+     *
+     * @return list<array{century: int, years: int}>
+     */
+    private function lifespanObservations(): array
+    {
+        $maxAge = $this->maxPlausibleAge();
+
+        $rows = BirthDeathPairsQuery::for($this->tree)
+            ->select($this->aggregatedPairColumns())
+            ->groupBy('individuals.i_id')
+            ->get();
+
+        $observations = [];
+
+        foreach ($rows as $row) {
+            $cohort = $this->birthDeathCohortOrNull($row, $maxAge);
+
+            if ($cohort === null) {
+                continue;
+            }
+
+            $observations[] = $cohort;
+        }
+
+        return $observations;
     }
 
     /**
