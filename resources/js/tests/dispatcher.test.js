@@ -747,7 +747,7 @@ describe("renderWidgets", () => {
         let changeHandler = null;
         window.matchMedia = jest.fn().mockReturnValue({
             matches: false,
-            addEventListener: (event, handler) => {
+            addEventListener: (_event, handler) => {
                 changeHandler = handler;
             },
             removeEventListener: () => {},
@@ -790,7 +790,7 @@ describe("renderWidgets", () => {
         let changeHandler = null;
         window.matchMedia = jest.fn().mockReturnValue({
             matches: false,
-            addEventListener: (event, handler) => {
+            addEventListener: (_event, handler) => {
                 changeHandler = handler;
             },
             removeEventListener: () => {},
@@ -833,7 +833,7 @@ describe("renderWidgets", () => {
         let changeHandler = null;
         window.matchMedia = jest.fn().mockReturnValue({
             matches: false,
-            addEventListener: (event, handler) => {
+            addEventListener: (_event, handler) => {
                 changeHandler = handler;
             },
             removeEventListener: () => {},
@@ -1026,6 +1026,31 @@ describe("widget registry", () => {
         ...widgetTypesInTemplates(fileURLToPath(new URL("../../views", import.meta.url))),
     ].sort();
 
+    // The widget class each template type has to reach. A type missing here
+    // fails its case, so a new type needs an entry in the dispatch table and one here.
+    const expectedWidgetClass = {
+        "donut-chart": "DonutChart",
+        "world-map": "WorldMap",
+        "stream-graph": "StreamGraph",
+        "sankey-flow": "SankeyFlow",
+        "line-chart": "LineChart",
+        "bar-chart": "BarChart",
+        "stacked-bar": "StackedBar",
+        "chord-diagram": "ChordDiagram",
+        "name-bubbles": "NameBubbles",
+        "name-timeline": "NameTimeline",
+        "month-radial": "MonthRadial",
+        "gauge-arc": "GaugeArc",
+        "event-timeline": "EventTimeline",
+        "mirror-histogram": "MirrorHistogram",
+        "box-plot": "BoxPlot",
+        "population-pyramid": "DivergingBarChart",
+        heatmap: "Heatmap",
+        treemap: "Treemap",
+        "network-graph": "NetworkGraph",
+        "sequence-chain": "SequenceChain",
+    };
+
     test("finds the widget types of the templates", () => {
         expect(templateTypes).toContain("donut-chart");
     });
@@ -1049,6 +1074,7 @@ describe("widget registry", () => {
             }
 
             expect(widgets).toHaveLength(1);
+            expect(widgets[0].constructor.name).toBe(expectedWidgetClass[type]);
         },
     );
 });

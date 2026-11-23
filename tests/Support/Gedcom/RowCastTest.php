@@ -111,9 +111,9 @@ final class RowCastTest extends TestCase
     }
 
     /**
-     * Drives every documented branch of {@see RowCast::string()}: happy path on a
-     * string column, missing column with both defaults, and the non-string-value
-     * fallback.
+     * Drives every documented branch of {@see RowCast::string()}. The cases are
+     * the happy path on a string column, a missing column with both defaults and
+     * the non-string-value fallback.
      */
     #[Test]
     #[DataProvider('stringProvider')]

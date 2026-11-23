@@ -19,6 +19,7 @@ use PHPUnit\Framework\TestCase;
 
 use function preg_match;
 use function preg_quote;
+use function sort;
 use function str_replace;
 
 /**
@@ -547,16 +548,20 @@ final class GedcomScannerTest extends TestCase
     }
 
     /**
-     * The LIKE patterns of a tag, in the order of value, line break and end of
-     * record.
+     * The LIKE patterns of a tag cover the three anchorings: a value, a line
+     * break and the end of the record. The callers join them with OR, so their
+     * order carries no meaning and the comparison ignores it.
      */
     #[Test]
     public function anchoredLikePatternsListTheThreeAnchorings(): void
     {
-        self::assertSame(
-            ["%\n1 BIRT %", "%\n1 BIRT\n%", "%\n1 BIRT"],
-            GedcomScanner::anchoredLikePatterns('BIRT'),
-        );
+        $patterns = GedcomScanner::anchoredLikePatterns('BIRT');
+        sort($patterns);
+
+        $expected = ["%\n1 BIRT %", "%\n1 BIRT\n%", "%\n1 BIRT"];
+        sort($expected);
+
+        self::assertSame($expected, $patterns);
     }
 
     /**

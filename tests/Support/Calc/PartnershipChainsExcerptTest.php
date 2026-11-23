@@ -157,6 +157,24 @@ final class PartnershipChainsExcerptTest extends TestCase
             self::assertArrayHasKey($edge[1], $shownSet, $edge[1] . ' is an edge endpoint outside the excerpt');
         }
 
+        // The excerpt returns every partnership among the shown people and no other,
+        // so an empty or truncated edge list cannot pass.
+        $expectedEdgeCount = 0;
+
+        foreach ($adjacency as $person => $partners) {
+            foreach ($partners as $partner) {
+                if (
+                    isset($shownSet[$person], $shownSet[$partner])
+                    && (strcmp((string) $person, $partner) < 0)
+                ) {
+                    ++$expectedEdgeCount;
+                }
+            }
+        }
+
+        self::assertGreaterThan(0, $expectedEdgeCount, 'the shown people have to share partnerships');
+        self::assertCount($expectedEdgeCount, $shownEdges);
+
         // The excerpt is byte-order sorted (matches the full-group ordering).
         $sorted = $shown;
         sort($sorted);

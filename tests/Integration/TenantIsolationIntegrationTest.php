@@ -254,8 +254,14 @@ final class TenantIsolationIntegrationTest extends AbstractIntegrationTestCase
         $twinAfter  = $this->shiftedTwin($gedcom, true);
 
         if ($tweakTwin instanceof Closure) {
-            $twinBefore = $tweakTwin($twinBefore);
-            $twinAfter  = $tweakTwin($twinAfter);
+            $tweakedBefore = $tweakTwin($twinBefore);
+            $tweakedAfter  = $tweakTwin($twinAfter);
+
+            self::assertNotSame($twinBefore, $tweakedBefore, 'The tweak of the case has to change the twin before the subject.');
+            self::assertNotSame($twinAfter, $tweakedAfter, 'The tweak of the case has to change the twin after the subject.');
+
+            $twinBefore = $tweakedBefore;
+            $twinAfter  = $tweakedAfter;
         }
 
         $this->importGedcomTree('twin before', $twinBefore);

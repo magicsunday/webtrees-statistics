@@ -60,68 +60,80 @@ final class RecordRowMapperPrivacyIntegrationTest extends AbstractIntegrationTes
     }
 
     /**
-     * One case per factory method of the mapper. Each builds the record for the
-     * living holder I1 or the living family F1 and maps it, and states the row
-     * value the importing admin gets.
+     * One case per factory method of the mapper. Each resolves the living holder
+     * I1 or the living family F1, builds the record for it and maps it, and states
+     * the row value, the category and the label the importing admin gets.
      *
-     * @return array<string, array{string, Closure(Tree): ?array{cat: string, label: string, value: string, who: string, url: string}, string}>
+     * @return array<string, array{Closure(Tree): (Individual|Family), Closure(Tree): ?array{cat: string, label: string, value: string, who: string, url: string}, string, string, string}>
      */
     public static function recordFactories(): array
     {
         return [
             'individual age' => [
-                'individual',
+                self::livingIndividual(...),
                 static fn (Tree $tree): ?array => RecordRowMapper::years(
                     RecordCategory::Life,
                     'Oldest living',
                     new IndividualAgeRecord(self::livingIndividual($tree), 15),
                 ),
                 '15 years',
+                'life',
+                'Oldest living',
             ],
             'family years' => [
-                'family',
+                self::family(...),
                 static fn (Tree $tree): ?array => RecordRowMapper::familyYears(
                     RecordCategory::Family,
                     'Longest marriage',
                     new FamilyDurationYearsRecord(self::family($tree), 16),
                 ),
                 '16 years',
+                'family',
+                'Longest marriage',
             ],
             'family days' => [
-                'family',
+                self::family(...),
                 static fn (Tree $tree): ?array => RecordRowMapper::familyDays(
                     RecordCategory::Family,
                     'Shortest marriage',
                     new FamilyDurationDaysRecord(self::family($tree), 17),
                 ),
                 '17 days',
+                'family',
+                'Shortest marriage',
             ],
             'individual marriages' => [
-                'individual',
+                self::livingIndividual(...),
                 static fn (Tree $tree): ?array => RecordRowMapper::marriages(
                     RecordCategory::Family,
                     'Most spouses',
                     new IndividualCountRecord(self::livingIndividual($tree), 2),
                 ),
                 '2 marriages',
+                'family',
+                'Most spouses',
             ],
             'individual children' => [
-                'individual',
+                self::livingIndividual(...),
                 static fn (Tree $tree): ?array => RecordRowMapper::children(
                     RecordCategory::Family,
                     'Most children',
                     new IndividualCountRecord(self::livingIndividual($tree), 3),
                 ),
                 '3 children',
+                'family',
+                'Most children',
             ],
             'family children' => [
-                'family',
+                self::family(...),
                 static fn (Tree $tree): ?array => RecordRowMapper::familyChildren(
                     RecordCategory::Family,
                     'Largest family',
                     new FamilyCountRecord(self::family($tree), 4),
                 ),
                 '4 children',
+                'family',
+                'Largest family',
             ],
         ];
     }
@@ -131,17 +143,19 @@ final class RecordRowMapperPrivacyIntegrationTest extends AbstractIntegrationTes
      * for the importing admin and is dropped for a visitor. The admin row shows
      * that the holder exists and that the gate is what drops it for the visitor.
      *
-     * @param string                                                                                     $holderKind `individual` or `family`
+     * @param Closure(Tree): (Individual|Family)                                                         $holderOf Resolves the living holder for the current viewer
      * @param Closure(Tree): ?array{cat: string, label: string, value: string, who: string, url: string} $map
-     * @param string                                                                                     $value      Value text of the admin row
+     * @param string                                                                                     $value    Value text of the admin row
+     * @param string                                                                                     $category Category class of the admin row
+     * @param string                                                                                     $label    Label of the admin row
      */
     #[Test]
     #[DataProvider('recordFactories')]
-    public function recordIsMappedForTheAdminAndDroppedForAVisitor(string $holderKind, Closure $map, string $value): void
+    public function recordIsMappedForTheAdminAndDroppedForAVisitor(Closure $holderOf, Closure $map, string $value, string $category, string $label): void
     {
         $tree = $this->livingTree();
 
-        $holder = ($holderKind === 'individual') ? self::livingIndividual($tree) : self::family($tree);
+        $holder = $holderOf($tree);
 
         self::assertTrue($holder->canShow(), 'The importing admin has to see the living holder');
 
@@ -149,13 +163,15 @@ final class RecordRowMapperPrivacyIntegrationTest extends AbstractIntegrationTes
 
         self::assertIsArray($row);
         self::assertSame(['cat', 'label', 'value', 'who', 'url'], array_keys($row));
+        self::assertSame($category, $row['cat']);
+        self::assertSame($label, $row['label']);
         self::assertSame($value, $row['value']);
         self::assertSame($holder->fullName(), $row['who']);
         self::assertSame($holder->url(), $row['url']);
 
         Auth::logout();
 
-        $visitorHolder = ($holderKind === 'individual') ? self::livingIndividual($tree) : self::family($tree);
+        $visitorHolder = $holderOf($tree);
 
         self::assertFalse($visitorHolder->canShow(), 'The visitor must not see the living holder');
         self::assertNull($map($tree), 'the derived value and the URL must not reach a visitor');
