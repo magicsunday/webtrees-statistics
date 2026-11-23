@@ -894,7 +894,7 @@ final readonly class Statistic
     }
 
     /**
-     * Weddings grouped by month (each person's first marriage). Keys are the
+     * Weddings grouped by month (every recorded marriage). Keys are the
      * localised month names so the rendering matches the existing
      * births-by-month card.
      *

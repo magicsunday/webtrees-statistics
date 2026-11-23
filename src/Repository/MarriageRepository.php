@@ -14,11 +14,11 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 use Fisharebest\Webtrees\Family;
 use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Registry;
-use Fisharebest\Webtrees\StatisticsData;
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Aggregator\EventCenturyTally;
+use MagicSunday\Webtrees\Statistic\Aggregator\EventMonthTally;
 use MagicSunday\Webtrees\Statistic\Aggregator\IndividualAgeRecordResolver;
 use MagicSunday\Webtrees\Statistic\Enum\AgePairExtremum;
 use MagicSunday\Webtrees\Statistic\Enum\MarriageEndReason;
@@ -49,9 +49,9 @@ use function strcmp;
 use function usort;
 
 /**
- * Marriage-related aggregations for the Family tab. Combines core's {@see
- * StatisticsData::statsMarrAgeQuery()} (age at marriage per sex) with local
- * queries for duration distribution and couple age-gap distribution.
+ * Marriage-related aggregations for the Family tab: age at marriage per sex,
+ * duration distribution, couple age-gap distribution, weddings by month and
+ * century, and the marriage records.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -147,12 +147,10 @@ final class MarriageRepository
     private array $spouseAgeAtMarriageCache = [];
 
     /**
-     * @param Tree           $tree The tree the statistics are computed for
-     * @param StatisticsData $data Core accessor that exposes statsMarrAgeQuery + countEventsByCentury
+     * @param Tree $tree The tree the statistics are computed for
      */
     public function __construct(
         private readonly Tree $tree,
-        private readonly StatisticsData $data,
     ) {
     }
 
@@ -963,16 +961,17 @@ final class MarriageRepository
     }
 
     /**
-     * Weddings grouped by GEDCOM month abbreviation, leaning on core's
-     * already-public {@see StatisticsData::countFirstMarriagesByMonth()}. Core
-     * hands back the `{JAN: int, FEB: int, …}` map directly, so the repository
-     * is just a thin pass-through.
+     * Weddings grouped by GEDCOM month abbreviation. Every recorded marriage
+     * with a recorded month counts, also a later marriage of a person who
+     * married before. A marriage without a month is not counted, so the total
+     * can be lower than that of {@see weddingsByCentury()}. Months without a
+     * wedding are absent from the map.
      *
      * @return array<string, int>
      */
     public function weddingsByMonth(): array
     {
-        return $this->data->countFirstMarriagesByMonth($this->tree, 0, 0);
+        return EventMonthTally::countByMonth($this->tree, 'MARR');
     }
 
     /**

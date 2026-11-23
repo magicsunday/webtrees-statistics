@@ -136,7 +136,7 @@ final class RecordsIntegrationTest extends AbstractIntegrationTestCase
     public function longestMarriagePicksFiftyFiveYearMarriage(): void
     {
         $tree   = $this->importFixtureTree('records.ged');
-        $record = (new MarriageRepository($tree, $this->statisticsData($tree)))->longestMarriageRecord();
+        $record = (new MarriageRepository($tree))->longestMarriageRecord();
 
         self::assertNotNull($record);
         self::assertSame('F1', $record->family->xref());
@@ -151,7 +151,7 @@ final class RecordsIntegrationTest extends AbstractIntegrationTestCase
     public function shortestMarriagePicksTheNinetyFiveDayMarriage(): void
     {
         $tree   = $this->importFixtureTree('records.ged');
-        $record = (new MarriageRepository($tree, $this->statisticsData($tree)))->shortestMarriageRecord();
+        $record = (new MarriageRepository($tree))->shortestMarriageRecord();
 
         self::assertNotNull($record);
         self::assertSame('F3', $record->family->xref());
@@ -168,7 +168,7 @@ final class RecordsIntegrationTest extends AbstractIntegrationTestCase
     public function marriageDurationRecordsBreakTieByLowestXref(): void
     {
         $tree = $this->importFixtureTree('record-tie-marriage-duration.ged');
-        $repo = new MarriageRepository($tree, $this->statisticsData($tree));
+        $repo = new MarriageRepository($tree);
 
         $longest = $repo->longestMarriageRecord();
         self::assertNotNull($longest);
@@ -288,7 +288,7 @@ final class RecordsIntegrationTest extends AbstractIntegrationTestCase
     public function mostSpousesPicksThePolygamist(): void
     {
         $tree   = $this->importFixtureTree('records.ged');
-        $record = (new MarriageRepository($tree, $this->statisticsData($tree)))->mostSpousesRecord();
+        $record = (new MarriageRepository($tree))->mostSpousesRecord();
 
         self::assertNotNull($record);
         self::assertSame('I18', $record->individual->xref());
@@ -306,7 +306,7 @@ final class RecordsIntegrationTest extends AbstractIntegrationTestCase
     public function mostSpousesRecordBreaksTieByLowestXref(): void
     {
         $tree   = $this->importFixtureTree('record-tie-spouses-children.ged');
-        $record = (new MarriageRepository($tree, $this->statisticsData($tree)))->mostSpousesRecord();
+        $record = (new MarriageRepository($tree))->mostSpousesRecord();
 
         self::assertNotNull($record);
         self::assertSame('M1', $record->individual->xref());
@@ -339,7 +339,7 @@ final class RecordsIntegrationTest extends AbstractIntegrationTestCase
     public function youngestHusbandAtMarriagePicksTheTwentyFiveYearOld(): void
     {
         $tree   = $this->importFixtureTree('records.ged');
-        $record = (new MarriageRepository($tree, $this->statisticsData($tree)))->youngestSpouseAtMarriageRecord('M');
+        $record = (new MarriageRepository($tree))->youngestSpouseAtMarriageRecord('M');
 
         self::assertNotNull($record);
         self::assertSame('I3', $record->individual->xref());
@@ -355,7 +355,7 @@ final class RecordsIntegrationTest extends AbstractIntegrationTestCase
     public function oldestHusbandAtMarriagePicksTheThirtyYearOld(): void
     {
         $tree   = $this->importFixtureTree('records.ged');
-        $record = (new MarriageRepository($tree, $this->statisticsData($tree)))->oldestSpouseAtMarriageRecord('M');
+        $record = (new MarriageRepository($tree))->oldestSpouseAtMarriageRecord('M');
 
         self::assertNotNull($record);
         self::assertSame('I5', $record->individual->xref());
@@ -369,7 +369,7 @@ final class RecordsIntegrationTest extends AbstractIntegrationTestCase
     public function youngestWifeAtMarriagePicksTheTwentyYearOld(): void
     {
         $tree   = $this->importFixtureTree('records.ged');
-        $record = (new MarriageRepository($tree, $this->statisticsData($tree)))->youngestSpouseAtMarriageRecord('F');
+        $record = (new MarriageRepository($tree))->youngestSpouseAtMarriageRecord('F');
 
         self::assertNotNull($record);
         self::assertSame('I4', $record->individual->xref());
@@ -383,7 +383,7 @@ final class RecordsIntegrationTest extends AbstractIntegrationTestCase
     public function oldestWifeAtMarriagePicksTheTwentyFiveYearOld(): void
     {
         $tree   = $this->importFixtureTree('records.ged');
-        $record = (new MarriageRepository($tree, $this->statisticsData($tree)))->oldestSpouseAtMarriageRecord('F');
+        $record = (new MarriageRepository($tree))->oldestSpouseAtMarriageRecord('F');
 
         self::assertNotNull($record);
         self::assertSame('I6', $record->individual->xref());
@@ -403,7 +403,7 @@ final class RecordsIntegrationTest extends AbstractIntegrationTestCase
     public function oldestHusbandRecordIgnoresRangedMarriageUpperBound(): void
     {
         $tree   = $this->importFixtureTree('spouse-record-ranged-marriage.ged');
-        $record = (new MarriageRepository($tree, $this->statisticsData($tree)))->oldestSpouseAtMarriageRecord('M');
+        $record = (new MarriageRepository($tree))->oldestSpouseAtMarriageRecord('M');
 
         self::assertNotNull($record);
         self::assertSame('I1', $record->individual->xref(), 'The ranged marriage must not invent a 60-year-old husband');

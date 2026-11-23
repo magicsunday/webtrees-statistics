@@ -72,10 +72,7 @@ final class MarriageRepositoryIntegrationTest extends AbstractIntegrationTestCas
 {
     private function repository(Tree $tree): MarriageRepository
     {
-        return new MarriageRepository(
-            $tree,
-            $this->statisticsData($tree),
-        );
+        return new MarriageRepository($tree);
     }
 
     /**
@@ -308,8 +305,30 @@ final class MarriageRepositoryIntegrationTest extends AbstractIntegrationTestCas
     }
 
     /**
-     * `weddingsByCentury` returns the per-century count from core's
-     * `countEventsByCentury`. The fixture has three marriages: F1 1875 (19th),
+     * Every recorded marriage is counted, also the later marriages of a person
+     * who married more than once. F3 joins two people who both married before
+     * (F1 and F2), so a first-marriage-only count drops it and the month totals
+     * stop matching the century totals.
+     */
+    #[Test]
+    public function weddingsByMonthCountsEveryMarriageOfAPersonWhoMarriedTwice(): void
+    {
+        $tree       = $this->importFixtureTree('marriage-remarriage.ged');
+        $repository = $this->repository($tree);
+
+        self::assertSame(
+            ['MAR' => 1, 'JUN' => 1, 'SEP' => 1],
+            $repository->weddingsByMonth(),
+        );
+        self::assertSame(
+            array_sum($repository->weddingsByCentury()),
+            array_sum($repository->weddingsByMonth()),
+        );
+    }
+
+    /**
+     * `weddingsByCentury` returns the per-century count of the century tally.
+     * The fixture has three marriages: F1 1875 (19th),
      * F2 1925 (20th), F3 1955 (20th). The previous implementation iterated the
      * result with `$k => $v` where $v was a `[label, count]` tuple, and the
      * `(int) $v` cast on an array silently collapsed every count to 1 — so a
@@ -334,9 +353,9 @@ final class MarriageRepositoryIntegrationTest extends AbstractIntegrationTestCas
      *
      * The repo-owned histograms (ageAtMarriage, duration, ageGap) keep their
      * bucket scaffolding so the renderer reads the same keys on an empty tree
-     * as on a populated one. The pass-through accessors (weddingsByCentury /
-     * weddingsByMonth) legitimately return `[]` because they delegate to core —
-     * those are asserted only on `array_sum === 0`.
+     * as on a populated one. The tallies (weddingsByCentury / weddingsByMonth)
+     * list only the buckets that occur and so return `[]` on an empty tree,
+     * which is why they are asserted only on `array_sum === 0`.
      */
     #[Test]
     public function histogramsRenderEmptyOnZeroMarriages(): void
