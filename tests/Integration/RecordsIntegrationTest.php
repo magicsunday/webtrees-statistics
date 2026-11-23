@@ -108,7 +108,7 @@ final class RecordsIntegrationTest extends AbstractIntegrationTestCase
 
     /**
      * Oldest-living walks the alive query oldest-first but skips a record whose
-     * age exceeds the {@see LifeSpanRepository::DEFAULT_MAX_ALIVE_AGE} cap (120),
+     * age exceeds the {@see LifeSpanRepository::DEFAULT_MAX_ALIVE_AGE} cap,
      * so a data-entry typo like a 1700 birth on a death-less record cannot steal
      * the slot. The fixture's oldest *plausible* living individual (LB, born
      * 1930) must win over both the implausible elder (LA, born 1700 → skipped)
@@ -122,7 +122,7 @@ final class RecordsIntegrationTest extends AbstractIntegrationTestCase
         $record = (new LifeSpanRepository($tree, $this->statisticsData($tree), new IsoCountryMap()))->oldestLivingRecord();
 
         self::assertNotNull($record);
-        self::assertSame('LB', $record->individual->xref(), 'the 1700 birth exceeds the 120-year cap and is skipped; LB is the oldest plausible living individual');
+        self::assertSame('LB', $record->individual->xref(), 'the 1700 birth exceeds the alive-age cap and is skipped; LB is the oldest plausible living individual');
         self::assertGreaterThan(90, $record->ageYears, 'LB is plausibly old');
         self::assertLessThanOrEqual(120, $record->ageYears, 'and within the alive-age cap');
     }

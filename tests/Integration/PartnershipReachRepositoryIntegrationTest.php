@@ -31,6 +31,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
 
+use function array_flip;
 use function array_map;
 use function count;
 use function implode;
@@ -143,6 +144,30 @@ final class PartnershipReachRepositoryIntegrationTest extends AbstractIntegratio
         self::assertSame(PartnershipReachRepository::NETWORK_CAP, $result->group->shownCount);
         self::assertCount(PartnershipReachRepository::NETWORK_CAP, $result->group->nodes);
         self::assertLessThan($result->group->totalEdgeCount, count($result->group->edges), 'the drawn excerpt holds fewer partnerships than the group');
+
+        // The excerpt holds every partnership among the drawn people and no other. A
+        // spine person shares one with the own partner and one with the next spine person.
+        $shown = array_flip($this->nodeXrefs($result));
+
+        $expectedEdgeCount = 0;
+
+        for ($index = 1; $index <= $spineLength; ++$index) {
+            $number = sprintf('%02d', $index);
+
+            if (isset($shown['S' . $number], $shown['P' . $number])) {
+                ++$expectedEdgeCount;
+            }
+
+            if (
+                ($index < $spineLength)
+                && isset($shown['S' . $number], $shown['S' . sprintf('%02d', $index + 1)])
+            ) {
+                ++$expectedEdgeCount;
+            }
+        }
+
+        self::assertGreaterThan(0, $expectedEdgeCount, 'the drawn people have to share partnerships');
+        self::assertCount($expectedEdgeCount, $result->group->edges);
     }
 
     /**
