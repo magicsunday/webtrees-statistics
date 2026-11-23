@@ -569,7 +569,7 @@ final class PartnershipChainsTest extends TestCase
      * yields `null`. The selection sorts a local copy, so the result is
      * order-independent and the caller's array is never mutated.
      *
-     * @param list<int> $years    The birth+death year multiset
+     * @param list<int> $years    The years whose median is formed
      * @param int|null  $expected The expected median year, or `null` when empty
      *
      * @return void

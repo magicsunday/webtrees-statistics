@@ -244,7 +244,7 @@ final class PartnershipReachMedianPrivacyIntegrationTest extends AbstractIntegra
     #[Test]
     public function smallestOfSeveralBirthYearsCounts(): void
     {
-        $tree = $this->restrictedTree('partnership-median-two-births.ged');
+        $tree = $this->restrictedTree('partnership-median-repeated-births.ged');
 
         self::assertCount(4, $this->individual($tree, 'I1')->facts(['BIRT']), 'precondition: I1 has four birth facts');
         self::assertSame(1844, $this->medianYear($tree, 3));
