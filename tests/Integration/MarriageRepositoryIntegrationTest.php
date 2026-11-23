@@ -72,10 +72,7 @@ final class MarriageRepositoryIntegrationTest extends AbstractIntegrationTestCas
 {
     private function repository(Tree $tree): MarriageRepository
     {
-        return new MarriageRepository(
-            $tree,
-            $this->statisticsData($tree),
-        );
+        return new MarriageRepository($tree);
     }
 
     /**

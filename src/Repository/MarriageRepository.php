@@ -14,7 +14,6 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 use Fisharebest\Webtrees\Family;
 use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Registry;
-use Fisharebest\Webtrees\StatisticsData;
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
@@ -50,9 +49,9 @@ use function strcmp;
 use function usort;
 
 /**
- * Marriage-related aggregations for the Family tab. Combines core's {@see
- * StatisticsData::statsMarrAgeQuery()} (age at marriage per sex) with local
- * queries for duration distribution and couple age-gap distribution.
+ * Marriage-related aggregations for the Family tab: age at marriage per sex,
+ * duration distribution, couple age-gap distribution, weddings by month and
+ * century, and the marriage records.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -148,12 +147,10 @@ final class MarriageRepository
     private array $spouseAgeAtMarriageCache = [];
 
     /**
-     * @param Tree           $tree The tree the statistics are computed for
-     * @param StatisticsData $data Core accessor that exposes statsMarrAgeQuery + countEventsByCentury
+     * @param Tree $tree The tree the statistics are computed for
      */
     public function __construct(
         private readonly Tree $tree,
-        private readonly StatisticsData $data,
     ) {
     }
 
