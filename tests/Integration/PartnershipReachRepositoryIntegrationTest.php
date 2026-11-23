@@ -146,6 +146,32 @@ final class PartnershipReachRepositoryIntegrationTest extends AbstractIntegratio
     }
 
     /**
+     * A group over the excerpt cap whose people all carry digit-only XREFs is
+     * drawn like any other group. The XREFs are integers once they are set keys
+     * of the excerpt, and the excerpt returns them as strings again.
+     */
+    #[Test]
+    public function summaryDrawsAnOverCapGroupOfDigitOnlyXrefs(): void
+    {
+        $people = PartnershipReachRepository::NETWORK_CAP + 5;
+        $tree   = $this->importGedcomTree('over-cap-numeric', $this->numericStarGedcom($people));
+        $result = $this->repository($tree)->summary();
+
+        self::assertInstanceOf(PartnershipReachReport::class, $result);
+
+        self::assertSame($people, $result->group->totalCount);
+        self::assertSame(PartnershipReachRepository::NETWORK_CAP, $result->group->shownCount);
+
+        $xrefs = $this->nodeXrefs($result);
+
+        self::assertCount(PartnershipReachRepository::NETWORK_CAP, $xrefs);
+
+        foreach ($xrefs as $xref) {
+            self::assertMatchesRegularExpression('/^[0-9]+$/', $xref);
+        }
+    }
+
+    /**
      * `depthPath` mirrors the tree-wide maximum generation depth, so the ratio's
      * depth component is the very value {@see GenerationDepthRepository::summary()}
      * reports for the same tree — derived here rather than hard-coded so the two
@@ -254,6 +280,33 @@ final class PartnershipReachRepositoryIntegrationTest extends AbstractIntegratio
         }
 
         return $xrefs;
+    }
+
+    /**
+     * GEDCOM for one connected star of people with digit-only XREFs. Person 1 is
+     * a man married to each of the other people, who are women, so the longest
+     * chain of the group is short and the cap cuts the rest. A star of n people
+     * gives n - 1 partnerships.
+     */
+    private function numericStarGedcom(int $people): string
+    {
+        $lines = ['0 HEAD', '1 CHAR UTF-8', '1 GEDC', '2 VERS 5.5.1', '2 FORM LINEAGE-LINKED'];
+
+        for ($number = 1; $number <= $people; ++$number) {
+            $lines[] = '0 @' . $number . '@ INDI';
+            $lines[] = '1 NAME Person ' . $number . ' /Star/';
+            $lines[] = '1 SEX ' . (($number === 1) ? 'M' : 'F');
+        }
+
+        for ($number = 2; $number <= $people; ++$number) {
+            $lines[] = '0 @F' . $number . '@ FAM';
+            $lines[] = '1 HUSB @1@';
+            $lines[] = '1 WIFE @' . $number . '@';
+        }
+
+        $lines[] = '0 TRLR';
+
+        return implode("\n", $lines);
     }
 
     /**

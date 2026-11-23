@@ -16,12 +16,18 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
+use function array_diff;
 use function array_fill_keys;
 use function array_map;
 use function array_reverse;
+use function array_values;
 use function count;
 use function in_array;
 use function sprintf;
+use function strcmp;
+use function usort;
+
+use const SORT_STRING;
 
 /**
  * Unit coverage of {@see PartnershipChains::excerpt()} — the pure cap/excerpt graph
@@ -261,6 +267,98 @@ final class PartnershipChainsExcerptTest extends TestCase
         foreach ($excerpt['members'] as $shown) {
             self::assertArrayHasKey($shown, $memberSet, $shown . ' is outside the group');
         }
+    }
+
+    /**
+     * A digit-only XREF is coerced to an integer when it becomes a set key, so the
+     * members read back from that set must be cast to strings again before they
+     * are compared. A star of 71 people with digit-only XREFs is one over the cap:
+     * the hub "1" partners with every other person, the excerpt drops the byte-order
+     * last neighbour "9", and every member and edge endpoint stays a string.
+     */
+    #[Test]
+    public function overCapExcerptKeepsDigitOnlyXrefsAsStrings(): void
+    {
+        $adjacency  = [];
+        $neighbours = [];
+
+        for ($number = 2; $number <= 71; ++$number) {
+            $xref = (string) $number;
+
+            $neighbours[]     = $xref;
+            $adjacency[$xref] = ['1'];
+        }
+
+        $adjacency['1'] = $neighbours;
+
+        $members = $this->members($adjacency);
+        sort($members, SORT_STRING);
+
+        self::assertCount(self::CAP + 1, $members, 'the star must exceed the cap by one person');
+
+        $excerpt = PartnershipChains::excerpt($adjacency, $members, ['2', '1', '3'], self::CAP);
+
+        $expectedMembers = array_values(array_diff($members, ['9']));
+
+        self::assertSame($expectedMembers, $excerpt['members']);
+
+        $expectedEdges = [];
+
+        foreach ($expectedMembers as $member) {
+            if ($member !== '1') {
+                $expectedEdges[] = ['1', $member];
+            }
+        }
+
+        usort(
+            $expectedEdges,
+            static fn (array $left, array $right): int => strcmp($left[1], $right[1]),
+        );
+
+        self::assertSame($expectedEdges, $excerpt['edges']);
+    }
+
+    /**
+     * Digit-only, leading-zero and text XREFs order together in byte order, and a
+     * leading-zero XREF stays a different member from its numeric twin. The chain
+     * holds every person, so all six are shown although the cap is smaller, and
+     * each edge is oriented smaller first.
+     */
+    #[Test]
+    public function excerptOrdersMixedNumericLeadingZeroAndTextXrefsByByteOrder(): void
+    {
+        $path = ['007', '7', 'A7', '08', '8', 'B'];
+
+        $adjacency = [];
+
+        foreach ($path as $index => $xref) {
+            $adjacency[$xref] = [];
+
+            if ($index > 0) {
+                $adjacency[$xref][] = $path[$index - 1];
+            }
+
+            if ($index < (count($path) - 1)) {
+                $adjacency[$xref][] = $path[$index + 1];
+            }
+        }
+
+        $members = $this->members($adjacency);
+        sort($members, SORT_STRING);
+
+        $excerpt = PartnershipChains::excerpt($adjacency, $members, $path, 4);
+
+        self::assertSame(['007', '08', '7', '8', 'A7', 'B'], $excerpt['members']);
+        self::assertSame(
+            [
+                ['007', '7'],
+                ['08', '8'],
+                ['08', 'A7'],
+                ['7', 'A7'],
+                ['8', 'B'],
+            ],
+            $excerpt['edges'],
+        );
     }
 
     /**

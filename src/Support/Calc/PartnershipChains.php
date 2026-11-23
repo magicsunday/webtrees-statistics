@@ -13,6 +13,7 @@ namespace MagicSunday\Webtrees\Statistic\Support\Calc;
 
 use function array_fill_keys;
 use function array_keys;
+use function array_map;
 use function array_pop;
 use function array_reverse;
 use function array_shift;
@@ -21,6 +22,7 @@ use function count;
 use function intdiv;
 use function sort;
 use function strcmp;
+use function strval;
 use function usort;
 
 use const SORT_NUMERIC;
@@ -240,7 +242,9 @@ final readonly class PartnershipChains
             }
         }
 
-        $shown = array_keys($included);
+        // A digit-only XREF ("54") was coerced to int when it became a key of
+        // the set; cast it back so the excerpt members stay string-typed.
+        $shown = array_map(strval(...), array_keys($included));
         sort($shown, SORT_STRING);
 
         return $shown;
