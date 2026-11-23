@@ -19,6 +19,7 @@ use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Aggregator\EventCenturyTally;
+use MagicSunday\Webtrees\Statistic\Aggregator\EventMonthTally;
 use MagicSunday\Webtrees\Statistic\Aggregator\IndividualAgeRecordResolver;
 use MagicSunday\Webtrees\Statistic\Enum\AgePairExtremum;
 use MagicSunday\Webtrees\Statistic\Enum\MarriageEndReason;
@@ -963,16 +964,17 @@ final class MarriageRepository
     }
 
     /**
-     * Weddings grouped by GEDCOM month abbreviation, leaning on core's
-     * already-public {@see StatisticsData::countFirstMarriagesByMonth()}. Core
-     * hands back the `{JAN: int, FEB: int, …}` map directly, so the repository
-     * is just a thin pass-through.
+     * Weddings grouped by GEDCOM month abbreviation. Every recorded marriage
+     * with a recorded month counts, also a later marriage of a person who
+     * married before. A marriage without a month is not counted, so the total
+     * can be lower than that of {@see weddingsByCentury()}. Months without a
+     * wedding are absent from the map.
      *
      * @return array<string, int>
      */
     public function weddingsByMonth(): array
     {
-        return $this->data->countFirstMarriagesByMonth($this->tree, 0, 0);
+        return EventMonthTally::countByMonth($this->tree, 'MARR');
     }
 
     /**
