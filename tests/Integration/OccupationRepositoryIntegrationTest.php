@@ -15,7 +15,6 @@ use Fisharebest\Webtrees\Site;
 use MagicSunday\Webtrees\Statistic\Aggregator\TopNAggregator;
 use MagicSunday\Webtrees\Statistic\Normalization\NormalizedOccupation;
 use MagicSunday\Webtrees\Statistic\Normalization\OccupationFolding;
-use MagicSunday\Webtrees\Statistic\Normalization\RawOccupationNormalizer;
 use MagicSunday\Webtrees\Statistic\Normalization\Support\ContentLanguage;
 use MagicSunday\Webtrees\Statistic\Normalization\Support\StringList;
 use MagicSunday\Webtrees\Statistic\Repository\OccupationRepository;
@@ -44,7 +43,6 @@ use function array_keys;
 #[UsesClass(TopNAggregator::class)]
 #[UsesClass(TreeScope::class)]
 #[UsesClass(GedcomScanner::class)]
-#[UsesClass(RawOccupationNormalizer::class)]
 #[UsesClass(NormalizedOccupation::class)]
 #[UsesClass(OccupationFolding::class)]
 #[UsesClass(StubOccupationNormalizer::class)]
@@ -69,7 +67,7 @@ final class OccupationRepositoryIntegrationTest extends AbstractIntegrationTestC
     public function topOccupationsReturnsCaseFoldedFrequencies(): void
     {
         $tree   = $this->importFixtureTree('individual-facts.ged');
-        $result = (new OccupationRepository($tree, new RawOccupationNormalizer()))->top(10);
+        $result = (new OccupationRepository($tree, new StubOccupationNormalizer([])))->top(10);
 
         self::assertSame(
             ['Blacksmith' => 3, 'Farmer' => 2, 'Carpenter' => 1, 'Teacher' => 1],
@@ -87,7 +85,7 @@ final class OccupationRepositoryIntegrationTest extends AbstractIntegrationTestC
     public function topOccupationsRespectsTheLimit(): void
     {
         $tree   = $this->importFixtureTree('individual-facts.ged');
-        $result = (new OccupationRepository($tree, new RawOccupationNormalizer()))->top(2);
+        $result = (new OccupationRepository($tree, new StubOccupationNormalizer([])))->top(2);
 
         self::assertSame(['Blacksmith', 'Farmer'], array_keys($result));
     }
@@ -101,7 +99,7 @@ final class OccupationRepositoryIntegrationTest extends AbstractIntegrationTestC
     {
         $tree = $this->importFixtureTree('individual-facts.ged');
 
-        self::assertSame(4, (new OccupationRepository($tree, new RawOccupationNormalizer()))->countDistinct());
+        self::assertSame(4, (new OccupationRepository($tree, new StubOccupationNormalizer([])))->countDistinct());
     }
 
     /**
@@ -148,7 +146,7 @@ final class OccupationRepositoryIntegrationTest extends AbstractIntegrationTestC
     {
         $tree = $this->importFixtureTree('occupation-numeric.ged');
 
-        $result = (new OccupationRepository($tree, new RawOccupationNormalizer()))->top(10);
+        $result = (new OccupationRepository($tree, new StubOccupationNormalizer([])))->top(10);
 
         self::assertSame(['1234' => 1, 'Farmer' => 1], $result);
     }

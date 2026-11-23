@@ -30,9 +30,9 @@ use function mb_strtolower;
  * Unlike the other Top-N counters, the occupation values are folded through an
  * {@see OccupationNormalizerInterface} before counting: when a standardization provider
  * is installed, spelling and language variants of one trade collapse under a
- * single grouping key instead of fragmenting into separate bars. The identity
- * default resolves nothing, so without a provider the aggregation folds by case
- * alone — byte-identical to the plain Top-N behaviour.
+ * single grouping key instead of fragmenting into separate bars. Without a
+ * provider nothing resolves, so the aggregation folds by case alone —
+ * byte-identical to the plain Top-N behaviour.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -42,7 +42,7 @@ final class OccupationRepository extends AbstractGedcomTagTopNRepository
 {
     /**
      * @param Tree                          $tree       The tree the statistics are computed for
-     * @param OccupationNormalizerInterface $normalizer Resolves raw `1 OCCU` values to standardized trades so variants merge; the identity default leaves the aggregation unchanged
+     * @param OccupationNormalizerInterface $normalizer Resolves raw `1 OCCU` values to standardized trades so variants merge; without a provider the aggregation stays unchanged
      */
     public function __construct(
         Tree $tree,

@@ -25,7 +25,7 @@ use Fisharebest\Webtrees\View;
 use Illuminate\Support\Collection;
 use MagicSunday\Webtrees\Statistic\Module;
 use MagicSunday\Webtrees\Statistic\Normalization\Contract\OccupationNormalizerInterface;
-use MagicSunday\Webtrees\Statistic\Normalization\RawOccupationNormalizer;
+use MagicSunday\Webtrees\Statistic\Test\Support\Normalization\StubOccupationNormalizer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ServerRequestInterface;
@@ -141,7 +141,7 @@ final class ModuleChartPageTest extends AbstractIntegrationTestCase
         $moduleService->method('findByInterface')->willReturn(new Collection());
         $moduleService->method('findByComponent')->willReturn(new Collection());
         Registry::container()->set(ModuleService::class, $moduleService);
-        Registry::container()->set(OccupationNormalizerInterface::class, new RawOccupationNormalizer());
+        Registry::container()->set(OccupationNormalizerInterface::class, new StubOccupationNormalizer([]));
 
         View::registerNamespace(
             'webtrees-statistics',

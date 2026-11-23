@@ -13,7 +13,6 @@ namespace MagicSunday\Webtrees\Statistic\Test\Unit\Normalization;
 
 use MagicSunday\Webtrees\Statistic\Normalization\NormalizedOccupation;
 use MagicSunday\Webtrees\Statistic\Normalization\OccupationFolding;
-use MagicSunday\Webtrees\Statistic\Normalization\RawOccupationNormalizer;
 use MagicSunday\Webtrees\Statistic\Normalization\Support\StringList;
 use MagicSunday\Webtrees\Statistic\Test\Support\Normalization\StubOccupationNormalizer;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -34,7 +33,6 @@ use PHPUnit\Framework\TestCase;
  */
 #[CoversClass(OccupationFolding::class)]
 #[UsesClass(NormalizedOccupation::class)]
-#[UsesClass(RawOccupationNormalizer::class)]
 #[UsesClass(StubOccupationNormalizer::class)]
 #[UsesClass(StringList::class)]
 final class OccupationFoldingTest extends TestCase
@@ -92,13 +90,13 @@ final class OccupationFoldingTest extends TestCase
     }
 
     /**
-     * The identity default resolves nothing, so every value folds exactly as it
-     * did before normalization existed: case-folded key, raw label.
+     * A normalizer that resolves nothing folds every value by case alone:
+     * case-folded key, raw label.
      */
     #[Test]
-    public function rawNormalizerFoldsEveryValueByCaseAlone(): void
+    public function normalizerResolvingNothingFoldsEveryValueByCaseAlone(): void
     {
-        $folds = OccupationFolding::map(['Smith', 'smith', 'BAKER'], new RawOccupationNormalizer(), null);
+        $folds = OccupationFolding::map(['Smith', 'smith', 'BAKER'], new StubOccupationNormalizer([]), null);
 
         self::assertSame(
             [

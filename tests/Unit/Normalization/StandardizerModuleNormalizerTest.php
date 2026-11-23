@@ -13,6 +13,7 @@ namespace MagicSunday\Webtrees\Statistic\Test\Unit\Normalization;
 
 use Fisharebest\Webtrees\Module\ModuleInterface;
 use Fisharebest\Webtrees\Services\ModuleService;
+use Generator;
 use Hartenthaler\Webtrees\Module\OccupationStandardizer\PublicApi\OccupationStandardizerInterface;
 use Hartenthaler\Webtrees\Module\OccupationStandardizer\PublicApi\StandardizedOccupation;
 use Illuminate\Support\Collection;
@@ -61,6 +62,27 @@ final class StandardizerModuleNormalizerTest extends TestCase
     }
 
     /**
+     * Without a provider the batch method drains a generator once and returns one
+     * null per distinct value, however often a value repeats.
+     */
+    #[Test]
+    public function normalizeManyKeepsOneNullPerDistinctValueOfAGeneratorWithoutProvider(): void
+    {
+        $normalizer = new StandardizerModuleNormalizer($this->moduleServiceReturning([]));
+
+        $values = (static function (): Generator {
+            yield 'Schmied';
+            yield 'Müller';
+            yield 'Schmied';
+        })();
+
+        self::assertSame(
+            ['Schmied' => null, 'Müller' => null],
+            $normalizer->normalizeMany($values),
+        );
+    }
+
+    /**
      * A registered module that does not implement the provider interface is
      * ignored, and the batch method returns one null per distinct input.
      */
@@ -78,20 +100,17 @@ final class StandardizerModuleNormalizerTest extends TestCase
     }
 
     /**
-     * A recognized result maps every provider field onto the value object, while
-     * an unrecognized entry in the same batch keeps its null so the caller falls
-     * back to the raw value.
+     * A recognized result maps the grouping key and the display label onto the
+     * value object, while an unrecognized entry in the same batch keeps its null
+     * so the caller falls back to the raw value.
      */
     #[Test]
-    public function normalizeManyMapsEveryProviderFieldOntoTheValueObject(): void
+    public function normalizeManyMapsTheGroupingKeyAndDisplayLabelOntoTheValueObject(): void
     {
         $standardized = new StandardizedOccupation(
             canonicalKey: 'de:baecker',
             canonicalLabel: 'Bäcker',
             labelsByLanguage: ['de' => 'Bäcker'],
-            hiscoCode: '75430',
-            hisclass: '7',
-            hiscamScore: 45.6,
         );
 
         $normalizer = new StandardizerModuleNormalizer(
@@ -108,8 +127,6 @@ final class StandardizerModuleNormalizerTest extends TestCase
         self::assertInstanceOf(NormalizedOccupation::class, $mapped);
         self::assertSame('de:baecker', $mapped->groupingKey);
         self::assertSame('Bäcker', $mapped->displayLabel);
-        self::assertSame('75430', $mapped->hiscoCode);
-        self::assertSame(45.6, $mapped->hiscamScore);
     }
 
     /**
@@ -137,8 +154,6 @@ final class StandardizerModuleNormalizerTest extends TestCase
         $mapped = $result['Bäcker'];
         self::assertInstanceOf(NormalizedOccupation::class, $mapped);
         self::assertSame('Bäcker (neutral)', $mapped->displayLabel);
-        self::assertNull($mapped->hiscoCode);
-        self::assertNull($mapped->hiscamScore);
     }
 
     /**

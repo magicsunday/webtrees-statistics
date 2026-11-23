@@ -17,10 +17,9 @@ use MagicSunday\Webtrees\Statistic\Normalization\NormalizedOccupation;
  * Narrow seam through which the occupation aggregations resolve a raw `1 OCCU`
  * string to a standardized trade. The module is a CONSUMER of whatever
  * occupation standardization a site has available — it never owns the data. The
- * default implementation ({@see RawOccupationNormalizer}) is a pure identity
- * that returns null for everything, so nothing changes until a real provider is
- * present; the adapter implementation resolves an installed standardization
- * module in-process.
+ * implementation resolves an installed standardization module in-process and
+ * returns null for everything while none is present, so nothing changes until a
+ * real provider is installed.
  *
  * A `null` result always means "unknown — keep the raw value", so every call
  * site falls back to the raw string and no occupation is ever dropped.
