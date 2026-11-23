@@ -237,6 +237,26 @@ final class PartnershipReachMedianPrivacyIntegrationTest extends AbstractIntegra
     }
 
     /**
+     * I3 is living and has no death fact, so the tree setting that hides living
+     * people withholds the birth year of I3 from a guest. The guest median is
+     * formed over the four years of the two deceased people. The administrator
+     * also gets the birth year of the living person.
+     */
+    #[Test]
+    public function livingPersonContributesNoYearToAGuest(): void
+    {
+        $tree = $this->restrictedTree('partnership-median-living.ged');
+
+        self::assertSame(1860, $this->medianYear($tree, 3));
+
+        Auth::logout();
+
+        self::assertFalse($this->individual($tree, 'I3')->canShow(), 'precondition: the living person is hidden from the guest');
+        self::assertTrue($this->individual($tree, 'I1')->canShow(), 'precondition: the deceased people stay visible');
+        self::assertSame(1810, $this->medianYear($tree, 3));
+    }
+
+    /**
      * I1 has four birth facts. The smallest year is neither the first nor the
      * last of them, and it is the one that counts as the lower bound of the
      * person.
