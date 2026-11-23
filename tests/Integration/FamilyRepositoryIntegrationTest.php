@@ -318,6 +318,41 @@ final class FamilyRepositoryIntegrationTest extends AbstractIntegrationTestCase
     }
 
     /**
+     * A death written in another calendar is bucketed by its Gregorian year, so
+     * it clusters with a sibling death recorded in Gregorian. Both families lose
+     * one child in a Gregorian-dated 1803 and one on a French Republican date of
+     * An XII, which falls in 1803 as well. Bucketing by the native year would put
+     * the French deaths in "year 12" and leave every family one death short of
+     * the per-family floor.
+     */
+    #[Test]
+    public function getSiblingDeathClustersBucketsANonGregorianDeathByItsGregorianYear(): void
+    {
+        $tree   = $this->importFixtureTree('sibling-death-clusters-mixed-calendar.ged');
+        $result = (new FamilyRepository($tree))->getSiblingDeathClusters();
+
+        self::assertSame(
+            [
+                [1803, 4, 2],
+            ],
+            $this->clusterTriples($result),
+        );
+    }
+
+    /**
+     * A death before the common era has no positive year to bucket by, so it is
+     * left out of the clusters. Both families lose two children in the same year
+     * B.C., which would otherwise be a qualifying cluster.
+     */
+    #[Test]
+    public function getSiblingDeathClustersLeavesOutDeathsBeforeTheCommonEra(): void
+    {
+        $tree = $this->importFixtureTree('sibling-death-clusters-bce.ged');
+
+        self::assertSame([], (new FamilyRepository($tree))->getSiblingDeathClusters());
+    }
+
+    /**
      * A tree with no qualifying cross-family cluster year yields an empty list.
      */
     #[Test]
