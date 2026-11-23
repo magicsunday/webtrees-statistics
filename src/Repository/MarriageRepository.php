@@ -109,15 +109,22 @@ final class MarriageRepository
     private const array REMARRIAGE_INTERVAL_BANDS = ['<6', '6–11', '12–23', '24–35', '36–47', '48–59', '60+'];
 
     /**
-     * Plausibility band for the spouse-at-marriage and longest-marriage
-     * records. Anything below this minimum is most likely a data-entry error
-     * (BIRT and MARR swapped); anything above is either a stepparent
-     * relationship or a stale BIRT. The two records reject candidates outside
-     * the band so neither extreme is captured by a single bad row.
+     * Plausibility band for the spouse-at-marriage records. Anything below this
+     * minimum is most likely a data-entry error (BIRT and MARR swapped),
+     * anything above is either a stepparent relationship or a stale BIRT. The
+     * records reject candidates outside the band so neither extreme is captured
+     * by a single bad row.
      */
     private const int MIN_PLAUSIBLE_SPOUSE_AGE = 10;
 
     private const int MAX_PLAUSIBLE_SPOUSE_AGE = 90;
+
+    /**
+     * Upper bound for the duration of a marriage in the longest-marriage
+     * records. A span beyond it is most likely a stale or wrong end date. It is
+     * a statement about a marriage and independent of the spouse age band.
+     */
+    private const int MAX_PLAUSIBLE_MARRIAGE_DURATION = 90;
 
     /**
      * Per-instance cache for the marriage-duration row plucks.
@@ -248,7 +255,7 @@ final class MarriageRepository
             }
         }
 
-        if (($bestXref === null) || ($bestYears <= 0) || ($bestYears > self::MAX_PLAUSIBLE_SPOUSE_AGE)) {
+        if (($bestXref === null) || ($bestYears <= 0) || ($bestYears > self::MAX_PLAUSIBLE_MARRIAGE_DURATION)) {
             return null;
         }
 
@@ -306,7 +313,7 @@ final class MarriageRepository
      * Top-N shortest and longest marriages, each carrying how it ended. Walks
      * the same duration pairs as the single-record holders, ranks them by day
      * delta, and returns the `$topN` shortest (ascending) and `$topN` longest
-     * (descending). Spans beyond {@see MAX_PLAUSIBLE_SPOUSE_AGE} years are
+     * (descending). Spans beyond {@see MAX_PLAUSIBLE_MARRIAGE_DURATION} years are
      * dropped from both lists, matching {@see longestMarriageRecord()}. Only the
      * families that actually make a list are resolved to a label, through the
      * factory so {@see Family::fullName()} applies webtrees' own privacy
@@ -328,7 +335,7 @@ final class MarriageRepository
             $days  = $pair['endJd'] - $pair['marrJd'];
             $years = CalendarSpan::wholeYears($pair['marrJd'], $pair['endJd']);
 
-            if ($years > self::MAX_PLAUSIBLE_SPOUSE_AGE) {
+            if ($years > self::MAX_PLAUSIBLE_MARRIAGE_DURATION) {
                 continue;
             }
 
