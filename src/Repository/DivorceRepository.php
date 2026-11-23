@@ -100,7 +100,7 @@ final readonly class DivorceRepository
                 DateJoin::on($join, 'divr', 'f_file', 'f_id', 'DIV');
             })
             ->join('dates AS birth', static function (JoinClause $join) use ($spouseColumn): void {
-                DateJoin::on($join, 'birth', 'f_file', $spouseColumn, 'BIRT', DateJoin::JD_NOT_EQUAL_ZERO);
+                DateJoin::on($join, 'birth', 'f_file', $spouseColumn, 'BIRT');
             })
             ->select([
                 DateAggregate::min('divr', 'd_julianday1', 'div_jd'),

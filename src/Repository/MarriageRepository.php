@@ -712,10 +712,10 @@ final class MarriageRepository
         // per family.
         $rows = TreeScope::table($this->tree, 'families')
             ->join('dates AS hb', static function (JoinClause $join): void {
-                DateJoin::on($join, 'hb', 'f_file', 'f_husb', 'BIRT', DateJoin::JD_NOT_EQUAL_ZERO);
+                DateJoin::on($join, 'hb', 'f_file', 'f_husb', 'BIRT');
             })
             ->join('dates AS wb', static function (JoinClause $join): void {
-                DateJoin::on($join, 'wb', 'f_file', 'f_wife', 'BIRT', DateJoin::JD_NOT_EQUAL_ZERO);
+                DateJoin::on($join, 'wb', 'f_file', 'f_wife', 'BIRT');
             })
             ->select([
                 DateAggregate::min('hb', 'd_julianday1', 'hb_jd'),
@@ -792,10 +792,10 @@ final class MarriageRepository
         // bucket at one entry per family.
         $rows = TreeScope::table($this->tree, 'families')
             ->join('dates AS husb_d', static function (JoinClause $join): void {
-                DateJoin::on($join, 'husb_d', 'f_file', 'f_husb', 'DEAT', DateJoin::JD_NOT_EQUAL_ZERO);
+                DateJoin::on($join, 'husb_d', 'f_file', 'f_husb', 'DEAT');
             })
             ->join('dates AS wife_d', static function (JoinClause $join): void {
-                DateJoin::on($join, 'wife_d', 'f_file', 'f_wife', 'DEAT', DateJoin::JD_NOT_EQUAL_ZERO);
+                DateJoin::on($join, 'wife_d', 'f_file', 'f_wife', 'DEAT');
             })
             ->select([
                 DateAggregate::max('husb_d', 'd_julianday2', 'husb_jd'),

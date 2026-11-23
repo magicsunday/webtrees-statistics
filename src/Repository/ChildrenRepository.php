@@ -471,7 +471,7 @@ final readonly class ChildrenRepository
         $rows = TreeScope::table($this->tree, 'link')
             ->where('l_type', '=', 'FAMC')
             ->join('dates AS birth', static function (JoinClause $join): void {
-                DateJoin::on($join, 'birth', 'l_file', 'l_from', 'BIRT', DateJoin::JD_NOT_EQUAL_ZERO, true);
+                DateJoin::on($join, 'birth', 'l_file', 'l_from', 'BIRT', null, true);
             })
             ->select([
                 'l_from AS child_id',
@@ -793,7 +793,7 @@ final readonly class ChildrenRepository
         $rows = TreeScope::table($this->tree, 'link')
             ->where('l_type', '=', 'FAMC')
             ->join('dates AS birth', static function (JoinClause $join): void {
-                DateJoin::on($join, 'birth', 'l_file', 'l_from', 'BIRT', DateJoin::JD_NOT_EQUAL_ZERO, true);
+                DateJoin::on($join, 'birth', 'l_file', 'l_from', 'BIRT', null, true);
             })
             ->select(['l_to AS family_id', 'l_from AS child_id', 'birth.d_julianday1 AS birth_jd'])
             ->orderBy('l_to')
@@ -951,7 +951,7 @@ final readonly class ChildrenRepository
         // first-child query, so a family anchors on its earliest month-dated
         // child rather than an undated earlier one.
         $birthJoin = static function (JoinClause $join): void {
-            DateJoin::on($join, 'birth', 'chil.l_file', 'chil.l_to', 'BIRT', DateJoin::JD_NOT_EQUAL_ZERO);
+            DateJoin::on($join, 'birth', 'chil.l_file', 'chil.l_to', 'BIRT');
             $join->where('birth.d_mon', '>', 0);
         };
 
