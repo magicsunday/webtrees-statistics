@@ -1,0 +1,197 @@
+/**
+ * This file is part of the package magicsunday/webtrees-statistics.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file distributed with this source code.
+ */
+
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+
+import { describe, expect, test } from "@jest/globals";
+
+import {
+    COORDINATE_DECIMALS,
+    KEPT_PROPERTIES,
+    reduceWorldMap,
+} from "../../../dev/reduce-world-map.mjs";
+
+const assetPath = fileURLToPath(new URL("../world-map.geojson", import.meta.url));
+
+/**
+ * Reads the committed world-map asset the way the browser receives it.
+ *
+ * @returns {{type: string, features: Array<{properties: Record<string, unknown>}>}} The parsed FeatureCollection.
+ */
+function readAsset() {
+    const asset = JSON.parse(readFileSync(assetPath, "utf8"));
+
+    // A truncated or mis-generated asset without features passes every scan of
+    // its features and still draws an empty map.
+    expect(asset.features.length).toBeGreaterThan(0);
+
+    return asset;
+}
+
+describe("reduceWorldMap", () => {
+    test("keeps only the listed properties of every feature", () => {
+        const reduced = reduceWorldMap({
+            type: "FeatureCollection",
+            features: [
+                {
+                    type: "Feature",
+                    properties: {
+                        ISO_A2: "DE",
+                        ISO_A2_EH: "DE",
+                        NAME: "Germany",
+                        NAME_LONG: "Germany",
+                        POP_EST: 83132799,
+                        ADMIN: "Germany",
+                    },
+                    geometry: { type: "Polygon", coordinates: [[[1, 2]]] },
+                },
+            ],
+        });
+
+        expect(reduced.features[0].properties).toStrictEqual({
+            ISO_A2: "DE",
+            ISO_A2_EH: "DE",
+            NAME: "Germany",
+            NAME_LONG: "Germany",
+        });
+    });
+
+    test("does not add a key for a listed property that a feature lacks", () => {
+        const reduced = reduceWorldMap({
+            type: "FeatureCollection",
+            features: [
+                {
+                    type: "Feature",
+                    properties: { NAME: "Nowhere", ADMIN: "Nowhere" },
+                    geometry: { type: "Polygon", coordinates: [[[1, 2]]] },
+                },
+            ],
+        });
+
+        expect(reduced.features[0].properties).toStrictEqual({ NAME: "Nowhere" });
+    });
+
+    test("rounds the coordinates of a Polygon and of a MultiPolygon", () => {
+        const reduced = reduceWorldMap({
+            type: "FeatureCollection",
+            features: [
+                {
+                    type: "Feature",
+                    properties: {},
+                    geometry: {
+                        type: "Polygon",
+                        coordinates: [
+                            [
+                                [1.23456, 2.34444],
+                                [10.12351, 20.99949],
+                            ],
+                        ],
+                    },
+                },
+                {
+                    type: "Feature",
+                    properties: {},
+                    geometry: {
+                        type: "MultiPolygon",
+                        coordinates: [
+                            [
+                                [
+                                    [5.55555, 6.66666],
+                                    [7, 8.1],
+                                ],
+                            ],
+                        ],
+                    },
+                },
+            ],
+        });
+
+        expect(COORDINATE_DECIMALS).toBe(3);
+        expect(reduced.features[0].geometry.coordinates).toStrictEqual([
+            [
+                [1.235, 2.344],
+                [10.124, 20.999],
+            ],
+        ]);
+        expect(reduced.features[1].geometry.coordinates).toStrictEqual([
+            [
+                [
+                    [5.556, 6.667],
+                    [7, 8.1],
+                ],
+            ],
+        ]);
+    });
+
+    test("keeps the members around the properties and does not touch its input", () => {
+        const input = {
+            type: "FeatureCollection",
+            name: "ne_110m_admin_0_countries",
+            bbox: [-180, -90, 180, 83.6],
+            features: [
+                {
+                    type: "Feature",
+                    properties: { NAME: "Fiji", ADMIN: "Fiji" },
+                    bbox: [177.28504, -18.28799, 180, -16.02088],
+                    geometry: { type: "Polygon", coordinates: [[[177.28504, -17.72465]]] },
+                },
+            ],
+        };
+        const before = JSON.stringify(input);
+
+        const reduced = reduceWorldMap(input);
+
+        expect(JSON.stringify(input)).toBe(before);
+        expect(reduced.name).toBe("ne_110m_admin_0_countries");
+        expect(reduced.bbox).toStrictEqual([-180, -90, 180, 83.6]);
+        expect(reduced.features[0].bbox).toStrictEqual([177.28504, -18.28799, 180, -16.02088]);
+        expect(reduced.features[0].geometry.type).toBe("Polygon");
+    });
+});
+
+describe("the committed world-map asset", () => {
+    test("keeps the properties that the map code reads", () => {
+        // The runtime filter of index.js reads the ISO keys, and the chart-lib
+        // WorldMap falls back to the names when an ISO value is the -99 sentinel.
+        expect(KEPT_PROPERTIES).toStrictEqual(
+            expect.arrayContaining(["ISO_A2_EH", "ISO_A2", "NAME", "NAME_LONG"]),
+        );
+    });
+
+    test("carries no property outside the kept list", () => {
+        const surplus = readAsset().features.flatMap((feature) =>
+            Object.keys(feature.properties).filter((key) => !KEPT_PROPERTIES.includes(key)),
+        );
+
+        expect([...new Set(surplus)]).toStrictEqual([]);
+    });
+
+    test("holds the countries that the map draws", () => {
+        const codes = new Set(readAsset().features.map((feature) => feature.properties.ISO_A2_EH));
+
+        expect(["DE", "FR", "US"].filter((code) => codes.has(code))).toStrictEqual([
+            "DE",
+            "FR",
+            "US",
+        ]);
+    });
+
+    test("gives every feature the ISO key that the map joins its rows on", () => {
+        const withoutIso = readAsset()
+            .features.filter((feature) => typeof feature.properties.ISO_A2_EH !== "string")
+            .map((feature) => feature.properties.NAME ?? "(unnamed)");
+
+        expect(withoutIso).toStrictEqual([]);
+    });
+
+    test("is a fixed point of the reduction, so it holds no unrounded coordinate", () => {
+        const asset = readAsset();
+
+        expect(reduceWorldMap(asset)).toStrictEqual(asset);
+    });
+});
