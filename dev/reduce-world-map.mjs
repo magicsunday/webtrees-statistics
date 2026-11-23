@@ -8,14 +8,15 @@
 /**
  * Reduces a Natural Earth admin-0 GeoJSON to what the world map reads.
  *
- * The map code and the chart-lib `WorldMap` read the two ISO keys of a feature
- * and, when an ISO value is the -99 sentinel, its names. Every other property
+ * The chart-lib `WorldMap` reads the two ISO keys of a feature and, when an ISO
+ * value is the -99 sentinel, its names. Every other property
  * only adds payload, so it is dropped here, and the coordinates are rounded to a
- * precision that a chart widget cannot show.
+ * precision that a chart widget cannot show. Antarctica is dropped as well: no
+ * genealogy data lands there and the continent would take a large share of the
+ * vertical space of the map.
  *
  * Run it through `make world-map SOURCE=<path of the Natural Earth file>`, which
- * writes `resources/js/world-map.geojson`. Antarctica stays in the file on
- * purpose: the browser drops it at runtime, see `resources/js/modules/index.js`.
+ * writes `resources/js/world-map.geojson`.
  */
 
 import { readFileSync, writeFileSync } from "node:fs";
@@ -28,6 +29,13 @@ import { pathToFileURL } from "node:url";
  * @type {string[]}
  */
 export const KEPT_PROPERTIES = ["ISO_A2", "ISO_A2_EH", "NAME", "NAME_LONG"];
+
+/**
+ * The ISO codes of the regions that the map does not draw.
+ *
+ * @type {string[]}
+ */
+export const EXCLUDED_REGIONS = ["AQ"];
 
 /**
  * Decimals kept per coordinate, about a hundred metres.
@@ -53,6 +61,22 @@ function roundCoordinates(coordinates, decimals) {
 }
 
 /**
+ * Tells whether a feature is one of the regions that the map does not draw.
+ *
+ * `ISO_A2_EH` wins over `ISO_A2`, because `ISO_A2` holds the -99 sentinel for
+ * some countries.
+ *
+ * @param {Record<string, any>} feature A Natural Earth feature.
+ *
+ * @returns {boolean} True when the feature is excluded.
+ */
+function isExcluded(feature) {
+    const iso = feature.properties?.ISO_A2_EH ?? feature.properties?.ISO_A2;
+
+    return EXCLUDED_REGIONS.includes(iso);
+}
+
+/**
  * Reduces a FeatureCollection without touching its input.
  *
  * @param {{features: Array<Record<string, any>>}} collection The Natural Earth FeatureCollection.
@@ -68,7 +92,7 @@ export function reduceWorldMap(
 ) {
     return {
         ...collection,
-        features: collection.features.map((feature) => ({
+        features: collection.features.filter((feature) => !isExcluded(feature)).map((feature) => ({
             ...feature,
             properties: Object.fromEntries(
                 properties

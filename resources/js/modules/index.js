@@ -66,20 +66,7 @@ function loadWorldGeoJson() {
     if (geoJsonPromise === null) {
         const request = /** @type {Promise<import("geojson").FeatureCollection>} */ (
             json(worldGeoJsonUrl())
-        ).then((raw) => ({
-            // Drop Antarctica. No genealogy data is going to land in
-            // AQ and the continent takes a large share of the vertical
-            // space of a Mercator projection, squeezing every populated
-            // landmass.
-            ...raw,
-            features: raw.features.filter((feature) => {
-                const iso =
-                    feature?.properties?.ISO_A2_EH ??
-                    feature?.properties?.ISO_A2 ??
-                    feature?.properties?.iso_a2;
-                return iso !== "AQ";
-            }),
-        }));
+        );
 
         geoJsonPromise = request;
 

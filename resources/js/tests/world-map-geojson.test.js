@@ -61,6 +61,30 @@ describe("reduceWorldMap", () => {
         });
     });
 
+    test("drops the excluded regions and judges a feature by ISO_A2_EH before ISO_A2", () => {
+        const feature = (properties) => ({
+            type: "Feature",
+            properties,
+            geometry: { type: "Polygon", coordinates: [[[1, 2]]] },
+        });
+
+        const reduced = reduceWorldMap({
+            type: "FeatureCollection",
+            features: [
+                feature({ ISO_A2: "AQ", ISO_A2_EH: "AQ", NAME: "Antarctica" }),
+                feature({ ISO_A2: "-99", ISO_A2_EH: "AQ", NAME: "Sentinel Antarctica" }),
+                feature({ ISO_A2: "-99", ISO_A2_EH: "FR", NAME: "France" }),
+                feature({ ISO_A2: "AQ", NAME: "Antarctica without the EH key" }),
+                feature({ ISO_A2: "DE", ISO_A2_EH: "DE", NAME: "Germany" }),
+            ],
+        });
+
+        expect(reduced.features.map((entry) => entry.properties.NAME)).toStrictEqual([
+            "France",
+            "Germany",
+        ]);
+    });
+
     test("does not add a key for a listed property that a feature lacks", () => {
         const reduced = reduceWorldMap({
             type: "FeatureCollection",
@@ -156,8 +180,8 @@ describe("reduceWorldMap", () => {
 
 describe("the committed world-map asset", () => {
     test("keeps the properties that the map code reads", () => {
-        // The runtime filter of index.js reads the ISO keys, and the chart-lib
-        // WorldMap falls back to the names when an ISO value is the -99 sentinel.
+        // The chart-lib WorldMap joins its rows on the ISO keys and falls back to
+        // the names when an ISO value is the -99 sentinel.
         expect(KEPT_PROPERTIES).toStrictEqual(
             expect.arrayContaining(["ISO_A2_EH", "ISO_A2", "NAME", "NAME_LONG"]),
         );
@@ -179,6 +203,12 @@ describe("the committed world-map asset", () => {
             "FR",
             "US",
         ]);
+    });
+
+    test("holds no region that the map does not draw", () => {
+        const codes = readAsset().features.map((feature) => feature.properties.ISO_A2_EH);
+
+        expect(codes).not.toContain("AQ");
     });
 
     test("gives every feature the ISO key that the map joins its rows on", () => {
