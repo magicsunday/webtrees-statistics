@@ -663,6 +663,49 @@ final class LifeSpanRepositoryIntegrationTest extends AbstractIntegrationTestCas
     }
 
     /**
+     * A death before the first birthday is a valid lifespan of zero whole years
+     * and belongs to the cohort, also when birth and death fall on the same day.
+     * The fixture holds one male birth cohort born on 1 JAN 1900: five who died
+     * on 1 JAN 1980, one infant who died on 1 JUL 1900 and one newborn who died
+     * on the day of birth. A man without a death date and a man whose death
+     * precedes the birth are not part of the cohort. The mean is (5 * 80) / 7
+     * and the cohort size is seven.
+     */
+    #[Test]
+    public function averageLifespanBySexAndCenturyCountsADeathBeforeTheFirstBirthday(): void
+    {
+        $tree   = $this->importFixtureTree('life-span-infant-deaths.ged');
+        $result = $this->repository($tree)->averageLifespanBySexAndCentury();
+
+        self::assertSame(['19th cent.'], $result->categories);
+
+        $male = PayloadNarrowing::seriesAt($result, 0);
+
+        self::assertSame([57.1], $male->values);
+        self::assertSame(['57.1 years (n = 7)'], $male->tooltips);
+    }
+
+    /**
+     * The box plot takes the same cohort: the two lifespans of zero whole years
+     * are two of the seven values, not left out.
+     */
+    #[Test]
+    public function deathAgeDistributionByCenturyCountsADeathBeforeTheFirstBirthday(): void
+    {
+        $tree   = $this->importFixtureTree('life-span-infant-deaths.ged');
+        $result = $this->repository($tree)->deathAgeDistributionByCentury();
+
+        self::assertCount(1, $result);
+        self::assertSame(19, $result[0]['century']);
+        self::assertSame(7, $result[0]['n']);
+
+        $values = $result[0]['values'];
+        sort($values);
+
+        self::assertSame([0, 0, 80, 80, 80, 80, 80], $values);
+    }
+
+    /**
      * `averageLifespanBySexAndCentury` runs the same BirthDeath pairs through a
      * per-sex aggregation, so the same BET..AND / FROM..TO doubling pathology
      * would inflate either the male or female cohort count. The fixture splits
