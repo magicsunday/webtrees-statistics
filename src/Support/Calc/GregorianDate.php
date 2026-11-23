@@ -62,13 +62,14 @@ final class GregorianDate
     }
 
     /**
-     * The Gregorian `[year, month, day]` of a `dates` row.
+     * The Gregorian `[year, month, day]` of an event date. The values are the
+     * columns of a `dates` row or the same values of a date object.
      *
-     * @param string $calendar            The row's `d_type` calendar escape (e.g. `@#DGREGORIAN@`)
-     * @param int    $nativeYear          The row's stored `d_year` in its own calendar
-     * @param int    $nativeMonth         The row's stored `d_mon` in its own calendar (0 when absent)
-     * @param int    $nativeDay           The row's stored `d_day` in its own calendar (0 when absent)
-     * @param int    $lowerBoundJulianDay The row's `d_julianday1` (the imprecise date's lower bound)
+     * @param string $calendar            The calendar escape of the date (e.g. `@#DGREGORIAN@`)
+     * @param int    $nativeYear          The year in the calendar of the date itself
+     * @param int    $nativeMonth         The month in the calendar of the date itself (0 when absent)
+     * @param int    $nativeDay           The day in the calendar of the date itself (0 when absent)
+     * @param int    $lowerBoundJulianDay The Julian day of the lower bound (the imprecise date's lower bound)
      *
      * @return array{0: int, 1: int, 2: int} The Gregorian `[year, month, day]` to bucket the event by
      */
@@ -97,12 +98,12 @@ final class GregorianDate
     }
 
     /**
-     * The Gregorian year of a `dates` row — the convenience the century / decade
-     * cards use when they never touch month or day.
+     * The Gregorian year of an event date, the convenience the century and decade
+     * cards and the partnership median use when they never touch month or day.
      *
-     * @param string $calendar            The row's `d_type` calendar escape
-     * @param int    $nativeYear          The row's stored `d_year` in its own calendar
-     * @param int    $lowerBoundJulianDay The row's `d_julianday1`
+     * @param string $calendar            The calendar escape of the date
+     * @param int    $nativeYear          The year in the calendar of the date itself
+     * @param int    $lowerBoundJulianDay The Julian day of the lower bound
      *
      * @return int The Gregorian year to bucket the event by
      */

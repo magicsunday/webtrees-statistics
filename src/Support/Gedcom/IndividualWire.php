@@ -17,19 +17,19 @@ use Fisharebest\Webtrees\Individual;
  * Flattens a webtrees {@see Individual} to the JSON-encodable `{xref, label,
  * sex, birth, death, url}` wire row a JS/JSON consumer can drive without an
  * Individual proxy. Shared by every report VO that carries live people for the
- * PHTML view but must serialise them away — the marriage-reach chain and its
+ * PHTML view but must serialise them away. The marriage-reach chain and its
  * group excerpt both flatten people this exact way, so the strip-name +
  * year-only + url idiom lives here once.
  *
  * Privacy: the label is the record's own `fullName()` (markup stripped,
  * entities decoded), so a non-visible person already reads as "Private" without
  * any caller-side gate. The DERIVED facts are NOT privatised by `fullName()`,
- * though — `sex()` reads the unprivatised record and `url()` is an xref deep-link, so a
+ * though. `sex()` reads the unprivatised record and `url()` is an xref deep-link, so a
  * `!canShow()` (typically living) person keeps a positionally-identifiable node in a
  * graph while its real sex and page link would leak. So for a non-visible person every
  * derived field is withheld (empty `birth`/`death`/`url`, unknown `sex`), exactly the
  * discipline {@see \MagicSunday\Webtrees\Statistic\Aggregator\RecordRowMapper}
- * documents — only `xref` (graph topology, never a label on its own) and the
+ * documents. Only `xref` (graph topology, never a label on its own) and the
  * already-privatised `label` survive.
  *
  * A visible record can still keep one fact back, and `sex()` ignores that, so
