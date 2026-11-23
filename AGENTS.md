@@ -172,7 +172,7 @@ which is the shared 3.0 order `Support < Enum < Model, Configuration < Contract 
 | `Contract` | `Normalization/Contract/` | `Model` |
 | `Aggregator` | `Aggregator/`, `Normalization\OccupationFolding` — application logic that builds `Model` payloads | `Support`, `Model`, `Contract`, `View` |
 | `Repository` | `Repository/` | `Support`, `Enum`, `Model`, `Contract`, `Aggregator`, `Database` |
-| `Adapter` | `Normalization\RawOccupationNormalizer`, `Normalization\StandardizerModuleNormalizer` — the port's implementations | `Support`, `Model`, `Contract` |
+| `Adapter` | `Normalization\StandardizerModuleNormalizer` — the port's implementation | `Support`, `Model`, `Contract` |
 | `Facade` | `Statistic` | `Support`, `Enum`, `Model`, `Repository` |
 | `Module` | `Module`, `Traits/` — the composition root | `Contract`, `Adapter`, `Facade` |
 

@@ -30,7 +30,7 @@ use Fisharebest\Webtrees\Site;
  * GEDCOM 7, so it is not consulted — a single site default is used for every
  * tree. On a multi-tree install whose trees hold different content languages
  * this hands the "wrong" language to the provider for the non-default trees;
- * that is harmless under the identity default (the hint is inert) and only
+ * that is harmless without a provider (the hint is inert) and only
  * shifts grouping when a language-gated provider is installed, which is an
  * accepted trade-off for a single-language install.
  *

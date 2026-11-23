@@ -106,7 +106,7 @@ final readonly class OccupationInheritanceRepository
     /**
      * @param Tree                          $tree       The tree the statistics are computed for
      * @param ParentMapRepository           $parentMap  Shared child → [father, mother] resolver
-     * @param OccupationNormalizerInterface $normalizer Resolves raw `1 OCCU` values to standardized trades so variants merge; the identity default leaves the aggregation unchanged
+     * @param OccupationNormalizerInterface $normalizer Resolves raw `1 OCCU` values to standardized trades so variants merge; without a provider the aggregation stays unchanged
      */
     public function __construct(
         private Tree $tree,
@@ -199,8 +199,8 @@ final readonly class OccupationInheritanceRepository
         // Resolve the whole distinct set through the normalizer in one batch, so
         // a standardization provider initialises its data a single time. Every
         // raw value maps to its (fold key, display label); unknown values keep
-        // the pre-normalization case-fold, so the identity default leaves the
-        // aggregation byte-identical.
+        // the case-fold, so without a provider the aggregation stays
+        // byte-identical.
         $folds = OccupationFolding::map(array_keys($distinctRaw), $this->normalizer, ContentLanguage::tag());
 
         // Fold every person's raw values to their DISTINCT trades under the

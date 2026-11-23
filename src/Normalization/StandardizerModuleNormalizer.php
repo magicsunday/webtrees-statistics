@@ -122,8 +122,6 @@ final class StandardizerModuleNormalizer implements OccupationNormalizerInterfac
         return new NormalizedOccupation(
             $standardized->canonicalKey(),
             $standardized->displayLabel($language ?? ''),
-            $standardized->hiscoCode(),
-            $standardized->hiscamScore(),
         );
     }
 }

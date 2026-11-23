@@ -203,8 +203,8 @@ final class ArchitectureTest
 
     /**
      * Every concrete class in the occupation-normalization seam must be `final`
-     * so its contract (identity default, immutable value object, single provider
-     * adapter) cannot be subverted by a subclass. The `OccupationNormalizerInterface`
+     * so its contract (immutable value object, single provider adapter)
+     * cannot be subverted by a subclass. The `OccupationNormalizerInterface`
      * interface is excluded because `final` is meaningless for an interface — it
      * is the very extension point the concrete classes seal.
      */

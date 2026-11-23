@@ -32,8 +32,8 @@ deptrac:
     # an exact FQCN (a bare segment regex is unsafe, but an anchored first-party FQCN
     # cannot collide with a vendor class):
     #   - the normalized-result value object -> Model;
-    #   - the identity default and the standardizer-module adapter both implement
-    #     the port -> Adapter; only the composition root wires them in;
+    #   - the standardizer-module adapter implements the port -> Adapter; only the
+    #     composition root wires it in;
     #   - the folding table the repositories fold values through builds Model values
     #     from the port -> Aggregator, next to the other row folds;
     #   - the seam's port lives in `Normalization\Contract\` and its helpers in
@@ -55,7 +55,7 @@ deptrac:
             collectors:
                 -
                     type: classNameRegex
-                    value: '#^MagicSunday\\Webtrees\\Statistic\\Normalization\\(RawOccupationNormalizer|StandardizerModuleNormalizer)$#'
+                    value: '#^MagicSunday\\Webtrees\\Statistic\\Normalization\\StandardizerModuleNormalizer$#'
         -
             name: Facade
             collectors:
