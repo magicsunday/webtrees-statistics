@@ -16,7 +16,9 @@
  * vertical space of the map.
  *
  * Run it through `make world-map SOURCE=<path of the Natural Earth file>`, which
- * writes `resources/js/world-map.geojson`.
+ * writes `resources/js/world-map.geojson`. The committed file is the 110m
+ * admin-0 countries file with lakes of Natural Earth release 5.1.2, published in
+ * May 2022. Its borders are those of that release, whatever the download date.
  */
 
 import { readFileSync, writeFileSync } from "node:fs";
