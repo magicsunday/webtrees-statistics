@@ -24,9 +24,10 @@ use MagicSunday\Webtrees\Statistic\Enum\Sex;
 use MagicSunday\Webtrees\Statistic\Model\Family\SexRatioAnomaly;
 use MagicSunday\Webtrees\Statistic\Model\Family\SiblingDeathCluster;
 use MagicSunday\Webtrees\Statistic\Model\FamilyRow;
+use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
 use MagicSunday\Webtrees\Statistic\Support\Database\ChildLinkJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\ChunkedWhereIn;
-use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
+use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RecordName;
@@ -303,10 +304,14 @@ final readonly class FamilyRepository
      * mortality, as opposed to an isolated single-family tragedy.
      *
      * For every family, the children reachable through its `FAMC` links are
-     * resolved to a single death year each — the earliest recorded one, so an
-     * imprecise death date, which webtrees stores as two bound rows (and as two
-     * rows in *different* years when the range crosses a year boundary), counts
-     * a child once rather than in both bound years. A family *contributes* to a
+     * resolved to a single death year each — taken from the lower bound of the
+     * death date, so an imprecise date, which webtrees stores as two bound rows
+     * (and as two rows in *different* years when the range crosses a year
+     * boundary), counts a child once rather than in both bound years. A date in
+     * a calendar other than Gregorian or Julian, such as French Republican or
+     * Hebrew, is converted to its Gregorian year, so it clusters with a
+     * sibling's Gregorian death of the same actual year. A Julian date keeps
+     * its stored year. A family *contributes* to a
      * year when at least {@see MIN_SIBLINGS_PER_FAMILY} of its children resolve
      * to that year. A year *qualifies* only when at least `$minFamilies`
      * distinct families contribute to it — that co-occurrence is the epidemic
@@ -325,44 +330,31 @@ final readonly class FamilyRepository
      */
     public function getSiblingDeathClusters(int $minFamilies = 2): array
     {
+        $deathYears = $this->gregorianDeathYearsByIndividual();
+
+        // One row per (family, child): the link table holds each pair once.
         $rows = TreeScope::table($this->tree, 'families', 'fam')
             ->join('link AS famc', static function (JoinClause $join): void {
                 ChildLinkJoin::famc($join);
             })
-            ->join('individuals AS child', static function (JoinClause $join): void {
-                $join
-                    ->on('child.i_file', '=', 'famc.l_file')
-                    ->on('child.i_id', '=', 'famc.l_from');
-            })
-            ->join('dates AS died', static function (JoinClause $join): void {
-                DateJoin::on($join, 'died', 'child.i_file', 'child.i_id', 'DEAT');
-
-                // Caller-side filter: DateJoin has no d_year parameter, and a
-                // resolved year is required to bucket the death.
-                $join->where('died.d_year', '>', 0);
-            })
-            // One row per (family, child): the child's earliest death year. This
-            // collapses the two bound rows of an imprecise date — including a
-            // range that crosses a year boundary — to a single year, so a child
-            // is never counted in two years at once.
-            ->groupBy('fam.f_id', 'child.i_id')
             ->select([
                 'fam.f_id AS f_id',
-                // Unqualified column: `d_year` only exists on the dates table,
-                // and a table-aliased name in a raw expression would not pick up
-                // the connection's table prefix the grammar applies to the `AS`
-                // aliases.
-                new Expression('MIN(d_year) AS year'),
+                'famc.l_from AS child_id',
             ])
-            ->get();
+            ->cursor();
 
-        // Tally each family's children per resolved death year.
+        // Tally each family's children per death year.
         /** @var array<string, array<int, int>> $perFamily */
         $perFamily = [];
 
         foreach ($rows as $row) {
+            $year = $deathYears[RowCast::string($row, 'child_id')] ?? null;
+
+            if ($year === null) {
+                continue;
+            }
+
             $familyId = RowCast::string($row, 'f_id');
-            $year     = RowCast::int($row, 'year');
 
             $perFamily[$familyId][$year] ??= 0;
             ++$perFamily[$familyId][$year];
@@ -406,6 +398,40 @@ final readonly class FamilyRepository
         }
 
         return $clusters;
+    }
+
+    /**
+     * The Gregorian year of each individual's death, keyed by individual XREF.
+     *
+     * Each individual contributes the lower bound of its death date, so an
+     * imprecise date, which webtrees stores as two bound rows, counts once. A
+     * death without a positive Gregorian year is left out. The rows are read
+     * with a query of their own and matched in PHP instead of being joined to
+     * the family rows.
+     *
+     * @return array<string, int>
+     */
+    private function gregorianDeathYearsByIndividual(): array
+    {
+        $years = [];
+
+        $rows = DedupedEventDates::query($this->tree, 'DEAT')
+            ->select(['d_gid', 'd_type', 'd_year', 'd_julianday1'])
+            ->cursor();
+
+        foreach ($rows as $row) {
+            $year = GregorianDate::year(
+                RowCast::string($row, 'd_type'),
+                RowCast::int($row, 'd_year'),
+                RowCast::int($row, 'd_julianday1'),
+            );
+
+            if ($year > 0) {
+                $years[RowCast::string($row, 'd_gid')] = $year;
+            }
+        }
+
+        return $years;
     }
 
     /**
