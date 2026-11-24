@@ -153,6 +153,25 @@ final class IndividualWireSexRestrictionIntegrationTest extends AbstractIntegrat
     }
 
     /**
+     * I9 carries two SEX facts, the first with `RESN confidential` and the
+     * second without a restriction. A guest gets the sex of the fact that the
+     * viewer may see, and the administrator gets the first fact.
+     */
+    #[Test]
+    public function restrictedFirstSexFactLeavesTheVisibleSecondFactForAGuest(): void
+    {
+        $tree = $this->tree();
+
+        self::assertSame('M', IndividualWire::row($this->individual($tree, 'I9'))['sex'], 'the administrator reads the first fact');
+
+        Auth::logout();
+
+        $individual = $this->individual($tree, 'I9');
+        self::assertCount(1, $individual->facts(['SEX']), 'precondition: only the second SEX fact is visible');
+        self::assertSame('F', IndividualWire::row($individual)['sex']);
+    }
+
+    /**
      * The tree restricts every SEX fact by default. I2 has no restriction of
      * its own, so the administrator keeps the real sex and a guest gets the
      * unknown one.
