@@ -16,7 +16,6 @@ use Fisharebest\Webtrees\Gedcom;
 use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Enum\MaritalBucket;
@@ -28,6 +27,7 @@ use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
 use MagicSunday\Webtrees\Statistic\Support\Database\ChildLinkJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\ChunkedWhereIn;
 use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
+use MagicSunday\Webtrees\Statistic\Support\Database\LivingIndividuals;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RecordName;
@@ -58,10 +58,11 @@ use function usort;
  *  4. A family carrying a true marriage tag (MARR) with a living partner
  *     classes both spouses as 'current'.
  *
- * Death tags mirror {@see Gedcom::DEATH_EVENTS} (DEAT, BURI, CREM) so the four
- * bucket counts sum exactly to {@see
- * \Fisharebest\Webtrees\StatisticsData::countIndividualsLiving()} without
- * clamping. Marriage and divorce tag sets are intentionally tighter than the
+ * A person is living by the shared definition of {@see LivingIndividuals}, so
+ * the four bucket counts sum exactly to the living count of
+ * {@see countLivingAndDeceased()} without clamping, and a spouse is deceased
+ * when that definition does not hold. Marriage and divorce tag sets are
+ * intentionally tighter than the
  * Gedcom event constants because {@see Gedcom::MARRIAGE_EVENTS} includes `_NMR`
  * ('not married') and {@see Gedcom::DIVORCE_EVENTS} includes `_SEPR` (separated
  * but still married); both would invert the bucket semantics if used as-is.
@@ -107,6 +108,20 @@ final readonly class FamilyRepository
     public function __construct(
         private Tree $tree,
     ) {
+    }
+
+    /**
+     * Split the individuals of the tree along the shared definition of a living
+     * individual. The two counts sum to the number of individuals in the tree.
+     *
+     * @return array{living: int, deceased: int}
+     */
+    public function countLivingAndDeceased(): array
+    {
+        $total  = TreeScope::table($this->tree, 'individuals')->count();
+        $living = LivingIndividuals::restrict(TreeScope::table($this->tree, 'individuals'), $this->tree)->count();
+
+        return ['living' => $living, 'deceased' => $total - $living];
     }
 
     /**
@@ -438,9 +453,9 @@ final readonly class FamilyRepository
 
     /**
      * Load every (living individual × family-membership) row for the tree.
-     * Living means `i_gedcom` does not contain any of {@see
-     * Gedcom::DEATH_EVENTS} at level 1. Individuals with no family produce one
-     * row with NULL family columns thanks to LEFT JOIN.
+     * Living is the shared definition of {@see LivingIndividuals}. Individuals
+     * with no family produce one row with NULL family columns thanks to LEFT
+     * JOIN.
      *
      * @param int $treeId Tree row ID that scopes the SELECT
      *
@@ -471,9 +486,7 @@ final readonly class FamilyRepository
             })
             ->where('individuals.i_file', '=', $treeId);
 
-        $this->applyNotLikeAny($query, 'individuals.i_gedcom', Gedcom::DEATH_EVENTS);
-
-        $result = $query
+        $result = LivingIndividuals::restrict($query, $this->tree)
             ->select(
                 'individuals.i_id AS i_id',
                 'families.f_husb AS f_husb',
@@ -498,10 +511,11 @@ final readonly class FamilyRepository
 
     /**
      * Fetch each distinct partner ID referenced by `$rows` and return a map
-     * `partnerId => hasAnyTagAnchored(partner.i_gedcom, DEATH_EVENTS)`. A
-     * partner XREF that does not resolve to an INDI row (orphan/deleted) is
-     * intentionally omitted from the map so the caller can distinguish 'partner
-     * alive' from 'partner unknown'.
+     * `partnerId => deceased`, where a partner is deceased when the shared
+     * definition of {@see LivingIndividuals} does not hold. A partner XREF that
+     * does not resolve to an INDI row (orphan/deleted) is intentionally omitted
+     * from the map so the caller can distinguish 'partner alive' from 'partner
+     * unknown'.
      *
      * @param int             $treeId Tree row ID that scopes the SELECT
      * @param list<FamilyRow> $rows   Family-membership rows from {@see loadLivingIndividualFamilies()}
@@ -531,24 +545,41 @@ final readonly class FamilyRepository
         // placeholder ceiling if bound as a single `whereIn` (issue #82). {@see
         // ChunkedWhereIn} slices the id list so each round-trip stays within
         // budget.
-        $query = DB::table('individuals')
-            ->where('i_file', '=', $treeId)
-            ->select('i_id', 'i_gedcom');
+        $partners = ChunkedWhereIn::get(
+            DB::table('individuals')->where('i_file', '=', $treeId)->select('i_id'),
+            'i_id',
+            $partnerIds,
+        );
 
-        $partners = ChunkedWhereIn::get($query, 'i_id', $partnerIds);
+        $livingPartners = ChunkedWhereIn::get(
+            LivingIndividuals::restrict(
+                DB::table('individuals')->where('i_file', '=', $treeId)->select('i_id'),
+                $this->tree,
+            ),
+            'i_id',
+            $partnerIds,
+        );
+
+        $living = [];
+
+        foreach ($livingPartners as $partner) {
+            $partnerId = $this->coerceString($partner->i_id);
+
+            if ($partnerId !== null) {
+                $living[$partnerId] = true;
+            }
+        }
 
         $out = [];
 
         foreach ($partners as $partner) {
-            $partnerId     = $this->coerceString($partner->i_id);
-            $partnerGedcom = $this->coerceString($partner->i_gedcom);
+            $partnerId = $this->coerceString($partner->i_id);
 
             if ($partnerId === null) {
                 continue;
             }
 
-            $out[$partnerId] = ($partnerGedcom !== null)
-                && GedcomScanner::hasAnyTagAnchored($partnerGedcom, Gedcom::DEATH_EVENTS);
+            $out[$partnerId] = !isset($living[$partnerId]);
         }
 
         return $out;
@@ -641,20 +672,6 @@ final readonly class FamilyRepository
         }
 
         return ($partner === $row->individualId) ? null : $partner;
-    }
-
-    /**
-     * Apply `column NOT LIKE %\n1 <event>%` for every event tag in the list.
-     *
-     * @param Builder            $query  Builder to mutate in-place
-     * @param string             $column Fully-qualified column reference
-     * @param array<int, string> $tags   Level-1 tags to exclude
-     */
-    private function applyNotLikeAny(Builder $query, string $column, array $tags): void
-    {
-        foreach ($tags as $tag) {
-            $query->where($column, 'NOT LIKE', "%\n1 " . $tag . '%');
-        }
     }
 
     /**

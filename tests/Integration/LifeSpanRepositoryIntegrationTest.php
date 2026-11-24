@@ -27,6 +27,7 @@ use function array_keys;
 use function array_map;
 use function array_sum;
 use function count;
+use function implode;
 use function sprintf;
 
 /**
@@ -148,8 +149,8 @@ final class LifeSpanRepositoryIntegrationTest extends AbstractIntegrationTestCas
 
     /**
      * A living individual a visitor cannot see is left out of the oldest-living
-     * ranking for the visitor. An individual born long enough ago to be taken as
-     * deceased stays visible, so the visitor ranking is not simply empty.
+     * ranking for the visitor. The individual born long enough ago to be deceased
+     * is not in the ranking for anyone.
      */
     #[Test]
     public function topOldestLivingOmitsALivingPersonAVisitorCannotSee(): void
@@ -159,24 +160,24 @@ final class LifeSpanRepositoryIntegrationTest extends AbstractIntegrationTestCas
 
         $asAdministrator = $this->repository($tree)->topOldestLiving(10);
 
-        self::assertSame(['LOLD', 'LNEW'], array_map(static fn (RankingEntry $entry): string => $entry->xref, $asAdministrator));
+        self::assertSame(['LNEW'], array_map(static fn (RankingEntry $entry): string => $entry->xref, $asAdministrator));
 
         Auth::logout();
 
         $asVisitor = $this->repository($tree)->topOldestLiving(10);
 
-        self::assertSame(['LOLD'], array_map(static fn (RankingEntry $entry): string => $entry->xref, $asVisitor));
+        self::assertSame([], array_map(static fn (RankingEntry $entry): string => $entry->xref, $asVisitor));
     }
 
     /**
-     * The core query cuts the oldest living rows before it drops the ones the viewer may not see.
+     * The oldest living query cuts its rows before it drops the ones the viewer may not see.
      * The confidential people are older than the public ones, so a member who asks for two
      * entries only gets them when more rows than the limit are fetched.
      */
     #[Test]
     public function topOldestLivingFetchesPastTheRowsTheViewerMayNotSee(): void
     {
-        $tree = $this->importFixtureTree('oldest-living-hidden-first.ged');
+        $tree = $this->importGedcomTree('oldest-living-hidden-first', $this->hiddenFirstGedcom());
 
         $asAdministrator = $this->repository($tree)->topOldestLiving(2);
 
@@ -187,6 +188,34 @@ final class LifeSpanRepositoryIntegrationTest extends AbstractIntegrationTestCas
         $asMember = $this->repository($tree)->topOldestLiving(2);
 
         self::assertSame(['P1', 'P2'], array_map(static fn (RankingEntry $entry): string => $entry->xref, $asMember));
+    }
+
+    /**
+     * Four confidential people who are older than two public ones, all of them
+     * living by the shared definition. The birth years are relative to today, so
+     * the fixture does not age.
+     */
+    private function hiddenFirstGedcom(): string
+    {
+        $year  = (int) (new DateTimeImmutable('now'))->format('Y');
+        $lines = ['0 HEAD', '1 CHAR UTF-8', '1 GEDC', '2 VERS 5.5.1', '2 FORM LINEAGE-LINKED'];
+
+        foreach (['C1' => 110, 'C2' => 109, 'C3' => 108, 'C4' => 107, 'P1' => 100, 'P2' => 99] as $xref => $age) {
+            $lines[] = '0 @' . $xref . '@ INDI';
+            $lines[] = '1 NAME Person ' . $xref . ' /Living/';
+            $lines[] = '1 SEX F';
+
+            if ($xref[0] === 'C') {
+                $lines[] = '1 RESN confidential';
+            }
+
+            $lines[] = '1 BIRT';
+            $lines[] = '2 DATE 1 JAN ' . ($year - $age);
+        }
+
+        $lines[] = '0 TRLR';
+
+        return implode("\n", $lines);
     }
 
     /**
