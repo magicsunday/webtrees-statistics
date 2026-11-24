@@ -565,6 +565,23 @@ final class GedcomScannerTest extends TestCase
     }
 
     /**
+     * The LIKE patterns of a sub-tag cover the same three anchorings as those
+     * of a first-level tag, on the second level. The comparison ignores the
+     * order for the same reason.
+     */
+    #[Test]
+    public function anchoredSubTagLikePatternsListTheThreeAnchorings(): void
+    {
+        $patterns = GedcomScanner::anchoredSubTagLikePatterns('RELI');
+        sort($patterns);
+
+        $expected = ["%\n2 RELI %", "%\n2 RELI\n%", "%\n2 RELI"];
+        sort($expected);
+
+        self::assertSame($expected, $patterns);
+    }
+
+    /**
      * A record matches one of the LIKE patterns when hasTagAnchored finds the
      * tag, so the SQL filter and the PHP scan agree on the samples.
      *
