@@ -1,9 +1,8 @@
 includes:
     - %currentWorkingDirectory%/.build/vendor/magicsunday/coding-standard/phpstan/strict.neon
-    # The opt-in phpat preset (coding-standard 2.3+): loads phpat's extension and
-    # names the rule in every finding. phpat is required here, not by
-    # coding-standard, for the structural rules Deptrac cannot express (final /
-    # implements) - see tests/Architecture/ArchitectureTest.php.
+    # The opt-in phpat preset. phpat is required by this package for the
+    # structural rules Deptrac cannot express (final / implements), see
+    # tests/Architecture/ArchitectureTest.php.
     - %currentWorkingDirectory%/.build/vendor/magicsunday/coding-standard/phpstan/phpat.neon
 
 parameters:
@@ -60,30 +59,22 @@ parameters:
                 - tests/Unit/Model/LineChart/LineChartPayloadTest.php
                 - tests/View/MarriageExtremesViewTest.php
 
-        # JetBrains' PHP stub for ext-calendar still spells gregoriantojd
-        # as PascalCase (`GregorianToJD`), while the official PHP manual
-        # at https://www.php.net/manual/en/function.gregoriantojd.php has
-        # been canonical lowercase for years. PHPStan inherits the stale
-        # PascalCase from the stub and raises `function.nameCase` for
-        # every call that uses the manual-canonical lowercase form.
-        # Suppress just this one mismatch until JetBrains fixes the stub.
+        # The ext-calendar stub spells gregoriantojd in PascalCase, so a call in
+        # the lowercase spelling of the PHP manual raises `function.nameCase`.
+        # Suppress just this one mismatch. Delete the entry and run
+        # `composer ci:test:php:phpstan` to see whether the stub still needs it.
         -
             identifier: function.nameCase
             path: src/Support/Database/LivingIndividuals.php
 
-        # illuminate 13.13+ narrowed the raw-SQL builder surface to
-        # `literal-string`: `Expression::__construct()`, `Builder::selectRaw()`
-        # and `Builder::orderByRaw()` now reject runtime-built strings. Our
-        # aggregate fragments deliberately embed the connection table prefix
-        # (`DB::connection()->getTablePrefix()`) and the physical table name so
-        # the MIN/MAX/SUM references the actual prefixed table — trusted, but
-        # provably non-literal. Released webtrees still ships illuminate 12.x
-        # without the narrowing; this only fires against the `dev-main` probe.
-        # A module release must stay green against the RELEASED webtrees (12.x),
-        # where these errors do NOT exist — so each block sets
-        # `reportUnmatched: false`: it suppresses the narrowing on a dev-main
-        # (13.x) resolve, yet is tolerated (not a hard error) on the stable
-        # 12.x resolve the float lands on via prefer-stable.
+        # The aggregate fragments deliberately embed the connection table prefix
+        # (`DB::connection()->getTablePrefix()`) and the physical table name, so
+        # the MIN/MAX/SUM references the actual prefixed table. That is trusted but
+        # provably non-literal, and a newer illuminate rejects it in the raw-SQL
+        # builder calls. A module release must stay green against the released
+        # webtrees as well, where the error does not occur, so each block sets
+        # `reportUnmatched: false`. Delete an entry and run
+        # `composer ci:test:php:phpstan` on each resolve to see where it applies.
         -
             message: '#expects (literal-string|TValue of float\|int\|literal-string)#'
             identifier: argument.type
@@ -93,10 +84,7 @@ parameters:
                 - src/Repository/LifeSpanRepository.php
                 - src/Support/Database/DateAggregate.php
 
-        # Same root cause surfacing on the `@return Expression<…>` generics: the
-        # illuminate 13 Expression template bound became
-        # `float|int|literal-string`, so a runtime-string Expression no longer
-        # satisfies the documented generic argument.
+        # Same cause, surfacing on the `@return Expression<…>` generics.
         -
             message: '#generic type Illuminate.+Expression#'
             identifier: generics.notSubtype
