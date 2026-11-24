@@ -16,6 +16,7 @@ use MagicSunday\Webtrees\Statistic\Aggregator\LabelSorter;
 use MagicSunday\Webtrees\Statistic\Aggregator\MediaTypeLabeller;
 use MagicSunday\Webtrees\Statistic\Statistic;
 use MagicSunday\Webtrees\Statistic\Support\Calc\GenerationDepth;
+use MagicSunday\Webtrees\Statistic\Support\Calc\PartnershipChains;
 use MagicSunday\Webtrees\Statistic\Support\Wording;
 use MagicSunday\Webtrees\Statistic\View\Accent;
 use MagicSunday\Webtrees\Statistic\View\Card;
@@ -625,6 +626,18 @@ echo Section::create(I18N::translate('How far does the tree connect through part
 // of three or more people (`$partnershipReach === null`), each card keeps its
 // heading and shows the empty-state placeholder as its body — mirroring the
 // Endogamy card — instead of the whole block vanishing.
+// The caption of the chain card names the two cases in which the shown chain can
+// be shorter than the real longest one, so the figure is never read as exact.
+$partnershipChainCaption = I18N::translate('Each step is one partnership further along the line.');
+
+if ($partnershipReach?->chainIsApproximate === true) {
+    $partnershipChainCaption .= ' ' . I18N::translate('The group contains partnership loops, so a longer chain than this one may exist.');
+}
+
+if ($partnershipReach?->chainIsCapped === true) {
+    $partnershipChainCaption .= ' ' . I18N::translate('The chain is cut at %s people.', I18N::number(PartnershipChains::MAX_CHAIN));
+}
+
 echo Card::for($module, I18N::translate('Longest partnership chain'))
     ->withSub(I18N::translate('Unbroken partner-to-partner line'))
     ->withEyebrow(I18N::translate('Reach'))
@@ -639,7 +652,7 @@ echo Card::for($module, I18N::translate('Longest partnership chain'))
             : Component::scalar($module)
                 ->with('value', I18N::number($partnershipReach->longestChainLength))
                 ->with('unit', I18N::translate('people'))
-                ->with('caption', I18N::translate('Each step is one partnership further along the line.'))
+                ->with('caption', $partnershipChainCaption)
                 ->render()
     )
     ->render();
