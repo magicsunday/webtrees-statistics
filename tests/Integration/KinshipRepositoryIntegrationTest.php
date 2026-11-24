@@ -63,6 +63,24 @@ final class KinshipRepositoryIntegrationTest extends AbstractIntegrationTestCase
     }
 
     /**
+     * Carl has three known ancestors (Franz, Maria and Gustav), which is the
+     * first count of the grouped buckets, Franz has exactly one known ancestor
+     * (Gustav) and Maria and Gustav have none.
+     */
+    #[Test]
+    public function ancestorCountDistributionPlacesOneAndThreeKnownAncestors(): void
+    {
+        $tree   = $this->importFixtureTree('kinship-one-and-three.ged');
+        $result = $this->repository($tree)->ancestorCountDistribution();
+
+        self::assertSame(4, array_sum($result));
+        self::assertSame(2, $result[0] ?? null);
+        self::assertSame(1, $result[1] ?? null);
+        self::assertSame(0, $result[2] ?? null);
+        self::assertSame(1, $result['3–5'] ?? null);
+    }
+
+    /**
      * Average pedigree completeness across the fixture individuals. Vater
      * contributes 2/2 at gen 1 + 0 elsewhere = 1/4 = 0.25. Kind contributes 2/2
      * at gen 1 + 2/4 at gen 2 + 0 elsewhere = 0.25 + 0.125 = 0.375. The other

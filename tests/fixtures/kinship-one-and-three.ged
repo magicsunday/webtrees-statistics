@@ -1,0 +1,36 @@
+0 HEAD
+1 SOUR webtrees-statistics-fixture
+2 NAME kinship-one-and-three
+1 DEST ANSTFILE
+1 CHAR UTF-8
+1 SUBM @SUBM1@
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+0 @SUBM1@ SUBM
+1 NAME Fixture
+0 @GF@ INDI
+1 NAME Gustav /Line/
+1 SEX M
+1 FAMS @FG@
+0 @F@ INDI
+1 NAME Franz /Line/
+1 SEX M
+1 FAMC @FG@
+1 FAMS @FC@
+0 @M@ INDI
+1 NAME Maria /Line/
+1 SEX F
+1 FAMS @FC@
+0 @C@ INDI
+1 NAME Carl /Line/
+1 SEX M
+1 FAMC @FC@
+0 @FG@ FAM
+1 HUSB @GF@
+1 CHIL @F@
+0 @FC@ FAM
+1 HUSB @F@
+1 WIFE @M@
+1 CHIL @C@
+0 TRLR
