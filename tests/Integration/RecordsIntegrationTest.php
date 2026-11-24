@@ -401,26 +401,16 @@ final class RecordsIntegrationTest extends AbstractIntegrationTestCase
     }
 
     /**
-     * The statistics accessor of core ranks the oldest individuals by one key
-     * only, so rows with an equal key arrive in an order that the database engine
-     * chooses. This double keeps the core ranking and puts every group of rows
-     * with an equal key into the least convenient order, descending by XREF, so
-     * a test fails whenever the repository leaves that order to the engine.
+     * The statistics accessor of core ranks the oldest deceased individuals by
+     * one key only, so rows with an equal key arrive in an order that the
+     * database engine chooses. This double keeps the core ranking and puts every
+     * group of rows with an equal key into the least convenient order,
+     * descending by XREF, so a test fails whenever the repository leaves that
+     * order to the engine.
      */
     private function statisticsDataWithTiesInReverseXrefOrder(Tree $tree): StatisticsData
     {
         return new readonly class($tree, new UserService()) extends StatisticsData {
-            /**
-             * @return Collection<int, Individual>
-             */
-            public function topTenOldestAliveQuery(string $sex, int $limit): Collection
-            {
-                return parent::topTenOldestAliveQuery($sex, $limit)
-                    ->sort(static fn (Individual $a, Individual $b): int => [$a->getBirthDate()->minimumJulianDay(), $b->xref()]
-                        <=> [$b->getBirthDate()->minimumJulianDay(), $a->xref()])
-                    ->values();
-            }
-
             /**
              * @return Collection<int, object{individual: Individual, days: int}>
              */
@@ -442,7 +432,7 @@ final class RecordsIntegrationTest extends AbstractIntegrationTestCase
     public function topOldestLivingBreaksTiesByXref(): void
     {
         $tree       = $this->importFixtureTree('oldest-ties.ged');
-        $repository = new LifeSpanRepository($tree, $this->statisticsDataWithTiesInReverseXrefOrder($tree), new IsoCountryMap());
+        $repository = new LifeSpanRepository($tree, $this->statisticsData($tree), new IsoCountryMap());
 
         $xrefs = array_map(static fn (RankingEntry $entry): string => $entry->xref, $repository->topOldestLiving(2));
 
@@ -457,7 +447,7 @@ final class RecordsIntegrationTest extends AbstractIntegrationTestCase
     public function oldestLivingRecordBreaksTiesByXref(): void
     {
         $tree   = $this->importFixtureTree('oldest-ties.ged');
-        $record = (new LifeSpanRepository($tree, $this->statisticsDataWithTiesInReverseXrefOrder($tree), new IsoCountryMap()))->oldestLivingRecord();
+        $record = (new LifeSpanRepository($tree, $this->statisticsData($tree), new IsoCountryMap()))->oldestLivingRecord();
 
         self::assertNotNull($record);
         self::assertSame('T1', $record->individual->xref(), 'equal birth dates are resolved by XREF');

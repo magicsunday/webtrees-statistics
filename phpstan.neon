@@ -69,7 +69,7 @@ parameters:
         # Suppress just this one mismatch until JetBrains fixes the stub.
         -
             identifier: function.nameCase
-            path: src/Repository/LifeSpanRepository.php
+            path: src/Support/Database/LivingIndividuals.php
 
         # illuminate 13.13+ narrowed the raw-SQL builder surface to
         # `literal-string`: `Expression::__construct()`, `Builder::selectRaw()`

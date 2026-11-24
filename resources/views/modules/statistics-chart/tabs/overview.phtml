@@ -39,6 +39,9 @@ $livingCount    = $livingDeceased[0]['value'] ?? 0;
 $deceasedCount  = $livingDeceased[1]['value'] ?? 0;
 $maritalData    = $statistic->getFamilyStatusData();
 
+$livingDefinition = $statistic->getLivingDefinition();
+$aboutThisChart   = I18N::translate('About this chart');
+
 $cumulativeBirthsByDecade = $statistic->getCumulativeBirthsByDecade();
 // The cumulative series is monotonically non-decreasing; its
 // last entry is the running total at the latest visible decade,
@@ -110,8 +113,8 @@ echo Card::for($module, I18N::translate('Living or deceased'))
     ->withEyebrow(I18N::translate('Status'))
     ->withAccent(Accent::Sage)
     ->withIllustration(Illustration::Candle)
+    ->withInfo($livingDefinition, $aboutThisChart, $aboutThisChart)
     ->withSpan(4)
-    ->withoutFooter()
     ->withBodyHtml(
         Component::liveDeadCard($module)
             ->with('living', $livingCount)
@@ -121,12 +124,12 @@ echo Card::for($module, I18N::translate('Living or deceased'))
     ->render();
 
 echo Card::for($module, I18N::translate('Marital status'))
-    ->withSub(I18N::translate('individuals without a recorded death'))
+    ->withSub(I18N::translate('living individuals'))
     ->withEyebrow(I18N::translate('Status'))
     ->withAccent(Accent::Wine)
     ->withIllustration(Illustration::Rings)
+    ->withInfo($livingDefinition, $aboutThisChart, $aboutThisChart)
     ->withSpan(4)
-    ->withoutFooter()
     ->withBodyHtml(
         Component::maritalCard($module)
             ->withData($maritalData)

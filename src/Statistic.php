@@ -65,6 +65,7 @@ use MagicSunday\Webtrees\Statistic\Repository\RecordInventoryRepository;
 use MagicSunday\Webtrees\Statistic\Repository\ReligionRepository;
 use MagicSunday\Webtrees\Statistic\Repository\TreeHealthRepository;
 use MagicSunday\Webtrees\Statistic\Support\Calc\HistogramTrim;
+use MagicSunday\Webtrees\Statistic\Support\Database\LivingIndividuals;
 use MagicSunday\Webtrees\Statistic\Support\Locale\MonthName;
 use MagicSunday\Webtrees\Statistic\Support\Locale\ZodiacLabels;
 
@@ -238,19 +239,31 @@ final readonly class Statistic
     }
 
     /**
+     * The sentence that states which individuals the living-based cards count
+     * as living. It mirrors {@see LivingIndividuals}, the one definition that
+     * all of them share.
+     */
+    public function getLivingDefinition(): string
+    {
+        return I18N::translate('A person counts as living when no death, burial or cremation is recorded and the birth is not older than the maximum age that the tree allows.');
+    }
+
+    /**
      * @return list<array{label: string, value: int, class: string}>
      */
     public function getTotalLivingDeceasedData(): array
     {
+        $counts = $this->familyRepository->countLivingAndDeceased();
+
         return [
             [
                 'label' => I18N::translate('Living'),
-                'value' => $this->data->countIndividualsLiving(),
+                'value' => $counts['living'],
                 'class' => 'living',
             ],
             [
                 'label' => I18N::translate('Deceased'),
-                'value' => $this->data->countIndividualsDeceased(),
+                'value' => $counts['deceased'],
                 'class' => 'deceased',
             ],
         ];

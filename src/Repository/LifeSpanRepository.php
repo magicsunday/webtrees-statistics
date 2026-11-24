@@ -11,14 +11,16 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
+use Fisharebest\Webtrees\GedcomRecord;
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Individual;
+use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\StatisticsData;
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
+use Illuminate\Support\Collection;
 use MagicSunday\Webtrees\ModuleBase\Processor\NameProcessor;
 use MagicSunday\Webtrees\ModuleBase\Support\Locale\IsoCountryMap;
 use MagicSunday\Webtrees\Statistic\Aggregator\EventMonthTally;
@@ -40,6 +42,7 @@ use MagicSunday\Webtrees\Statistic\Support\Database\BirthDeathPairsQuery;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
+use MagicSunday\Webtrees\Statistic\Support\Database\LivingIndividuals;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
@@ -56,9 +59,7 @@ use function array_reverse;
 use function array_slice;
 use function count;
 use function getdate;
-use function gregoriantojd;
 use function intdiv;
-use function is_numeric;
 use function ksort;
 use function max;
 use function min;
@@ -67,8 +68,8 @@ use function usort;
 
 /**
  * Life-span aggregations for the LifeSpan tab. Wraps the public accessors
- * core's {@see StatisticsData} exposes (statsAgeQuery, topTenOldestQuery,
- * topTenOldestAliveQuery) into the widget-ready shapes the tabs/life-span.phtml
+ * core's {@see StatisticsData} exposes (statsAgeQuery, topTenOldestQuery) and
+ * the queries of this repository into the widget-ready shapes the tabs/life-span.phtml
  * partials consume.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
@@ -85,13 +86,6 @@ final readonly class LifeSpanRepository
     private const int BUCKET_WIDTH = 10;
 
     private const int MAX_BUCKET = 100;
-
-    /**
-     * Tree-wide fallback for the per-tree `MAX_ALIVE_AGE` preference — webtrees
-     * defaults to 120 and so do we when the preference cannot be read or
-     * parsed.
-     */
-    private const int DEFAULT_MAX_ALIVE_AGE = 120;
 
     /**
      * Minimum per-cohort sample size for the lifespan-by-sex × century
@@ -588,7 +582,7 @@ final readonly class LifeSpanRepository
      */
     public function oldestDeceasedRecord(): ?IndividualAgeRecord
     {
-        $maxAge = $this->maxPlausibleAge();
+        $maxAge = LivingIndividuals::maxAliveAge($this->tree);
 
         // Scan the top-N for the plausible ages (≤ MAX_ALIVE_AGE), because
         // data-entry typos like "DEAT 9999" otherwise steal the slot. The scan
@@ -636,23 +630,16 @@ final readonly class LifeSpanRepository
     }
 
     /**
-     * Single oldest-living record holder: the individual without a recorded
-     * DEAT whose BIRT julian-day is earliest in the tree, capped at the tree's
-     * MAX_ALIVE_AGE preference to discard implausible BIRT typos.
+     * Single oldest-living record holder: the living individual, by the shared
+     * definition of {@see LivingIndividuals}, whose BIRT julian-day is earliest
+     * in the tree.
      */
     public function oldestLivingRecord(): ?IndividualAgeRecord
     {
-        $maxAge = $this->maxPlausibleAge();
-
-        // Same scan as oldestDeceasedRecord, so an obviously-wrong BIRT year
-        // cannot drag the slot empty. The candidates come sorted, so the first
-        // plausible one is the record holder, and among equal birth days the
-        // lowest XREF wins.
+        // The candidates come sorted, so the first one with a positive age is
+        // the record holder, and among equal birth days the lowest XREF wins.
         foreach ($this->oldestLivingCandidates(10) as $candidate) {
-            if (
-                ($candidate['years'] > 0)
-                && ($candidate['years'] <= $maxAge)
-            ) {
+            if ($candidate['years'] > 0) {
                 return new IndividualAgeRecord(individual: $candidate['individual'], ageYears: $candidate['years']);
             }
         }
@@ -661,12 +648,10 @@ final readonly class LifeSpanRepository
     }
 
     /**
-     * The oldest living individuals the core query returns, with a usable birth
-     * date, ordered by birth day and then by XREF. `topTenOldestAliveQuery`
-     * returns Individual objects directly, not the `{individual, days}` shape of
-     * `topTenOldestQuery`. The query has no DEAT date to compute an age from, so
-     * the age is today minus the BIRT Julian day. The core query orders by birth
-     * day only, so rows with an equal birth day come back in an order the engine
+     * The oldest living individuals, with a usable birth date, ordered by birth
+     * day and then by XREF. There is no DEAT date to compute an age from, so the
+     * age is today minus the BIRT Julian day. The query orders by birth day
+     * only, so rows with an equal birth day come back in an order the engine
      * chooses, and the XREF decides between them here.
      *
      * @param int $fetch How many rows to ask the core query for.
@@ -675,10 +660,11 @@ final readonly class LifeSpanRepository
      */
     private function oldestLivingCandidates(int $fetch): array
     {
-        $todayJulianDay = $this->todayJulianDay();
+        $todayJulianDay = LivingIndividuals::todayJulianDay();
+        $maxAge         = LivingIndividuals::maxAliveAge($this->tree);
         $candidates     = [];
 
-        foreach ($this->data->topTenOldestAliveQuery('ALL', $fetch) as $individual) {
+        foreach ($this->livingIndividualsByBirth($fetch) as $individual) {
             $birthDate = $individual->getBirthDate();
 
             if (!$birthDate->isOK()) {
@@ -691,10 +677,18 @@ final readonly class LifeSpanRepository
                 continue;
             }
 
+            $years = CalendarSpan::wholeYears($birthJd, $todayJulianDay);
+
+            // A living person whose birth is a range that starts before the
+            // horizon has an age above the maximum only by the lower bound.
+            if ($years > $maxAge) {
+                continue;
+            }
+
             $candidates[] = [
                 'individual' => $individual,
                 'birthJd'    => $birthJd,
-                'years'      => CalendarSpan::wholeYears($birthJd, $todayJulianDay),
+                'years'      => $years,
             ];
         }
 
@@ -708,6 +702,34 @@ final readonly class LifeSpanRepository
     }
 
     /**
+     * The living individuals, by the shared definition of {@see
+     * LivingIndividuals}, with a usable birth date, the earliest birth first.
+     * Equal birth days are ordered by XREF, so the row cap keeps the same
+     * individuals on every run. The row cap applies before the access filter, so
+     * a person whom the viewer may not see leaves the list one entry short, as in
+     * the core queries.
+     *
+     * @param int $limit How many rows to read
+     *
+     * @return Collection<int, Individual>
+     */
+    private function livingIndividualsByBirth(int $limit): Collection
+    {
+        return LivingIndividuals::restrict(TreeScope::table($this->tree, 'individuals'), $this->tree)
+            ->join('dates AS birth', static function (JoinClause $join): void {
+                DateJoin::on($join, 'birth', 'i_file', 'i_id', 'BIRT', DateJoin::JD_GREATER_THAN_ZERO);
+            })
+            ->groupBy('individuals.i_id', 'individuals.i_file')
+            ->orderBy(new Expression('MIN(' . DB::connection()->getTablePrefix() . 'birth.d_julianday1)'))
+            ->orderBy('individuals.i_id')
+            ->select(['individuals.*'])
+            ->take($limit)
+            ->get()
+            ->map(Registry::individualFactory()->mapper($this->tree))
+            ->filter(GedcomRecord::accessFilter());
+    }
+
+    /**
      * Mean lifespan grouped by birth-century × sex. Returns the standard
      * `{categories, series}` shape so it can feed straight into the chart-lib
      * LineChart multi-series render path — categories are the localised century
@@ -718,7 +740,7 @@ final readonly class LifeSpanRepository
      */
     public function averageLifespanBySexAndCentury(): LineChartPayload
     {
-        $maxAge = $this->maxPlausibleAge();
+        $maxAge = LivingIndividuals::maxAliveAge($this->tree);
 
         // Per-birth-century × sex aggregation. Sums of whole years divided
         // by sample counts produce the cohort mean; both numerator
@@ -929,7 +951,7 @@ final readonly class LifeSpanRepository
      */
     public function deathsByCenturyAgeBandSex(): PopulationPyramidPayload
     {
-        $maxAge = $this->maxPlausibleAge();
+        $maxAge = LivingIndividuals::maxAliveAge($this->tree);
 
         $rows = BirthDeathPairsQuery::for($this->tree)
             ->whereIn('i_sex', ['M', 'F'])
@@ -1210,7 +1232,7 @@ final readonly class LifeSpanRepository
      */
     private function lifespanObservations(): array
     {
-        $maxAge = $this->maxPlausibleAge();
+        $maxAge = LivingIndividuals::maxAliveAge($this->tree);
 
         // Collapse the two-row range-date encoding to one lifespan per
         // individual (`GROUP BY individuals.i_id` with MIN of the birth julian
@@ -1237,27 +1259,6 @@ final readonly class LifeSpanRepository
     }
 
     /**
-     * Per-tree plausibility ceiling for "max lifespan" / "max age still
-     * considered alive" — webtrees keeps this as the `MAX_ALIVE_AGE` preference
-     * on every tree (default 120). Falls back to {@see
-     * self::DEFAULT_MAX_ALIVE_AGE} when the preference is missing or
-     * non-numeric so a fresh-import tree without preferences still produces
-     * sensible records.
-     */
-    private function maxPlausibleAge(): int
-    {
-        $pref = $this->tree->getPreference('MAX_ALIVE_AGE');
-
-        if (!is_numeric($pref)) {
-            return self::DEFAULT_MAX_ALIVE_AGE;
-        }
-
-        $value = (int) $pref;
-
-        return $value > 0 ? $value : self::DEFAULT_MAX_ALIVE_AGE;
-    }
-
-    /**
      * Living-individual count grouped by life-stage age-band. The
      * `data-widget=donut` partial reads this as `[{label, value, class}]`; the
      * `class` slot is wired through to the SVG slice so the CSS palette can
@@ -1272,14 +1273,7 @@ final readonly class LifeSpanRepository
      */
     public function livingByAgeBand(): array
     {
-        $rows = TreeScope::table($this->tree, 'individuals')
-            ->whereNotExists(static function (Builder $query): void {
-                $query
-                    ->from('dates')
-                    ->whereColumn('d_file', '=', 'i_file')
-                    ->whereColumn('d_gid', '=', 'i_id')
-                    ->where('d_fact', '=', 'DEAT');
-            })
+        $rows = LivingIndividuals::restrict(TreeScope::table($this->tree, 'individuals'), $this->tree)
             ->join('dates AS birth', static function (JoinClause $join): void {
                 // Require a usable birth Julian day so the literal-zero sentinel
                 // of a date-less BIRT row cannot win the MIN and drop a person
@@ -1294,7 +1288,7 @@ final readonly class LifeSpanRepository
             ])
             ->get();
 
-        $todayJulianDay = $this->todayJulianDay();
+        $todayJulianDay = LivingIndividuals::todayJulianDay();
 
         $bandCounts = array_fill_keys(
             array_map(static fn (array $b): string => $b['label'], self::LIVING_AGE_BANDS),
@@ -1457,17 +1451,5 @@ final readonly class LifeSpanRepository
     private function ageBandLabel(int $years): string
     {
         return AgeBuckets::label($years, self::MAX_BUCKET, self::BUCKET_WIDTH);
-    }
-
-    /**
-     * Today's date as a Julian day, the "now" endpoint for ages of the living.
-     * One place owns the conversion so every still-alive age span measures
-     * against the same reference day.
-     */
-    private function todayJulianDay(): int
-    {
-        $today = getdate();
-
-        return gregoriantojd($today['mon'], $today['mday'], $today['year']);
     }
 }
