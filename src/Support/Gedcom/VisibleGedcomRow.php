@@ -40,9 +40,9 @@ use const PREG_SET_ORDER;
  * is dropped afterwards. A fact is a pointer fact when the value in its first
  * line is exactly an XREF between at signs of the class the host uses for
  * record references, with no surrounding whitespace. Continuation lines are not
- * looked at. An escaped free text value such as `@@Home` is kept. A row that the host rejects as facts, for example a fact
- * line without a valid tag, yields the header line alone and contributes no
- * values.
+ * looked at. An escaped free text value, which starts with two at signs, is
+ * kept. A row that the host rejects as facts, for example a fact line without a
+ * valid tag, yields the header line alone and contributes no values.
  *
  * The record is built from the committed row text without pending changes and
  * is not registered in the record factory cache.
@@ -56,12 +56,14 @@ final readonly class VisibleGedcomRow
     /**
      * Pattern of the value in the first line of a pointer fact, an XREF of the
      * class that the host uses in `Fact::target()` between at signs. An escaped
-     * value such as `@@x@`, a value with spaces such as `@Home town@` and a
-     * calendar escape such as `@#DJULIAN@` do not match.
+     * value that starts with two at signs, a value with spaces between the at
+     * signs and a calendar escape do not match.
      */
     private const string POINTER_VALUE = '@[A-Za-z0-9:_.-]{1,20}@';
 
     /**
+     * Holds the reduced record text that the GEDCOM scanners read.
+     *
      * @param string $gedcom The header line plus the raw text of the facts the viewer may see
      */
     public function __construct(
@@ -168,6 +170,8 @@ final readonly class VisibleGedcomRow
      * Whether the first line of a fact carries a real pointer as its value.
      *
      * @param string $factGedcom The raw text of one level-1 fact
+     *
+     * @return bool True when the first line holds an XREF between at signs and nothing else
      */
     private static function hasPointerValue(string $factGedcom): bool
     {
