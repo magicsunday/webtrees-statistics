@@ -257,7 +257,7 @@ final class LifeSpanRepositoryIntegrationTest extends AbstractIntegrationTestCas
     }
 
     /**
-     * livingByAgeBand groups Franz (1950, living) into the 65+ bucket. Every
+     * livingByAgeBand groups Franz (1950, living) into the 66+ bucket. Every
      * other fixture individual is deceased and contributes nothing.
      */
     #[Test]
@@ -274,18 +274,18 @@ final class LifeSpanRepositoryIntegrationTest extends AbstractIntegrationTestCas
 
         // Four bands always returned, even when most are empty.
         self::assertCount(4, $result);
-        self::assertSame(1, $totals['65+'] ?? null, 'Franz is the only living individual');
+        self::assertSame(1, $totals['66+'] ?? null, 'Franz is the only living individual');
     }
 
     /**
      * A living individual with an imprecise `BET 1940 AND 1950` birth is stored
      * as two `dates` rows — a 1940 lower-bound and a 1950 upper-bound. Without a
      * per-individual collapse the BIRT join matches both rows, so the one person
-     * is tallied twice into the same 65+ band. The fixture pairs that ranged
+     * is tallied twice into the same 66+ band. The fixture pairs that ranged
      * birth with a precise-birth control so the band must hold exactly two
      * living individuals, not three: the dedup must fold the two stored bounds
      * to one representative without also collapsing the two distinct people.
-     * Both births sit in the open-ended 65+ band, so the assertion stays stable
+     * Both births sit in the open-ended 66+ band, so the assertion stays stable
      * as the test-run year advances.
      */
     #[Test]
@@ -300,10 +300,48 @@ final class LifeSpanRepositoryIntegrationTest extends AbstractIntegrationTestCas
             $totals[$entry['label']] = $entry['value'];
         }
 
-        // Two distinct living individuals, both 65+ — the ranged birth counts
+        // Two distinct living individuals, both 66+ — the ranged birth counts
         // once, not twice, and the precise control is not folded into it.
-        self::assertSame(2, $totals['65+'] ?? null, 'Ranged I1 counts once, precise I2 once — never the pre-fix three');
+        self::assertSame(2, $totals['66+'] ?? null, 'Ranged I1 counts once, precise I2 once — never the pre-fix three');
         self::assertSame(2, array_sum($totals), 'Exactly two living individuals');
+    }
+
+    /**
+     * Each band holds its own upper bound, so the last age of a band and the
+     * first age of the next one land in different bands and the open-ended
+     * label starts one year after the bound of the band before it. Births on
+     * the first of January keep the whole-year age equal to the offset for
+     * the entire run year.
+     */
+    #[Test]
+    public function livingByAgeBandPlacesTheBandBoundariesIntoTheirOwnBands(): void
+    {
+        $year  = (int) (new DateTimeImmutable('today'))->format('Y');
+        $ages  = [17, 18, 35, 36, 65, 66];
+        $lines = ['0 HEAD', '1 CHAR UTF-8', '1 GEDC', '2 VERS 5.5.1', '2 FORM LINEAGE-LINKED'];
+
+        foreach ($ages as $index => $age) {
+            $lines[] = '0 @A' . $index . '@ INDI';
+            $lines[] = '1 NAME Person /A' . $index . '/';
+            $lines[] = '1 BIRT';
+            $lines[] = '2 DATE 1 JAN ' . ($year - $age);
+        }
+
+        $lines[] = '0 TRLR';
+
+        $tree   = $this->importGedcomTree('living-band-bounds-' . $year, implode("\n", $lines));
+        $result = $this->repository($tree)->livingByAgeBand();
+
+        $totals = [];
+
+        foreach ($result as $entry) {
+            $totals[$entry['label']] = $entry['value'];
+        }
+
+        self::assertSame(
+            ['0–17' => 1, '18–35' => 2, '36–65' => 2, '66+' => 1],
+            $totals,
+        );
     }
 
     /**

@@ -352,7 +352,7 @@ echo Card::for($module, I18N::translate('Sibling age gap'))
     ->withIllustration(Illustration::Child)
     ->withInfo(
         I18N::translate(
-            'Age difference between consecutive siblings in the same family. Very small gaps (< 1 year) often signal twins or close-spaced births; very large gaps (10+ years) typically reflect second marriages or long intervals.'
+            'Age difference between consecutive siblings in the same family. Very small gaps (< 1 year) often signal twins or close-spaced births; very large gaps (10+ years) may point to children in between who are not recorded or to a long break.'
         ),
         $aboutThisChart,
         $aboutThisChart
@@ -411,7 +411,7 @@ echo Card::for($module, I18N::translate('Average family size by century'))
     ->render();
 
 echo Card::for($module, I18N::translate('Multiple-birth rate by century'))
-    ->withSub(I18N::translate('Share of children born on the same day as a sibling in the same family'))
+    ->withSub(I18N::translate('Share of children born within one day of a sibling in the same family'))
     ->withEyebrow(I18N::translate('Demographics'))
     ->withAccent(Accent::Ochre)
     ->withIllustration(Illustration::Child)

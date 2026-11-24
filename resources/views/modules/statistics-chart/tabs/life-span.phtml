@@ -409,7 +409,7 @@ echo Card::for($module, I18N::translate('Age-at-death distribution by sex and ce
     ->withAccent(Accent::Slate)
     ->withIllustration(Illustration::People)
     ->withInfo(
-        I18N::translate("Pick a birth century with the buttons above the chart. For that cohort every individual with both a birth and a death date is sorted into a 10-year age-at-death band, then counted separately for each sex. The two columns grow outward from the central band labels so the male and female age structure can be compared band by band; both columns share one scale, so a longer bar always means more people. The youngest band sits at the base and the oldest (100+) at the top. Infant and child deaths are kept, so a band can be wide at the very bottom. Ages are capped at the tree's plausibility ceiling to keep a single data-entry error from stretching the axis."),
+        I18N::translate("Pick a birth century with the buttons above the chart. For that cohort every individual with both a birth and a death date is sorted into a 10-year age-at-death band, then counted separately for each sex. The two columns grow outward from the central band labels so the male and female age structure can be compared band by band; both columns share one scale, so a longer bar always means more people. The youngest band sits at the base and the oldest (100+) at the top. Infant and child deaths are kept, so a band can be wide at the very bottom. Individuals whose recorded age lies above the tree's plausibility ceiling are left out, so a single data-entry error cannot stretch the axis."),
         $aboutThisChart,
         $aboutThisChart,
     )
@@ -560,7 +560,7 @@ echo Card::for($module, I18N::translate('Winter-peak score'))
     ->withBodyHtml($winterPeakCardBody)
     ->render();
 
-echo Section::create(I18N::translate('Causes of death and infant mortality'))
+echo Section::create(I18N::translate('Causes of death and child mortality'))
     ->withKicker(I18N::translate('Mortality'))
     ->withSub(I18N::translate('What the recorded individuals died of'))
     ->render();
@@ -636,7 +636,7 @@ echo Card::for($module, I18N::translate('Mortality outliers'))
     ->withIllustration(Illustration::Moon)
     ->withInfo(
         I18N::translate(
-            "Each year's recorded death count is compared with the surrounding eleven-year window. A year is flagged when its count lies at least two standard deviations above the window's mean, and the flagged years are ranked by how far they stand out. The marker behind each bar shows the window median as the expected baseline; mean and median sit close together but are not identical. Only years with a full window on both sides are considered, so the most recent and oldest years are never flagged. Read a flagged year as one that stands out against the recorded baseline, not automatically as real excess mortality: denser record-keeping, an import batch, or round-year date clustering can lift a single year's count much as a true epidemic, war or famine would. Where the death places of a year fall in a covered region and period, the year is annotated with the historical event it coincides with: a temporal note, never a stated cause of death; coverage is limited to broadly-documented events and can be extended via the project repository."
+            "Each year's recorded death count is compared with the surrounding eleven-year window. A year is flagged when its count lies at least two standard deviations above the window's mean, and the flagged years that stand out most are listed in chronological order. The marker behind each bar shows the window median as the expected baseline; mean and median sit close together but are not identical. Only years with a full window on both sides are considered, so the most recent and oldest years are never flagged. Read a flagged year as one that stands out against the recorded baseline, not automatically as real excess mortality: denser record-keeping, an import batch, or round-year date clustering can lift a single year's count much as a true epidemic, war or famine would. Where the death places of a year fall in a covered region and period, the year is annotated with the historical event it coincides with: a temporal note, never a stated cause of death; coverage is limited to broadly-documented events and can be extended via the project repository."
         ),
         $aboutThisChart,
         $aboutThisChart
@@ -676,16 +676,16 @@ echo Card::for($module, I18N::translate('Sibling deaths in the same year'))
 
 echo Section::create(I18N::translate('Births and deaths across the year'))
     ->withKicker(I18N::translate('Seasonality'))
-    ->withSub(I18N::translate('Density of recorded births and deaths by 25-year period and month'))
+    ->withSub(I18N::translate('Density of recorded births and deaths by period and month'))
     ->render();
 
-echo Card::for($module, I18N::translate('Births by 25-year period × month'))
+echo Card::for($module, I18N::translate('Births by period × month'))
     ->withSub(I18N::translate('A fuller cell marks a busier month'))
     ->withEyebrow(I18N::translate('Heatmap'))
     ->withAccent(Accent::Ochre)
     ->withIllustration(Illustration::Sunrise)
     ->withInfo(
-        I18N::translate('Each cell counts the births recorded in one 25-year period (a row) and one calendar month (a column), with the count printed inside it. The more births fell in that period and month, the more saturated the cell; a near-blank cell means few or none. Reading down a column shows whether a month stayed busy across the periods, reading along a row shows how one period spread its births over the year. Only dates with both a known year and month are placed. Leading and trailing periods without a single recorded birth are dropped, while an empty period between two recorded ones stays as a blank band so a gap in the records is not hidden.'),
+        I18N::translate('Each cell counts the births recorded in one period (a row) and one calendar month (a column), with the count printed inside it. The period is 25 years wide and widens in steps when the tree spans so many centuries that narrower rows would be too many to read. The more births fell in that period and month, the more saturated the cell; a near-blank cell means few or none. Reading down a column shows whether a month stayed busy across the periods, reading along a row shows how one period spread its births over the year. Only dates with both a known year and month are placed. Leading and trailing periods without a single recorded birth are dropped, while an empty period between two recorded ones stays as a blank band so a gap in the records is not hidden.'),
         $aboutThisChart,
         $aboutThisChart,
     )
@@ -696,18 +696,18 @@ echo Card::for($module, I18N::translate('Births by 25-year period × month'))
             ->withHeight(420)
             ->withAccent(Accent::Ochre)
             ->with('valueLabel', I18N::translate('births'))
-            ->withAriaLabel(I18N::translate('Births by 25-year period and calendar month'))
+            ->withAriaLabel(I18N::translate('Births by period and calendar month'))
             ->render()
     )
     ->render();
 
-echo Card::for($module, I18N::translate('Deaths by 25-year period × month'))
+echo Card::for($module, I18N::translate('Deaths by period × month'))
     ->withSub(I18N::translate('A fuller cell marks a busier month'))
     ->withEyebrow(I18N::translate('Heatmap'))
     ->withAccent(Accent::Wine)
     ->withIllustration(Illustration::Moon)
     ->withInfo(
-        I18N::translate('Each cell counts the deaths recorded in one 25-year period (a row) and one calendar month (a column), with the count printed inside it. The more deaths fell in that period and month, the more saturated the cell; a near-blank cell means few or none. Reading down a column shows whether a month stayed busy across the periods, reading along a row shows how one period spread its deaths over the year. Only dates with both a known year and month are placed. Leading and trailing periods without a single recorded death are dropped, while an empty period between two recorded ones stays as a blank band so a gap in the records is not hidden.'),
+        I18N::translate('Each cell counts the deaths recorded in one period (a row) and one calendar month (a column), with the count printed inside it. The period is 25 years wide and widens in steps when the tree spans so many centuries that narrower rows would be too many to read. The more deaths fell in that period and month, the more saturated the cell; a near-blank cell means few or none. Reading down a column shows whether a month stayed busy across the periods, reading along a row shows how one period spread its deaths over the year. Only dates with both a known year and month are placed. Leading and trailing periods without a single recorded death are dropped, while an empty period between two recorded ones stays as a blank band so a gap in the records is not hidden.'),
         $aboutThisChart,
         $aboutThisChart,
     )
@@ -718,7 +718,7 @@ echo Card::for($module, I18N::translate('Deaths by 25-year period × month'))
             ->withHeight(420)
             ->withAccent(Accent::Wine)
             ->with('valueLabel', I18N::translate('deaths'))
-            ->withAriaLabel(I18N::translate('Deaths by 25-year period and calendar month'))
+            ->withAriaLabel(I18N::translate('Deaths by period and calendar month'))
             ->render()
     )
     ->render();

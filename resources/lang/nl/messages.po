@@ -720,12 +720,9 @@ msgstr ""
 msgid ""
 "Age difference between consecutive siblings in the same family. Very small "
 "gaps (< 1 year) often signal twins or close-spaced births; very large gaps "
-"(10+ years) typically reflect second marriages or long intervals."
+"(10+ years) may point to children in between who are not recorded or to a "
+"long break."
 msgstr ""
-"Leeftijdsverschil tussen opeenvolgende broers/zussen binnen hetzelfde gezin. "
-"Zeer kleine leeftijdsverschillen (< 1 jaar) duiden vaak op een tweeling of "
-"kort na elkaar geboren kinderen; zeer grote leeftijdsverschillen (10+ jaar) "
-"wijzen doorgaans op een tweede huwelijk of lange tussenpozen."
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:209
 msgid ""
@@ -860,14 +857,6 @@ msgstr ""
 msgid "Births and deaths across the year"
 msgstr "Geboorten en overlijdens in de loop van het jaar"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:699
-msgid "Births by 25-year period and calendar month"
-msgstr "Geboorten per 25-jaarsperiode en kalendermaand"
-
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:682
-msgid "Births by 25-year period × month"
-msgstr "Geboorten per 25-jaarsperiode × maand"
-
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:100
 msgid "Births by decade"
 msgstr "Geboorten per decennium"
@@ -875,6 +864,14 @@ msgstr "Geboorten per decennium"
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:317
 msgid "Births by month"
 msgstr "Geboorten per maand"
+
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:699
+msgid "Births by period and calendar month"
+msgstr ""
+
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:682
+msgid "Births by period × month"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:105
 #, php-format
@@ -955,8 +952,8 @@ msgid "Causes"
 msgstr "Oorzaken"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:563
-msgid "Causes of death and infant mortality"
-msgstr "Doodsoorzaken en zuigelingensterfte"
+msgid "Causes of death and child mortality"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:619
 msgid "Chains and clusters formed by partnership"
@@ -1136,17 +1133,17 @@ msgstr "Datasetoverzicht"
 msgid "Deaths are evenly spread across the year."
 msgstr "Overlijdens zijn gelijkmatig over het jaar verdeeld."
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:721
-msgid "Deaths by 25-year period and calendar month"
-msgstr "Overlijdens per 25-jaarsperiode en kalendermaand"
-
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:704
-msgid "Deaths by 25-year period × month"
-msgstr "Overlijdens per 25-jaarsperiode × maand"
-
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:530
 msgid "Deaths by month"
 msgstr "Overlijdens per maand"
+
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:721
+msgid "Deaths by period and calendar month"
+msgstr ""
+
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:704
+msgid "Deaths by period × month"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:525
 msgid "Deaths per century"
@@ -1173,10 +1170,8 @@ msgid "Demographics"
 msgstr "Demografie"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:679
-msgid "Density of recorded births and deaths by 25-year period and month"
+msgid "Density of recorded births and deaths by period and month"
 msgstr ""
-"Dichtheid van geregistreerde geboorten en overlijdens per 25-jaarsperiode en "
-"maand"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:513
 msgid "Depth"
@@ -1327,53 +1322,33 @@ msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:688
 msgid ""
-"Each cell counts the births recorded in one 25-year period (a row) and one "
-"calendar month (a column), with the count printed inside it. The more births "
-"fell in that period and month, the more saturated the cell; a near-blank "
-"cell means few or none. Reading down a column shows whether a month stayed "
-"busy across the periods, reading along a row shows how one period spread its "
-"births over the year. Only dates with both a known year and month are "
-"placed. Leading and trailing periods without a single recorded birth are "
-"dropped, while an empty period between two recorded ones stays as a blank "
-"band so a gap in the records is not hidden."
+"Each cell counts the births recorded in one period (a row) and one calendar "
+"month (a column), with the count printed inside it. The period is 25 years "
+"wide and widens in steps when the tree spans so many centuries that narrower "
+"rows would be too many to read. The more births fell in that period and "
+"month, the more saturated the cell; a near-blank cell means few or none. "
+"Reading down a column shows whether a month stayed busy across the periods, "
+"reading along a row shows how one period spread its births over the year. "
+"Only dates with both a known year and month are placed. Leading and trailing "
+"periods without a single recorded birth are dropped, while an empty period "
+"between two recorded ones stays as a blank band so a gap in the records is "
+"not hidden."
 msgstr ""
-"Elke cel telt de geboorten die zijn geregistreerd in één 25-jaarsperiode "
-"(een rij) en een kalendermaand (een kolom), met het aantal in de cel "
-"weergegeven. Hoe meer geboorten er in die periode en maand plaatsvonden, hoe "
-"verzadigder de cel; een bijna lege cel betekent weinig of geen geboorten. "
-"Door een kolom van boven naar te lezen zie je of een maand over de perioden "
-"heen druk bleef; door een rij van links naar rechts te lezen zie je hoe de "
-"geboorten in een bepaalde periode over het jaar waren verdeeld. Alleen "
-"datums met zowel een bekend jaar als een bekende maand worden opgenomen. "
-"Begin- en eindperioden zonder ook maar één geregistreerd overlijden worden "
-"weggelaten, terwijl een lege periode tussen twee geregistreerde perioden als "
-"een lege klasse blijft staan, zodat een hiaat in de gegevens niet wordt "
-"verborgen."
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:710
 msgid ""
-"Each cell counts the deaths recorded in one 25-year period (a row) and one "
-"calendar month (a column), with the count printed inside it. The more deaths "
-"fell in that period and month, the more saturated the cell; a near-blank "
-"cell means few or none. Reading down a column shows whether a month stayed "
-"busy across the periods, reading along a row shows how one period spread its "
-"deaths over the year. Only dates with both a known year and month are "
-"placed. Leading and trailing periods without a single recorded death are "
-"dropped, while an empty period between two recorded ones stays as a blank "
-"band so a gap in the records is not hidden."
+"Each cell counts the deaths recorded in one period (a row) and one calendar "
+"month (a column), with the count printed inside it. The period is 25 years "
+"wide and widens in steps when the tree spans so many centuries that narrower "
+"rows would be too many to read. The more deaths fell in that period and "
+"month, the more saturated the cell; a near-blank cell means few or none. "
+"Reading down a column shows whether a month stayed busy across the periods, "
+"reading along a row shows how one period spread its deaths over the year. "
+"Only dates with both a known year and month are placed. Leading and trailing "
+"periods without a single recorded death are dropped, while an empty period "
+"between two recorded ones stays as a blank band so a gap in the records is "
+"not hidden."
 msgstr ""
-"Elke cel telt de overlijdens die zijn geregistreerd in één 25-jaarsperiode "
-"(een rij) en één kalendermaand (een kolom), met het aantal in de cel "
-"weergegeven. Hoe meer overlijdens er in die periode en maand vielen, hoe "
-"verzadigder de cel; een bijna lege cel betekent weinig of geen overlijdens. "
-"Door een kolom van boven naar te lezen zie je of een maand over de perioden "
-"heen druk bleef; door een rij van links naar rechts te lezen zie je hoe de "
-"overlijdens in een bepaalde periode over het jaar waren verdeeld. Alleen "
-"datums met zowel een bekend jaar als een bekende maand worden opgenomen. "
-"Begin- en eindperioden zonder ook maar één geregistreerd overlijden worden "
-"weggelaten, terwijl een lege periode tussen twee geregistreerde perioden als "
-"een lege klasse blijft staan, zodat een hiaat in de gegevens niet wordt "
-"verborgen."
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:653
 msgid ""
@@ -1491,36 +1466,20 @@ msgstr ""
 msgid ""
 "Each year's recorded death count is compared with the surrounding eleven-"
 "year window. A year is flagged when its count lies at least two standard "
-"deviations above the window's mean, and the flagged years are ranked by how "
-"far they stand out. The marker behind each bar shows the window median as "
-"the expected baseline; mean and median sit close together but are not "
-"identical. Only years with a full window on both sides are considered, so "
-"the most recent and oldest years are never flagged. Read a flagged year as "
-"one that stands out against the recorded baseline, not automatically as real "
-"excess mortality: denser record-keeping, an import batch, or round-year date "
-"clustering can lift a single year's count much as a true epidemic, war or "
-"famine would. Where the death places of a year fall in a covered region and "
-"period, the year is annotated with the historical event it coincides with: a "
-"temporal note, never a stated cause of death; coverage is limited to broadly-"
-"documented events and can be extended via the project repository."
+"deviations above the window's mean, and the flagged years that stand out "
+"most are listed in chronological order. The marker behind each bar shows the "
+"window median as the expected baseline; mean and median sit close together "
+"but are not identical. Only years with a full window on both sides are "
+"considered, so the most recent and oldest years are never flagged. Read a "
+"flagged year as one that stands out against the recorded baseline, not "
+"automatically as real excess mortality: denser record-keeping, an import "
+"batch, or round-year date clustering can lift a single year's count much as "
+"a true epidemic, war or famine would. Where the death places of a year fall "
+"in a covered region and period, the year is annotated with the historical "
+"event it coincides with: a temporal note, never a stated cause of death; "
+"coverage is limited to broadly-documented events and can be extended via the "
+"project repository."
 msgstr ""
-"Het aantal geregistreerde overlijdens per jaar wordt vergeleken met het "
-"omringende venster van elf jaar. Een jaar wordt gemarkeerd wanneer het "
-"aantal minstens twee standaardafwijkingen boven het gemiddelde van dat "
-"venster ligt, en de gemarkeerde jaren worden gerangschikt naar hoe sterk ze "
-"afwijken. De markering achter elke balk toont de mediaan van het venster als "
-"verwachte basislijn; gemiddelde en mediaan liggen dicht bij elkaar maar zijn "
-"niet identiek. Alleen jaren met een volledig venster aan beide zijden worden "
-"meegenomen, zodat de meest recente en oudste jaren nooit worden gemarkeerd. "
-"Zie een gemarkeerd jaar als een jaar dat afwijkt van de geregistreerde "
-"basislijn, niet automatisch als werkelijke oversterfte: intensievere "
-"registratie, een importbatch of clustering rond ronde jaartallen kan het "
-"aantal voor één jaar net zo goed verhogen als een echte epidemie, oorlog of "
-"hongersnood. Wanneer de overlijdensplaatsen in een jaar binnen een gedekte "
-"regio en periode vallen, wordt het jaar voorzien van de historische "
-"gebeurtenis waarmee het samenvalt: een tijdsaanduiding, geen vastgestelde "
-"doodsoorzaak; de dekking beperkt zich tot algemeen gedocumenteerde "
-"gebeurtenissen en kan via de projectrepository worden uitgebreid."
 
 #: src/Support/Locale/HistoricalEventCatalog.php:214
 msgid "Eighty Years’ War (1568–1648)"
@@ -2517,21 +2476,10 @@ msgid ""
 "can be compared band by band; both columns share one scale, so a longer bar "
 "always means more people. The youngest band sits at the base and the oldest "
 "(100+) at the top. Infant and child deaths are kept, so a band can be wide "
-"at the very bottom. Ages are capped at the tree's plausibility ceiling to "
-"keep a single data-entry error from stretching the axis."
+"at the very bottom. Individuals whose recorded age lies above the tree's "
+"plausibility ceiling are left out, so a single data-entry error cannot "
+"stretch the axis."
 msgstr ""
-"Kies een geboorte-eeuw met de knoppen boven de grafiek. Voor dat cohort "
-"wordt elke persoon met zowel een geboorte- als een overlijdensdatum "
-"ingedeeld in een 10-jarige leeftijd-bij-overlijden-klasse, waarna de "
-"aantallen per geslacht afzonderlijk worden geteld. De twee kolommen lopen "
-"vanaf de labels in het midden naar buiten toe, zodat de leeftijdsopbouw van "
-"mannen en vrouwen per leeftijdsgroep kan worden vergeleken; beide kolommen "
-"hebben dezelfde schaal, dus een langere balk betekent altijd meer mensen. De "
-"jongste groep bevindt zich onderaan en de oudste (100+) bovenaan. "
-"Overlijdens van kinderen jonger dan 1 jaar worden meegeteld, waardoor een "
-"groep helemaal onderaan breed kan zijn. Leeftijden worden begrensd door de "
-"plausibiliteitsgrens van de stamboom om te voorkomen dat een enkele fout in "
-"de gegevensinvoer de as uitrekt."
 
 #: src/Support/Locale/ZodiacLabels.php:60
 msgid "Pisces"
@@ -2640,10 +2588,8 @@ msgid "Share of a birth cohort still alive at each age threshold"
 msgstr "Aandeel van een geboortecohort dat nog leeft bij elke leeftijdsgrens"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:414
-msgid "Share of children born on the same day as a sibling in the same family"
+msgid "Share of children born within one day of a sibling in the same family"
 msgstr ""
-"Aandeel kinderen geboren op dezelfde dag als een broer of zus in hetzelfde "
-"gezin"
 
 #: resources/views/modules/statistics-chart/tabs/names.phtml:143
 msgid ""
@@ -2950,8 +2896,9 @@ msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/names.phtml:115
 #, php-format
-msgid "Top %s given names, stacked · band thickness = share per decade"
-msgstr "Top %s voornamen, gestapeld · klassedikte = aandeel per decennium"
+msgid ""
+"Top %s given names, stacked · band thickness = individuals born per decade"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:470
 msgid "Top 10 families with the most grandchildren"
@@ -3003,20 +2950,13 @@ msgstr "Tweelingen"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:213
 msgid ""
-"Two people are linked when they were partners — married or not. Following "
-"those links from one partner to the next traces a partnership chain; the "
-"longest unbroken chain in the tree is shown on the left. The largest "
-"connected group on the right is every person reachable from one another "
-"through such partnerships, drawn as a web with the person who had the most "
-"partners at its center and the longest chain highlighted."
+"Two people are linked when they were partners, married or not. Following "
+"those links from one partner to the next traces a partnership chain. The "
+"largest connected group is every person reachable from one another through "
+"such partnerships, drawn as a web with the person who had the most partners "
+"at its center. Its longest unbroken chain is highlighted and listed person "
+"by person."
 msgstr ""
-"Twee personen zijn met elkaar verbonden als zij partners waren, gehuwd of "
-"niet. Door deze verbindingen te volgen van de ene partner naar de volgende, "
-"ontstaat een partnerschapsketen; de langste ononderbroken keten in de "
-"stamboom wordt links weergegeven. De grootste verbonden groep rechts omvat "
-"alle personen die via dergelijke partnerschappen met elkaar verbonden zijn, "
-"weergegeven als een netwerk met de persoon met de meeste partnerschappen in "
-"het centrum en de langste keten gemarkeerd."
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:185
 msgid "Typical range"
