@@ -239,7 +239,10 @@ final readonly class PartnershipReachRepository
      * year, the lower bound over the visible facts of that tag (the date with the
      * smallest minimum Julian day), converted to the Gregorian scale via
      * {@see GregorianDate::year()} so a non-Gregorian calendar stays comparable.
-     * An undated fact contributes nothing.
+     * An undated fact contributes nothing. The date rules are those of the host
+     * accessors: a range with an unparsable bound is undated, a range written in
+     * reverse order takes the date written first, and a fact with several date
+     * lines takes the first line.
      *
      * @param Individual $individual The resolved group member
      *
