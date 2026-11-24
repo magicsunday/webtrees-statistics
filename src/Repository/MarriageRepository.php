@@ -229,7 +229,8 @@ final class MarriageRepository
      * Single longest-marriage record holder: the family with the biggest (end
      * julian-day − MARR julian-day) delta, where the end is whichever happened
      * first — DIV, husband's DEAT or wife's DEAT. Returns null when no family
-     * has both a MARR date AND a determinable end date. Capped at 90 years.
+     * has both a MARR date AND a determinable end date. Capped at
+     * {@see MAX_PLAUSIBLE_MARRIAGE_DURATION} years.
      */
     public function longestMarriageRecord(): ?FamilyDurationYearsRecord
     {
