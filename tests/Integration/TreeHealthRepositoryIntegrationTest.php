@@ -14,6 +14,10 @@ namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 use MagicSunday\Webtrees\Statistic\Repository\TreeHealthRepository;
 use PHPUnit\Framework\Attributes\Test;
 
+use function date;
+use function implode;
+use function strval;
+
 /**
  * End-to-end test of the Tree Health repository against a curated fixture that
  * exercises every documented data-quality scenario: fully sourced individuals,
@@ -44,9 +48,9 @@ final class TreeHealthRepositoryIntegrationTest extends AbstractIntegrationTestC
     /**
      * The fixture seeds known missing-event counts, and the assertions pin the
      * values. BIRT is missing on the no-events stub and the sparse child. The
-     * BIRT place is missing additionally on the half-data parent. DEAT is missing
-     * on the individuals other than the sourced parent and the documented child,
-     * and the DEAT place is missing on the same individuals.
+     * BIRT place is missing additionally on the half-data parent. The death rows
+     * are pinned by a fixture with dates relative to today, because which
+     * individual is deceased depends on the current date.
      */
     #[Test]
     public function missingEventGapsReturnTheExpectedCounts(): void
@@ -60,12 +64,6 @@ final class TreeHealthRepositoryIntegrationTest extends AbstractIntegrationTestC
 
         $birtPlace = $gaps['BIRT_place'] ?? self::fail('Missing BIRT_place gap row');
         self::assertSame(3, $birtPlace['value']);
-
-        $deatEvent = $gaps['DEAT_event'] ?? self::fail('Missing DEAT_event gap row');
-        self::assertSame(4, $deatEvent['value']);
-
-        $deatPlace = $gaps['DEAT_place'] ?? self::fail('Missing DEAT_place gap row');
-        self::assertSame(4, $deatPlace['value']);
 
         // The spouses of the family have a marriage event without a place.
         $marrEvent = $gaps['MARR_event'] ?? self::fail('Missing MARR_event gap row');
@@ -81,8 +79,7 @@ final class TreeHealthRepositoryIntegrationTest extends AbstractIntegrationTestC
      * A family with a dated and placed marriage, a family with a dated marriage
      * and no place, and a family without a marriage event. The spouses of the
      * last family miss the event, the spouses of the middle one miss the place,
-     * and a spouse without a marriage event is not counted again as missing a
-     * place.
+     * and a spouse without a marriage event also counts as missing the place.
      */
     #[Test]
     public function missingEventGapsCountSpousesWithoutAMarriageEventOrPlace(): void
@@ -95,8 +92,71 @@ final class TreeHealthRepositoryIntegrationTest extends AbstractIntegrationTestC
         self::assertSame(6, $marrEvent['total']);
 
         $marrPlace = $gaps['MARR_place'] ?? self::fail('Missing MARR_place gap row');
-        self::assertSame(2, $marrPlace['value']);
+        self::assertSame(4, $marrPlace['value']);
         self::assertSame(6, $marrPlace['total']);
+    }
+
+    /**
+     * The death rows count deceased individuals only, by the shared definition
+     * of a living individual. A living person and a person without any data are
+     * no gap. Among the deceased, one has a death with date and place, one a
+     * death without a place, one is deceased by age without a death event and
+     * one by a burial without a death event. The place row counts a missing
+     * event as well, so the person without the event also misses the place.
+     */
+    #[Test]
+    public function missingEventGapsCountTheDeathRowsOverDeceasedIndividualsOnly(): void
+    {
+        $year = (int) date('Y');
+
+        $lines = [
+            '0 HEAD',
+            '1 CHAR UTF-8',
+            '1 GEDC',
+            '2 VERS 5.5.1',
+            '2 FORM LINEAGE-LINKED',
+            '0 @D1@ INDI',
+            '1 NAME Full /Death/',
+            '1 BIRT',
+            '2 DATE 1 JAN ' . ($year - 80),
+            '1 DEAT',
+            '2 DATE 1 JAN ' . ($year - 10),
+            '2 PLAC Berlin, Germany',
+            '0 @D2@ INDI',
+            '1 NAME No /Place/',
+            '1 BIRT',
+            '2 DATE 1 JAN ' . ($year - 70),
+            '1 DEAT',
+            '2 DATE 1 JAN ' . ($year - 5),
+            '0 @D3@ INDI',
+            '1 NAME By /Age/',
+            '1 BIRT',
+            '2 DATE 1850',
+            '0 @D4@ INDI',
+            '1 NAME Only /Burial/',
+            '1 BIRT',
+            '2 DATE 1 JAN ' . ($year - 60),
+            '1 BURI',
+            '2 DATE 1 JAN ' . ($year - 2),
+            '0 @L1@ INDI',
+            '1 NAME Young /Living/',
+            '1 BIRT',
+            '2 DATE 1 JAN ' . ($year - 30),
+            '0 @L2@ INDI',
+            '1 NAME No /Data/',
+            '0 TRLR',
+        ];
+
+        $tree = $this->importGedcomTree('tree-health-death-' . strval($year), implode("\n", $lines));
+        $gaps = (new TreeHealthRepository($tree))->missingEventGaps();
+
+        $deatEvent = $gaps['DEAT_event'] ?? self::fail('Missing DEAT_event gap row');
+        self::assertSame(2, $deatEvent['value']);
+        self::assertSame(4, $deatEvent['total']);
+
+        $deatPlace = $gaps['DEAT_place'] ?? self::fail('Missing DEAT_place gap row');
+        self::assertSame(3, $deatPlace['value']);
+        self::assertSame(4, $deatPlace['total']);
     }
 
     /**

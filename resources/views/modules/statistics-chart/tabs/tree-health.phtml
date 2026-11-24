@@ -143,6 +143,10 @@ foreach ($gaps as $gap) {
     ];
 }
 
+$missingEventExplanation = I18N::translate(
+    'Each row counts the individuals that miss the event. A place row also counts the individuals whose event has no place. The birth rows count every individual, the death rows count only deceased individuals, and the marriage rows count the individuals who are a spouse in a family. A person counts as living when no death, burial or cremation is recorded and the birth is not older than the maximum age that the tree allows.'
+);
+
 $sourcedPct      = ($sourceCoverage->total > 0) ? ($sourceCoverage->value / $sourceCoverage->total) * 100 : 0.0;
 $completenessPct = $avgPedigree * 100;
 
@@ -490,6 +494,7 @@ echo Card::for($module, I18N::translate('Missing-event gaps'))
     ->withEyebrow(I18N::translate('Gaps'))
     ->withAccent(Accent::Wine)
     ->withIllustration(Illustration::Magnifier)
+    ->withInfo($missingEventExplanation, $aboutThisChart, $aboutThisChart)
     ->withSpan(12)
     ->withBodyHtml(
         Component::heatStrip($module)
