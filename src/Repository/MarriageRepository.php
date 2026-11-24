@@ -229,8 +229,8 @@ final class MarriageRepository
      * Single longest-marriage record holder: the family with the biggest (end
      * julian-day − MARR julian-day) delta, where the end is whichever happened
      * first — DIV, husband's DEAT or wife's DEAT. Returns null when no family
-     * has both a MARR date AND a determinable end date. Capped at
-     * {@see MAX_PLAUSIBLE_MARRIAGE_DURATION} years.
+     * has both a MARR date AND a determinable end date. Spans beyond
+     * {@see MAX_PLAUSIBLE_MARRIAGE_DURATION} years are skipped.
      */
     public function longestMarriageRecord(): ?FamilyDurationYearsRecord
     {
@@ -239,6 +239,12 @@ final class MarriageRepository
 
         foreach ($this->marriageDurationPairs() as $pair) {
             $years = CalendarSpan::wholeYears($pair['marrJd'], $pair['endJd']);
+
+            // An implausible span is skipped, so the next candidate can still
+            // hold the record instead of one data-entry error hiding the card.
+            if ($years > self::MAX_PLAUSIBLE_MARRIAGE_DURATION) {
+                continue;
+            }
 
             // Seed on the first pair ($bestXref === null), then strict-greater,
             // with a byte-order (strcmp) tie-break on the smaller xref so an
@@ -254,7 +260,7 @@ final class MarriageRepository
             }
         }
 
-        if (($bestXref === null) || ($bestYears <= 0) || ($bestYears > self::MAX_PLAUSIBLE_MARRIAGE_DURATION)) {
+        if (($bestXref === null) || ($bestYears <= 0)) {
             return null;
         }
 

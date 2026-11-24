@@ -91,11 +91,11 @@ final readonly class EndogamyRepository
                 continue;
             }
 
-            if (!isset($parentOf[$husb])) {
+            if (!$this->hasRecordedParent($parentOf, $husb)) {
                 continue;
             }
 
-            if (!isset($parentOf[$wife])) {
+            if (!$this->hasRecordedParent($parentOf, $wife)) {
                 continue;
             }
 
@@ -119,5 +119,22 @@ final readonly class EndogamyRepository
             rate: round(($endogamous / $total) * 100, 1),
             depth: $depth,
         );
+    }
+
+    /**
+     * Whether the individual has at least one parent recorded. A child of a
+     * family that names no parent sits in the parent map with two empty slots,
+     * which is no parentage to test for a common ancestor.
+     *
+     * @param array<array-key, array{0: string|null, 1: string|null}> $parentOf Parent-of map
+     * @param string                                                  $id       Individual XREF
+     */
+    private function hasRecordedParent(array $parentOf, string $id): bool
+    {
+        if (!isset($parentOf[$id])) {
+            return false;
+        }
+
+        return ($parentOf[$id][0] !== null) || ($parentOf[$id][1] !== null);
     }
 }

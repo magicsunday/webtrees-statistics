@@ -213,7 +213,9 @@ final readonly class GedcomScanner
      */
     public static function extractAllEventPlaces(string $gedcom, string $tag): array
     {
-        if (preg_match_all('/\n1 ' . preg_quote($tag, '/') . '(?:\n[2-9].*)*/', $gedcom, $blocks) === 0) {
+        // The tag line may carry a value (`1 RESI Y`), so the rest of that line
+        // belongs to the block, while the lookahead keeps a longer tag out.
+        if (preg_match_all('/\n1 ' . preg_quote($tag, '/') . '(?= |\n|$)[^\n]*(?:\n[2-9].*)*/', $gedcom, $blocks) === 0) {
             return [];
         }
 

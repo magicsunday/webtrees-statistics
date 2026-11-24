@@ -1,0 +1,42 @@
+0 HEAD
+1 SOUR webtrees-statistics-fixture
+2 NAME record-implausible-marriage-duration
+1 DEST ANSTFILE
+1 CHAR UTF-8
+1 SUBM @SUBM1@
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+0 @SUBM1@ SUBM
+1 NAME Fixture
+0 @A1@ INDI
+1 NAME Anton /Span/
+1 SEX M
+1 FAMS @F1@
+0 @A2@ INDI
+1 NAME Anna /Span/
+1 SEX F
+1 FAMS @F1@
+0 @B1@ INDI
+1 NAME Bruno /Span/
+1 SEX M
+1 FAMS @F2@
+0 @B2@ INDI
+1 NAME Berta /Span/
+1 SEX F
+1 FAMS @F2@
+0 @F1@ FAM
+1 HUSB @A1@
+1 WIFE @A2@
+1 MARR
+2 DATE 1 JAN 1900
+1 DIV
+2 DATE 1 JAN 1960
+0 @F2@ FAM
+1 HUSB @B1@
+1 WIFE @B2@
+1 MARR
+2 DATE 1 JAN 1700
+1 DIV
+2 DATE 1 JAN 1900
+0 TRLR

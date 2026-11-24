@@ -1,0 +1,39 @@
+0 HEAD
+1 SOUR webtrees-statistics-fixture
+2 NAME endogamy-parentless-family
+1 DEST ANSTFILE
+1 CHAR UTF-8
+1 SUBM @SUBM1@
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+0 @SUBM1@ SUBM
+1 NAME Fixture
+0 @HA@ INDI
+1 NAME Hugo /Parent/
+1 SEX M
+1 FAMS @FA@
+0 @WA@ INDI
+1 NAME Wilma /Parent/
+1 SEX F
+1 FAMS @FA@
+0 @H1@ INDI
+1 NAME Hannes /Couple/
+1 SEX M
+1 FAMC @FA@
+1 FAMS @F1@
+0 @W1@ INDI
+1 NAME Wanda /Couple/
+1 SEX F
+1 FAMC @FB@
+1 FAMS @F1@
+0 @FA@ FAM
+1 HUSB @HA@
+1 WIFE @WA@
+1 CHIL @H1@
+0 @FB@ FAM
+1 CHIL @W1@
+0 @F1@ FAM
+1 HUSB @H1@
+1 WIFE @W1@
+0 TRLR

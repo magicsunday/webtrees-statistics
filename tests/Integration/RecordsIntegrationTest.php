@@ -114,6 +114,23 @@ final class RecordsIntegrationTest extends AbstractIntegrationTestCase
     }
 
     /**
+     * F2 spans two centuries, which exceeds the plausible marriage duration, and
+     * F1 is a valid sixty-year marriage. The implausible pair must be skipped
+     * and the next candidate F1 must hold the record, instead of the whole
+     * card going empty.
+     */
+    #[Test]
+    public function longestMarriageFallsBackPastAnImplausibleSpan(): void
+    {
+        $tree   = $this->importFixtureTree('record-implausible-marriage-duration.ged');
+        $record = (new MarriageRepository($tree))->longestMarriageRecord();
+
+        self::assertNotNull($record);
+        self::assertSame('F1', $record->family->xref());
+        self::assertSame(60, $record->durationYears);
+    }
+
+    /**
      * Shortest-marriage picks F3 (95 days) — confirms the
      * minimum-end-julian-day branch of the shared iterator.
      */
@@ -157,7 +174,7 @@ final class RecordsIntegrationTest extends AbstractIntegrationTestCase
     public function largestFamilyPicksTheSixChildFamily(): void
     {
         $tree   = $this->importFixtureTree('records.ged');
-        $record = (new FamilyRankingRepository($tree, $this->statisticsData($tree)))->largestFamilyRecord();
+        $record = (new FamilyRankingRepository($tree))->largestFamilyRecord();
 
         self::assertNotNull($record);
         self::assertSame('F2', $record->family->xref());
@@ -174,7 +191,7 @@ final class RecordsIntegrationTest extends AbstractIntegrationTestCase
     public function mostChildrenPerPersonAggregatesAcrossAllFams(): void
     {
         $tree   = $this->importFixtureTree('records.ged');
-        $record = (new FamilyRankingRepository($tree, $this->statisticsData($tree)))->mostChildrenPerPersonRecord();
+        $record = (new FamilyRankingRepository($tree))->mostChildrenPerPersonRecord();
 
         self::assertNotNull($record);
         self::assertSame('I7', $record->individual->xref(), 'tie between I7 and I8 resolves to the smaller xref');
@@ -292,7 +309,7 @@ final class RecordsIntegrationTest extends AbstractIntegrationTestCase
     public function mostChildrenPerPersonRecordBreaksTieByLowestXref(): void
     {
         $tree   = $this->importFixtureTree('record-tie-spouses-children.ged');
-        $record = (new FamilyRankingRepository($tree, $this->statisticsData($tree)))->mostChildrenPerPersonRecord();
+        $record = (new FamilyRankingRepository($tree))->mostChildrenPerPersonRecord();
 
         self::assertNotNull($record);
         self::assertSame('M1', $record->individual->xref());
