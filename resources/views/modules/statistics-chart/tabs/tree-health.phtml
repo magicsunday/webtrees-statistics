@@ -118,8 +118,8 @@ foreach ($ancestorDistribution as $bucket => $count) {
     $ancestorDistributionBars[] = [
         'label'        => (string) $bucket,
         'value'        => $bucketCount,
-        'tooltipLabel' => ctype_digit((string) $bucket)
-            ? I18N::plural('%s known ancestor', '%s known ancestors', (int) $bucket, (string) $bucket)
+        'tooltipLabel' => ((string) $bucket === '1')
+            ? I18N::plural('%s known ancestor', '%s known ancestors', 1, (string) $bucket)
             : I18N::translate('%s known ancestors', (string) $bucket),
         'tooltip' => I18N::plural('%s individual', '%s individuals', $bucketCount, I18N::number($bucketCount)),
     ];
