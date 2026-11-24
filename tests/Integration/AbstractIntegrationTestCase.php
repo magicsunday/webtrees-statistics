@@ -455,6 +455,32 @@ abstract class AbstractIntegrationTestCase extends TestCase
     }
 
     /**
+     * Insert a default fact restriction for a tag and return a tree object that
+     * reads the default restriction rows afresh, because a tree caches them on
+     * first use.
+     *
+     * @param Tree        $tree The imported fixture tree
+     * @param string      $tag  The fact tag to restrict
+     * @param string      $resn The restriction notice (privacy, confidential or hidden)
+     * @param string|null $xref The individual the default names, or null for the whole tree
+     *
+     * @return Tree The tree object that sees the new default
+     */
+    final protected function treeWithDefault(Tree $tree, string $tag, string $resn, ?string $xref = null): Tree
+    {
+        DB::table('default_resn')->insert([
+            'gedcom_id' => $tree->id(),
+            'xref'      => $xref,
+            'tag_type'  => $tag,
+            'resn'      => $resn,
+        ]);
+
+        Registry::cache()->array()->forget('all-trees');
+
+        return (new TreeService(new GedcomImportService()))->find($tree->id());
+    }
+
+    /**
      * Hide living individuals and continue as an anonymous visitor.
      *
      * @param Tree $tree Tree whose privacy preferences are set

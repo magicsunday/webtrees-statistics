@@ -481,11 +481,7 @@ final readonly class GedcomScanner
      */
     public static function anchoredLikePatterns(string $tag): array
     {
-        return [
-            "%\n1 " . $tag . ' %',
-            "%\n1 " . $tag . "\n%",
-            "%\n1 " . $tag,
-        ];
+        return self::levelLikePatterns(1, $tag);
     }
 
     /**
@@ -500,10 +496,26 @@ final readonly class GedcomScanner
      */
     public static function anchoredSubTagLikePatterns(string $subTag): array
     {
+        return self::levelLikePatterns(2, $subTag);
+    }
+
+    /**
+     * The three anchorings of a tag at one level: followed by a value, followed
+     * by a line break and at the end of the record.
+     *
+     * @param int    $level The GEDCOM level of the line
+     * @param string $tag   The tag to anchor
+     *
+     * @return array{0: string, 1: string, 2: string}
+     */
+    private static function levelLikePatterns(int $level, string $tag): array
+    {
+        $anchor = "%\n" . $level . ' ' . $tag;
+
         return [
-            "%\n2 " . $subTag . ' %',
-            "%\n2 " . $subTag . "\n%",
-            "%\n2 " . $subTag,
+            $anchor . ' %',
+            $anchor . "\n%",
+            $anchor,
         ];
     }
 }

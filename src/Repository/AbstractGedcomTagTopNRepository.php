@@ -80,16 +80,12 @@ abstract class AbstractGedcomTagTopNRepository
     /**
      * LIKE patterns on the raw INDI text that select the rows which can carry a
      * value for this aggregation. A row that matches none of them yields no
-     * value, so it is not loaded. The default `null` loads every row. A subclass
-     * returns patterns that match at least every row its {@see extract()} reads a
-     * value from.
+     * value, so it is not loaded. A subclass returns patterns that match at least
+     * every row its {@see extract()} reads a value from.
      *
-     * @return list<string>|null
+     * @return list<string>
      */
-    protected function rowFilterPatterns(): ?array
-    {
-        return null;
-    }
+    abstract protected function rowFilterPatterns(): array;
 
     /**
      * Optional per-value fold resolver handed to {@see TopNAggregator::topN()}.

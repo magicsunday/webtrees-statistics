@@ -18,9 +18,6 @@ namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 // jscpd:ignore-start
 use Fisharebest\Webtrees\Auth;
 use Fisharebest\Webtrees\DB;
-use Fisharebest\Webtrees\Registry;
-use Fisharebest\Webtrees\Services\GedcomImportService;
-use Fisharebest\Webtrees\Services\TreeService;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Aggregator\TopNAggregator;
 use MagicSunday\Webtrees\Statistic\Normalization\OccupationFolding;
@@ -81,31 +78,6 @@ final class TagAggregationPrivacyIntegrationTest extends AbstractIntegrationTest
         $tree->setPreference('SHOW_DEAD_PEOPLE', (string) Auth::PRIV_PRIVATE);
 
         return $tree;
-    }
-
-    /**
-     * Insert a tree default fact restriction and return a tree object that
-     * reads the default restriction rows afresh, because a tree caches them on
-     * first use.
-     *
-     * @param Tree   $tree The imported fixture tree
-     * @param string $tag  The fact tag to restrict
-     * @param string $resn The restriction notice (privacy, confidential or hidden)
-     *
-     * @return Tree The tree object that sees the new default
-     */
-    private function treeWithDefault(Tree $tree, string $tag, string $resn): Tree
-    {
-        DB::table('default_resn')->insert([
-            'gedcom_id' => $tree->id(),
-            'xref'      => null,
-            'tag_type'  => $tag,
-            'resn'      => $resn,
-        ]);
-
-        Registry::cache()->array()->forget('all-trees');
-
-        return (new TreeService(new GedcomImportService()))->find($tree->id());
     }
 
     /**
@@ -300,9 +272,11 @@ final class TagAggregationPrivacyIntegrationTest extends AbstractIntegrationTest
     #[Test]
     public function firstDeathFactWithoutCauseGivesNoCause(): void
     {
-        $tree = $this->tree();
+        $tree   = $this->tree();
+        $causes = $this->causes($tree);
 
-        self::assertArrayNotHasKey('Drowning', $this->causes($tree));
+        self::assertSame(1, $causes['Fever'] ?? 0, 'the other deaths still count');
+        self::assertArrayNotHasKey('Drowning', $causes);
     }
 
     /**
@@ -510,15 +484,15 @@ final class TagAggregationPrivacyIntegrationTest extends AbstractIntegrationTest
         $tree = $this->tree();
 
         self::assertSame(
-            ["%\n1 OCCU %", "%\n1 OCCU\n%", "%\n1 OCCU"],
+            GedcomScanner::anchoredLikePatterns('OCCU'),
             $this->likeBindings(fn (): array => $this->occupations($tree)),
         );
         self::assertSame(
-            ["%\n1 RELI %", "%\n1 RELI\n%", "%\n1 RELI", "%\n2 RELI %", "%\n2 RELI\n%", "%\n2 RELI"],
+            [...GedcomScanner::anchoredLikePatterns('RELI'), ...GedcomScanner::anchoredSubTagLikePatterns('RELI')],
             $this->likeBindings(fn (): array => $this->religions($tree)),
         );
         self::assertSame(
-            ["%\n2 CAUS %", "%\n2 CAUS\n%", "%\n2 CAUS"],
+            GedcomScanner::anchoredSubTagLikePatterns('CAUS'),
             $this->likeBindings(fn (): array => $this->causes($tree)),
         );
     }
@@ -580,13 +554,15 @@ final class TagAggregationPrivacyIntegrationTest extends AbstractIntegrationTest
     }
 
     /**
-     * Values that look like a record reference but exceed the XREF length.
+     * Values between at signs that are no XREF of the pointer class, either
+     * without a body or with a body longer than an XREF.
      *
      * @return array<string, array{0: string}>
      */
     public static function textValueProvider(): array
     {
         return [
+            'two at signs'           => ['@@'],
             'one character too long' => ['@' . str_repeat('x', 21) . '@'],
         ];
     }
@@ -604,7 +580,10 @@ final class TagAggregationPrivacyIntegrationTest extends AbstractIntegrationTest
 
         $this->replaceRowOfI5($tree, '1 OCCU ' . $value);
 
-        self::assertArrayNotHasKey($value, $this->occupations($tree));
+        $occupations = $this->occupations($tree);
+
+        self::assertSame(1, $occupations['Baker'] ?? 0, 'the other persons still count');
+        self::assertArrayNotHasKey($value, $occupations);
     }
 
     /**
@@ -615,7 +594,7 @@ final class TagAggregationPrivacyIntegrationTest extends AbstractIntegrationTest
      */
     #[Test]
     #[DataProvider('textValueProvider')]
-    public function overlongReferenceValueCountsAsText(string $value): void
+    public function valueWithoutAReferenceBodyCountsAsText(string $value): void
     {
         $tree = $this->tree();
 
