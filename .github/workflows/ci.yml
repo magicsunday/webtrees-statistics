@@ -10,14 +10,12 @@ permissions:
 
 jobs:
     # The PHP gates come from the shared reusable so the canonical step list lives
-    # in one place. Which optional gates this repository opts into is decided by
-    # the composer scripts it declares — `jq -r '.scripts | keys[] |
-    # select(startswith("ci:test:php:"))' composer.json`; the reusable's `Detect
-    # optional consumer gates` step logs what it probed and what it found on
-    # every run. Copy-paste detection runs in the shared Node-only lane below,
-    # since jscpd is a Node tool. The release-zip smoke test stays in the JS
-    # lane below, because the zip is worth building once rather than once per
-    # matrix leg.
+    # in one place. The composer scripts this repository declares decide which
+    # optional gates it opts into: `jq -r '.scripts | keys[] |
+    # select(startswith("ci:test:php:"))' composer.json`. Copy-paste detection
+    # runs in the shared Node-only lane below, since jscpd is a Node tool. The
+    # release-zip smoke test stays in the JS lane below, because the zip is worth
+    # building once rather than once per matrix leg.
     # Analysis runs on 8.4/8.5 only — not because 8.3 fails to install. This
     # repository gitignores composer.lock, so CI resolves from scratch, and that
     # resolution SUCCEEDS on 8.3: the solver picks a PHPUnit line that still
@@ -112,9 +110,8 @@ jobs:
               if: ${{ always() && steps.install.conclusion == 'success' }}
               run: composer ci:test:js:unit
 
-            # The ignored advisories belong to transitive dependencies of webtrees
-            # that are exact-pinned, so one leg is enough. The shared PHP workflow
-            # does not probe for the script.
+            # One leg is enough: the ignored advisories name exact-pinned transitive
+            # dependencies of webtrees, which `composer why <package>` traces.
             - id: advisories
               name: Stale advisory ignores
               if: ${{ always() && steps.install.conclusion == 'success' }}
@@ -131,16 +128,11 @@ jobs:
                   make dist-smoke
                   rm -f *.zip
 
-    # The `php` reusable runs the test suite against in-memory SQLite, which does
-    # not implement ONLY_FULL_GROUP_BY and so silently tolerates a grouped
-    # SELECT with a non-aggregated column. This job re-runs the DB-touching
-    # integration tests against a real MySQL 8 — where webtrees' ANSI sql_mode
-    # implies ONLY_FULL_GROUP_BY (with functional-dependency detection), exactly
-    # the reporting environment — making it the gate for the whole error-1055
-    # bug class (e.g. #46, #126). MySQL, not MariaDB: MariaDB's OFGB lacks the
-    # functional-dependency detection and would reject the standard full-PK
-    # GROUP BY idiom that MySQL and core webtrees rely on. One PHP version is
-    # enough: the failure is engine-specific, not PHP-version-specific.
+    # The integration tests default to in-memory SQLite. This job re-runs the
+    # DB-touching ones against a real MySQL 8, the gate for the whole error-1055
+    # (ONLY_FULL_GROUP_BY) bug class that SQLite tolerates. MySQL, not MariaDB:
+    # the reason is in the class docblock of AbstractIntegrationTestCase. One PHP
+    # version is enough, the failure is engine-specific and not PHP-version-specific.
     integration-mysql:
         name: Integration tests (MySQL 8, ONLY_FULL_GROUP_BY)
         runs-on: ubuntu-latest

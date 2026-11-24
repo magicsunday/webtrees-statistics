@@ -1,22 +1,13 @@
-# Deptrac configuration — imports the shared magicsunday/coding-standard ruleset.
+# Deptrac configuration, imports the shared magicsunday/coding-standard ruleset.
 # This repository installs its dev tooling into .build/vendor, so the import path
-# points there (as the PHPStan include does).
+# points there (as the PHPStan include does). The import supplies the shared
+# layers and their order, this file only adds to it.
 #
-# Deptrac UNITES rulesets across imports: every rule below only WIDENS what the
-# shared ruleset allows, never narrows it. The shared ruleset (since coding-standard
-# 3.0) is one strict, acyclic order, a layer depending only on layers below it
-#
-#   Support < Enum < Model, Configuration < Contract < Repository, Adapter, Service
-#           < Facade < Module
-#
-# and the layer graph this file produces stays acyclic, which
-# `check-deptrac-cycles.php` proves on every run.
-#
-# with this package's own layers slotted in: View (presentation vocabulary, no
-# first-party dependency of its own) sits just above Support, and Aggregator (the
-# row mappers and tallies that build Model payloads) sits between Contract and
-# Repository. Every `src/` class belongs to a layer: `deptrac debug:unassigned`
-# runs in `composer ci:test:php:deptrac` and fails on one that does not.
+# This package adds its own layers: View (presentation vocabulary, no first-party
+# dependency of its own) sits just above Support, and Aggregator (the row mappers
+# and tallies that build Model payloads) sits between Contract and Repository.
+# The layer graph must stay acyclic and every `src/` class must belong to a
+# layer, both are checked by `composer ci:test:php:deptrac`.
 imports:
     - .build/vendor/magicsunday/coding-standard/deptrac/layers.yaml
 
@@ -25,9 +16,9 @@ deptrac:
         - src
 
     # This module predates the canonical namespace scheme. Map its non-canonical
-    # namespaces onto the shared canonical layers by adding collectors — Deptrac
-    # MERGES a same-named layer's collectors with the imported definition, so the
-    # ruleset enforces them without any rename. The `Normalization` occupation seam
+    # namespaces onto the shared canonical layers by adding collectors to a
+    # same-named layer, so the ruleset enforces them without any rename. The
+    # `Normalization` occupation seam
     # mixes roles that map to different canonical layers, so each class is placed by
     # an exact FQCN (a bare segment regex is unsafe, but an anchored first-party FQCN
     # cannot collide with a vendor class):
@@ -111,9 +102,10 @@ deptrac:
             # Support\Database grant (`Support: [Database]` below) cannot be carved out
             # of it locally. Instead the grant goes to all of Support, and this overlay
             # — whose allow-list omits Database — takes it back from every class that
-            # is not in Support\Database. Deptrac checks a class against every layer it
+            # is not in Support\Database. A class is checked against every layer it
             # belongs to, so a `DB::` call from e.g. Support\Gedcom, Aggregator or the
-            # Statistic facade is reported here.
+            # Statistic facade is reported here. Add such a call and run
+            # `composer ci:test:php:deptrac` to see the report.
             name: NoDatabaseAccess
             collectors:
                 -
@@ -131,11 +123,12 @@ deptrac:
                             value: 'src/Support/Database/.*'
 
     # The local widenings. Two things are listed on (nearly) every layer, both forced
-    # by the overlay: Deptrac skips an intra-layer edge only when both classes share
-    # EVERY layer, so a layer whose members also sit in NoDatabaseAccess lists itself,
-    # and every layer that depends on an overlaid class lists NoDatabaseAccess next to
-    # the class's own layer. The overlay in turn lists every layer but Database: the
-    # real layer of each member still decides what that member may depend on.
+    # by the overlay: a layer whose members also sit in NoDatabaseAccess lists
+    # itself, and every layer that depends on an overlaid class lists
+    # NoDatabaseAccess next to the class's own layer. The overlay in turn lists
+    # every layer but Database: the real layer of each member still decides what
+    # that member may depend on. Remove one of these entries and run
+    # `composer ci:test:php:deptrac` to see which edges it was granting.
     ruleset:
         Model:
             - Model
@@ -192,11 +185,11 @@ deptrac:
 
     formatters:
         graphviz:
-            # The layer graph check-deptrac-cycles.php reads. NoDatabaseAccess is an
-            # overlay: every member also belongs to its real layer, so every real edge
-            # still appears there and a real cycle stays visible. Hiding it removes
-            # only the overlay <-> twin pairs its self-allowances produce — two names
-            # for the same classes, not a dependency between layers. Only overlays go
-            # here, never a layer whose classes belong to no other layer.
+            # The layer graph of the cycle check. NoDatabaseAccess is an overlay:
+            # every member also belongs to its real layer, so every real edge still
+            # appears there and a real cycle stays visible. Hiding it removes only the
+            # overlay <-> twin pairs, which are two names for the same classes and no
+            # dependency between layers. Only overlays go here, never a layer whose
+            # classes belong to no other layer.
             hidden_layers:
                 - NoDatabaseAccess
