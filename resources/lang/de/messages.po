@@ -582,6 +582,24 @@ msgstr ""
 msgid "51–200 km"
 msgstr ""
 
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:147
+msgid ""
+"A date row counts the individuals whose event is missing or has no usable "
+"date. A place row counts the individuals whose event is missing or has no "
+"place. The birth rows count every individual, the death rows count only "
+"deceased individuals, and the marriage rows count the individuals who are a "
+"spouse in a family. A person counts as living when no death, burial or "
+"cremation is recorded and the birth is not older than the maximum age that "
+"the tree allows."
+msgstr ""
+"Eine Datumszeile zählt die Personen, deren Ereignis fehlt oder kein "
+"nutzbares Datum hat. Eine Ortszeile zählt die Personen, deren Ereignis fehlt "
+"oder keinen Ort hat. Die Geburtszeilen zählen alle Personen, die Todeszeilen "
+"nur Verstorbene und die Heiratszeilen die Personen, die in einer Familie "
+"Ehepartner sind. Eine Person gilt als lebend, wenn weder ein Tod noch eine "
+"Bestattung oder Einäscherung erfasst ist und die Geburt nicht länger "
+"zurückliegt als das Höchstalter, das der Stammbaum zulässt."
+
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:683
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:705
 msgid "A fuller cell marks a busier month"
@@ -1452,23 +1470,6 @@ msgstr ""
 "ununterbrochen weiter. Maus über einen Punkt zeigt, auf wie vielen Eltern "
 "der jeweilige Mittelwert beruht."
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:147
-msgid ""
-"Each row counts the individuals that miss the event. A place row also counts "
-"the individuals whose event has no place. The birth rows count every "
-"individual, the death rows count only deceased individuals, and the marriage "
-"rows count the individuals who are a spouse in a family. A person counts as "
-"living when no death, burial or cremation is recorded and the birth is not "
-"older than the maximum age that the tree allows."
-msgstr ""
-"Jede Zeile zählt die Personen, bei denen das Ereignis fehlt. Eine Orts-Zeile "
-"zählt zusätzlich die Personen, deren Ereignis keinen Ort hat. Die Geburts-"
-"Zeilen zählen alle Personen, die Todes-Zeilen nur Verstorbene und die "
-"Heirats-Zeilen die Personen, die in einer Familie Ehepartner sind. Eine "
-"Person gilt als lebend, wenn weder ein Tod noch eine Bestattung oder "
-"Einäscherung erfasst ist und die Geburt nicht länger zurückliegt als das "
-"Höchstalter, das der Stammbaum zulässt."
-
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:527
 msgid "Each step is one parent–child link upward."
 msgstr "Jede Stufe ist eine Eltern-Kind-Verbindung aufwärts."
@@ -2225,24 +2226,24 @@ msgid "Migrations between birth and death country"
 msgstr "Migrationen zwischen Geburts- und Sterbeland"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:127
-msgid "Missing birth event"
-msgstr "Fehlendes Geburtsereignis"
+msgid "Missing birth date"
+msgstr "Fehlendes Geburtsdatum"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:128
 msgid "Missing birth place"
 msgstr "Fehlender Geburtsort"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:129
-msgid "Missing death event"
-msgstr "Fehlendes Sterbeereignis"
+msgid "Missing death date"
+msgstr "Fehlendes Sterbedatum"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:130
 msgid "Missing death place"
 msgstr "Fehlender Sterbeort"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:131
-msgid "Missing marriage event"
-msgstr "Fehlendes Heiratsereignis"
+msgid "Missing marriage date"
+msgstr "Fehlendes Heiratsdatum"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:132
 msgid "Missing marriage place"
@@ -2655,9 +2656,12 @@ msgstr ""
 "Anteil der Personen mit mindestens einer Quellenangabe pro Geburtsjahrhundert"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:493
-msgid "Share of individuals without a recorded birth, death or marriage event"
+msgid ""
+"Share of individuals without a usable date or a place of their birth, death "
+"or marriage"
 msgstr ""
-"Anteil der Personen ohne erfasstes Geburts-, Sterbe- oder Heiratsereignis"
+"Anteil der Personen ohne nutzbares Datum oder ohne Ort bei Geburt, Tod oder "
+"Heirat"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:511
 msgid "Share of marriages per decade that ended in divorce"

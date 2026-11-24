@@ -1117,8 +1117,8 @@ final readonly class Statistic
     }
 
     /**
-     * Missing-event gap rates for BIRT / DEAT, each split into "event missing"
-     * and "place missing" rows. Returned as `{event, kind, value, total}`
+     * Missing-date and missing-place gap rates for BIRT, DEAT and MARR, one date
+     * row and one place row per event. Returned as `{event, kind, value, total}`
      * tuples so the consumer can render its own label (keeping translations
      * next to their consuming markup).
      *

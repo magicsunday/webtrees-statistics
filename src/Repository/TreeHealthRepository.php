@@ -25,6 +25,7 @@ use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
 
+use function array_keys;
 use function array_sum;
 use function count;
 use function ksort;
@@ -188,13 +189,16 @@ final readonly class TreeHealthRepository
 
     /**
      * Per-event missing-data rates for BIRT, DEAT, and MARR. Each event yields
-     * two ProgressList rows, one for the event itself and one for its `2 PLAC`
-     * sub-line. The presence of an event and of its place is read from the
-     * GEDCOM blob in PHP, so the place check is scoped to the right event
-     * block, and the living individuals come from SQL.
+     * two ProgressList rows, one for its date and one for its `2 PLAC`
+     * sub-line. The place of an event is read from the GEDCOM blob in PHP, so
+     * the place check is scoped to the right event block. A date counts as
+     * present when the `dates` table holds a row of the fact with a Julian day
+     * above zero, which is the condition of the date based cards, and the
+     * living individuals come from SQL.
      *
-     * Every place row counts the individuals that miss the whole event and the
-     * individuals whose event has no place. The death rows take the deceased
+     * Every date row counts the individuals whose event is missing or has no
+     * usable date. Every place row counts the individuals whose event is
+     * missing or has no place. The death rows take the deceased
      * individuals of {@see LivingIndividuals} as their base, because a living
      * person has no death to record. Marriage gaps use the individuals who are
      * spouses in at least one family as their base, since counting every minor
@@ -212,17 +216,22 @@ final readonly class TreeHealthRepository
         // Aggregated counts on the individual side:
         //   birthMissing   : no `\n1 BIRT`
         //   birthNoPlace   : BIRT present but no `\n2 PLAC` under it
+        //   birthNoDate    : no BIRT with a usable date
         //   deceasedTotal  : individuals that are not living by the shared definition
         //   deathMissing   : deceased without `\n1 DEAT`
         //   deathNoPlace   : deceased with DEAT but no `\n2 PLAC` under it
+        //   deathNoDate    : deceased without a DEAT with a usable date
         // Aggregated counts on the spouse side (per individual):
         //   spouseTotal              : has at least one FAMS link
         //   spousesMissingMarrEvent  : every FAMS family lacks MARR
         //   spousesMissingMarrPlace  : every MARR-bearing family lacks `\n2 PLAC`
+        //   spousesMissingMarrDate   : no FAMS family has a MARR with a usable date
         $birthMissing  = 0;
         $birthNoPlace  = 0;
+        $birthNoDate   = 0;
         $deathMissing  = 0;
         $deathNoPlace  = 0;
+        $deathNoDate   = 0;
         $deceasedTotal = 0;
         $total         = 0;
 
@@ -236,6 +245,22 @@ final readonly class TreeHealthRepository
             $living[RowCast::string($livingRow, 'i_id')] = true;
         }
 
+        // Facts that carry a usable date, as `fact => [id => true]`. A ranged date
+        // writes two rows, so the pairs are collapsed to one.
+        $dated = ['BIRT' => [], 'DEAT' => [], 'MARR' => []];
+
+        $dateRows = DB::table('dates')
+            ->where('d_file', '=', $this->tree->id())
+            ->whereIn('d_fact', array_keys($dated))
+            ->where('d_julianday1', '>', 0)
+            ->select(['d_gid', 'd_fact'])
+            ->distinct()
+            ->get();
+
+        foreach ($dateRows as $dateRow) {
+            $dated[RowCast::string($dateRow, 'd_fact')][RowCast::string($dateRow, 'd_gid')] = true;
+        }
+
         $individualBlobs = TreeScope::table($this->tree, 'individuals')
             ->select(['i_id', 'i_gedcom'])
             ->get();
@@ -243,6 +268,12 @@ final readonly class TreeHealthRepository
         foreach ($individualBlobs as $row) {
             ++$total;
             $blob = RowCast::string($row, 'i_gedcom');
+
+            $individualId = RowCast::string($row, 'i_id');
+
+            if (!isset($dated['BIRT'][$individualId])) {
+                ++$birthNoDate;
+            }
 
             $hasBirth = GedcomScanner::hasTagAnchored($blob, 'BIRT');
 
@@ -252,11 +283,15 @@ final readonly class TreeHealthRepository
                 ++$birthNoPlace;
             }
 
-            if (isset($living[RowCast::string($row, 'i_id')])) {
+            if (isset($living[$individualId])) {
                 continue;
             }
 
             ++$deceasedTotal;
+
+            if (!isset($dated['DEAT'][$individualId])) {
+                ++$deathNoDate;
+            }
 
             if (!GedcomScanner::hasTagAnchored($blob, 'DEAT')) {
                 ++$deathMissing;
@@ -299,12 +334,18 @@ final readonly class TreeHealthRepository
         $spouseTotal             = count($spouseFamilies);
         $spousesMissingMarrEvent = 0;
         $spousesMissingMarrPlace = 0;
+        $spousesMissingMarrDate  = 0;
 
         foreach ($spouseFamilies as $familyIds) {
             $anyHasMarr      = false;
             $anyMarrHasPlace = false;
+            $anyMarrHasDate  = false;
 
             foreach ($familyIds as $familyId) {
+                if (isset($dated['MARR'][$familyId])) {
+                    $anyMarrHasDate = true;
+                }
+
                 $family = $familyGedcoms[$familyId] ?? null;
 
                 if ($family === null) {
@@ -322,6 +363,10 @@ final readonly class TreeHealthRepository
                 }
             }
 
+            if (!$anyMarrHasDate) {
+                ++$spousesMissingMarrDate;
+            }
+
             if (!$anyHasMarr) {
                 ++$spousesMissingMarrEvent;
 
@@ -337,11 +382,11 @@ final readonly class TreeHealthRepository
         }
 
         return [
-            'BIRT_event' => ['event' => 'BIRT', 'kind' => 'event', 'value' => $birthMissing, 'total' => $total],
+            'BIRT_date'  => ['event' => 'BIRT', 'kind' => 'date', 'value' => $birthNoDate, 'total' => $total],
             'BIRT_place' => ['event' => 'BIRT', 'kind' => 'place', 'value' => $birthMissing + $birthNoPlace, 'total' => $total],
-            'MARR_event' => ['event' => 'MARR', 'kind' => 'event', 'value' => $spousesMissingMarrEvent, 'total' => $spouseTotal],
+            'MARR_date'  => ['event' => 'MARR', 'kind' => 'date', 'value' => $spousesMissingMarrDate, 'total' => $spouseTotal],
             'MARR_place' => ['event' => 'MARR', 'kind' => 'place', 'value' => $spousesMissingMarrEvent + $spousesMissingMarrPlace, 'total' => $spouseTotal],
-            'DEAT_event' => ['event' => 'DEAT', 'kind' => 'event', 'value' => $deathMissing, 'total' => $deceasedTotal],
+            'DEAT_date'  => ['event' => 'DEAT', 'kind' => 'date', 'value' => $deathNoDate, 'total' => $deceasedTotal],
             'DEAT_place' => ['event' => 'DEAT', 'kind' => 'place', 'value' => $deathMissing + $deathNoPlace, 'total' => $deceasedTotal],
         ];
     }

@@ -193,7 +193,7 @@ which is the shared 3.0 order `Support < Enum < Model, Configuration < Contract 
 | `FamilyRepository` | Marital-status classification (current / divorced / widowed / single) of the living individuals and the living / deceased split |
 | `EventRepository` | Births-by-zodiac-sign — the one stat core doesn't expose |
 | `NameRepository` | Distinct surname / given-name counts over the whitelisted name forms (`n_type` in `NAME` / `ROMN` / `FONE` / `_HEB`), excluding `NOMEN_NESCIO` surnames and `PRAENOMEN_NESCIO` given names |
-| `TreeHealthRepository` | Source-citation coverage (tree-wide + per-birth-century), missing-event gaps broken down by event × kind (BIRT / MARR / DEAT × event / place, a place row also counts the missing event, the death rows take the deceased individuals as their base), average generation length |
+| `TreeHealthRepository` | Source-citation coverage (tree-wide + per-birth-century), missing-event gaps broken down by event × kind (BIRT / MARR / DEAT × date / place, a date row counts a missing or undated event and a place row a missing event or an event without a place, the death rows take the deceased individuals as their base), average generation length |
 | `GivenNameTrendsRepository` | Per-decade frequency of the top-N given names for the stream graph |
 | `MigrationRepository` | Birth → death country flows for the Sankey diagram (bipartite split for DAG safety) |
 | `CountryRepository` | Births / deaths grouped by ISO-3166-1 alpha-2 country |

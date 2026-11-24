@@ -623,6 +623,17 @@ msgstr ""
 msgid "51–200 km"
 msgstr ""
 
+#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:147
+msgid ""
+"A date row counts the individuals whose event is missing or has no usable "
+"date. A place row counts the individuals whose event is missing or has no "
+"place. The birth rows count every individual, the death rows count only "
+"deceased individuals, and the marriage rows count the individuals who are a "
+"spouse in a family. A person counts as living when no death, burial or "
+"cremation is recorded and the birth is not older than the maximum age that "
+"the tree allows."
+msgstr ""
+
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:683
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:705
 msgid "A fuller cell marks a busier month"
@@ -1391,16 +1402,6 @@ msgstr ""
 "linia pozostaje ciągła. Najedź na dowolny punkt, aby zobaczyć, na ilu "
 "rodzicach opiera się dana średnia."
 
-#: resources/views/modules/statistics-chart/tabs/tree-health.phtml:147
-msgid ""
-"Each row counts the individuals that miss the event. A place row also counts "
-"the individuals whose event has no place. The birth rows count every "
-"individual, the death rows count only deceased individuals, and the marriage "
-"rows count the individuals who are a spouse in a family. A person counts as "
-"living when no death, burial or cremation is recorded and the birth is not "
-"older than the maximum age that the tree allows."
-msgstr ""
-
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:527
 msgid "Each step is one parent–child link upward."
 msgstr ""
@@ -2071,24 +2072,24 @@ msgid "Migrations between birth and death country"
 msgstr "Migracje między krajem urodzenia i śmierci"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:127
-msgid "Missing birth event"
-msgstr "Brakujące zdarzenie urodzenia"
+msgid "Missing birth date"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:128
 msgid "Missing birth place"
 msgstr "Brakujące miejsce urodzenia"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:129
-msgid "Missing death event"
-msgstr "Brakujące zdarzenie zgonu"
+msgid "Missing death date"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:130
 msgid "Missing death place"
 msgstr "Brakujące miejsce zgonu"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:131
-msgid "Missing marriage event"
-msgstr "Brakujące zdarzenie ślubu"
+msgid "Missing marriage date"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:132
 msgid "Missing marriage place"
@@ -2482,7 +2483,9 @@ msgstr ""
 "Udział osób z co najmniej jedną cytowaną źródłową, według stulecia urodzenia"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:493
-msgid "Share of individuals without a recorded birth, death or marriage event"
+msgid ""
+"Share of individuals without a usable date or a place of their birth, death "
+"or marriage"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:511
