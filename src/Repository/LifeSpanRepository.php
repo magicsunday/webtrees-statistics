@@ -192,29 +192,10 @@ final readonly class LifeSpanRepository
      */
     public function ageAtDeathDistribution(): array
     {
-        $maxAge = $this->maxPlausibleAge();
-
-        // Collapse the two-row range-date encoding to one lifespan per
-        // individual — `GROUP BY individuals.i_id` with MIN(birth julian-day)
-        // and MAX(death julian-day), the same idiom the per-century box-plot
-        // sibling uses — so a ranged BIRT/DEAT counts the person once instead
-        // of once per range bound.
-        $rows = BirthDeathPairsQuery::for($this->tree)
-            ->select($this->aggregatedPairColumns())
-            ->groupBy('individuals.i_id')
-            ->get();
-
         $buckets = AgeBuckets::init(0, self::MAX_BUCKET, self::BUCKET_WIDTH);
 
-        foreach ($rows as $row) {
-            $cohort = $this->birthDeathCohortOrNull($row, $maxAge);
-
-            if ($cohort === null) {
-                continue;
-            }
-
-            $years = $cohort['years'];
-            $label = AgeBuckets::label($years, self::MAX_BUCKET, self::BUCKET_WIDTH);
+        foreach ($this->lifespanObservations() as $observation) {
+            $label = AgeBuckets::label($observation['years'], self::MAX_BUCKET, self::BUCKET_WIDTH);
 
             $buckets[$label] = ($buckets[$label] ?? 0) + 1;
         }
@@ -739,7 +720,7 @@ final readonly class LifeSpanRepository
     {
         $maxAge = $this->maxPlausibleAge();
 
-        // Per-birth-century × sex aggregation. Day-totals divided
+        // Per-birth-century × sex aggregation. Sums of whole years divided
         // by sample counts produce the cohort mean; both numerator
         // and denominator live in PHP because MySQL's per-row
         // century classification (floor((d_year - 1) / 100) + 1)
@@ -1231,6 +1212,10 @@ final readonly class LifeSpanRepository
     {
         $maxAge = $this->maxPlausibleAge();
 
+        // Collapse the two-row range-date encoding to one lifespan per
+        // individual (`GROUP BY individuals.i_id` with MIN of the birth julian
+        // day and MAX of the death julian day), so a ranged BIRT or DEAT counts
+        // the person once instead of once per range bound.
         $rows = BirthDeathPairsQuery::for($this->tree)
             ->select($this->aggregatedPairColumns())
             ->groupBy('individuals.i_id')

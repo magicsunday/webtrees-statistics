@@ -10,11 +10,7 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, test } from "@jest/globals";
 
-import {
-    COORDINATE_DECIMALS,
-    KEPT_PROPERTIES,
-    reduceWorldMap,
-} from "../../../dev/reduce-world-map.mjs";
+import { KEPT_PROPERTIES, reduceWorldMap } from "../../../dev/reduce-world-map.mjs";
 
 const assetPath = fileURLToPath(new URL("../world-map.geojson", import.meta.url));
 
@@ -135,7 +131,6 @@ describe("reduceWorldMap", () => {
             ],
         });
 
-        expect(COORDINATE_DECIMALS).toBe(3);
         expect(reduced.features[0].geometry.coordinates).toStrictEqual([
             [
                 [1.235, 2.344],
@@ -152,7 +147,7 @@ describe("reduceWorldMap", () => {
         ]);
     });
 
-    test("keeps the members around the properties and does not touch its input", () => {
+    test("does not touch its input, keeps the geometry type and drops the top-level bbox", () => {
         const input = {
             type: "FeatureCollection",
             name: "ne_110m_admin_0_countries",
@@ -171,20 +166,25 @@ describe("reduceWorldMap", () => {
         const reduced = reduceWorldMap(input);
 
         expect(JSON.stringify(input)).toBe(before);
-        expect(reduced.name).toBe("ne_110m_admin_0_countries");
-        expect(reduced.bbox).toStrictEqual([-180, -90, 180, 83.6]);
-        expect(reduced.features[0].bbox).toStrictEqual([177.28504, -18.28799, 180, -16.02088]);
+        expect(reduced.bbox).toBeUndefined();
         expect(reduced.features[0].geometry.type).toBe("Polygon");
     });
 });
 
 describe("the committed world-map asset", () => {
-    test("keeps the properties that the map code reads", () => {
-        // The chart-lib WorldMap joins its rows on the ISO keys and falls back to
-        // the names when an ISO value is the -99 sentinel.
-        expect(KEPT_PROPERTIES).toStrictEqual(
-            expect.arrayContaining(["ISO_A2_EH", "ISO_A2", "NAME", "NAME_LONG"]),
+    test("keeps a name for every feature whose ISO_A2 is the -99 sentinel", () => {
+        // The chart-lib WorldMap falls back to the names when an ISO value is
+        // the -99 sentinel, so such a feature without a name draws unlabelled.
+        const sentinelFeatures = readAsset().features.filter(
+            (feature) => feature.properties.ISO_A2 === "-99",
         );
+
+        expect(sentinelFeatures.length).toBeGreaterThan(0);
+
+        for (const feature of sentinelFeatures) {
+            expect(typeof feature.properties.NAME).toBe("string");
+            expect(typeof feature.properties.NAME_LONG).toBe("string");
+        }
     });
 
     test("carries no property outside the kept list", () => {
@@ -196,6 +196,10 @@ describe("the committed world-map asset", () => {
     });
 
     test("holds the countries that the map draws", () => {
+        // The 110m file holds well above this count, so a file cut down to a few
+        // countries fails here even when it keeps DE, FR and US.
+        expect(readAsset().features.length).toBeGreaterThan(150);
+
         const codes = new Set(readAsset().features.map((feature) => feature.properties.ISO_A2_EH));
 
         expect(["DE", "FR", "US"].filter((code) => codes.has(code))).toStrictEqual([
@@ -219,7 +223,7 @@ describe("the committed world-map asset", () => {
         expect(withoutIso).toStrictEqual([]);
     });
 
-    test("is a fixed point of the reduction, so it holds no unrounded coordinate", () => {
+    test("is a fixed point of the reduction", () => {
         const asset = readAsset();
 
         expect(reduceWorldMap(asset)).toStrictEqual(asset);

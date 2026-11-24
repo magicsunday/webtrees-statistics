@@ -613,7 +613,8 @@ final class NameRepository
      * webtrees' two-row range encoding to one representative row per individual
      * and restricts to dated births with a known year; {@see GregorianDate}
      * converts a non-Gregorian/Julian birth to its Gregorian year. The map never
-     * carries year 0.
+     * carries year 0, and a year before the common era stays, as in the
+     * lifespan cohorts, because the century axis names it.
      *
      * Built once per {@see sameSexNamePassdownByCentury()} call and shared by
      * both sex pairings, this replaces a per-row derived-table join that the

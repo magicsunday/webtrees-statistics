@@ -1,4 +1,4 @@
-# install, build, watch, unlink-chart-lib and lint-fix run npm as the numeric user and group of the caller,
+# install, build, watch, world-map, unlink-chart-lib and lint-fix run npm or node as the numeric user and group of the caller,
 # because they write node_modules, bundles or sources into the bind-mounted checkout, and no root-owned file
 # may land there. HOME points at a writable directory. The lang targets run as the caller as well, and clean stays
 # with root to remove what an earlier run as root left behind.
@@ -22,7 +22,7 @@ build: .logo ## Build JavaScript bundles.
 
 world-map: .logo ## Reduce a Natural Earth admin-0 GeoJSON (SOURCE=path inside this directory) to resources/js/world-map.geojson.
 	@test -n "$(SOURCE)" || { echo -e "${FRED} ✘${FRESET} Set SOURCE to the path of the Natural Earth GeoJSON"; exit 1; }
-	@$(COMPOSE_RUN_USER) node dev/reduce-world-map.mjs $(SOURCE) resources/js/world-map.geojson
+	@$(COMPOSE_RUN_USER) node dev/reduce-world-map.mjs "$(SOURCE)" resources/js/world-map.geojson
 	@echo -e "${FGREEN} ✔${FRESET} resources/js/world-map.geojson written"
 
 watch: .logo ## Watch for changes and rebuild automatically.

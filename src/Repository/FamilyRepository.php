@@ -405,7 +405,9 @@ final readonly class FamilyRepository
      *
      * Each individual contributes the lower bound of its death date, so an
      * imprecise date, which webtrees stores as two bound rows, counts once. A
-     * death without a positive Gregorian year is left out. The rows are read
+     * death before the year 1 of the common era is left out, because a cluster
+     * stands for one calendar year of the common era, unlike the century cohorts
+     * of the lifespan and name cards that keep such years. The rows are read
      * with a query of their own and matched in PHP instead of being joined to
      * the family rows.
      *

@@ -19,6 +19,11 @@
  * writes `resources/js/world-map.geojson`. The committed file is the 110m
  * admin-0 countries file with lakes of Natural Earth release 5.1.2, published in
  * May 2022. Its borders are those of that release, whatever the download date.
+ * The file is unchanged since release 5.1.1, which is the version that the
+ * Natural Earth download page names.
+ *
+ * The top-level `bbox` of the source is dropped, because it still spans the
+ * southern extent of Antarctica and no consumer reads it.
  */
 
 import { readFileSync, writeFileSync } from "node:fs";
@@ -37,14 +42,14 @@ export const KEPT_PROPERTIES = ["ISO_A2", "ISO_A2_EH", "NAME", "NAME_LONG"];
  *
  * @type {string[]}
  */
-export const EXCLUDED_REGIONS = ["AQ"];
+const EXCLUDED_REGIONS = ["AQ"];
 
 /**
  * Decimals kept per coordinate, about a hundred metres.
  *
  * @type {number}
  */
-export const COORDINATE_DECIMALS = 3;
+const COORDINATE_DECIMALS = 3;
 
 /**
  * Rounds a number, or every number of a nested coordinate array.
@@ -82,30 +87,30 @@ function isExcluded(feature) {
  * Reduces a FeatureCollection without touching its input.
  *
  * @param {{features: Array<Record<string, any>>}} collection The Natural Earth FeatureCollection.
- * @param {string[]}                               properties The feature properties to keep.
- * @param {number}                                 decimals   Decimals to keep per coordinate.
  *
- * @returns {Record<string, any>} A new FeatureCollection with the reduced features.
+ * @returns {Record<string, any>} A new FeatureCollection with the reduced features and without its top-level bbox.
  */
-export function reduceWorldMap(
-    collection,
-    properties = KEPT_PROPERTIES,
-    decimals = COORDINATE_DECIMALS,
-) {
+export function reduceWorldMap(collection) {
+    const { bbox: _bbox, ...members } = collection;
+
     return {
-        ...collection,
-        features: collection.features.filter((feature) => !isExcluded(feature)).map((feature) => ({
-            ...feature,
-            properties: Object.fromEntries(
-                properties
-                    .filter((key) => Object.hasOwn(feature.properties ?? {}, key))
-                    .map((key) => [key, feature.properties[key]]),
-            ),
-            geometry: {
-                ...feature.geometry,
-                coordinates: roundCoordinates(feature.geometry.coordinates, decimals),
-            },
-        })),
+        ...members,
+        features: collection.features.filter((feature) => !isExcluded(feature)).map((feature) => {
+            const properties = feature.properties ?? {};
+
+            return {
+                ...feature,
+                properties: Object.fromEntries(
+                    KEPT_PROPERTIES
+                        .filter((key) => Object.hasOwn(properties, key))
+                        .map((key) => [key, properties[key]]),
+                ),
+                geometry: {
+                    ...feature.geometry,
+                    coordinates: roundCoordinates(feature.geometry.coordinates, COORDINATE_DECIMALS),
+                },
+            };
+        }),
     };
 }
 

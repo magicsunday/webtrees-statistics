@@ -190,10 +190,8 @@ final class PartnershipReachRepositoryIntegrationTest extends AbstractIntegratio
         $xrefs = $this->nodeXrefs($result);
 
         self::assertCount(PartnershipReachRepository::NETWORK_CAP, $xrefs);
-
-        foreach ($xrefs as $xref) {
-            self::assertMatchesRegularExpression('/^[0-9]+$/', $xref);
-        }
+        self::assertContains('1', $xrefs, 'the hub that every partnership of the star runs through is drawn');
+        self::assertCount(PartnershipReachRepository::NETWORK_CAP - 1, $result->group->edges, 'every drawn person but the hub hangs on one edge');
     }
 
     /**
