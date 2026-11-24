@@ -44,6 +44,8 @@ final readonly class PartnershipReachReport implements JsonSerializable
      * @param PartnershipGroupExcerpt $group              The largest connected partnership group (nodes, edges, hub, sizes, median year)
      * @param int                     $depthPath          Tree-wide maximum generation depth — the depth component of the depth-vs-breadth ratio
      * @param int                     $breadthChain       Longest partnership-chain length — the breadth component (mirror of `$longestChainLength`)
+     * @param bool                    $chainIsApproximate Whether the group contains a partnership loop, so a longer chain than the reported one may exist
+     * @param bool                    $chainIsCapped      Whether the chain reached the reconstruction bound and may be cut there
      */
     public function __construct(
         public int $longestChainLength,
@@ -51,6 +53,8 @@ final readonly class PartnershipReachReport implements JsonSerializable
         public PartnershipGroupExcerpt $group,
         public int $depthPath,
         public int $breadthChain,
+        public bool $chainIsApproximate = false,
+        public bool $chainIsCapped = false,
     ) {
     }
 
@@ -61,7 +65,7 @@ final readonly class PartnershipReachReport implements JsonSerializable
      * {@see PartnershipGroupExcerpt::jsonSerialize()}, so a JS consumer can drive
      * the chain and the group graph without an Individual proxy on the wire.
      *
-     * @return array{longestChainLength: int, chain: list<array{xref: string, label: string, sex: string, birth: string, death: string, url: string}>, group: array{nodes: list<array{xref: string, label: string, sex: string, birth: string, death: string, url: string}>, edges: list<array{0: string, 1: string}>, chainIds: list<string>, hubId: string, hubDegree: int, totalCount: int, totalEdgeCount: int, shownCount: int, medianYear: int|null}, depthPath: int, breadthChain: int}
+     * @return array{longestChainLength: int, chain: list<array{xref: string, label: string, sex: string, birth: string, death: string, url: string}>, group: array{nodes: list<array{xref: string, label: string, sex: string, birth: string, death: string, url: string}>, edges: list<array{0: string, 1: string}>, chainIds: list<string>, hubId: string, hubDegree: int, totalCount: int, totalEdgeCount: int, shownCount: int, medianYear: int|null}, depthPath: int, breadthChain: int, chainIsApproximate: bool, chainIsCapped: bool}
      */
     public function jsonSerialize(): array
     {
@@ -71,6 +75,8 @@ final readonly class PartnershipReachReport implements JsonSerializable
             'group'              => $this->group->jsonSerialize(),
             'depthPath'          => $this->depthPath,
             'breadthChain'       => $this->breadthChain,
+            'chainIsApproximate' => $this->chainIsApproximate,
+            'chainIsCapped'      => $this->chainIsCapped,
         ];
     }
 }

@@ -17,6 +17,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
+use function array_fill;
 use function array_map;
 use function array_reverse;
 use function array_unique;
@@ -519,6 +520,73 @@ final class PartnershipChainsTest extends TestCase
 
             $previous = $person;
         }
+    }
+
+    /**
+     * Adjacency maps with their members, and whether the component contains a
+     * cycle. A connected component with at least as many partnerships as people
+     * has a loop, a component with one partnership fewer is cycle-free.
+     *
+     * @return array<string, array{array<array-key, list<string>>, list<string>, bool}>
+     */
+    public static function cycleShapeProvider(): array
+    {
+        return [
+            'three person chain' => [
+                ['A' => ['B'], 'B' => ['A', 'C'], 'C' => ['B']],
+                ['A', 'B', 'C'],
+                false,
+            ],
+            'star around a hub' => [
+                ['H' => ['A', 'B', 'C'], 'A' => ['H'], 'B' => ['H'], 'C' => ['H']],
+                ['A', 'B', 'C', 'H'],
+                false,
+            ],
+            'triangle' => [
+                ['A' => ['B', 'C'], 'B' => ['A', 'C'], 'C' => ['A', 'B']],
+                ['A', 'B', 'C'],
+                true,
+            ],
+            'four cycle' => [
+                ['A' => ['B', 'D'], 'B' => ['A', 'C'], 'C' => ['B', 'D'], 'D' => ['A', 'C']],
+                ['A', 'B', 'C', 'D'],
+                true,
+            ],
+            'four cycle with a tail' => [
+                ['A' => ['B', 'D'], 'B' => ['A', 'C'], 'C' => ['B', 'D'], 'D' => ['A', 'C', 'E'], 'E' => ['D']],
+                ['A', 'B', 'C', 'D', 'E'],
+                true,
+            ],
+        ];
+    }
+
+    /**
+     * Double BFS is the exact diameter only for a cycle-free component, so a
+     * component with a loop has to be told apart. The symmetric four-cycle
+     * returns a valid three-person chain although the four people form a longer
+     * simple path.
+     *
+     * @param array<array-key, list<string>> $adjacency Symmetric partnership map
+     * @param list<string>                   $members   The component's people
+     * @param bool                           $expected  Whether the component has a loop
+     */
+    #[Test]
+    #[DataProvider('cycleShapeProvider')]
+    public function isCyclicTellsALoopFromATree(array $adjacency, array $members, bool $expected): void
+    {
+        self::assertSame($expected, PartnershipChains::isCyclic($adjacency, $members));
+    }
+
+    /**
+     * A chain that reaches the reconstruction bound may have been cut there, one
+     * person below the bound it is complete.
+     */
+    #[Test]
+    public function reachesCapMarksAChainAtTheBound(): void
+    {
+        self::assertFalse(PartnershipChains::reachesCap([]));
+        self::assertFalse(PartnershipChains::reachesCap(array_fill(0, PartnershipChains::MAX_CHAIN - 1, 'X')));
+        self::assertTrue(PartnershipChains::reachesCap(array_fill(0, PartnershipChains::MAX_CHAIN, 'X')));
     }
 
     /**
