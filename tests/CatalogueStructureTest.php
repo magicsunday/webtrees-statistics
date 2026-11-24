@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test;
 
 use MagicSunday\Webtrees\ModuleBase\Testing\AbstractCatalogueStructureTestCase;
-use PHPUnit\Framework\Attributes\CoversNothing;
 
 /**
  * Locks the structure of the shipped translation catalogues. The checks live in the
@@ -23,7 +22,6 @@ use PHPUnit\Framework\Attributes\CoversNothing;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversNothing]
 final class CatalogueStructureTest extends AbstractCatalogueStructureTestCase
 {
     /**

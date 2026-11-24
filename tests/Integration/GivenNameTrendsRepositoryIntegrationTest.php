@@ -11,15 +11,9 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
-use MagicSunday\Webtrees\Statistic\Model\StreamGraph\GivenNameTrendsPayload;
 use MagicSunday\Webtrees\Statistic\Repository\GivenNameTrendsRepository;
-use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
-use MagicSunday\Webtrees\Statistic\Support\Gedcom\GivenNameNormalizer;
-use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Test\Support\Narrowing\PayloadNarrowing;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\Attributes\UsesClass;
 
 use function array_column;
 use function sprintf;
@@ -34,11 +28,6 @@ use function sprintf;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(GivenNameTrendsRepository::class)]
-#[UsesClass(GivenNameTrendsPayload::class)]
-#[UsesClass(GedcomScanner::class)]
-#[UsesClass(RowCast::class)]
-#[UsesClass(GivenNameNormalizer::class)]
 final class GivenNameTrendsRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     /**

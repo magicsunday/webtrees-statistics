@@ -12,12 +12,7 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use MagicSunday\Webtrees\Statistic\Repository\EventRepository;
-use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
-use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
-use MagicSunday\Webtrees\Statistic\Support\ZodiacSigns;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\Attributes\UsesClass;
 
 use function array_sum;
 
@@ -37,10 +32,6 @@ use function array_sum;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(EventRepository::class)]
-#[UsesClass(DedupedEventDates::class)]
-#[UsesClass(DateAggregate::class)]
-#[UsesClass(ZodiacSigns::class)]
 final class EventRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     /**

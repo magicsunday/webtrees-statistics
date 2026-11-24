@@ -13,7 +13,6 @@ namespace MagicSunday\Webtrees\Statistic\Test\Aggregator;
 
 use Illuminate\Support\Collection;
 use MagicSunday\Webtrees\Statistic\Aggregator\TopNAggregator;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -30,7 +29,6 @@ use function sprintf;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(TopNAggregator::class)]
 final class TopNAggregatorTest extends TestCase
 {
     /**

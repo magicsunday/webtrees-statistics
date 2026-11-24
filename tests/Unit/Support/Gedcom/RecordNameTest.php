@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Unit\Support\Gedcom;
 
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RecordName;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -27,7 +26,6 @@ use PHPUnit\Framework\TestCase;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(RecordName::class)]
 final class RecordNameTest extends TestCase
 {
     /**

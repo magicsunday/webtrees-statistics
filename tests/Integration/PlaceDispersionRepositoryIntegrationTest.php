@@ -12,17 +12,9 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use Fisharebest\Webtrees\DB;
-use MagicSunday\Webtrees\Statistic\Model\Metric\PlaceDispersionSummary;
 use MagicSunday\Webtrees\Statistic\Repository\PlaceDispersionRepository;
-use MagicSunday\Webtrees\Statistic\Support\Calc\Haversine;
-use MagicSunday\Webtrees\Statistic\Support\Database\PlaceLocationGazetteer;
-use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
-use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
-use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Test\Support\Narrowing\PayloadNarrowing;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\Attributes\UsesClass;
 
 /**
  * End-to-end test of {@see PlaceDispersionRepository} against a fixture that
@@ -42,13 +34,6 @@ use PHPUnit\Framework\Attributes\UsesClass;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(PlaceDispersionRepository::class)]
-#[UsesClass(PlaceDispersionSummary::class)]
-#[UsesClass(TreeScope::class)]
-#[UsesClass(RowCast::class)]
-#[UsesClass(GedcomScanner::class)]
-#[UsesClass(Haversine::class)]
-#[UsesClass(PlaceLocationGazetteer::class)]
 final class PlaceDispersionRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     /**

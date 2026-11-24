@@ -11,13 +11,8 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
-use MagicSunday\Webtrees\Statistic\Model\Metric\IslandSummary;
 use MagicSunday\Webtrees\Statistic\Repository\IslandRepository;
-use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
-use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\Attributes\UsesClass;
 
 /**
  * Integration tests for {@see IslandRepository} against `islands.ged`, which
@@ -38,10 +33,6 @@ use PHPUnit\Framework\Attributes\UsesClass;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(IslandRepository::class)]
-#[UsesClass(IslandSummary::class)]
-#[UsesClass(TreeScope::class)]
-#[UsesClass(RowCast::class)]
 final class IslandRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     /**

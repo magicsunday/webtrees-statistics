@@ -19,13 +19,7 @@ use MagicSunday\Webtrees\Statistic\Model\Tree\GenerationDepthReport;
 use MagicSunday\Webtrees\Statistic\Repository\GenerationDepthRepository;
 use MagicSunday\Webtrees\Statistic\Repository\ParentMapRepository;
 use MagicSunday\Webtrees\Statistic\Support\Calc\GenerationDepth;
-use MagicSunday\Webtrees\Statistic\Support\Database\ChunkedWhereIn;
-use MagicSunday\Webtrees\Statistic\Support\Database\GedcomByXref;
-use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
-use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\Attributes\UsesClass;
 
 use function array_map;
 use function array_search;
@@ -53,15 +47,6 @@ use function count;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(GenerationDepthRepository::class)]
-#[UsesClass(RankingEntry::class)]
-#[UsesClass(GenerationDepthReport::class)]
-#[UsesClass(ParentMapRepository::class)]
-#[UsesClass(GenerationDepth::class)]
-#[UsesClass(ChunkedWhereIn::class)]
-#[UsesClass(GedcomByXref::class)]
-#[UsesClass(TreeScope::class)]
-#[UsesClass(RowCast::class)]
 final class GenerationDepthRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     /**

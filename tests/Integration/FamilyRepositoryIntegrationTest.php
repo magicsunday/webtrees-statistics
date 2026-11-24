@@ -14,15 +14,8 @@ namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 use MagicSunday\Webtrees\Statistic\Enum\MaritalBucket;
 use MagicSunday\Webtrees\Statistic\Model\Family\SexRatioAnomaly;
 use MagicSunday\Webtrees\Statistic\Model\Family\SiblingDeathCluster;
-use MagicSunday\Webtrees\Statistic\Model\FamilyRow;
 use MagicSunday\Webtrees\Statistic\Repository\FamilyRepository;
-use MagicSunday\Webtrees\Statistic\Support\Database\ChunkedWhereIn;
-use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
-use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
-use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\Attributes\UsesClass;
 
 use function array_map;
 
@@ -41,14 +34,6 @@ use function array_map;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(FamilyRepository::class)]
-#[UsesClass(FamilyRow::class)]
-#[UsesClass(SexRatioAnomaly::class)]
-#[UsesClass(SiblingDeathCluster::class)]
-#[UsesClass(ChunkedWhereIn::class)]
-#[UsesClass(TreeScope::class)]
-#[UsesClass(GedcomScanner::class)]
-#[UsesClass(RowCast::class)]
 final class FamilyRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     /**

@@ -16,10 +16,7 @@ use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\IndividualWire;
-use MagicSunday\Webtrees\Statistic\Support\Gedcom\RecordName;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\Attributes\UsesClass;
 
 /**
  * Privacy gate of the {@see IndividualWire} flattener: the node stays in the
@@ -33,8 +30,6 @@ use PHPUnit\Framework\Attributes\UsesClass;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(IndividualWire::class)]
-#[UsesClass(RecordName::class)]
 final class IndividualWirePrivacyIntegrationTest extends AbstractIntegrationTestCase
 {
     private function livingTree(): Tree

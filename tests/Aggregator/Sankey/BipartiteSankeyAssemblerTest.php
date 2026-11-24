@@ -12,13 +12,9 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Aggregator\Sankey;
 
 use MagicSunday\Webtrees\Statistic\Aggregator\Sankey\BipartiteSankeyAssembler;
-use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyFlowsPayload;
-use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyLink;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeySample;
 use MagicSunday\Webtrees\Statistic\Test\Support\Narrowing\PayloadNarrowing;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -32,10 +28,6 @@ use PHPUnit\Framework\TestCase;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(BipartiteSankeyAssembler::class)]
-#[UsesClass(SankeyFlowsPayload::class)]
-#[UsesClass(SankeyLink::class)]
-#[UsesClass(SankeySample::class)]
 final class BipartiteSankeyAssemblerTest extends TestCase
 {
     /**

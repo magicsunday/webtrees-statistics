@@ -17,16 +17,8 @@ use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Enum\MarriageEndReason;
 use MagicSunday\Webtrees\Statistic\Model\Marriage\MarriageDurationExtreme;
 use MagicSunday\Webtrees\Statistic\Repository\MarriageRepository;
-use MagicSunday\Webtrees\Statistic\Support\Calc\AgeBuckets;
-use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
-use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
-use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
-use MagicSunday\Webtrees\Statistic\Support\Gedcom\RecordName;
-use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Test\Support\Narrowing\PayloadNarrowing;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\Attributes\UsesClass;
 
 use function array_column;
 use function array_intersect;
@@ -59,15 +51,6 @@ use function substr;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(MarriageRepository::class)]
-#[UsesClass(AgeBuckets::class)]
-#[UsesClass(DateAggregate::class)]
-#[UsesClass(DateJoin::class)]
-#[UsesClass(TreeScope::class)]
-#[UsesClass(RowCast::class)]
-#[UsesClass(RecordName::class)]
-#[UsesClass(MarriageDurationExtreme::class)]
-#[UsesClass(MarriageEndReason::class)]
 final class MarriageRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     private function repository(Tree $tree): MarriageRepository

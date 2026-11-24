@@ -12,13 +12,7 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use MagicSunday\Webtrees\Statistic\Aggregator\EventCenturyTally;
-use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
-use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
-use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
-use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\Attributes\UsesClass;
 
 /**
  * Integration test for {@see EventCenturyTally}. Confirms that a range date
@@ -40,11 +34,6 @@ use PHPUnit\Framework\Attributes\UsesClass;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(EventCenturyTally::class)]
-#[UsesClass(DedupedEventDates::class)]
-#[UsesClass(DateAggregate::class)]
-#[UsesClass(CenturyName::class)]
-#[UsesClass(RowCast::class)]
 final class EventCenturyTallyIntegrationTest extends AbstractIntegrationTestCase
 {
     /**

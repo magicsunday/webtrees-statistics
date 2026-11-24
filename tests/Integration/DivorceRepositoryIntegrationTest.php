@@ -12,16 +12,8 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use Fisharebest\Webtrees\Tree;
-use MagicSunday\Webtrees\Statistic\Enum\Sex;
 use MagicSunday\Webtrees\Statistic\Repository\DivorceRepository;
-use MagicSunday\Webtrees\Statistic\Support\Calc\AgeBuckets;
-use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
-use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
-use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
-use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\Attributes\UsesClass;
 
 use function array_sum;
 
@@ -37,13 +29,6 @@ use function array_sum;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(DivorceRepository::class)]
-#[UsesClass(Sex::class)]
-#[UsesClass(AgeBuckets::class)]
-#[UsesClass(DateAggregate::class)]
-#[UsesClass(DateJoin::class)]
-#[UsesClass(TreeScope::class)]
-#[UsesClass(RowCast::class)]
 final class DivorceRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     private function repository(Tree $tree): DivorceRepository

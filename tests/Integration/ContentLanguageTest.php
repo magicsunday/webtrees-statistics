@@ -13,7 +13,6 @@ namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use Fisharebest\Webtrees\Site;
 use MagicSunday\Webtrees\Statistic\Normalization\Support\ContentLanguage;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
@@ -26,7 +25,6 @@ use PHPUnit\Framework\Attributes\Test;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(ContentLanguage::class)]
 final class ContentLanguageTest extends AbstractIntegrationTestCase
 {
     /**

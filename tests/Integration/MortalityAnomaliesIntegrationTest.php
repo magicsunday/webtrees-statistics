@@ -13,15 +13,9 @@ namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\ModuleBase\Support\Locale\IsoCountryMap;
-use MagicSunday\Webtrees\Statistic\Model\Mortality\MortalityAnomaly;
 use MagicSunday\Webtrees\Statistic\Repository\LifeSpanRepository;
-use MagicSunday\Webtrees\Statistic\Support\Calc\MortalityAnomalies;
-use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
-use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Locale\HistoricalEventCatalog;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\Attributes\UsesClass;
 
 /**
  * End-to-end test of {@see LifeSpanRepository::mortalityAnomalies()} against
@@ -33,12 +27,6 @@ use PHPUnit\Framework\Attributes\UsesClass;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(LifeSpanRepository::class)]
-#[UsesClass(MortalityAnomalies::class)]
-#[UsesClass(MortalityAnomaly::class)]
-#[UsesClass(HistoricalEventCatalog::class)]
-#[UsesClass(TreeScope::class)]
-#[UsesClass(RowCast::class)]
 final class MortalityAnomaliesIntegrationTest extends AbstractIntegrationTestCase
 {
     /**

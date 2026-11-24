@@ -17,26 +17,12 @@ use Fisharebest\Webtrees\StatisticsData;
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Support\Collection;
 use MagicSunday\Webtrees\ModuleBase\Support\Locale\IsoCountryMap;
-use MagicSunday\Webtrees\Statistic\Aggregator\IndividualAgeRecordResolver;
-use MagicSunday\Webtrees\Statistic\Enum\AgePairExtremum;
-use MagicSunday\Webtrees\Statistic\Enum\Sex;
 use MagicSunday\Webtrees\Statistic\Model\Ranking\RankingEntry;
-use MagicSunday\Webtrees\Statistic\Model\Record\FamilyCountRecord;
-use MagicSunday\Webtrees\Statistic\Model\Record\FamilyDurationDaysRecord;
-use MagicSunday\Webtrees\Statistic\Model\Record\FamilyDurationYearsRecord;
-use MagicSunday\Webtrees\Statistic\Model\Record\IndividualAgeRecord;
-use MagicSunday\Webtrees\Statistic\Model\Record\IndividualCountRecord;
 use MagicSunday\Webtrees\Statistic\Repository\FamilyRankingRepository;
 use MagicSunday\Webtrees\Statistic\Repository\LifeSpanRepository;
 use MagicSunday\Webtrees\Statistic\Repository\MarriageRepository;
 use MagicSunday\Webtrees\Statistic\Repository\ParenthoodRepository;
-use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
-use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
-use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
-use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\Attributes\UsesClass;
 
 use function array_map;
 
@@ -72,23 +58,6 @@ use function array_map;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(FamilyRankingRepository::class)]
-#[CoversClass(LifeSpanRepository::class)]
-#[CoversClass(MarriageRepository::class)]
-#[CoversClass(ParenthoodRepository::class)]
-#[UsesClass(AgePairExtremum::class)]
-#[UsesClass(Sex::class)]
-#[UsesClass(FamilyCountRecord::class)]
-#[UsesClass(FamilyDurationDaysRecord::class)]
-#[UsesClass(FamilyDurationYearsRecord::class)]
-#[UsesClass(IndividualAgeRecord::class)]
-#[UsesClass(IndividualCountRecord::class)]
-#[UsesClass(RankingEntry::class)]
-#[UsesClass(IndividualAgeRecordResolver::class)]
-#[UsesClass(DateAggregate::class)]
-#[UsesClass(DateJoin::class)]
-#[UsesClass(TreeScope::class)]
-#[UsesClass(RowCast::class)]
 final class RecordsIntegrationTest extends AbstractIntegrationTestCase
 {
     /**

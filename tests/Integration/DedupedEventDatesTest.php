@@ -14,13 +14,10 @@ namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 use Fisharebest\Webtrees\DB;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
-use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Test\Support\Narrowing\PayloadNarrowing;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\Attributes\UsesClass;
 
 /**
  * Integration test for {@see DedupedEventDates}. Webtrees writes TWO `dates`
@@ -50,10 +47,6 @@ use PHPUnit\Framework\Attributes\UsesClass;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(DedupedEventDates::class)]
-#[UsesClass(DateAggregate::class)]
-#[UsesClass(GregorianDate::class)]
-#[UsesClass(RowCast::class)]
 final class DedupedEventDatesTest extends AbstractIntegrationTestCase
 {
     /**
