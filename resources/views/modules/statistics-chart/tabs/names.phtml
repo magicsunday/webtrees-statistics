@@ -44,6 +44,10 @@ $givenNameLastYearExplanation = I18N::translate(
     'The chart shows the most common given names in the tree, each placed on the year axis at the most recent birth recorded for a person carrying that name. The names are ordered by that year, so the most recently given sit at one end and those that fell out of use long ago at the other. A name whose most recent bearer was born within the last 25 years counts as still in use and is highlighted.'
 );
 
+$givenNameCountExplanation = I18N::translate(
+    'The bubbles count the individuals of this sex who carry each given name. A person counts once per name, even when the name is recorded in several forms, and married names and aliases are not counted.'
+);
+
 $aboutThisChart = I18N::translate('About this chart');
 ?>
 <div class="wt-stat-grid">
@@ -58,8 +62,12 @@ echo Card::for($module, I18N::translate('Common surnames'))
     ->withEyebrow(I18N::translate('Surnames'))
     ->withAccent(Accent::Wine)
     ->withIllustration(Illustration::Tree)
+    ->withInfo(
+        I18N::translate('The bubbles count the recorded names that carry each surname, taken from the primary name and its transliterations. Married names and aliases are not counted, and a person with a name in several forms counts once for each.'),
+        $aboutThisChart,
+        $aboutThisChart
+    )
     ->withSpan(12)
-    ->withoutFooter()
     ->withBodyHtml(
         Widget::nameBubbles($module)
             ->withData($topSurnames)
@@ -73,8 +81,8 @@ echo Card::for($module, I18N::translate('Common given names – male'))
     ->withEyebrow(I18N::translate('Given names'))
     ->withAccent(Accent::Slate)
     ->withIllustration(Illustration::People)
+    ->withInfo($givenNameCountExplanation, $aboutThisChart, $aboutThisChart)
     ->withSpan(6)
-    ->withoutFooter()
     ->withBodyHtml(
         Widget::nameBubbles($module)
             ->withData($topMaleGivenNames)
@@ -88,8 +96,8 @@ echo Card::for($module, I18N::translate('Common given names – female'))
     ->withEyebrow(I18N::translate('Given names'))
     ->withAccent(Accent::Rose)
     ->withIllustration(Illustration::People)
+    ->withInfo($givenNameCountExplanation, $aboutThisChart, $aboutThisChart)
     ->withSpan(6)
-    ->withoutFooter()
     ->withBodyHtml(
         Widget::nameBubbles($module)
             ->withData($topFemaleGivenNames)
