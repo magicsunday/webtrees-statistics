@@ -554,7 +554,8 @@ final class TagAggregationPrivacyIntegrationTest extends AbstractIntegrationTest
     }
 
     /**
-     * Values that look like a record reference but exceed the XREF length.
+     * Values between at signs that are no XREF of the pointer class, either
+     * without a body or with a body longer than an XREF.
      *
      * @return array<string, array{0: string}>
      */
