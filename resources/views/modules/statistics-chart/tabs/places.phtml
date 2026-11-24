@@ -164,6 +164,11 @@ echo Card::for($module, I18N::translate('Geographic origin & fate'))
     ->withEyebrow(I18N::translate('Geography'))
     ->withAccent(Accent::Slate)
     ->withIllustration(Illustration::Globe)
+    ->withInfo(
+        I18N::translate('Birth and death count the individuals whose recorded place resolves to a country. Residence counts every recorded residence, so a person with several residences counts once for each.'),
+        I18N::translate('About this chart'),
+        I18N::translate('About this chart')
+    )
     ->withSpan(12)
     ->withBodyHtml($placesPanelHtml)
     ->render();

@@ -172,8 +172,12 @@ echo Card::for($module, I18N::translate('Common occupations'))
     ->withEyebrow(I18N::translate('Demographics'))
     ->withAccent(Accent::Wine)
     ->withIllustration(Illustration::Craft)
+    ->withInfo(
+        I18N::translate('The bars count how often each occupation is recorded. A person with several occupations counts once for each, so the numbers are mentions and not individuals.'),
+        $aboutThisChart,
+        $aboutThisChart
+    )
     ->withSpan(6)
-    ->withoutFooter()
     ->withBodyHtml(
         Component::progressList($module)
             ->with('class', 'progress-occupations')
@@ -193,8 +197,12 @@ echo Card::for($module, I18N::translate('Common religions'))
     )
     ->withAccent(Accent::Slate)
     ->withIllustration(Illustration::Chapel)
+    ->withInfo(
+        I18N::translate('The bars count how often each religion is recorded, whether as a fact of the individual or as a detail of another event. A person with several mentions counts once for each, so the numbers are mentions and not individuals.'),
+        $aboutThisChart,
+        $aboutThisChart
+    )
     ->withSpan(6)
-    ->withoutFooter()
     ->withBodyHtml(
         Component::progressList($module)
         ->with('class', 'progress-religions')

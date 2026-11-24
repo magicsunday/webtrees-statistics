@@ -153,13 +153,13 @@ echo Section::create(I18N::translate('When and whom they married'))
     ->render();
 
 echo Card::for($module, I18N::translate('Age at marriage'))
-    ->withSub(I18N::translate('%1$s husbands and %2$s wives with a known marriage age', I18N::number($totalAgeM), I18N::number($totalAgeF)))
+    ->withSub(I18N::translate('%1$s marriages with a known husband age and %2$s with a known wife age', I18N::number($totalAgeM), I18N::number($totalAgeF)))
     ->withEyebrow(I18N::translate('Life event'))
     ->withAccent(Accent::Wine)
     ->withIllustration(Illustration::Rings)
     ->withInfo(
         I18N::translate(
-            'Age at first marriage. The mirror axis separates husbands and wives, as shown by the labels at each side. Both sides share the same age bands, so the two distributions can be compared at a glance.'
+            'Age at marriage, counted per marriage, so a person who married more than once appears once for each marriage. The mirror axis separates husbands and wives, as shown by the labels at each side. Both sides share the same age bands, so the two distributions can be compared at a glance.'
         ),
         $aboutThisChart,
         $aboutThisChart
@@ -169,8 +169,8 @@ echo Card::for($module, I18N::translate('Age at marriage'))
         Widget::mirrorHistogram($module)
             ->with('top', $ageAtMarriageMRows)
             ->with('bottom', $ageAtMarriageFRows)
-            ->with('topLabel', I18N::translate('Men'))
-            ->with('bottomLabel', I18N::translate('Women'))
+            ->with('topLabel', I18N::translate('Husbands'))
+            ->with('bottomLabel', I18N::translate('Wives'))
             ->render()
     )
     ->render();
@@ -437,6 +437,11 @@ echo Card::for($module, I18N::translate('Families with vs without children'))
     ->withEyebrow(I18N::translate('Structure'))
     ->withAccent(Accent::Sage)
     ->withIllustration(Illustration::Family)
+    ->withInfo(
+        I18N::translate('Counts families, not individuals. A family counts as without children when it records no child and no number of children.'),
+        $aboutThisChart,
+        $aboutThisChart
+    )
     ->withSpan(4)
     ->withBodyHtml(
         Widget::donutChart($module, 'childless-families-donut')

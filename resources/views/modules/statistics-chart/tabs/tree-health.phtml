@@ -666,6 +666,11 @@ echo Card::for($module, I18N::translate('Depth-to-breadth ratio'))
     ->withEyebrow(I18N::translate('Reach'))
     ->withAccent(Accent::Rose)
     ->withIllustration(Illustration::Bell)
+    ->withInfo(
+        I18N::translate('Depth is the number of steps of the longest line from a parent to a child. Breadth is the number of people on the longest chain of partners who are linked by a partnership.'),
+        $aboutThisChart,
+        $aboutThisChart
+    )
     ->withSpan(4)
     ->centered()
     ->withBodyHtml(
