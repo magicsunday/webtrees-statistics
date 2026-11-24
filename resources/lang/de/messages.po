@@ -22,7 +22,7 @@ msgstr ""
 "X-Poedit-SearchPath-0: src\n"
 "X-Poedit-SearchPath-1: resources/views\n"
 
-#: src/Repository/LifeSpanRepository.php:908
+#: src/Repository/LifeSpanRepository.php:889
 #, php-format
 msgid "%1$s %% (%2$s of %3$s individuals reached this age)"
 msgstr "%1$s %% (%2$s von %3$s Personen erreichten dieses Alter)"
@@ -80,8 +80,8 @@ msgstr "%1$s Geschwister aus %2$s Familien"
 msgid "%1$s sub-trees total · the largest covers %2$s%% of all individuals"
 msgstr "%1$s Teilbäume gesamt · größter umfasst %2$s%% aller Personen"
 
-#: src/Repository/LifeSpanRepository.php:812
-#: src/Repository/LifeSpanRepository.php:819
+#: src/Repository/LifeSpanRepository.php:793
+#: src/Repository/LifeSpanRepository.php:800
 #: src/Repository/ParenthoodRepository.php:359
 #: src/Repository/ParenthoodRepository.php:372
 #, php-format
@@ -93,7 +93,7 @@ msgstr "%1$s Jahre (n = %2$s)"
 msgid "%1$s%% — %2$s of %3$s children died before age 5"
 msgstr "%1$s %% — %2$s von %3$s Kindern starben vor dem 5. Lebensjahr"
 
-#: src/Repository/NameRepository.php:676
+#: src/Repository/NameRepository.php:677
 #, php-format
 msgid ""
 "%1$s%% — %2$s of %3$s daughters share at least one given name with the mother"
@@ -105,7 +105,7 @@ msgstr ""
 msgid "%1$s%% — %2$s of %3$s individuals sourced"
 msgstr "%1$s %% — %2$s von %3$s Personen mit Quelle"
 
-#: src/Repository/NameRepository.php:670
+#: src/Repository/NameRepository.php:671
 #, php-format
 msgid ""
 "%1$s%% — %2$s of %3$s sons share at least one given name with the father"
@@ -645,7 +645,7 @@ msgstr "Aktiv"
 msgid "After the partner's death"
 msgstr "Nach dem Tod des Partners"
 
-#: src/Repository/LifeSpanRepository.php:906
+#: src/Repository/LifeSpanRepository.php:887
 #, php-format
 msgid "Age %s"
 msgstr "Alter %s"
@@ -3252,9 +3252,9 @@ msgctxt "count word"
 msgid "nine"
 msgstr "neun"
 
-#: src/Repository/LifeSpanRepository.php:816
-#: src/Repository/LifeSpanRepository.php:823
-#: src/Repository/NameRepository.php:659 src/Repository/NameRepository.php:663
+#: src/Repository/LifeSpanRepository.php:797
+#: src/Repository/LifeSpanRepository.php:804
+#: src/Repository/NameRepository.php:660 src/Repository/NameRepository.php:664
 #: src/Repository/ParenthoodRepository.php:365
 #: src/Repository/ParenthoodRepository.php:378
 #, php-format
