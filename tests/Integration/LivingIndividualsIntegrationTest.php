@@ -140,6 +140,48 @@ final class LivingIndividualsIntegrationTest extends AbstractIntegrationTestCase
     }
 
     /**
+     * A spouse who is deceased by age without a death record makes the living
+     * partner a widow or widower. The married couple is the only family of the
+     * tree, the husband was born in 1850 and the wife is a living woman.
+     */
+    #[Test]
+    public function aPartnerWhoIsDeceasedByAgeMakesTheSurvivorWidowed(): void
+    {
+        $year  = (int) date('Y');
+        $lines = [
+            '0 HEAD',
+            '1 CHAR UTF-8',
+            '1 GEDC',
+            '2 VERS 5.5.1',
+            '2 FORM LINEAGE-LINKED',
+            '0 @I1@ INDI',
+            '1 NAME Old /Husband/',
+            '1 SEX M',
+            '1 BIRT',
+            '2 DATE 1850',
+            '1 FAMS @F1@',
+            '0 @I2@ INDI',
+            '1 NAME Young /Wife/',
+            '1 SEX F',
+            '1 BIRT',
+            '2 DATE 1 JAN ' . ($year - 60),
+            '1 FAMS @F1@',
+            '0 @F1@ FAM',
+            '1 HUSB @I1@',
+            '1 WIFE @I2@',
+            '1 MARR',
+            '0 TRLR',
+        ];
+
+        $tree = $this->importGedcomTree('living-partner-' . strval($year), implode("\n", $lines));
+
+        self::assertSame(
+            ['current' => 0, 'divorced' => 0, 'widowed' => 1, 'single' => 0],
+            (new FamilyRepository($tree))->classifyLivingIndividuals(),
+        );
+    }
+
+    /**
      * Import the fixture tree with dates relative to the current year.
      */
     private function livingTree(): Tree
