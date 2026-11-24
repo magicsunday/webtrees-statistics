@@ -124,11 +124,11 @@ foreach ($ancestorDistribution as $bucket => $count) {
 }
 
 $gapLabels = [
-    'BIRT.event' => I18N::translate('Missing birth event'),
+    'BIRT.date'  => I18N::translate('Missing birth date'),
     'BIRT.place' => I18N::translate('Missing birth place'),
-    'DEAT.event' => I18N::translate('Missing death event'),
+    'DEAT.date'  => I18N::translate('Missing death date'),
     'DEAT.place' => I18N::translate('Missing death place'),
-    'MARR.event' => I18N::translate('Missing marriage event'),
+    'MARR.date'  => I18N::translate('Missing marriage date'),
     'MARR.place' => I18N::translate('Missing marriage place'),
 ];
 
@@ -144,7 +144,7 @@ foreach ($gaps as $gap) {
 }
 
 $missingEventExplanation = I18N::translate(
-    'Each row counts the individuals that miss the event. A place row also counts the individuals whose event has no place. The birth rows count every individual, the death rows count only deceased individuals, and the marriage rows count the individuals who are a spouse in a family. A person counts as living when no death, burial or cremation is recorded and the birth is not older than the maximum age that the tree allows.'
+    'A date row counts the individuals whose event is missing or has no usable date. A place row counts the individuals whose event is missing or has no place. The birth rows count every individual, the death rows count only deceased individuals, and the marriage rows count the individuals who are a spouse in a family. A person counts as living when no death, burial or cremation is recorded and the birth is not older than the maximum age that the tree allows.'
 );
 
 $sourcedPct      = ($sourceCoverage->total > 0) ? ($sourceCoverage->value / $sourceCoverage->total) * 100 : 0.0;
@@ -490,7 +490,7 @@ echo Section::create(I18N::translate('What is missing?'))
     ->render();
 
 echo Card::for($module, I18N::translate('Missing-event gaps'))
-    ->withSub(I18N::translate('Share of individuals without a recorded birth, death or marriage event'))
+    ->withSub(I18N::translate('Share of individuals without a usable date or a place of their birth, death or marriage'))
     ->withEyebrow(I18N::translate('Gaps'))
     ->withAccent(Accent::Wine)
     ->withIllustration(Illustration::Magnifier)
