@@ -231,8 +231,9 @@ abstract class AbstractIntegrationTestCase extends TestCase
      */
     private function emptyAllTables(): void
     {
-        $connection = DB::connection();
-        $tables     = $connection->getSchemaBuilder()->getTableListing(null, false);
+        $connection    = DB::connection();
+        $schemaBuilder = $connection->getSchemaBuilder();
+        $tables        = $schemaBuilder->getTableListing($schemaBuilder->getCurrentSchemaListing(), false);
 
         $connection->statement('SET FOREIGN_KEY_CHECKS = 0');
 

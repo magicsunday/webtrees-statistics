@@ -65,6 +65,35 @@ final class DisposableDatabaseGuardTest extends TestCase
     }
 
     #[Test]
+    public function ignoresTheMarkerOfAnotherDatabaseOnTheSameServer(): void
+    {
+        $connection = $this->connectionWithData(marked: false);
+
+        $this->attachDatabase($connection, marked: true);
+
+        try {
+            (new DisposableDatabaseGuard())->resetSchema($connection, true);
+            self::fail('The reset ran although only another database carries the marker.');
+        } catch (RuntimeException) {
+            // The marker of the other database must not open the reset.
+        }
+
+        self::assertSame(1, $this->countRows($connection, 'individuals'));
+    }
+
+    #[Test]
+    public function ignoresTheTablesOfAnotherDatabaseOnTheSameServer(): void
+    {
+        $connection = $this->connection();
+
+        $this->attachDatabase($connection, marked: false);
+
+        (new DisposableDatabaseGuard())->resetSchema($connection, true);
+
+        self::assertSame([], $connection->getSchemaBuilder()->getTableListing('main', false));
+    }
+
+    #[Test]
     public function resetsAMarkedDatabaseWithTheOptIn(): void
     {
         $connection = $this->connectionWithData(marked: true);
@@ -115,6 +144,23 @@ final class DisposableDatabaseGuardTest extends TestCase
         }
 
         return $connection;
+    }
+
+    /**
+     * Attach a second database with one table, the way a server hosts more than
+     * one database next to the configured one.
+     *
+     * @param Connection $connection Connection of the configured database
+     * @param bool       $marked     Whether the attached database carries the marker table
+     */
+    private function attachDatabase(Connection $connection, bool $marked): void
+    {
+        $connection->statement("ATTACH DATABASE ':memory:' AS other");
+        $connection->statement(
+            'CREATE TABLE other.wt_'
+            . ($marked ? DisposableDatabaseGuard::MARKER_TABLE : 'individuals')
+            . ' (id integer)',
+        );
     }
 
     private function createIndividuals(Connection $connection): void

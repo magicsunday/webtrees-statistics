@@ -83,7 +83,11 @@ final readonly class DisposableDatabaseGuard
             );
         }
 
-        $tables = $connection->getSchemaBuilder()->getTableListing(null, false);
+        // Only the configured database counts, the same set that the reset drops.
+        // A listing without a schema also returns the tables of every other
+        // database the account can see.
+        $schemaBuilder = $connection->getSchemaBuilder();
+        $tables        = $schemaBuilder->getTableListing($schemaBuilder->getCurrentSchemaListing(), false);
 
         if ($tables === []) {
             return;
