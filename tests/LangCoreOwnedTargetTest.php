@@ -13,7 +13,6 @@ namespace MagicSunday\Webtrees\Statistic\Test;
 
 use FilesystemIterator;
 use MagicSunday\Webtrees\Statistic\Test\Release\ProcessRunner;
-use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -45,7 +44,6 @@ use function unlink;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversNothing]
 final class LangCoreOwnedTargetTest extends TestCase
 {
     /**

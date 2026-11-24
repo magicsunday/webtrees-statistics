@@ -14,7 +14,6 @@ namespace MagicSunday\Webtrees\Statistic\Test\Aggregator;
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Webtrees;
 use MagicSunday\Webtrees\Statistic\Aggregator\LabelSorter;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -28,7 +27,6 @@ use function array_keys;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(LabelSorter::class)]
 final class LabelSorterTest extends TestCase
 {
     /**

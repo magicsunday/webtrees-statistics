@@ -17,7 +17,6 @@ use Fisharebest\Webtrees\View;
 use MagicSunday\Webtrees\Statistic\Normalization\Contract\OccupationNormalizerInterface;
 use MagicSunday\Webtrees\Statistic\Statistic;
 use MagicSunday\Webtrees\Statistic\Test\Support\Normalization\StubOccupationNormalizer;
-use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\Test;
 
 use function realpath;
@@ -41,7 +40,6 @@ use function view;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversNothing]
 final class TreeHealthPartnershipReachViewTest extends AbstractIntegrationTestCase
 {
     /**

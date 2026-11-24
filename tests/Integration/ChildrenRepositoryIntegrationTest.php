@@ -12,23 +12,14 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use Fisharebest\Webtrees\Tree;
-use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
-use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarPayload;
 use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarSeries;
 use MagicSunday\Webtrees\Statistic\Repository\ChildrenRepository;
 use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
-use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
-use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
-use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
-use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
 use MagicSunday\Webtrees\Statistic\Support\Locale\DecadeName;
-use MagicSunday\Webtrees\Statistic\Support\Locale\MonthName;
 use MagicSunday\Webtrees\Statistic\Test\Support\Narrowing\PayloadNarrowing;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\Attributes\UsesClass;
 
 use function array_keys;
 use function array_map;
@@ -47,19 +38,6 @@ use function array_sum;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(ChildrenRepository::class)]
-#[UsesClass(LineChartPayload::class)]
-#[UsesClass(LineChartSeries::class)]
-#[UsesClass(StackedBarPayload::class)]
-#[UsesClass(StackedBarSeries::class)]
-#[UsesClass(DecadeName::class)]
-#[UsesClass(DateAggregate::class)]
-#[UsesClass(DateJoin::class)]
-#[UsesClass(MonthName::class)]
-#[UsesClass(TreeScope::class)]
-#[UsesClass(RowCast::class)]
-#[UsesClass(CenturyName::class)]
-#[UsesClass(GregorianDate::class)]
 final class ChildrenRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     private function repository(Tree $tree): ChildrenRepository

@@ -14,7 +14,6 @@ namespace MagicSunday\Webtrees\Statistic\Test\Support\Locale;
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Webtrees;
 use MagicSunday\Webtrees\Statistic\Support\Locale\DecadeName;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -30,7 +29,6 @@ use PHPUnit\Framework\TestCase;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(DecadeName::class)]
 final class DecadeNameTest extends TestCase
 {
     /**

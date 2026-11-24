@@ -26,7 +26,6 @@ use Illuminate\Support\Collection;
 use MagicSunday\Webtrees\Statistic\Module;
 use MagicSunday\Webtrees\Statistic\Normalization\Contract\OccupationNormalizerInterface;
 use MagicSunday\Webtrees\Statistic\Test\Support\Normalization\StubOccupationNormalizer;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -48,7 +47,6 @@ use function trim;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(Module::class)]
 final class ModuleChartPageTest extends AbstractIntegrationTestCase
 {
     /**

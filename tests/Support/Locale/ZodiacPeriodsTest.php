@@ -13,12 +13,9 @@ namespace MagicSunday\Webtrees\Statistic\Test\Support\Locale;
 
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Webtrees;
-use MagicSunday\Webtrees\Statistic\Support\Locale\MonthName;
 use MagicSunday\Webtrees\Statistic\Support\Locale\ZodiacPeriods;
 use MagicSunday\Webtrees\Statistic\Support\ZodiacSigns;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
 use function array_keys;
@@ -35,9 +32,6 @@ use function array_keys;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(ZodiacPeriods::class)]
-#[UsesClass(ZodiacSigns::class)]
-#[UsesClass(MonthName::class)]
 final class ZodiacPeriodsTest extends TestCase
 {
     /**

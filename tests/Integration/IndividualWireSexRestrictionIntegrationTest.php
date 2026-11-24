@@ -18,11 +18,8 @@ use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Model\Tree\PartnershipGroupExcerpt;
 use MagicSunday\Webtrees\Statistic\Model\Tree\PartnershipReachReport;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\IndividualWire;
-use MagicSunday\Webtrees\Statistic\Support\Gedcom\RecordName;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\Attributes\UsesClass;
 
 use function array_column;
 
@@ -39,10 +36,6 @@ use function array_column;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(IndividualWire::class)]
-#[UsesClass(RecordName::class)]
-#[UsesClass(PartnershipReachReport::class)]
-#[UsesClass(PartnershipGroupExcerpt::class)]
 final class IndividualWireSexRestrictionIntegrationTest extends AbstractIntegrationTestCase
 {
     /**

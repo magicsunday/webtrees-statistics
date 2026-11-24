@@ -14,7 +14,6 @@ namespace MagicSunday\Webtrees\Statistic\Test\Unit\Support\Database;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Support\Database\ChildLinkJoin;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -29,7 +28,6 @@ use PHPUnit\Framework\TestCase;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(ChildLinkJoin::class)]
 final class ChildLinkJoinTest extends TestCase
 {
     private Capsule $capsule;

@@ -11,20 +11,10 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
-use MagicSunday\Webtrees\Statistic\Enum\Sex;
-use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
-use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
 use MagicSunday\Webtrees\Statistic\Repository\ParenthoodRepository;
-use MagicSunday\Webtrees\Statistic\Support\Calc\AgeBuckets;
-use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
-use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
-use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
-use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Locale\DecadeName;
 use MagicSunday\Webtrees\Statistic\Test\Support\Narrowing\PayloadNarrowing;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\Attributes\UsesClass;
 
 use function array_key_exists;
 use function array_sum;
@@ -51,16 +41,6 @@ use function count;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(ParenthoodRepository::class)]
-#[UsesClass(Sex::class)]
-#[UsesClass(LineChartPayload::class)]
-#[UsesClass(LineChartSeries::class)]
-#[UsesClass(AgeBuckets::class)]
-#[UsesClass(DateAggregate::class)]
-#[UsesClass(DateJoin::class)]
-#[UsesClass(TreeScope::class)]
-#[UsesClass(RowCast::class)]
-#[UsesClass(DecadeName::class)]
 final class ParenthoodRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     /**

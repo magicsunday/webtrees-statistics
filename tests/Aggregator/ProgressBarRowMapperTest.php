@@ -13,9 +13,7 @@ namespace MagicSunday\Webtrees\Statistic\Test\Aggregator;
 
 use MagicSunday\Webtrees\Statistic\Aggregator\ProgressBarRowMapper;
 use MagicSunday\Webtrees\Statistic\Model\Ranking\RankingEntry;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -31,8 +29,6 @@ use PHPUnit\Framework\TestCase;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(ProgressBarRowMapper::class)]
-#[UsesClass(RankingEntry::class)]
 final class ProgressBarRowMapperTest extends TestCase
 {
     /**

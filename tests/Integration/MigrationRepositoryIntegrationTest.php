@@ -14,20 +14,11 @@ namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 use Fisharebest\Webtrees\Auth;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\ModuleBase\Support\Locale\IsoCountryMap;
-use MagicSunday\Webtrees\Statistic\Aggregator\Sankey\BipartiteSankeyAssembler;
-use MagicSunday\Webtrees\Statistic\Aggregator\Sankey\SankeySampleResolver;
-use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyFlowsPayload;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyLink;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeySample;
 use MagicSunday\Webtrees\Statistic\Repository\MigrationRepository;
-use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
-use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
-use MagicSunday\Webtrees\Statistic\Support\Gedcom\RecordName;
-use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Test\Support\Narrowing\PayloadNarrowing;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\Attributes\UsesClass;
 
 use function array_count_values;
 use function array_map;
@@ -46,16 +37,6 @@ use function array_unique;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(MigrationRepository::class)]
-#[UsesClass(SankeyFlowsPayload::class)]
-#[UsesClass(SankeyLink::class)]
-#[UsesClass(SankeySample::class)]
-#[UsesClass(TreeScope::class)]
-#[UsesClass(GedcomScanner::class)]
-#[UsesClass(RowCast::class)]
-#[UsesClass(BipartiteSankeyAssembler::class)]
-#[UsesClass(SankeySampleResolver::class)]
-#[UsesClass(RecordName::class)]
 final class MigrationRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     /**

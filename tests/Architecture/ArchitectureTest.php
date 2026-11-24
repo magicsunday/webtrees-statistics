@@ -16,7 +16,6 @@ use PHPat\Selector\Selector;
 use PHPat\Test\Attributes\TestRule;
 use PHPat\Test\Builder\Rule;
 use PHPat\Test\PHPat;
-use PHPUnit\Framework\Attributes\CoversNothing;
 
 /**
  * Architecture rules executed by phpat through PHPStan. Each `#[TestRule]`
@@ -36,7 +35,6 @@ use PHPUnit\Framework\Attributes\CoversNothing;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversNothing]
 final class ArchitectureTest
 {
     private const string NAMESPACE_ROOT = 'MagicSunday\\Webtrees\\Statistic';

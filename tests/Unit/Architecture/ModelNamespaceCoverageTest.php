@@ -16,7 +16,6 @@ use JsonSerializable;
 use MagicSunday\Webtrees\Statistic\Test\Architecture\ArchitectureTest;
 use PHPat\Selector\ClassNamespace;
 use PHPat\Test\Builder\Rule;
-use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -78,7 +77,6 @@ use function trait_exists;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversNothing]
 final class ModelNamespaceCoverageTest extends TestCase
 {
     /**

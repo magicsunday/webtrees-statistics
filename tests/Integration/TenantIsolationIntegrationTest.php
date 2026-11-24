@@ -25,7 +25,6 @@ use MagicSunday\Webtrees\Statistic\Repository\IslandRepository;
 use MagicSunday\Webtrees\Statistic\Repository\MarriageMatrixRepository;
 use MagicSunday\Webtrees\Statistic\Repository\NameRepository;
 use MagicSunday\Webtrees\Statistic\Repository\TreeHealthRepository;
-use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -52,7 +51,6 @@ use function str_replace;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversNothing]
 final class TenantIsolationIntegrationTest extends AbstractIntegrationTestCase
 {
     /**

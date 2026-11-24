@@ -12,18 +12,10 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use Fisharebest\Webtrees\Site;
-use MagicSunday\Webtrees\Statistic\Aggregator\TopNAggregator;
 use MagicSunday\Webtrees\Statistic\Normalization\NormalizedOccupation;
-use MagicSunday\Webtrees\Statistic\Normalization\OccupationFolding;
-use MagicSunday\Webtrees\Statistic\Normalization\Support\ContentLanguage;
-use MagicSunday\Webtrees\Statistic\Normalization\Support\StringList;
 use MagicSunday\Webtrees\Statistic\Repository\OccupationRepository;
-use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
-use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Test\Support\Normalization\StubOccupationNormalizer;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\Attributes\UsesClass;
 
 use function array_keys;
 
@@ -39,15 +31,6 @@ use function array_keys;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(OccupationRepository::class)]
-#[UsesClass(TopNAggregator::class)]
-#[UsesClass(TreeScope::class)]
-#[UsesClass(GedcomScanner::class)]
-#[UsesClass(NormalizedOccupation::class)]
-#[UsesClass(OccupationFolding::class)]
-#[UsesClass(StubOccupationNormalizer::class)]
-#[UsesClass(StringList::class)]
-#[UsesClass(ContentLanguage::class)]
 final class OccupationRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     /**

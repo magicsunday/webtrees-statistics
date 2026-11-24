@@ -14,7 +14,6 @@ namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\Schema\Blueprint;
 use MagicSunday\Webtrees\Statistic\Support\Database\ChunkedWhereIn;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 
 use function array_map;
@@ -34,7 +33,6 @@ use function sort;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(ChunkedWhereIn::class)]
 final class ChunkedWhereInTest extends AbstractIntegrationTestCase
 {
     /**

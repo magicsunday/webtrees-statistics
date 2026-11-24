@@ -19,21 +19,13 @@ namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 use Fisharebest\Webtrees\Auth;
 use Fisharebest\Webtrees\DB;
 use Fisharebest\Webtrees\Tree;
-use MagicSunday\Webtrees\Statistic\Aggregator\TopNAggregator;
-use MagicSunday\Webtrees\Statistic\Normalization\OccupationFolding;
-use MagicSunday\Webtrees\Statistic\Normalization\Support\ContentLanguage;
-use MagicSunday\Webtrees\Statistic\Normalization\Support\StringList;
 use MagicSunday\Webtrees\Statistic\Repository\DeathCauseRepository;
 use MagicSunday\Webtrees\Statistic\Repository\OccupationRepository;
 use MagicSunday\Webtrees\Statistic\Repository\ReligionRepository;
-use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
-use MagicSunday\Webtrees\Statistic\Support\Gedcom\VisibleGedcomRow;
 use MagicSunday\Webtrees\Statistic\Test\Support\Normalization\StubOccupationNormalizer;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\Attributes\UsesClass;
 
 use function is_string;
 use function sort;
@@ -53,17 +45,6 @@ use function str_repeat;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(OccupationRepository::class)]
-#[CoversClass(ReligionRepository::class)]
-#[CoversClass(DeathCauseRepository::class)]
-#[CoversClass(VisibleGedcomRow::class)]
-#[UsesClass(TopNAggregator::class)]
-#[UsesClass(TreeScope::class)]
-#[UsesClass(GedcomScanner::class)]
-#[UsesClass(OccupationFolding::class)]
-#[UsesClass(ContentLanguage::class)]
-#[UsesClass(StringList::class)]
-#[UsesClass(StubOccupationNormalizer::class)]
 final class TagAggregationPrivacyIntegrationTest extends AbstractIntegrationTestCase
 {
     /**

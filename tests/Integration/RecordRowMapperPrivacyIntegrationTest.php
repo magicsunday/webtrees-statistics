@@ -24,10 +24,8 @@ use MagicSunday\Webtrees\Statistic\Model\Record\FamilyDurationYearsRecord;
 use MagicSunday\Webtrees\Statistic\Model\Record\IndividualAgeRecord;
 use MagicSunday\Webtrees\Statistic\Model\Record\IndividualCountRecord;
 use MagicSunday\Webtrees\Statistic\View\RecordCategory;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\Attributes\UsesClass;
 
 use function array_keys;
 
@@ -42,13 +40,6 @@ use function array_keys;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(RecordRowMapper::class)]
-#[UsesClass(IndividualAgeRecord::class)]
-#[UsesClass(FamilyCountRecord::class)]
-#[UsesClass(FamilyDurationDaysRecord::class)]
-#[UsesClass(FamilyDurationYearsRecord::class)]
-#[UsesClass(IndividualCountRecord::class)]
-#[UsesClass(RecordCategory::class)]
 final class RecordRowMapperPrivacyIntegrationTest extends AbstractIntegrationTestCase
 {
     private function livingTree(): Tree

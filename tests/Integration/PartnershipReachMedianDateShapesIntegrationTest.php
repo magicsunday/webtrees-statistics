@@ -19,21 +19,13 @@ use Fisharebest\Webtrees\Auth;
 use Fisharebest\Webtrees\DB;
 use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Tree;
-use MagicSunday\Webtrees\Statistic\Model\Tree\PartnershipGroupExcerpt;
 use MagicSunday\Webtrees\Statistic\Model\Tree\PartnershipReachReport;
 use MagicSunday\Webtrees\Statistic\Repository\GenerationDepthRepository;
 use MagicSunday\Webtrees\Statistic\Repository\ParentMapRepository;
 use MagicSunday\Webtrees\Statistic\Repository\PartnershipMapRepository;
 use MagicSunday\Webtrees\Statistic\Repository\PartnershipReachRepository;
-use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
 use MagicSunday\Webtrees\Statistic\Support\Calc\PartnershipChains;
-use MagicSunday\Webtrees\Statistic\Support\Database\ChunkedWhereIn;
-use MagicSunday\Webtrees\Statistic\Support\Database\GedcomByXref;
-use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
-use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\Attributes\UsesClass;
 
 use function array_map;
 use function explode;
@@ -55,15 +47,6 @@ use function str_starts_with;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(PartnershipReachRepository::class)]
-#[UsesClass(TreeScope::class)]
-#[UsesClass(GregorianDate::class)]
-#[UsesClass(GedcomByXref::class)]
-#[UsesClass(ChunkedWhereIn::class)]
-#[UsesClass(PartnershipChains::class)]
-#[UsesClass(PartnershipGroupExcerpt::class)]
-#[UsesClass(PartnershipReachReport::class)]
-#[UsesClass(RowCast::class)]
 // jscpd:ignore-end
 final class PartnershipReachMedianDateShapesIntegrationTest extends AbstractIntegrationTestCase
 {

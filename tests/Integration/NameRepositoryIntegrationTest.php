@@ -14,19 +14,10 @@ namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 use Fisharebest\Webtrees\DB;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Enum\Sex;
-use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
-use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
 use MagicSunday\Webtrees\Statistic\Repository\NameRepository;
-use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
-use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
-use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
-use MagicSunday\Webtrees\Statistic\Support\Gedcom\GivenNameNormalizer;
-use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Locale\CenturyName;
 use MagicSunday\Webtrees\Statistic\Test\Support\Narrowing\PayloadNarrowing;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\Attributes\UsesClass;
 
 use function array_column;
 use function array_unique;
@@ -47,16 +38,6 @@ use const PHP_INT_MAX;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(NameRepository::class)]
-#[UsesClass(Sex::class)]
-#[UsesClass(LineChartPayload::class)]
-#[UsesClass(LineChartSeries::class)]
-#[UsesClass(DateAggregate::class)]
-#[UsesClass(DedupedEventDates::class)]
-#[UsesClass(TreeScope::class)]
-#[UsesClass(RowCast::class)]
-#[UsesClass(CenturyName::class)]
-#[UsesClass(GivenNameNormalizer::class)]
 final class NameRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     private function repository(Tree $tree): NameRepository

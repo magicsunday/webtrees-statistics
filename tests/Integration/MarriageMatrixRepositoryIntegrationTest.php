@@ -13,13 +13,9 @@ namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Aggregator\TopNAggregator;
-use MagicSunday\Webtrees\Statistic\Model\Chord\ChordMatrixPayload;
 use MagicSunday\Webtrees\Statistic\Repository\MarriageMatrixRepository;
-use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Test\Support\Narrowing\PayloadNarrowing;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\Attributes\UsesClass;
 
 use function array_sum;
 use function count;
@@ -60,10 +56,6 @@ use function sprintf;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-#[CoversClass(MarriageMatrixRepository::class)]
-#[UsesClass(ChordMatrixPayload::class)]
-#[UsesClass(RowCast::class)]
-#[UsesClass(TopNAggregator::class)]
 final class MarriageMatrixRepositoryIntegrationTest extends AbstractIntegrationTestCase
 {
     private function repository(Tree $tree): MarriageMatrixRepository
