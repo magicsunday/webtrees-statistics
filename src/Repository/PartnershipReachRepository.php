@@ -152,6 +152,8 @@ final readonly class PartnershipReachRepository
             ),
             depthPath: $this->generationDepthRepository->summary()->maxDepth,
             breadthChain: count($longestChain),
+            chainIsApproximate: PartnershipChains::isCyclic($groupAdjacency, $members),
+            chainIsCapped: PartnershipChains::reachesCap($longestChain),
         );
     }
 

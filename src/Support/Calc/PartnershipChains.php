@@ -359,12 +359,11 @@ final readonly class PartnershipChains
      * from the component's smallest-xref node reaches a farthest node `u`; a
      * second sweep from `u` (recording a parent map) reaches a farthest node
      * `v`; the path `u … v` reconstructed through the parent map is a longest
-     * simple path. For a cycle-free component — the normal case for a real
-     * partnership graph — double BFS is the exact diameter. For a component that
-     * contains a cycle (edge count ≥ node count) the longest simple path is
-     * NP-hard; the same double BFS is then a DETERMINISTIC lower bound rather
-     * than a proven optimum. Real trees do not cycle, so this never bites in
-     * practice.
+     * simple path. For a cycle-free component double BFS is the exact diameter.
+     * For a component that contains a cycle (edge count ≥ node count, see
+     * {@see isCyclic()}) the longest simple path is NP-hard; the same double BFS
+     * is then a DETERMINISTIC lower bound rather than a proven optimum, and the
+     * caller reports such a chain as approximate.
      *
      * Every choice is made deterministic by a byte-order xref tie-break — the
      * same discipline {@see GenerationDepth::walkUpFromLeaf()} uses — so the
@@ -375,7 +374,7 @@ final readonly class PartnershipChains
      * reproducible, within a component the byte-order-smallest oriented diameter
      * path is selected, and across components of equal longest length the
      * lexicographically smallest path sequence wins. The reconstructed path is
-     * capped at {@see MAX_CHAIN} as a safety bound.
+     * capped at {@see MAX_CHAIN} as a safety bound, see {@see reachesCap()}.
      *
      * @param array<array-key, list<string>> $adjacency Symmetric `xref → [spouse-xref, …]` map
      *
@@ -394,6 +393,31 @@ final readonly class PartnershipChains
         }
 
         return $longest;
+    }
+
+    /**
+     * Whether a connected component contains a cycle. A connected graph is
+     * cycle-free exactly when it has one partnership fewer than it has people, so
+     * a component with at least as many partnerships as people has a loop.
+     *
+     * @param array<array-key, list<string>> $adjacency Symmetric `xref → [spouse-xref, …]` map
+     * @param list<string>                   $members   The component's people
+     */
+    public static function isCyclic(array $adjacency, array $members): bool
+    {
+        return self::countEdges($adjacency, $members) >= count($members);
+    }
+
+    /**
+     * Whether a chain reached the reconstruction bound {@see MAX_CHAIN}. The
+     * reconstruction stops there, so such a chain may be shorter than the real
+     * longest one.
+     *
+     * @param list<string> $chain The reconstructed chain
+     */
+    public static function reachesCap(array $chain): bool
+    {
+        return count($chain) >= self::MAX_CHAIN;
     }
 
     /**

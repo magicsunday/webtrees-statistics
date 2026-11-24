@@ -18,6 +18,7 @@ use MagicSunday\Webtrees\Statistic\Repository\GenerationDepthRepository;
 use MagicSunday\Webtrees\Statistic\Repository\ParentMapRepository;
 use MagicSunday\Webtrees\Statistic\Repository\PartnershipMapRepository;
 use MagicSunday\Webtrees\Statistic\Repository\PartnershipReachRepository;
+use MagicSunday\Webtrees\Statistic\Support\Calc\PartnershipChains;
 use PHPUnit\Framework\Attributes\Test;
 
 use function array_flip;
@@ -143,6 +144,64 @@ final class PartnershipReachRepositoryIntegrationTest extends AbstractIntegratio
 
         self::assertGreaterThan(0, $expectedEdgeCount, 'the drawn people have to share partnerships');
         self::assertCount($expectedEdgeCount, $result->group->edges);
+    }
+
+    /**
+     * Four people whose partnerships form a loop (A with B, B with C, C with D,
+     * D with A). Double BFS returns a valid but not necessarily longest chain
+     * for such a group, so the report marks the chain as approximate and the
+     * payload carries the same status.
+     */
+    #[Test]
+    public function summaryMarksTheChainOfAGroupWithALoopAsApproximate(): void
+    {
+        $tree   = $this->importGedcomTree('loop', $this->fourCycleGedcom());
+        $result = $this->repository($tree)->summary();
+
+        self::assertInstanceOf(PartnershipReachReport::class, $result);
+        self::assertTrue($result->chainIsApproximate);
+        self::assertFalse($result->chainIsCapped);
+        self::assertGreaterThanOrEqual(3, $result->longestChainLength);
+
+        $payload = $result->jsonSerialize();
+
+        self::assertTrue($payload['chainIsApproximate']);
+        self::assertFalse($payload['chainIsCapped']);
+    }
+
+    /**
+     * A partnership chain through a group without a loop is the exact longest
+     * chain, so neither status is set.
+     */
+    #[Test]
+    public function summaryKeepsTheChainOfAGroupWithoutALoopExact(): void
+    {
+        $spineLength = 5;
+        $tree        = $this->importGedcomTree('no-loop', $this->spineWithPartnersGedcom($spineLength));
+        $result      = $this->repository($tree)->summary();
+
+        self::assertInstanceOf(PartnershipReachReport::class, $result);
+        self::assertFalse($result->chainIsApproximate);
+        self::assertFalse($result->chainIsCapped);
+        self::assertSame($spineLength + 2, $result->longestChainLength, 'the first partner, the spine and the last partner');
+    }
+
+    /**
+     * A chain that reaches the reconstruction bound is marked as capped. The
+     * spine of couples has no loop, so only the cap status is set.
+     */
+    #[Test]
+    public function summaryMarksAChainAtTheReconstructionBoundAsCapped(): void
+    {
+        $tree   = $this->importGedcomTree('capped', $this->spineWithPartnersGedcom(PartnershipChains::MAX_CHAIN));
+        $result = $this->repository($tree)->summary();
+
+        self::assertInstanceOf(PartnershipReachReport::class, $result);
+        self::assertTrue($result->chainIsCapped);
+        self::assertFalse($result->chainIsApproximate);
+        self::assertSame(PartnershipChains::MAX_CHAIN, $result->longestChainLength);
+
+        self::assertTrue($result->jsonSerialize()['chainIsCapped']);
     }
 
     /**
@@ -300,6 +359,31 @@ final class PartnershipReachRepositoryIntegrationTest extends AbstractIntegratio
             $lines[] = '0 @F' . $number . '@ FAM';
             $lines[] = '1 HUSB @1@';
             $lines[] = '1 WIFE @' . $number . '@';
+        }
+
+        $lines[] = '0 TRLR';
+
+        return implode("\n", $lines);
+    }
+
+    /**
+     * GEDCOM for four people whose partnerships form a loop. A and C are male,
+     * B and D female, and each of the four couples is its own family.
+     */
+    private function fourCycleGedcom(): string
+    {
+        $lines = ['0 HEAD', '1 CHAR UTF-8', '1 GEDC', '2 VERS 5.5.1', '2 FORM LINEAGE-LINKED'];
+
+        foreach (['A' => 'M', 'B' => 'F', 'C' => 'M', 'D' => 'F'] as $xref => $sex) {
+            $lines[] = '0 @' . $xref . '@ INDI';
+            $lines[] = '1 NAME Person ' . $xref . ' /Loop/';
+            $lines[] = '1 SEX ' . $sex;
+        }
+
+        foreach ([['F1', 'A', 'B'], ['F2', 'C', 'B'], ['F3', 'C', 'D'], ['F4', 'A', 'D']] as [$family, $husband, $wife]) {
+            $lines[] = '0 @' . $family . '@ FAM';
+            $lines[] = '1 HUSB @' . $husband . '@';
+            $lines[] = '1 WIFE @' . $wife . '@';
         }
 
         $lines[] = '0 TRLR';
