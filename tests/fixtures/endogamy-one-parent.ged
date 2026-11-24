@@ -1,0 +1,49 @@
+0 HEAD
+1 SOUR webtrees-statistics-fixture
+2 NAME endogamy-one-parent
+1 DEST ANSTFILE
+1 CHAR UTF-8
+1 SUBM @SUBM1@
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+0 @SUBM1@ SUBM
+1 NAME Fixture
+0 @GP@ INDI
+1 NAME Gerd /Share/
+1 SEX M
+1 FAMS @FB@
+0 @B1@ INDI
+1 NAME Bernd /Share/
+1 SEX M
+1 FAMC @FB@
+1 FAMS @FX@
+0 @B2@ INDI
+1 NAME Bruno /Share/
+1 SEX M
+1 FAMC @FB@
+1 FAMS @FY@
+0 @X@ INDI
+1 NAME Xaver /Share/
+1 SEX M
+1 FAMC @FX@
+1 FAMS @FZ@
+0 @Y@ INDI
+1 NAME Yvonne /Share/
+1 SEX F
+1 FAMC @FY@
+1 FAMS @FZ@
+0 @FB@ FAM
+1 HUSB @GP@
+1 CHIL @B1@
+1 CHIL @B2@
+0 @FX@ FAM
+1 HUSB @B1@
+1 CHIL @X@
+0 @FY@ FAM
+1 HUSB @B2@
+1 CHIL @Y@
+0 @FZ@ FAM
+1 HUSB @X@
+1 WIFE @Y@
+0 TRLR

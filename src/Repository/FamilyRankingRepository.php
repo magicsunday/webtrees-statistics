@@ -14,7 +14,6 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 use Fisharebest\Webtrees\Family;
 use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Registry;
-use Fisharebest\Webtrees\StatisticsData;
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\Expression;
@@ -41,19 +40,18 @@ use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 final readonly class FamilyRankingRepository
 {
     /**
-     * @param Tree           $tree The tree the statistics are computed for
-     * @param StatisticsData $data Core accessor (familiesWithTheMostChildren)
+     * @param Tree $tree The tree the statistics are computed for
      */
     public function __construct(
         private Tree $tree,
-        private StatisticsData $data,
     ) {
     }
 
     /**
-     * Top-N largest families ranked by f_numchil. Each row carries the family
-     * XREF so two families that share a display label stay distinct in the
-     * podium.
+     * Top-N largest families ranked by f_numchil, equal sizes in XREF order so
+     * the cut-off keeps the same families on every run. Each row carries the
+     * family XREF so two families that share a display label stay distinct in
+     * the podium.
      *
      * @param int $limit Maximum number of rows.
      *
@@ -63,13 +61,9 @@ final readonly class FamilyRankingRepository
     {
         $entries = [];
 
-        foreach ($this->data->familiesWithTheMostChildren($limit) as $entry) {
-            $family   = $entry->family ?? null;
-            $children = $entry->children ?? 0;
-
-            if (!$family instanceof Family) {
-                continue;
-            }
+        foreach ($this->familiesWithTheMostChildren($limit) as $entry) {
+            $family   = $entry['family'];
+            $children = $entry['children'];
 
             $plainName = RecordName::plain($family->fullName());
             $entries[] = new RankingEntry($family->xref(), $plainName, $children);
@@ -217,21 +211,51 @@ final readonly class FamilyRankingRepository
      */
     public function largestFamilyRecord(): ?FamilyCountRecord
     {
-        foreach ($this->data->familiesWithTheMostChildren(1) as $entry) {
-            $family   = $entry->family ?? null;
-            $children = $entry->children ?? 0;
+        foreach ($this->familiesWithTheMostChildren(1) as $entry) {
+            if ($entry['children'] <= 0) {
+                continue;
+            }
+
+            return new FamilyCountRecord(family: $entry['family'], count: $entry['children']);
+        }
+
+        return null;
+    }
+
+    /**
+     * The families with the most children, largest first and equal sizes in
+     * XREF order. The XREF order is part of the query because the cut-off
+     * would otherwise keep whichever of several equal families the engine
+     * returns first.
+     *
+     * @param int $limit Maximum number of families
+     *
+     * @return list<array{family: Family, children: int}>
+     */
+    private function familiesWithTheMostChildren(int $limit): array
+    {
+        $rows = TreeScope::table($this->tree, 'families')
+            ->orderByDesc('f_numchil')
+            ->orderBy('f_id')
+            ->limit($limit)
+            ->get();
+
+        $entries = [];
+
+        foreach ($rows as $row) {
+            $family = Registry::familyFactory()->make(
+                RowCast::string($row, 'f_id'),
+                $this->tree,
+                RowCast::string($row, 'f_gedcom'),
+            );
 
             if (!$family instanceof Family) {
                 continue;
             }
 
-            if ($children <= 0) {
-                continue;
-            }
-
-            return new FamilyCountRecord(family: $family, count: $children);
+            $entries[] = ['family' => $family, 'children' => RowCast::int($row, 'f_numchil')];
         }
 
-        return null;
+        return $entries;
     }
 }

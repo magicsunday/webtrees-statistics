@@ -1073,9 +1073,9 @@ final readonly class Statistic
 
     /**
      * Histogram of known-ancestor counts per individual (4-generation walk,
-     * 3-wide buckets).
+     * one bar each for 0, 1 and 2, then 3-wide buckets).
      *
-     * @return array<string, int>
+     * @return array<array-key, int>
      */
     public function getAncestorCountDistribution(): array
     {

@@ -58,4 +58,33 @@ final class EndogamyRepositoryIntegrationTest extends AbstractIntegrationTestCas
         self::assertSame(50.0, $result->rate);
         self::assertSame(EndogamyRepository::DEFAULT_DEPTH, $result->depth);
     }
+
+    /**
+     * The wife is a child of a family that names no parent, so she has no
+     * recorded parentage and the couple cannot be tested. It must not count as
+     * a testable couple without a common ancestor.
+     */
+    #[Test]
+    public function aSpouseWhoseFamilyNamesNoParentMakesTheCoupleUntestable(): void
+    {
+        $tree = $this->importFixtureTree('endogamy-parentless-family.ged');
+
+        self::assertNull((new EndogamyRepository($tree, new ParentMapRepository($tree)))->summary());
+    }
+
+    /**
+     * Both spouses have exactly one recorded parent, their fathers are
+     * brothers. One recorded parent is enough to test the couple, and the
+     * brothers' own father is the common ancestor.
+     */
+    #[Test]
+    public function aSpouseWithExactlyOneRecordedParentStillMakesTheCoupleTestable(): void
+    {
+        $tree   = $this->importFixtureTree('endogamy-one-parent.ged');
+        $result = (new EndogamyRepository($tree, new ParentMapRepository($tree)))->summary();
+
+        self::assertNotNull($result);
+        self::assertSame(1, $result->total);
+        self::assertSame(1, $result->endogamous);
+    }
 }

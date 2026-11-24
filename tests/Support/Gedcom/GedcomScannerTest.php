@@ -647,6 +647,16 @@ final class GedcomScannerTest extends TestCase
             'RESI',
             [],
         ];
+        yield 'an event value on the tag line keeps the place of the block' => [
+            "\n0 @I1@ INDI\n1 RESI Y\n2 PLAC Berlin\n1 RESI Home\n2 PLAC Hamburg",
+            'RESI',
+            ['Berlin', 'Hamburg'],
+        ];
+        yield 'a longer tag that starts with the tag is not the event' => [
+            "\n0 @I1@ INDI\n1 RESIDENT\n2 PLAC Berlin\n1 RESI\n2 PLAC Hamburg",
+            'RESI',
+            ['Hamburg'],
+        ];
     }
 
     /**

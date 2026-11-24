@@ -40,9 +40,10 @@ final class KinshipRepositoryIntegrationTest extends AbstractIntegrationTestCase
     }
 
     /**
-     * Ancestor-count distribution puts the four bottom-of-the-tree individuals
-     * (G1, G2, M, Solo) plus Vater (2 known) into the 0-2 bucket — five
-     * individuals with 0–2 ancestors — and Kind (4 known) into the 3-5 bucket.
+     * Ancestor-count distribution gives each of 0, 1 and 2 known ancestors its
+     * own bar, so the many individuals without a recorded parent do not hide
+     * the rest. The four bottom-of-the-tree individuals (G1, G2, M, Solo) have
+     * none, Vater has two, and Kind (4 known) lands in the 3-5 bucket.
      */
     #[Test]
     public function ancestorCountDistributionBucketsByKnownAncestors(): void
@@ -52,9 +53,30 @@ final class KinshipRepositoryIntegrationTest extends AbstractIntegrationTestCase
 
         // Six individuals total.
         self::assertSame(6, array_sum($result));
-        // G1, G2, M, S, V (V has 2 ancestors so still bucket 0-2)
-        self::assertSame(5, $result['0–2'] ?? null);
+        // G1, G2, M and S have no known ancestor, V has two, nobody has one.
+        self::assertSame(4, $result[0] ?? null);
+        self::assertSame(0, $result[1] ?? null);
+        self::assertSame(1, $result[2] ?? null);
+        self::assertArrayNotHasKey('0–2', $result);
         // Kind has 4 known ancestors → bucket 3-5
+        self::assertSame(1, $result['3–5'] ?? null);
+    }
+
+    /**
+     * Carl has three known ancestors (Franz, Maria and Gustav), which is the
+     * first count of the grouped buckets, Franz has exactly one known ancestor
+     * (Gustav) and Maria and Gustav have none.
+     */
+    #[Test]
+    public function ancestorCountDistributionPlacesOneAndThreeKnownAncestors(): void
+    {
+        $tree   = $this->importFixtureTree('kinship-one-and-three.ged');
+        $result = $this->repository($tree)->ancestorCountDistribution();
+
+        self::assertSame(4, array_sum($result));
+        self::assertSame(2, $result[0] ?? null);
+        self::assertSame(1, $result[1] ?? null);
+        self::assertSame(0, $result[2] ?? null);
         self::assertSame(1, $result['3–5'] ?? null);
     }
 

@@ -56,10 +56,17 @@ final class KinshipRepository
     private const int ANCESTOR_DEPTH = 4;
 
     /**
-     * Histogram-bucket width for the known-ancestor count. Buckets are 0-2,
-     * 3-5, 6-8 … so the rendering stays legible.
+     * Histogram-bucket width for the known-ancestor count. Buckets are 3-5,
+     * 6-8 … so the rendering stays legible.
      */
     private const int ANCESTOR_BUCKET = 3;
+
+    /**
+     * Counts below this value each get a bar of their own. The many
+     * individuals without a recorded parent would otherwise fill one wide
+     * first bar and flatten the scale for everyone else.
+     */
+    private const int ANCESTOR_SINGLE_BELOW = 3;
 
     /**
      * Per-instance memo for the per-generation ancestor walk. Both
@@ -83,18 +90,23 @@ final class KinshipRepository
 
     /**
      * Histogram of known-ancestor counts per individual, walked up to {@see
-     * ANCESTOR_DEPTH} generations. Buckets are 3-wide so a population of 1000
+     * ANCESTOR_DEPTH} generations. The counts 0, 1 and 2 each have a bar, the
+     * higher counts are grouped in 3-wide buckets so a population of 1000
      * individuals doesn't stretch into 30 single-width bars.
      *
-     * @return array<string, int>
+     * @return array<array-key, int>
      */
     public function ancestorCountDistribution(): array
     {
         $parentOf  = $this->parentMapRepository->build();
         $maxCount  = (2 ** (self::ANCESTOR_DEPTH + 1)) - 2;
-        $bucketMin = 0;
+        $bucketMin = self::ANCESTOR_SINGLE_BELOW;
 
         $buckets = [];
+
+        for ($single = 0; $single < self::ANCESTOR_SINGLE_BELOW; ++$single) {
+            $buckets[$single] = 0;
+        }
 
         while ($bucketMin <= $maxCount) {
             $buckets[$bucketMin . '–' . ($bucketMin + self::ANCESTOR_BUCKET - 1)] = 0;
@@ -232,6 +244,10 @@ final class KinshipRepository
 
     private function bucketLabel(int $value, int $maxCount): string
     {
+        if ($value < self::ANCESTOR_SINGLE_BELOW) {
+            return (string) $value;
+        }
+
         if ($value > $maxCount) {
             $value = $maxCount;
         }

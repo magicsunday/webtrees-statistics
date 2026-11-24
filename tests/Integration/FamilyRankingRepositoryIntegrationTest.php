@@ -16,12 +16,15 @@ use Fisharebest\Webtrees\DB;
 use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Tree;
+use Illuminate\Database\Capsule\Manager as Capsule;
 use MagicSunday\Webtrees\Statistic\Model\Ranking\RankingEntry;
 use MagicSunday\Webtrees\Statistic\Repository\FamilyRankingRepository;
 use PHPUnit\Framework\Attributes\Test;
 
+use function array_filter;
 use function array_map;
 use function count;
+use function preg_match;
 
 /**
  * Integration tests for {@see FamilyRankingRepository} — the top-N largest
@@ -37,10 +40,64 @@ final class FamilyRankingRepositoryIntegrationTest extends AbstractIntegrationTe
 {
     private function repository(Tree $tree): FamilyRankingRepository
     {
-        return new FamilyRankingRepository(
-            $tree,
-            $this->statisticsData($tree),
+        return new FamilyRankingRepository($tree);
+    }
+
+    /**
+     * Four families have the same number of children. The cut-off of the top
+     * list keeps the lowest XREFs, whatever order the table returns the rows in.
+     */
+    #[Test]
+    public function topLargestFamiliesBreakTiesByXref(): void
+    {
+        $tree   = $this->importFixtureTree('family-size-tie.ged');
+        $result = $this->repository($tree)->topLargestFamilies(2);
+
+        self::assertSame(
+            ['F1', 'F2'],
+            array_map(static fn (RankingEntry $entry): string => $entry->xref, $result),
         );
+    }
+
+    /**
+     * The record holder among families of the same size is the one with the
+     * lowest XREF.
+     */
+    #[Test]
+    public function largestFamilyRecordBreaksTiesByXref(): void
+    {
+        $tree   = $this->importFixtureTree('family-size-tie.ged');
+        $record = $this->repository($tree)->largestFamilyRecord();
+
+        self::assertNotNull($record);
+        self::assertSame('F1', $record->family->xref());
+        self::assertSame(3, $record->count);
+    }
+
+    /**
+     * The cut-off keeps the same families on every run only when equal sizes
+     * are ordered by XREF in the query itself. The test reads the ORDER BY
+     * clause of the executed query, so it turns red when that tie order is
+     * missing.
+     */
+    #[Test]
+    public function theLargestFamiliesQueryOrdersEqualSizesByXref(): void
+    {
+        $tree = $this->importFixtureTree('family-size-tie.ged');
+
+        Capsule::connection()->enableQueryLog();
+        $this->repository($tree)->topLargestFamilies(2);
+
+        $statements = array_map(static fn (array $entry): string => (string) $entry['query'], Capsule::connection()->getQueryLog());
+
+        Capsule::connection()->disableQueryLog();
+
+        $ordered = array_filter(
+            $statements,
+            static fn (string $statement): bool => preg_match('/order by \S*f_numchil\S* desc,\s*\S*f_id\S*/i', $statement) === 1,
+        );
+
+        self::assertNotSame([], $ordered, 'the query orders equal family sizes by XREF');
     }
 
     /**

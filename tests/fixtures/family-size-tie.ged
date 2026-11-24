@@ -1,0 +1,40 @@
+0 HEAD
+1 SOUR webtrees-statistics-fixture
+2 NAME family-size-tie
+1 DEST ANSTFILE
+1 CHAR UTF-8
+1 SUBM @SUBM1@
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+0 @SUBM1@ SUBM
+1 NAME Fixture
+0 @H4@ INDI
+1 NAME Hans4 /Tie/
+1 SEX M
+1 FAMS @F4@
+0 @H3@ INDI
+1 NAME Hans3 /Tie/
+1 SEX M
+1 FAMS @F3@
+0 @H2@ INDI
+1 NAME Hans2 /Tie/
+1 SEX M
+1 FAMS @F2@
+0 @H1@ INDI
+1 NAME Hans1 /Tie/
+1 SEX M
+1 FAMS @F1@
+0 @F4@ FAM
+1 HUSB @H4@
+1 NCHI 3
+0 @F3@ FAM
+1 HUSB @H3@
+1 NCHI 3
+0 @F2@ FAM
+1 HUSB @H2@
+1 NCHI 3
+0 @F1@ FAM
+1 HUSB @H1@
+1 NCHI 3
+0 TRLR

@@ -14,8 +14,6 @@ namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 use Closure;
 use Fisharebest\Webtrees\Services\GedcomImportService;
 use Fisharebest\Webtrees\Services\TreeService;
-use Fisharebest\Webtrees\Services\UserService;
-use Fisharebest\Webtrees\StatisticsData;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Model\Record\IndividualCountRecord;
 use MagicSunday\Webtrees\Statistic\Repository\FamilyRankingRepository;
@@ -274,7 +272,7 @@ final class TenantIsolationIntegrationTest extends AbstractIntegrationTestCase
      */
     private static function familyRanking(Tree $tree): FamilyRankingRepository
     {
-        return new FamilyRankingRepository($tree, new StatisticsData($tree, new UserService()));
+        return new FamilyRankingRepository($tree);
     }
 
     /**
