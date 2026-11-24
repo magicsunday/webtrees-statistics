@@ -553,7 +553,7 @@ final readonly class LifeSpanRepository
      */
     public function topOldestLiving(int $limit): array
     {
-        // The core query applies its row cap BEFORE the privacy and parse
+        // The row cap of the query applies BEFORE the privacy and parse
         // filter of the candidates, so a single unparseable birth date among
         // the oldest rows would leave the card one entry short. Over-fetch a
         // margin, then rank the valid rows here.
@@ -650,11 +650,11 @@ final readonly class LifeSpanRepository
     /**
      * The oldest living individuals, with a usable birth date, ordered by birth
      * day and then by XREF. There is no DEAT date to compute an age from, so the
-     * age is today minus the BIRT Julian day. The query orders by birth day
-     * only, so rows with an equal birth day come back in an order the engine
-     * chooses, and the XREF decides between them here.
+     * age is today minus the BIRT Julian day. The rows are sorted again here by
+     * the birth day of the parsed date and then by XREF, because the query
+     * orders by the earliest of the stored bounds of a ranged date.
      *
-     * @param int $fetch How many rows to ask the core query for.
+     * @param int $fetch How many rows to read from the database.
      *
      * @return list<array{individual: Individual, birthJd: int, years: int}>
      */

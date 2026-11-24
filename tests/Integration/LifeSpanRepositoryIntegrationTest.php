@@ -170,7 +170,7 @@ final class LifeSpanRepositoryIntegrationTest extends AbstractIntegrationTestCas
     }
 
     /**
-     * The core query cuts the oldest living rows before it drops the ones the viewer may not see.
+     * The oldest living query cuts its rows before it drops the ones the viewer may not see.
      * The confidential people are older than the public ones, so a member who asks for two
      * entries only gets them when more rows than the limit are fetched.
      */

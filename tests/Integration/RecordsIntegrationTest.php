@@ -15,6 +15,7 @@ use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Services\UserService;
 use Fisharebest\Webtrees\StatisticsData;
 use Fisharebest\Webtrees\Tree;
+use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Support\Collection;
 use MagicSunday\Webtrees\ModuleBase\Support\Locale\IsoCountryMap;
 use MagicSunday\Webtrees\Statistic\Model\Ranking\RankingEntry;
@@ -24,7 +25,9 @@ use MagicSunday\Webtrees\Statistic\Repository\MarriageRepository;
 use MagicSunday\Webtrees\Statistic\Repository\ParenthoodRepository;
 use PHPUnit\Framework\Attributes\Test;
 
+use function array_filter;
 use function array_map;
+use function preg_match;
 
 /**
  * End-to-end tests for the Hall-of-Fame record-holder methods across LifeSpan /
@@ -76,13 +79,11 @@ final class RecordsIntegrationTest extends AbstractIntegrationTestCase
     }
 
     /**
-     * Oldest-living walks the alive query oldest-first but skips a record whose
-     * age exceeds the {@see LifeSpanRepository::DEFAULT_MAX_ALIVE_AGE} cap,
-     * so a data-entry typo like a 1700 birth on a death-less record cannot steal
-     * the slot. The fixture's oldest *plausible* living individual (LB, born
-     * 1930) must win over both the implausible elder (LA, born 1700 → skipped)
-     * and the younger living individual (LC, born 1995). Without the cap LA would
-     * wrongly win; without the oldest-first walk LC could.
+     * Oldest-living leaves out an individual whose birth is older than the
+     * maximum age of the tree, so a data-entry typo like a 1700 birth on a
+     * record without a death cannot steal the slot. The oldest plausible living
+     * individual (LB, born 1930) must win over the elder (LA, born 1700, deceased
+     * by age) and over the younger living individual (LC, born 1995).
      */
     #[Test]
     public function oldestLivingSkipsImplausibleAgeAndPicksTheOldestPlausible(): void
@@ -437,6 +438,33 @@ final class RecordsIntegrationTest extends AbstractIntegrationTestCase
         $xrefs = array_map(static fn (RankingEntry $entry): string => $entry->xref, $repository->topOldestLiving(2));
 
         self::assertSame(['T1', 'T2'], $xrefs, 'equal ages are ordered by XREF and the cut-off keeps the lowest XREFs');
+    }
+
+    /**
+     * The row cap of the oldest living query keeps the same individuals on every
+     * run only when equal birth days are ordered by XREF in the query itself. The
+     * test reads the ORDER BY clause of the executed query, so it turns red when
+     * that tie order is missing.
+     */
+    #[Test]
+    public function theOldestLivingQueryOrdersEqualBirthDaysByXref(): void
+    {
+        $tree       = $this->importFixtureTree('oldest-ties.ged');
+        $repository = new LifeSpanRepository($tree, $this->statisticsData($tree), new IsoCountryMap());
+
+        Capsule::connection()->enableQueryLog();
+        $repository->topOldestLiving(2);
+
+        $statements = array_map(static fn (array $entry): string => (string) $entry['query'], Capsule::connection()->getQueryLog());
+
+        Capsule::connection()->disableQueryLog();
+
+        $ordered = array_filter(
+            $statements,
+            static fn (string $statement): bool => preg_match('/order by MIN\(\S*d_julianday1\)(?: asc)?,\s*\S*individuals\S*\.\S*i_id/i', $statement) === 1,
+        );
+
+        self::assertNotSame([], $ordered, 'the query orders equal birth days by XREF');
     }
 
     /**
