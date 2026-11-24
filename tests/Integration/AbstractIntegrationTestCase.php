@@ -35,7 +35,6 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
-use Throwable;
 
 use function basename;
 use function file_get_contents;
@@ -60,6 +59,11 @@ use function preg_split;
  * matches the reporting environment, and MariaDB's ANSI omits
  * `ONLY_FULL_GROUP_BY` while its OFGB lacks MySQL's functional-dependency
  * detection, so it would false-positive the standard full-PK `GROUP BY` idiom.
+ *
+ * A server run drops every table of the configured database, so it needs
+ * `WT_TEST_DB_ALLOW_DESTRUCTIVE=1`, an explicit `WT_TEST_DB_USER` and a database
+ * that is empty or carries the marker table of {@see DisposableDatabaseGuard}.
+ * The suite never changes global settings of the server.
  *
  * Each test gets a fresh schema via {@see setUp()} and an importer that loads
  * any GEDCOM file from `tests/fixtures/`.
@@ -183,9 +187,16 @@ abstract class AbstractIntegrationTestCase extends TestCase
             $this->connectDatabase();
 
             // Clear any schema left behind by an earlier run before the
-            // one-time migration rebuilds it from scratch.
-            DB::connection()->getSchemaBuilder()->dropAllTables();
+            // one-time migration rebuilds it from scratch. The guard refuses
+            // the reset unless the run opted in and the database is empty or
+            // was marked as disposable by an earlier run of this suite.
+            $guard = new DisposableDatabaseGuard();
+            $guard->resetSchema(
+                DB::connection(),
+                $this->databaseEnv('WT_TEST_DB_ALLOW_DESTRUCTIVE', '') === '1',
+            );
             $this->migrateAndSeed();
+            $guard->markDisposable(DB::connection());
 
             self::$persistentSchemaReady = true;
 
@@ -220,8 +231,9 @@ abstract class AbstractIntegrationTestCase extends TestCase
      */
     private function emptyAllTables(): void
     {
-        $connection = DB::connection();
-        $tables     = $connection->getSchemaBuilder()->getTableListing(null, false);
+        $connection    = DB::connection();
+        $schemaBuilder = $connection->getSchemaBuilder();
+        $tables        = $schemaBuilder->getTableListing($schemaBuilder->getCurrentSchemaListing(), false);
 
         $connection->statement('SET FOREIGN_KEY_CHECKS = 0');
 
@@ -268,12 +280,20 @@ abstract class AbstractIntegrationTestCase extends TestCase
             return;
         }
 
+        $username = $this->databaseEnv('WT_TEST_DB_USER', '');
+
+        if ($username === '') {
+            throw new RuntimeException(
+                'WT_TEST_DB_USER is required for a persistent test database. Use an account that is restricted to the test database, never root.',
+            );
+        }
+
         DB::connect(
             driver: $driver,
             host: $this->databaseEnv('WT_TEST_DB_HOST', '127.0.0.1'),
             port: $this->databaseEnv('WT_TEST_DB_PORT', '3306'),
             database: $this->databaseEnv('WT_TEST_DB_NAME', 'webtrees_test'),
-            username: $this->databaseEnv('WT_TEST_DB_USER', 'root'),
+            username: $username,
             password: $this->databaseEnv('WT_TEST_DB_PASSWORD', ''),
             prefix: 'wt_',
             key: '',
@@ -281,31 +301,6 @@ abstract class AbstractIntegrationTestCase extends TestCase
             ca: '',
             verify_certificate: false,
         );
-
-        // webtrees sets `sql_mode = 'ANSI,STRICT_ALL_TABLES'` on connect, and on
-        // MySQL ANSI implies ONLY_FULL_GROUP_BY with full functional-dependency
-        // detection — the exact behaviour that surfaced the error-1055 class in
-        // production. (MariaDB is deliberately NOT a target here: its ANSI omits
-        // ONLY_FULL_GROUP_BY, and forcing it on makes MariaDB reject the
-        // standard `GROUP BY <full PK> + SELECT t.*` idiom that MySQL and core
-        // webtrees both rely on — false positives, not real bugs.)
-        $this->tuneThrowawayDatabase();
-    }
-
-    /**
-     * Trade durability for speed on the throwaway CI database. The container is
-     * discarded after the run and the per-test wipe commits often, so skipping
-     * the redo-log and binlog fsyncs cuts the suite's wall-clock sharply.
-     * Best-effort: ignored when the account lacks SYSTEM_VARIABLES_ADMIN.
-     */
-    private function tuneThrowawayDatabase(): void
-    {
-        try {
-            DB::connection()->statement('SET GLOBAL innodb_flush_log_at_trx_commit = 2');
-            DB::connection()->statement('SET GLOBAL sync_binlog = 0');
-        } catch (Throwable) {
-            // Non-fatal — the suite still runs, just slower.
-        }
     }
 
     /**
