@@ -239,7 +239,11 @@ final readonly class PartnershipReachRepository
      * year, the lower bound over the visible facts of that tag (the date with the
      * smallest minimum Julian day), converted to the Gregorian scale via
      * {@see GregorianDate::year()} so a non-Gregorian calendar stays comparable.
-     * An undated fact contributes nothing.
+     * An undated fact contributes nothing. The date rules are those of the host
+     * accessors: a range with an unparsable bound is undated, a range written in
+     * reverse order takes the date written first, a fact with several date lines
+     * takes the first line, and a fact that waits for deletion is left out, as it
+     * is for the wire rows of the same payload.
      *
      * @param Individual $individual The resolved group member
      *
@@ -252,7 +256,7 @@ final readonly class PartnershipReachRepository
         foreach (['BIRT', 'DEAT'] as $tag) {
             $lowerBound = null;
 
-            foreach ($individual->facts([$tag]) as $fact) {
+            foreach ($individual->facts([$tag], false, null, true) as $fact) {
                 $date = $fact->date();
 
                 if (!$date->isOK()) {

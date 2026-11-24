@@ -523,6 +523,19 @@ abstract class AbstractIntegrationTestCase extends TestCase
     }
 
     /**
+     * Log in a user whose role in the tree is editor and who is no
+     * administrator, so a test measures what an ordinary editor sees.
+     *
+     * @param Tree $tree The imported fixture tree
+     */
+    final protected function loginAsEditor(Tree $tree): void
+    {
+        $editor = (new UserService())->create('editor', 'Editor', 'editor@example.test', 'secret');
+        $tree->setUserPreference($editor, UserInterface::PREF_TREE_ROLE, UserInterface::ROLE_EDITOR);
+        Auth::login($editor);
+    }
+
+    /**
      * Build a {@see StatisticsData} accessor scoped to the imported tree —
      * every Integration test that wires a repository depending on core's stats
      * facade needs this exact construction, so it lives here once instead of
