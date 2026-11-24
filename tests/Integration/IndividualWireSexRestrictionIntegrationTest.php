@@ -12,11 +12,8 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use Fisharebest\Webtrees\Auth;
-use Fisharebest\Webtrees\DB;
 use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Registry;
-use Fisharebest\Webtrees\Services\GedcomImportService;
-use Fisharebest\Webtrees\Services\TreeService;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Model\Tree\PartnershipGroupExcerpt;
 use MagicSunday\Webtrees\Statistic\Model\Tree\PartnershipReachReport;
@@ -64,20 +61,17 @@ final class IndividualWireSexRestrictionIntegrationTest extends AbstractIntegrat
     }
 
     /**
-     * Rebuild the individual against a tree object that reads the default
-     * restriction rows afresh, because a tree caches them on first use.
+     * Rebuild the individual against a tree object that sees a default
+     * restriction added after the import.
      *
-     * @param Tree   $tree The imported fixture tree
-     * @param string $xref The XREF of the individual
+     * @param Tree   $freshTree The tree object that reads the default restriction rows afresh
+     * @param Tree   $tree      The imported fixture tree
+     * @param string $xref      The XREF of the individual
      *
-     * @return Individual The individual bound to the reloaded tree
+     * @return Individual The individual bound to the fresh tree
      */
-    private function individualWithFreshDefaults(Tree $tree, string $xref): Individual
+    private function individualOn(Tree $freshTree, Tree $tree, string $xref): Individual
     {
-        Registry::cache()->array()->forget('all-trees');
-
-        $freshTree = (new TreeService(new GedcomImportService()))->find($tree->id());
-
         return Registry::individualFactory()->new(
             $xref,
             $this->individual($tree, $xref)->gedcom(),
@@ -181,18 +175,13 @@ final class IndividualWireSexRestrictionIntegrationTest extends AbstractIntegrat
     {
         $tree = $this->tree();
 
-        DB::table('default_resn')->insert([
-            'gedcom_id' => $tree->id(),
-            'xref'      => null,
-            'tag_type'  => 'SEX',
-            'resn'      => 'confidential',
-        ]);
+        $freshTree = $this->treeWithDefault($tree, 'SEX', 'confidential');
 
-        self::assertSame('F', IndividualWire::row($this->individualWithFreshDefaults($tree, 'I2'))['sex'], 'the administrator keeps the real value');
+        self::assertSame('F', IndividualWire::row($this->individualOn($freshTree, $tree, 'I2'))['sex'], 'the administrator keeps the real value');
 
         Auth::logout();
 
-        $individual = $this->individualWithFreshDefaults($tree, 'I2');
+        $individual = $this->individualOn($freshTree, $tree, 'I2');
         self::assertTrue($individual->canShow(), 'precondition: the record itself is visible');
         self::assertCount(0, $individual->facts(['SEX']), 'precondition: the tree default withholds the SEX fact');
         self::assertSame('U', IndividualWire::row($individual)['sex']);
@@ -207,16 +196,11 @@ final class IndividualWireSexRestrictionIntegrationTest extends AbstractIntegrat
     {
         $tree = $this->tree();
 
-        DB::table('default_resn')->insert([
-            'gedcom_id' => $tree->id(),
-            'xref'      => 'I2',
-            'tag_type'  => 'SEX',
-            'resn'      => 'confidential',
-        ]);
+        $freshTree = $this->treeWithDefault($tree, 'SEX', 'confidential', 'I2');
 
         Auth::logout();
 
-        $individual = $this->individualWithFreshDefaults($tree, 'I2');
+        $individual = $this->individualOn($freshTree, $tree, 'I2');
         self::assertCount(0, $individual->facts(['SEX']), 'precondition: the individual default withholds the SEX fact');
         self::assertSame('U', IndividualWire::row($individual)['sex']);
     }

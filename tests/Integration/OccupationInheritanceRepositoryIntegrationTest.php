@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use Fisharebest\Webtrees\Auth;
-use Fisharebest\Webtrees\DB;
 use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Site;
@@ -591,12 +590,14 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
         self::assertSame(2, $adminTailor->value);
         self::assertNotNull($this->flowByTrades($tree, 'Cooper', 'Cooper'), 'precondition: the administrator sees the flow of the hidden parent');
         self::assertNotNull($this->flowByTrades($tree, 'Potter', 'Potterling'), 'precondition: the administrator sees the flow of the withheld parent occupation');
+        self::assertNotNull($this->flowByTrades($tree, 'Blacksmith', 'Glazier'), 'precondition: the administrator sees the flow of the withheld child occupation');
 
         Auth::logout();
 
         self::assertNull($this->flowByTrades($tree, 'Tailor', 'Draper'));
         self::assertNull($this->flowByTrades($tree, 'Cooper', 'Cooper'));
         self::assertNull($this->flowByTrades($tree, 'Potter', 'Potterling'));
+        self::assertNull($this->flowByTrades($tree, 'Blacksmith', 'Glazier'));
     }
 
     /**
@@ -636,13 +637,7 @@ final class OccupationInheritanceRepositoryIntegrationTest extends AbstractInteg
 
         Auth::logout();
 
-        $rawGedcom = DB::table('individuals')
-            ->where('i_file', '=', $tree->id())
-            ->where('i_id', '=', 'I2')
-            ->value('i_gedcom');
-        self::assertIsString($rawGedcom);
-
-        $individual = Registry::individualFactory()->new('I2', $rawGedcom, null, $tree);
+        $individual = $this->individual($tree, 'I2');
         self::assertCount(0, $individual->facts(['DEAT']), 'precondition: the death fact of the child is withheld');
         self::assertTrue($individual->canShow(), 'precondition: the child record is visible');
 

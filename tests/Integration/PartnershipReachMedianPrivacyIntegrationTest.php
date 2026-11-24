@@ -16,10 +16,6 @@ namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 // only the imports from clone detection so the test bodies stay covered.
 // jscpd:ignore-start
 use Fisharebest\Webtrees\Auth;
-use Fisharebest\Webtrees\DB;
-use Fisharebest\Webtrees\Registry;
-use Fisharebest\Webtrees\Services\GedcomImportService;
-use Fisharebest\Webtrees\Services\TreeService;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Model\Tree\PartnershipGroupExcerpt;
 use MagicSunday\Webtrees\Statistic\Model\Tree\PartnershipReachReport;
@@ -186,15 +182,7 @@ final class PartnershipReachMedianPrivacyIntegrationTest extends AbstractIntegra
         $tree = $this->importFixtureTree('partnership-median-plain.ged');
         $this->hideLivingPeople($tree);
 
-        DB::table('default_resn')->insert([
-            'gedcom_id' => $tree->id(),
-            'xref'      => null,
-            'tag_type'  => 'DEAT',
-            'resn'      => 'confidential',
-        ]);
-
-        Registry::cache()->array()->forget('all-trees');
-        $freshTree = (new TreeService(new GedcomImportService()))->find($tree->id());
+        $freshTree = $this->treeWithDefault($tree, 'DEAT', 'confidential');
 
         Auth::logout();
 
