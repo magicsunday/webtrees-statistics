@@ -151,6 +151,10 @@ jobs:
                 env:
                     MYSQL_ROOT_PASSWORD: ci-test
                     MYSQL_DATABASE: webtrees_test
+                    # The suite connects as this account, which holds privileges
+                    # on the test database only.
+                    MYSQL_USER: webtrees_ci
+                    MYSQL_PASSWORD: ci-test
                 ports:
                     - 3306:3306
                 options: >-
@@ -182,6 +186,16 @@ jobs:
               run: |
                   composer install --no-progress
 
+            # The service container is discarded after the job and the per-test
+            # wipe commits often, so skipping the redo-log and binlog fsyncs cuts
+            # the wall-clock time. The job owns the server, the test suite never
+            # changes global settings.
+            - id: tune_server
+              name: Relax durability of the throwaway server
+              run: |
+                  mysql --protocol=tcp --host=127.0.0.1 --user=root --password=ci-test \
+                      --execute="SET GLOBAL innodb_flush_log_at_trx_commit = 2; SET GLOBAL sync_binlog = 0;"
+
             - id: integration
               name: Integration tests against MySQL
               env:
@@ -192,7 +206,8 @@ jobs:
                   WT_TEST_DB_HOST: 127.0.0.1
                   WT_TEST_DB_PORT: "3306"
                   WT_TEST_DB_NAME: webtrees_test
-                  WT_TEST_DB_USER: root
+                  WT_TEST_DB_USER: webtrees_ci
                   WT_TEST_DB_PASSWORD: ci-test
+                  WT_TEST_DB_ALLOW_DESTRUCTIVE: "1"
               run: |
                   composer ci:test:php:integration
