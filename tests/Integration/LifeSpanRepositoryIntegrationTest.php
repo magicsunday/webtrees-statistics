@@ -706,6 +706,65 @@ final class LifeSpanRepositoryIntegrationTest extends AbstractIntegrationTestCas
     }
 
     /**
+     * The age histogram keeps a death on the day of birth and a year-only
+     * birth and death in the same year as lifespans of zero whole years. The
+     * fixture holds one birth cohort of thirty: twenty-eight who died after
+     * eighty years, a newborn who died on the day of birth and a woman with
+     * only a birth year and a death year of 1900.
+     */
+    #[Test]
+    public function ageAtDeathDistributionCountsZeroYearLifespans(): void
+    {
+        $tree   = $this->importFixtureTree('life-span-zero-year-deaths.ged');
+        $result = $this->repository($tree)->ageAtDeathDistribution();
+
+        PayloadNarrowing::assertValueAt(2, $result, '0–9', 'the newborn and the year-only pair both sit in the youngest band');
+        PayloadNarrowing::assertValueAt(28, $result, '80–89', 'the other twenty-eight keep their band');
+        self::assertSame(30, array_sum($result));
+    }
+
+    /**
+     * The survival curve keeps the two zero-year lifespans in the cohort size,
+     * so the share at age ten is twenty-eight of thirty and every series starts
+     * at the full cohort.
+     */
+    #[Test]
+    public function survivalFunctionByCenturyCountsZeroYearLifespansInTheCohort(): void
+    {
+        $tree   = $this->importFixtureTree('life-span-zero-year-deaths.ged');
+        $result = $this->repository($tree)->survivalFunctionByCentury();
+
+        self::assertCount(1, $result->series);
+
+        $values = PayloadNarrowing::seriesAt($result, 0)->values;
+
+        PayloadNarrowing::assertValueAt(100.0, $values, 0, 'all thirty are alive at age 0');
+        self::assertEqualsWithDelta(93.3, $values[1] ?? self::fail('Expected the value at age 10'), 0.1, 'age 10: 28 of 30 reached');
+        self::assertEqualsWithDelta(93.3, $values[8] ?? self::fail('Expected the value at age 80'), 0.1, 'age 80: 28 of 30 reached');
+        PayloadNarrowing::assertValueAt(0.0, $values, 9, 'age 90: nobody reached it');
+    }
+
+    /**
+     * The population pyramid puts the newborn (male) and the year-only pair
+     * (female) into the youngest band of their birth century, next to the
+     * fourteen men and fourteen women of the eighty-year band.
+     */
+    #[Test]
+    public function deathsByCenturyAgeBandSexBinsZeroYearLifespansIntoTheYoungestBand(): void
+    {
+        $tree   = $this->importFixtureTree('life-span-zero-year-deaths.ged');
+        $result = $this->repository($tree)->deathsByCenturyAgeBandSex();
+
+        self::assertSame(['19th cent.'], $result->groups);
+
+        $column = $result->data[0] ?? self::fail('Expected a 19th-century column');
+
+        PayloadNarrowing::assertValueAt(['left' => 1, 'right' => 1], $column, 10, 'youngest band: the newborn and the year-only pair');
+        PayloadNarrowing::assertValueAt(['left' => 14, 'right' => 14], $column, 2, '80–89 band');
+        self::assertSame(30, $this->columnTotal($column));
+    }
+
+    /**
      * `averageLifespanBySexAndCentury` runs the same BirthDeath pairs through a
      * per-sex aggregation, so the same BET..AND / FROM..TO doubling pathology
      * would inflate either the male or female cohort count. The fixture splits
