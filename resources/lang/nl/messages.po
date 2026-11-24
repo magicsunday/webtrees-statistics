@@ -22,7 +22,7 @@ msgstr ""
 "X-Poedit-SearchPath-0: src\n"
 "X-Poedit-SearchPath-1: resources/views\n"
 
-#: src/Repository/LifeSpanRepository.php:889
+#: src/Repository/LifeSpanRepository.php:911
 #, php-format
 msgid "%1$s %% (%2$s of %3$s individuals reached this age)"
 msgstr "%1$s %% (%2$s van %3$s personen bereikten deze leeftijd)"
@@ -57,7 +57,7 @@ msgstr "%1$s van %2$s"
 msgid "%1$s of %2$s children (%3$s %%)"
 msgstr "%1$s van %2$s kinderen (%3$s %%)"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:617
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:619
 #, php-format
 msgid ""
 "%1$s of %2$s children died before age 5: the darkest cohort in the tree."
@@ -80,8 +80,8 @@ msgstr "%1$s broers/zussen uit %2$s gezinnen"
 msgid "%1$s sub-trees total · the largest covers %2$s%% of all individuals"
 msgstr "%1$s deelbomen totaal · de grootste omvat %2$s%% van alle personen"
 
-#: src/Repository/LifeSpanRepository.php:793
-#: src/Repository/LifeSpanRepository.php:800
+#: src/Repository/LifeSpanRepository.php:815
+#: src/Repository/LifeSpanRepository.php:822
 #: src/Repository/ParenthoodRepository.php:359
 #: src/Repository/ParenthoodRepository.php:372
 #, php-format
@@ -182,14 +182,14 @@ msgid_plural "%s deaths"
 msgstr[0] "%s overlijden"
 msgstr[1] "%s overlijdens"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:570
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:572
 #, php-format
 msgid "%s distinct cause"
 msgid_plural "%s distinct causes"
 msgstr[0] "%s verschillende oorzaak"
 msgstr[1] "%s verschillende oorzaken"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:569
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:571
 #, php-format
 msgid "%s distinct causes (top 10)"
 msgstr "%s verschillende oorzaken (top 10)"
@@ -200,14 +200,14 @@ msgstr "%s verschillende oorzaken (top 10)"
 msgid "%s distinct given names (top 15)"
 msgstr "%s verschillende voornamen (top 15)"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:167
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:170
 #, php-format
 msgid "%s distinct occupation"
 msgid_plural "%s distinct occupations"
 msgstr[0] "%s verschillend beroep"
 msgstr[1] "%s verschillende beroepen"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:166
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:169
 #, php-format
 msgid "%s distinct occupations (top 10)"
 msgstr "%s verschillende beroepen (top 10)"
@@ -217,14 +217,14 @@ msgstr "%s verschillende beroepen (top 10)"
 msgid "%s distinct places"
 msgstr "%s verschillende plaatsen"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:186
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:189
 #, php-format
 msgid "%s distinct religion"
 msgid_plural "%s distinct religions"
 msgstr[0] "%s verschillende religie"
 msgstr[1] "%s verschillende religies"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:185
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:188
 #, php-format
 msgid "%s distinct religions (top 10)"
 msgstr "%s verschillende religies (top 10)"
@@ -286,7 +286,7 @@ msgid_plural "%s husbands"
 msgstr[0] "%s echtgenoot"
 msgstr[1] "%s echtgenoten"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:80
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:83
 #, php-format
 msgid "%s individual recorded"
 msgid_plural "%s individuals recorded"
@@ -315,21 +315,21 @@ msgstr[0] "%s persoon met geregistreerde geboortemaand"
 msgstr[1] "%s personen met geregistreerde geboortemaand"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:291
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:55
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:58
 #, php-format
 msgid "%s individual with a recorded birth year"
 msgid_plural "%s individuals with a recorded birth year"
 msgstr[0] "%s persoon met geregistreerd geboortejaar"
 msgstr[1] "%s personen met geregistreerd geboortejaar"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:529
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:531
 #, php-format
 msgid "%s individual with a recorded death month"
 msgid_plural "%s individuals with a recorded death month"
 msgstr[0] "%s persoon met geregistreerde overlijdensmaand"
 msgstr[1] "%s personen met geregistreerde overlijdensmaand"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:502
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:504
 #, php-format
 msgid "%s individual with a recorded death year"
 msgid_plural "%s individuals with a recorded death year"
@@ -408,7 +408,7 @@ msgid "%s or more years"
 msgstr "%s jaar of meer"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:295
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:506
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:508
 #, php-format
 msgid "%s outlier century not shown"
 msgid_plural "%s outlier centuries not shown"
@@ -580,10 +580,19 @@ msgstr ""
 msgid "51–200 km"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:681
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:703
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:683
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:705
 msgid "A fuller cell marks a busier month"
 msgstr "Een vollere cel duidt op een drukkere maand"
+
+#: src/Statistic.php:248
+msgid ""
+"A person counts as living when no death, burial or cremation is recorded and "
+"the birth is not older than the maximum age that the tree allows."
+msgstr ""
+"Een persoon geldt als levend wanneer er geen overlijden, begrafenis of "
+"crematie is vastgelegd en de geboorte niet langer geleden is dan de maximale "
+"leeftijd die de stamboom toelaat."
 
 #: resources/views/modules/statistics-chart/tabs/places.phtml:96
 msgid ""
@@ -621,7 +630,8 @@ msgstr ""
 #: resources/views/modules/statistics-chart/tabs/family.phtml:146
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:238
 #: resources/views/modules/statistics-chart/tabs/names.phtml:47
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:212
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:43
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:215
 #: resources/views/modules/statistics-chart/tabs/places.phtml:181
 #: resources/views/modules/statistics-chart/tabs/places.phtml:200
 #: resources/views/modules/statistics-chart/tabs/places.phtml:227
@@ -645,7 +655,7 @@ msgstr "Actief"
 msgid "After the partner's death"
 msgstr "Na het overlijden van de partner"
 
-#: src/Repository/LifeSpanRepository.php:887
+#: src/Repository/LifeSpanRepository.php:909
 #, php-format
 msgid "Age %s"
 msgstr "Leeftijd %s"
@@ -658,7 +668,7 @@ msgstr "Leeftijd bij overlijden (10-jaarsklassen)"
 msgid "Age at death distribution"
 msgstr "Verdeling van overlijdensleeftijd"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:431
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:432
 msgid "Age at death per birth century, split by sex"
 msgstr "Leeftijd bij overlijden per geboorte-eeuw, uitgesplitst naar geslacht"
 
@@ -721,7 +731,7 @@ msgstr ""
 "twee verdelingen in één oogopslag kunnen worden vergeleken. De klasse met "
 "het label 30+ omvat alle verschillen van 30 jaar of meer."
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:468
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:469
 msgid "Age in years at death, longest-lived first"
 msgstr "Leeftijd in jaren bij overlijden, langstlevende eerst"
 
@@ -750,17 +760,17 @@ msgstr ""
 "kunnen zo naast elkaar worden vergeleken. Lege balken blijven zichtbaar. "
 "Hiaten in de cohorten blijven daardoor zichtbaar."
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:385
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:400
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:386
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:401
 msgid "Age-at-death distribution by century"
 msgstr "Verdeling van overlijdensleeftijd per eeuw"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:405
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:425
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:406
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:426
 msgid "Age-at-death distribution by sex and century"
 msgstr "Verdeling van leeftijd bij overlijden naar geslacht en eeuw"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:406
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:407
 msgid ""
 "Age-band counts per birth century, split into a male and a female column"
 msgstr ""
@@ -779,7 +789,7 @@ msgstr "Amerikaanse Burgeroorlog (1861–1865)"
 msgid "Anomaly"
 msgstr "Afwijking"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:626
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:628
 msgid "Anomaly years"
 msgstr "Afwijkende jaren"
 
@@ -804,11 +814,11 @@ msgstr "Gemiddeld aantal verschillende plaatsen per persoon"
 msgid "Average family size by century"
 msgstr "Gemiddelde gezinsgrootte per eeuw"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:440
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:441
 msgid "Average lifespan by sex and century"
 msgstr "Gemiddelde levensduur per geslacht en eeuw"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:430
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:431
 msgid "Average lifespan by sex × century"
 msgstr "Gemiddelde levensduur per geslacht × eeuw"
 
@@ -829,15 +839,15 @@ msgstr "Gem. generatielengte"
 msgid "Biggest web of partnered people"
 msgstr "Grootste netwerk van onderling verbonden personen"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:675
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:677
 msgid "Births and deaths across the year"
 msgstr "Geboorten en overlijdens in de loop van het jaar"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:697
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:699
 msgid "Births by 25-year period and calendar month"
 msgstr "Geboorten per 25-jaarsperiode en kalendermaand"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:680
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:682
 msgid "Births by 25-year period × month"
 msgstr "Geboorten per 25-jaarsperiode × maand"
 
@@ -923,11 +933,11 @@ msgstr "Kreeft"
 msgid "Capricornus"
 msgstr "Steenbok"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:572
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:574
 msgid "Causes"
 msgstr "Oorzaken"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:561
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:563
 msgid "Causes of death and infant mortality"
 msgstr "Doodsoorzaken en zuigelingensterfte"
 
@@ -935,12 +945,12 @@ msgstr "Doodsoorzaken en zuigelingensterfte"
 msgid "Chains and clusters formed by partnership"
 msgstr "Ketens en clusters gevormd door partnerschappen"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:602
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:604
 #, php-format
 msgid "Child mortality %s"
 msgstr "Kindersterfte %s"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:584
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:586
 msgid "Child mortality (under 5)"
 msgstr "Kindersterfte (onder 5)"
 
@@ -974,7 +984,7 @@ msgstr ""
 "Peesdiagram: bogen = achternamen, linten = huwelijken tussen hen, lussen = "
 "endogamie"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:222
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:225
 msgid "Chronicle"
 msgstr "Kroniek"
 
@@ -998,7 +1008,7 @@ msgstr[1] ""
 "Gemeenschappelijke voorouder: %1$s van %2$s paren waarvan beide echtgenoten "
 "ten minste één geregistreerde ouder hebben."
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:566
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:568
 msgid "Common causes of death"
 msgstr "Veelvoorkomende doodsoorzaken"
 
@@ -1010,11 +1020,11 @@ msgstr "Veelvoorkomende voornamen – vrouw"
 msgid "Common given names – male"
 msgstr "Veelvoorkomende voornamen – man"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:163
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:166
 msgid "Common occupations"
 msgstr "Veelvoorkomende beroepen"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:182
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:185
 msgid "Common religions"
 msgstr "Veelvoorkomende religies"
 
@@ -1075,18 +1085,18 @@ msgstr "Leeftijdsverschil paren"
 msgid "Crimean War (1853–1856)"
 msgstr "Krimoorlog (1853–1856)"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:139
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:142
 msgid ""
 "Cumulative number of recorded individuals across the documented birth window"
 msgstr ""
 "Cumulatief aantal geregistreerde personen binnen de gedocumenteerde "
 "geboorteperiode"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:69
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:72
 msgid "Cumulative population"
 msgstr "Cumulatieve bevolking"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:483
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:484
 msgid "Current age, oldest first"
 msgstr "Huidige leeftijd, oudste eerst"
 
@@ -1103,27 +1113,27 @@ msgstr "Datasetoverzicht"
 msgid "Deaths are evenly spread across the year."
 msgstr "Overlijdens zijn gelijkmatig over het jaar verdeeld."
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:719
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:721
 msgid "Deaths by 25-year period and calendar month"
 msgstr "Overlijdens per 25-jaarsperiode en kalendermaand"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:702
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:704
 msgid "Deaths by 25-year period × month"
 msgstr "Overlijdens per 25-jaarsperiode × maand"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:528
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:530
 msgid "Deaths by month"
 msgstr "Overlijdens per maand"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:523
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:525
 msgid "Deaths per century"
 msgstr "Overlijdens per eeuw"
 
-#: src/Statistic.php:252
+#: src/Statistic.php:265
 msgid "Deceased"
 msgstr "Overleden"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:545
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:547
 msgid "Dec–Feb vs. baseline"
 msgstr "Dec–Feb vs. basislijn"
 
@@ -1132,14 +1142,14 @@ msgid "Deepest line against the longest partnership chain"
 msgstr "Diepste lijn in vergelijking met de langste partnerschapsketen"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:415
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:447
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:89
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:169
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:189
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:448
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:92
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:172
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:192
 msgid "Demographics"
 msgstr "Demografie"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:677
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:679
 msgid "Density of recorded births and deaths by 25-year period and month"
 msgstr ""
 "Dichtheid van geregistreerde geboorten en overlijdens per 25-jaarsperiode en "
@@ -1167,9 +1177,9 @@ msgid "Distinct places per individual"
 msgstr "Verschillende plaatsen per persoon"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:357
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:387
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:407
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:95
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:388
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:408
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:98
 msgid "Distribution"
 msgstr "Verdeling"
 
@@ -1213,7 +1223,7 @@ msgstr ""
 "Echtscheidingspercentage, seizoen en levensfase van gescheiden personen · "
 "een zeldzame categorie in de stamboom"
 
-#: src/Statistic.php:288
+#: src/Statistic.php:301
 msgid "Divorced"
 msgstr "Gescheiden"
 
@@ -1253,7 +1263,7 @@ msgstr ""
 "vertegenwoordigen endogame huwelijken waarbij echtgenoot en echtgenote "
 "dezelfde achternaam delen."
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:204
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:207
 msgid ""
 "Each band links a parent's occupation to the occupation of one of their "
 "children. The band's thickness encodes the count: thicker bands mean more "
@@ -1285,7 +1295,7 @@ msgstr ""
 "grootten. Beweeg de muis over een band om de absolute aantallen en het "
 "piekdecennium te zien."
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:686
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:688
 msgid ""
 "Each cell counts the births recorded in one 25-year period (a row) and one "
 "calendar month (a column), with the count printed inside it. The more births "
@@ -1310,7 +1320,7 @@ msgstr ""
 "een lege klasse blijft staan, zodat een hiaat in de gegevens niet wordt "
 "verborgen."
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:708
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:710
 msgid ""
 "Each cell counts the deaths recorded in one 25-year period (a row) and one "
 "calendar month (a column), with the count printed inside it. The more deaths "
@@ -1335,7 +1345,7 @@ msgstr ""
 "een lege klasse blijft staan, zodat een hiaat in de gegevens niet wordt "
 "verborgen."
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:651
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:653
 msgid ""
 "Each dot marks a year in which several families each lost two or more "
 "children"
@@ -1447,7 +1457,7 @@ msgstr ""
 "rest van de stamboom verbonden is. De laatste tegel vat alle deelbomen "
 "buiten de tien grootste samen."
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:637
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:639
 msgid ""
 "Each year's recorded death count is compared with the surrounding eleven-"
 "year window. A year is flagged when its count lies at least two standard "
@@ -1494,7 +1504,7 @@ msgstr "Endogamiepercentage"
 msgid "Enrichment"
 msgstr "Aanvullingen"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:652
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:654
 msgid "Epidemic"
 msgstr "Epidemie"
 
@@ -1512,7 +1522,7 @@ msgstr "Alle partners in de langste lijn, in volgorde"
 msgid "Evolution"
 msgstr "Evolutie"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:604
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:606
 msgid "Extreme"
 msgstr "Extreem"
 
@@ -1520,7 +1530,7 @@ msgstr "Extreem"
 #: resources/views/modules/statistics-chart/tabs/family.phtml:467
 #: resources/views/modules/statistics-chart/tabs/family.phtml:639
 #: resources/views/modules/statistics-chart/tabs/family.phtml:645
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:632
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:634
 msgid "Extremes"
 msgstr "Extremen"
 
@@ -1714,7 +1724,7 @@ msgstr ""
 "registratie; personen zonder plaatsgegevens worden buiten beschouwing "
 "gelaten."
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:451
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:452
 msgid ""
 "For every individual with both a birth and a death date recorded, the "
 "lifespan in whole years is derived. Each birth century forms one cohort and "
@@ -1913,7 +1923,7 @@ msgstr "Grote smog van Londen (1952)"
 msgid "Great-circle distance between birth and death place"
 msgstr "Grootcirkelafstand tussen geboorte- en overlijdensplaats"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:144
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:147
 msgid "Growth"
 msgstr "Groei"
 
@@ -1925,16 +1935,16 @@ msgstr "HIV/AIDS-epidemie (1981–1996)"
 msgid "Habsburg famine of 1770–1772"
 msgstr "Habsburgse hongersnood (1770–1772)"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:227
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:230
 msgid "Hall of fame across the whole tree"
 msgstr "Eregalerij voor de hele stamboom"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:682
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:704
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:684
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:706
 msgid "Heatmap"
 msgstr "Warmtekaart"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:209
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:212
 msgid "Heritage"
 msgstr "Erfgoed"
 
@@ -1982,7 +1992,7 @@ msgstr ""
 msgid "How names came and went over time"
 msgstr "Hoe namen verschenen en verdwenen door de tijd"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:137
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:140
 msgid "How the tree grew"
 msgstr "Hoe de stamboom groeide"
 
@@ -2090,7 +2100,7 @@ msgstr "Levensfase (levenden)"
 msgid "Life-stage at divorce · men vs. women"
 msgstr "Levensfase bij echtscheiding · mannen vs. vrouwen"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:108
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:111
 msgid "Living or deceased"
 msgstr "Levend of overleden"
 
@@ -2116,12 +2126,12 @@ msgstr "Langste huwelijken"
 msgid "Longest partnership chain"
 msgstr "Langste partnerschapsketen"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:469
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:484
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:470
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:485
 msgid "Longevity"
 msgstr "Levensduur"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:123
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:126
 msgid "Marital status"
 msgstr "Burgerlijke staat"
 
@@ -2130,7 +2140,7 @@ msgstr "Burgerlijke staat"
 msgid "Marriage duration"
 msgstr "Huwelijksduur"
 
-#: src/Statistic.php:273
+#: src/Statistic.php:286
 msgid "Married"
 msgstr "Gehuwd"
 
@@ -2157,7 +2167,7 @@ msgstr "Mediabestanden per type"
 msgid "Median %s"
 msgstr "Mediaan %s"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:386
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:387
 msgid "Median, inter-quartile range and whiskers per birth century"
 msgstr "Mediaan, interkwartielafstand en snorharen per geboorte-eeuw"
 
@@ -2225,7 +2235,7 @@ msgstr "Matige mobiliteit: velen bleven in hun regio, sommigen verhuisden."
 #: resources/views/modules/statistics-chart/tabs/family.phtml:287
 #: resources/views/modules/statistics-chart/tabs/family.phtml:538
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:319
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:530
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:532
 msgid "Month clock"
 msgstr "Maandklok"
 
@@ -2237,16 +2247,16 @@ msgstr "Maanden"
 msgid "Months between widowhood and the next marriage"
 msgstr "Maanden tussen weduwschap en het volgende huwelijk"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:562
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:586
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:564
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:588
 msgid "Mortality"
 msgstr "Sterfte"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:625
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:627
 msgid "Mortality anomalies and clusters"
 msgstr "Opvallende sterftejaren"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:630
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:632
 msgid "Mortality outliers"
 msgstr "Sterfte-uitbijters"
 
@@ -2254,7 +2264,7 @@ msgstr "Sterfte-uitbijters"
 msgid "Mortality rate"
 msgstr "Sterftecijfer"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:585
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:587
 msgid "Mortality rate per birth century"
 msgstr "Sterftecijfer per geboorte-eeuw"
 
@@ -2340,15 +2350,15 @@ msgstr ""
 "Aantal verschillende plaatsen per persoon · sedentair vs. migrerende "
 "populaties"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:158
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:161
 msgid "Occupation and confession"
 msgstr "Beroep en religie"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:207
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:210
 msgid "Occupation inheritance from parent to child"
 msgstr "Beroepsoverdracht van ouder op kind"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:160
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:163
 msgid "Occupational and religious affiliation of the recorded individuals"
 msgstr "Beroep en religie van de geregistreerde personen"
 
@@ -2368,14 +2378,14 @@ msgstr "Oudste levende"
 msgid "Oldest wife"
 msgstr "Oudste echtgenote"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:223
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:226
 msgid ""
 "Oldest, longest marriages, largest families · records that anchor the dataset"
 msgstr ""
 "Oudste, langste huwelijken, grootste gezinnen · records die de dataset "
 "verankeren"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:391
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:392
 #, php-format
 msgid ""
 "One box per birth century summarizes how old people in that cohort lived to "
@@ -2443,7 +2453,7 @@ msgstr ""
 msgid "Peak"
 msgstr "Piek"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:600
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:602
 msgid "Peak value"
 msgstr "Piekwaarde"
 
@@ -2465,7 +2475,7 @@ msgstr "Door partnerschap verbonden personen · mediane levensduur rond %s"
 msgid "Period: %1$s–%2$s"
 msgstr "Periode: %1$s–%2$s"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:411
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:412
 msgid ""
 "Pick a birth century with the buttons above the chart. For that cohort every "
 "individual with both a birth and a death date is sorted into a 10-year age-"
@@ -2510,7 +2520,7 @@ msgstr "Pools-Sovjetoorlog (1919–1921)"
 msgid "Popularity over decades and marriage alliances between families"
 msgstr "Populariteit per decennium en huwelijksbanden tussen gezinnen"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:138
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:141
 msgid "Population"
 msgstr "Bevolking"
 
@@ -2560,15 +2570,15 @@ msgstr "Naamsoverdracht binnen hetzelfde geslacht"
 msgid "Scorpio"
 msgstr "Schorpioen"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:546
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:548
 msgid "Season"
 msgstr "Seizoen"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:499
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:501
 msgid "Season and century of recorded deaths"
 msgstr "Seizoen en eeuw van geregistreerde overlijdens"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:676
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:678
 msgid "Seasonality"
 msgstr "Seizoensgebondenheid"
 
@@ -2584,7 +2594,7 @@ msgstr "Tweede Wereldoorlog (1939–1945)"
 msgid "Seven Years’ War (1756–1763)"
 msgstr "Zevenjarige Oorlog (1756–1763)"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:90
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:93
 msgid "Sex, status, marital state"
 msgstr "Geslacht, status, burgerlijke staat"
 
@@ -2592,7 +2602,7 @@ msgstr "Geslacht, status, burgerlijke staat"
 msgid "Sex-ratio anomalies"
 msgstr "Afwijkende geslachtsverhouding"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:446
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:447
 msgid "Share of a birth cohort still alive at each age threshold"
 msgstr "Aandeel van een geboortecohort dat nog leeft bij elke leeftijdsgrens"
 
@@ -2653,12 +2663,12 @@ msgstr "Kortste huwelijken"
 msgid "Sibling age gap"
 msgstr "Leeftijdsverschil tussen broers/zussen"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:650
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:667
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:652
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:669
 msgid "Sibling deaths in the same year"
 msgstr "In hetzelfde jaar overleden broers/zussen"
 
-#: src/Statistic.php:278
+#: src/Statistic.php:291
 msgid "Single"
 msgstr "Alleenstaand"
 
@@ -2666,7 +2676,7 @@ msgstr "Alleenstaand"
 msgid "Smallpox epidemic of 1870–1873"
 msgstr "Pokkenepidemie van 1870–1873"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:159
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:162
 msgid "Socio-economics"
 msgstr "Sociaal-economische kenmerken"
 
@@ -2716,11 +2726,11 @@ msgstr "Structuurtype"
 msgid "Surname × surname marriage matrix"
 msgstr "Huwelijksmatrix achternaam × achternaam"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:445
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:446
 msgid "Survival curve"
 msgstr "Overlevingscurve"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:462
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:463
 msgid "Survival curve per birth century"
 msgstr "Overlevingscurve per geboorte-eeuw"
 
@@ -2756,7 +2766,7 @@ msgstr ""
 "geraakt aan de andere. Een naam waarvan de meest recente drager in de "
 "afgelopen 25 jaar is geboren, geldt als nog in gebruik en wordt gemarkeerd."
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:221
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:224
 msgid "The extremes of the tree"
 msgstr "De uitersten van de stamboom"
 
@@ -2797,7 +2807,7 @@ msgstr ""
 "ongeacht hoeveel verder verwijderde voorouders ontbreken. Het hier getoonde "
 "getal is het gemiddelde over alle personen in de stamboom."
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:551
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:553
 msgid ""
 "The score compares the average number of deaths per winter month (December, "
 "January and February) with the average across all twelve months; a value "
@@ -2894,11 +2904,11 @@ msgstr "Top 10 grootste gezinnen"
 msgid "Top 10 most-influential ancestors"
 msgstr "Top 10 invloedrijkste voorouders"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:467
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:468
 msgid "Top 10 oldest (deceased)"
 msgstr "Top 10 oudsten (overleden)"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:482
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:483
 msgid "Top 10 oldest (living)"
 msgstr "Top 10 oudsten (levend)"
 
@@ -2906,7 +2916,7 @@ msgstr "Top 10 oudsten (levend)"
 msgid "Tradition"
 msgstr "Traditie"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:142
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:145
 msgid "Tree growth over time"
 msgstr "Stamboomgroei over de tijd"
 
@@ -2914,7 +2924,7 @@ msgstr "Stamboomgroei over de tijd"
 msgid "Tree health"
 msgstr "Stamboomkwaliteit"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:226
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:229
 msgid "Tree records"
 msgstr "Stamboomgegevens"
 
@@ -2955,12 +2965,12 @@ msgstr "Typisch bereik"
 msgid "Unbroken partner-to-partner line"
 msgstr "Ononderbroken lijn van partner naar partner"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:75
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:78
 #, php-format
 msgid "Up to the %s"
 msgstr "Tot de jaren %s"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:76
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:79
 #, php-format
 msgid "Up to the end of the %s"
 msgstr "Tot het einde van de jaren %s"
@@ -3003,7 +3013,7 @@ msgstr "Wat ontbreekt?"
 msgid "What is the tree made of?"
 msgstr "Waaruit bestaat de stamboom?"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:563
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:565
 msgid "What the recorded individuals died of"
 msgstr "Waaraan de geregistreerde personen zijn overleden"
 
@@ -3011,7 +3021,7 @@ msgstr "Waaraan de geregistreerde personen zijn overleden"
 msgid "When and whom they married"
 msgstr "Wanneer en wie zij trouwden"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:497
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:499
 msgid "When did they die?"
 msgstr "Wanneer stierven zij?"
 
@@ -3045,15 +3055,15 @@ msgstr "Waar zij leefden en stierven"
 msgid "Which names return?"
 msgstr "Welke namen keren terug?"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:208
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:211
 msgid "Which trade a child took up relative to a parent"
 msgstr "Welk beroep een kind koos in verhouding tot dat van een ouder"
 
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:88
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:91
 msgid "Who is recorded?"
 msgstr "Wie is geregistreerd?"
 
-#: src/Statistic.php:283
+#: src/Statistic.php:296
 msgid "Widowed"
 msgstr "Weduwe/weduwnaar"
 
@@ -3086,7 +3096,7 @@ msgstr ""
 "Wintermaanden vertonen een %s%% lagere sterftedichtheid dan het "
 "jaargemiddelde."
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:544
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:546
 msgid "Winter-peak score"
 msgstr "Winterpiekscore"
 
@@ -3109,7 +3119,7 @@ msgstr "Vrouwen"
 msgid "Years"
 msgstr "Jaren"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:657
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:659
 msgid ""
 "Years in which several families each lost two or more children, read from "
 "the recorded death years of the children. When several families suffer such "
@@ -3137,12 +3147,12 @@ msgstr ""
 "Alleen kinderen met een geregistreerde overlijdensdatum worden meegeteld, "
 "dus de grafiek vermeldt geen levende personen."
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:631
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:633
 msgid "Years that stand out against the surrounding death baseline"
 msgstr ""
 "Jaren die duidelijk afwijken van het sterfteniveau van de omringende jaren"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:627
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:629
 msgid ""
 "Years with markedly more deaths than the baseline · years when several "
 "families lost children at once"
@@ -3167,12 +3177,12 @@ msgid "Zodiac signs"
 msgstr "Sterrenbeelden"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:111
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:63
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:66
 #, php-format
 msgid "aggregated into %s-decade bins for readability"
 msgstr "geaggregeerd in %s-decenniumklassen voor betere leesbaarheid"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:696
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:698
 msgid "births"
 msgstr "geboorten"
 
@@ -3186,7 +3196,7 @@ msgid_plural "days"
 msgstr[0] "dag"
 msgstr[1] "dagen"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:718
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:720
 msgid "deaths"
 msgstr "overlijdens"
 
@@ -3250,22 +3260,22 @@ msgstr "kleinkinderen"
 msgid "husband left, wife right"
 msgstr "man links, vrouw rechts"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:424
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:103
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:425
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:106
 msgid "individuals"
 msgstr "personen"
-
-#: resources/views/modules/statistics-chart/tabs/overview.phtml:124
-msgid "individuals without a recorded death"
-msgstr "personen zonder geregistreerde overlijdensdatum"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:460
 msgid "kids"
 msgstr "kinderen"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:379
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:380
 msgid "living"
 msgstr "levend"
+
+#: resources/views/modules/statistics-chart/tabs/overview.phtml:127
+msgid "living individuals"
+msgstr "levende personen"
 
 #: resources/views/modules/statistics-chart/components/live-dead-card.phtml:30
 msgid "living today"
@@ -3280,8 +3290,8 @@ msgctxt "count word"
 msgid "nine"
 msgstr "negen"
 
-#: src/Repository/LifeSpanRepository.php:797
-#: src/Repository/LifeSpanRepository.php:804
+#: src/Repository/LifeSpanRepository.php:819
+#: src/Repository/LifeSpanRepository.php:826
 #: src/Repository/NameRepository.php:660 src/Repository/NameRepository.php:664
 #: src/Repository/ParenthoodRepository.php:365
 #: src/Repository/ParenthoodRepository.php:378
@@ -3319,7 +3329,7 @@ msgstr "piek in de {step}"
 #: resources/views/modules/statistics-chart/tabs/family.phtml:295
 #: resources/views/modules/statistics-chart/tabs/family.phtml:546
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:327
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:538
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:540
 msgid "peak month"
 msgstr "piekmaand"
 
@@ -3382,8 +3392,8 @@ msgstr[0] "jaar"
 msgstr[1] "jaren"
 
 #: resources/views/modules/statistics-chart/components/hero.phtml:76
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:477
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:492
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:478
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:494
 msgid "yr"
 msgstr "jr"
 
