@@ -152,7 +152,7 @@ final readonly class LifeSpanRepository
         ['label' => '0–17', 'max' => 17],
         ['label' => '18–35', 'max' => 35],
         ['label' => '36–65', 'max' => 65],
-        ['label' => '65+', 'max' => null],
+        ['label' => '66+', 'max' => null],
     ];
 
     /**
@@ -938,7 +938,7 @@ final readonly class LifeSpanRepository
      * payload behind the population-pyramid widget. Reuses the exact cohort
      * definition the box-plot sibling ({@see deathAgeDistributionByCentury()})
      * applies: one BIRT+DEAT pair per individual, birth-century classification,
-     * age in whole years capped at the tree's plausibility ceiling. Zero-year
+     * age in whole years, with individuals above the tree's plausibility ceiling left out. Zero-year
      * lifespans are kept, like in the cohort-mean and box-plot metrics — an
      * infant death belongs in the youngest band and carries real demographic
      * signal in a pyramid.

@@ -112,7 +112,7 @@ echo Section::create(I18N::translate('How names came and went over time'))
     ->render();
 
 echo Card::for($module, I18N::translate('Given-name popularity across decades'))
-    ->withSub(I18N::translate('Top %s given names, stacked · band thickness = share per decade', I18N::number(count($givenNameTrends->names))))
+    ->withSub(I18N::translate('Top %s given names, stacked · band thickness = individuals born per decade', I18N::number(count($givenNameTrends->names))))
     ->withEyebrow(I18N::translate('Timeline'))
     ->withAccent(Accent::Ochre)
     ->withIllustration(Illustration::Tree)

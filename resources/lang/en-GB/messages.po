@@ -697,7 +697,8 @@ msgstr ""
 msgid ""
 "Age difference between consecutive siblings in the same family. Very small "
 "gaps (< 1 year) often signal twins or close-spaced births; very large gaps "
-"(10+ years) typically reflect second marriages or long intervals."
+"(10+ years) may point to children in between who are not recorded or to a "
+"long break."
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:209
@@ -817,20 +818,20 @@ msgstr ""
 msgid "Births and deaths across the year"
 msgstr ""
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:699
-msgid "Births by 25-year period and calendar month"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:682
-msgid "Births by 25-year period × month"
-msgstr ""
-
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:100
 msgid "Births by decade"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:317
 msgid "Births by month"
+msgstr ""
+
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:699
+msgid "Births by period and calendar month"
+msgstr ""
+
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:682
+msgid "Births by period × month"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:105
@@ -903,7 +904,7 @@ msgid "Causes"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:563
-msgid "Causes of death and infant mortality"
+msgid "Causes of death and child mortality"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:619
@@ -1068,16 +1069,16 @@ msgstr ""
 msgid "Deaths are evenly spread across the year."
 msgstr ""
 
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:530
+msgid "Deaths by month"
+msgstr ""
+
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:721
-msgid "Deaths by 25-year period and calendar month"
+msgid "Deaths by period and calendar month"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:704
-msgid "Deaths by 25-year period × month"
-msgstr ""
-
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:530
-msgid "Deaths by month"
+msgid "Deaths by period × month"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:525
@@ -1105,7 +1106,7 @@ msgid "Demographics"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:679
-msgid "Density of recorded births and deaths by 25-year period and month"
+msgid "Density of recorded births and deaths by period and month"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:513
@@ -1233,28 +1234,32 @@ msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:688
 msgid ""
-"Each cell counts the births recorded in one 25-year period (a row) and one "
-"calendar month (a column), with the count printed inside it. The more births "
-"fell in that period and month, the more saturated the cell; a near-blank "
-"cell means few or none. Reading down a column shows whether a month stayed "
-"busy across the periods, reading along a row shows how one period spread its "
-"births over the year. Only dates with both a known year and month are "
-"placed. Leading and trailing periods without a single recorded birth are "
-"dropped, while an empty period between two recorded ones stays as a blank "
-"band so a gap in the records is not hidden."
+"Each cell counts the births recorded in one period (a row) and one calendar "
+"month (a column), with the count printed inside it. The period is 25 years "
+"wide and widens in steps when the tree spans so many centuries that narrower "
+"rows would be too many to read. The more births fell in that period and "
+"month, the more saturated the cell; a near-blank cell means few or none. "
+"Reading down a column shows whether a month stayed busy across the periods, "
+"reading along a row shows how one period spread its births over the year. "
+"Only dates with both a known year and month are placed. Leading and trailing "
+"periods without a single recorded birth are dropped, while an empty period "
+"between two recorded ones stays as a blank band so a gap in the records is "
+"not hidden."
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:710
 msgid ""
-"Each cell counts the deaths recorded in one 25-year period (a row) and one "
-"calendar month (a column), with the count printed inside it. The more deaths "
-"fell in that period and month, the more saturated the cell; a near-blank "
-"cell means few or none. Reading down a column shows whether a month stayed "
-"busy across the periods, reading along a row shows how one period spread its "
-"deaths over the year. Only dates with both a known year and month are "
-"placed. Leading and trailing periods without a single recorded death are "
-"dropped, while an empty period between two recorded ones stays as a blank "
-"band so a gap in the records is not hidden."
+"Each cell counts the deaths recorded in one period (a row) and one calendar "
+"month (a column), with the count printed inside it. The period is 25 years "
+"wide and widens in steps when the tree spans so many centuries that narrower "
+"rows would be too many to read. The more deaths fell in that period and "
+"month, the more saturated the cell; a near-blank cell means few or none. "
+"Reading down a column shows whether a month stayed busy across the periods, "
+"reading along a row shows how one period spread its deaths over the year. "
+"Only dates with both a known year and month are placed. Leading and trailing "
+"periods without a single recorded death are dropped, while an empty period "
+"between two recorded ones stays as a blank band so a gap in the records is "
+"not hidden."
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:653
@@ -1337,18 +1342,19 @@ msgstr ""
 msgid ""
 "Each year's recorded death count is compared with the surrounding eleven-"
 "year window. A year is flagged when its count lies at least two standard "
-"deviations above the window's mean, and the flagged years are ranked by how "
-"far they stand out. The marker behind each bar shows the window median as "
-"the expected baseline; mean and median sit close together but are not "
-"identical. Only years with a full window on both sides are considered, so "
-"the most recent and oldest years are never flagged. Read a flagged year as "
-"one that stands out against the recorded baseline, not automatically as real "
-"excess mortality: denser record-keeping, an import batch, or round-year date "
-"clustering can lift a single year's count much as a true epidemic, war or "
-"famine would. Where the death places of a year fall in a covered region and "
-"period, the year is annotated with the historical event it coincides with: a "
-"temporal note, never a stated cause of death; coverage is limited to broadly-"
-"documented events and can be extended via the project repository."
+"deviations above the window's mean, and the flagged years that stand out "
+"most are listed in chronological order. The marker behind each bar shows the "
+"window median as the expected baseline; mean and median sit close together "
+"but are not identical. Only years with a full window on both sides are "
+"considered, so the most recent and oldest years are never flagged. Read a "
+"flagged year as one that stands out against the recorded baseline, not "
+"automatically as real excess mortality: denser record-keeping, an import "
+"batch, or round-year date clustering can lift a single year's count much as "
+"a true epidemic, war or famine would. Where the death places of a year fall "
+"in a covered region and period, the year is annotated with the historical "
+"event it coincides with: a temporal note, never a stated cause of death; "
+"coverage is limited to broadly-documented events and can be extended via the "
+"project repository."
 msgstr ""
 
 #: src/Support/Locale/HistoricalEventCatalog.php:214
@@ -2240,8 +2246,9 @@ msgid ""
 "can be compared band by band; both columns share one scale, so a longer bar "
 "always means more people. The youngest band sits at the base and the oldest "
 "(100+) at the top. Infant and child deaths are kept, so a band can be wide "
-"at the very bottom. Ages are capped at the tree's plausibility ceiling to "
-"keep a single data-entry error from stretching the axis."
+"at the very bottom. Individuals whose recorded age lies above the tree's "
+"plausibility ceiling are left out, so a single data-entry error cannot "
+"stretch the axis."
 msgstr ""
 
 #: src/Support/Locale/ZodiacLabels.php:60
@@ -2351,7 +2358,7 @@ msgid "Share of a birth cohort still alive at each age threshold"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:414
-msgid "Share of children born on the same day as a sibling in the same family"
+msgid "Share of children born within one day of a sibling in the same family"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/names.phtml:143
@@ -2624,7 +2631,8 @@ msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/names.phtml:115
 #, php-format
-msgid "Top %s given names, stacked · band thickness = share per decade"
+msgid ""
+"Top %s given names, stacked · band thickness = individuals born per decade"
 msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:470
@@ -2677,19 +2685,13 @@ msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:213
 msgid ""
-"Two people are linked when they were partners — married or not. Following "
-"those links from one partner to the next traces a partnership chain; the "
-"longest unbroken chain in the tree is shown on the left. The largest "
-"connected group on the right is every person reachable from one another "
-"through such partnerships, drawn as a web with the person who had the most "
-"partners at its center and the longest chain highlighted."
+"Two people are linked when they were partners, married or not. Following "
+"those links from one partner to the next traces a partnership chain. The "
+"longest unbroken chain in the tree is listed person by person. The largest "
+"connected group is every person reachable from one another through such "
+"partnerships, drawn as a web with the person who had the most partners at "
+"its center and the longest chain highlighted."
 msgstr ""
-"Two people are linked when they were partners — married or not. Following "
-"those links from one partner to the next traces a partnership chain; the "
-"longest unbroken chain in the tree is shown on the left. The largest "
-"connected group on the right is every person reachable from one another "
-"through such partnerships, drawn as a web with the person who had the most "
-"partners at its centre and the longest chain highlighted."
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:185
 msgid "Typical range"

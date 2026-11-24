@@ -758,12 +758,9 @@ msgstr "Věk při sňatku, délka manželství a věkový rozdíl mezi manželi"
 msgid ""
 "Age difference between consecutive siblings in the same family. Very small "
 "gaps (< 1 year) often signal twins or close-spaced births; very large gaps "
-"(10+ years) typically reflect second marriages or long intervals."
+"(10+ years) may point to children in between who are not recorded or to a "
+"long break."
 msgstr ""
-"Věkový rozdíl mezi po sobě jdoucími sourozenci v téže rodině. Velmi malé "
-"odstupy (< 1 rok) často značí dvojčata nebo těsně následující narození; "
-"velmi velké odstupy (10 a více let) obvykle odrážejí druhá manželství nebo "
-"dlouhé přestávky."
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:209
 msgid ""
@@ -895,14 +892,6 @@ msgstr ""
 msgid "Births and deaths across the year"
 msgstr "Narození a úmrtí v průběhu roku"
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:699
-msgid "Births by 25-year period and calendar month"
-msgstr "Narození podle 25letých období a kalendářních měsíců"
-
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:682
-msgid "Births by 25-year period × month"
-msgstr "Narození podle 25letého období × měsíce"
-
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:100
 msgid "Births by decade"
 msgstr "Narození podle desetiletí"
@@ -910,6 +899,14 @@ msgstr "Narození podle desetiletí"
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:317
 msgid "Births by month"
 msgstr "Narození podle měsíců"
+
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:699
+msgid "Births by period and calendar month"
+msgstr ""
+
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:682
+msgid "Births by period × month"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:105
 #, php-format
@@ -986,8 +983,8 @@ msgid "Causes"
 msgstr "Příčiny"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:563
-msgid "Causes of death and infant mortality"
-msgstr "Příčiny úmrtí a dětská úmrtnost"
+msgid "Causes of death and child mortality"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:619
 msgid "Chains and clusters formed by partnership"
@@ -1167,17 +1164,17 @@ msgstr "Inventář datové sady"
 msgid "Deaths are evenly spread across the year."
 msgstr "Úmrtí jsou rovnoměrně rozložena v průběhu roku."
 
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:721
-msgid "Deaths by 25-year period and calendar month"
-msgstr "Úmrtí podle 25letých období a kalendářních měsíců"
-
-#: resources/views/modules/statistics-chart/tabs/life-span.phtml:704
-msgid "Deaths by 25-year period × month"
-msgstr "Úmrtí podle 25letého období × měsíce"
-
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:530
 msgid "Deaths by month"
 msgstr "Úmrtí podle měsíců"
+
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:721
+msgid "Deaths by period and calendar month"
+msgstr ""
+
+#: resources/views/modules/statistics-chart/tabs/life-span.phtml:704
+msgid "Deaths by period × month"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:525
 msgid "Deaths per century"
@@ -1204,8 +1201,8 @@ msgid "Demographics"
 msgstr "Demografie"
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:679
-msgid "Density of recorded births and deaths by 25-year period and month"
-msgstr "Hustota zaznamenaných narození a úmrtí podle 25letých období a měsíců"
+msgid "Density of recorded births and deaths by period and month"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:513
 msgid "Depth"
@@ -1350,47 +1347,33 @@ msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:688
 msgid ""
-"Each cell counts the births recorded in one 25-year period (a row) and one "
-"calendar month (a column), with the count printed inside it. The more births "
-"fell in that period and month, the more saturated the cell; a near-blank "
-"cell means few or none. Reading down a column shows whether a month stayed "
-"busy across the periods, reading along a row shows how one period spread its "
-"births over the year. Only dates with both a known year and month are "
-"placed. Leading and trailing periods without a single recorded birth are "
-"dropped, while an empty period between two recorded ones stays as a blank "
-"band so a gap in the records is not hidden."
+"Each cell counts the births recorded in one period (a row) and one calendar "
+"month (a column), with the count printed inside it. The period is 25 years "
+"wide and widens in steps when the tree spans so many centuries that narrower "
+"rows would be too many to read. The more births fell in that period and "
+"month, the more saturated the cell; a near-blank cell means few or none. "
+"Reading down a column shows whether a month stayed busy across the periods, "
+"reading along a row shows how one period spread its births over the year. "
+"Only dates with both a known year and month are placed. Leading and trailing "
+"periods without a single recorded birth are dropped, while an empty period "
+"between two recorded ones stays as a blank band so a gap in the records is "
+"not hidden."
 msgstr ""
-"Každá buňka počítá narození zaznamenaná v jednom 25letém období (řádek) a "
-"jednom kalendářním měsíci (sloupec); počet je vypsán uvnitř. Čím více "
-"narození v daném období a měsíci bylo, tím je buňka sytější; téměř prázdná "
-"buňka znamená málo nebo žádná. Čtení po sloupci ukazuje, zda byl měsíc rušný "
-"napříč obdobími, čtení po řádku ukazuje, jak jedno období rozložilo svá "
-"narození v průběhu roku. Umístěna jsou pouze data se známým rokem i měsícem. "
-"Úvodní a závěrečná období bez jediného zaznamenaného narození se "
-"vynechávají, zatímco prázdné období mezi dvěma zaznamenanými zůstává jako "
-"prázdný pruh, aby se mezera v záznamech neskryla."
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:710
 msgid ""
-"Each cell counts the deaths recorded in one 25-year period (a row) and one "
-"calendar month (a column), with the count printed inside it. The more deaths "
-"fell in that period and month, the more saturated the cell; a near-blank "
-"cell means few or none. Reading down a column shows whether a month stayed "
-"busy across the periods, reading along a row shows how one period spread its "
-"deaths over the year. Only dates with both a known year and month are "
-"placed. Leading and trailing periods without a single recorded death are "
-"dropped, while an empty period between two recorded ones stays as a blank "
-"band so a gap in the records is not hidden."
+"Each cell counts the deaths recorded in one period (a row) and one calendar "
+"month (a column), with the count printed inside it. The period is 25 years "
+"wide and widens in steps when the tree spans so many centuries that narrower "
+"rows would be too many to read. The more deaths fell in that period and "
+"month, the more saturated the cell; a near-blank cell means few or none. "
+"Reading down a column shows whether a month stayed busy across the periods, "
+"reading along a row shows how one period spread its deaths over the year. "
+"Only dates with both a known year and month are placed. Leading and trailing "
+"periods without a single recorded death are dropped, while an empty period "
+"between two recorded ones stays as a blank band so a gap in the records is "
+"not hidden."
 msgstr ""
-"Každá buňka počítá úmrtí zaznamenaná v jednom 25letém období (řádek) a "
-"jednom kalendářním měsíci (sloupec); počet je vypsán uvnitř. Čím více úmrtí "
-"v daném období a měsíci bylo, tím je buňka sytější; téměř prázdná buňka "
-"znamená málo nebo žádná. Čtení po sloupci ukazuje, zda byl měsíc rušný "
-"napříč obdobími, čtení po řádku ukazuje, jak jedno období rozložilo svá "
-"úmrtí v průběhu roku. Umístěna jsou pouze data se známým rokem i měsícem. "
-"Úvodní a závěrečná období bez jediného zaznamenaného úmrtí se vynechávají, "
-"zatímco prázdné období mezi dvěma zaznamenanými zůstává jako prázdný pruh, "
-"aby se mezera v záznamech neskryla."
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:653
 msgid ""
@@ -1498,34 +1481,20 @@ msgstr ""
 msgid ""
 "Each year's recorded death count is compared with the surrounding eleven-"
 "year window. A year is flagged when its count lies at least two standard "
-"deviations above the window's mean, and the flagged years are ranked by how "
-"far they stand out. The marker behind each bar shows the window median as "
-"the expected baseline; mean and median sit close together but are not "
-"identical. Only years with a full window on both sides are considered, so "
-"the most recent and oldest years are never flagged. Read a flagged year as "
-"one that stands out against the recorded baseline, not automatically as real "
-"excess mortality: denser record-keeping, an import batch, or round-year date "
-"clustering can lift a single year's count much as a true epidemic, war or "
-"famine would. Where the death places of a year fall in a covered region and "
-"period, the year is annotated with the historical event it coincides with: a "
-"temporal note, never a stated cause of death; coverage is limited to broadly-"
-"documented events and can be extended via the project repository."
+"deviations above the window's mean, and the flagged years that stand out "
+"most are listed in chronological order. The marker behind each bar shows the "
+"window median as the expected baseline; mean and median sit close together "
+"but are not identical. Only years with a full window on both sides are "
+"considered, so the most recent and oldest years are never flagged. Read a "
+"flagged year as one that stands out against the recorded baseline, not "
+"automatically as real excess mortality: denser record-keeping, an import "
+"batch, or round-year date clustering can lift a single year's count much as "
+"a true epidemic, war or famine would. Where the death places of a year fall "
+"in a covered region and period, the year is annotated with the historical "
+"event it coincides with: a temporal note, never a stated cause of death; "
+"coverage is limited to broadly-documented events and can be extended via the "
+"project repository."
 msgstr ""
-"Počet úmrtí zaznamenaných v každém roce se porovnává s okolním "
-"jedenáctiletým oknem. Rok je označen, pokud jeho počet leží alespoň dvě "
-"směrodatné odchylky nad průměrem okna; označené roky jsou seřazeny podle "
-"toho, jak moc vyčnívají. Značka za každým sloupcem ukazuje medián okna jako "
-"očekávanou základní úroveň; průměr a medián leží blízko sebe, ale nejsou "
-"totožné. Uvažovány jsou pouze roky s úplným oknem na obou stranách, "
-"nejnovější a nejstarší roky proto nejsou nikdy označeny. Označený rok čtěte "
-"jako rok, který vyčnívá oproti zaznamenané základní úrovni, nikoli "
-"automaticky jako skutečnou nadúmrtnost: hustší vedení záznamů, dávkový "
-"import nebo shlukování dat na kulaté roky mohou zvednout počet za jediný rok "
-"stejně jako skutečná epidemie, válka či hladomor. Pokud místa úmrtí daného "
-"roku spadají do pokrytého regionu a období, je rok opatřen poznámkou o "
-"historické události, s níž se shoduje: jde o časovou poznámku, nikdy o "
-"uvedenou příčinu úmrtí; pokrytí je omezeno na široce doložené události a lze "
-"je rozšířit prostřednictvím repozitáře projektu."
 
 #: src/Support/Locale/HistoricalEventCatalog.php:214
 msgid "Eighty Years’ War (1568–1648)"
@@ -2493,18 +2462,10 @@ msgid ""
 "can be compared band by band; both columns share one scale, so a longer bar "
 "always means more people. The youngest band sits at the base and the oldest "
 "(100+) at the top. Infant and child deaths are kept, so a band can be wide "
-"at the very bottom. Ages are capped at the tree's plausibility ceiling to "
-"keep a single data-entry error from stretching the axis."
+"at the very bottom. Individuals whose recorded age lies above the tree's "
+"plausibility ceiling are left out, so a single data-entry error cannot "
+"stretch the axis."
 msgstr ""
-"Tlačítky nad grafem zvolte století narození. Pro tuto kohortu je každá osoba "
-"se zaznamenaným datem narození i úmrtí zařazena do desetiletého pásma věku "
-"při úmrtí a poté spočítána zvlášť pro každé pohlaví. Oba sloupce rostou "
-"směrem ven od středových popisků pásem, takže lze mužskou a ženskou věkovou "
-"strukturu porovnat pásmo po pásmu; oba sloupce sdílejí jedno měřítko, delší "
-"pruh tedy vždy znamená více osob. Nejmladší pásmo je dole, nejstarší (100+) "
-"nahoře. Úmrtí kojenců a dětí jsou ponechána, spodní pásmo proto může být "
-"široké. Věk je omezen stropem věrohodnosti stromu, aby jediná chyba při "
-"zadávání dat neroztáhla osu."
 
 #: src/Support/Locale/ZodiacLabels.php:60
 msgid "Pisces"
@@ -2613,8 +2574,8 @@ msgid "Share of a birth cohort still alive at each age threshold"
 msgstr "Podíl kohorty narozených, který je naživu při každé věkové hranici"
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:414
-msgid "Share of children born on the same day as a sibling in the same family"
-msgstr "Podíl dětí narozených ve stejný den jako sourozenec v téže rodině"
+msgid "Share of children born within one day of a sibling in the same family"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/names.phtml:143
 msgid ""
@@ -2912,8 +2873,9 @@ msgstr "Příliš málo osob má mapové souřadnice u místa narození i úmrt�
 
 #: resources/views/modules/statistics-chart/tabs/names.phtml:115
 #, php-format
-msgid "Top %s given names, stacked · band thickness = share per decade"
-msgstr "Top %s křestních jmen, skládaně · tloušťka pásu = podíl za desetiletí"
+msgid ""
+"Top %s given names, stacked · band thickness = individuals born per decade"
+msgstr ""
 
 #: resources/views/modules/statistics-chart/tabs/family.phtml:470
 msgid "Top 10 families with the most grandchildren"
@@ -2965,19 +2927,13 @@ msgstr "Dvojčata"
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:213
 msgid ""
-"Two people are linked when they were partners — married or not. Following "
-"those links from one partner to the next traces a partnership chain; the "
-"longest unbroken chain in the tree is shown on the left. The largest "
-"connected group on the right is every person reachable from one another "
-"through such partnerships, drawn as a web with the person who had the most "
-"partners at its center and the longest chain highlighted."
+"Two people are linked when they were partners, married or not. Following "
+"those links from one partner to the next traces a partnership chain. The "
+"longest unbroken chain in the tree is listed person by person. The largest "
+"connected group is every person reachable from one another through such "
+"partnerships, drawn as a web with the person who had the most partners at "
+"its center and the longest chain highlighted."
 msgstr ""
-"Dvě osoby jsou propojeny, pokud byly partnery — ať už sezdanými, nebo ne. "
-"Sledování těchto vazeb od jednoho partnera k druhému vykresluje řetězec "
-"partnerství; nejdelší nepřerušený řetězec ve stromu je vlevo. Největší "
-"propojená skupina vpravo jsou všechny osoby, které jsou přes taková "
-"partnerství vzájemně dosažitelné, vykreslené jako síť s osobou s nejvíce "
-"partnery uprostřed a se zvýrazněným nejdelším řetězcem."
 
 #: resources/views/modules/statistics-chart/tabs/tree-health.phtml:185
 msgid "Typical range"
