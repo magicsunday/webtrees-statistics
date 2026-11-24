@@ -36,9 +36,10 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
 
 use function array_map;
+use function explode;
 use function implode;
 use function range;
-use function str_replace;
+use function str_starts_with;
 
 /**
  * The median year of the largest partnership group follows the date rules of
@@ -228,15 +229,20 @@ final class PartnershipReachMedianDateShapesIntegrationTest extends AbstractInte
     }
 
     /**
-     * Import the chain whose middle person has the accepted birth of 1820 and a
-     * change that waits for approval and replaces it with 1790.
+     * Import the chain whose middle person has the accepted lines and a change
+     * that waits for approval and gives the middle person the pending lines. The
+     * viewer stays the administrator, who authors the change, so a test picks
+     * the viewer that it wants to measure afterwards.
+     *
+     * @param list<string> $acceptedLines The accepted BIRT and DEAT lines of the middle person
+     * @param list<string> $pendingLines  The BIRT and DEAT lines of the middle person after the change
      *
      * @return Tree The imported tree
      */
-    private function treeWithPendingBirthChange(): Tree
+    private function treeWithPendingChange(array $acceptedLines, array $pendingLines): Tree
     {
-        $accepted = ['1 BIRT', '2 DATE 1 JAN 1820', '1 DEAT', '2 DATE 1 JAN 1900'];
-        $tree     = $this->importGedcomTree('shape-pending', $this->chainGedcom($accepted, [1800, 1830, 1810, 1840]));
+        $outerYears = [1800, 1830, 1810, 1840];
+        $tree       = $this->importGedcomTree('shape-pending', $this->chainGedcom($acceptedLines, $outerYears));
 
         $oldGedcom = DB::table('individuals')
             ->where('i_file', '=', $tree->id())
@@ -249,7 +255,7 @@ final class PartnershipReachMedianDateShapesIntegrationTest extends AbstractInte
             'gedcom_id'  => $tree->id(),
             'xref'       => 'I2',
             'old_gedcom' => $oldGedcom,
-            'new_gedcom' => str_replace('1 JAN 1820', '1 JAN 1790', $oldGedcom),
+            'new_gedcom' => $this->recordOf($this->chainGedcom($pendingLines, $outerYears), 'I2'),
             'status'     => 'pending',
             'user_id'    => Auth::id(),
         ]);
@@ -258,14 +264,84 @@ final class PartnershipReachMedianDateShapesIntegrationTest extends AbstractInte
     }
 
     /**
-     * A change that waits for approval is part of the median for an editor. The
-     * administrator edits, so the lower median is 1810, while the accepted data
-     * alone would give 1820.
+     * The lines of one record of a GEDCOM text, from its level zero line to the
+     * line before the next level zero line.
+     *
+     * @param string $gedcom The GEDCOM text
+     * @param string $xref   The XREF of the record
+     *
+     * @return string The record text
+     */
+    private function recordOf(string $gedcom, string $xref): string
+    {
+        $record = [];
+        $inside = false;
+
+        foreach (explode("\n", $gedcom) as $line) {
+            if (str_starts_with($line, '0 ')) {
+                $inside = ($line === '0 @' . $xref . '@ INDI');
+            }
+
+            if ($inside) {
+                $record[] = $line;
+            }
+        }
+
+        return implode("\n", $record);
+    }
+
+    /**
+     * Accepted birth 1820, pending birth 1790 for the middle person.
+     *
+     * @return Tree The imported tree
+     */
+    private function treeWithPendingReplacement(): Tree
+    {
+        return $this->treeWithPendingChange(
+            ['1 BIRT', '2 DATE 1 JAN 1820', '1 DEAT', '2 DATE 1 JAN 1900'],
+            ['1 BIRT', '2 DATE 1 JAN 1790', '1 DEAT', '2 DATE 1 JAN 1900'],
+        );
+    }
+
+    /**
+     * Accepted data without a birth, pending birth 1790 for the middle person.
+     *
+     * @return Tree The imported tree
+     */
+    private function treeWithPendingAddition(): Tree
+    {
+        return $this->treeWithPendingChange(
+            ['1 DEAT', '2 DATE 1 JAN 1900'],
+            ['1 BIRT', '2 DATE 1 JAN 1790', '1 DEAT', '2 DATE 1 JAN 1900'],
+        );
+    }
+
+    /**
+     * Accepted birth 1820, the birth is pending deletion for the middle person.
+     *
+     * @return Tree The imported tree
+     */
+    private function treeWithPendingDeletion(): Tree
+    {
+        return $this->treeWithPendingChange(
+            ['1 BIRT', '2 DATE 1 JAN 1820', '1 DEAT', '2 DATE 1 JAN 1900'],
+            ['1 DEAT', '2 DATE 1 JAN 1900'],
+        );
+    }
+
+    /**
+     * A replacement that waits for approval counts for an editor who is no
+     * administrator. The lower median is 1810, while the accepted data alone
+     * would give 1820.
      */
     #[Test]
-    public function pendingChangeCountsForAnEditor(): void
+    public function pendingReplacementCountsForAnEditor(): void
     {
-        self::assertSame(1810, $this->medianYear($this->treeWithPendingBirthChange(), 3));
+        $tree = $this->treeWithPendingReplacement();
+
+        $this->loginAsEditor($tree);
+
+        self::assertSame(1810, $this->medianYear($tree, 3));
     }
 
     /**
@@ -274,9 +350,64 @@ final class PartnershipReachMedianDateShapesIntegrationTest extends AbstractInte
      * of one request in a cache that the viewer who builds them fills.
      */
     #[Test]
-    public function pendingChangeIsHiddenFromAGuest(): void
+    public function pendingReplacementIsHiddenFromAGuest(): void
     {
-        $tree = $this->treeWithPendingBirthChange();
+        $tree = $this->treeWithPendingReplacement();
+
+        Auth::logout();
+
+        self::assertSame(1820, $this->medianYear($tree, 3));
+    }
+
+    /**
+     * A birth that waits for approval as an addition counts for an editor. The
+     * lower median is 1810, while the accepted data without a birth gives 1830.
+     */
+    #[Test]
+    public function pendingAdditionCountsForAnEditor(): void
+    {
+        $tree = $this->treeWithPendingAddition();
+
+        $this->loginAsEditor($tree);
+
+        self::assertSame(1810, $this->medianYear($tree, 3));
+    }
+
+    /**
+     * A guest sees no birth for the middle person, so the lower median is 1830.
+     */
+    #[Test]
+    public function pendingAdditionIsHiddenFromAGuest(): void
+    {
+        $tree = $this->treeWithPendingAddition();
+
+        Auth::logout();
+
+        self::assertSame(1830, $this->medianYear($tree, 3));
+    }
+
+    /**
+     * A birth that waits for deletion does not count for an editor, as the
+     * birth date of the person on the wire rows does not. The lower median is
+     * 1830, while counting the fact that is about to go would give 1820.
+     */
+    #[Test]
+    public function pendingDeletionDoesNotCountForAnEditor(): void
+    {
+        $tree = $this->treeWithPendingDeletion();
+
+        $this->loginAsEditor($tree);
+
+        self::assertSame(1830, $this->medianYear($tree, 3));
+    }
+
+    /**
+     * A guest still sees the accepted birth, so the lower median is 1820.
+     */
+    #[Test]
+    public function pendingDeletionIsHiddenFromAGuest(): void
+    {
+        $tree = $this->treeWithPendingDeletion();
 
         Auth::logout();
 
