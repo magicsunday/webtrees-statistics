@@ -4,8 +4,10 @@
 # layers and their order, this file only adds to it.
 #
 # This package adds its own layers: View (presentation vocabulary, no first-party
-# dependency of its own) sits just above Support, and Aggregator (the row mappers
-# and tallies that build Model payloads) sits between Contract and Repository.
+# dependency of its own) sits just above Support, Payload (the wire payloads of
+# the widgets, built on Model) sits just above Model, and Aggregator (the row
+# mappers and tallies that build the payloads) sits between Contract and
+# Repository.
 # The layer graph must stay acyclic and every `src/` class must belong to a
 # layer, both are checked by `composer ci:test:php:deptrac`.
 imports:
@@ -65,7 +67,7 @@ deptrac:
 
         # Package-local layers.
         -
-            # Application logic between the repositories and the Model payloads: the
+            # Application logic between the repositories and the payloads: the
             # row mappers, tallies and resolvers that fold a query result into a
             # widget payload (GH-319 moved them out of Support, which must stay
             # domain-agnostic).
@@ -77,6 +79,16 @@ deptrac:
                 -
                     type: classNameRegex
                     value: '#^MagicSunday\\Webtrees\\Statistic\\Normalization\\OccupationFolding$#'
+        -
+            # The wire payloads that the widget partials serialise into the data
+            # attributes of a chart: display-driven DTOs that implement
+            # `JsonSerializable` and map a domain axis onto a neutral wire key. They
+            # build on the Model value objects and depend on nothing else.
+            name: Payload
+            collectors:
+                -
+                    type: directory
+                    value: 'src/Payload/.*'
         -
             # The card / section / widget builders and the presentation enums the
             # view templates consume. Self-contained: no first-party dependency.
@@ -146,17 +158,23 @@ deptrac:
         View:
             - View
             - NoDatabaseAccess
+        Payload:
+            - Payload
+            - Model
+            - NoDatabaseAccess
         Aggregator:
             - Aggregator
             - Support
             - Enum
             - Model
+            - Payload
             - Contract
             - View
             - NoDatabaseAccess
         Repository:
             - Repository
             - Aggregator
+            - Payload
             - Database
             - NoDatabaseAccess
         Adapter:
@@ -164,6 +182,7 @@ deptrac:
             - NoDatabaseAccess
         Facade:
             - Facade
+            - Payload
             - NoDatabaseAccess
         Module:
             - Module
@@ -175,6 +194,7 @@ deptrac:
             - Configuration
             - Contract
             - View
+            - Payload
             - Aggregator
             - Repository
             - Adapter

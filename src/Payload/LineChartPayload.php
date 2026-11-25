@@ -9,9 +9,10 @@
 
 declare(strict_types=1);
 
-namespace MagicSunday\Webtrees\Statistic\Model\LineChart;
+namespace MagicSunday\Webtrees\Statistic\Payload;
 
 use Closure;
+use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
 
 /**
  * Wire-format payload for the chart-lib line-chart widget. `categories` defines

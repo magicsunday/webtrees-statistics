@@ -11,22 +11,22 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Support;
 
-use MagicSunday\Webtrees\Statistic\Model\Chord\ChordMatrixPayload;
-use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
 use MagicSunday\Webtrees\Statistic\Model\Metric\ChildMortalitySummary;
 use MagicSunday\Webtrees\Statistic\Model\Metric\EndogamyRate;
 use MagicSunday\Webtrees\Statistic\Model\Metric\PlaceDispersionSummary;
 use MagicSunday\Webtrees\Statistic\Model\Metric\RateCount;
 use MagicSunday\Webtrees\Statistic\Model\Metric\WinterPeakScore;
-use MagicSunday\Webtrees\Statistic\Model\Pyramid\PopulationPyramidPayload;
 use MagicSunday\Webtrees\Statistic\Model\Ranking\RankingEntry;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyLink;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeySample;
-use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarPayload;
 use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarSeries;
 use MagicSunday\Webtrees\Statistic\Model\Tree\HeroStats;
 use MagicSunday\Webtrees\Statistic\Model\Tree\TreeRecordsReport;
+use MagicSunday\Webtrees\Statistic\Payload\ChordMatrixPayload;
+use MagicSunday\Webtrees\Statistic\Payload\LineChartPayload;
+use MagicSunday\Webtrees\Statistic\Payload\PopulationPyramidPayload;
+use MagicSunday\Webtrees\Statistic\Payload\StackedBarPayload;
 use MagicSunday\Webtrees\Statistic\View\WidgetJson;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;

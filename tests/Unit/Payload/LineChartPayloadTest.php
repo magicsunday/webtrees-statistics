@@ -9,9 +9,9 @@
 
 declare(strict_types=1);
 
-namespace MagicSunday\Webtrees\Statistic\Test\Unit\Model\LineChart;
+namespace MagicSunday\Webtrees\Statistic\Test\Unit\Payload;
 
-use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
+use MagicSunday\Webtrees\Statistic\Payload\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Test\Support\Narrowing\PayloadNarrowing;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

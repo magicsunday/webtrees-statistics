@@ -152,7 +152,8 @@ The `Statistic` aggregator service is resolved via the webtrees DI container (`R
   - `MarriageEndReason` — Backed enum (`death` / `divorce`) classifying how a marriage ended; carried by `MarriageDurationExtreme` and nulled by `MarriageRepository::getMarriageDurationExtremes()` when the family record is not visible (see the privacy key-pattern below).
 - **View-layer enums** (`View/Accent`, `View/Illustration`, `View/LegendPosition`, `View/RecordCategory`) live with the builder API they shape — see the "View builders" section below. (`View/ProgressBarAccent` is a static-lookup class, not an enum — also documented there.)
 - **`Model/FamilyRow.php`** — Typed row for the raw FAM tuple carried through the marital-classification pipeline. The only class at the root of `Model\`; it is a domain value object, not a wire shape.
-- **`Model/<Widget>/`** — Wire-format DTOs grouped by chart-lib widget shape (`Chord/`, `Heatmap/`, `LineChart/`, `Metric/`, `Pyramid/`, `Ranking/`, `Record/`, `Sankey/`, `StackedBar/`, `StreamGraph/`, `Tree/`). A payload whose public properties are exactly its wire shape is JSON-encoded as it is by `WidgetJson`. A payload that projects, omits or derives a field implements `JsonSerializable`, and `PayloadEncodingTest` pins the shape of the plain ones. `Ranking/RankingEntry` is one `{xref, label, value}` podium row — podiums return a `list` of these (not a name-keyed map) so same-named entities stay distinct rows.
+- **`Payload/`** — The widget payloads that a partial serialises into the `data-payload` attribute of a chart: `ChordMatrixPayload`, `GivenNameTrendsPayload`, `HeatmapPayload`, `LineChartPayload`, `PopulationPyramidPayload`, `SankeyFlowsPayload` and `StackedBarPayload`. They build on the `Model` value objects (`Sankey/SankeyLink`, `LineChart/LineChartSeries`, `StackedBar/StackedBarSeries`) and own their wire shape. A payload whose public properties are exactly its wire shape is JSON-encoded as it is by `WidgetJson`. A payload that projects, omits or derives a field implements `JsonSerializable`, and `PayloadEncodingTest` pins the shape of the plain ones.
+- **`Model/<Widget>/`** — Wire-format DTOs grouped by chart-lib widget shape (`Chord/`, `Heatmap/`, `LineChart/`, `Metric/`, `Pyramid/`, `Ranking/`, `Record/`, `Sankey/`, `StackedBar/`, `StreamGraph/`, `Tree/`), the rows and series that a payload or a template carries. Several of them implement `JsonSerializable` as well. `Ranking/RankingEntry` is one `{xref, label, value}` podium row — podiums return a `list` of these (not a name-keyed map) so same-named entities stay distinct rows.
 - **`Model/<Domain>/`** — Domain value objects (`Family/`, `Marriage/`, `Mortality/`). Nothing serialises them directly, so they carry no `jsonSerialize()`.
 
 ### Layers (Deptrac)
@@ -160,10 +161,10 @@ The `Statistic` aggregator service is resolved via the webtrees DI container (`R
 `deptrac.yaml` places every `src/` class in exactly one real layer; the layer graph is acyclic and the order (lowest first) is
 
 ```
-Support < View < Enum < Model < Contract < Aggregator < Repository, Adapter < Facade < Module
+Support < View < Enum < Model < Payload < Contract < Aggregator < Repository, Adapter < Facade < Module
 ```
 
-which is the shared 3.0 order `Support < Enum < Model, Configuration < Contract < Repository, Adapter, Service < Facade < Module` with this module's two local layers slotted in.
+which is the shared 3.0 order `Support < Enum < Model, Configuration < Contract < Repository, Adapter, Service < Facade < Module` with this module's three local layers slotted in.
 
 | Layer | Members | Depends on |
 |---|---|---|
@@ -171,11 +172,12 @@ which is the shared 3.0 order `Support < Enum < Model, Configuration < Contract 
 | `View` | `View/` — card / section / widget builders and the presentation enums | nothing first-party |
 | `Enum` | `Enum/` | — |
 | `Model` | `Model/`, `Normalization\NormalizedOccupation` | `Support`, `Enum` |
+| `Payload` | `Payload/` — the wire payloads of the widgets | `Model` |
 | `Contract` | `Normalization/Contract/` | `Model` |
-| `Aggregator` | `Aggregator/`, `Normalization\OccupationFolding` — application logic that builds `Model` payloads | `Support`, `Model`, `Contract`, `View` |
-| `Repository` | `Repository/` | `Support`, `Enum`, `Model`, `Contract`, `Aggregator`, `Database` |
+| `Aggregator` | `Aggregator/`, `Normalization\OccupationFolding` — application logic that builds `Payload` and `Model` objects | `Support`, `Model`, `Payload`, `Contract`, `View` |
+| `Repository` | `Repository/` | `Support`, `Enum`, `Model`, `Payload`, `Contract`, `Aggregator`, `Database` |
 | `Adapter` | `Normalization\StandardizerModuleNormalizer` — the port's implementation | `Support`, `Model`, `Contract` |
-| `Facade` | `Statistic` | `Support`, `Enum`, `Model`, `Repository` |
+| `Facade` | `Statistic` | `Support`, `Enum`, `Model`, `Payload`, `Repository` |
 | `Module` | `Module`, `Traits/` — the composition root | `Contract`, `Adapter`, `Facade` |
 
 - **`Model -> Support`** is granted by the shared 3.0 ruleset itself, so `deptrac.yaml` no longer widens it. The partnership report VOs carry wire rows that `PartnershipReachRepository` flattens through `Support\Gedcom\IndividualWire`, so no `Model` class needs `Support` for it.

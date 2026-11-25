@@ -9,9 +9,10 @@
 
 declare(strict_types=1);
 
-namespace MagicSunday\Webtrees\Statistic\Model\Sankey;
+namespace MagicSunday\Webtrees\Statistic\Payload;
 
 use JsonSerializable;
+use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyLink;
 
 use function array_map;
 
