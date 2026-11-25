@@ -81,9 +81,10 @@ deptrac:
                     value: '#^MagicSunday\\Webtrees\\Statistic\\Normalization\\OccupationFolding$#'
         -
             # The wire payloads that the widget partials serialise into the data
-            # attributes of a chart: display-driven DTOs that implement
-            # `JsonSerializable` and map a domain axis onto a neutral wire key. They
-            # build on the Model value objects and depend on nothing else.
+            # attributes of a chart. A payload whose shape differs from its
+            # properties implements `JsonSerializable` and maps a domain axis onto a
+            # neutral wire key. They build on the Model value objects and depend on
+            # nothing else.
             name: Payload
             collectors:
                 -
