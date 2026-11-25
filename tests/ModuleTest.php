@@ -14,7 +14,9 @@ namespace MagicSunday\Webtrees\Statistic\Test;
 use Fisharebest\Webtrees\Factories\ResponseFactory;
 use Fisharebest\Webtrees\Http\Exceptions\HttpAccessDeniedException;
 use Fisharebest\Webtrees\Http\Exceptions\HttpNotFoundException;
+use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Registry;
+use Fisharebest\Webtrees\Webtrees;
 use MagicSunday\Webtrees\Statistic\Module;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7\ServerRequest;
@@ -60,13 +62,17 @@ final class ModuleTest extends TestCase
     /**
      * The asset handler builds its response through the webtrees registry, whose
      * response factory is only set once the application has booted. Wiring it
-     * the way the core does lets every test of this class run on its own.
+     * the way the core does lets every test of this class run on its own. The tab
+     * catalogue translates its labels, so the translator is initialised the same
+     * way.
      */
     protected function setUp(): void
     {
         parent::setUp();
 
         Registry::responseFactory(new ResponseFactory(new Psr17Factory(), new Psr17Factory()));
+        (new Webtrees())->bootstrap();
+        I18N::init('en-US', true);
     }
 
     /**
