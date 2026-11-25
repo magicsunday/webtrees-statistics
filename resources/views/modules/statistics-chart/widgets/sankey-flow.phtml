@@ -35,11 +35,16 @@ $sankeyI18n = [
     'totalSingular' => I18N::translate('{count} individual'),
     'totalPlural'   => I18N::translate('{count} individuals'),
 ];
+
+// The widget draws its node labels inside the drawing area, so only a small margin
+// is needed. The wide default margin of the widget would leave a narrow screen a
+// drawing of a fraction of its width.
+$sankeyMargin = ['top' => 8, 'right' => 12, 'bottom' => 8, 'left' => 12];
 ?>
 <div id="<?php echo e($identifier); ?>"
      class="wt-stat-sankey-flow-container"
      data-widget="sankey-flow"
      data-payload="<?php echo WidgetJson::encodeAttribute($data); ?>"
-     data-options="<?php echo WidgetJson::encodeAttribute(['height' => $height, 'i18n' => $sankeyI18n]); ?>"
+     data-options="<?php echo WidgetJson::encodeAttribute(['height' => $height, 'margin' => $sankeyMargin, 'i18n' => $sankeyI18n]); ?>"
      data-empty-message="<?php echo e(EmptyStatePlaceholder::defaultMessage()); ?>"
 ></div>
