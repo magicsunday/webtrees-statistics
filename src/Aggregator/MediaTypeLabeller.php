@@ -13,7 +13,7 @@ namespace MagicSunday\Webtrees\Statistic\Aggregator;
 
 use Fisharebest\Webtrees\Elements\SourceMediaType;
 use Fisharebest\Webtrees\Registry;
-use MagicSunday\Webtrees\Statistic\Support\Wording;
+use MagicSunday\Webtrees\Statistic\Support\Text\Wording;
 
 /**
  * Resolves raw `source_media_type` tokens to their translated, human-readable

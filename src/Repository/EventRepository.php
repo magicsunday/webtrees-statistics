@@ -15,9 +15,9 @@ use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Aggregator\EventCenturyTally;
 use MagicSunday\Webtrees\Statistic\Aggregator\EventMonthTally;
 use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
+use MagicSunday\Webtrees\Statistic\Support\Calc\ZodiacSigns;
 use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
-use MagicSunday\Webtrees\Statistic\Support\ZodiacSigns;
 
 use function array_fill_keys;
 

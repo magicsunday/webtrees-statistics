@@ -27,7 +27,7 @@ use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarPayload;
 use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarSeries;
 use MagicSunday\Webtrees\Statistic\Model\Tree\HeroStats;
 use MagicSunday\Webtrees\Statistic\Model\Tree\TreeRecordsReport;
-use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
+use MagicSunday\Webtrees\Statistic\View\WidgetJson;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

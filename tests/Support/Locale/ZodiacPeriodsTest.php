@@ -13,8 +13,8 @@ namespace MagicSunday\Webtrees\Statistic\Test\Support\Locale;
 
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Webtrees;
+use MagicSunday\Webtrees\Statistic\Support\Calc\ZodiacSigns;
 use MagicSunday\Webtrees\Statistic\Support\Locale\ZodiacPeriods;
-use MagicSunday\Webtrees\Statistic\Support\ZodiacSigns;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
