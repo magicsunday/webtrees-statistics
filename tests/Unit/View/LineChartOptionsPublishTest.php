@@ -11,19 +11,21 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Unit\View;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 use function dirname;
 use function file_get_contents;
+use function preg_match;
+use function preg_quote;
 
 /**
- * Locks the publish contract for the two chart-lib LineChart options
- * `multiSeriesArea` and `yUnit`. The chart-lib bundle reads them from the host
- * element's `data-options` JSON; if the line-chart partial stops emitting the
- * keys, or if the names tab stops setting them on the same-sex-passdown card,
- * the chart silently regresses to single area + bare numeric tooltip without a
- * visible failure mode.
+ * Locks the publish contract of the chart-lib LineChart options and the way the
+ * cards set them. The chart-lib bundle reads the options from the host
+ * element's `data-options` JSON. If the line-chart partial stops emitting a
+ * key, or a card stops setting it, the chart changes its look without a visible
+ * failure.
  *
  * Static file-content assertions only — the partial cannot be rendered
  * standalone because `view()` requires the full webtrees runtime. The pattern
@@ -37,20 +39,30 @@ use function file_get_contents;
 final class LineChartOptionsPublishTest extends TestCase
 {
     /**
-     * The line-chart widget partial must publish `multiSeriesArea` into the
-     * rendered `data-options` JSON so the chart-lib constructor picks it up.
-     * The key arrives via the `with()` builder and lands in `$multiSeriesArea`
-     * inside the partial.
+     * @return iterable<string, array{string, string}>
+     */
+    public static function rateCards(): iterable
+    {
+        yield 'average family size' => ['family', 'average-family-size-line'];
+        yield 'divorce rate' => ['family', 'divorce-cohort-line'];
+        yield 'multiple-birth rate' => ['family', 'multiple-birth-rate-line'];
+        yield 'child mortality' => ['life-span', 'child-mortality-century-line'];
+        yield 'survival curve' => ['life-span', 'survival-curve'];
+        yield 'name passdown' => ['names', 'same-sex-name-passdown-line'];
+    }
+
+    /**
+     * A rate or a mean is a line. A chart with a single series fills the area
+     * under its line unless the card switches that off, and the number of series
+     * of a card can depend on the tree.
      */
     #[Test]
-    public function lineChartPartialPublishesMultiSeriesAreaOption(): void
+    #[DataProvider('rateCards')]
+    public function aRateCardDrawsNoArea(string $tab, string $identifier): void
     {
-        $partial = $this->loadLineChartPartial();
-
         self::assertMatchesRegularExpression(
-            "/'multiSeriesArea'\\s*=>\\s*\\\$multiSeriesArea\\s*\\?\\?\\s*null/",
-            $partial,
-            'line-chart.phtml must emit multiSeriesArea into the data-options array',
+            "/->with\\('showArea',\\s*false\\)/",
+            $this->cardChain($tab, $identifier),
         );
     }
 
@@ -72,24 +84,16 @@ final class LineChartOptionsPublishTest extends TestCase
     }
 
     /**
-     * The same-sex name passdown card is the first real consumer of the two new
-     * options and must wire both through the Widget builder. A future cleanup
-     * that drops either `with()` call would regress the chart silently.
+     * The same-sex name passdown card wires the suffix through the Widget
+     * builder. A cleanup that drops the `with()` call would regress the chart
+     * silently.
      */
     #[Test]
-    public function sameSexPassdownCardSetsMultiSeriesAreaAndYUnit(): void
+    public function sameSexPassdownCardSetsYUnit(): void
     {
-        $names = $this->loadNamesTab();
-
-        self::assertMatchesRegularExpression(
-            "/->with\\('multiSeriesArea',\\s*true\\)/",
-            $names,
-            'names.phtml must enable multiSeriesArea on the same-sex passdown card',
-        );
-
         self::assertMatchesRegularExpression(
             "/->with\\('yUnit',\\s*' %'\\)/",
-            $names,
+            $this->cardChain('names', 'same-sex-name-passdown-line'),
             'names.phtml must set yUnit to " %" on the same-sex passdown card',
         );
     }
@@ -175,19 +179,22 @@ final class LineChartOptionsPublishTest extends TestCase
     }
 
     /**
-     * Helper that loads the names tab template as a string for static
-     * assertion. Fails fast if the path drifts.
+     * The builder chain of one line-chart card, from its widget call to the
+     * first render call after it. Fails when the tab holds no such card.
      */
-    private function loadNamesTab(): string
+    private function cardChain(string $tab, string $identifier): string
     {
-        $path = dirname(__DIR__, 3)
-            . '/resources/views/modules/statistics-chart/tabs/names.phtml';
-
+        $path     = dirname(__DIR__, 3) . '/resources/views/modules/statistics-chart/tabs/' . $tab . '.phtml';
         $contents = file_get_contents($path);
 
-        self::assertNotFalse($contents, 'names.phtml tab template must be readable');
+        self::assertNotFalse($contents, $tab . '.phtml tab template must be readable');
+        self::assertSame(
+            1,
+            preg_match("/Widget::lineChart\\(\\\$module, '" . preg_quote($identifier, '/') . "'\\).*?->render\\(\\)/s", $contents, $match),
+            $tab . '.phtml must hold the card ' . $identifier,
+        );
 
-        return $contents;
+        return $match[0];
     }
 
     /**

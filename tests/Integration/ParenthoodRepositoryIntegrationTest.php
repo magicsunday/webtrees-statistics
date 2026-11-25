@@ -19,6 +19,7 @@ use PHPUnit\Framework\Attributes\Test;
 use function array_key_exists;
 use function array_sum;
 use function count;
+use function implode;
 
 /**
  * End-to-end test of {@see ParenthoodRepository} against two fixtures:
@@ -313,5 +314,29 @@ final class ParenthoodRepositoryIntegrationTest extends AbstractIntegrationTestC
         self::assertEqualsWithDelta(24.0, $fathersMean, 0.05, 'Five fathers, age 24 at their earliest child');
         $mothersMean = array_key_exists(0, $mothers->values) ? $mothers->values[0] : self::fail('Expected a value at offset 0');
         self::assertNull($mothersMean, 'No mothers recorded — gap, not age 0');
+    }
+
+    /**
+     * A decade without enough parents of either sex that lies between two
+     * decades with enough of them stays on the axis as a gap.
+     */
+    #[Test]
+    public function ageAtFirstChildMeanByDecadeKeepsAThinDecadeAsAGap(): void
+    {
+        $records = [];
+
+        foreach ([1905, 1905, 1905, 1905, 1905, 1915, 1925, 1925, 1925, 1925, 1925] as $index => $year) {
+            $born      = $year - 30;
+            $records[] = "0 @P{$index}@ INDI\n1 SEX M\n1 BIRT\n2 DATE 1 JAN {$born}\n1 FAMS @F{$index}@\n";
+            $records[] = "0 @C{$index}@ INDI\n1 BIRT\n2 DATE 1 JUL {$year}\n1 FAMC @F{$index}@\n";
+            $records[] = "0 @F{$index}@ FAM\n1 HUSB @P{$index}@\n1 CHIL @C{$index}@\n";
+        }
+
+        $tree   = $this->importGedcomTree('first-child-gap', "0 HEAD\n1 CHAR UTF-8\n" . implode('', $records) . "0 TRLR\n");
+        $result = (new ParenthoodRepository($tree))->ageAtFirstChildMeanByDecade();
+
+        self::assertSame(['1900s', '1910s', '1920s'], $result->categories);
+        self::assertSame([30.0, null, 30.0], PayloadNarrowing::seriesAt($result, 0)->values);
+        self::assertSame([null, null, null], PayloadNarrowing::seriesAt($result, 1)->values);
     }
 }

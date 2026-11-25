@@ -29,8 +29,12 @@ use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Locale\DecadeName;
 
+use function array_filter;
+use function array_keys;
 use function intdiv;
-use function ksort;
+use function max;
+use function min;
+use function range;
 use function round;
 
 /**
@@ -325,8 +329,6 @@ final class ParenthoodRepository
             return new LineChartPayload(categories: [], series: []);
         }
 
-        ksort($decades);
-
         $categories          = [];
         $fatherValues        = [];
         $motherValues        = [];
@@ -335,16 +337,20 @@ final class ParenthoodRepository
         $fatherTooltipLabels = [];
         $motherTooltipLabels = [];
 
-        foreach ($decades as $decade => $perSex) {
-            // Drop decades where neither sex meets the cohort floor —
-            // they carry no statistically defensible mean and would
-            // pad the X-axis with empty leading / trailing entries.
-            if (
-                ($perSex['M']['n'] < self::MIN_DECADE_COHORT_SIZE)
-                && ($perSex['F']['n'] < self::MIN_DECADE_COHORT_SIZE)
-            ) {
-                continue;
-            }
+        $qualifying = array_keys(
+            array_filter(
+                $decades,
+                static fn (array $perSex): bool => ($perSex['M']['n'] >= self::MIN_DECADE_COHORT_SIZE)
+                    || ($perSex['F']['n'] >= self::MIN_DECADE_COHORT_SIZE),
+            )
+        );
+
+        // The axis runs without holes between the first and the last decade
+        // that reaches the floor, so a thin decade shows as a gap in time.
+        $axis = $qualifying === [] ? [] : range(min($qualifying), max($qualifying), 10);
+
+        foreach ($axis as $decade) {
+            $perSex = $decades[$decade] ?? ['M' => ['sum' => 0, 'n' => 0], 'F' => ['sum' => 0, 'n' => 0]];
 
             $categories[] = DecadeName::for($decade);
             $longLabel    = DecadeName::longLabel($decade);
