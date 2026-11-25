@@ -140,7 +140,7 @@ Module.php (entry point, registers route + 6 tab action methods)
 
 Every tab action delegates to the private `renderTab(string $template)` helper, which loads `tabs/<template>.phtml` with the active `Statistic` aggregator. Adding a new tab is a three-place change: an entry in `tabCatalog()`, a `get<Name>Action()` method that calls `renderTab('<kebab-name>')`, and a `tabs/<kebab-name>.phtml` body that composes its cards via the `Card::for($module, $title)->render()` builder.
 
-The `Statistic` aggregator service is resolved via the webtrees DI container (`Registry::container()->get(Statistic::class)`) and aggregates data from twenty-six repositories plus core's `StatisticsData`.
+The `Statistic` aggregator service is resolved via the webtrees DI container (`Registry::container()->get(Statistic::class)`) and aggregates data from the repositories plus core's `StatisticsData`.
 
 ### PHP (`src/`)
 - **`Module.php`** — Entry point, extends webtrees `StatisticsChartModule`, implements `ModuleAssetUrlInterface` + `ModuleCustomInterface`. `getChartAction()` resolves `Statistic` through the container, calls `getHeroStats()`, and publishes the result + six webfont asset URLs to `page.phtml`. Per-tab actions (Overview, Names, LifeSpan, Family, Places, TreeHealth) all delegate to a shared `renderTab()` helper that injects the same `Statistic` instance into the tab template.
