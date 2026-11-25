@@ -22,7 +22,6 @@ use Fisharebest\Webtrees\View;
 use MagicSunday\Webtrees\ModuleBase\Contract\ModuleAssetUrlInterface;
 use MagicSunday\Webtrees\Statistic\Normalization\Contract\OccupationNormalizerInterface;
 use MagicSunday\Webtrees\Statistic\Normalization\StandardizerModuleNormalizer;
-use MagicSunday\Webtrees\Statistic\Traits\ModuleChartTrait;
 use MagicSunday\Webtrees\Statistic\Traits\ModuleCustomTrait;
 use Override;
 use Psr\Http\Message\ResponseInterface;
@@ -45,7 +44,6 @@ use function realpath;
  */
 final class Module extends StatisticsChartModule implements ModuleAssetUrlInterface, ModuleCustomInterface
 {
-    use ModuleChartTrait;
     use ModuleCustomTrait;
 
     private const string GITHUB_REPO = 'magicsunday/webtrees-statistics';

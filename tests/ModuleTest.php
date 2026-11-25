@@ -172,6 +172,17 @@ final class ModuleTest extends TestCase
     }
 
     /**
+     * The Charts dropdown entry of the module keeps the icon class of the core
+     * statistics chart, because core's chart trait would reset the menu class to
+     * the empty string wherever it is composed into the module class.
+     */
+    #[Test]
+    public function chartMenuClassKeepsTheStatisticsIconClass(): void
+    {
+        self::assertSame('menu-chart-statistics', (new Module())->chartMenuClass());
+    }
+
+    /**
      * Drives the asset handler with a real .woff2 file from the module's
      * resources/ directory and asserts the response header carries the
      * `font/woff2` MIME type. The core Mime::TYPES map has no entry for web
