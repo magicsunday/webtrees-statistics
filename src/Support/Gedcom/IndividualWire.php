@@ -16,10 +16,10 @@ use Fisharebest\Webtrees\Individual;
 /**
  * Flattens a webtrees {@see Individual} to the JSON-encodable `{xref, label,
  * sex, birth, death, url}` wire row a JS/JSON consumer can drive without an
- * Individual proxy. Shared by every report VO that carries live people for the
- * PHTML view but must serialise them away. The marriage-reach chain and its
- * group excerpt both flatten people this exact way, so the strip-name +
- * year-only + url idiom lives here once.
+ * Individual proxy. Used by the partnership reach repository, which flattens
+ * the people of the chain and of the group excerpt here, so the report VOs carry
+ * rows and no framework record. The strip-name + year-only + url idiom lives
+ * here once.
  *
  * Privacy: the label is the record's own `fullName()` (markup stripped,
  * entities decoded), so a non-visible person already reads as "Private" without

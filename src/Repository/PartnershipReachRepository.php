@@ -76,9 +76,9 @@ final readonly class PartnershipReachRepository
     }
 
     /**
-     * Tree-wide partnership-reach summary: the longest partnership chain resolved to
-     * ordered {@see Individual} objects, the largest connected partnership group
-     * (its people, which are excerpted to {@see NETWORK_CAP} when the real cluster
+     * Tree-wide partnership-reach summary: the longest partnership chain as ordered
+     * wire rows of its people, the largest connected partnership group
+     * (its people as wire rows, which are excerpted to {@see NETWORK_CAP} when the real cluster
      * is larger, plus its internal edges, the longest path's xrefs, the max-degree
      * hub, its real and shown sizes and the median year over the visible BIRT and
      * DEAT facts), and the depth-vs-breadth ratio components. Returns `null` when no
