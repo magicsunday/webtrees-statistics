@@ -455,8 +455,7 @@ final readonly class ChildrenRepository
      * Multiple-birth rate per century, one series per multiplicity that
      * actually occurs in the tree (twins, triplets, quadruplets, quintuplet+).
      * Each series carries the per-century share of children that landed in a
-     * set of that size, so the lines show the twin share lying far above the
-     * triplet and quadruplet shares.
+     * set of that size.
      *
      * Detection: children of the same FAM whose BIRT julian-days sit within
      * {@see MULTI_BIRTH_MAX_DAY_GAP} of each other form a multiple-birth set.
