@@ -50,6 +50,8 @@ final class GedcomScannerTest extends TestCase
         yield 'tag outside the list does not count' => ["\n0 @I1@ INDI\n1 BAPM\n2 DATE 1900", ['BIRT', 'DEAT'], false];
         yield 'custom tag that ends in BIRT does not count' => ["\n0 @I1@ INDI\n1 _BIRT\n2 DATE 1900", ['BIRT', 'DEAT'], false];
         yield 'no event at all' => ["\n0 @I1@ INDI\n1 NAME A /B/", ['BIRT', 'DEAT'], false];
+        yield 'empty tag list does not match a level-one line without a tag' => ["\n0 @I1@ INDI\n1 \n2 DATE 1900", [], false];
+        yield 'empty tag list names no event' => ["\n0 @I1@ INDI\n1 BIRT\n2 DATE 1 JAN 1900", [], false];
     }
 
     /**
