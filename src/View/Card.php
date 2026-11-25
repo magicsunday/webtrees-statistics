@@ -47,19 +47,17 @@ final readonly class Card
     public const int DEFAULT_SPAN = 12;
 
     /**
-     * @param string            $module        Module slug for the illustration view-namespace prefix
-     * @param string            $title         Card title rendered in the h3
-     * @param string|null       $sub           Optional sub-heading beneath the title
-     * @param string|null       $eyebrow       Optional kicker label above the title
-     * @param int               $span          Grid column span (1-12)
-     * @param Accent|null       $accent        Accent colour from the Heritage palette
-     * @param Illustration|null $illustration  Illustration key from the catalogue
-     * @param string|null       $info          Optional long-form help text — when set, an info popover button is rendered
-     * @param string            $infoTitle     Localised heading for the info popover (caller supplies via I18N::translate)
-     * @param string            $infoAriaLabel Localised aria-label for the info button (caller supplies via I18N::translate)
-     * @param bool              $centered      Centre the body content
-     * @param bool|null         $showFooter    Render the dashed-line footer. Defaults to true ONLY when $info is set
-     * @param string            $bodyHtml      Pre-rendered HTML body (echoed verbatim — caller must e() any user content)
+     * @param string            $module       Module slug for the illustration view-namespace prefix
+     * @param string            $title        Card title rendered in the h3
+     * @param string|null       $sub          Optional sub-heading beneath the title
+     * @param string|null       $eyebrow      Optional kicker label above the title
+     * @param int               $span         Grid column span (1-12)
+     * @param Accent|null       $accent       Accent colour from the Heritage palette
+     * @param Illustration|null $illustration Illustration key from the catalogue
+     * @param string|null       $info         Optional long-form help text — when set, an info popover button is rendered
+     * @param bool              $centered     Centre the body content
+     * @param bool|null         $showFooter   Render the dashed-line footer. Defaults to true ONLY when $info is set
+     * @param string            $bodyHtml     Pre-rendered HTML body (echoed verbatim — caller must e() any user content)
      */
     private function __construct(
         private string $module,
@@ -70,8 +68,6 @@ final readonly class Card
         private ?Accent $accent,
         private ?Illustration $illustration,
         private ?string $info,
-        private string $infoTitle,
-        private string $infoAriaLabel,
         private bool $centered,
         private ?bool $showFooter,
         private string $bodyHtml,
@@ -93,8 +89,6 @@ final readonly class Card
             accent: null,
             illustration: null,
             info: null,
-            infoTitle: '',
-            infoAriaLabel: '',
             centered: false,
             showFooter: null,
             bodyHtml: '',
@@ -115,8 +109,6 @@ final readonly class Card
             $this->accent,
             $this->illustration,
             $this->info,
-            $this->infoTitle,
-            $this->infoAriaLabel,
             $this->centered,
             $this->showFooter,
             $this->bodyHtml
@@ -137,8 +129,6 @@ final readonly class Card
             $this->accent,
             $this->illustration,
             $this->info,
-            $this->infoTitle,
-            $this->infoAriaLabel,
             $this->centered,
             $this->showFooter,
             $this->bodyHtml
@@ -159,8 +149,6 @@ final readonly class Card
             $this->accent,
             $this->illustration,
             $this->info,
-            $this->infoTitle,
-            $this->infoAriaLabel,
             $this->centered,
             $this->showFooter,
             $this->bodyHtml
@@ -182,8 +170,6 @@ final readonly class Card
             $accent,
             $this->illustration,
             $this->info,
-            $this->infoTitle,
-            $this->infoAriaLabel,
             $this->centered,
             $this->showFooter,
             $this->bodyHtml
@@ -205,8 +191,6 @@ final readonly class Card
             $this->accent,
             $illustration,
             $this->info,
-            $this->infoTitle,
-            $this->infoAriaLabel,
             $this->centered,
             $this->showFooter,
             $this->bodyHtml
@@ -216,11 +200,9 @@ final readonly class Card
     /**
      * Long-form help text rendered into a Bootstrap popover triggered from the
      * footer info-button. When set, the footer auto-shows unless explicitly
-     * suppressed via `withoutFooter()`.
-     *
-     * `$title` and `$ariaLabel` are the localised popover heading and
-     * accessible label — pass them through `I18N::translate()` at the call site
-     * so xgettext extracts the source strings.
+     * suppressed via `withoutFooter()`. The popover heading and the accessible
+     * name of the button are the localised "About this chart" text, which the
+     * card supplies itself.
      *
      * Note: the popover is rendered with Bootstrap's `data-bs-html="true"` so
      * the body supports inline `<b>` / `<em>` formatting. Treat `$text` as
@@ -228,7 +210,7 @@ final readonly class Card
      * through this setter; with `data-bs-html` on, any HTML in the content is
      * injected via `innerHTML` and would become a stored-XSS sink.
      */
-    public function withInfo(string $text, string $title, string $ariaLabel): self
+    public function withInfo(string $text): self
     {
         return new self(
             $this->module,
@@ -239,8 +221,6 @@ final readonly class Card
             $this->accent,
             $this->illustration,
             $text,
-            $title,
-            $ariaLabel,
             $this->centered,
             $this->showFooter,
             $this->bodyHtml
@@ -261,8 +241,6 @@ final readonly class Card
             $this->accent,
             $this->illustration,
             $this->info,
-            $this->infoTitle,
-            $this->infoAriaLabel,
             true,
             $this->showFooter,
             $this->bodyHtml
@@ -283,8 +261,6 @@ final readonly class Card
             $this->accent,
             $this->illustration,
             $this->info,
-            $this->infoTitle,
-            $this->infoAriaLabel,
             $this->centered,
             false,
             $this->bodyHtml
@@ -306,8 +282,6 @@ final readonly class Card
             $this->accent,
             $this->illustration,
             $this->info,
-            $this->infoTitle,
-            $this->infoAriaLabel,
             $this->centered,
             true,
             $this->bodyHtml
@@ -329,8 +303,6 @@ final readonly class Card
             $this->accent,
             $this->illustration,
             $this->info,
-            $this->infoTitle,
-            $this->infoAriaLabel,
             $this->centered,
             $this->showFooter,
             $html
@@ -475,8 +447,9 @@ HTML;
         $button = '';
 
         if (($this->info !== null) && ($this->info !== '')) {
-            $title   = $this->escapeHtml($this->infoTitle);
-            $content = $this->escapeHtml($this->info);
+            $aboutText = I18N::translate('About this chart');
+            $title     = $this->escapeHtml($aboutText);
+            $content   = $this->escapeHtml($this->info);
 
             // Name the card this info button explains so each button has a
             // unique accessible name — otherwise a screen-reader user meets a
@@ -484,13 +457,9 @@ HTML;
             // tell which chart each describes. Composed through a translatable
             // format so the separator follows each locale's punctuation rules
             // (e.g. French "X : Y") rather than a hardcoded ': '.
-            if (($this->infoAriaLabel !== '') && ($this->title !== '')) {
-                $ariaLabelText = I18N::translate('%1$s: %2$s', $this->infoAriaLabel, $this->title);
-            } elseif ($this->title !== '') {
-                $ariaLabelText = $this->title;
-            } else {
-                $ariaLabelText = $this->infoAriaLabel;
-            }
+            $ariaLabelText = ($this->title !== '')
+                ? I18N::translate('%1$s: %2$s', $aboutText, $this->title)
+                : $aboutText;
 
             $ariaLabel = $this->escapeHtml($ariaLabelText);
 
