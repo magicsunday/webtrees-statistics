@@ -78,7 +78,6 @@
     },
     "require-dev": {
         "magicsunday/coding-standard": "^3.13.0",
-        "phpat/phpat": "^0.12.4",
         "phpstan/phpstan-deprecation-rules": "^2.0",
         "shipmonk/phpstan-rules": "^4.0",
         "spaze/phpstan-disallowed-calls": "^4.13",
@@ -136,9 +135,6 @@
             "deptrac analyse --no-progress --formatter=graphviz-dot --output=.build/deptrac-layers.dot",
             "check-deptrac-cycles.php .build/deptrac-layers.dot"
         ],
-        "ci:test:php:phpat-subjects": [
-            "check-phpat-subjects.php ."
-        ],
         "ci:test:js:lint": [
             "npm run lint"
         ],
@@ -162,7 +158,6 @@
             "@ci:test:php:cgl",
             "@ci:test:php:phpstan",
             "@ci:test:php:phpstan:glue",
-            "@ci:test:php:phpat-subjects",
             "@ci:test:php:rector",
             "@ci:test:php:cpd",
             "@ci:test:php:templates",
