@@ -324,7 +324,7 @@ final class ParenthoodRepositoryIntegrationTest extends AbstractIntegrationTestC
     {
         $records = [];
         $person  = 0;
-        $cohorts = [[1895, 'M', 'HUSB', 4], [1905, 'M', 'HUSB', 5], [1915, 'M', 'HUSB', 4], [1915, 'F', 'WIFE', 4], [1935, 'F', 'WIFE', 5], [1945, 'F', 'WIFE', 4]];
+        $cohorts = [[1895, 'M', 'HUSB', 4], [1895, 'F', 'WIFE', 4], [1905, 'M', 'HUSB', 5], [1915, 'M', 'HUSB', 4], [1915, 'F', 'WIFE', 4], [1935, 'F', 'WIFE', 5], [1945, 'F', 'WIFE', 4], [1945, 'M', 'HUSB', 4]];
 
         foreach ($cohorts as [$year, $sex, $parentRole, $count]) {
             for ($index = 0; $index < $count; ++$index, ++$person) {
