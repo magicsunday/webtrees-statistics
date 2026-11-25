@@ -296,8 +296,7 @@ final class NameRepositoryIntegrationTest extends AbstractIntegrationTestCase
      * birth. A son born `BET 1890 AND 1910` is stored as two `dates` rows, an
      * 1890 lower bound (19th century) and a 1910 upper bound (20th century).
      * Collapsing the birth to its lower-bound representative keeps each pair in
-     * the 19th century alone. The pairs reach the cohort floor, so counting the
-     * raw rows would open a 20th-century slot as well.
+     * the 19th century alone.
      */
     #[Test]
     public function sameSexNamePassdownByCenturyCountsEachRangedBirthOnce(): void

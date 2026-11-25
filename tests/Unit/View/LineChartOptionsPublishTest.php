@@ -11,14 +11,30 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Unit\View;
 
+use Fisharebest\Webtrees\I18N;
+use Fisharebest\Webtrees\View;
+use Fisharebest\Webtrees\Webtrees;
+use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
+use MagicSunday\Webtrees\Statistic\Payload\LineChartPayload;
+use PhpToken;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 use function dirname;
 use function file_get_contents;
+use function html_entity_decode;
+use function json_decode;
 use function preg_match;
+use function preg_match_all;
 use function preg_quote;
+use function substr_count;
+use function view;
+
+use const ENT_QUOTES;
+use const JSON_THROW_ON_ERROR;
+use const T_COMMENT;
+use const T_DOC_COMMENT;
 
 /**
  * Locks the publish contract of the chart-lib LineChart options and the way the
@@ -27,17 +43,24 @@ use function preg_quote;
  * key, or a card stops setting it, the chart changes its look without a visible
  * failure.
  *
- * Static file-content assertions only — the partial cannot be rendered
- * standalone because `view()` requires the full webtrees runtime. The pattern
- * mirrors `MarriageChainWidgetCssCoverageTest`, which locks a similar
- * CSS-to-template contract via static analysis.
- *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
 final class LineChartOptionsPublishTest extends TestCase
 {
+    /**
+     * The partial renders through the translator and the module's view namespace.
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        (new Webtrees())->bootstrap();
+        I18N::init('en-US', true);
+        View::registerNamespace('m', dirname(__DIR__, 3) . '/resources/views/');
+    }
+
     /**
      * @return iterable<string, array{string, string}>
      */
@@ -54,31 +77,45 @@ final class LineChartOptionsPublishTest extends TestCase
     /**
      * A rate or a mean is a line. A chart with a single series fills the area
      * under its line unless the card switches that off, and the number of series
-     * of a card can depend on the tree.
+     * of a card can depend on the tree. The card names the switch once and passes
+     * it a literal false.
      */
     #[Test]
     #[DataProvider('rateCards')]
     public function aRateCardDrawsNoArea(string $tab, string $identifier): void
     {
-        self::assertMatchesRegularExpression(
-            "/->with\\('showArea',\\s*false\\)/",
+        preg_match_all(
+            "/->with\\('showArea',\\s*(\\w+)\\)/",
             $this->cardChain($tab, $identifier),
+            $calls,
         );
+
+        self::assertSame(1, substr_count($this->cardChain($tab, $identifier), 'showArea'));
+        self::assertSame(['false'], $calls[1]);
     }
 
     /**
-     * The line-chart partial must publish the area switch into the
-     * `data-options` JSON. Without it a card that switches the area off still
-     * draws it.
+     * The area switch of a card reaches the `data-options` JSON of the rendered
+     * partial. Without it a card that switches the area off still draws it.
      */
     #[Test]
     public function lineChartPartialPublishesShowAreaOption(): void
     {
-        self::assertMatchesRegularExpression(
-            "/'showArea'\\s*=>\\s*\\\$showArea\\s*\\?\\?\\s*null/",
-            $this->loadLineChartPartial(),
-            'line-chart.phtml must emit showArea into the data-options array',
+        $html = view(
+            'm::modules/statistics-chart/widgets/line-chart',
+            [
+                'identifier' => 'rate',
+                'data'       => new LineChartPayload(['19th cent.'], [new LineChartSeries(name: 'Rate', values: [1])]),
+                'showArea'   => false,
+            ]
         );
+
+        self::assertSame(1, preg_match('/data-options="([^"]*)"/', $html, $match));
+
+        /** @var array{showArea: bool|null} $options */
+        $options = json_decode(html_entity_decode($match[1], ENT_QUOTES), true, 512, JSON_THROW_ON_ERROR);
+
+        self::assertFalse($options['showArea']);
     }
 
     /**
@@ -194,8 +231,8 @@ final class LineChartOptionsPublishTest extends TestCase
     }
 
     /**
-     * The builder chain of one line-chart card, from its widget call to the
-     * first render call after it. Fails when the tab holds no such card.
+     * The builder chain of one line-chart card without its comments, from its
+     * widget call to the first render call after it. Fails when the tab holds no such card.
      */
     private function cardChain(string $tab, string $identifier): string
     {
@@ -203,9 +240,18 @@ final class LineChartOptionsPublishTest extends TestCase
         $contents = file_get_contents($path);
 
         self::assertNotFalse($contents, $tab . '.phtml tab template must be readable');
+
+        $code = '';
+
+        foreach (PhpToken::tokenize($contents) as $token) {
+            if (!$token->is([T_COMMENT, T_DOC_COMMENT])) {
+                $code .= $token->text;
+            }
+        }
+
         self::assertSame(
             1,
-            preg_match("/Widget::lineChart\\(\\\$module, '" . preg_quote($identifier, '/') . "'\\).*?->render\\(\\)/s", $contents, $match),
+            preg_match("/Widget::lineChart\\(\\\$module, '" . preg_quote($identifier, '/') . "'\\).*?->render\\(\\)/s", $code, $match),
             $tab . '.phtml must hold the card ' . $identifier,
         );
 

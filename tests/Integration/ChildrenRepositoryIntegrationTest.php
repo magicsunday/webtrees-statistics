@@ -486,7 +486,7 @@ final class ChildrenRepositoryIntegrationTest extends AbstractIntegrationTestCas
      * surface it as a leading point.
      */
     #[Test]
-    public function averageFamilySizeByCenturyDropsCenturiesBelowTheCohortFloor(): void
+    public function averageFamilySizeByCenturyTrimsALeadingCenturyBelowTheCohortFloor(): void
     {
         $tree   = $this->importFixtureTree('family-size-cohort-floor.ged');
         $result = $this->repository($tree)->averageFamilySizeByCentury();

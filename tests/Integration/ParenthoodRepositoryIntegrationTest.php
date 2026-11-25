@@ -121,7 +121,7 @@ final class ParenthoodRepositoryIntegrationTest extends AbstractIntegrationTestC
      * downstream.
      */
     #[Test]
-    public function meanByDecadeKeepsOnlyDecadesThatMeetTheCohortFloor(): void
+    public function meanByDecadeEndsTheAxisAtTheLastDecadeThatMeetsTheCohortFloor(): void
     {
         $tree   = $this->importFixtureTree('age-at-first-child-by-decade.ged');
         $result = (new ParenthoodRepository($tree))->ageAtFirstChildMeanByDecade();
