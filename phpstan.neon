@@ -1,9 +1,5 @@
 includes:
     - %currentWorkingDirectory%/.build/vendor/magicsunday/coding-standard/phpstan/strict.neon
-    # The opt-in phpat preset. phpat is required by this package for the
-    # structural rules Deptrac cannot express (final / implements), see
-    # tests/Architecture/ArchitectureTest.php.
-    - %currentWorkingDirectory%/.build/vendor/magicsunday/coding-standard/phpstan/phpat.neon
 
 parameters:
     # PHP Version to check against (PHP 8.3 as minimum target)
@@ -98,9 +94,3 @@ parameters:
             identifier: return.type
             reportUnmatched: false
             path: src/Support/Database/DateAggregate.php
-
-services:
-    -
-        class: MagicSunday\Webtrees\Statistic\Test\Architecture\ArchitectureTest
-        tags:
-            - phpat.test
