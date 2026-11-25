@@ -1361,7 +1361,7 @@ final class LifeSpanRepositoryIntegrationTest extends AbstractIntegrationTestCas
     {
         $records = [];
         $person  = 0;
-        $cohorts = [[1250, 'F', 1], [1350, 'M', 1], [1450, 'M', 5], [1650, 'M', 1], [1750, 'F', 5], [1850, 'M', 1]];
+        $cohorts = [[1250, 'F', 1], [1350, 'M', 1], [1450, 'M', 5], [1650, 'M', 1], [1650, 'F', 1], [1750, 'F', 5], [1850, 'M', 1]];
 
         foreach ($cohorts as [$year, $sex, $count]) {
             for ($index = 0; $index < $count; ++$index, ++$person) {
@@ -1381,5 +1381,6 @@ final class LifeSpanRepositoryIntegrationTest extends AbstractIntegrationTestCas
         self::assertSame([40.0, null, null, null], $male->values);
         self::assertSame([null, null, null, 40.0], $female->values);
         self::assertSame('no data (n < 5)', $male->tooltips[1] ?? null);
+        self::assertSame('no data (n < 5)', $female->tooltips[2] ?? null);
     }
 }
