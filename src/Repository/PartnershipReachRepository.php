@@ -19,8 +19,10 @@ use MagicSunday\Webtrees\Statistic\Model\Tree\PartnershipReachReport;
 use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
 use MagicSunday\Webtrees\Statistic\Support\Calc\PartnershipChains;
 use MagicSunday\Webtrees\Statistic\Support\Database\GedcomByXref;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\IndividualWire;
 
 use function array_fill_keys;
+use function array_map;
 use function array_push;
 use function count;
 use function strcmp;
@@ -138,9 +140,9 @@ final readonly class PartnershipReachRepository
 
         return new PartnershipReachReport(
             longestChainLength: count($longestChain),
-            chain: $this->resolveIndividuals($longestChain, $gedcomByXref),
+            chain: $this->wireRows($longestChain, $gedcomByXref),
             group: new PartnershipGroupExcerpt(
-                nodes: $this->resolveIndividuals($shownMembers, $gedcomByXref),
+                nodes: $this->wireRows($shownMembers, $gedcomByXref),
                 edges: $shownEdges,
                 chainIds: $longestChain,
                 hubId: $hub['id'],
@@ -285,6 +287,22 @@ final readonly class PartnershipReachRepository
         }
 
         return $years;
+    }
+
+    /**
+     * Flatten an ordered xref list to the wire rows of its people. The report
+     * holds rows and no framework record, so the flattening happens here at the
+     * repository boundary. A non-visible person keeps the row and loses every
+     * derived fact, see {@see IndividualWire::row()}.
+     *
+     * @param list<string>             $xrefs        The xrefs to flatten, in order
+     * @param array<array-key, string> $gedcomByXref Pre-fetched `xref → gedcom` map
+     *
+     * @return list<array{xref: string, label: string, sex: string, birth: string, death: string, url: string}>
+     */
+    private function wireRows(array $xrefs, array $gedcomByXref): array
+    {
+        return array_map(IndividualWire::row(...), $this->resolveIndividuals($xrefs, $gedcomByXref));
     }
 
     /**

@@ -11,7 +11,8 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
-use Fisharebest\Webtrees\Individual;
+use Fisharebest\Webtrees\Auth;
+use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Model\Tree\PartnershipReachReport;
 use MagicSunday\Webtrees\Statistic\Repository\GenerationDepthRepository;
@@ -19,8 +20,10 @@ use MagicSunday\Webtrees\Statistic\Repository\ParentMapRepository;
 use MagicSunday\Webtrees\Statistic\Repository\PartnershipMapRepository;
 use MagicSunday\Webtrees\Statistic\Repository\PartnershipReachRepository;
 use MagicSunday\Webtrees\Statistic\Support\Calc\PartnershipChains;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\IndividualWire;
 use PHPUnit\Framework\Attributes\Test;
 
+use function array_column;
 use function array_flip;
 use function array_map;
 use function count;
@@ -46,7 +49,7 @@ final class PartnershipReachRepositoryIntegrationTest extends AbstractIntegratio
 {
     /**
      * The summary captures the 15-person longest chain and the 41-person /
-     * 40-edge largest group, resolves both to live {@see Individual} objects,
+     * 40-edge largest group, carries both as wire rows,
      * and — because the group fits under the excerpt cap — shows every member.
      */
     #[Test]
@@ -59,13 +62,13 @@ final class PartnershipReachRepositoryIntegrationTest extends AbstractIntegratio
 
         self::assertSame(15, $result->longestChainLength, 'longest partnership chain through the cluster = 15 people');
         self::assertSame(15, $result->breadthChain);
-        self::assertCount(15, $result->chain, 'the 15-person chain resolves to 15 Individual objects');
-        self::assertContainsOnlyInstancesOf(Individual::class, $result->chain);
+        self::assertCount(15, $result->chain, 'the 15-person chain resolves to 15 wire rows');
+        self::assertSame(['xref', 'label', 'sex', 'birth', 'death', 'url'], array_keys($result->chain[0]));
 
         self::assertSame(41, $result->group->totalCount, 'largest connected partnership group = 41 people');
         self::assertSame(41, $result->group->shownCount, '41 < NETWORK_CAP (70), so every member is shown');
-        self::assertCount(41, $result->group->nodes, 'the 41 group members resolve to 41 Individual objects');
-        self::assertContainsOnlyInstancesOf(Individual::class, $result->group->nodes);
+        self::assertCount(41, $result->group->nodes, 'the 41 group members resolve to 41 wire rows');
+        self::assertSame(['xref', 'label', 'sex', 'birth', 'death', 'url'], array_keys($result->group->nodes[0]));
         self::assertCount(40, $result->group->edges, '40 partnership edges join the 41-person cluster');
         self::assertSame(40, $result->group->totalEdgeCount, 'totalEdgeCount is the whole-group partnership count; here = the 40 shown edges since 41 < cap');
         self::assertCount(15, $result->group->chainIds, 'chainIds is the 15-person longest path inside the group');
@@ -205,6 +208,69 @@ final class PartnershipReachRepositoryIntegrationTest extends AbstractIntegratio
     }
 
     /**
+     * The serialised chain and group nodes are the wire rows of the people that
+     * they name, in the order of the chain. A person who cannot be shown keeps
+     * the node and loses every derived fact, which the wire row of the record
+     * decides.
+     */
+    #[Test]
+    public function serializedPeopleEqualTheWireRowsOfTheirRecords(): void
+    {
+        $tree    = $this->importFixtureTree('partner-chains.ged');
+        $payload = ($this->repository($tree)->summary() ?? self::fail('the fixture has a partnership group'))->jsonSerialize();
+
+        $wireRow = static fn (string $xref): array => IndividualWire::row(
+            Registry::individualFactory()->make($xref, $tree) ?? self::fail('unknown record ' . $xref),
+        );
+
+        self::assertSame(array_map($wireRow, $payload['group']['chainIds']), $payload['chain']);
+        self::assertSame(
+            array_map($wireRow, array_column($payload['group']['nodes'], 'xref')),
+            $payload['group']['nodes'],
+        );
+    }
+
+    /**
+     * A chain of three deceased people whose middle person carries a confidential
+     * SEX fact. A guest sees the records but not that fact, so the wire row of
+     * the middle person reads the unknown sex in the chain and in the group.
+     */
+    #[Test]
+    public function restrictedSexReadsUnknownInTheSerializedChainAndGroup(): void
+    {
+        $lines = ['0 HEAD', '1 CHAR UTF-8', '1 GEDC', '2 VERS 5.5.1', '2 FORM LINEAGE-LINKED'];
+
+        foreach (['A' => ['M', ''], 'B' => ['F', "\n2 RESN confidential"], 'C' => ['M', '']] as $xref => [$sex, $restriction]) {
+            $lines[] = '0 @' . $xref . '@ INDI';
+            $lines[] = '1 NAME Person ' . $xref . ' /Chain/';
+            $lines[] = '1 SEX ' . $sex . $restriction;
+            $lines[] = '1 BIRT';
+            $lines[] = '2 DATE 1900';
+            $lines[] = '1 DEAT';
+            $lines[] = '2 DATE 1960';
+        }
+
+        foreach ([['F1', 'A', 'B'], ['F2', 'C', 'B']] as [$family, $husband, $wife]) {
+            $lines[] = '0 @' . $family . '@ FAM';
+            $lines[] = '1 HUSB @' . $husband . '@';
+            $lines[] = '1 WIFE @' . $wife . '@';
+        }
+
+        $lines[] = '0 TRLR';
+
+        $tree = $this->importGedcomTree('restricted-sex-chain', implode("\n", $lines));
+        $this->hideLivingPeople($tree);
+
+        Auth::logout();
+
+        $payload = ($this->repository($tree)->summary() ?? self::fail('the chain is a partnership group'))->jsonSerialize();
+
+        self::assertSame(['A', 'B', 'C'], array_column($payload['chain'], 'xref'));
+        self::assertSame(['M', 'U', 'M'], array_column($payload['chain'], 'sex'));
+        self::assertSame(['M', 'U', 'M'], array_column($payload['group']['nodes'], 'sex'));
+    }
+
+    /**
      * A group over the excerpt cap whose people all carry digit-only XREFs is
      * drawn like any other group. The XREFs are integers once they are set keys
      * of the excerpt, and the excerpt returns them as strings again.
@@ -250,9 +316,9 @@ final class PartnershipReachRepositoryIntegrationTest extends AbstractIntegratio
     }
 
     /**
-     * `jsonSerialize()` must flatten every person to a `{xref, label, sex, birth,
-     * death, url}` row and every edge to an `[idA, idB]` xref pair — no
-     * {@see Individual} instance survives onto the wire.
+     * `jsonSerialize()` carries every person as a `{xref, label, sex, birth,
+     * death, url}` row and every edge as an `[idA, idB]` xref pair — no
+     * framework record survives onto the wire.
      */
     #[Test]
     public function jsonSerializeFlattensPeopleAndEdges(): void
@@ -270,28 +336,27 @@ final class PartnershipReachRepositoryIntegrationTest extends AbstractIntegratio
         self::assertCount(41, $json['group']['nodes']);
         self::assertCount(40, $json['group']['edges']);
 
-        // The flattened chain carries the same people, in order, as the live
-        // chain — proving the Individual objects were replaced by their wire rows
-        // (xref + plain label) rather than encoded as Individual instances.
+        // The serialised chain carries the same people, in order, as the report
+        // chain, as wire rows (xref + plain label).
         $chainXrefs = array_map(
             static fn (array $person): string => $person['xref'],
             $json['chain'],
         );
         self::assertSame(
-            array_map(static fn (Individual $individual): string => $individual->xref(), $result->chain),
+            array_column($result->chain, 'xref'),
             $chainXrefs,
         );
 
         // The wire label is the plain-text full name (no `<span class="NAME">`
         // markup, no escaped entities) — the strip-and-decode flatten actually
-        // ran on the Individual rather than leaking its HTML name.
+        // ran on the record rather than leaking its HTML name.
         $firstChainPerson = $json['chain'][0];
         self::assertStringNotContainsString('<', $firstChainPerson['label']);
         self::assertStringNotContainsString('&', $firstChainPerson['label']);
         self::assertNotSame('', $firstChainPerson['label']);
 
         // Every edge is an ordered xref pair drawn from the group's node set —
-        // never an Individual on the wire.
+        // never a framework record on the wire.
         $nodeXrefs = array_map(
             static fn (array $person): string => $person['xref'],
             $json['group']['nodes'],
@@ -330,13 +395,7 @@ final class PartnershipReachRepositoryIntegrationTest extends AbstractIntegratio
      */
     private function nodeXrefs(PartnershipReachReport $report): array
     {
-        $xrefs = [];
-
-        foreach ($report->group->nodes as $node) {
-            $xrefs[] = $node->xref();
-        }
-
-        return $xrefs;
+        return array_column($report->group->nodes, 'xref');
     }
 
     /**

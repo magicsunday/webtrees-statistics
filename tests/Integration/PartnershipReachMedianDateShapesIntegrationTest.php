@@ -17,7 +17,6 @@ namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 // jscpd:ignore-start
 use Fisharebest\Webtrees\Auth;
 use Fisharebest\Webtrees\DB;
-use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Model\Tree\PartnershipReachReport;
 use MagicSunday\Webtrees\Statistic\Repository\GenerationDepthRepository;
@@ -416,7 +415,7 @@ final class PartnershipReachMedianDateShapesIntegrationTest extends AbstractInte
 
         $allYears   = array_map(static fn (int $number): int => 1000 + $number, range(1, $people));
         $shownYears = array_map(
-            static fn (Individual $individual): int => 1000 + (int) $individual->xref(),
+            static fn (array $node): int => 1000 + (int) $node['xref'],
             $report->group->nodes,
         );
 

@@ -29,8 +29,8 @@ use function array_column;
  * explicit `RESN` on the fact itself or through a default restriction of the
  * tree or of the individual, and the wire row must then carry the unknown sex
  * instead of the stored value. A viewer who is allowed to see the fact still
- * receives the real value, and both partnership report serializers flatten
- * their people through the same path.
+ * receives the real value. The partnership report carries the rows that the
+ * repository flattened through the same path.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -288,9 +288,9 @@ final class IndividualWireSexRestrictionIntegrationTest extends AbstractIntegrat
     }
 
     /**
-     * The partnership reach report and its group excerpt flatten their people
-     * through the wire row, so the restricted sex of I1 reads unknown in the
-     * chain, in the group nodes and in the excerpt serialized on its own.
+     * The partnership reach report and its group excerpt carry the wire rows
+     * that the repository flattened, so the restricted sex of I1 reads unknown in
+     * the chain, in the group nodes and in the excerpt serialized on its own.
      */
     #[Test]
     public function partnershipReportSerializersFlattenThroughTheRestrictedSexPath(): void
@@ -302,8 +302,9 @@ final class IndividualWireSexRestrictionIntegrationTest extends AbstractIntegrat
         $restricted = $this->individual($tree, 'I1');
         $open       = $this->individual($tree, 'I2');
 
-        $group = new PartnershipGroupExcerpt([$restricted, $open], [['I1', 'I2']], ['I1', 'I2'], 'I1', 1, 2, 1, 2, 1930);
-        $json  = (new PartnershipReachReport(2, [$restricted, $open], $group, 1, 2))->jsonSerialize();
+        $rows  = [IndividualWire::row($restricted), IndividualWire::row($open)];
+        $group = new PartnershipGroupExcerpt($rows, [['I1', 'I2']], ['I1', 'I2'], 'I1', 1, 2, 1, 2, 1930);
+        $json  = (new PartnershipReachReport(2, $rows, $group, 1, 2))->jsonSerialize();
 
         self::assertSame(['U', 'F'], array_column($json['chain'], 'sex'));
         self::assertSame(['U', 'F'], array_column($json['group']['nodes'], 'sex'));

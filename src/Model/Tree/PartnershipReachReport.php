@@ -11,11 +11,7 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Model\Tree;
 
-use Fisharebest\Webtrees\Individual;
 use JsonSerializable;
-use MagicSunday\Webtrees\Statistic\Support\Gedcom\IndividualWire;
-
-use function array_map;
 
 /**
  * Partnership-reach ("partnership chains" / "partnership webs") report for the Family
@@ -24,13 +20,11 @@ use function array_map;
  * both the deepest line ("A married B, whose later spouse C married D, …") and
  * the broadest cluster of interconnected partnerships at a glance.
  *
- * Carries live {@see Individual} instances in `$chain` (and, via the
- * {@see PartnershipGroupExcerpt}, in the group's nodes) so the PHTML consumer can
- * render each person as a link to their individual page. A webtrees
- * `Individual` is not JSON-encodable, so {@see jsonSerialize()} flattens every
- * person down to a `{xref, label, sex, birth, death, url}` row and every edge
- * down to an `[idA, idB]` xref pair — the same discipline
- * {@see GenerationDepthReport} uses when it flattens its chains to xref lists.
+ * Carries its people as the already flattened `{xref, label, sex, birth, death,
+ * url}` wire rows in `$chain` (and, via the {@see PartnershipGroupExcerpt}, in
+ * the group's nodes), so the PHTML consumer can link each person and the report
+ * holds no framework record. Every edge is an `[idA, idB]` xref pair — the same
+ * discipline {@see GenerationDepthReport} uses for its chains.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -39,13 +33,13 @@ use function array_map;
 final readonly class PartnershipReachReport implements JsonSerializable
 {
     /**
-     * @param int                     $longestChainLength Number of people on the longest partnership chain (the breadth component of the ratio)
-     * @param list<Individual>        $chain              The longest-chain people, ordered, as live records so the view can link them
-     * @param PartnershipGroupExcerpt $group              The largest connected partnership group (nodes, edges, hub, sizes, median year)
-     * @param int                     $depthPath          Tree-wide maximum generation depth — the depth component of the depth-vs-breadth ratio
-     * @param int                     $breadthChain       Longest partnership-chain length — the breadth component (mirror of `$longestChainLength`)
-     * @param bool                    $chainIsApproximate Whether the group contains a partnership loop, so a longer chain than the reported one may exist
-     * @param bool                    $chainIsCapped      Whether the chain reached the reconstruction bound and may be cut there
+     * @param int                                                                                              $longestChainLength Number of people on the longest partnership chain (the breadth component of the ratio)
+     * @param list<array{xref: string, label: string, sex: string, birth: string, death: string, url: string}> $chain              The longest-chain people, ordered, as wire rows
+     * @param PartnershipGroupExcerpt                                                                          $group              The largest connected partnership group (nodes, edges, hub, sizes, median year)
+     * @param int                                                                                              $depthPath          Tree-wide maximum generation depth — the depth component of the depth-vs-breadth ratio
+     * @param int                                                                                              $breadthChain       Longest partnership-chain length — the breadth component (mirror of `$longestChainLength`)
+     * @param bool                                                                                             $chainIsApproximate Whether the group contains a partnership loop, so a longer chain than the reported one may exist
+     * @param bool                                                                                             $chainIsCapped      Whether the chain reached the reconstruction bound and may be cut there
      */
     public function __construct(
         public int $longestChainLength,
@@ -59,11 +53,9 @@ final readonly class PartnershipReachReport implements JsonSerializable
     }
 
     /**
-     * Flatten the report to a JSON-encodable shape: every chain person becomes a
-     * `{xref, label, sex, birth, death, url}` row (an {@see Individual} is not
-     * JSON-encodable) and the group serialises through its own
-     * {@see PartnershipGroupExcerpt::jsonSerialize()}, so a JS consumer can drive
-     * the chain and the group graph without an Individual proxy on the wire.
+     * The JSON-encodable shape of the report: the chain rows pass through and the
+     * group serialises through its own {@see PartnershipGroupExcerpt::jsonSerialize()},
+     * so a JS consumer can drive the chain and the group graph.
      *
      * @return array{longestChainLength: int, chain: list<array{xref: string, label: string, sex: string, birth: string, death: string, url: string}>, group: array{nodes: list<array{xref: string, label: string, sex: string, birth: string, death: string, url: string}>, edges: list<array{0: string, 1: string}>, chainIds: list<string>, hubId: string, hubDegree: int, totalCount: int, totalEdgeCount: int, shownCount: int, medianYear: int|null}, depthPath: int, breadthChain: int, chainIsApproximate: bool, chainIsCapped: bool}
      */
@@ -71,7 +63,7 @@ final readonly class PartnershipReachReport implements JsonSerializable
     {
         return [
             'longestChainLength' => $this->longestChainLength,
-            'chain'              => array_map(IndividualWire::row(...), $this->chain),
+            'chain'              => $this->chain,
             'group'              => $this->group->jsonSerialize(),
             'depthPath'          => $this->depthPath,
             'breadthChain'       => $this->breadthChain,
