@@ -91,9 +91,8 @@ final readonly class LifeSpanRepository
 
     /**
      * Minimum per-cohort sample size for the lifespan-by-sex × century
-     * LineChart. A century × sex group with fewer than this many dated deaths
-     * gets suppressed (rendered as zero / "no data" tooltip) so a 1-sample
-     * outlier doesn't drag the cohort mean.
+     * LineChart. A century × sex group below it carries no value (a gap in the
+     * line), so a lone outlier doesn't drag the cohort mean.
      */
     private const int MIN_COHORT_SIZE = 5;
 

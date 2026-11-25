@@ -67,9 +67,24 @@ final class LineChartOptionsPublishTest extends TestCase
     }
 
     /**
-     * Same contract for the tooltip suffix option. Without it the single-series
-     * and multi-series tooltip fallbacks render bare numbers instead of "12 %"
-     * / "43 yr".
+     * The line-chart partial must publish the area switch into the
+     * `data-options` JSON. Without it a card that switches the area off still
+     * draws it.
+     */
+    #[Test]
+    public function lineChartPartialPublishesShowAreaOption(): void
+    {
+        self::assertMatchesRegularExpression(
+            "/'showArea'\\s*=>\\s*\\\$showArea\\s*\\?\\?\\s*null/",
+            $this->loadLineChartPartial(),
+            'line-chart.phtml must emit showArea into the data-options array',
+        );
+    }
+
+    /**
+     * The line-chart partial must publish the tooltip suffix option into the
+     * `data-options` JSON. Without it the single-series and multi-series
+     * tooltip fallbacks render bare numbers instead of "12 %" / "43 yr".
      */
     #[Test]
     public function lineChartPartialPublishesYUnitOption(): void

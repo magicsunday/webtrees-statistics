@@ -306,7 +306,7 @@ final class ParenthoodRepository
      * MIN_DECADE_COHORT_SIZE} samples are suppressed independently per sex —
      * the suppressed series carries a `null` for that decade (rendered as a gap
      * by the line widget, never a misleading age 0), while the other sex keeps
-     * its trend line continuous. Pure aggregate
+     * its own value. Pure aggregate
      * over the same pair iterator the histogram and the Hall-of-Fame records
      * read from, so the new view stays in lockstep with the existing parenthood
      * numbers.

@@ -665,31 +665,37 @@ final class NameRepositoryIntegrationTest extends AbstractIntegrationTestCase
     }
 
     /**
-     * The axis starts and ends at a century with enough pairs, and a thin
-     * century between them is a gap.
+     * The axis starts and ends at a century in which either pairing has enough
+     * pairs. A thin century and a century without any pair between them are
+     * gaps.
      */
     #[Test]
     public function sameSexNamePassdownByCenturyTrimsThinEndsAndKeepsInnerGaps(): void
     {
         $records = [];
         $pair    = 0;
+        $cohorts = [[1550, 'M', 1], [1650, 'M', 10], [1750, 'M', 1], [1950, 'F', 10], [2050, 'M', 1]];
 
-        foreach ([1550 => 1, 1650 => 10, 1750 => 1, 1850 => 10, 1950 => 1] as $year => $count) {
+        foreach ($cohorts as [$year, $sex, $count]) {
+            $parentRole = $sex === 'M' ? 'HUSB' : 'WIFE';
+
             for ($index = 0; $index < $count; ++$index, ++$pair) {
-                $records[] = "0 @P{$pair}@ INDI\n1 NAME Otto /Gap/\n1 SEX M\n1 FAMS @F{$pair}@\n";
-                $records[] = "0 @C{$pair}@ INDI\n1 NAME Otto /Gap/\n1 SEX M\n1 BIRT\n2 DATE {$year}\n1 FAMC @F{$pair}@\n";
-                $records[] = "0 @F{$pair}@ FAM\n1 HUSB @P{$pair}@\n1 CHIL @C{$pair}@\n";
+                $records[] = "0 @P{$pair}@ INDI\n1 NAME Kim /Gap/\n1 SEX {$sex}\n1 FAMS @F{$pair}@\n";
+                $records[] = "0 @C{$pair}@ INDI\n1 NAME Kim /Gap/\n1 SEX {$sex}\n1 BIRT\n2 DATE {$year}\n1 FAMC @F{$pair}@\n";
+                $records[] = "0 @F{$pair}@ FAM\n1 {$parentRole} @P{$pair}@\n1 CHIL @C{$pair}@\n";
             }
         }
 
         $tree   = $this->importGedcomTree('passdown-gap', "0 HEAD\n1 CHAR UTF-8\n" . implode('', $records) . "0 TRLR\n");
         $result = $this->repository($tree)->sameSexNamePassdownByCentury();
 
-        self::assertSame(['17th cent.', '18th cent.', '19th cent.'], $result->categories);
+        self::assertSame(['17th cent.', '18th cent.', '19th cent.', '20th cent.'], $result->categories);
 
-        $fatherSon = PayloadNarrowing::seriesAt($result, 0);
+        $fatherSon      = PayloadNarrowing::seriesAt($result, 0);
+        $motherDaughter = PayloadNarrowing::seriesAt($result, 1);
 
-        self::assertSame([100.0, null, 100.0], $fatherSon->values);
+        self::assertSame([100.0, null, null, null], $fatherSon->values);
+        self::assertSame([null, null, null, 100.0], $motherDaughter->values);
         self::assertSame('no data (n < 10)', $fatherSon->tooltips[1] ?? null);
     }
 }

@@ -627,9 +627,8 @@ final class NameRepository
     /**
      * Render one century's `{matches, total}` cell into the `(value, tooltip)`
      * pair the LineChart series consumes. A null counts argument means the
-     * century did not collect any pair for this sex pairing, which also
-     * produces the "no data" placeholder so the other series can still own the
-     * X-axis slot.
+     * century did not collect any pair for this sex pairing, and the point
+     * then carries no value and the "no data" tooltip.
      *
      * @param array{matches: int, total: int}|null $counts
      * @param string                               $kind   'son' or 'daughter' — picks the tooltip wording

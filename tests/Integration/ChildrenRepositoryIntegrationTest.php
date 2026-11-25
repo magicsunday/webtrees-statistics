@@ -478,16 +478,12 @@ final class ChildrenRepositoryIntegrationTest extends AbstractIntegrationTestCas
     }
 
     /**
-     * A century backed by fewer than {@see ChildrenRepository::MIN_COHORT_FAMILY_SIZE}
-     * dated families is dropped from the line so a one- or two-family century
-     * cannot render a spiky, statistically unrepresentative mean with the same
-     * visual weight as a century backed by thousands — the same five-sample
-     * cohort floor the child-mortality and tree-health per-century timelines
-     * apply. family-size-cohort-floor.ged straddles the threshold: the 17th
-     * century is backed by four families (below the floor of five → dropped)
-     * and the 19th century by five (at the floor → kept). The dropped century
-     * carries a distinct mean of 1.0, so a regression that removed the floor
-     * would surface it as an extra leading point rather than silently agreeing.
+     * A century below {@see ChildrenRepository::MIN_COHORT_FAMILY_SIZE} dated
+     * families cannot open the axis, so a thin century outside the qualifying
+     * span is not shown. family-size-cohort-floor.ged straddles the floor: the
+     * 17th century lies below it and the 19th reaches it. The thin century
+     * carries a distinct mean, so a regression that removed the floor would
+     * surface it as a leading point.
      */
     #[Test]
     public function averageFamilySizeByCenturyDropsCenturiesBelowTheCohortFloor(): void
@@ -701,8 +697,8 @@ final class ChildrenRepositoryIntegrationTest extends AbstractIntegrationTestCas
     }
 
     /**
-     * A century below the birth floor that lies between two qualifying ones is a
-     * gap in every multiplicity series.
+     * A century below the birth floor and a century without any child are gaps
+     * in every multiplicity series when they lie between two qualifying ones.
      */
     #[Test]
     public function multipleBirthRateByCenturyKeepsAThinCenturyAsAGap(): void
@@ -710,7 +706,7 @@ final class ChildrenRepositoryIntegrationTest extends AbstractIntegrationTestCas
         $records = [];
         $child   = 0;
 
-        foreach ([1650 => 200, 1750 => 3, 1850 => 200] as $year => $count) {
+        foreach ([1650 => 200, 1750 => 3, 1950 => 200] as $year => $count) {
             for ($index = 0; $index < $count; ++$index, ++$child) {
                 // The first two children of a century are twins of one family.
                 $family = $index < 2 ? "T{$year}" : "F{$child}";
@@ -732,11 +728,11 @@ final class ChildrenRepositoryIntegrationTest extends AbstractIntegrationTestCas
         $tree   = $this->importGedcomTree('multi-birth-gap', "0 HEAD\n1 CHAR UTF-8\n" . implode('', $records) . "0 TRLR\n");
         $result = $this->repository($tree)->multipleBirthRateByCentury();
 
-        self::assertSame(['17th cent.', '18th cent.', '19th cent.'], $result->categories);
+        self::assertSame(['17th cent.', '18th cent.', '19th cent.', '20th cent.'], $result->categories);
 
         $twins = PayloadNarrowing::firstSeries($result);
 
-        self::assertSame([1.0, null, 1.0], $twins->values);
+        self::assertSame([1.0, null, null, 1.0], $twins->values);
         self::assertSame('no data (n < 200)', $twins->tooltips[1] ?? null);
         self::assertSame('18th Century', $twins->tooltipLabels[1] ?? null);
     }

@@ -1351,29 +1351,35 @@ final class LifeSpanRepositoryIntegrationTest extends AbstractIntegrationTestCas
     }
 
     /**
-     * A sex without enough deaths has no value for a century, and a century
-     * between two qualifying ones stays on the axis.
+     * The axis runs from the first to the last century in which either sex
+     * reaches the floor. A thin century and a century without any death between
+     * them are gaps, thin centuries outside them are not shown, and a sex
+     * without enough deaths has no value.
      */
     #[Test]
     public function averageLifespanBySexAndCenturyShowsGapsAndNoZero(): void
     {
         $records = [];
+        $person  = 0;
+        $cohorts = [[1350, 'M', 1], [1450, 'M', 5], [1650, 'M', 1], [1750, 'F', 5], [1850, 'M', 1]];
 
-        foreach ([1650, 1650, 1650, 1650, 1650, 1750, 1850, 1850, 1850, 1850, 1850] as $index => $year) {
-            $death     = $year + 40;
-            $records[] = "0 @I{$index}@ INDI\n1 SEX M\n1 BIRT\n2 DATE 1 JAN {$year}\n1 DEAT\n2 DATE 1 JUL {$death}\n";
+        foreach ($cohorts as [$year, $sex, $count]) {
+            for ($index = 0; $index < $count; ++$index, ++$person) {
+                $death     = $year + 40;
+                $records[] = "0 @I{$person}@ INDI\n1 SEX {$sex}\n1 BIRT\n2 DATE 1 JAN {$year}\n1 DEAT\n2 DATE 1 JUL {$death}\n";
+            }
         }
 
         $tree   = $this->importGedcomTree('lifespan-gap', "0 HEAD\n1 CHAR UTF-8\n" . implode('', $records) . "0 TRLR\n");
         $result = $this->repository($tree)->averageLifespanBySexAndCentury();
 
-        self::assertSame(['17th cent.', '18th cent.', '19th cent.'], $result->categories);
+        self::assertSame(['15th cent.', '16th cent.', '17th cent.', '18th cent.'], $result->categories);
 
         $male   = PayloadNarrowing::seriesAt($result, 0);
         $female = PayloadNarrowing::seriesAt($result, 1);
 
-        self::assertSame([40.0, null, 40.0], $male->values);
-        self::assertSame([null, null, null], $female->values);
+        self::assertSame([40.0, null, null, null], $male->values);
+        self::assertSame([null, null, null, 40.0], $female->values);
         self::assertSame('no data (n < 5)', $male->tooltips[1] ?? null);
     }
 }
