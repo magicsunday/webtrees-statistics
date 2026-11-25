@@ -165,6 +165,30 @@ final class CardTest extends TestCase
     }
 
     /**
+     * The popover heading is the localised "About this chart" text, and the
+     * button names the card it explains through the same text. Both come from
+     * what the caller hands to `withInfo()` today, so this pins the rendered
+     * pair for a titled card and the aria label of a card without a title.
+     */
+    #[Test]
+    public function infoPopoverHeadingAndAriaLabelCarryTheAboutText(): void
+    {
+        $titled = Card::for('m', 'T')
+            ->withInfo('Help', 'About this chart', 'About this chart')
+            ->render();
+
+        self::assertStringContainsString('data-bs-title="About this chart"', $titled);
+        self::assertStringContainsString('aria-label="About this chart: T"', $titled);
+
+        $untitled = Card::for('m', '')
+            ->withInfo('Help', 'About this chart', 'About this chart')
+            ->render();
+
+        self::assertStringContainsString('data-bs-title="About this chart"', $untitled);
+        self::assertStringContainsString('aria-label="About this chart"', $untitled);
+    }
+
+    /**
      * Without `withInfo()`, `withFooter()` and `withoutFooter()`, the footer
      * defaults to suppressed. Locks the implicit fallback so a regression of
      * the tri-state branch (default → footer suppressed) fails its own
