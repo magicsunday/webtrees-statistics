@@ -12,6 +12,8 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use Fisharebest\Webtrees\Auth;
+use Fisharebest\Webtrees\DB;
+use Fisharebest\Webtrees\Factories\CacheFactory;
 use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Model\Tree\PartnershipReachReport;
@@ -374,6 +376,99 @@ final class PartnershipReachRepositoryIntegrationTest extends AbstractIntegratio
         self::assertSame(40, $json['group']['totalEdgeCount']);
         self::assertSame(41, $json['group']['shownCount']);
         self::assertSame($result->group->medianYear, $json['group']['medianYear']);
+    }
+
+    /**
+     * A guest needs no visibility lookup for a person whose own facts carry no
+     * date, because such a person cannot give a year to the median. Two groups
+     * above both the excerpt cap and the chain bound draw and chain the same
+     * number of people, so the number of queries stays the same when the group
+     * grows. A first run warms the preference cache of the host, which would add
+     * queries to the run that follows it.
+     */
+    #[Test]
+    public function guestQueryCountDoesNotGrowWithPeopleWithoutLifeDates(): void
+    {
+        $this->guestQueryCount('dateless-warm-up', 8);
+
+        self::assertSame(
+            $this->guestQueryCount('dateless-small', PartnershipChains::MAX_CHAIN + 50),
+            $this->guestQueryCount('dateless-large', PartnershipChains::MAX_CHAIN + 200),
+        );
+    }
+
+    /**
+     * Count the queries of one summary for a guest on a chain of people who have
+     * parents and no dates at all.
+     *
+     * @param string $name   The name of the imported tree
+     * @param int    $people The number of people in the chain
+     */
+    private function guestQueryCount(string $name, int $people): int
+    {
+        $tree = $this->importGedcomTree($name, $this->datelessChainGedcom($people));
+        $this->actAsVisitorWithLivingHidden($tree);
+
+        // The import fills the record cache of the host, and a real request starts
+        // with an empty one, so every record that the viewer check needs is a query.
+        Registry::cache(new CacheFactory());
+
+        DB::connection()->flushQueryLog();
+        DB::connection()->enableQueryLog();
+
+        $report = $this->repository($tree)->summary() ?? self::fail('the chain is a partnership group');
+
+        self::assertSame($people, $report->group->totalCount, 'precondition: the whole chain is one group');
+
+        return count(DB::connection()->getQueryLog());
+    }
+
+    /**
+     * GEDCOM of a chain of partners without any date, where every person is the
+     * child of a couple outside the chain, so the host has relatives to look at.
+     */
+    private function datelessChainGedcom(int $people): string
+    {
+        $lines = ['0 HEAD', '1 CHAR UTF-8', '1 GEDC', '2 VERS 5.5.1', '2 FORM LINEAGE-LINKED'];
+
+        for ($index = 1; $index <= $people; ++$index) {
+            $sex     = ($index % 2 === 1) ? 'M' : 'F';
+            $lines[] = '0 @C' . $index . '@ INDI';
+            $lines[] = '1 NAME Chain ' . $index . ' /Dateless/';
+            $lines[] = '1 SEX ' . $sex;
+            $lines[] = '1 FAMC @FP' . $index . '@';
+
+            if ($index > 1) {
+                $lines[] = '1 FAMS @FC' . ($index - 1) . '@';
+            }
+
+            if ($index < $people) {
+                $lines[] = '1 FAMS @FC' . $index . '@';
+            }
+
+            $lines[] = '0 @FA' . $index . '@ INDI';
+            $lines[] = '1 NAME Father ' . $index . ' /Dateless/';
+            $lines[] = '1 SEX M';
+            $lines[] = '1 FAMS @FP' . $index . '@';
+            $lines[] = '0 @MO' . $index . '@ INDI';
+            $lines[] = '1 NAME Mother ' . $index . ' /Dateless/';
+            $lines[] = '1 SEX F';
+            $lines[] = '1 FAMS @FP' . $index . '@';
+            $lines[] = '0 @FP' . $index . '@ FAM';
+            $lines[] = '1 HUSB @FA' . $index . '@';
+            $lines[] = '1 WIFE @MO' . $index . '@';
+            $lines[] = '1 CHIL @C' . $index . '@';
+
+            if ($index < $people) {
+                $lines[] = '0 @FC' . $index . '@ FAM';
+                $lines[] = '1 ' . (($sex === 'M') ? 'HUSB' : 'WIFE') . ' @C' . $index . '@';
+                $lines[] = '1 ' . (($sex === 'M') ? 'WIFE' : 'HUSB') . ' @C' . ($index + 1) . '@';
+            }
+        }
+
+        $lines[] = '0 TRLR';
+
+        return implode("\n", $lines);
     }
 
     /**

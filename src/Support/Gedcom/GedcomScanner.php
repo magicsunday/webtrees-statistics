@@ -11,8 +11,10 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Support\Gedcom;
 
+use function array_map;
 use function end;
 use function explode;
+use function implode;
 use function in_array;
 use function mb_strtoupper;
 use function preg_match;
@@ -64,6 +66,26 @@ final readonly class GedcomScanner
         }
 
         return false;
+    }
+
+    /**
+     * True when at least one level-1 event of the listed tags carries a `2 DATE`
+     * line of its own. A date on another event, on a deeper level or after the
+     * next level-1 line belongs to something else and does not count. A tag
+     * that only ends in a listed tag (`_BIRT`) is another tag.
+     *
+     * @param string       $gedcom Raw GEDCOM record body
+     * @param list<string> $tags   Level-1 event tags to test, for example `['BIRT', 'DEAT']`
+     */
+    public static function hasDatedEvent(string $gedcom, array $tags): bool
+    {
+        if ($tags === []) {
+            return false;
+        }
+
+        $alternatives = implode('|', array_map(static fn (string $tag): string => preg_quote($tag, '/'), $tags));
+
+        return preg_match('/\n1 (?:' . $alternatives . ')(?=[ \n]|$)[^\n]*(?:\n[2-9].+)*\n2 DATE /', $gedcom) === 1;
     }
 
     /**

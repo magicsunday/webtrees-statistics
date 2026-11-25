@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
+use Fisharebest\Webtrees\DB;
 use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Tree;
@@ -19,12 +20,14 @@ use MagicSunday\Webtrees\Statistic\Model\Tree\PartnershipReachReport;
 use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
 use MagicSunday\Webtrees\Statistic\Support\Calc\PartnershipChains;
 use MagicSunday\Webtrees\Statistic\Support\Database\GedcomByXref;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\GedcomScanner;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\IndividualWire;
 
 use function array_fill_keys;
 use function array_map;
 use function array_push;
 use function count;
+use function is_string;
 use function strcmp;
 
 /**
@@ -45,7 +48,8 @@ use function strcmp;
  * group and chain counts never shift by viewer. The median year is the exception
  * that follows the viewer on purpose. It is formed over the years of the birth and
  * death facts (BIRT and DEAT) that the viewer can see on the resolved people, so it
- * does not reflect a year that the wire rows of the same payload withhold.
+ * does not reflect a year that the wire rows of the same payload withhold. Only a
+ * member who can give a year is resolved for it, see {@see membersThatMayHaveYears()}.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -132,7 +136,7 @@ final readonly class PartnershipReachRepository
         // year that the wire rows of the same payload withhold.
         $visibleYears = [];
 
-        foreach ($this->resolveIndividuals($members, $gedcomByXref) as $member) {
+        foreach ($this->resolveIndividuals($this->membersThatMayHaveYears($members, $gedcomByXref), $gedcomByXref) as $member) {
             array_push($visibleYears, ...$this->visibleLifeYears($member));
         }
 
@@ -231,6 +235,42 @@ final readonly class PartnershipReachRepository
             'id'     => $hubId,
             'degree' => $maxDegree,
         ];
+    }
+
+    /**
+     * The members whose facts can give the median a year. A person without a dated
+     * birth or death fact in the committed record has no year to give, and for a
+     * guest the visibility check of such a person reads the records of their
+     * relatives, one lookup after the other. A person with a change that waits
+     * for approval stays in, because an editor sees that change.
+     *
+     * @param list<string>             $members      The xrefs of the group
+     * @param array<array-key, string> $gedcomByXref Pre-fetched `xref → gedcom` map
+     *
+     * @return list<string>
+     */
+    private function membersThatMayHaveYears(array $members, array $gedcomByXref): array
+    {
+        $pending = [];
+
+        foreach (DB::table('change')->where('gedcom_id', '=', $this->tree->id())->where('status', '=', 'pending')->pluck('xref') as $xref) {
+            if (is_string($xref)) {
+                $pending[$xref] = true;
+            }
+        }
+
+        $candidates = [];
+
+        foreach ($members as $xref) {
+            if (
+                isset($pending[$xref])
+                || GedcomScanner::hasDatedEvent($gedcomByXref[$xref] ?? '', ['BIRT', 'DEAT'])
+            ) {
+                $candidates[] = $xref;
+            }
+        }
+
+        return $candidates;
     }
 
     /**
