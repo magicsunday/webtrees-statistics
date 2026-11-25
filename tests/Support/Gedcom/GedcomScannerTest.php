@@ -34,6 +34,39 @@ use function str_replace;
 final class GedcomScannerTest extends TestCase
 {
     /**
+     * @return iterable<string, array{0: string, 1: list<string>, 2: bool}>
+     */
+    public static function datedEventSamples(): iterable
+    {
+        yield 'dated birth' => ["\n0 @I1@ INDI\n1 BIRT\n2 DATE 1 JAN 1900", ['BIRT', 'DEAT'], true];
+        yield 'dated death only' => ["\n0 @I1@ INDI\n1 DEAT\n2 DATE 1 JAN 1950", ['BIRT', 'DEAT'], true];
+        yield 'date after other sub-lines of the event' => ["\n0 @I1@ INDI\n1 BIRT\n2 PLAC Berlin\n3 NOTE x\n2 DATE 1900", ['BIRT', 'DEAT'], true];
+        yield 'second birth fact carries the date' => ["\n0 @I1@ INDI\n1 BIRT\n2 PLAC Berlin\n1 BIRT\n2 DATE 1900", ['BIRT', 'DEAT'], true];
+        yield 'birth without a date' => ["\n0 @I1@ INDI\n1 BIRT\n2 PLAC Berlin", ['BIRT', 'DEAT'], false];
+        yield 'death flag without a date' => ["\n0 @I1@ INDI\n1 DEAT Y", ['BIRT', 'DEAT'], false];
+        yield 'date of another event does not count' => ["\n0 @I1@ INDI\n1 BIRT\n2 PLAC Berlin\n1 RESI\n2 DATE 1900", ['BIRT', 'DEAT'], false];
+        yield 'date of a later event after a dateless birth' => ["\n0 @I1@ INDI\n1 BIRT\n1 MARR\n2 DATE 1900", ['BIRT', 'DEAT'], false];
+        yield 'date nested one level deeper does not count' => ["\n0 @I1@ INDI\n1 BIRT\n2 SOUR @S1@\n3 DATE 1900", ['BIRT', 'DEAT'], false];
+        yield 'tag outside the list does not count' => ["\n0 @I1@ INDI\n1 BAPM\n2 DATE 1900", ['BIRT', 'DEAT'], false];
+        yield 'custom tag that ends in BIRT does not count' => ["\n0 @I1@ INDI\n1 _BIRT\n2 DATE 1900", ['BIRT', 'DEAT'], false];
+        yield 'no event at all' => ["\n0 @I1@ INDI\n1 NAME A /B/", ['BIRT', 'DEAT'], false];
+    }
+
+    /**
+     * An individual whose birth and death facts carry no date line cannot give
+     * the viewer a year, and a date that belongs to another event or a deeper
+     * level is no date of the fact.
+     *
+     * @param list<string> $tags
+     */
+    #[Test]
+    #[DataProvider('datedEventSamples')]
+    public function hasDatedEventFindsADateLineInsideAnEventOfTheListedTags(string $gedcom, array $tags, bool $expected): void
+    {
+        self::assertSame($expected, GedcomScanner::hasDatedEvent($gedcom, $tags));
+    }
+
+    /**
      * @return iterable<string, array{0: string, 1: string, 2: bool}>
      */
     public static function eventPlaceSamples(): iterable

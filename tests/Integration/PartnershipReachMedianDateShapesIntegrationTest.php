@@ -356,6 +356,35 @@ final class PartnershipReachMedianDateShapesIntegrationTest extends AbstractInte
     }
 
     /**
+     * The middle person has no dated birth or death fact in the accepted data
+     * and gets both through a change that waits for approval. The lower median
+     * is 1800 for an editor, while the other two people alone give 1810.
+     */
+    #[Test]
+    public function pendingDatesOfAPersonWithoutAcceptedDatesCountForAnEditor(): void
+    {
+        $tree = $this->treeWithPendingChange([], ['1 BIRT', '2 DATE 1 JAN 1790', '1 DEAT', '2 DATE 1 JAN 1795']);
+
+        $this->loginAsEditor($tree);
+
+        self::assertSame(1800, $this->medianYear($tree, 3));
+    }
+
+    /**
+     * The same change is hidden from a guest, so the other two people give the
+     * lower median 1810.
+     */
+    #[Test]
+    public function pendingDatesOfAPersonWithoutAcceptedDatesAreHiddenFromAGuest(): void
+    {
+        $tree = $this->treeWithPendingChange([], ['1 BIRT', '2 DATE 1 JAN 1790', '1 DEAT', '2 DATE 1 JAN 1795']);
+
+        Auth::logout();
+
+        self::assertSame(1810, $this->medianYear($tree, 3));
+    }
+
+    /**
      * A guest sees no birth for the middle person, so the lower median is 1830.
      */
     #[Test]
