@@ -549,7 +549,7 @@ final readonly class Statistic
     }
 
     /**
-     * Births faceted by 25-year period × calendar month — feeds the births
+     * Births faceted by period × calendar month — feeds the births
      * heatmap on the LifeSpan tab. Each BIRT date contributes one tick to its
      * period row and month column. Leading / trailing empty period rows are
      * trimmed; inner empty rows stay so a gap in the recorded history remains a
@@ -561,7 +561,7 @@ final readonly class Statistic
     }
 
     /**
-     * Deaths faceted by 25-year period × calendar month — feeds the deaths
+     * Deaths faceted by period × calendar month — feeds the deaths
      * heatmap on the LifeSpan tab. Mirrors {@see getBirthHeatmapByPeriodMonth()}
      * over DEAT dates.
      */
@@ -582,7 +582,8 @@ final readonly class Statistic
     /**
      * Years whose recorded death count stands out against the surrounding
      * baseline — the statistical fingerprint of an epidemic, war or famine
-     * year — ranked by descending standard score.
+     * year. The years with the highest standard scores are kept and returned
+     * chronologically.
      *
      * @param float $zScoreThreshold Minimum standard score for a year to count as an anomaly
      * @param int   $topN            Maximum number of anomaly years to return

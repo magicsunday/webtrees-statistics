@@ -323,7 +323,7 @@ final class PartnershipReachRepositoryIntegrationTest extends AbstractIntegratio
      * framework record survives onto the wire.
      */
     #[Test]
-    public function jsonSerializeFlattensPeopleAndEdges(): void
+    public function jsonSerializeCarriesPeopleAsWireRowsAndEdgesAsPairs(): void
     {
         $tree   = $this->importFixtureTree('partner-chains.ged');
         $result = $this->repository($tree)->summary();
