@@ -38,7 +38,7 @@ final class ChildMortalityLineMapperTest extends TestCase
     public function aCenturyBetweenTwoEntriesIsAGapAndNotAZero(): void
     {
         $payload = ChildMortalityLineMapper::toLineChartPayload([
-            ['century' => 17, 'total' => 8, 'died' => 2, 'rate' => 25.0],
+            ['century' => 17, 'total' => 6, 'died' => 2, 'rate' => 100 / 3],
             ['century' => 19, 'total' => 5, 'died' => 0, 'rate' => 0.0],
         ]);
 
@@ -47,9 +47,9 @@ final class ChildMortalityLineMapperTest extends TestCase
         $series = PayloadNarrowing::firstSeries($payload);
 
         self::assertSame('Mortality rate', $series->name);
-        self::assertSame([25.0, null, 0.0], $series->values);
+        self::assertSame([100 / 3, null, 0.0], $series->values);
         self::assertSame(
-            ['25% — 2 of 8 children died before age 5', '', '0% — 0 of 5 children died before age 5'],
+            ['33.3% — 2 of 6 children died before age 5', '', '0% — 0 of 5 children died before age 5'],
             $series->tooltips,
         );
         self::assertSame(['17th Century', '18th Century', '19th Century'], $series->tooltipLabels);
