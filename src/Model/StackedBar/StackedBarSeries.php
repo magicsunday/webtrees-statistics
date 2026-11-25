@@ -11,8 +11,6 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Model\StackedBar;
 
-use JsonSerializable;
-
 /**
  * One stacked segment in a {@see StackedBarPayload}. `data` holds the
  * per-category counts aligned positionally with the parent payload's
@@ -25,7 +23,7 @@ use JsonSerializable;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-final readonly class StackedBarSeries implements JsonSerializable
+final readonly class StackedBarSeries
 {
     /**
      * @param string    $name  Segment label shown in the legend
@@ -37,17 +35,5 @@ final readonly class StackedBarSeries implements JsonSerializable
         public array $data,
         public string $class,
     ) {
-    }
-
-    /**
-     * @return array{name: string, data: list<int>, class: string}
-     */
-    public function jsonSerialize(): array
-    {
-        return [
-            'name'  => $this->name,
-            'data'  => $this->data,
-            'class' => $this->class,
-        ];
     }
 }

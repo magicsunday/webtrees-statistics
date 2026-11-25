@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Model\LineChart;
 
 use Closure;
-use JsonSerializable;
 
 /**
  * Wire-format payload for the chart-lib line-chart widget. `categories` defines
@@ -26,7 +25,7 @@ use JsonSerializable;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-final readonly class LineChartPayload implements JsonSerializable
+final readonly class LineChartPayload
 {
     /**
      * @param list<string>          $categories X-axis labels in display order
@@ -81,16 +80,5 @@ final readonly class LineChartPayload implements JsonSerializable
                 ),
             ],
         );
-    }
-
-    /**
-     * @return array{categories: list<string>, series: list<LineChartSeries>}
-     */
-    public function jsonSerialize(): array
-    {
-        return [
-            'categories' => $this->categories,
-            'series'     => $this->series,
-        ];
     }
 }

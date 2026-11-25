@@ -11,8 +11,6 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Model\StackedBar;
 
-use JsonSerializable;
-
 /**
  * Wire-format payload for the chart-lib stacked-bar widget. `categories`
  * defines the x-axis labels; `tooltipLabels` supplies the bold header shown
@@ -27,7 +25,7 @@ use JsonSerializable;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-final readonly class StackedBarPayload implements JsonSerializable
+final readonly class StackedBarPayload
 {
     /**
      * @param list<string>           $categories    X-axis labels in display order
@@ -39,17 +37,5 @@ final readonly class StackedBarPayload implements JsonSerializable
         public array $tooltipLabels,
         public array $series,
     ) {
-    }
-
-    /**
-     * @return array{categories: list<string>, tooltipLabels: list<string>, series: list<StackedBarSeries>}
-     */
-    public function jsonSerialize(): array
-    {
-        return [
-            'categories'    => $this->categories,
-            'tooltipLabels' => $this->tooltipLabels,
-            'series'        => $this->series,
-        ];
     }
 }

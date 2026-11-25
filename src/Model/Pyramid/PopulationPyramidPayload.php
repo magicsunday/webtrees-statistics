@@ -11,8 +11,6 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Model\Pyramid;
 
-use JsonSerializable;
-
 /**
  * Wire-format payload for the chart-lib pyramid widget on the LifeSpan tab.
  * Built for the deaths-by-sex use, but shaped to the widget's domain-neutral
@@ -30,7 +28,7 @@ use JsonSerializable;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-final readonly class PopulationPyramidPayload implements JsonSerializable
+final readonly class PopulationPyramidPayload
 {
     /**
      * @param list<string>                             $groups Localised picker labels (centuries) in chronological order
@@ -42,17 +40,5 @@ final readonly class PopulationPyramidPayload implements JsonSerializable
         public array $bands,
         public array $data,
     ) {
-    }
-
-    /**
-     * @return array{groups: list<string>, bands: list<string>, data: list<list<array{left: int, right: int}>>}
-     */
-    public function jsonSerialize(): array
-    {
-        return [
-            'groups' => $this->groups,
-            'bands'  => $this->bands,
-            'data'   => $this->data,
-        ];
     }
 }

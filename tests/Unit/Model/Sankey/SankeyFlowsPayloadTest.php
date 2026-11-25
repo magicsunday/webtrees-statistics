@@ -116,8 +116,8 @@ final class SankeyFlowsPayloadTest extends TestCase
     }
 
     /**
-     * `SankeyLink` includes its samples list inline, which itself nests through
-     * `SankeySample::jsonSerialize`. The nested encode is the most likely drift
+     * `SankeyLink` includes its samples list inline, which itself nests the
+     * `SankeySample` objects. The nested encode is the most likely drift
      * point so an explicit empty + populated case here guards both ends of the
      * spectrum.
      */

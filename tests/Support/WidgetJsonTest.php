@@ -48,8 +48,8 @@ final class WidgetJsonTest extends TestCase
     }
 
     /**
-     * A JsonSerializable DTO is forwarded to its `jsonSerialize()` shape — the
-     * same path every chart-payload DTO uses.
+     * A JsonSerializable DTO is forwarded to its `jsonSerialize()` shape, the
+     * path of every payload that projects, omits or derives a field.
      */
     #[Test]
     public function encodeHonoursJsonSerializableImplementations(): void

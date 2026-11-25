@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Support;
 
 use JsonException;
-use JsonSerializable;
 
 use function e;
 use function json_encode;
@@ -46,16 +45,18 @@ final readonly class WidgetJson
     /**
      * Encode `$value` to the raw JSON string. Throws on encoding failure;
      * substitutes malformed UTF-8 with U+FFFD. Accepts either a raw `array`
-     * (widget options) or a `JsonSerializable` DTO (widget payload).
+     * (widget options) or a payload object (widget payload), which encodes
+     * through its own `jsonSerialize()` or, without one, through its public
+     * properties.
      *
      * Most callers want {@see encodeAttribute()} which additionally
      * HTML-escapes the result for direct embedding in a `data-*` attribute.
      *
-     * @param array<array-key, mixed>|JsonSerializable $value
+     * @param array<array-key, mixed>|object $value
      *
      * @throws JsonException
      */
-    public static function encode(array|JsonSerializable $value): string
+    public static function encode(array|object $value): string
     {
         return json_encode($value, JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE);
     }
@@ -67,11 +68,11 @@ final readonly class WidgetJson
      * call instead of the more error- prone `e(WidgetJson::encode(...))`
      * nesting at every site.
      *
-     * @param array<array-key, mixed>|JsonSerializable $value
+     * @param array<array-key, mixed>|object $value
      *
      * @throws JsonException
      */
-    public static function encodeAttribute(array|JsonSerializable $value): string
+    public static function encodeAttribute(array|object $value): string
     {
         return e(self::encode($value));
     }

@@ -11,8 +11,6 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Model\Metric;
 
-use JsonSerializable;
-
 /**
  * Generic rate counter — `value` over `total`. Feeds the source- citation
  * coverage metric on the Tree-Health tab; consumers derive both the percentage
@@ -24,22 +22,11 @@ use JsonSerializable;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-final readonly class RateCount implements JsonSerializable
+final readonly class RateCount
 {
     public function __construct(
         public int $value,
         public int $total,
     ) {
-    }
-
-    /**
-     * @return array{value: int, total: int}
-     */
-    public function jsonSerialize(): array
-    {
-        return [
-            'value' => $this->value,
-            'total' => $this->total,
-        ];
     }
 }
