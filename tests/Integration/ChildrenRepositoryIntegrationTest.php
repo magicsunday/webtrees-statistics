@@ -706,7 +706,7 @@ final class ChildrenRepositoryIntegrationTest extends AbstractIntegrationTestCas
         $records = [];
         $child   = 0;
 
-        foreach ([1650 => 200, 1750 => 199, 1950 => 200, 2050 => 3] as $year => $count) {
+        foreach ([1650 => 200, 1750 => 199, 1950 => 200, 2050 => 199] as $year => $count) {
             for ($index = 0; $index < $count; ++$index, ++$child) {
                 // The first two children of a century are twins of one family.
                 $family = $index < 2 ? "T{$year}" : "F{$child}";
