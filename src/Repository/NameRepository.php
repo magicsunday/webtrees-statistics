@@ -23,7 +23,6 @@ use MagicSunday\Webtrees\Statistic\Aggregator\TopNAggregator;
 use MagicSunday\Webtrees\Statistic\Enum\Sex;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
-use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
 use MagicSunday\Webtrees\Statistic\Support\Database\ChildLinkJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
@@ -36,6 +35,7 @@ use function array_intersect;
 use function array_keys;
 use function array_map;
 use function count;
+use function iterator_to_array;
 use function ksort;
 use function round;
 use function usort;
@@ -456,7 +456,7 @@ final class NameRepository
         // family row (split_materialized / LATERAL DERIVED), turning a ~60 ms
         // card into a multi-second one on a real tree. One materialised lookup
         // sidesteps the trap while preserving the lower-bound dedup semantics.
-        $birthYears = $this->childBirthYearsByXref();
+        $birthYears = iterator_to_array(DedupedEventDates::gregorianYears($this->tree, 'BIRT'), true);
 
         $fatherSon      = $this->passdownPairsByCentury(Sex::Male->spouseColumn(), Sex::Male->value, $birthYears);
         $motherDaughter = $this->passdownPairsByCentury(Sex::Female->spouseColumn(), Sex::Female->value, $birthYears);
@@ -516,8 +516,8 @@ final class NameRepository
      * SEX token the CHIL is filtered to (`M` for sons, `F` for daughters).
      *
      * The child's birth century is resolved from `$birthYears` — the
-     * deduplicated lower-bound year per individual built by
-     * {@see childBirthYearsByXref()} — so an imprecise `BET`/`FROM` birth — two
+     * deduplicated lower-bound year per individual read by
+     * {@see DedupedEventDates::gregorianYears()} — so an imprecise `BET`/`FROM` birth — two
      * stored rows — places the pair in its lower-bound century once rather than
      * counting it twice and, on a century-straddling range, inventing a phantom
      * second-century slot. A child whose xref is absent from the map has no
@@ -605,41 +605,6 @@ final class NameRepository
         }
 
         return $byCentury;
-    }
-
-    /**
-     * Resolve every individual's deduplicated lower-bound birth year, keyed by
-     * xref, in a single materialised query. {@see DedupedEventDates} collapses
-     * webtrees' two-row range encoding to one representative row per individual
-     * and restricts to dated births with a known year; {@see GregorianDate}
-     * converts a non-Gregorian/Julian birth to its Gregorian year. The map never
-     * carries year 0, and a year before the common era stays, as in the
-     * lifespan cohorts, because the century axis names it.
-     *
-     * Built once per {@see sameSexNamePassdownByCentury()} call and shared by
-     * both sex pairings, this replaces a per-row derived-table join that the
-     * MariaDB optimiser re-evaluated for every probed family row.
-     *
-     * @return array<string, int> Individual xref → lower-bound Gregorian birth year
-     */
-    private function childBirthYearsByXref(): array
-    {
-        $rows = DedupedEventDates::query($this->tree, 'BIRT')
-            ->select(['d_gid', 'd_type', 'd_year', 'd_julianday1'])
-            ->get();
-
-        /** @var array<string, int> $birthYears */
-        $birthYears = [];
-
-        foreach ($rows as $row) {
-            $birthYears[RowCast::string($row, 'd_gid')] = GregorianDate::year(
-                RowCast::string($row, 'd_type'),
-                RowCast::int($row, 'd_year'),
-                RowCast::int($row, 'd_julianday1'),
-            );
-        }
-
-        return $birthYears;
     }
 
     /**
