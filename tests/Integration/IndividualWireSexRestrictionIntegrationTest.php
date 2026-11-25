@@ -293,7 +293,7 @@ final class IndividualWireSexRestrictionIntegrationTest extends AbstractIntegrat
      * the chain, in the group nodes and in the excerpt serialized on its own.
      */
     #[Test]
-    public function partnershipReportSerializersFlattenThroughTheRestrictedSexPath(): void
+    public function partnershipReportSerializersWithholdTheSexOfAnUnseenPerson(): void
     {
         $tree = $this->tree();
 

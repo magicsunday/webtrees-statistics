@@ -40,8 +40,7 @@ final class DivorceCohortRowMapperTest extends TestCase
 
     /**
      * Each rate becomes a whole percentage, the cohort key becomes a decade, and
-     * the four lists stay parallel in input order. A string key is read as the
-     * decade start, as the repository hands it over.
+     * the four lists stay parallel in input order.
      */
     #[Test]
     public function rateBecomesAWholePercentagePerDecade(): void

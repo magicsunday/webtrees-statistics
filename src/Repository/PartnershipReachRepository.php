@@ -126,9 +126,10 @@ final readonly class PartnershipReachRepository
         $shownMembers = $excerpt['members'];
         $shownEdges   = $excerpt['edges'];
 
-        // Resolve every group member from a single bulk gedcom fetch, never one
+        // Fetch the gedcom of every group member in one bulk query, never one
         // IndividualFactory::make() per id. The members are a superset of the
-        // shown excerpt and of the chain, so the same fetch serves all of them.
+        // shown excerpt and of the chain, so the same fetch serves all of them,
+        // and only the members that may have a year are resolved for the median.
         $gedcomByXref = GedcomByXref::fetch($this->tree, $members);
 
         // The median is formed over the years of the BIRT and DEAT facts that the

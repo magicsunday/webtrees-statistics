@@ -58,17 +58,17 @@ final class TreeHealthRepositoryIntegrationTest extends AbstractIntegrationTestC
         $tree = $this->importFixtureTree('tree-health.ged');
         $gaps = (new TreeHealthRepository($tree))->missingEventGaps();
 
-        $birtEvent = $gaps['BIRT_date'] ?? self::fail('Missing BIRT_date gap row');
-        self::assertSame(2, $birtEvent['value']);
-        self::assertSame(6, $birtEvent['total']);
+        $birthDateGap = $gaps['BIRT_date'] ?? self::fail('Missing BIRT_date gap row');
+        self::assertSame(2, $birthDateGap['value']);
+        self::assertSame(6, $birthDateGap['total']);
 
         $birtPlace = $gaps['BIRT_place'] ?? self::fail('Missing BIRT_place gap row');
         self::assertSame(3, $birtPlace['value']);
 
         // The spouses of the family have a marriage event without a place.
-        $marrEvent = $gaps['MARR_date'] ?? self::fail('Missing MARR_date gap row');
-        self::assertSame(0, $marrEvent['value']);
-        self::assertSame(2, $marrEvent['total']);
+        $marriageDateGap = $gaps['MARR_date'] ?? self::fail('Missing MARR_date gap row');
+        self::assertSame(0, $marriageDateGap['value']);
+        self::assertSame(2, $marriageDateGap['total']);
 
         $marrPlace = $gaps['MARR_place'] ?? self::fail('Missing MARR_place gap row');
         self::assertSame(2, $marrPlace['value']);
@@ -87,9 +87,9 @@ final class TreeHealthRepositoryIntegrationTest extends AbstractIntegrationTestC
         $tree = $this->importFixtureTree('tree-health-marriage-gaps.ged');
         $gaps = (new TreeHealthRepository($tree))->missingEventGaps();
 
-        $marrEvent = $gaps['MARR_date'] ?? self::fail('Missing MARR_date gap row');
-        self::assertSame(2, $marrEvent['value']);
-        self::assertSame(6, $marrEvent['total']);
+        $marriageDateGap = $gaps['MARR_date'] ?? self::fail('Missing MARR_date gap row');
+        self::assertSame(2, $marriageDateGap['value']);
+        self::assertSame(6, $marriageDateGap['total']);
 
         $marrPlace = $gaps['MARR_place'] ?? self::fail('Missing MARR_place gap row');
         self::assertSame(4, $marrPlace['value']);

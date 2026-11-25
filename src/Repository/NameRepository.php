@@ -450,12 +450,8 @@ final class NameRepository
     public function sameSexNamePassdownByCentury(): LineChartPayload
     {
         // Resolve every child's lower-bound birth year once, keyed by xref, and
-        // look the century up in PHP. Joining DedupedEventDates as a secondary
-        // derived table on the single key `d_gid = famc.l_from` made MariaDB
-        // re-evaluate the whole two-level birth-dedup aggregation per probed
-        // family row (split_materialized / LATERAL DERIVED), turning a ~60 ms
-        // card into a multi-second one on a real tree. One materialised lookup
-        // sidesteps the trap while preserving the lower-bound dedup semantics.
+        // look the century up in PHP instead of joining the grouped subquery per
+        // family row.
         $birthYears = iterator_to_array(DedupedEventDates::gregorianYears($this->tree, 'BIRT'), true);
 
         $fatherSon      = $this->passdownPairsByCentury(Sex::Male->spouseColumn(), Sex::Male->value, $birthYears);

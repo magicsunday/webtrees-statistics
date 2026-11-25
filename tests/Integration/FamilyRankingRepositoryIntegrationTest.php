@@ -102,7 +102,7 @@ final class FamilyRankingRepositoryIntegrationTest extends AbstractIntegrationTe
 
     /**
      * Top-N largest families list F1 first (3 children); F2 with 0 children
-     * should still appear (the accessor sorts descending by child count, not
+     * should still appear (the ranking sorts descending by child count, not
      * "only those > 0").
      */
     #[Test]

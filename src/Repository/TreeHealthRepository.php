@@ -193,8 +193,7 @@ final readonly class TreeHealthRepository
      * sub-line. The place of an event is read from the GEDCOM blob in PHP, so
      * the place check is scoped to the right event block. A date counts as
      * present when the `dates` table holds a row of the fact with a Julian day
-     * above zero, which is the condition of the date based cards, and the
-     * living individuals come from SQL.
+     * above zero, and the living individuals come from SQL.
      *
      * Every date row counts the individuals whose event is missing or has no
      * usable date. Every place row counts the individuals whose event is

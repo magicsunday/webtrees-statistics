@@ -107,7 +107,7 @@ final readonly class ChildrenRepository
 
     /**
      * @param Tree           $tree The tree the statistics are computed for
-     * @param StatisticsData $data Core accessor (averageChildrenPerFamily, familiesWithTheMostChildren, countFamiliesWithNoChildren)
+     * @param StatisticsData $data Core accessor (averageChildrenPerFamily, countFamiliesWithNoChildren)
      */
     public function __construct(
         private Tree $tree,
