@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Model\Tree;
 
-use JsonSerializable;
 use MagicSunday\Webtrees\Statistic\Model\Record\FamilyCountRecord;
 use MagicSunday\Webtrees\Statistic\Model\Record\FamilyDurationDaysRecord;
 use MagicSunday\Webtrees\Statistic\Model\Record\FamilyDurationYearsRecord;
@@ -31,7 +30,7 @@ use MagicSunday\Webtrees\Statistic\Model\Record\IndividualCountRecord;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-final readonly class TreeRecordsReport implements JsonSerializable
+final readonly class TreeRecordsReport
 {
     public function __construct(
         public ?IndividualAgeRecord $oldestDeceased,
@@ -50,29 +49,5 @@ final readonly class TreeRecordsReport implements JsonSerializable
         public ?IndividualAgeRecord $oldestFatherAtFirstChild,
         public ?IndividualAgeRecord $oldestMotherAtFirstChild,
     ) {
-    }
-
-    /**
-     * @return array<string, IndividualAgeRecord|IndividualCountRecord|FamilyCountRecord|FamilyDurationYearsRecord|FamilyDurationDaysRecord|null>
-     */
-    public function jsonSerialize(): array
-    {
-        return [
-            'oldestDeceased'             => $this->oldestDeceased,
-            'oldestLiving'               => $this->oldestLiving,
-            'longestMarriage'            => $this->longestMarriage,
-            'shortestMarriage'           => $this->shortestMarriage,
-            'youngestHusband'            => $this->youngestHusband,
-            'youngestWife'               => $this->youngestWife,
-            'oldestHusband'              => $this->oldestHusband,
-            'oldestWife'                 => $this->oldestWife,
-            'mostSpouses'                => $this->mostSpouses,
-            'largestFamily'              => $this->largestFamily,
-            'mostChildrenPerPerson'      => $this->mostChildrenPerPerson,
-            'youngestFatherAtFirstChild' => $this->youngestFatherAtFirstChild,
-            'youngestMotherAtFirstChild' => $this->youngestMotherAtFirstChild,
-            'oldestFatherAtFirstChild'   => $this->oldestFatherAtFirstChild,
-            'oldestMotherAtFirstChild'   => $this->oldestMotherAtFirstChild,
-        ];
     }
 }

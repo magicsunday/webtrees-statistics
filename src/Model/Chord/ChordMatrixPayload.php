@@ -11,8 +11,6 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Model\Chord;
 
-use JsonSerializable;
-
 /**
  * Symmetric N×N matrix payload for the chart-lib chord-diagram widget.
  * `labels[i]` names the i-th arc; `matrix[i][j]` is the connection strength
@@ -29,7 +27,7 @@ use JsonSerializable;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-final readonly class ChordMatrixPayload implements JsonSerializable
+final readonly class ChordMatrixPayload
 {
     /**
      * @param list<string>    $labels Arc names in display order (typically alphabetical so the chord layout stays stable)
@@ -39,16 +37,5 @@ final readonly class ChordMatrixPayload implements JsonSerializable
         public array $labels,
         public array $matrix,
     ) {
-    }
-
-    /**
-     * @return array{labels: list<string>, matrix: list<list<int>>}
-     */
-    public function jsonSerialize(): array
-    {
-        return [
-            'labels' => $this->labels,
-            'matrix' => $this->matrix,
-        ];
     }
 }

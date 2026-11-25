@@ -11,8 +11,6 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Model\Metric;
 
-use JsonSerializable;
-
 /**
  * Distinct-PLAC-per-individual dispersion summary for the Places tab. `average`
  * is the mean count of distinct places per individual that carries at least one
@@ -26,7 +24,7 @@ use JsonSerializable;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-final readonly class PlaceDispersionSummary implements JsonSerializable
+final readonly class PlaceDispersionSummary
 {
     /**
      * @param array<array-key, int> $distribution Mapping `distinct-place count → frequency`
@@ -36,17 +34,5 @@ final readonly class PlaceDispersionSummary implements JsonSerializable
         public int $sampled,
         public array $distribution,
     ) {
-    }
-
-    /**
-     * @return array{average: float, sampled: int, distribution: array<array-key, int>}
-     */
-    public function jsonSerialize(): array
-    {
-        return [
-            'average'      => $this->average,
-            'sampled'      => $this->sampled,
-            'distribution' => $this->distribution,
-        ];
     }
 }

@@ -11,8 +11,6 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Model\Ranking;
 
-use JsonSerializable;
-
 /**
  * One row of a Top-N podium ranking: the entity's XREF, a human-readable
  * `label` and the ranked `value`. Podiums return a LIST of these rows rather
@@ -27,24 +25,12 @@ use JsonSerializable;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-final readonly class RankingEntry implements JsonSerializable
+final readonly class RankingEntry
 {
     public function __construct(
         public string $xref,
         public string $label,
         public int $value,
     ) {
-    }
-
-    /**
-     * @return array{xref: string, label: string, value: int}
-     */
-    public function jsonSerialize(): array
-    {
-        return [
-            'xref'  => $this->xref,
-            'label' => $this->label,
-            'value' => $this->value,
-        ];
     }
 }

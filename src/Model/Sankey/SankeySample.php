@@ -11,8 +11,6 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Model\Sankey;
 
-use JsonSerializable;
-
 /**
  * Representative individual surfaced inside a {@see SankeyLink}. Each link
  * carries up to N samples so the tooltip can show actual person names + xrefs
@@ -25,22 +23,11 @@ use JsonSerializable;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-final readonly class SankeySample implements JsonSerializable
+final readonly class SankeySample
 {
     public function __construct(
         public string $name,
         public string $xref,
     ) {
-    }
-
-    /**
-     * @return array{name: string, xref: string}
-     */
-    public function jsonSerialize(): array
-    {
-        return [
-            'name' => $this->name,
-            'xref' => $this->xref,
-        ];
     }
 }

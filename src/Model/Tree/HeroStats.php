@@ -11,8 +11,6 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Model\Tree;
 
-use JsonSerializable;
-
 /**
  * Aggregated headline metrics for the Statistics-page hero — the six numbers
  * that introduce the tree at a glance (total individuals, total families,
@@ -27,7 +25,7 @@ use JsonSerializable;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-final readonly class HeroStats implements JsonSerializable
+final readonly class HeroStats
 {
     /**
      * @param int        $individuals            Total recorded individuals (INDI records)
@@ -51,23 +49,5 @@ final readonly class HeroStats implements JsonSerializable
         public ?int $decadeFrom = null,
         public ?int $decadeTo = null,
     ) {
-    }
-
-    /**
-     * @return array{individuals: int, families: int, maxGenerationDepth: int, averageGenerationYears: float|null, pedigreeCompleteness: float, sourceCitationCoverage: float, centurySpan: int, decadeFrom: int|null, decadeTo: int|null}
-     */
-    public function jsonSerialize(): array
-    {
-        return [
-            'individuals'            => $this->individuals,
-            'families'               => $this->families,
-            'maxGenerationDepth'     => $this->maxGenerationDepth,
-            'averageGenerationYears' => $this->averageGenerationYears,
-            'pedigreeCompleteness'   => $this->pedigreeCompleteness,
-            'sourceCitationCoverage' => $this->sourceCitationCoverage,
-            'centurySpan'            => $this->centurySpan,
-            'decadeFrom'             => $this->decadeFrom,
-            'decadeTo'               => $this->decadeTo,
-        ];
     }
 }

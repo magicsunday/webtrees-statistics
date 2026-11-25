@@ -11,8 +11,6 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Model\Metric;
 
-use JsonSerializable;
-
 /**
  * Relative-density indicator for December–February deaths compared with an even
  * 12-month baseline. `score` >1.0 = winter-peaked, <1.0 = winter-trough, ≈1.0 =
@@ -25,24 +23,12 @@ use JsonSerializable;
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-final readonly class WinterPeakScore implements JsonSerializable
+final readonly class WinterPeakScore
 {
     public function __construct(
         public float $score,
         public int $seasonCount,
         public int $total,
     ) {
-    }
-
-    /**
-     * @return array{score: float, seasonCount: int, total: int}
-     */
-    public function jsonSerialize(): array
-    {
-        return [
-            'score'       => $this->score,
-            'seasonCount' => $this->seasonCount,
-            'total'       => $this->total,
-        ];
     }
 }
