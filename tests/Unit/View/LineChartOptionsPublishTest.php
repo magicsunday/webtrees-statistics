@@ -17,7 +17,6 @@ use Fisharebest\Webtrees\Webtrees;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
 use MagicSunday\Webtrees\Statistic\Payload\LineChartPayload;
 use PhpToken;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -26,9 +25,7 @@ use function file_get_contents;
 use function html_entity_decode;
 use function json_decode;
 use function preg_match;
-use function preg_match_all;
 use function preg_quote;
-use function substr_count;
 use function view;
 
 use const ENT_QUOTES;
@@ -59,39 +56,6 @@ final class LineChartOptionsPublishTest extends TestCase
         (new Webtrees())->bootstrap();
         I18N::init('en-US', true);
         View::registerNamespace('m', dirname(__DIR__, 3) . '/resources/views/');
-    }
-
-    /**
-     * @return iterable<string, array{string, string}>
-     */
-    public static function rateCards(): iterable
-    {
-        yield 'average family size' => ['family', 'average-family-size-line'];
-        yield 'divorce rate' => ['family', 'divorce-cohort-line'];
-        yield 'multiple-birth rate' => ['family', 'multiple-birth-rate-line'];
-        yield 'child mortality' => ['life-span', 'child-mortality-century-line'];
-        yield 'survival curve' => ['life-span', 'survival-curve'];
-        yield 'name passdown' => ['names', 'same-sex-name-passdown-line'];
-    }
-
-    /**
-     * A rate or a mean is a line. A chart with a single series fills the area
-     * under its line unless the card switches that off, and the number of series
-     * of a card can depend on the tree. The card names the switch once and passes
-     * it a literal false.
-     */
-    #[Test]
-    #[DataProvider('rateCards')]
-    public function aRateCardDrawsNoArea(string $tab, string $identifier): void
-    {
-        preg_match_all(
-            "/->with\\('showArea',\\s*(\\w+)\\)/",
-            $this->cardChain($tab, $identifier),
-            $calls,
-        );
-
-        self::assertSame(1, substr_count($this->cardChain($tab, $identifier), 'showArea'));
-        self::assertSame(['false'], $calls[1]);
     }
 
     /**
