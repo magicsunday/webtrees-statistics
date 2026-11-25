@@ -12,10 +12,13 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Support\Database;
 
 use Fisharebest\Webtrees\Tree;
+use Generator;
 use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
+use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 
 /**
  * Builder factory that collapses webtrees' two-row encoding of an imprecise
@@ -66,7 +69,7 @@ use Illuminate\Database\Query\JoinClause;
  * than webtrees core's Gregorian/Julian-only `StatisticsData::countEventQuery()`
  * universe. A non-Gregorian/Julian date (French Republican, Hebrew, …) carries a
  * native `d_year` meaningless on the Gregorian scale, so consumers that bucket by
- * period MUST convert it through {@see \MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate}
+ * period MUST convert it through {@see GregorianDate}
  * using the exposed `d_type` and lower-bound `d_julianday1`; for Gregorian/Julian
  * that conversion is a no-op and the native `d_year`/`d_mon`/`d_day` win. The
  * lower-bound `d_julianday1` is exposed for exactly this conversion; `d_julianday2`
@@ -119,6 +122,38 @@ final readonly class DedupedEventDates
         return DB::connection()
             ->query()
             ->fromSub($representativeRows, 'event_dates');
+    }
+
+    /**
+     * The Gregorian year of each individual's lower-bound date for a fact, keyed
+     * by individual XREF and streamed row by row. Each individual gives one year,
+     * an imprecise date counts with its lower bound, and a date of another
+     * calendar is converted through {@see GregorianDate::year()}. A year before the
+     * common era is kept, a consumer that has no use for it drops it.
+     *
+     * The rows are read with a query of their own and matched in PHP, because
+     * joining the grouped subquery of {@see query()} to the family rows makes the
+     * database evaluate it again for each of them, which is far too slow on a
+     * large tree.
+     *
+     * @param Tree   $tree The tree whose events to read
+     * @param string $fact The GEDCOM fact tag (`BIRT`, `DEAT`, ...)
+     *
+     * @return Generator<string, int> Individual XREF to Gregorian year
+     */
+    public static function gregorianYears(Tree $tree, string $fact): Generator
+    {
+        $rows = self::query($tree, $fact)
+            ->select(['d_gid', 'd_type', 'd_year', 'd_julianday1'])
+            ->cursor();
+
+        foreach ($rows as $row) {
+            yield RowCast::string($row, 'd_gid') => GregorianDate::year(
+                RowCast::string($row, 'd_type'),
+                RowCast::int($row, 'd_year'),
+                RowCast::int($row, 'd_julianday1'),
+            );
+        }
     }
 
     /**

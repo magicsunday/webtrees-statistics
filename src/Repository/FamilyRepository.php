@@ -23,7 +23,6 @@ use MagicSunday\Webtrees\Statistic\Enum\Sex;
 use MagicSunday\Webtrees\Statistic\Model\Family\SexRatioAnomaly;
 use MagicSunday\Webtrees\Statistic\Model\Family\SiblingDeathCluster;
 use MagicSunday\Webtrees\Statistic\Model\FamilyRow;
-use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
 use MagicSunday\Webtrees\Statistic\Support\Database\ChildLinkJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\ChunkedWhereIn;
 use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
@@ -424,7 +423,7 @@ final readonly class FamilyRepository
      * stands for one calendar year of the common era, unlike the century cohorts
      * of the lifespan and name cards that keep such years. The rows are read
      * with a query of their own and matched in PHP instead of being joined to
-     * the family rows.
+     * the family rows, see {@see DedupedEventDates::gregorianYears()}.
      *
      * @return array<string, int>
      */
@@ -432,19 +431,9 @@ final readonly class FamilyRepository
     {
         $years = [];
 
-        $rows = DedupedEventDates::query($this->tree, 'DEAT')
-            ->select(['d_gid', 'd_type', 'd_year', 'd_julianday1'])
-            ->cursor();
-
-        foreach ($rows as $row) {
-            $year = GregorianDate::year(
-                RowCast::string($row, 'd_type'),
-                RowCast::int($row, 'd_year'),
-                RowCast::int($row, 'd_julianday1'),
-            );
-
+        foreach (DedupedEventDates::gregorianYears($this->tree, 'DEAT') as $xref => $year) {
             if ($year > 0) {
-                $years[RowCast::string($row, 'd_gid')] = $year;
+                $years[$xref] = $year;
             }
         }
 

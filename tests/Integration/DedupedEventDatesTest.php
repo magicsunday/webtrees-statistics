@@ -19,6 +19,9 @@ use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Test\Support\Narrowing\PayloadNarrowing;
 use PHPUnit\Framework\Attributes\Test;
 
+use function iterator_to_array;
+use function ksort;
+
 /**
  * Integration test for {@see DedupedEventDates}. Webtrees writes TWO `dates`
  * rows for every range date (`BET..AND`, `FROM..TO`) — a lower-bound and an
@@ -261,6 +264,28 @@ final class DedupedEventDatesTest extends AbstractIntegrationTestCase
             'd_julianday1' => 2415021,
             'd_julianday2' => 2415021,
         ];
+    }
+
+    /**
+     * The Gregorian year of each individual's lower-bound date, keyed by XREF. An
+     * imprecise range counts with its lower bound (`BET 1850 AND 1855` gives 1850,
+     * `BET DEC 1880 AND JAN 1881` gives 1880), and the Hebrew birth `1 TSH 5661`
+     * is converted to the Gregorian year 1900 instead of its native 5661. The
+     * year-less I8 gives nothing, and a fact scopes the result to its own rows.
+     */
+    #[Test]
+    public function gregorianYearsGiveTheLowerBoundYearOfEveryCalendar(): void
+    {
+        $tree = $this->importFixtureTree('deduped-event-dates.ged');
+
+        $births = iterator_to_array(DedupedEventDates::gregorianYears($tree, 'BIRT'), true);
+        ksort($births);
+
+        self::assertSame(
+            ['I1' => 1900, 'I2' => 1850, 'I3' => 1870, 'I4' => 1880, 'I5' => 1900, 'I6' => 1910, 'I7' => 1900],
+            $births,
+        );
+        self::assertSame(['I6' => 1980], iterator_to_array(DedupedEventDates::gregorianYears($tree, 'DEAT'), true));
     }
 
     /**
