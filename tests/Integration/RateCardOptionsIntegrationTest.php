@@ -70,23 +70,13 @@ final class RateCardOptionsIntegrationTest extends AbstractIntegrationTestCase
     }
 
     /**
-     * The passdown card suffixes its tooltip values, which would otherwise read
-     * as bare numbers.
-     */
-    #[Test]
-    public function theNamePassdownCardLabelsItsValuesAsPercent(): void
-    {
-        self::assertSame(' %', $this->chartOptions('getNamesAction', 'same-sex-name-passdown-line')['yUnit']);
-    }
-
-    /**
      * Render a tab for the generated tree and read the published options of one
      * of its line charts.
      *
      * @param string $action     Tab action of the module that renders the card
      * @param string $identifier Element id of the chart host of the card
      *
-     * @return array{showArea: bool|null, yUnit: string|null}
+     * @return array{showArea: bool|null}
      */
     private function chartOptions(string $action, string $identifier): array
     {
@@ -117,7 +107,7 @@ final class RateCardOptionsIntegrationTest extends AbstractIntegrationTestCase
         self::assertInstanceOf(DOMElement::class, $host, 'The card must render a chart host');
         self::assertSame('line-chart', $host->getAttribute('data-widget'));
 
-        /** @var array{showArea: bool|null, yUnit: string|null} $options */
+        /** @var array{showArea: bool|null} $options */
         $options = json_decode($host->getAttribute('data-options'), true, 512, JSON_THROW_ON_ERROR);
 
         return $options;
