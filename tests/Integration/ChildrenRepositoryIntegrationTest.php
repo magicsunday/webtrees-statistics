@@ -679,7 +679,7 @@ final class ChildrenRepositoryIntegrationTest extends AbstractIntegrationTestCas
     {
         $records = [];
 
-        foreach ([1650, 1650, 1650, 1650, 1650, 1750, 1950, 1950, 1950, 1950, 1950] as $index => $year) {
+        foreach ([1650, 1650, 1650, 1650, 1650, 1750, 1950, 1950, 1950, 1950, 1950, 2050] as $index => $year) {
             $records[] = "0 @C{$index}@ INDI\n1 FAMC @F{$index}@\n";
             $records[] = "0 @F{$index}@ FAM\n1 CHIL @C{$index}@\n1 MARR\n2 DATE {$year}\n";
         }
@@ -706,7 +706,7 @@ final class ChildrenRepositoryIntegrationTest extends AbstractIntegrationTestCas
         $records = [];
         $child   = 0;
 
-        foreach ([1650 => 200, 1750 => 3, 1950 => 200] as $year => $count) {
+        foreach ([1650 => 200, 1750 => 3, 1950 => 200, 2050 => 3] as $year => $count) {
             for ($index = 0; $index < $count; ++$index, ++$child) {
                 // The first two children of a century are twins of one family.
                 $family = $index < 2 ? "T{$year}" : "F{$child}";

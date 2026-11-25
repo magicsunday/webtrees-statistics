@@ -22,7 +22,7 @@ msgstr ""
 "X-Poedit-SearchPath-0: src\n"
 "X-Poedit-SearchPath-1: resources/views\n"
 
-#: src/Repository/LifeSpanRepository.php:913
+#: src/Repository/LifeSpanRepository.php:912
 #, php-format
 msgid "%1$s %% (%2$s of %3$s individuals reached this age)"
 msgstr "%1$s %% (%2$s von %3$s Personen erreichten dieses Alter)"
@@ -82,8 +82,8 @@ msgstr "%1$s Geschwister aus %2$s Familien"
 msgid "%1$s sub-trees total · the largest covers %2$s%% of all individuals"
 msgstr "%1$s Teilbäume gesamt · größter umfasst %2$s%% aller Personen"
 
-#: src/Repository/LifeSpanRepository.php:817
-#: src/Repository/LifeSpanRepository.php:824
+#: src/Repository/LifeSpanRepository.php:816
+#: src/Repository/LifeSpanRepository.php:823
 #: src/Repository/ParenthoodRepository.php:365
 #: src/Repository/ParenthoodRepository.php:378
 #, php-format
@@ -95,7 +95,7 @@ msgstr "%1$s Jahre (n = %2$s)"
 msgid "%1$s%% — %2$s of %3$s children died before age 5"
 msgstr "%1$s %% — %2$s von %3$s Kindern starben vor dem 5. Lebensjahr"
 
-#: src/Repository/NameRepository.php:659
+#: src/Repository/NameRepository.php:658
 #, php-format
 msgid ""
 "%1$s%% — %2$s of %3$s daughters share at least one given name with the mother"
@@ -107,7 +107,7 @@ msgstr ""
 msgid "%1$s%% — %2$s of %3$s individuals sourced"
 msgstr "%1$s %% — %2$s von %3$s Personen mit Quelle"
 
-#: src/Repository/NameRepository.php:653
+#: src/Repository/NameRepository.php:652
 #, php-format
 msgid ""
 "%1$s%% — %2$s of %3$s sons share at least one given name with the father"
@@ -673,7 +673,7 @@ msgstr "Aktiv"
 msgid "After the partner's death"
 msgstr "Nach dem Tod des Partners"
 
-#: src/Repository/LifeSpanRepository.php:911
+#: src/Repository/LifeSpanRepository.php:910
 #, php-format
 msgid "Age %s"
 msgstr "Alter %s"
@@ -1782,7 +1782,7 @@ msgstr ""
 "in vollen Jahren berechnet. Jedes Geburtsjahrhundert bildet eine Kohorte und "
 "wird an den Altersschwellen 0, 10, 20 bis 100 abgetastet. Der Wert bei Alter "
 "N gibt den Anteil der Kohorte an, der mindestens N Jahre erlebte. Kohorten "
-"unter 30 erfassten Personen erhalten keinen Wert, weil ein einzelner "
+"unter 30 erfassten Personen werden ausgeblendet, weil ein einzelner "
 "Todesfall die Kurve sonst um mehr als drei Prozentpunkte verschieben würde."
 
 #: resources/views/modules/statistics-chart/tabs/life-span.phtml:134
@@ -3391,9 +3391,9 @@ msgstr "neun"
 
 #: src/Repository/ChildrenRepository.php:423
 #: src/Repository/ChildrenRepository.php:669
-#: src/Repository/LifeSpanRepository.php:821
-#: src/Repository/LifeSpanRepository.php:828
-#: src/Repository/NameRepository.php:642 src/Repository/NameRepository.php:646
+#: src/Repository/LifeSpanRepository.php:820
+#: src/Repository/LifeSpanRepository.php:827
+#: src/Repository/NameRepository.php:641 src/Repository/NameRepository.php:645
 #: src/Repository/ParenthoodRepository.php:371
 #: src/Repository/ParenthoodRepository.php:384
 #, php-format

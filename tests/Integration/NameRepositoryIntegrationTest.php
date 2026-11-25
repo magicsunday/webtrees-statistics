@@ -293,13 +293,11 @@ final class NameRepositoryIntegrationTest extends AbstractIntegrationTestCase
 
     /**
      * The passdown query deduplicates the two-row range encoding of a child's
-     * birth. A son born `BET 1890 AND 1910` is stored as two `dates` rows — an
-     * 1890 lower-bound (19th century) and a 1910 upper-bound (20th century).
-     * Counting raw rows tallied the one father-son pair into both centuries,
-     * inventing a phantom 20th-century x-axis slot. Collapsing the birth to its
-     * lower-bound representative keeps the pair in the 19th century alone, so
-     * only that single category survives. Ten such pairs reach the cohort floor,
-     * so a double count would open the 20th-century slot as well.
+     * birth. A son born `BET 1890 AND 1910` is stored as two `dates` rows, an
+     * 1890 lower bound (19th century) and a 1910 upper bound (20th century).
+     * Collapsing the birth to its lower-bound representative keeps each pair in
+     * the 19th century alone. The pairs reach the cohort floor, so counting the
+     * raw rows would open a 20th-century slot as well.
      */
     #[Test]
     public function sameSexNamePassdownByCenturyCountsEachRangedBirthOnce(): void

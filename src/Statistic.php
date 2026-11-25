@@ -667,7 +667,7 @@ final readonly class Statistic
     /**
      * Under-5 child mortality per birth century — list of `{century, total,
      * died, rate}` entries, ordered ascending, with tiny cohorts (< 5 children)
-     * suppressed. View formats the century label and tooltip prose via I18N.
+     * suppressed. The consumer formats the labels and the tooltip prose via I18N.
      *
      * @return list<array{century: int, total: int, died: int, rate: float}>
      */
