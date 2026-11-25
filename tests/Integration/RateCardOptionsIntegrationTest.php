@@ -32,16 +32,16 @@ use function sprintf;
 use const JSON_THROW_ON_ERROR;
 
 /**
- * A rate or a mean is a line. The line chart fills the area under a single
- * series unless its card switches that off, and the number of series of a card
- * can depend on the tree. The rendered rate cards therefore publish the switch
- * in the `data-options` the chart library reads.
+ * The rendered rate cards publish their look in the `data-options` the chart
+ * library reads. A rate or a mean is a line, and the line chart fills the area
+ * under a single series unless its card switches that off, while the number of
+ * series of a card can depend on the tree.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
  * @link    https://github.com/magicsunday/webtrees-statistics/
  */
-final class RateCardAreaIntegrationTest extends AbstractIntegrationTestCase
+final class RateCardOptionsIntegrationTest extends AbstractIntegrationTestCase
 {
     /**
      * @return iterable<string, array{string, string}>
@@ -65,6 +65,30 @@ final class RateCardAreaIntegrationTest extends AbstractIntegrationTestCase
     #[Test]
     #[DataProvider('rateCards')]
     public function aRateCardDrawsNoArea(string $action, string $identifier): void
+    {
+        self::assertFalse($this->chartOptions($action, $identifier)['showArea']);
+    }
+
+    /**
+     * The passdown card suffixes its tooltip values, which would otherwise read
+     * as bare numbers.
+     */
+    #[Test]
+    public function theNamePassdownCardLabelsItsValuesAsPercent(): void
+    {
+        self::assertSame(' %', $this->chartOptions('getNamesAction', 'same-sex-name-passdown-line')['yUnit']);
+    }
+
+    /**
+     * Render a tab for the generated tree and read the published options of one
+     * of its line charts.
+     *
+     * @param string $action     Tab action of the module that renders the card
+     * @param string $identifier Element id of the chart host of the card
+     *
+     * @return array{showArea: bool|null, yUnit: string|null}
+     */
+    private function chartOptions(string $action, string $identifier): array
     {
         $tree = $this->importGedcomTree('rate-cards', $this->rateCardGedcom());
 
@@ -93,10 +117,10 @@ final class RateCardAreaIntegrationTest extends AbstractIntegrationTestCase
         self::assertInstanceOf(DOMElement::class, $host, 'The card must render a chart host');
         self::assertSame('line-chart', $host->getAttribute('data-widget'));
 
-        /** @var array{showArea: bool|null} $options */
+        /** @var array{showArea: bool|null, yUnit: string|null} $options */
         $options = json_decode($host->getAttribute('data-options'), true, 512, JSON_THROW_ON_ERROR);
 
-        self::assertFalse($options['showArea']);
+        return $options;
     }
 
     /**

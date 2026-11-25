@@ -16,7 +16,6 @@ use Fisharebest\Webtrees\View;
 use Fisharebest\Webtrees\Webtrees;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
 use MagicSunday\Webtrees\Statistic\Payload\LineChartPayload;
-use PhpToken;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -25,13 +24,10 @@ use function file_get_contents;
 use function html_entity_decode;
 use function json_decode;
 use function preg_match;
-use function preg_quote;
 use function view;
 
 use const ENT_QUOTES;
 use const JSON_THROW_ON_ERROR;
-use const T_COMMENT;
-use const T_DOC_COMMENT;
 
 /**
  * Locks the publish contract of the chart-lib LineChart options and the way the
@@ -96,21 +92,6 @@ final class LineChartOptionsPublishTest extends TestCase
             "/'yUnit'\\s*=>\\s*\\\$yUnit\\s*\\?\\?\\s*null/",
             $partial,
             'line-chart.phtml must emit yUnit into the data-options array',
-        );
-    }
-
-    /**
-     * The same-sex name passdown card wires the suffix through the Widget
-     * builder. A cleanup that drops the `with()` call would regress the chart
-     * silently.
-     */
-    #[Test]
-    public function sameSexPassdownCardSetsYUnit(): void
-    {
-        self::assertMatchesRegularExpression(
-            "/->with\\('yUnit',\\s*' %'\\)/",
-            $this->cardChain('names', 'same-sex-name-passdown-line'),
-            'names.phtml must set yUnit to " %" on the same-sex passdown card',
         );
     }
 
@@ -192,34 +173,6 @@ final class LineChartOptionsPublishTest extends TestCase
         self::assertNotFalse($contents, 'line-chart.phtml partial must be readable');
 
         return $contents;
-    }
-
-    /**
-     * The builder chain of one line-chart card without its comments, from its
-     * widget call to the first render call after it. Fails when the tab holds no such card.
-     */
-    private function cardChain(string $tab, string $identifier): string
-    {
-        $path     = dirname(__DIR__, 3) . '/resources/views/modules/statistics-chart/tabs/' . $tab . '.phtml';
-        $contents = file_get_contents($path);
-
-        self::assertNotFalse($contents, $tab . '.phtml tab template must be readable');
-
-        $code = '';
-
-        foreach (PhpToken::tokenize($contents) as $token) {
-            if (!$token->is([T_COMMENT, T_DOC_COMMENT])) {
-                $code .= $token->text;
-            }
-        }
-
-        self::assertSame(
-            1,
-            preg_match("/Widget::lineChart\\(\\\$module, '" . preg_quote($identifier, '/') . "'\\).*?->render\\(\\)/s", $code, $match),
-            $tab . '.phtml must hold the card ' . $identifier,
-        );
-
-        return $match[0];
     }
 
     /**
