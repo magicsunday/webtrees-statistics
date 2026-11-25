@@ -100,19 +100,7 @@ final readonly class Card
      */
     public function withSub(?string $sub): self
     {
-        return new self(
-            $this->module,
-            $this->title,
-            $sub,
-            $this->eyebrow,
-            $this->span,
-            $this->accent,
-            $this->illustration,
-            $this->info,
-            $this->centered,
-            $this->showFooter,
-            $this->bodyHtml
-        );
+        return new self(...[...$this->fields(), 'sub' => $sub]);
     }
 
     /**
@@ -120,19 +108,7 @@ final readonly class Card
      */
     public function withEyebrow(?string $eyebrow): self
     {
-        return new self(
-            $this->module,
-            $this->title,
-            $this->sub,
-            $eyebrow,
-            $this->span,
-            $this->accent,
-            $this->illustration,
-            $this->info,
-            $this->centered,
-            $this->showFooter,
-            $this->bodyHtml
-        );
+        return new self(...[...$this->fields(), 'eyebrow' => $eyebrow]);
     }
 
     /**
@@ -140,19 +116,7 @@ final readonly class Card
      */
     public function withSpan(int $span): self
     {
-        return new self(
-            $this->module,
-            $this->title,
-            $this->sub,
-            $this->eyebrow,
-            $span,
-            $this->accent,
-            $this->illustration,
-            $this->info,
-            $this->centered,
-            $this->showFooter,
-            $this->bodyHtml
-        );
+        return new self(...[...$this->fields(), 'span' => $span]);
     }
 
     /**
@@ -161,19 +125,7 @@ final readonly class Card
      */
     public function withAccent(?Accent $accent): self
     {
-        return new self(
-            $this->module,
-            $this->title,
-            $this->sub,
-            $this->eyebrow,
-            $this->span,
-            $accent,
-            $this->illustration,
-            $this->info,
-            $this->centered,
-            $this->showFooter,
-            $this->bodyHtml
-        );
+        return new self(...[...$this->fields(), 'accent' => $accent]);
     }
 
     /**
@@ -182,19 +134,7 @@ final readonly class Card
      */
     public function withIllustration(?Illustration $illustration): self
     {
-        return new self(
-            $this->module,
-            $this->title,
-            $this->sub,
-            $this->eyebrow,
-            $this->span,
-            $this->accent,
-            $illustration,
-            $this->info,
-            $this->centered,
-            $this->showFooter,
-            $this->bodyHtml
-        );
+        return new self(...[...$this->fields(), 'illustration' => $illustration]);
     }
 
     /**
@@ -212,19 +152,7 @@ final readonly class Card
      */
     public function withInfo(string $text): self
     {
-        return new self(
-            $this->module,
-            $this->title,
-            $this->sub,
-            $this->eyebrow,
-            $this->span,
-            $this->accent,
-            $this->illustration,
-            $text,
-            $this->centered,
-            $this->showFooter,
-            $this->bodyHtml
-        );
+        return new self(...[...$this->fields(), 'info' => $text]);
     }
 
     /**
@@ -232,19 +160,7 @@ final readonly class Card
      */
     public function centered(): self
     {
-        return new self(
-            $this->module,
-            $this->title,
-            $this->sub,
-            $this->eyebrow,
-            $this->span,
-            $this->accent,
-            $this->illustration,
-            $this->info,
-            true,
-            $this->showFooter,
-            $this->bodyHtml
-        );
+        return new self(...[...$this->fields(), 'centered' => true]);
     }
 
     /**
@@ -252,19 +168,7 @@ final readonly class Card
      */
     public function withoutFooter(): self
     {
-        return new self(
-            $this->module,
-            $this->title,
-            $this->sub,
-            $this->eyebrow,
-            $this->span,
-            $this->accent,
-            $this->illustration,
-            $this->info,
-            $this->centered,
-            false,
-            $this->bodyHtml
-        );
+        return new self(...[...$this->fields(), 'showFooter' => false]);
     }
 
     /**
@@ -273,19 +177,7 @@ final readonly class Card
      */
     public function withFooter(): self
     {
-        return new self(
-            $this->module,
-            $this->title,
-            $this->sub,
-            $this->eyebrow,
-            $this->span,
-            $this->accent,
-            $this->illustration,
-            $this->info,
-            $this->centered,
-            true,
-            $this->bodyHtml
-        );
+        return new self(...[...$this->fields(), 'showFooter' => true]);
     }
 
     /**
@@ -294,19 +186,43 @@ final readonly class Card
      */
     public function withBodyHtml(string $html): self
     {
-        return new self(
-            $this->module,
-            $this->title,
-            $this->sub,
-            $this->eyebrow,
-            $this->span,
-            $this->accent,
-            $this->illustration,
-            $this->info,
-            $this->centered,
-            $this->showFooter,
-            $html
-        );
+        return new self(...[...$this->fields(), 'bodyHtml' => $html]);
+    }
+
+    /**
+     * The current value of every constructor argument, keyed by its name. A wither
+     * spreads this and overrides the one field it changes, so a field added to the
+     * constructor is listed here once and no wither repeats the argument list.
+     *
+     * @return array{
+     *     module: string,
+     *     title: string,
+     *     sub: string|null,
+     *     eyebrow: string|null,
+     *     span: int,
+     *     accent: Accent|null,
+     *     illustration: Illustration|null,
+     *     info: string|null,
+     *     centered: bool,
+     *     showFooter: bool|null,
+     *     bodyHtml: string,
+     * }
+     */
+    private function fields(): array
+    {
+        return [
+            'module'       => $this->module,
+            'title'        => $this->title,
+            'sub'          => $this->sub,
+            'eyebrow'      => $this->eyebrow,
+            'span'         => $this->span,
+            'accent'       => $this->accent,
+            'illustration' => $this->illustration,
+            'info'         => $this->info,
+            'centered'     => $this->centered,
+            'showFooter'   => $this->showFooter,
+            'bodyHtml'     => $this->bodyHtml,
+        ];
     }
 
     /**
