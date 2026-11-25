@@ -22,6 +22,7 @@ use PHPUnit\Framework\Attributes\Test;
 use function array_column;
 use function array_unique;
 use function count;
+use function implode;
 
 use const PHP_INT_MAX;
 
@@ -185,8 +186,8 @@ final class NameRepositoryIntegrationTest extends AbstractIntegrationTestCase
      * name or carry a distinct "Different{n}" name.
      *
      * Locks the per-century rate computation, the cohort-floor suppression
-     * policy (the 1700s century still takes an X-axis slot but its value drops
-     * to zero with a "no data" tooltip), and the token comparison.
+     * policy (the thin 1700s century opens no axis slot, a series without
+     * enough pairs has no value), and the token comparison.
      */
     #[Test]
     public function sameSexNamePassdownByCenturyComputesFatherSonRateAcrossCenturies(): void
@@ -194,34 +195,25 @@ final class NameRepositoryIntegrationTest extends AbstractIntegrationTestCase
         $tree   = $this->importFixtureTree('father-son-name-passdown.ged');
         $result = $this->repository($tree)->sameSexNamePassdownByCentury();
 
-        self::assertSame(['18th cent.', '19th cent.', '20th cent.'], $result->categories, 'All three centuries appear chronologically');
+        self::assertSame(['19th cent.', '20th cent.'], $result->categories, 'The thin 18th century lies outside the qualifying span');
         self::assertCount(2, $result->series, 'Two series: father → son and mother → daughter');
 
         $fatherSon = $result->series[0];
         self::assertSame('Father → son', $fatherSon->name);
 
-        // 18th century: 3 pairs, sub-threshold → suppressed to 0.
-        PayloadNarrowing::assertValueAt(0, $fatherSon->values, 0, '1700s falls below MIN_COHORT_SIZE and reads zero');
-
         // 19th century: 10 pairs, 3 matches → 30 %.
-        $rate1800s = $fatherSon->values[1] ?? self::fail('Expected a value at offset 1');
+        $rate1800s = $fatherSon->values[0] ?? self::fail('Expected a value at offset 0');
         self::assertEqualsWithDelta(30.0, $rate1800s, 0.05, '1800s sits at 30 % match rate');
 
         // 20th century: 10 pairs, 5 matches → 50 %.
-        $rate1900s = $fatherSon->values[2] ?? self::fail('Expected a value at offset 2');
+        $rate1900s = $fatherSon->values[1] ?? self::fail('Expected a value at offset 1');
         self::assertEqualsWithDelta(50.0, $rate1900s, 0.05, '1900s sits at 50 % match rate');
-
-        // Sub-threshold tooltip carries the "no data" caption so the
-        // hover explains why the line dips to zero without leaving a
-        // misleading 0 % suggestion.
-        $tooltip1700s = $fatherSon->tooltips[0] ?? self::fail('Expected a tooltip at offset 0');
-        self::assertStringContainsString('no data', $tooltip1700s);
 
         // The fixture has no daughters at all so the mother → daughter
         // series is suppressed across every century.
         $motherDaughter = $result->series[1];
         self::assertSame('Mother → daughter', $motherDaughter->name);
-        self::assertSame([0, 0, 0], $motherDaughter->values);
+        self::assertSame([null, null], $motherDaughter->values);
     }
 
     /**
@@ -306,14 +298,21 @@ final class NameRepositoryIntegrationTest extends AbstractIntegrationTestCase
      * Counting raw rows tallied the one father-son pair into both centuries,
      * inventing a phantom 20th-century x-axis slot. Collapsing the birth to its
      * lower-bound representative keeps the pair in the 19th century alone, so
-     * only that single category survives. The match rate is sub-threshold here
-     * (one pair, MIN_COHORT_SIZE is 10), so the category set — not the suppressed
-     * value — is the contract the dedup must hold.
+     * only that single category survives. Ten such pairs reach the cohort floor,
+     * so a double count would open the 20th-century slot as well.
      */
     #[Test]
     public function sameSexNamePassdownByCenturyCountsEachRangedBirthOnce(): void
     {
-        $tree   = $this->importFixtureTree('passdown-century-dedup.ged');
+        $records = [];
+
+        for ($pair = 0; $pair < 10; ++$pair) {
+            $records[] = "0 @P{$pair}@ INDI\n1 NAME Johann /Last/\n1 SEX M\n1 FAMS @F{$pair}@\n";
+            $records[] = "0 @C{$pair}@ INDI\n1 NAME Johann /Last/\n1 SEX M\n1 BIRT\n2 DATE BET 1890 AND 1910\n1 FAMC @F{$pair}@\n";
+            $records[] = "0 @F{$pair}@ FAM\n1 HUSB @P{$pair}@\n1 CHIL @C{$pair}@\n";
+        }
+
+        $tree   = $this->importGedcomTree('passdown-ranged', "0 HEAD\n1 CHAR UTF-8\n" . implode('', $records) . "0 TRLR\n");
         $result = $this->repository($tree)->sameSexNamePassdownByCentury();
 
         self::assertSame(['19th cent.'], $result->categories, 'Ranged birth never spawns a phantom 20th-century slot');
@@ -343,7 +342,7 @@ final class NameRepositoryIntegrationTest extends AbstractIntegrationTestCase
 
         // Mother → daughter has zero pairs in this fixture.
         $motherDaughter = $result->series[1];
-        PayloadNarrowing::assertValueAt(0, $motherDaughter->values, 0);
+        self::assertSame([null], $motherDaughter->values);
         $motherDaughterTooltip = $motherDaughter->tooltips[0] ?? self::fail('Expected a tooltip at offset 0');
         self::assertStringContainsString('no data', $motherDaughterTooltip);
     }
@@ -663,5 +662,34 @@ final class NameRepositoryIntegrationTest extends AbstractIntegrationTestCase
         self::assertSame('Father → son', $fatherSon->name);
         $rate = $fatherSon->values[0] ?? self::fail('Expected a value at offset 0');
         self::assertEqualsWithDelta(100.0, $rate, 0.05);
+    }
+
+    /**
+     * The axis starts and ends at a century with enough pairs, and a thin
+     * century between them is a gap.
+     */
+    #[Test]
+    public function sameSexNamePassdownByCenturyTrimsThinEndsAndKeepsInnerGaps(): void
+    {
+        $records = [];
+        $pair    = 0;
+
+        foreach ([1550 => 1, 1650 => 10, 1750 => 1, 1850 => 10, 1950 => 1] as $year => $count) {
+            for ($index = 0; $index < $count; ++$index, ++$pair) {
+                $records[] = "0 @P{$pair}@ INDI\n1 NAME Otto /Gap/\n1 SEX M\n1 FAMS @F{$pair}@\n";
+                $records[] = "0 @C{$pair}@ INDI\n1 NAME Otto /Gap/\n1 SEX M\n1 BIRT\n2 DATE {$year}\n1 FAMC @F{$pair}@\n";
+                $records[] = "0 @F{$pair}@ FAM\n1 HUSB @P{$pair}@\n1 CHIL @C{$pair}@\n";
+            }
+        }
+
+        $tree   = $this->importGedcomTree('passdown-gap', "0 HEAD\n1 CHAR UTF-8\n" . implode('', $records) . "0 TRLR\n");
+        $result = $this->repository($tree)->sameSexNamePassdownByCentury();
+
+        self::assertSame(['17th cent.', '18th cent.', '19th cent.'], $result->categories);
+
+        $fatherSon = PayloadNarrowing::seriesAt($result, 0);
+
+        self::assertSame([100.0, null, 100.0], $fatherSon->values);
+        self::assertSame('no data (n < 10)', $fatherSon->tooltips[1] ?? null);
     }
 }

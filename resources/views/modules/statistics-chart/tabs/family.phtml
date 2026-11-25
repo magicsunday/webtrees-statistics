@@ -385,6 +385,7 @@ echo Card::for($module, I18N::translate('Average family size by century'))
     ->withBodyHtml(
         Widget::lineChart($module, 'average-family-size-line')
             ->withData($averageFamilySizeLine)
+            ->with('showArea', false)
             ->withAriaLabel(I18N::translate('Average family size by century'))
             ->render()
     )
