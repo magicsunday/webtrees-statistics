@@ -671,7 +671,7 @@ final class NameRepositoryIntegrationTest extends AbstractIntegrationTestCase
     {
         $records = [];
         $pair    = 0;
-        $cohorts = [[1550, 'M', 1], [1650, 'M', 10], [1750, 'M', 1], [1950, 'F', 10], [2050, 'M', 1]];
+        $cohorts = [[1550, 'M', 1], [1650, 'M', 10], [1750, 'M', 9], [1950, 'F', 10], [2050, 'M', 1]];
 
         foreach ($cohorts as [$year, $sex, $count]) {
             $parentRole = $sex === 'M' ? 'HUSB' : 'WIFE';

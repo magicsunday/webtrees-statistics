@@ -1361,7 +1361,7 @@ final class LifeSpanRepositoryIntegrationTest extends AbstractIntegrationTestCas
     {
         $records = [];
         $person  = 0;
-        $cohorts = [[1250, 'F', 1], [1350, 'M', 1], [1450, 'M', 5], [1650, 'M', 1], [1650, 'F', 1], [1750, 'F', 5], [1850, 'M', 1]];
+        $cohorts = [[1250, 'F', 1], [1350, 'M', 1], [1450, 'M', 5], [1650, 'M', 4], [1650, 'F', 4], [1750, 'F', 5], [1850, 'M', 1]];
 
         foreach ($cohorts as [$year, $sex, $count]) {
             for ($index = 0; $index < $count; ++$index, ++$person) {
