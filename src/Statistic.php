@@ -692,9 +692,9 @@ final readonly class Statistic
 
     /**
      * Partnership-reach summary for the Family tab: the longest unbroken chain of
-     * partnered people resolved to ordered {@see \Fisharebest\Webtrees\Individual}
-     * objects, the single largest connected partnership group (its people —
-     * excerpted when the real cluster exceeds the network cap — its internal
+     * partnered people as ordered wire rows, the single largest connected
+     * partnership group (its people — excerpted when the real cluster exceeds
+     * the network cap — its internal
      * edges, the longest path's xrefs, the max-degree hub, its real and shown
      * sizes, and the median year over the visible BIRT and DEAT facts),
      * and the depth-vs-breadth ratio components. Returns `null` when no

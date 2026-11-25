@@ -11,22 +11,15 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Model\Tree;
 
-use Fisharebest\Webtrees\Individual;
 use JsonSerializable;
-use MagicSunday\Webtrees\Statistic\Support\Gedcom\IndividualWire;
-
-use function array_map;
 
 /**
  * The single largest connected partnership group, in the renderable shape the
- * Family-tab partnership-reach card consumes. Carries live {@see Individual}
- * objects in `$nodes` so the PHTML view can link each person, and — when the
- * real cluster overruns the repository's excerpt cap — a connected EXCERPT
- * (`shownCount` ≤ `totalCount`) grown outward from the longest-chain nodes.
- *
- * A webtrees `Individual` is not JSON-encodable, so {@see jsonSerialize()}
- * flattens every node to a `{xref, label, sex, birth, death, url}` row; the
- * edges already travel as `[idA, idB]` xref pairs.
+ * Family-tab partnership-reach card consumes. Carries its people as the
+ * already flattened `{xref, label, sex, birth, death, url}` wire rows in
+ * `$nodes`, and — when the real cluster overruns the repository's excerpt
+ * cap — a connected EXCERPT (`shownCount` ≤ `totalCount`) grown outward from
+ * the longest-chain nodes. The edges travel as `[idA, idB]` xref pairs.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -35,15 +28,15 @@ use function array_map;
 final readonly class PartnershipGroupExcerpt implements JsonSerializable
 {
     /**
-     * @param list<Individual>                  $nodes          The group's people (the shown excerpt when capped), as live records so the view can link them
-     * @param list<array{0: string, 1: string}> $edges          The partnership edges among the shown nodes, as byte-ordered `[idA, idB]` xref pairs
-     * @param list<string>                      $chainIds       The longest path's xrefs, in order
-     * @param string                            $hubId          The max-degree member's xref (the cluster hub)
-     * @param int                               $hubDegree      The hub's real partnership degree over the WHOLE group, not just the shown excerpt
-     * @param int                               $totalCount     The group's real size
-     * @param int                               $totalEdgeCount The group's real internal partnership-edge count over the WHOLE group, not just the shown excerpt
-     * @param int                               $shownCount     The number of nodes actually drawn (≤ `$totalCount`, ≤ the excerpt cap)
-     * @param int|null                          $medianYear     The median of the group's combined years of the BIRT and DEAT facts that the viewer can see, or `null` when none are visible and dated
+     * @param list<array{xref: string, label: string, sex: string, birth: string, death: string, url: string}> $nodes          The group's people (the shown excerpt when capped), as wire rows
+     * @param list<array{0: string, 1: string}>                                                                $edges          The partnership edges among the shown nodes, as byte-ordered `[idA, idB]` xref pairs
+     * @param list<string>                                                                                     $chainIds       The longest path's xrefs, in order
+     * @param string                                                                                           $hubId          The max-degree member's xref (the cluster hub)
+     * @param int                                                                                              $hubDegree      The hub's real partnership degree over the WHOLE group, not just the shown excerpt
+     * @param int                                                                                              $totalCount     The group's real size
+     * @param int                                                                                              $totalEdgeCount The group's real internal partnership-edge count over the WHOLE group, not just the shown excerpt
+     * @param int                                                                                              $shownCount     The number of nodes actually drawn (≤ `$totalCount`, ≤ the excerpt cap)
+     * @param int|null                                                                                         $medianYear     The median of the group's combined years of the BIRT and DEAT facts that the viewer can see, or `null` when none are visible and dated
      */
     public function __construct(
         public array $nodes,
@@ -59,16 +52,15 @@ final readonly class PartnershipGroupExcerpt implements JsonSerializable
     }
 
     /**
-     * Flatten the excerpt to a JSON-encodable shape: every node becomes a
-     * `{xref, label, sex, birth, death, url}` row (an {@see Individual} is not
-     * JSON-encodable); edges, chain ids and the scalar fields pass through.
+     * The JSON-encodable shape of the excerpt: nodes, edges, chain ids and the
+     * scalar fields pass through unchanged.
      *
      * @return array{nodes: list<array{xref: string, label: string, sex: string, birth: string, death: string, url: string}>, edges: list<array{0: string, 1: string}>, chainIds: list<string>, hubId: string, hubDegree: int, totalCount: int, totalEdgeCount: int, shownCount: int, medianYear: int|null}
      */
     public function jsonSerialize(): array
     {
         return [
-            'nodes'          => array_map(IndividualWire::row(...), $this->nodes),
+            'nodes'          => $this->nodes,
             'edges'          => $this->edges,
             'chainIds'       => $this->chainIds,
             'hubId'          => $this->hubId,
