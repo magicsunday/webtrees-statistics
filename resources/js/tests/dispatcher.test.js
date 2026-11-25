@@ -256,113 +256,91 @@ describe("renderWidgets", () => {
         expect(options).toEqual({ height: 280 });
     });
 
-    test("dispatches a population-pyramid widget when data-widget=population-pyramid", () => {
-        document.body.innerHTML = `
-            <div id="p1"
-                 data-widget="population-pyramid"
-                 data-payload='{"groups":["19th cent."],"bands":["0–9"],"data":[[{"left":2,"right":1}]]}'
-                 data-options='{"height":460,"leftLabel":"Male","rightLabel":"Female"}'></div>
-        `;
+    // Every widget type is dispatched the same way, so one table drives the
+    // assertions: the node, the parsed payload and the options the dispatcher
+    // forwards to the widget's draw function.
+    test.each([
+        {
+            widget: "population-pyramid",
+            spy: populationPyramidDrawSpy,
+            id: "p1",
+            payload: '{"groups":["19th cent."],"bands":["0–9"],"data":[[{"left":2,"right":1}]]}',
+            options: '{"height":460,"leftLabel":"Male","rightLabel":"Female"}',
+            expectedData: {
+                groups: ["19th cent."],
+                bands: ["0–9"],
+                data: [[{ left: 2, right: 1 }]],
+            },
+            expectedOptions: { leftLabel: "Male", rightLabel: "Female" },
+        },
+        {
+            widget: "heatmap",
+            spy: heatmapDrawSpy,
+            id: "h1",
+            payload: '{"rows":["1900s"],"cols":["Jan","Feb"],"values":[[3,1]]}',
+            options: '{"height":460,"accent":"var(--ochre)","valueLabel":"Births"}',
+            expectedData: { rows: ["1900s"], cols: ["Jan", "Feb"], values: [[3, 1]] },
+            expectedOptions: { accent: "var(--ochre)", valueLabel: "Births" },
+        },
+        {
+            widget: "treemap",
+            spy: treemapDrawSpy,
+            id: "t1",
+            payload: '{"items":[{"rank":1,"members":42,"label":"Meinel"}],"restMembers":7}',
+            options:
+                '{"height":360,"accent":"var(--slate)","valueLabel":"persons","restLabel":"other islands"}',
+            expectedData: {
+                items: [{ rank: 1, members: 42, label: "Meinel" }],
+                restMembers: 7,
+            },
+            expectedOptions: { accent: "var(--slate)", restLabel: "other islands" },
+        },
+        {
+            widget: "network-graph",
+            spy: networkGraphDrawSpy,
+            id: "n1",
+            payload: '{"nodes":[{"id":"I1","label":"Anna","group":"F"}],"links":[],"hubId":"I1"}',
+            options: '{"height":360,"accent":"var(--rose)"}',
+            expectedData: {
+                nodes: [{ id: "I1", label: "Anna", group: "F" }],
+                links: [],
+                hubId: "I1",
+            },
+            expectedOptions: { accent: "var(--rose)" },
+        },
+        {
+            widget: "sequence-chain",
+            spy: sequenceChainDrawSpy,
+            id: "c1",
+            payload: '{"items":[{"label":"Anna","group":"F"},{"label":"Bert","group":"M"}]}',
+            options: '{"accent":"var(--rose)"}',
+            expectedData: {
+                items: [
+                    { label: "Anna", group: "F" },
+                    { label: "Bert", group: "M" },
+                ],
+            },
+            expectedOptions: { accent: "var(--rose)" },
+        },
+    ])(
+        "dispatches a $widget widget when data-widget=$widget",
+        ({ widget, spy, id, payload, options, expectedData, expectedOptions }) => {
+            document.body.innerHTML = `
+                <div id="${id}"
+                     data-widget="${widget}"
+                     data-payload='${payload}'
+                     data-options='${options}'></div>
+            `;
 
-        renderWidgets(document.body);
+            expect(() => renderWidgets(document.body)).not.toThrow();
 
-        expect(populationPyramidDrawSpy).toHaveBeenCalledTimes(1);
-        const [node, data, options] = populationPyramidDrawSpy.mock.calls[0];
-        expect(node.id).toBe("p1");
-        expect(data).toEqual({
-            groups: ["19th cent."],
-            bands: ["0–9"],
-            data: [[{ left: 2, right: 1 }]],
-        });
-        expect(options.leftLabel).toBe("Male");
-        expect(options.rightLabel).toBe("Female");
-    });
-
-    test("dispatches a heatmap widget when data-widget=heatmap", () => {
-        document.body.innerHTML = `
-            <div id="h1"
-                 data-widget="heatmap"
-                 data-payload='{"rows":["1900s"],"cols":["Jan","Feb"],"values":[[3,1]]}'
-                 data-options='{"height":460,"accent":"var(--ochre)","valueLabel":"Births"}'></div>
-        `;
-
-        renderWidgets(document.body);
-
-        expect(heatmapDrawSpy).toHaveBeenCalledTimes(1);
-        const [node, data, options] = heatmapDrawSpy.mock.calls[0];
-        expect(node.id).toBe("h1");
-        expect(data).toEqual({
-            rows: ["1900s"],
-            cols: ["Jan", "Feb"],
-            values: [[3, 1]],
-        });
-        expect(options.accent).toBe("var(--ochre)");
-        expect(options.valueLabel).toBe("Births");
-    });
-
-    test("dispatches a treemap widget when data-widget=treemap", () => {
-        document.body.innerHTML = `
-            <div id="t1"
-                 data-widget="treemap"
-                 data-payload='{"items":[{"rank":1,"members":42,"label":"Meinel"}],"restMembers":7}'
-                 data-options='{"height":360,"accent":"var(--slate)","valueLabel":"persons","restLabel":"other islands"}'></div>
-        `;
-
-        renderWidgets(document.body);
-
-        expect(treemapDrawSpy).toHaveBeenCalledTimes(1);
-        const [node, data, options] = treemapDrawSpy.mock.calls[0];
-        expect(node.id).toBe("t1");
-        expect(data).toEqual({
-            items: [{ rank: 1, members: 42, label: "Meinel" }],
-            restMembers: 7,
-        });
-        expect(options.accent).toBe("var(--slate)");
-        expect(options.restLabel).toBe("other islands");
-    });
-
-    test("dispatches a network-graph widget when data-widget=network-graph", () => {
-        document.body.innerHTML = `
-            <div id="n1"
-                 data-widget="network-graph"
-                 data-payload='{"nodes":[{"id":"I1","label":"Anna","group":"F"}],"links":[],"hubId":"I1"}'
-                 data-options='{"height":360,"accent":"var(--rose)"}'></div>
-        `;
-
-        expect(() => renderWidgets(document.body)).not.toThrow();
-
-        expect(networkGraphDrawSpy).toHaveBeenCalledTimes(1);
-        const [node, data, options] = networkGraphDrawSpy.mock.calls[0];
-        expect(node.id).toBe("n1");
-        expect(data).toEqual({
-            nodes: [{ id: "I1", label: "Anna", group: "F" }],
-            links: [],
-            hubId: "I1",
-        });
-        expect(options.accent).toBe("var(--rose)");
-    });
-
-    test("dispatches a sequence-chain widget when data-widget=sequence-chain", () => {
-        document.body.innerHTML = `
-            <div id="c1"
-                 data-widget="sequence-chain"
-                 data-payload='{"items":[{"label":"Anna","group":"F"},{"label":"Bert","group":"M"}]}'
-                 data-options='{"accent":"var(--rose)"}'></div>
-        `;
-
-        expect(() => renderWidgets(document.body)).not.toThrow();
-
-        expect(sequenceChainDrawSpy).toHaveBeenCalledTimes(1);
-        const [node, data, options] = sequenceChainDrawSpy.mock.calls[0];
-        expect(node.id).toBe("c1");
-        expect(data).toEqual({
-            items: [
-                { label: "Anna", group: "F" },
-                { label: "Bert", group: "M" },
-            ],
-        });
-        expect(options.accent).toBe("var(--rose)");
-    });
+            expect(spy).toHaveBeenCalledTimes(1);
+            const [node, data, forwardedOptions] = spy.mock.calls[0];
+            expect(node.id).toBe(id);
+            expect(data).toEqual(expectedData);
+            expect(forwardedOptions).toMatchObject(expectedOptions);
+        },
+    );
 
     test("ignores nodes without data-widget attribute", () => {
         document.body.innerHTML = '<div id="x1"></div>';

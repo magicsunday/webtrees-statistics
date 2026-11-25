@@ -235,8 +235,6 @@ foreach ($siblingDeathClusters as $cluster) {
     ];
 }
 
-$aboutThisChart = I18N::translate('About this chart');
-
 if ($winterPeakScore === null) {
     $winterPeakCardBody = EmptyStatePlaceholder::render();
 } else {
@@ -372,7 +370,7 @@ echo Card::for($module, I18N::translate('Life-stage (living)'))
     ->withEyebrow(I18N::translate('Today living'))
     ->withAccent(Accent::Sage)
     ->withIllustration(Illustration::Candle)
-    ->withInfo($statistic->getLivingDefinition(), $aboutThisChart, $aboutThisChart)
+    ->withInfo($statistic->getLivingDefinition())
     ->withSpan(4)
     ->withBodyHtml(
         Widget::donutChart($module, 'living-age-band-donut')
@@ -389,9 +387,7 @@ echo Card::for($module, I18N::translate('Age-at-death distribution by century'))
     ->withAccent(Accent::Wine)
     ->withIllustration(Illustration::Hourglass)
     ->withInfo(
-        I18N::translate('One box per birth century summarizes how old people in that cohort lived to be. The dark line in the middle marks the typical age at death (the median). The box itself covers the middle 50 %% of the cohort. Its lower edge is the age below which a quarter died (P25), its upper edge the age below which three quarters died (P75). The thin lines extending up and down (the "whiskers") reach roughly to the youngest and oldest case still close to the box, formally the most extreme age within 1.5 box-heights of the edge. Individual dots beyond the whiskers are rare extreme cases. Very young child deaths cluster low, centenarians at the top. Cohorts smaller than five individuals are hidden because a single life cannot represent a century.'),
-        $aboutThisChart,
-        $aboutThisChart,
+        I18N::translate('One box per birth century summarizes how old people in that cohort lived to be. The dark line in the middle marks the typical age at death (the median). The box itself covers the middle 50 %% of the cohort. Its lower edge is the age below which a quarter died (P25), its upper edge the age below which three quarters died (P75). The thin lines extending up and down (the "whiskers") reach roughly to the youngest and oldest case still close to the box, formally the most extreme age within 1.5 box-heights of the edge. Individual dots beyond the whiskers are rare extreme cases. Very young child deaths cluster low, centenarians at the top. Cohorts smaller than five individuals are hidden because a single life cannot represent a century.')
     )
     ->withSpan(12)
     ->withBodyHtml(
@@ -409,9 +405,7 @@ echo Card::for($module, I18N::translate('Age-at-death distribution by sex and ce
     ->withAccent(Accent::Slate)
     ->withIllustration(Illustration::People)
     ->withInfo(
-        I18N::translate("Pick a birth century with the buttons above the chart. For that cohort every individual with both a birth and a death date is sorted into a 10-year age-at-death band, then counted separately for each sex. The two columns grow outward from the central band labels so the male and female age structure can be compared band by band; both columns share one scale, so a longer bar always means more people. The youngest band sits at the base and the oldest (100+) at the top. Infant and child deaths are kept, so a band can be wide at the very bottom. Individuals whose recorded age lies above the tree's plausibility ceiling are left out, so a single data-entry error cannot stretch the axis."),
-        $aboutThisChart,
-        $aboutThisChart,
+        I18N::translate("Pick a birth century with the buttons above the chart. For that cohort every individual with both a birth and a death date is sorted into a 10-year age-at-death band, then counted separately for each sex. The two columns grow outward from the central band labels so the male and female age structure can be compared band by band; both columns share one scale, so a longer bar always means more people. The youngest band sits at the base and the oldest (100+) at the top. Infant and child deaths are kept, so a band can be wide at the very bottom. Individuals whose recorded age lies above the tree's plausibility ceiling are left out, so a single data-entry error cannot stretch the axis.")
     )
     ->withSpan(12)
     ->withBodyHtml(
@@ -449,9 +443,7 @@ echo Card::for($module, I18N::translate('Survival curve'))
     ->withAccent(Accent::Slate)
     ->withIllustration(Illustration::Hourglass)
     ->withInfo(
-        I18N::translate('For every individual with both a birth and a death date recorded, the lifespan in whole years is derived. Each birth century forms one cohort and is sampled at ages 0, 10, 20, up to 100 — the value at age N is the share of the cohort that lived at least N years. Cohorts below 30 recorded individuals are dropped because a single death would shift the curve by more than three percentage points.'),
-        $aboutThisChart,
-        $aboutThisChart,
+        I18N::translate('For every individual with both a birth and a death date recorded, the lifespan in whole years is derived. Each birth century forms one cohort and is sampled at ages 0, 10, 20, up to 100 — the value at age N is the share of the cohort that lived at least N years. Cohorts below 30 recorded individuals are dropped because a single death would shift the curve by more than three percentage points.')
     )
     ->withSpan(12)
     ->withBodyHtml(
@@ -485,7 +477,7 @@ echo Card::for($module, I18N::translate('Top 10 oldest (living)'))
     ->withEyebrow(I18N::translate('Longevity'))
     ->withAccent(Accent::Sage)
     ->withIllustration(Illustration::Trophy)
-    ->withInfo($statistic->getLivingDefinition(), $aboutThisChart, $aboutThisChart)
+    ->withInfo($statistic->getLivingDefinition())
     ->withSpan(6)
     ->withBodyHtml(
         Component::podium($module)
@@ -551,9 +543,7 @@ echo Card::for($module, I18N::translate('Winter-peak score'))
     ->withInfo(
         I18N::translate(
             'The score compares the average number of deaths per winter month (December, January and February) with the average across all twelve months; a value above the annual average points to a winter concentration of deaths. The month of death is among the least reliably recorded parts of a date, and the score can rest on very few dated deaths, so read a small deviation as documentation noise rather than a real seasonal pattern.'
-        ),
-        $aboutThisChart,
-        $aboutThisChart
+        )
     )
     ->withSpan(4)
     ->centered()
@@ -588,7 +578,7 @@ echo Card::for($module, I18N::translate('Child mortality (under 5)'))
     ->withEyebrow(I18N::translate('Mortality'))
     ->withAccent(Accent::Wine)
     ->withIllustration(Illustration::Child)
-    ->withInfo($childMortalityExplanation, $aboutThisChart, $aboutThisChart)
+    ->withInfo($childMortalityExplanation)
     ->withSpan(8)
     ->withBodyHtml(
         (($childMortality === null) || ($childMortalityPayload->categories === []))
@@ -606,7 +596,7 @@ echo Card::for($module, I18N::translate('Peak value'))
     ->withEyebrow(I18N::translate('Extreme'))
     ->withAccent(Accent::Wine)
     ->withIllustration(Illustration::Candle)
-    ->withInfo($childMortalityPeakExplanation, $aboutThisChart, $aboutThisChart)
+    ->withInfo($childMortalityPeakExplanation)
     ->withSpan(4)
     ->centered()
     ->withBodyHtml(
@@ -637,9 +627,7 @@ echo Card::for($module, I18N::translate('Mortality outliers'))
     ->withInfo(
         I18N::translate(
             "Each year's recorded death count is compared with the surrounding eleven-year window. A year is flagged when its count lies at least two standard deviations above the window's mean, and the flagged years that stand out most are listed in chronological order. The marker behind each bar shows the window median as the expected baseline; mean and median sit close together but are not identical. Only years with a full window on both sides are considered, so the most recent and oldest years are never flagged. Read a flagged year as one that stands out against the recorded baseline, not automatically as real excess mortality: denser record-keeping, an import batch, or round-year date clustering can lift a single year's count much as a true epidemic, war or famine would. Where the death places of a year fall in a covered region and period, the year is annotated with the historical event it coincides with: a temporal note, never a stated cause of death; coverage is limited to broadly-documented events and can be extended via the project repository."
-        ),
-        $aboutThisChart,
-        $aboutThisChart
+        )
     )
     ->withSpan(12)
     ->withBodyHtml(
@@ -657,9 +645,7 @@ echo Card::for($module, I18N::translate('Sibling deaths in the same year'))
     ->withInfo(
         I18N::translate(
             'Years in which several families each lost two or more children, read from the recorded death years of the children. When several families suffer such losses in the same year, the co-occurrence can coincide with epidemic, war or famine mortality — a single family losing children is an isolated tragedy and is not shown here. Each dot marks a qualifying year and grows with the total number of siblings lost across the contributing families; the list below names the exact years and counts. Read it as a sparse signal: genuine cross-family clusters within a single tree are rare, and genealogical sources under-record early child deaths, so quiet years do not mean none occurred. Only children with a recorded death are counted, so the chart names no living individual.'
-        ),
-        $aboutThisChart,
-        $aboutThisChart
+        )
     )
     ->withSpan(12)
     ->withBodyHtml(
@@ -685,9 +671,7 @@ echo Card::for($module, I18N::translate('Births by period × month'))
     ->withAccent(Accent::Ochre)
     ->withIllustration(Illustration::Sunrise)
     ->withInfo(
-        I18N::translate('Each cell counts the births recorded in one period (a row) and one calendar month (a column), with the count printed inside it. The period is 25 years wide and widens in steps when the tree spans so many centuries that narrower rows would be too many to read. The more births fell in that period and month, the more saturated the cell; a near-blank cell means few or none. Reading down a column shows whether a month stayed busy across the periods, reading along a row shows how one period spread its births over the year. Only dates with both a known year and month are placed. Leading and trailing periods without a single recorded birth are dropped, while an empty period between two recorded ones stays as a blank band so a gap in the records is not hidden.'),
-        $aboutThisChart,
-        $aboutThisChart,
+        I18N::translate('Each cell counts the births recorded in one period (a row) and one calendar month (a column), with the count printed inside it. The period is 25 years wide and widens in steps when the tree spans so many centuries that narrower rows would be too many to read. The more births fell in that period and month, the more saturated the cell; a near-blank cell means few or none. Reading down a column shows whether a month stayed busy across the periods, reading along a row shows how one period spread its births over the year. Only dates with both a known year and month are placed. Leading and trailing periods without a single recorded birth are dropped, while an empty period between two recorded ones stays as a blank band so a gap in the records is not hidden.')
     )
     ->withSpan(6)
     ->withBodyHtml(
@@ -707,9 +691,7 @@ echo Card::for($module, I18N::translate('Deaths by period × month'))
     ->withAccent(Accent::Wine)
     ->withIllustration(Illustration::Moon)
     ->withInfo(
-        I18N::translate('Each cell counts the deaths recorded in one period (a row) and one calendar month (a column), with the count printed inside it. The period is 25 years wide and widens in steps when the tree spans so many centuries that narrower rows would be too many to read. The more deaths fell in that period and month, the more saturated the cell; a near-blank cell means few or none. Reading down a column shows whether a month stayed busy across the periods, reading along a row shows how one period spread its deaths over the year. Only dates with both a known year and month are placed. Leading and trailing periods without a single recorded death are dropped, while an empty period between two recorded ones stays as a blank band so a gap in the records is not hidden.'),
-        $aboutThisChart,
-        $aboutThisChart,
+        I18N::translate('Each cell counts the deaths recorded in one period (a row) and one calendar month (a column), with the count printed inside it. The period is 25 years wide and widens in steps when the tree spans so many centuries that narrower rows would be too many to read. The more deaths fell in that period and month, the more saturated the cell; a near-blank cell means few or none. Reading down a column shows whether a month stayed busy across the periods, reading along a row shows how one period spread its deaths over the year. Only dates with both a known year and month are placed. Leading and trailing periods without a single recorded death are dropped, while an empty period between two recorded ones stays as a blank band so a gap in the records is not hidden.')
     )
     ->withSpan(6)
     ->withBodyHtml(

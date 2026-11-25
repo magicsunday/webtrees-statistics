@@ -47,8 +47,6 @@ $givenNameLastYearExplanation = I18N::translate(
 $givenNameCountExplanation = I18N::translate(
     'The bubbles count the individuals of this sex who carry each given name. A person counts once per name, even when the name is recorded in several forms, and married names and aliases are not counted.'
 );
-
-$aboutThisChart = I18N::translate('About this chart');
 ?>
 <div class="wt-stat-grid">
 <?php
@@ -63,9 +61,7 @@ echo Card::for($module, I18N::translate('Common surnames'))
     ->withAccent(Accent::Wine)
     ->withIllustration(Illustration::Tree)
     ->withInfo(
-        I18N::translate('The bubbles count the recorded names that carry each surname, taken from the primary name and its transliterations. Married names and aliases are not counted, and a person with a name in several forms counts once for each.'),
-        $aboutThisChart,
-        $aboutThisChart
+        I18N::translate('The bubbles count the recorded names that carry each surname, taken from the primary name and its transliterations. Married names and aliases are not counted, and a person with a name in several forms counts once for each.')
     )
     ->withSpan(12)
     ->withBodyHtml(
@@ -81,7 +77,7 @@ echo Card::for($module, I18N::translate('Common given names – male'))
     ->withEyebrow(I18N::translate('Given names'))
     ->withAccent(Accent::Slate)
     ->withIllustration(Illustration::People)
-    ->withInfo($givenNameCountExplanation, $aboutThisChart, $aboutThisChart)
+    ->withInfo($givenNameCountExplanation)
     ->withSpan(6)
     ->withBodyHtml(
         Widget::nameBubbles($module)
@@ -96,7 +92,7 @@ echo Card::for($module, I18N::translate('Common given names – female'))
     ->withEyebrow(I18N::translate('Given names'))
     ->withAccent(Accent::Rose)
     ->withIllustration(Illustration::People)
-    ->withInfo($givenNameCountExplanation, $aboutThisChart, $aboutThisChart)
+    ->withInfo($givenNameCountExplanation)
     ->withSpan(6)
     ->withBodyHtml(
         Widget::nameBubbles($module)
@@ -116,7 +112,7 @@ echo Card::for($module, I18N::translate('Given-name popularity across decades'))
     ->withEyebrow(I18N::translate('Timeline'))
     ->withAccent(Accent::Ochre)
     ->withIllustration(Illustration::Tree)
-    ->withInfo($streamGraphExplanation, $aboutThisChart, $aboutThisChart)
+    ->withInfo($streamGraphExplanation)
     ->withSpan(12)
     ->withBodyHtml(
         Widget::streamGraph($module, 'given-name-trends-stream')
@@ -130,7 +126,7 @@ echo Card::for($module, I18N::translate('When was the name last given?'))
     ->withEyebrow(I18N::translate('Timeline'))
     ->withAccent(Accent::Wine)
     ->withIllustration(Illustration::Hourglass)
-    ->withInfo($givenNameLastYearExplanation, $aboutThisChart, $aboutThisChart)
+    ->withInfo($givenNameLastYearExplanation)
     ->withSpan(12)
     ->withBodyHtml(
         Widget::nameTimeline($module)
@@ -147,9 +143,7 @@ echo Card::for($module, I18N::translate('Same-sex name passdown'))
     ->withInfo(
         I18N::translate(
             'For every parent-child pair of the same sex (father / son and mother / daughter) where both individuals carry a recorded given name, the widget tokenizes each name and counts the pair as a match when at least one token appears on both sides. Order and position do not matter. The chart carries one series per sex pairing on a shared X axis, so the two traditions can be compared at a glance. Centuries with fewer than 10 recorded pairs are suppressed independently per series because a single match would swing the rate by more than 10 percentage points.'
-        ),
-        $aboutThisChart,
-        $aboutThisChart
+        )
     )
     ->withSpan(12)
     ->withBodyHtml(
@@ -167,7 +161,7 @@ echo Card::for($module, I18N::translate('Surname × surname marriage matrix'))
     ->withEyebrow(I18N::translate('Alliances'))
     ->withAccent(Accent::Wine)
     ->withIllustration(Illustration::Knot)
-    ->withInfo($surnameMarriageMatrixExplanation, $aboutThisChart, $aboutThisChart)
+    ->withInfo($surnameMarriageMatrixExplanation)
     ->withSpan(12)
     ->withBodyHtml(
         Widget::chordDiagram($module, 'surname-marriage-chord')

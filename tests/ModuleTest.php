@@ -14,7 +14,9 @@ namespace MagicSunday\Webtrees\Statistic\Test;
 use Fisharebest\Webtrees\Factories\ResponseFactory;
 use Fisharebest\Webtrees\Http\Exceptions\HttpAccessDeniedException;
 use Fisharebest\Webtrees\Http\Exceptions\HttpNotFoundException;
+use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Registry;
+use Fisharebest\Webtrees\Webtrees;
 use MagicSunday\Webtrees\Statistic\Module;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7\ServerRequest;
@@ -60,13 +62,17 @@ final class ModuleTest extends TestCase
     /**
      * The asset handler builds its response through the webtrees registry, whose
      * response factory is only set once the application has booted. Wiring it
-     * the way the core does lets every test of this class run on its own.
+     * the way the core does lets every test of this class run on its own. The tab
+     * catalogue translates its labels, so the translator is initialised the same
+     * way.
      */
     protected function setUp(): void
     {
         parent::setUp();
 
         Registry::responseFactory(new ResponseFactory(new Psr17Factory(), new Psr17Factory()));
+        (new Webtrees())->bootstrap();
+        I18N::init('en-US', true);
     }
 
     /**
@@ -163,6 +169,17 @@ final class ModuleTest extends TestCase
         self::assertMatchesRegularExpression('/^\d+\.\d+\.\d+/', $module->customModuleVersion());
         self::assertStringStartsWith('https://github.com/', $module->customModuleSupportUrl());
         self::assertStringStartsWith('https://api.github.com/repos/', $module->customModuleLatestVersionUrl());
+    }
+
+    /**
+     * The Charts dropdown entry of the module keeps the icon class of the core
+     * statistics chart, because core's chart trait would reset the menu class to
+     * the empty string wherever it is composed into the module class.
+     */
+    #[Test]
+    public function chartMenuClassKeepsTheStatisticsIconClass(): void
+    {
+        self::assertSame('menu-chart-statistics', (new Module())->chartMenuClass());
     }
 
     /**

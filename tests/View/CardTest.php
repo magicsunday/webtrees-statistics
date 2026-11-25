@@ -12,9 +12,11 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\View;
 
 use Fisharebest\Webtrees\I18N;
+use Fisharebest\Webtrees\View;
 use Fisharebest\Webtrees\Webtrees;
 use MagicSunday\Webtrees\Statistic\View\Accent;
 use MagicSunday\Webtrees\Statistic\View\Card;
+use MagicSunday\Webtrees\Statistic\View\Illustration;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -23,10 +25,9 @@ use PHPUnit\Framework\TestCase;
  * modules. The rendered HTML is asserted in shape, not byte-for-byte — the goal
  * is to lock the contract a consuming template relies on, not the whitespace.
  *
- * Illustration-related assertions are out of scope here: the `Illustration`
- * enum's `svg()` method calls the webtrees `view()` helper, which needs the
- * full webtrees runtime. The illustration code-path is covered by browser-level
- * smoke tests on every tab.
+ * The illustration markup comes from a view template, so the test registers the
+ * module's view namespace under the card's module slug before a card with an
+ * illustration renders.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -44,6 +45,7 @@ final class CardTest extends TestCase
 
         (new Webtrees())->bootstrap();
         I18N::init('en-US', true);
+        View::registerNamespace('m', realpath(__DIR__ . '/../../resources/views/') . '/');
     }
 
     /**
@@ -137,7 +139,7 @@ final class CardTest extends TestCase
     public function withInfoAutoShowsFooterAndWiresPopover(): void
     {
         $html = Card::for('m', 'T')
-            ->withInfo('Long help text', 'About this chart', 'About this chart')
+            ->withInfo('Long help text')
             ->render();
 
         self::assertStringContainsString('<footer class="wt-stat-card-foot">', $html);
@@ -165,6 +167,79 @@ final class CardTest extends TestCase
     }
 
     /**
+     * The popover heading is the localised "About this chart" text, and the
+     * button names the card it explains through the same text. The card supplies
+     * both itself, so this pins the heading and the accessible name for a titled
+     * card and for a card without a title.
+     */
+    #[Test]
+    public function infoPopoverHeadingAndAriaLabelCarryTheAboutText(): void
+    {
+        $titled = Card::for('m', 'T')
+            ->withInfo('Help')
+            ->render();
+
+        self::assertStringContainsString('data-bs-title="About this chart"', $titled);
+        self::assertStringContainsString('aria-label="About this chart: T"', $titled);
+
+        $untitled = Card::for('m', '')
+            ->withInfo('Help')
+            ->render();
+
+        self::assertStringContainsString('data-bs-title="About this chart"', $untitled);
+        self::assertStringContainsString('aria-label="About this chart"', $untitled);
+    }
+
+    /**
+     * Every wither returns a card that still carries what the earlier withers
+     * set. The span is set last, so each other field has to survive one more
+     * wither on the way to the render, and the span is also set first to see it
+     * survive the wither after it.
+     */
+    #[Test]
+    public function aLaterWitherKeepsEveryEarlierField(): void
+    {
+        $html = Card::for('m', 'T')
+            ->withAccent(Accent::Wine)
+            ->withIllustration(Illustration::Tree)
+            ->centered()
+            ->withInfo('Help text')
+            ->withBodyHtml('<p>body marker</p>')
+            ->withSub('sub marker')
+            ->withEyebrow('eyebrow marker')
+            ->withSpan(4)
+            ->render();
+
+        self::assertStringContainsString('--wt-stat-card-accent: ' . Accent::Wine->value, $html);
+        self::assertStringContainsString('wt-stat-card-illustrated', $html);
+        self::assertStringContainsString('wt-stat-card-illustration', $html);
+        self::assertStringContainsString('wt-stat-card-centered', $html);
+        self::assertStringContainsString('data-bs-content="Help text"', $html);
+        self::assertStringContainsString('<p>body marker</p>', $html);
+        self::assertStringContainsString('sub marker', $html);
+        self::assertStringContainsString('eyebrow marker', $html);
+        self::assertStringContainsString('grid-column: span 4;', $html);
+
+        $spanFirst = Card::for('m', 'T')->withSpan(4)->withSub('sub marker')->render();
+
+        self::assertStringContainsString('grid-column: span 4;', $spanFirst);
+    }
+
+    /**
+     * An explicit footer choice survives a later wither, both the forced footer
+     * of a card without info and the suppressed footer of a card with info.
+     */
+    #[Test]
+    public function aLaterWitherKeepsTheExplicitFooterChoice(): void
+    {
+        $forced     = Card::for('m', 'T')->withFooter()->withSpan(4)->render();
+        $suppressed = Card::for('m', 'T')->withInfo('Help')->withoutFooter()->withSpan(4)->render();
+
+        self::assertStringContainsString('<footer class="wt-stat-card-foot">', $forced);
+        self::assertStringNotContainsString('<footer', $suppressed);
+    }
+
+    /**
      * Without `withInfo()`, `withFooter()` and `withoutFooter()`, the footer
      * defaults to suppressed. Locks the implicit fallback so a regression of
      * the tri-state branch (default → footer suppressed) fails its own
@@ -186,7 +261,7 @@ final class CardTest extends TestCase
     public function withoutFooterSuppressesEvenWhenInfoIsSet(): void
     {
         $html = Card::for('m', 'T')
-            ->withInfo('Help', 'Title', 'Aria')
+            ->withInfo('Help')
             ->withoutFooter()
             ->render();
 

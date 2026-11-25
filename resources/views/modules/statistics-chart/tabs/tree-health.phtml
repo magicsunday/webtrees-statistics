@@ -169,8 +169,6 @@ $endogamyExplanation = I18N::translate(
     "For every couple where both spouses have at least one parent recorded, the widget walks each spouse's ancestor tree up to four generations and intersects the two sets. A non-empty intersection means the couple share at least one common ancestor. That is the classic signature of cousin marriage and pedigree collapse."
 );
 
-$aboutThisChart = I18N::translate('About this chart');
-
 $sourceCoverageByCenturyBars = CenturyBarRowMapper::sourceCoverage($sourceCoverageByCentury);
 
 if ($generation === null) {
@@ -394,7 +392,7 @@ echo Card::for($module, I18N::translate('Data-set inventory'))
     ->withEyebrow(I18N::translate('Composition'))
     ->withAccent(Accent::Slate)
     ->withIllustration(Illustration::Book)
-    ->withInfo($recordInventoryExplanation, $aboutThisChart, $aboutThisChart)
+    ->withInfo($recordInventoryExplanation)
     ->withSpan(6)
     ->withBodyHtml(
         Component::recordInventory($module)
@@ -447,7 +445,7 @@ echo Card::for($module, I18N::translate('Pedigree completeness'))
     ->withEyebrow(I18N::translate('Completeness'))
     ->withAccent(Accent::Wine)
     ->withIllustration(Illustration::Magnifier)
-    ->withInfo($pedigreeExplanation, $aboutThisChart, $aboutThisChart)
+    ->withInfo($pedigreeExplanation)
     ->withSpan(4)
     ->centered()
     ->withBodyHtml(
@@ -497,7 +495,7 @@ echo Card::for($module, I18N::translate('Missing-event gaps'))
     ->withEyebrow(I18N::translate('Gaps'))
     ->withAccent(Accent::Wine)
     ->withIllustration(Illustration::Magnifier)
-    ->withInfo($missingEventExplanation, $aboutThisChart, $aboutThisChart)
+    ->withInfo($missingEventExplanation)
     ->withSpan(12)
     ->withBodyHtml(
         Component::heatStrip($module)
@@ -516,7 +514,7 @@ echo Card::for($module, I18N::translate('Maximum generation depth'))
     ->withEyebrow(I18N::translate('Depth'))
     ->withAccent(Accent::Slate)
     ->withIllustration(Illustration::Tree)
-    ->withInfo($generationDepthExplanation, $aboutThisChart, $aboutThisChart)
+    ->withInfo($generationDepthExplanation)
     ->withSpan(4)
     ->centered()
     ->withBodyHtml(
@@ -538,7 +536,7 @@ echo Card::for($module, I18N::translate('Generation depth distribution'))
     ->withEyebrow(I18N::translate('Structure'))
     ->withAccent(Accent::Slate)
     ->withIllustration(Illustration::Tree)
-    ->withInfo($generationDepthDistributionExplanation, $aboutThisChart, $aboutThisChart)
+    ->withInfo($generationDepthDistributionExplanation)
     ->withSpan(8)
     ->withBodyHtml(
         Widget::barChart($module, 'generation-depth-bars')
@@ -569,7 +567,7 @@ echo Card::for($module, I18N::translate('Endogamy rate'))
     ->withEyebrow(I18N::translate('Kinship'))
     ->withAccent(Accent::Wine)
     ->withIllustration(Illustration::Knot)
-    ->withInfo($endogamyExplanation, $aboutThisChart, $aboutThisChart)
+    ->withInfo($endogamyExplanation)
     ->withSpan(4)
     ->centered()
     ->withBodyHtml(
@@ -600,9 +598,7 @@ echo Card::for($module, I18N::translate('Top 10 most-influential ancestors'))
     ->withInfo(
         I18N::translate(
             'For every individual in the tree the widget counts how many descendants are recorded below them across all generations. A descendant reached through two different grandparents is counted once per ancestor. The ranking surfaces the people whose branches actually carry the rest of the recorded lineage.'
-        ),
-        $aboutThisChart,
-        $aboutThisChart
+        )
     )
     ->withSpan(12)
     ->withBodyHtml(
@@ -643,7 +639,7 @@ echo Card::for($module, I18N::translate('Longest partnership chain'))
     ->withEyebrow(I18N::translate('Reach'))
     ->withAccent(Accent::Rose)
     ->withIllustration(Illustration::Rings)
-    ->withInfo($partnershipReachExplanation, $aboutThisChart, $aboutThisChart)
+    ->withInfo($partnershipReachExplanation)
     ->withSpan(4)
     ->centered()
     ->withBodyHtml(
@@ -682,9 +678,7 @@ echo Card::for($module, I18N::translate('Depth-to-breadth ratio'))
     ->withAccent(Accent::Rose)
     ->withIllustration(Illustration::Bell)
     ->withInfo(
-        I18N::translate('Depth is the number of steps of the longest line from a parent to a child. Breadth is the number of people on the longest chain of partners who are linked by a partnership.'),
-        $aboutThisChart,
-        $aboutThisChart
+        I18N::translate('Depth is the number of steps of the longest line from a parent to a child. Breadth is the number of people on the longest chain of partners who are linked by a partnership.')
     )
     ->withSpan(4)
     ->centered()
@@ -720,7 +714,7 @@ echo Card::for($module, I18N::translate('Largest connected partnership group'))
     ->withEyebrow(I18N::translate('Reach'))
     ->withAccent(Accent::Rose)
     ->withIllustration(Illustration::Knot)
-    ->withInfo($partnershipReachExplanation, $aboutThisChart, $aboutThisChart)
+    ->withInfo($partnershipReachExplanation)
     ->withSpan(12)
     ->withBodyHtml(
         ($partnershipReach === null)
@@ -746,7 +740,7 @@ echo Card::for($module, I18N::translate('Largest unconnected sub-trees'))
     ->withEyebrow(I18N::translate('Structure'))
     ->withAccent(Accent::Slate)
     ->withIllustration(Illustration::Tree)
-    ->withInfo($islandsExplanation, $aboutThisChart, $aboutThisChart)
+    ->withInfo($islandsExplanation)
     ->withSpan(8)
     ->withBodyHtml(
         Widget::treemap($module, 'islands-treemap')

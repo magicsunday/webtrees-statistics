@@ -142,8 +142,6 @@ foreach ($childrenHistogram as $bucket => $count) {
         'tooltip'      => I18N::plural('%s family', '%s families', $bucketCount, I18N::number($bucketCount)),
     ];
 }
-
-$aboutThisChart = I18N::translate('About this chart');
 ?>
 <div class="wt-stat-grid">
 <?php
@@ -160,9 +158,7 @@ echo Card::for($module, I18N::translate('Age at marriage'))
     ->withInfo(
         I18N::translate(
             'Age at marriage, counted per marriage, so a person who married more than once appears once for each marriage. The mirror axis separates husbands and wives, as shown by the labels at each side. Both sides share the same age bands, so the two distributions can be compared at a glance.'
-        ),
-        $aboutThisChart,
-        $aboutThisChart
+        )
     )
     ->withSpan(12)
     ->withBodyHtml(
@@ -183,9 +179,7 @@ echo Card::for($module, I18N::translate('Marriage duration'))
     ->withInfo(
         I18N::translate(
             'Distribution of marriage durations grouped into bands, computed from couples with both marriage and dissolution (divorce or spouse death) dates recorded.'
-        ),
-        $aboutThisChart,
-        $aboutThisChart
+        )
     )
     ->withSpan(6)
     ->withBodyHtml(
@@ -207,9 +201,7 @@ echo Card::for($module, I18N::translate('Couple age gap'))
     ->withInfo(
         I18N::translate(
             'Age difference between spouses at marriage. The left column counts couples where the husband is the older partner, the right column those where the wife is older. Both sides share the same 5-year gap bands, so the two distributions can be compared at a glance. The 30+ band collects every gap of 30 years or more.'
-        ),
-        $aboutThisChart,
-        $aboutThisChart
+        )
     )
     ->withSpan(6)
     ->withBodyHtml(
@@ -267,9 +259,7 @@ echo Card::for($module, I18N::translate('Age at first child'))
     ->withInfo(
         I18N::translate(
             'Age of each parent at the birth of their first child. The mirror axis separates fathers and mothers, as shown by the labels at each side. Both sides share the same age bands, so the two distributions can be compared at a glance.'
-        ),
-        $aboutThisChart,
-        $aboutThisChart
+        )
     )
     ->withSpan(8)
     ->withBodyHtml(
@@ -305,9 +295,7 @@ echo Card::for($module, I18N::translate('Mean age at first child by decade'))
     ->withInfo(
         I18N::translate(
             'Each point shows the average parental age in full years. The two lines are computed separately for fathers and mothers, as shown by the legend. A decade is only drawn for a given parent if at least five parents of that sex appear in it. Decades with fewer samples are dropped from that line, so a single outlier cannot distort the trend. The other line continues uninterrupted. Hover any point to see how many parents the average is based on.'
-        ),
-        $aboutThisChart,
-        $aboutThisChart
+        )
     )
     ->withSpan(12)
     ->withBodyHtml(
@@ -331,9 +319,7 @@ echo Card::for($module, I18N::translate('Children per family'))
     ->withInfo(
         I18N::translate(
             'Distribution of children counts across all families, including those with no recorded children. Hover a bar for the number of families landing on that exact child count.'
-        ),
-        $aboutThisChart,
-        $aboutThisChart
+        )
     )
     ->withSpan(6)
     ->withBodyHtml(
@@ -353,9 +339,7 @@ echo Card::for($module, I18N::translate('Sibling age gap'))
     ->withInfo(
         I18N::translate(
             'Age difference between consecutive siblings in the same family. Very small gaps (< 1 year) often signal twins or close-spaced births; very large gaps (10+ years) may point to children in between who are not recorded or to a long break.'
-        ),
-        $aboutThisChart,
-        $aboutThisChart
+        )
     )
     ->withSpan(6)
     ->withBodyHtml(
@@ -375,9 +359,7 @@ echo Card::for($module, I18N::translate('Family size composition share by decade
     ->withInfo(
         I18N::translate(
             'For every marriage decade the bar is split into four family-size segments: 1, 2, 3 and 4 or more children. Childless families are excluded, so each bar shows the make-up of families with at least one recorded child. Each bar is normalized to 100 %%, so decades with very different family counts can be compared side by side.'
-        ),
-        $aboutThisChart,
-        $aboutThisChart
+        )
     )
     ->withSpan(12)
     ->withBodyHtml(
@@ -397,9 +379,7 @@ echo Card::for($module, I18N::translate('Average family size by century'))
     ->withInfo(
         I18N::translate(
             'Each point is the average number of children per family for that century, computed from every family whose earliest marriage falls in it. Hover a point to see how many families the average is based on. A century is only drawn once at least five dated families back it; below that a single large or childless family would swing the mean by tenths of a child and render a spiky, unrepresentative point.'
-        ),
-        $aboutThisChart,
-        $aboutThisChart
+        )
     )
     ->withSpan(12)
     ->withBodyHtml(
@@ -418,9 +398,7 @@ echo Card::for($module, I18N::translate('Multiple-birth rate by century'))
     ->withInfo(
         I18N::translate(
             'For every fully-dated child in the tree (BIRT carrying both a day and a month) the widget groups siblings in the same FAM whose BIRT julian-days fall within one day of each other into a multiple-birth set. Matching on date proximity rather than the exact day means cross-midnight twins (e.g. 31 December / 1 January) still merge: a single mother cannot place two separate pregnancies a calendar day apart, so the shared family plus the close birth dates are the signal by themselves. The chart draws one series per multiplicity that actually occurs in the tree (twins, triplets, quadruplets, quintuplets and above) — each series shows that multiplicity\'s per-century share of all dated births. Year-only BIRT records (day and month both blank) are intentionally excluded — they would turn every "0 0 1829" sibling group into a phantom multi-birth set. Centuries below 200 fully-dated children are dropped to keep the curve from spiking on small denominators.'
-        ),
-        $aboutThisChart,
-        $aboutThisChart
+        )
     )
     ->withSpan(8)
     ->withBodyHtml(
@@ -438,9 +416,7 @@ echo Card::for($module, I18N::translate('Families with vs without children'))
     ->withAccent(Accent::Sage)
     ->withIllustration(Illustration::Family)
     ->withInfo(
-        I18N::translate('Counts families, not individuals. A family counts as without children when it records no child and no number of children.'),
-        $aboutThisChart,
-        $aboutThisChart
+        I18N::translate('Counts families, not individuals. A family counts as without children when it records no child and no number of children.')
     )
     ->withSpan(4)
     ->withBodyHtml(
@@ -490,9 +466,7 @@ echo Card::for($module, I18N::translate('Sex-ratio anomalies'))
     ->withInfo(
         I18N::translate(
             'Families with at least six recorded children where one sex makes up at least 80 %% of them. Children with no recorded sex are left out of the ratio. Each bar is split into sons and daughters in proportion to the two counts. Ranked by how lopsided the ratio is, then by the number of children.'
-        ),
-        $aboutThisChart,
-        $aboutThisChart
+        )
     )
     ->withSpan(12)
     ->withBodyHtml(
@@ -515,9 +489,7 @@ echo Card::for($module, I18N::translate('Divorce rate per marriage cohort'))
     ->withInfo(
         I18N::translate(
             'For each marriage decade, the share of those marriages that are recorded as ending in divorce. Tracks how openly the tree records dissolutions over time rather than the underlying historical rate.'
-        ),
-        $aboutThisChart,
-        $aboutThisChart
+        )
     )
     ->withSpan(12)
     ->withBodyHtml(
@@ -576,9 +548,7 @@ echo Card::for($module, I18N::translate('Divorces by age band'))
     ->withInfo(
         I18N::translate(
             'Age of each spouse at the recorded divorce date. The mirror axis separates men and women, as shown by the labels at each side. Both sides share the same age bands, so the two distributions can be compared side by side. Empty bands stay visible, so cohort gaps are not hidden.'
-        ),
-        $aboutThisChart,
-        $aboutThisChart
+        )
     )
     ->withSpan(4)
     ->withBodyHtml(
@@ -604,9 +574,7 @@ echo Card::for($module, I18N::translate('Widowhood interval'))
     ->withInfo(
         I18N::translate(
             'For every couple where both spouses carry a recorded date of death, the gap in whole years between the two death dates lands the couple in a 5-year band. The 50+ band captures the long tail. Couples where neither spouse has a recorded death date are excluded — the interval is undefined without both anchors.'
-        ),
-        $aboutThisChart,
-        $aboutThisChart
+        )
     )
     ->withSpan(6)
     ->withBodyHtml(
@@ -626,9 +594,7 @@ echo Card::for($module, I18N::translate('Mourning period'))
     ->withInfo(
         I18N::translate(
             'For a survivor whose spouse died and who later married again, the gap in whole months between that death and the next marriage. The first mourning year is split at six months — the window where convention bites hardest — then whole years up to a 60+ tail. A short interval can hint at the social conventions of the time. Unions that ended in divorce, and widowed spouses who never married again, are excluded.'
-        ),
-        $aboutThisChart,
-        $aboutThisChart
+        )
     )
     ->withSpan(6)
     ->withBodyHtml(
@@ -653,9 +619,7 @@ echo Card::for($module, I18N::translate('Shortest & longest marriages'))
     ->withInfo(
         I18N::translate(
             'The shortest- and longest-lasting marriages where the end is datable — either a recorded divorce or the earlier death of a spouse. Each marriage is measured from the wedding to that first ending event and labeled with how it ended. Marriages spanning more than 90 years are treated as data errors and left out.'
-        ),
-        $aboutThisChart,
-        $aboutThisChart
+        )
     )
     ->withSpan(12)
     ->withBodyHtml(
