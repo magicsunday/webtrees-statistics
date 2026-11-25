@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Support\Locale;
 
 use Fisharebest\Webtrees\I18N;
-use MagicSunday\Webtrees\Statistic\Support\ZodiacSigns;
+use MagicSunday\Webtrees\Statistic\Support\Calc\ZodiacSigns;
 
 /**
  * Builds the localised date-range label printed next to each zodiac sign, e.g.

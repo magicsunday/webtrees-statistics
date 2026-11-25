@@ -9,7 +9,7 @@
 
 declare(strict_types=1);
 
-namespace MagicSunday\Webtrees\Statistic\Support;
+namespace MagicSunday\Webtrees\Statistic\View;
 
 use JsonException;
 

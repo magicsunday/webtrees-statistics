@@ -9,7 +9,7 @@
 
 declare(strict_types=1);
 
-namespace MagicSunday\Webtrees\Statistic\Model\StreamGraph;
+namespace MagicSunday\Webtrees\Statistic\Payload;
 
 use JsonSerializable;
 

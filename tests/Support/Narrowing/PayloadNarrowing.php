@@ -11,10 +11,10 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Support\Narrowing;
 
-use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyLink;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeySample;
+use MagicSunday\Webtrees\Statistic\Payload\LineChartPayload;
 use PHPUnit\Framework\Assert;
 
 use function sprintf;

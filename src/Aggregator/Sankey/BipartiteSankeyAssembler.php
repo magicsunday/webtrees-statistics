@@ -11,9 +11,9 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Aggregator\Sankey;
 
-use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyFlowsPayload;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyLink;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeySample;
+use MagicSunday\Webtrees\Statistic\Payload\SankeyFlowsPayload;
 
 use function array_slice;
 use function count;

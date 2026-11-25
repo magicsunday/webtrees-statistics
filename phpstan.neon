@@ -52,7 +52,7 @@ parameters:
         -
             identifier: shipmonk.unusedParameter
             paths:
-                - tests/Unit/Model/LineChart/LineChartPayloadTest.php
+                - tests/Unit/Payload/LineChartPayloadTest.php
                 - tests/View/MarriageExtremesViewTest.php
 
         # The ext-calendar stub spells gregoriantojd in PascalCase, so a call in

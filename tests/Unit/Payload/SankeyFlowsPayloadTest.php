@@ -9,11 +9,11 @@
 
 declare(strict_types=1);
 
-namespace MagicSunday\Webtrees\Statistic\Test\Unit\Model\Sankey;
+namespace MagicSunday\Webtrees\Statistic\Test\Unit\Payload;
 
-use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyFlowsPayload;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyLink;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeySample;
+use MagicSunday\Webtrees\Statistic\Payload\SankeyFlowsPayload;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

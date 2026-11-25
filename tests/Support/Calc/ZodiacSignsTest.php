@@ -9,9 +9,9 @@
 
 declare(strict_types=1);
 
-namespace MagicSunday\Webtrees\Statistic\Test\Support;
+namespace MagicSunday\Webtrees\Statistic\Test\Support\Calc;
 
-use MagicSunday\Webtrees\Statistic\Support\ZodiacSigns;
+use MagicSunday\Webtrees\Statistic\Support\Calc\ZodiacSigns;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

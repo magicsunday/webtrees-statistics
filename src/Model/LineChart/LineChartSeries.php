@@ -14,7 +14,7 @@ namespace MagicSunday\Webtrees\Statistic\Model\LineChart;
 use JsonSerializable;
 
 /**
- * One series in a {@see LineChartPayload}. `values` is the numeric sequence the
+ * One series in a {@see \MagicSunday\Webtrees\Statistic\Payload\LineChartPayload}. `values` is the numeric sequence the
  * line traces, aligned positionally with the parent payload's `categories`
  * list; a `null` entry marks a suppressed point that the line widget renders as
  * a gap rather than a zero. `tooltips` and `tooltipLabels` are optional

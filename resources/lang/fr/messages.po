@@ -95,7 +95,7 @@ msgstr "%1$s ans (n = %2$s)"
 msgid "%1$s%% — %2$s of %3$s children died before age 5"
 msgstr "%1$s%% — %2$s sur %3$s enfants décédés avant 5 ans"
 
-#: src/Repository/NameRepository.php:677
+#: src/Repository/NameRepository.php:642
 #, php-format
 msgid ""
 "%1$s%% — %2$s of %3$s daughters share at least one given name with the mother"
@@ -107,7 +107,7 @@ msgstr ""
 msgid "%1$s%% — %2$s of %3$s individuals sourced"
 msgstr "%1$s %% — %2$s sur %3$s individus avec source"
 
-#: src/Repository/NameRepository.php:671
+#: src/Repository/NameRepository.php:636
 #, php-format
 msgid ""
 "%1$s%% — %2$s of %3$s sons share at least one given name with the father"
@@ -2149,7 +2149,7 @@ msgstr "Profondeur maximale de génération"
 msgid "Mean age at first child by decade"
 msgstr "Âge moyen au premier enfant par décennie"
 
-#: src/Support/Wording.php:41
+#: src/Support/Text/Wording.php:41
 msgctxt "webtrees-statistics"
 msgid "Media"
 msgstr ""
@@ -2412,7 +2412,7 @@ msgstr ""
 msgid "Origin & fate"
 msgstr "Origine & destin"
 
-#: src/Support/Wording.php:49
+#: src/Support/Text/Wording.php:49
 msgctxt "webtrees-statistics"
 msgid "Other"
 msgstr ""
@@ -3320,7 +3320,7 @@ msgstr "neuf"
 
 #: src/Repository/LifeSpanRepository.php:819
 #: src/Repository/LifeSpanRepository.php:826
-#: src/Repository/NameRepository.php:660 src/Repository/NameRepository.php:664
+#: src/Repository/NameRepository.php:625 src/Repository/NameRepository.php:629
 #: src/Repository/ParenthoodRepository.php:365
 #: src/Repository/ParenthoodRepository.php:378
 #, php-format

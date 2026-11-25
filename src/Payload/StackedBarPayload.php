@@ -9,7 +9,9 @@
 
 declare(strict_types=1);
 
-namespace MagicSunday\Webtrees\Statistic\Model\StackedBar;
+namespace MagicSunday\Webtrees\Statistic\Payload;
+
+use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarSeries;
 
 /**
  * Wire-format payload for the chart-lib stacked-bar widget. `categories`

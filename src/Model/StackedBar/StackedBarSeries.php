@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Model\StackedBar;
 
 /**
- * One stacked segment in a {@see StackedBarPayload}. `data` holds the
+ * One stacked segment in a {@see \MagicSunday\Webtrees\Statistic\Payload\StackedBarPayload}. `data` holds the
  * per-category counts aligned positionally with the parent payload's
  * `categories` list; `class` carries the CSS class hook the renderer attaches
  * to the segment + legend swatch.

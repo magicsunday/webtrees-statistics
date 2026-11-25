@@ -14,8 +14,8 @@ namespace MagicSunday\Webtrees\Statistic\Test\View;
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\View;
 use Fisharebest\Webtrees\Webtrees;
-use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyFlowsPayload;
 use MagicSunday\Webtrees\Statistic\Model\Sankey\SankeyLink;
+use MagicSunday\Webtrees\Statistic\Payload\SankeyFlowsPayload;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

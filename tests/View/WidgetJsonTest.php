@@ -9,10 +9,10 @@
 
 declare(strict_types=1);
 
-namespace MagicSunday\Webtrees\Statistic\Test\Support;
+namespace MagicSunday\Webtrees\Statistic\Test\View;
 
 use JsonSerializable;
-use MagicSunday\Webtrees\Statistic\Support\WidgetJson;
+use MagicSunday\Webtrees\Statistic\View\WidgetJson;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

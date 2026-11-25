@@ -63,7 +63,7 @@ final class WordingUsageTest extends TestCase
                     continue;
                 }
 
-                if ($file->getPathname() === $root . '/src/Support/Wording.php') {
+                if ($file->getPathname() === $root . '/src/Support/Text/Wording.php') {
                     continue;
                 }
 

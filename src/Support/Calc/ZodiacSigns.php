@@ -9,7 +9,7 @@
 
 declare(strict_types=1);
 
-namespace MagicSunday\Webtrees\Statistic\Support;
+namespace MagicSunday\Webtrees\Statistic\Support\Calc;
 
 use InvalidArgumentException;
 
@@ -20,7 +20,7 @@ use function sprintf;
  * The single source of truth for the twelve tropical-zodiac sign boundaries.
  * Both the SQL birth-by-sign tally ({@see \MagicSunday\Webtrees\Statistic\Repository\EventRepository})
  * and the human-readable per-sign period label
- * ({@see Locale\ZodiacPeriods}) read these
+ * ({@see \MagicSunday\Webtrees\Statistic\Support\Locale\ZodiacPeriods}) read these
  * ranges, so the bucket a birth falls into and the period printed next to the
  * sign can never drift apart.
  *

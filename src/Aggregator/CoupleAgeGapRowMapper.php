@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Aggregator;
 
-use MagicSunday\Webtrees\Statistic\Model\Pyramid\PopulationPyramidPayload;
+use MagicSunday\Webtrees\Statistic\Payload\PopulationPyramidPayload;
 
 /**
  * Wraps the two-sided couple-age-gap distribution

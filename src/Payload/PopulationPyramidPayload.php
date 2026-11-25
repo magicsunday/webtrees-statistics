@@ -9,7 +9,7 @@
 
 declare(strict_types=1);
 
-namespace MagicSunday\Webtrees\Statistic\Model\Pyramid;
+namespace MagicSunday\Webtrees\Statistic\Payload;
 
 /**
  * Wire-format payload for the chart-lib pyramid widget on the LifeSpan tab.

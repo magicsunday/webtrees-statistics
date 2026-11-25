@@ -9,11 +9,11 @@
 
 declare(strict_types=1);
 
-namespace MagicSunday\Webtrees\Statistic\Test\Support;
+namespace MagicSunday\Webtrees\Statistic\Test\Support\Text;
 
 use Fisharebest\Webtrees\I18N;
 use MagicSunday\Webtrees\ModuleBase\Testing\EnglishLocaleFixture;
-use MagicSunday\Webtrees\Statistic\Support\ContextText;
+use MagicSunday\Webtrees\Statistic\Support\Text\ContextText;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

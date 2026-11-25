@@ -15,7 +15,7 @@ use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Aggregator\TopNAggregator;
-use MagicSunday\Webtrees\Statistic\Model\StreamGraph\GivenNameTrendsPayload;
+use MagicSunday\Webtrees\Statistic\Payload\GivenNameTrendsPayload;
 use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\GivenNameNormalizer;

@@ -9,7 +9,7 @@
 
 declare(strict_types=1);
 
-namespace MagicSunday\Webtrees\Statistic\Model\Chord;
+namespace MagicSunday\Webtrees\Statistic\Payload;
 
 /**
  * Symmetric N×N matrix payload for the chart-lib chord-diagram widget.
