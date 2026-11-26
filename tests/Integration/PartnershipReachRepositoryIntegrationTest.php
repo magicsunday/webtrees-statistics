@@ -13,6 +13,7 @@ namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use Fisharebest\Webtrees\Auth;
 use Fisharebest\Webtrees\DB;
+use Fisharebest\Webtrees\Factories\CacheFactory;
 use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Model\Tree\PartnershipReachReport;
@@ -413,6 +414,10 @@ final class PartnershipReachRepositoryIntegrationTest extends AbstractIntegratio
         // grow with the tree, so it is built before the count starts.
         $map = new PartnershipMapRepository($tree);
         $map->build();
+
+        // With records in the cache a record lookup of the summary is answered
+        // from there and does not show as a query.
+        Registry::cache(new CacheFactory());
 
         DB::connection()->flushQueryLog();
         DB::connection()->enableQueryLog();

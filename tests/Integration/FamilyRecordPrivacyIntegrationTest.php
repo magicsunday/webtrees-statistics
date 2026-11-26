@@ -289,6 +289,37 @@ final class FamilyRecordPrivacyIntegrationTest extends AbstractIntegrationTestCa
     }
 
     /**
+     * The restriction that a pending change adds to a family record counts for an
+     * editor in the partnership map and in the visible parent map.
+     */
+    #[Test]
+    public function aPendingRestrictionOfAFamilyCountsForAnEditor(): void
+    {
+        $child  = "0 @C1@ INDI\n1 NAME C1 /Test/\n1 FAMC @F1@\n1 DEAT Y\n";
+        $family = "0 @F1@ FAM\n1 HUSB @P1@\n1 WIFE @P2@\n1 CHIL @C1@\n";
+        $tree   = $this->importGedcomTree(
+            'pending-family',
+            "0 HEAD\n1 CHAR UTF-8\n" . $child
+            . "0 @P1@ INDI\n1 NAME P1 /Test/\n1 FAMS @F1@\n1 DEAT Y\n"
+            . "0 @P2@ INDI\n1 NAME P2 /Test/\n1 FAMS @F1@\n1 DEAT Y\n"
+            . $family . "0 TRLR\n",
+        );
+        $this->hideLivingPeople($tree);
+        Auth::logout();
+        $this->loginAsEditor($tree);
+
+        self::assertNotSame([], (new PartnershipMapRepository($tree))->build(), 'precondition: the couple is an edge');
+        self::assertNotSame([], (new ParentMapRepository($tree))->buildVisible(['C1' => $child]), 'precondition: the child has parents');
+
+        $record = Registry::familyFactory()->make('F1', $tree) ?? self::fail('the family exists');
+        $record->updateRecord($family . "1 RESN confidential\n", false);
+        Registry::cache(new CacheFactory());
+
+        self::assertSame([], (new PartnershipMapRepository($tree))->build());
+        self::assertSame([], (new ParentMapRepository($tree))->buildVisible(['C1' => $child]));
+    }
+
+    /**
      * A member with relationship privacy sees the family of a relative in the
      * partnership map, and the host still shows it afterwards.
      */
