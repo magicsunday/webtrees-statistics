@@ -13,15 +13,12 @@ namespace MagicSunday\Webtrees\Statistic\Test;
 
 use Fisharebest\Localization\Translation;
 use MagicSunday\Webtrees\ModuleBase\Testing\AbstractCatalogueStructureTestCase;
+use MagicSunday\Webtrees\Statistic\Test\Support\Catalogue\Placeholders;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 
 use function array_filter;
-use function array_values;
-use function preg_match_all;
-use function sort;
 use function str_contains;
-use function str_replace;
 
 use const ARRAY_FILTER_USE_BOTH;
 
@@ -58,33 +55,12 @@ final class CatalogueStructureTest extends AbstractCatalogueStructureTestCase
                     return false;
                 }
 
-                return self::placeholdersOf($source) !== self::placeholdersOf($translation);
+                return Placeholders::of($source) !== Placeholders::of($translation);
             },
             ARRAY_FILTER_USE_BOTH,
         );
 
         self::assertSame([], $offenders);
-    }
-
-    /**
-     * The string and integer placeholders of a text. A doubled percent sign is
-     * literal. Numbered placeholders may change their position, so they are sorted,
-     * while unnumbered ones keep their order.
-     *
-     * @param string $text The text
-     *
-     * @return list<string> The placeholders
-     */
-    private static function placeholdersOf(string $text): array
-    {
-        preg_match_all('/%(?:\d+\$)?[sd]/', str_replace('%%', '', $text), $matches);
-
-        $unnumbered = array_values(array_filter($matches[0], static fn (string $placeholder): bool => !str_contains($placeholder, '$')));
-        $numbered   = array_values(array_filter($matches[0], static fn (string $placeholder): bool => str_contains($placeholder, '$')));
-
-        sort($numbered);
-
-        return [...$unnumbered, ...$numbered];
     }
 
     /**
