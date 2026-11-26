@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
+use Fisharebest\Webtrees\Family;
+use Fisharebest\Webtrees\Gedcom;
 use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Support\Collection;
@@ -18,25 +20,30 @@ use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\VisibleFamily;
 
+use function array_chunk;
+use function array_merge;
+use function array_unique;
+use function array_values;
 use function is_string;
+use function preg_match;
 use function sort;
-use function trim;
 
 use const SORT_STRING;
 
 /**
- * Shared repository that builds the tree-wide `child-id → [father-id|null,
- * mother-id|null]` map. Four other repositories consume it:
+ * Shared repository that builds the `child-id → [father-id|null,
+ * mother-id|null]` map. These repositories consume it:
  *
  *   - {@see KinshipRepository} (Lacy pedigree completeness)
  *   - {@see GenerationDepthRepository} (max-generation walk)
  *   - {@see EndogamyRepository} (cousin-marriage detection)
- *   - {@see OccupationInheritanceRepository} (parent → child occupation flows)
+ *   - {@see OccupationInheritanceRepository} (parent → child occupation flows,
+ *     through {@see buildVisible()})
  *
- * Centralising the FAMC + FAM scan here keeps every consumer aligned on the
- * same parent-resolution semantics and avoids a separate full-table scan per
- * consumer per dashboard render. {@see buildVisible()} is the counterpart for
- * a consumer that must not count a family or a child link the viewer may not see.
+ * Centralising the parent resolution here keeps every consumer on the same rules,
+ * and the consumers of {@see build()} share its cached scan. {@see buildVisible()}
+ * serves a consumer that must not count a family or a link that the viewer may not
+ * see. It reads the families on each call.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -134,8 +141,10 @@ final class ParentMapRepository
     /**
      * Build the parent map of the given children as the current viewer may see
      * it. A child contributes a family only through a `FAMC` fact the viewer may
-     * see, and only a family the viewer may see counts. Among those the same
-     * resolution rules apply as in {@see build()}. The result is not cached.
+     * see, and only a family the viewer may see counts, in which the link to the
+     * child is not restricted. A parent counts only when neither the spouse link
+     * nor the family link of the parent is restricted. Among those families the
+     * same resolution rules apply as in {@see build()}. The result is not cached.
      *
      * @param array<array-key, string> $childGedcoms Raw record text of each child, keyed by its XREF
      *
@@ -143,21 +152,34 @@ final class ParentMapRepository
      */
     public function buildVisible(array $childGedcoms): array
     {
+        $parentOf = [];
+
+        foreach (array_chunk($childGedcoms, VisibleFamily::CHUNK_SIZE, true) as $chunk) {
+            $parentOf += VisibleFamily::withinScope(fn (): array => $this->visibleParents($chunk));
+        }
+
+        return $parentOf;
+    }
+
+    /**
+     * The visible parent map of one chunk of children.
+     *
+     * @param array<array-key, string> $childGedcoms Raw record text of each child, keyed by its XREF
+     *
+     * @return array<array-key, array{0: string|null, 1: string|null}>
+     */
+    private function visibleParents(array $childGedcoms): array
+    {
         $childFamilies = [];
-        $candidates    = [];
 
         foreach ($childGedcoms as $child => $gedcom) {
             $individual = Registry::individualFactory()->new((string) $child, $gedcom, null, $this->tree);
 
             foreach ($individual->facts(['FAMC']) as $fact) {
-                $family = trim($fact->value(), '@');
-
-                if ($family === '') {
-                    continue;
+                // A value that is no pointer links nothing.
+                if (preg_match('/^@(' . Gedcom::REGEX_XREF . ')@$/', $fact->value(), $match) === 1) {
+                    $childFamilies[$child][] = $match[1];
                 }
-
-                $childFamilies[$child][] = $family;
-                $candidates[$family]     = true;
             }
 
             if (isset($childFamilies[$child])) {
@@ -165,32 +187,60 @@ final class ParentMapRepository
             }
         }
 
-        $familyParents = [];
-
-        foreach ($this->familyRows() as $row) {
-            $family = RowCast::string($row, 'f_id');
-
-            if (
-                isset($candidates[$family])
-                && VisibleFamily::isShown($this->tree, $family, RowCast::string($row, 'f_gedcom'))
-            ) {
-                $familyParents[$family] = $this->parentPair($row);
-            }
+        if ($childFamilies === []) {
+            return [];
         }
 
-        return $this->resolveParents($childFamilies, $familyParents);
+        $rows = [];
+
+        foreach (
+            TreeScope::table($this->tree, 'families')
+                ->whereIn('f_id', array_values(array_unique(array_merge(...array_values($childFamilies)))))
+                ->select(['f_id', 'f_husb AS husb', 'f_wife AS wife', 'f_gedcom'])
+                ->get() as $row
+        ) {
+            $rows[RowCast::string($row, 'f_id')] = $row;
+        }
+
+        $parentOf = [];
+
+        foreach ($childFamilies as $child => $families) {
+            $familyParents = [];
+
+            foreach ($families as $xref) {
+                if (!isset($rows[$xref])) {
+                    continue;
+                }
+
+                $family = VisibleFamily::find($this->tree, $xref, RowCast::string($rows[$xref], 'f_gedcom'));
+
+                if ((!$family instanceof Family) || !VisibleFamily::showsLink($family, 'CHIL', (string) $child)) {
+                    continue;
+                }
+
+                [$husb, $wife] = $this->parentPair($rows[$xref]);
+
+                $familyParents[$xref] = [
+                    (($husb !== null) && VisibleFamily::showsSpouse($family, 'HUSB', $husb)) ? $husb : null,
+                    (($wife !== null) && VisibleFamily::showsSpouse($family, 'WIFE', $wife)) ? $wife : null,
+                ];
+            }
+
+            $parentOf += $this->resolveParents([$child => $families], $familyParents);
+        }
+
+        return $parentOf;
     }
 
     /**
-     * The family rows of the tree with their spouse columns and record text.
+     * The family rows of the tree with their spouse columns.
      *
      * @return Collection<int, object>
      */
     private function familyRows(): Collection
     {
         return TreeScope::table($this->tree, 'families')
-            ->where('f_id', '<>', '')
-            ->select(['f_id', 'f_husb AS husb', 'f_wife AS wife', 'f_gedcom'])
+            ->select(['f_id', 'f_husb AS husb', 'f_wife AS wife'])
             ->get();
     }
 
@@ -198,7 +248,7 @@ final class ParentMapRepository
      * The father and mother columns of a family row, an empty column read as no
      * parent.
      *
-     * @param object $row A row of {@see familyRows()}
+     * @param object $row A family row with `husb` and `wife` columns
      *
      * @return array{0: string|null, 1: string|null}
      */
@@ -217,8 +267,9 @@ final class ParentMapRepository
      * adoptive/foster one). The family carrying the most parent information
      * wins (both parents > one > none), and equal-score ties resolve to the
      * lexicographically lowest family xref, which an ascending family list makes
-     * the first seen. The link carries no `2 PEDI`, so birth vs. adoptive is not
-     * distinguished — the choice is deterministic, not pedigree-aware.
+     * the first seen. The `2 PEDI` value of a link is not evaluated, so birth vs.
+     * adoptive is not distinguished. The choice is deterministic, not
+     * pedigree-aware.
      *
      * @param array<array-key, list<string>>                          $childFamilies Families of each child in ascending order
      * @param array<array-key, array{0: string|null, 1: string|null}> $familyParents Parent pair of each family that counts

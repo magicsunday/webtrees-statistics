@@ -11,19 +11,23 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
+use Fisharebest\Webtrees\Family;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\VisibleFamily;
 
+use function array_chunk;
+use function array_column;
+
 /**
  * Shared repository that builds the tree-wide partnership-graph adjacency map —
  * `individual-id → [spouse-id, …]` — from the `families` table's FAMS pairs.
- * Each family that records both a husband and a wife contributes an undirected
- * edge, stored from both sides so the relation is symmetric; a partner that
+ * Each family that records both a husband and a wife and that the viewer may see
+ * contributes an undirected edge, stored from both sides so the relation is symmetric; a partner that
  * recurs across several families collapses to a single entry. Individuals who
  * are only one side of an incomplete couple (a lone HUSB or WIFE) are absent
- * from the map, and so are the edges of a family the viewer may not see.
+ * from the map.
  *
  * This is the FAMS analogue of {@see ParentMapRepository} (which builds the
  * FAMC parent map): centralising the family-spouse scan here keeps every
@@ -55,7 +59,7 @@ final class PartnershipMapRepository
 
     /**
      * Build an individual-id → spouse-id list map for the configured tree. Only
-     * families recording both spouses that the viewer may see contribute; each
+     * families recording both spouses that the viewer may see contribute. Each
      * pair is added in both directions and de-duplicated, so the result is a
      * symmetric adjacency map with no repeated spouse XREFs. Result is cached
      * for the lifetime of the repository instance.
@@ -74,16 +78,10 @@ final class PartnershipMapRepository
         }
 
         $familyRows = TreeScope::table($this->tree, 'families')
-            ->select(['f_id', 'f_husb AS husb', 'f_wife AS wife', 'f_gedcom'])
+            ->select(['f_id', 'f_husb AS husb', 'f_wife AS wife'])
             ->get();
 
-        $adjacency = [];
-
-        // Parallel `xref => [spouse-xref => true]` set used purely for O(1)
-        // de-duplication membership tests, so a partner that recurs across
-        // several families is appended to the public list only once without
-        // re-scanning the growing list on every family row.
-        $seen = [];
+        $couples = [];
 
         foreach ($familyRows as $row) {
             $husb = RowCast::string($row, 'husb');
@@ -104,29 +102,79 @@ final class PartnershipMapRepository
                 continue;
             }
 
-            // A family the viewer may not see gives no edge, whether the record
-            // carries a restriction or the host hides it for a private member.
-            if (!VisibleFamily::isShown($this->tree, RowCast::string($row, 'f_id'), RowCast::string($row, 'f_gedcom'))) {
-                continue;
-            }
+            $couples[] = ['family' => RowCast::string($row, 'f_id'), 'husb' => $husb, 'wife' => $wife];
+        }
 
-            $adjacency[$husb] ??= [];
+        $adjacency = [];
 
-            $adjacency[$wife] ??= [];
+        // Parallel `xref => [spouse-xref => true]` set used purely for O(1)
+        // de-duplication membership tests, so a partner that recurs across
+        // several families is appended to the public list only once without
+        // re-scanning the growing list on every family row.
+        $seen = [];
 
-            if (!isset($seen[$husb][$wife])) {
-                $adjacency[$husb][] = $wife;
-                $seen[$husb][$wife] = true;
-            }
+        foreach (array_chunk($couples, VisibleFamily::CHUNK_SIZE) as $chunk) {
+            foreach ($this->visibleCouples($chunk) as [$husb, $wife]) {
+                $adjacency[$husb] ??= [];
 
-            if (!isset($seen[$wife][$husb])) {
-                $adjacency[$wife][] = $husb;
-                $seen[$wife][$husb] = true;
+                $adjacency[$wife] ??= [];
+
+                if (!isset($seen[$husb][$wife])) {
+                    $adjacency[$husb][] = $wife;
+                    $seen[$husb][$wife] = true;
+                }
+
+                if (!isset($seen[$wife][$husb])) {
+                    $adjacency[$wife][] = $husb;
+                    $seen[$wife][$husb] = true;
+                }
             }
         }
 
         $this->cache = $adjacency;
 
         return $adjacency;
+    }
+
+    /**
+     * The couples of a chunk that the viewer may see: the family record is shown
+     * and neither link of the couple is restricted. A family the viewer may not
+     * see gives no edge, whether the record carries a restriction or the host
+     * hides it for a private member.
+     *
+     * @param list<array{family: string, husb: string, wife: string}> $couples The couples to check
+     *
+     * @return list<array{0: string, 1: string}> Husband and wife of each visible couple
+     */
+    private function visibleCouples(array $couples): array
+    {
+        $rows = TreeScope::table($this->tree, 'families')
+            ->whereIn('f_id', array_column($couples, 'family'))
+            ->select(['f_id', 'f_gedcom'])
+            ->get();
+
+        $gedcoms = [];
+
+        foreach ($rows as $row) {
+            $gedcoms[RowCast::string($row, 'f_id')] = RowCast::string($row, 'f_gedcom');
+        }
+
+        return VisibleFamily::withinScope(function () use ($couples, $gedcoms): array {
+            $visible = [];
+
+            foreach ($couples as $couple) {
+                $family = VisibleFamily::find($this->tree, $couple['family'], $gedcoms[$couple['family']] ?? '');
+
+                if (
+                    ($family instanceof Family)
+                    && VisibleFamily::showsSpouse($family, 'HUSB', $couple['husb'])
+                    && VisibleFamily::showsSpouse($family, 'WIFE', $couple['wife'])
+                ) {
+                    $visible[] = [$couple['husb'], $couple['wife']];
+                }
+            }
+
+            return $visible;
+        });
     }
 }

@@ -19,9 +19,9 @@ use MagicSunday\Webtrees\Statistic\Support\Gedcom\IndividualWire;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
- * Privacy gate of the {@see IndividualWire} flattener: the node stays in the
- * graph (so a marriage-group's topology and counts never shift by viewer), but
- * for a person the viewer cannot see every DERIVED fact is withheld — only the
+ * Privacy gate of the {@see IndividualWire} flattener: the row stays (the
+ * flattener never drops a person), but for a person the viewer cannot see every
+ * DERIVED fact is withheld — only the
  * already-privatised label and the bare xref survive. `fullName()` privatises
  * the name only, so birth year, death year, sex and the xref page-link would
  * otherwise leak about a positionally-identifiable, usually living person.

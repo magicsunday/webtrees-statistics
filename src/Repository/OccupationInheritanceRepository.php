@@ -68,8 +68,8 @@ use function mb_strtolower;
  * per-flow sample children are routed through the privacy layer as well (see
  * {@see SankeySampleResolver}), and a child the viewer may not see is dropped
  * from the tooltip. The weight and the samples come from the same visible
- * occupations, so a name is not shown next to a withheld occupation. A child
- * counts only through a family and a child link that the viewer may see.
+ * occupations, so a name is not shown next to a withheld occupation. A child and
+ * a parent count only through a family and links that the viewer may see.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -118,8 +118,9 @@ final readonly class OccupationInheritanceRepository
 
     /**
      * Build the Sankey payload describing parent → child occupation flows. For
-     * every individual that carries an occupation, both parents are resolved via
-     * the shared parent map; for each parent that also carries an occupation the
+     * every individual that carries an occupation, both parents are resolved
+     * through the visible parent map ({@see ParentMapRepository::buildVisible()}),
+     * and for each parent that also carries an occupation the
      * full cross-product of their (parent-occupation → child-occupation) pairs is
      * counted, each distinct pair once per child. A child is counted at most once
      * per flow, so two parents sharing the same trade do not double the child

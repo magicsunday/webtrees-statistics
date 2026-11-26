@@ -61,9 +61,9 @@ final readonly class IndividualWire
      */
     public static function row(Individual $individual): array
     {
-        // Keep the node in the graph (topology / counts must not shift by viewer)
-        // but withhold every derived fact for a person the viewer cannot see: the
-        // name is already privatised by fullName(), the rest is not.
+        // Keep the row, so this flattener never drops a person, but withhold every
+        // derived fact for a person the viewer cannot see. Only the name is
+        // privatised by fullName().
         if (!$individual->canShow()) {
             return [
                 'xref'  => $individual->xref(),

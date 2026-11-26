@@ -12,6 +12,8 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use Fisharebest\Webtrees\Auth;
+use Fisharebest\Webtrees\DB;
+use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Repository\OccupationInheritanceRepository;
 use MagicSunday\Webtrees\Statistic\Repository\ParentMapRepository;
@@ -25,6 +27,7 @@ use function array_map;
 use function implode;
 use function range;
 use function sort;
+use function str_replace;
 use function strval;
 
 /**
@@ -107,10 +110,10 @@ final class FamilyRecordPrivacyIntegrationTest extends AbstractIntegrationTestCa
     }
 
     /**
-     * The visible parent map applies the rules of the full map to what the
-     * viewer may see: the family with more parents wins, equal families resolve
-     * to the lowest family xref although the child record lists it last, and a
-     * hidden family leaves the next one.
+     * The visible parent map resolves among the families the viewer may see. The
+     * family with more parents wins, equal families resolve to the lowest family
+     * xref although the child record lists it last, and a hidden family leaves
+     * the next one, even when the hidden family names more parents.
      */
     #[Test]
     public function theVisibleParentMapResolvesAmongTheVisibleFamilies(): void
@@ -122,6 +125,11 @@ final class FamilyRecordPrivacyIntegrationTest extends AbstractIntegrationTestCa
             "0 @F2@ FAM\n1 HUSB @P2@\n1 CHIL @C1@\n",
             "0 @F3@ FAM\n1 RESN confidential\n1 HUSB @P3@\n1 WIFE @P4@\n1 CHIL @C2@\n",
             "0 @F4@ FAM\n1 HUSB @P5@\n1 CHIL @C2@\n",
+            "0 @C3@ INDI\n1 NAME C3 /Test/\n1 FAMC @F5@\n1 FAMC @F6@\n1 DEAT Y\n",
+            "0 @F5@ FAM\n1 HUSB @P1@\n1 CHIL @C3@\n",
+            "0 @F6@ FAM\n1 HUSB @P2@\n1 WIFE @P4@\n1 CHIL @C3@\n",
+            // A value that is no pointer links nothing.
+            "0 @C4@ INDI\n1 NAME C4 /Test/\n1 FAMC F5\n1 DEAT Y\n",
         ];
 
         foreach (range(1, 5) as $parent) {
@@ -129,18 +137,114 @@ final class FamilyRecordPrivacyIntegrationTest extends AbstractIntegrationTestCa
         }
 
         $tree = $this->importGedcomTree('visible-parents', "0 HEAD\n1 CHAR UTF-8\n" . implode('', $records) . "0 TRLR\n");
-        $this->hideLivingPeople($tree);
-        Auth::logout();
+        $this->actAsVisitorWithLivingHidden($tree);
 
-        $parents = (new ParentMapRepository($tree))->buildVisible(['C1' => $records[0], 'C2' => $records[1]]);
+        $parents = (new ParentMapRepository($tree))->buildVisible(
+            ['C1' => $records[0], 'C2' => $records[1], 'C3' => $records[6], 'C4' => $records[9]],
+        );
 
         self::assertSame(['P1', null], $parents['C1'] ?? null);
         self::assertSame(['P5', null], $parents['C2'] ?? null);
+        self::assertSame(['P2', 'P4'], $parents['C3'] ?? null);
+        self::assertArrayNotHasKey('C4', $parents);
     }
 
     /**
-     * A tree with the records of the tests above. Every person but one child of
-     * the third family is dead and public.
+     * @return iterable<string, array{string, string, array{0: string|null, 1: string|null}|null, bool}> The record to restrict, the link, the expected parents and whether the couple stays an edge
+     */
+    public static function restrictedLinks(): iterable
+    {
+        yield 'child link of the family' => ['F1', '1 CHIL @C1@', null, true];
+        yield 'husband link of the family' => ['F1', '1 HUSB @P1@', [null, 'P2'], false];
+        yield 'wife link of the family' => ['F1', '1 WIFE @P2@', ['P1', null], false];
+        yield 'family link of the husband' => ['P1', '1 FAMS @F1@', [null, 'P2'], false];
+        yield 'family link of the wife' => ['P2', '1 FAMS @F1@', ['P1', null], false];
+        yield 'family link of the child' => ['C1', '1 FAMC @F1@', null, true];
+    }
+
+    /**
+     * A restriction on one link between a family and a person hides that relation,
+     * also when the tree shows private relationships.
+     *
+     * @param 'C1'|'F1'|'P1'|'P2'                        $record  The record that holds the link
+     * @param string                                     $link    The restricted link line
+     * @param array{0: string|null, 1: string|null}|null $parents The expected parents of the child
+     * @param bool                                       $edge    Whether the couple stays an edge
+     */
+    #[Test]
+    #[DataProvider('restrictedLinks')]
+    public function aRestrictedLinkHidesItsRelation(string $record, string $link, ?array $parents, bool $edge): void
+    {
+        $records = [
+            'C1' => "0 @C1@ INDI\n1 NAME C1 /Test/\n1 FAMC @F1@\n1 DEAT Y\n",
+            'P1' => "0 @P1@ INDI\n1 NAME P1 /Test/\n1 FAMS @F1@\n1 DEAT Y\n",
+            'P2' => "0 @P2@ INDI\n1 NAME P2 /Test/\n1 FAMS @F1@\n1 DEAT Y\n",
+            'F1' => "0 @F1@ FAM\n1 HUSB @P1@\n1 WIFE @P2@\n1 CHIL @C1@\n",
+        ];
+
+        $records[$record] = str_replace($link . "\n", $link . "\n2 RESN confidential\n", $records[$record]);
+
+        $tree = $this->importGedcomTree('restricted-link', "0 HEAD\n1 CHAR UTF-8\n" . implode('', $records) . "0 TRLR\n");
+        $tree->setPreference('SHOW_PRIVATE_RELATIONSHIPS', '1');
+        $this->actAsVisitorWithLivingHidden($tree);
+
+        $visible = (new ParentMapRepository($tree))->buildVisible(['C1' => $records['C1']]);
+
+        self::assertSame($parents, $visible['C1'] ?? null);
+        self::assertSame($edge, (new PartnershipMapRepository($tree))->build() !== []);
+    }
+
+    /**
+     * A person with a digit-only XREF who is listed as a spouse of the own family
+     * is not the own parent, in the full and in the visible parent map.
+     */
+    #[Test]
+    public function aDigitOnlyXrefIsNeverTheOwnParent(): void
+    {
+        $child = "0 @54@ INDI\n1 NAME A /Test/\n1 FAMC @F1@\n1 FAMS @F1@\n1 DEAT Y\n";
+        $tree  = $this->importGedcomTree(
+            'digit-parent',
+            "0 HEAD\n1 CHAR UTF-8\n" . $child
+            . "0 @7@ INDI\n1 NAME B /Test/\n1 FAMS @F1@\n1 DEAT Y\n"
+            . "0 @F1@ FAM\n1 HUSB @54@\n1 WIFE @7@\n1 CHIL @54@\n0 TRLR\n",
+        );
+        $this->actAsVisitorWithLivingHidden($tree);
+
+        $repository = new ParentMapRepository($tree);
+
+        self::assertSame([null, '7'], $repository->build()[54] ?? null);
+        self::assertSame([null, '7'], $repository->buildVisible(['54' => $child])[54] ?? null);
+    }
+
+    /**
+     * The records that the privacy checks resolve do not stay in the record cache
+     * of the request.
+     */
+    #[Test]
+    public function thePrivacyChecksLeaveTheRequestCacheAlone(): void
+    {
+        $tree = $this->privacyTree();
+        $this->logInAs('guest', $tree);
+
+        $cache = Registry::cache();
+
+        (new PartnershipMapRepository($tree))->build();
+
+        self::assertSame($cache, Registry::cache());
+
+        DB::connection()->flushQueryLog();
+        DB::connection()->enableQueryLog();
+
+        Registry::familyFactory()->make('F1', $tree);
+
+        self::assertNotSame([], DB::connection()->getQueryLog(), 'the family is not in the cache of the request');
+
+        DB::connection()->disableQueryLog();
+    }
+
+    /**
+     * A tree with the records of the partnership map and occupation flow tests.
+     * Every person but one child of the third family is dead and public.
      */
     private function privacyTree(): Tree
     {
