@@ -18,8 +18,7 @@ use MagicSunday\Webtrees\Statistic\View\WidgetJson;
  * @var LineChartPayload|array{categories?: list<string>, series?: array<int, mixed>} $data            Chart payload: x-axis labels + N series. Accepts either the value-object or its raw-array form (latter used by call-sites that build the payload inline).
  * @var int|null                                                                      $height          Optional viewport height (defaults to 240)
  * @var int|null                                                                      $xLabelEvery     Show every Nth x-axis label (default: auto, capped at ~12 visible labels)
- * @var bool|null                                                                     $showArea        Default true. Single-series draws the area fill; multi-series suppresses it unless `multiSeriesArea` is also set.
- * @var bool|null                                                                     $multiSeriesArea Default false. Opt in to per-series area fill in multi-series mode; layered fills get 0.14 opacity so the lower band still reads through. Use for side-by-side comparison charts (e.g. father → son vs. mother → daughter).
+ * @var bool|null                                                                     $showArea        Default true. A single series draws the area fill, several series draw none.
  * @var bool|null                                                                     $perPointTooltip Default false. In multi-series mode, replace the aggregated multi-row tooltip with a single-row tooltip naming only the hovered series. Use for cohort-style charts where the cross-series comparison happens visually via the line shapes, not in the tooltip prose.
  * @var string|null                                                                   $xLabel          Optional centred caption below the x-axis (e.g. "Age", "Year").
  * @var string|null                                                                   $yLabel          Optional rotated caption beside the y-axis (e.g. "Years", "Persons").
@@ -59,7 +58,6 @@ $xLabelEvery ??= max(1, (int) ceil(count($categories) / 12));
          'height'          => $height,
          'xLabelEvery'     => $xLabelEvery,
          'showArea'        => $showArea ?? null,
-         'multiSeriesArea' => $multiSeriesArea ?? null,
          'perPointTooltip' => $perPointTooltip ?? null,
          'xLabel'          => $xLabel ?? null,
          'yLabel'          => $yLabel ?? null,

@@ -11,24 +11,30 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Test\Unit\View;
 
+use Fisharebest\Webtrees\I18N;
+use Fisharebest\Webtrees\View;
+use Fisharebest\Webtrees\Webtrees;
+use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
+use MagicSunday\Webtrees\Statistic\Payload\LineChartPayload;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 use function dirname;
 use function file_get_contents;
+use function html_entity_decode;
+use function json_decode;
+use function preg_match;
+use function view;
+
+use const ENT_QUOTES;
+use const JSON_THROW_ON_ERROR;
 
 /**
- * Locks the publish contract for the two chart-lib LineChart options
- * `multiSeriesArea` and `yUnit`. The chart-lib bundle reads them from the host
- * element's `data-options` JSON; if the line-chart partial stops emitting the
- * keys, or if the names tab stops setting them on the same-sex-passdown card,
- * the chart silently regresses to single area + bare numeric tooltip without a
- * visible failure mode.
- *
- * Static file-content assertions only — the partial cannot be rendered
- * standalone because `view()` requires the full webtrees runtime. The pattern
- * mirrors `MarriageChainWidgetCssCoverageTest`, which locks a similar
- * CSS-to-template contract via static analysis.
+ * Locks the publish contract of the chart-lib LineChart options and the way the
+ * cards set them. The chart-lib bundle reads the options from the host
+ * element's `data-options` JSON. If the line-chart partial stops emitting a
+ * key, or a card stops setting it, the chart changes its look without a visible
+ * failure.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -37,27 +43,45 @@ use function file_get_contents;
 final class LineChartOptionsPublishTest extends TestCase
 {
     /**
-     * The line-chart widget partial must publish `multiSeriesArea` into the
-     * rendered `data-options` JSON so the chart-lib constructor picks it up.
-     * The key arrives via the `with()` builder and lands in `$multiSeriesArea`
-     * inside the partial.
+     * The partial renders through the translator and the module's view namespace.
      */
-    #[Test]
-    public function lineChartPartialPublishesMultiSeriesAreaOption(): void
+    protected function setUp(): void
     {
-        $partial = $this->loadLineChartPartial();
+        parent::setUp();
 
-        self::assertMatchesRegularExpression(
-            "/'multiSeriesArea'\\s*=>\\s*\\\$multiSeriesArea\\s*\\?\\?\\s*null/",
-            $partial,
-            'line-chart.phtml must emit multiSeriesArea into the data-options array',
-        );
+        (new Webtrees())->bootstrap();
+        I18N::init('en-US', true);
+        View::registerNamespace('m', dirname(__DIR__, 3) . '/resources/views/');
     }
 
     /**
-     * Same contract for the tooltip suffix option. Without it the single-series
-     * and multi-series tooltip fallbacks render bare numbers instead of "12 %"
-     * / "43 yr".
+     * The area switch of a card reaches the `data-options` JSON of the rendered
+     * partial. Without it a card that switches the area off still draws it.
+     */
+    #[Test]
+    public function lineChartPartialPublishesShowAreaOption(): void
+    {
+        $html = view(
+            'm::modules/statistics-chart/widgets/line-chart',
+            [
+                'identifier' => 'rate',
+                'data'       => new LineChartPayload(['19th cent.'], [new LineChartSeries(name: 'Rate', values: [1])]),
+                'showArea'   => false,
+            ]
+        );
+
+        self::assertSame(1, preg_match('/data-options="([^"]*)"/', $html, $match));
+
+        /** @var array{showArea: bool|null} $options */
+        $options = json_decode(html_entity_decode($match[1], ENT_QUOTES), true, 512, JSON_THROW_ON_ERROR);
+
+        self::assertFalse($options['showArea']);
+    }
+
+    /**
+     * The line-chart partial must publish the tooltip suffix option into the
+     * `data-options` JSON. Without it the single-series and multi-series
+     * tooltip fallbacks render bare numbers instead of "12 %" / "43 yr".
      */
     #[Test]
     public function lineChartPartialPublishesYUnitOption(): void
@@ -68,29 +92,6 @@ final class LineChartOptionsPublishTest extends TestCase
             "/'yUnit'\\s*=>\\s*\\\$yUnit\\s*\\?\\?\\s*null/",
             $partial,
             'line-chart.phtml must emit yUnit into the data-options array',
-        );
-    }
-
-    /**
-     * The same-sex name passdown card is the first real consumer of the two new
-     * options and must wire both through the Widget builder. A future cleanup
-     * that drops either `with()` call would regress the chart silently.
-     */
-    #[Test]
-    public function sameSexPassdownCardSetsMultiSeriesAreaAndYUnit(): void
-    {
-        $names = $this->loadNamesTab();
-
-        self::assertMatchesRegularExpression(
-            "/->with\\('multiSeriesArea',\\s*true\\)/",
-            $names,
-            'names.phtml must enable multiSeriesArea on the same-sex passdown card',
-        );
-
-        self::assertMatchesRegularExpression(
-            "/->with\\('yUnit',\\s*' %'\\)/",
-            $names,
-            'names.phtml must set yUnit to " %" on the same-sex passdown card',
         );
     }
 
@@ -170,22 +171,6 @@ final class LineChartOptionsPublishTest extends TestCase
         $contents = file_get_contents($path);
 
         self::assertNotFalse($contents, 'line-chart.phtml partial must be readable');
-
-        return $contents;
-    }
-
-    /**
-     * Helper that loads the names tab template as a string for static
-     * assertion. Fails fast if the path drifts.
-     */
-    private function loadNamesTab(): string
-    {
-        $path = dirname(__DIR__, 3)
-            . '/resources/views/modules/statistics-chart/tabs/names.phtml';
-
-        $contents = file_get_contents($path);
-
-        self::assertNotFalse($contents, 'names.phtml tab template must be readable');
 
         return $contents;
     }

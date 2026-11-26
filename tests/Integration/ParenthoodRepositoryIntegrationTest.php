@@ -19,6 +19,7 @@ use PHPUnit\Framework\Attributes\Test;
 use function array_key_exists;
 use function array_sum;
 use function count;
+use function implode;
 
 /**
  * End-to-end test of {@see ParenthoodRepository} against two fixtures:
@@ -110,18 +111,17 @@ final class ParenthoodRepositoryIntegrationTest extends AbstractIntegrationTestC
     }
 
     /**
-     * The by-decade fixture carries five qualifying families in the 1900s, five
-     * in the 1910s, and two sub-threshold families in the 1920s. The 1920s
-     * decade must therefore be dropped from `categories` (both sexes below the
-     * cohort floor of 5), leaving exactly two decades on the X-axis, ordered
-     * chronologically by decade-start year (1900s then 1910s). Both series stay
+     * The by-decade fixture carries qualifying families in the 1900s and the
+     * 1910s and sub-threshold families in the 1920s. The 1920s lie past the
+     * last decade that reaches the cohort floor, so the X-axis ends at the
+     * 1910s and runs chronologically by decade-start year. Both series stay
      * in lockstep so the chart-lib LineChart can render them on a shared X
      * axis. The series names are asserted literally so a future label refactor
      * that swaps the order trips this test instead of the silent assertion
      * downstream.
      */
     #[Test]
-    public function meanByDecadeKeepsOnlyDecadesThatMeetTheCohortFloor(): void
+    public function meanByDecadeEndsTheAxisAtTheLastDecadeThatMeetsTheCohortFloor(): void
     {
         $tree   = $this->importFixtureTree('age-at-first-child-by-decade.ged');
         $result = (new ParenthoodRepository($tree))->ageAtFirstChildMeanByDecade();
@@ -313,5 +313,33 @@ final class ParenthoodRepositoryIntegrationTest extends AbstractIntegrationTestC
         self::assertEqualsWithDelta(24.0, $fathersMean, 0.05, 'Five fathers, age 24 at their earliest child');
         $mothersMean = array_key_exists(0, $mothers->values) ? $mothers->values[0] : self::fail('Expected a value at offset 0');
         self::assertNull($mothersMean, 'No mothers recorded — gap, not age 0');
+    }
+
+    /**
+     * A thin decade and a decade without any parent are gaps when they lie
+     * between two decades in which either sex reaches the cohort floor.
+     */
+    #[Test]
+    public function ageAtFirstChildMeanByDecadeKeepsAThinDecadeAsAGap(): void
+    {
+        $records = [];
+        $person  = 0;
+        $cohorts = [[1895, 'M', 'HUSB', 4], [1895, 'F', 'WIFE', 4], [1905, 'M', 'HUSB', 5], [1915, 'M', 'HUSB', 4], [1915, 'F', 'WIFE', 4], [1935, 'F', 'WIFE', 5], [1945, 'F', 'WIFE', 4], [1945, 'M', 'HUSB', 4]];
+
+        foreach ($cohorts as [$year, $sex, $parentRole, $count]) {
+            for ($index = 0; $index < $count; ++$index, ++$person) {
+                $born      = $year - 30;
+                $records[] = "0 @P{$person}@ INDI\n1 SEX {$sex}\n1 BIRT\n2 DATE 1 JAN {$born}\n1 FAMS @F{$person}@\n";
+                $records[] = "0 @C{$person}@ INDI\n1 BIRT\n2 DATE 1 JUL {$year}\n1 FAMC @F{$person}@\n";
+                $records[] = "0 @F{$person}@ FAM\n1 {$parentRole} @P{$person}@\n1 CHIL @C{$person}@\n";
+            }
+        }
+
+        $tree   = $this->importGedcomTree('first-child-gap', "0 HEAD\n1 CHAR UTF-8\n" . implode('', $records) . "0 TRLR\n");
+        $result = (new ParenthoodRepository($tree))->ageAtFirstChildMeanByDecade();
+
+        self::assertSame(['1900s', '1910s', '1920s', '1930s'], $result->categories);
+        self::assertSame([30.0, null, null, null], PayloadNarrowing::seriesAt($result, 0)->values);
+        self::assertSame([null, null, null, 30.0], PayloadNarrowing::seriesAt($result, 1)->values);
     }
 }

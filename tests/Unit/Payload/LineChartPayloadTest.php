@@ -17,11 +17,10 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Verifies the {@see LineChartPayload::singleSeries()} factory used by every
- * tabs/*.phtml LineChart card. Each test pins one documented branch: empty-map
- * → empty series, integer-keyed map, string-keyed map, float counts, and the
- * positional alignment of the projector return keys against the four parallel
- * arrays.
+ * Verifies the {@see LineChartPayload::singleSeries()} factory. Each test pins
+ * one documented branch: empty-map → empty series, integer-keyed map,
+ * string-keyed map, float counts, and the positional alignment of the projector
+ * return keys against the four parallel arrays.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -110,10 +109,10 @@ final class LineChartPayloadTest extends TestCase
     }
 
     /**
-     * Float counts (child-mortality rates) flow through unchanged into the
-     * series `values` list and into the projector's `$count` parameter — the
-     * LineChart widget renders them as decimals and the tooltip body
-     * interpolates them with the original precision.
+     * Float counts flow through unchanged into the series `values` list and into
+     * the projector's `$count` parameter. The LineChart widget renders them as
+     * decimals and the tooltip body interpolates them with the original
+     * precision.
      */
     #[Test]
     public function singleSeriesPreservesFloatCounts(): void
