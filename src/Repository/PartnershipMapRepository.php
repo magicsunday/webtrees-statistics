@@ -11,15 +11,20 @@ declare(strict_types=1);
 
 namespace MagicSunday\Webtrees\Statistic\Repository;
 
+use Fisharebest\Webtrees\Family;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\VisibleFamily;
+
+use function array_chunk;
+use function array_column;
 
 /**
  * Shared repository that builds the tree-wide partnership-graph adjacency map —
  * `individual-id → [spouse-id, …]` — from the `families` table's FAMS pairs.
- * Each family that records both a husband and a wife contributes an undirected
- * edge, stored from both sides so the relation is symmetric; a partner that
+ * Each family that records both a husband and a wife, that the viewer may see and
+ * whose spouse links are not restricted contributes an undirected edge, stored from both sides so the relation is symmetric; a partner that
  * recurs across several families collapses to a single entry. Individuals who
  * are only one side of an incomplete couple (a lone HUSB or WIFE) are absent
  * from the map.
@@ -54,10 +59,10 @@ final class PartnershipMapRepository
 
     /**
      * Build an individual-id → spouse-id list map for the configured tree. Only
-     * families recording both spouses contribute; each pair is added in both
-     * directions and de-duplicated, so the result is a symmetric adjacency map
-     * with no repeated spouse XREFs. Result is cached for the lifetime of the
-     * repository instance.
+     * families that record both spouses, that the viewer may see and whose spouse
+     * links are not restricted contribute. Each pair is added in both directions and de-duplicated, so the result is a
+     * symmetric adjacency map with no repeated spouse XREFs. Result is cached
+     * for the lifetime of the repository instance.
      *
      * The key type is `array-key`, not `string`: a digit-only XREF ("54") is
      * silently coerced to an int the moment it indexes the array, so callers
@@ -73,16 +78,10 @@ final class PartnershipMapRepository
         }
 
         $familyRows = TreeScope::table($this->tree, 'families')
-            ->select(['f_husb AS husb', 'f_wife AS wife'])
+            ->select(['f_id', 'f_husb AS husb', 'f_wife AS wife'])
             ->get();
 
-        $adjacency = [];
-
-        // Parallel `xref => [spouse-xref => true]` set used purely for O(1)
-        // de-duplication membership tests, so a partner that recurs across
-        // several families is appended to the public list only once without
-        // re-scanning the growing list on every family row.
-        $seen = [];
+        $couples = [];
 
         foreach ($familyRows as $row) {
             $husb = RowCast::string($row, 'husb');
@@ -103,23 +102,79 @@ final class PartnershipMapRepository
                 continue;
             }
 
-            $adjacency[$husb] ??= [];
+            $couples[] = ['family' => RowCast::string($row, 'f_id'), 'husb' => $husb, 'wife' => $wife];
+        }
 
-            $adjacency[$wife] ??= [];
+        $adjacency = [];
 
-            if (!isset($seen[$husb][$wife])) {
-                $adjacency[$husb][] = $wife;
-                $seen[$husb][$wife] = true;
-            }
+        // Parallel `xref => [spouse-xref => true]` set used purely for O(1)
+        // de-duplication membership tests, so a partner that recurs across
+        // several families is appended to the public list only once without
+        // re-scanning the growing list on every family row.
+        $seen = [];
 
-            if (!isset($seen[$wife][$husb])) {
-                $adjacency[$wife][] = $husb;
-                $seen[$wife][$husb] = true;
+        foreach (array_chunk($couples, VisibleFamily::CHUNK_SIZE) as $chunk) {
+            foreach ($this->visibleCouples($chunk) as [$husb, $wife]) {
+                $adjacency[$husb] ??= [];
+
+                $adjacency[$wife] ??= [];
+
+                if (!isset($seen[$husb][$wife])) {
+                    $adjacency[$husb][] = $wife;
+                    $seen[$husb][$wife] = true;
+                }
+
+                if (!isset($seen[$wife][$husb])) {
+                    $adjacency[$wife][] = $husb;
+                    $seen[$wife][$husb] = true;
+                }
             }
         }
 
         $this->cache = $adjacency;
 
         return $adjacency;
+    }
+
+    /**
+     * The couples of a chunk that the viewer may see: the family record is shown
+     * and neither link of the couple is restricted. A family the viewer may not
+     * see gives no edge, whether the record carries a restriction or the host
+     * hides it for a private member.
+     *
+     * @param list<array{family: string, husb: string, wife: string}> $couples The couples to check
+     *
+     * @return list<array{0: string, 1: string}> Husband and wife of each visible couple
+     */
+    private function visibleCouples(array $couples): array
+    {
+        $rows = TreeScope::table($this->tree, 'families')
+            ->whereIn('f_id', array_column($couples, 'family'))
+            ->select(['f_id', 'f_gedcom'])
+            ->get();
+
+        $gedcoms = [];
+
+        foreach ($rows as $row) {
+            $gedcoms[RowCast::string($row, 'f_id')] = RowCast::string($row, 'f_gedcom');
+        }
+
+        return VisibleFamily::withinScope($this->tree, function () use ($couples, $gedcoms): array {
+            $visible = [];
+
+            foreach ($couples as $couple) {
+                $family = VisibleFamily::find($this->tree, $couple['family'], $gedcoms[$couple['family']] ?? '');
+
+                if (
+                    ($family instanceof Family)
+                    && VisibleFamily::showsSpouse($family, 'HUSB', $couple['husb'])
+                    && VisibleFamily::showsSpouse($family, 'WIFE', $couple['wife'])
+                ) {
+                    $visible[] = [$couple['husb'], $couple['wife']];
+                }
+            }
+
+            return $visible;
+        });
     }
 }
