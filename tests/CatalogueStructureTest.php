@@ -35,9 +35,10 @@ use const ARRAY_FILTER_USE_BOTH;
 final class CatalogueStructureTest extends AbstractCatalogueStructureTestCase
 {
     /**
-     * A translation of a singular text that drops or invents a placeholder loses
-     * the value that is formatted into it. The shared case compares only the
-     * plural forms, so the singular entries are compared here.
+     * A translation of a singular text that drops a placeholder loses the value
+     * that is formatted into it, and one that adds a placeholder can make the
+     * formatting fail. The shared case compares only the plural forms, so the
+     * singular entries are compared here.
      *
      * @param string $locale The name of the locale directory
      */
