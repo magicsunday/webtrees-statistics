@@ -2477,10 +2477,6 @@
     fill: var(--slate);
 }
 
-.wt-statistics-chart svg.msc-line-chart .msc-line-chart-series.male .msc-line-chart-area {
-    fill: var(--slate);
-}
-
 .wt-statistics-chart svg.msc-line-chart .msc-line-chart-legend-swatch.male {
     fill: var(--slate);
 }
@@ -2493,27 +2489,19 @@
     fill: var(--wine);
 }
 
-.wt-statistics-chart svg.msc-line-chart .msc-line-chart-series.female .msc-line-chart-area {
-    fill: var(--wine);
-}
-
 .wt-statistics-chart svg.msc-line-chart .msc-line-chart-legend-swatch.female {
     fill: var(--wine);
 }
 
 /* Multiple-birth rate card: one series per multiplicity (twins,
    triplets, quadruplets, quintuplet+). Each series pins to its
-   own colour token so the layered area fills read as distinct
-   contributions at a glance. */
+   own colour token so the lines and legend swatches read as
+   distinct. */
 .wt-statistics-chart svg.msc-line-chart .msc-line-chart-series.multiple-birth-twin .msc-line-chart-line {
     stroke: var(--ochre);
 }
 
 .wt-statistics-chart svg.msc-line-chart .msc-line-chart-series.multiple-birth-twin .msc-line-chart-point {
-    fill: var(--ochre);
-}
-
-.wt-statistics-chart svg.msc-line-chart .msc-line-chart-series.multiple-birth-twin .msc-line-chart-area {
     fill: var(--ochre);
 }
 
@@ -2529,10 +2517,6 @@
     fill: var(--wine);
 }
 
-.wt-statistics-chart svg.msc-line-chart .msc-line-chart-series.multiple-birth-triplet .msc-line-chart-area {
-    fill: var(--wine);
-}
-
 .wt-statistics-chart svg.msc-line-chart .msc-line-chart-legend-swatch.multiple-birth-triplet {
     fill: var(--wine);
 }
@@ -2545,10 +2529,6 @@
     fill: var(--slate);
 }
 
-.wt-statistics-chart svg.msc-line-chart .msc-line-chart-series.multiple-birth-quadruplet .msc-line-chart-area {
-    fill: var(--slate);
-}
-
 .wt-statistics-chart svg.msc-line-chart .msc-line-chart-legend-swatch.multiple-birth-quadruplet {
     fill: var(--slate);
 }
@@ -2558,10 +2538,6 @@
 }
 
 .wt-statistics-chart svg.msc-line-chart .msc-line-chart-series.multiple-birth-quintuplet-plus .msc-line-chart-point {
-    fill: var(--sage);
-}
-
-.wt-statistics-chart svg.msc-line-chart .msc-line-chart-series.multiple-birth-quintuplet-plus .msc-line-chart-area {
     fill: var(--sage);
 }
 

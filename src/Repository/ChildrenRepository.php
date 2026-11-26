@@ -21,6 +21,7 @@ use MagicSunday\Webtrees\Statistic\Model\StackedBar\StackedBarSeries;
 use MagicSunday\Webtrees\Statistic\Payload\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Payload\StackedBarPayload;
 use MagicSunday\Webtrees\Statistic\Support\Calc\CalendarSpan;
+use MagicSunday\Webtrees\Statistic\Support\Calc\CenturySpan;
 use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DateJoin;
@@ -32,7 +33,11 @@ use MagicSunday\Webtrees\Statistic\Support\Locale\MonthName;
 
 use function array_combine;
 use function array_fill_keys;
+use function array_filter;
 use function array_keys;
+use function array_map;
+use function array_sum;
+use function array_values;
 use function count;
 use function intdiv;
 use function ksort;
@@ -383,8 +388,9 @@ final readonly class ChildrenRepository
      * Average children per family by century — single LineChart series tracking
      * the central tendency over time. Computed as `total_children /
      * family_count` per century from the same MARR-anchored aggregation as the
-     * stacked share charts. Centuries backed by fewer than
-     * {@see self::MIN_COHORT_FAMILY_SIZE} dated families are dropped so a thin
+     * stacked share charts. A century backed by fewer than
+     * {@see self::MIN_COHORT_FAMILY_SIZE} dated families has no value, and the
+     * axis runs from the first to the last century that reaches the floor, so a thin
      * cohort cannot spike the line — the same five-sample cohort floor the
      * child-mortality and tree-health per-century timelines apply.
      */
@@ -392,43 +398,40 @@ final readonly class ChildrenRepository
     {
         $perCentury = $this->familySizesPerCenturyRaw();
 
-        if ($perCentury === []) {
-            return new LineChartPayload(categories: [], series: []);
-        }
-
-        ksort($perCentury);
+        $qualifying = array_keys(
+            array_filter(
+                $perCentury,
+                static fn (array $childCounts): bool => count($childCounts) >= self::MIN_COHORT_FAMILY_SIZE,
+            )
+        );
 
         $categories    = [];
         $values        = [];
         $tooltips      = [];
         $tooltipLabels = [];
 
-        foreach ($perCentury as $century => $childCounts) {
-            $familyCount = count($childCounts);
+        foreach (CenturySpan::covering($qualifying) as $century) {
+            $childCounts     = $perCentury[$century] ?? [];
+            $familyCount     = count($childCounts);
+            $categories[]    = CenturyName::compactLabel($century);
+            $tooltipLabels[] = CenturyName::longLabel($century);
 
-            // Drop centuries below the cohort floor — a handful of families
-            // yields a spiky mean that would carry the same visual weight as a
-            // century backed by thousands.
+            // Below the floor a handful of families yields a spiky mean, so the
+            // century carries no value and shows as a gap.
             if ($familyCount < self::MIN_COHORT_FAMILY_SIZE) {
+                $values[]   = null;
+                $tooltips[] = I18N::translate('no data (n < %s)', I18N::number(self::MIN_COHORT_FAMILY_SIZE));
+
                 continue;
             }
 
-            $longName  = CenturyName::longLabel($century);
-            $totalKids = 0;
-
-            foreach ($childCounts as $count) {
-                $totalKids += $count;
-            }
-
-            $average      = $totalKids / $familyCount;
-            $categories[] = CenturyName::compactLabel($century);
-            $values[]     = $average;
-            $tooltips[]   = I18N::translate(
+            $average    = array_sum($childCounts) / $familyCount;
+            $values[]   = $average;
+            $tooltips[] = I18N::translate(
                 '%1$s children per family (n = %2$s)',
                 I18N::number($average, 2),
                 I18N::number($familyCount),
             );
-            $tooltipLabels[] = $longName;
         }
 
         if ($categories === []) {
@@ -452,10 +455,7 @@ final readonly class ChildrenRepository
      * Multiple-birth rate per century, one series per multiplicity that
      * actually occurs in the tree (twins, triplets, quadruplets, quintuplet+).
      * Each series carries the per-century share of children that landed in a
-     * set of that size, so the chart-lib `multiSeriesArea: true` consumer draws
-     * a stacked-style area fill where the twin band dwarfs the triplet /
-     * quadruplet bands by an order of magnitude — the demographic signal worth
-     * surfacing.
+     * set of that size.
      *
      * Detection: children of the same FAM whose BIRT julian-days sit within
      * {@see MULTI_BIRTH_MAX_DAY_GAP} of each other form a multiple-birth set.
@@ -463,8 +463,9 @@ final readonly class ChildrenRepository
      * case (e.g. 31 DEC / 1 JAN): a single mother cannot place two separate
      * pregnancies a calendar day apart, so the FAM membership plus date
      * proximity is the signal by itself.
-     * Centuries below {@see MIN_COHORT_MULTIPLE_BIRTH} dated births are dropped
-     * to keep the curve from spiking on small denominators.
+     * A century below {@see MIN_COHORT_MULTIPLE_BIRTH} dated births has no
+     * value, which keeps the curve from spiking on small denominators. The axis
+     * runs from the first to the last century that reaches that count.
      */
     public function multipleBirthRateByCentury(): LineChartPayload
     {
@@ -637,17 +638,15 @@ final readonly class ChildrenRepository
         ksort($multiplicitiesPresent);
         $multiplicities = array_keys($multiplicitiesPresent);
 
-        $categories             = [];
-        $qualifyingCenturyOrder = [];
+        $qualifying = array_keys(
+            array_filter(
+                $totalsByCentury,
+                static fn (int $total): bool => $total >= self::MIN_COHORT_MULTIPLE_BIRTH,
+            )
+        );
 
-        foreach ($totalsByCentury as $century => $total) {
-            if ($total < self::MIN_COHORT_MULTIPLE_BIRTH) {
-                continue;
-            }
-
-            $qualifyingCenturyOrder[] = $century;
-            $categories[]             = CenturyName::compactLabel($century);
-        }
+        $axis       = CenturySpan::covering($qualifying);
+        $categories = array_map(CenturyName::compactLabel(...), $axis);
 
         if ($categories === []) {
             return new LineChartPayload(categories: [], series: []);
@@ -660,15 +659,23 @@ final readonly class ChildrenRepository
             $tooltips      = [];
             $tooltipLabels = [];
 
-            foreach ($qualifyingCenturyOrder as $century) {
-                $total    = $totalsByCentury[$century] ?? 0;
+            foreach ($axis as $century) {
+                $total           = $totalsByCentury[$century] ?? 0;
+                $tooltipLabels[] = CenturyName::longLabel($century);
+
+                if ($total < self::MIN_COHORT_MULTIPLE_BIRTH) {
+                    $values[]   = null;
+                    $tooltips[] = I18N::translate('no data (n < %s)', I18N::number(self::MIN_COHORT_MULTIPLE_BIRTH));
+
+                    continue;
+                }
+
                 $count    = $multiplicityCountsByCentury[$century][$multiplicity] ?? 0;
                 $setCount = $multiplicitySetsByCentury[$century][$multiplicity] ?? 0;
                 $rate     = round(($count / $total) * 100, 2);
 
-                $values[]        = $rate;
-                $tooltipLabels[] = CenturyName::longLabel($century);
-                $tooltips[]      = $this->multipleBirthTooltip($multiplicity, $count, $setCount, $total, $rate);
+                $values[]   = $rate;
+                $tooltips[] = $this->multipleBirthTooltip($multiplicity, $count, $setCount, $total, $rate);
             }
 
             $series[] = new LineChartSeries(

@@ -34,6 +34,7 @@ use MagicSunday\Webtrees\Statistic\Payload\LineChartPayload;
 use MagicSunday\Webtrees\Statistic\Payload\PopulationPyramidPayload;
 use MagicSunday\Webtrees\Statistic\Support\Calc\AgeBuckets;
 use MagicSunday\Webtrees\Statistic\Support\Calc\CalendarSpan;
+use MagicSunday\Webtrees\Statistic\Support\Calc\CenturySpan;
 use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
 use MagicSunday\Webtrees\Statistic\Support\Calc\HeatmapPeriodBinner;
 use MagicSunday\Webtrees\Statistic\Support\Calc\HistogramTrim;
@@ -52,6 +53,7 @@ use MagicSunday\Webtrees\Statistic\Support\Locale\MonthName;
 
 use function array_column;
 use function array_fill_keys;
+use function array_filter;
 use function array_key_last;
 use function array_keys;
 use function array_map;
@@ -89,9 +91,8 @@ final readonly class LifeSpanRepository
 
     /**
      * Minimum per-cohort sample size for the lifespan-by-sex × century
-     * LineChart. A century × sex group with fewer than this many dated deaths
-     * gets suppressed (rendered as zero / "no data" tooltip) so a 1-sample
-     * outlier doesn't drag the cohort mean.
+     * LineChart. A century × sex group below it carries no value (a gap in the
+     * line), so a lone outlier doesn't drag the cohort mean.
      */
     private const int MIN_COHORT_SIZE = 5;
 
@@ -734,8 +735,9 @@ final readonly class LifeSpanRepository
      * `{categories, series}` shape so it can feed straight into the chart-lib
      * LineChart multi-series render path — categories are the localised century
      * labels in chronological order, two series (Male / Female). Per-cohort
-     * sample counts below {@see MIN_COHORT_SIZE} are suppressed (replaced with
-     * zero) so a single outlier doesn't dominate the visual. Lifespans are whole
+     * sample counts below {@see MIN_COHORT_SIZE} carry no value, a gap in the
+     * line, so a single outlier doesn't dominate the visual. The axis runs from
+     * the first to the last century in which a sex reaches that count. Lifespans are whole
      * years, and a death before the first birthday counts as zero years.
      */
     public function averageLifespanBySexAndCentury(): LineChartPayload
@@ -787,37 +789,36 @@ final readonly class LifeSpanRepository
         $maleTooltipLabels   = [];
         $femaleTooltipLabels = [];
 
-        foreach ($cohorts as $century => $perSex) {
-            // Drop centuries where neither sex meets the cohort-
-            // size floor — otherwise the x-axis would lead with
-            // empty "15th: 0 / 16th: 0" entries that carry no
-            // information.
-            if (
-                ($perSex['M']['n'] < self::MIN_COHORT_SIZE)
-                && ($perSex['F']['n'] < self::MIN_COHORT_SIZE)
-            ) {
-                continue;
-            }
+        $qualifying = array_keys(
+            array_filter(
+                $cohorts,
+                static fn (array $perSex): bool => ($perSex['M']['n'] >= self::MIN_COHORT_SIZE)
+                    || ($perSex['F']['n'] >= self::MIN_COHORT_SIZE),
+            )
+        );
+
+        foreach (CenturySpan::covering($qualifying) as $century) {
+            $perSex = $cohorts[$century] ?? ['M' => ['sum' => 0, 'n' => 0], 'F' => ['sum' => 0, 'n' => 0]];
 
             $categories[] = CenturyName::compactLabel($century);
 
             $maleAverage = $perSex['M']['n'] >= self::MIN_COHORT_SIZE
                 ? round($perSex['M']['sum'] / $perSex['M']['n'], 1)
-                : 0;
+                : null;
             $femaleAverage = $perSex['F']['n'] >= self::MIN_COHORT_SIZE
                 ? round($perSex['F']['sum'] / $perSex['F']['n'], 1)
-                : 0;
+                : null;
             $maleValues[]   = $maleAverage;
             $femaleValues[] = $femaleAverage;
 
-            $maleTooltips[] = $perSex['M']['n'] >= self::MIN_COHORT_SIZE
+            $maleTooltips[] = $maleAverage !== null
                 ? I18N::translate(
                     '%1$s years (n = %2$s)',
                     I18N::number($maleAverage, 1),
                     I18N::number($perSex['M']['n']),
                 )
                 : I18N::translate('no data (n < %s)', I18N::number(self::MIN_COHORT_SIZE));
-            $femaleTooltips[] = $perSex['F']['n'] >= self::MIN_COHORT_SIZE
+            $femaleTooltips[] = $femaleAverage !== null
                 ? I18N::translate(
                     '%1$s years (n = %2$s)',
                     I18N::number($femaleAverage, 1),
