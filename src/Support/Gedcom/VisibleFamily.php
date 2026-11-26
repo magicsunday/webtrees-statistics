@@ -37,8 +37,8 @@ final readonly class VisibleFamily
 {
     /**
      * Number of couples or children that a caller checks within one
-     * {@see withinScope()} call, which bounds the records that stay in memory at
-     * once.
+     * {@see withinScope()} call. It bounds the records that stay in memory at once,
+     * except for a viewer to whom relationship privacy applies.
      */
     public const int CHUNK_SIZE = 250;
 
@@ -55,8 +55,8 @@ final readonly class VisibleFamily
      * with the members of a family, in the cache of the request, so resolving the
      * families of a large tree there exhausts the memory limit.
      *
-     * A viewer with relationship privacy runs the lookup in the cache of the
-     * request, because the host compares the records of that rule by object
+     * A viewer to whom relationship privacy applies runs the lookup in the cache of
+     * the request, because the host compares the records of that rule by object
      * identity and a record of another cache is a different object.
      *
      * @template T
@@ -85,14 +85,19 @@ final readonly class VisibleFamily
 
     /**
      * Whether the host limits what the current viewer sees by the relationship to
-     * the own record.
+     * the own record. It does so only when the tree hides living people, the viewer
+     * is below a manager and the account has a linked record and a path length.
      *
      * @param Tree $tree The tree
      *
-     * @return bool True when the viewer has a linked record and a path length
+     * @return bool True when the relationship rule applies to the viewer
      */
     private static function usesRelationshipPrivacy(Tree $tree): bool
     {
+        if (!(bool) $tree->getPreference('HIDE_LIVE_PEOPLE') || Auth::isManager($tree)) {
+            return false;
+        }
+
         return ($tree->getUserPreference(Auth::user(), UserInterface::PREF_TREE_ACCOUNT_XREF) !== '')
             && ((int) $tree->getUserPreference(Auth::user(), UserInterface::PREF_TREE_PATH_LENGTH) > 0);
     }

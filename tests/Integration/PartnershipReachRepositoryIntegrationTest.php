@@ -13,7 +13,6 @@ namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use Fisharebest\Webtrees\Auth;
 use Fisharebest\Webtrees\DB;
-use Fisharebest\Webtrees\Factories\CacheFactory;
 use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Model\Tree\PartnershipReachReport;
@@ -409,11 +408,6 @@ final class PartnershipReachRepositoryIntegrationTest extends AbstractIntegratio
     {
         $tree = $this->importGedcomTree($name, $this->datelessChainGedcom($people));
         $this->actAsVisitorWithLivingHidden($tree);
-
-        // The import fills the record cache of the host, with records that it
-        // looked up before they existed, and a real request starts with an empty
-        // one.
-        Registry::cache(new CacheFactory());
 
         // The map resolves each family for the viewer, which costs queries that
         // grow with the tree, so it is built before the count starts.

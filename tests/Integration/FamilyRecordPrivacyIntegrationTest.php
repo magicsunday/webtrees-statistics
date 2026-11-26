@@ -185,15 +185,16 @@ final class FamilyRecordPrivacyIntegrationTest extends AbstractIntegrationTestCa
     #[DataProvider('restrictedLinks')]
     public function aRestrictedLinkHidesItsRelation(string $record, string $link, ?array $parents, bool $edge, ?string $written = null): void
     {
-        // The sibling and the second family give every restricted tag a second
-        // line that stays open, which must not stand in for the restricted one.
+        // The sibling gives the family a second CHIL line and the second family
+        // gives the husband a second FAMS line. Their XREFs extend the ones under
+        // test, and neither open line may stand in for the restricted one.
         $records = [
-            'C1' => "0 @C1@ INDI\n1 NAME C1 /Test/\n1 FAMC @F1@\n1 DEAT Y\n",
-            'P1' => "0 @P1@ INDI\n1 NAME P1 /Test/\n1 FAMS @F1@\n1 FAMS @F2@\n1 DEAT Y\n",
-            'P2' => "0 @P2@ INDI\n1 NAME P2 /Test/\n1 FAMS @F1@\n1 DEAT Y\n",
-            'F1' => "0 @F1@ FAM\n1 HUSB @P1@\n1 WIFE @P2@\n1 CHIL @C1@\n1 CHIL @C2@\n",
-            'C2' => "0 @C2@ INDI\n1 NAME C2 /Test/\n1 FAMC @F1@\n1 DEAT Y\n",
-            'F2' => "0 @F2@ FAM\n1 HUSB @P1@\n",
+            'C1'  => "0 @C1@ INDI\n1 NAME C1 /Test/\n1 FAMC @F1@\n1 DEAT Y\n",
+            'P1'  => "0 @P1@ INDI\n1 NAME P1 /Test/\n1 FAMS @F1@\n1 FAMS @F10@\n1 DEAT Y\n",
+            'P2'  => "0 @P2@ INDI\n1 NAME P2 /Test/\n1 FAMS @F1@\n1 DEAT Y\n",
+            'F1'  => "0 @F1@ FAM\n1 HUSB @P1@\n1 WIFE @P2@\n1 CHIL @C1@\n1 CHIL @C10@\n",
+            'C10' => "0 @C10@ INDI\n1 NAME C10 /Test/\n1 FAMC @F1@\n1 DEAT Y\n",
+            'F10' => "0 @F10@ FAM\n1 HUSB @P1@\n",
         ];
 
         $records[$record] = str_replace($link . "\n", ($written ?? $link) . "\n2 RESN confidential\n", $records[$record]);
@@ -245,7 +246,12 @@ final class FamilyRecordPrivacyIntegrationTest extends AbstractIntegrationTestCa
 
         $rowQueries = array_filter(
             $log,
-            static fn (array $query): bool => str_contains($query['query'], '"f_gedcom"') && str_contains($query['query'], '"f_id" in'),
+            // The engines quote identifiers differently.
+            static function (array $query): bool {
+                $sql = str_replace('`', '"', $query['query']);
+
+                return str_contains($sql, '"f_gedcom"') && str_contains($sql, '"f_id" in');
+            },
         );
 
         self::assertCount(4, $rowQueries, 'two chunks of each lookup');
@@ -313,6 +319,51 @@ final class FamilyRecordPrivacyIntegrationTest extends AbstractIntegrationTestCa
 
         self::assertSame(['P1', 'P2'], $keys);
         self::assertTrue($this->individual($tree, 'P1')->canShow());
+    }
+
+    /**
+     * @return iterable<string, array{string, string, string, string}> The role, the linked record, the path length and the tree preference that hides living people
+     */
+    public static function viewersWithoutRelationshipPrivacy(): iterable
+    {
+        yield 'member with a linked record only' => [UserInterface::ROLE_MEMBER, 'I1', '', '1'];
+        yield 'member with a path length only' => [UserInterface::ROLE_MEMBER, '', '1', '1'];
+        yield 'manager with both' => [UserInterface::ROLE_MANAGER, 'I1', '1', '1'];
+        yield 'tree that shows living people' => [UserInterface::ROLE_MEMBER, 'I1', '1', '0'];
+    }
+
+    /**
+     * A viewer to whom the host does not apply relationship privacy keeps the
+     * families of the lookup out of the cache of the request.
+     *
+     * @param string $role       The tree role of the viewer
+     * @param string $xref       The linked record
+     * @param string $pathLength The relationship path length
+     * @param string $hideLiving The tree preference that hides living people
+     */
+    #[Test]
+    #[DataProvider('viewersWithoutRelationshipPrivacy')]
+    public function viewersWithoutRelationshipPrivacyUseACacheOfTheirOwn(string $role, string $xref, string $pathLength, string $hideLiving): void
+    {
+        $tree = $this->privacyTree();
+        $tree->setPreference('HIDE_LIVE_PEOPLE', $hideLiving);
+        $this->logInAs('member', $tree);
+
+        $tree->setUserPreference(Auth::user(), UserInterface::PREF_TREE_ROLE, $role);
+        $tree->setUserPreference(Auth::user(), UserInterface::PREF_TREE_ACCOUNT_XREF, $xref);
+        $tree->setUserPreference(Auth::user(), UserInterface::PREF_TREE_PATH_LENGTH, $pathLength);
+        Registry::cache(new CacheFactory());
+
+        (new PartnershipMapRepository($tree))->build();
+
+        DB::connection()->flushQueryLog();
+        DB::connection()->enableQueryLog();
+
+        Registry::familyFactory()->make('F1', $tree);
+
+        self::assertNotSame([], DB::connection()->getQueryLog(), 'the family is not in the cache of the request');
+
+        DB::connection()->disableQueryLog();
     }
 
     /**
