@@ -17,16 +17,19 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 
 use function array_filter;
+use function array_values;
 use function preg_match_all;
 use function sort;
 use function str_contains;
+use function str_replace;
 
 use const ARRAY_FILTER_USE_BOTH;
 
 /**
- * Locks the structure of the shipped translation catalogues. The checks live in the
- * shared abstract case of webtrees-module-base, this class only names the directory
- * that holds the catalogues of this module.
+ * Locks the structure of the shipped translation catalogues. The shared checks live
+ * in the abstract case of webtrees-module-base. This class names the directory that
+ * holds the catalogues of this module and compares the placeholders of every
+ * singular translation with its source text.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -64,7 +67,9 @@ final class CatalogueStructureTest extends AbstractCatalogueStructureTestCase
     }
 
     /**
-     * The string and integer placeholders of a text in a stable order.
+     * The string and integer placeholders of a text. A doubled percent sign is
+     * literal. Numbered placeholders may change their position, so they are sorted,
+     * while unnumbered ones keep their order.
      *
      * @param string $text The text
      *
@@ -72,12 +77,14 @@ final class CatalogueStructureTest extends AbstractCatalogueStructureTestCase
      */
     private static function placeholdersOf(string $text): array
     {
-        preg_match_all('/%(?:\d+\$)?[sd]/', $text, $matches);
+        preg_match_all('/%(?:\d+\$)?[sd]/', str_replace('%%', '', $text), $matches);
 
-        $placeholders = $matches[0];
-        sort($placeholders);
+        $unnumbered = array_values(array_filter($matches[0], static fn (string $placeholder): bool => !str_contains($placeholder, '$')));
+        $numbered   = array_values(array_filter($matches[0], static fn (string $placeholder): bool => str_contains($placeholder, '$')));
 
-        return $placeholders;
+        sort($numbered);
+
+        return [...$unnumbered, ...$numbered];
     }
 
     /**
