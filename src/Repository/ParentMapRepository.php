@@ -174,8 +174,7 @@ final class ParentMapRepository
         $childFamilies = [];
 
         foreach ($childGedcoms as $child => $gedcom) {
-            // The factory merges a pending change, so the record that decides the
-            // visibility of the family members is the one the host would use.
+            // The factory merges a pending change into the child record.
             $individual = Registry::individualFactory()->make((string) $child, $this->tree, $gedcom);
 
             if (!$individual instanceof Individual) {
