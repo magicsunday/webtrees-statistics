@@ -420,10 +420,6 @@ final class PartnershipReachRepositoryIntegrationTest extends AbstractIntegratio
         $map = new PartnershipMapRepository($tree);
         $map->build();
 
-        // The map fills the record cache as well, and without an empty one a
-        // record lookup of the summary would not show as a query.
-        Registry::cache(new CacheFactory());
-
         DB::connection()->flushQueryLog();
         DB::connection()->enableQueryLog();
 

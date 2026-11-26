@@ -23,8 +23,8 @@ use function array_column;
 /**
  * Shared repository that builds the tree-wide partnership-graph adjacency map —
  * `individual-id → [spouse-id, …]` — from the `families` table's FAMS pairs.
- * Each family that records both a husband and a wife and that the viewer may see
- * contributes an undirected edge, stored from both sides so the relation is symmetric; a partner that
+ * Each family that records both a husband and a wife, that the viewer may see and
+ * whose spouse links are not restricted contributes an undirected edge, stored from both sides so the relation is symmetric; a partner that
  * recurs across several families collapses to a single entry. Individuals who
  * are only one side of an incomplete couple (a lone HUSB or WIFE) are absent
  * from the map.
@@ -59,8 +59,8 @@ final class PartnershipMapRepository
 
     /**
      * Build an individual-id → spouse-id list map for the configured tree. Only
-     * families recording both spouses that the viewer may see contribute. Each
-     * pair is added in both directions and de-duplicated, so the result is a
+     * families that record both spouses, that the viewer may see and whose spouse
+     * links are not restricted contribute. Each pair is added in both directions and de-duplicated, so the result is a
      * symmetric adjacency map with no repeated spouse XREFs. Result is cached
      * for the lifetime of the repository instance.
      *
@@ -159,7 +159,7 @@ final class PartnershipMapRepository
             $gedcoms[RowCast::string($row, 'f_id')] = RowCast::string($row, 'f_gedcom');
         }
 
-        return VisibleFamily::withinScope(function () use ($couples, $gedcoms): array {
+        return VisibleFamily::withinScope($this->tree, function () use ($couples, $gedcoms): array {
             $visible = [];
 
             foreach ($couples as $couple) {

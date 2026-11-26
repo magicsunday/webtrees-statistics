@@ -13,6 +13,7 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 
 use Fisharebest\Webtrees\Family;
 use Fisharebest\Webtrees\Gedcom;
+use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Support\Collection;
@@ -155,7 +156,7 @@ final class ParentMapRepository
         $parentOf = [];
 
         foreach (array_chunk($childGedcoms, VisibleFamily::CHUNK_SIZE, true) as $chunk) {
-            $parentOf += VisibleFamily::withinScope(fn (): array => $this->visibleParents($chunk));
+            $parentOf += VisibleFamily::withinScope($this->tree, fn (): array => $this->visibleParents($chunk));
         }
 
         return $parentOf;
@@ -173,7 +174,13 @@ final class ParentMapRepository
         $childFamilies = [];
 
         foreach ($childGedcoms as $child => $gedcom) {
-            $individual = Registry::individualFactory()->new((string) $child, $gedcom, null, $this->tree);
+            // The factory merges a pending change, so the record that decides the
+            // visibility of the family members is the one the host would use.
+            $individual = Registry::individualFactory()->make((string) $child, $this->tree, $gedcom);
+
+            if (!$individual instanceof Individual) {
+                continue;
+            }
 
             foreach ($individual->facts(['FAMC']) as $fact) {
                 // A value that is no pointer links nothing.

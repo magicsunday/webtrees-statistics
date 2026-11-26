@@ -12,12 +12,16 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Support\Gedcom;
 
 use Fisharebest\Webtrees\Auth;
+use Fisharebest\Webtrees\Contracts\UserInterface;
 use Fisharebest\Webtrees\Factories\CacheFactory;
 use Fisharebest\Webtrees\Family;
 use Fisharebest\Webtrees\GedcomRecord;
 use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Tree;
+
+use function preg_match;
+use function preg_quote;
 
 /**
  * The privacy decisions about families and about the links between families and
@@ -32,8 +36,9 @@ use Fisharebest\Webtrees\Tree;
 final readonly class VisibleFamily
 {
     /**
-     * Number of records that a caller resolves within one {@see withinScope()}
-     * call, which bounds the records that stay in memory at once.
+     * Number of couples or children that a caller checks within one
+     * {@see withinScope()} call, which bounds the records that stay in memory at
+     * once.
      */
     public const int CHUNK_SIZE = 250;
 
@@ -47,17 +52,26 @@ final readonly class VisibleFamily
     /**
      * Run a lookup with a record cache of its own and restore the cache of the
      * request afterwards. The host keeps every record that it resolves, together
-     * with the members of a family, in the cache of the request, so resolving all
-     * families of a tree there exhausts the memory limit.
+     * with the members of a family, in the cache of the request, so resolving the
+     * families of a large tree there exhausts the memory limit.
+     *
+     * A viewer with relationship privacy runs the lookup in the cache of the
+     * request, because the host compares the records of that rule by object
+     * identity and a record of another cache is a different object.
      *
      * @template T
      *
+     * @param Tree          $tree   The tree the lookup reads
      * @param callable(): T $lookup The lookup to run
      *
      * @return T The result of the lookup
      */
-    public static function withinScope(callable $lookup)
+    public static function withinScope(Tree $tree, callable $lookup)
     {
+        if (self::usesRelationshipPrivacy($tree)) {
+            return $lookup();
+        }
+
         $requestCache = Registry::cache();
 
         Registry::cache(new CacheFactory());
@@ -67,6 +81,20 @@ final readonly class VisibleFamily
         } finally {
             Registry::cache($requestCache);
         }
+    }
+
+    /**
+     * Whether the host limits what the current viewer sees by the relationship to
+     * the own record.
+     *
+     * @param Tree $tree The tree
+     *
+     * @return bool True when the viewer has a linked record and a path length
+     */
+    private static function usesRelationshipPrivacy(Tree $tree): bool
+    {
+        return ($tree->getUserPreference(Auth::user(), UserInterface::PREF_TREE_ACCOUNT_XREF) !== '')
+            && ((int) $tree->getUserPreference(Auth::user(), UserInterface::PREF_TREE_PATH_LENGTH) > 0);
     }
 
     /**
@@ -107,8 +135,10 @@ final readonly class VisibleFamily
     }
 
     /**
-     * Whether a link from one record to another is visible. A link that the record
-     * does not hold at all is not restricted.
+     * Whether a link from one record to another is visible. A line links the target
+     * when its value starts with the pointer, in any letter case, as the import of
+     * the host reads it. A link that the record does not hold at all is not
+     * restricted.
      *
      * @param GedcomRecord $record The record that holds the link
      * @param string       $tag    The level one tag of the link
@@ -120,10 +150,11 @@ final readonly class VisibleFamily
     {
         // The record itself was checked by the caller or is not relevant to the
         // link, so all facts are read and each one is checked for the viewer.
-        $found = false;
+        $pointer = '/^@' . preg_quote($target, '/') . '@/i';
+        $found   = false;
 
         foreach ($record->facts([$tag], false, Auth::PRIV_HIDE) as $fact) {
-            if ($fact->value() !== '@' . $target . '@') {
+            if (preg_match($pointer, $fact->value()) !== 1) {
                 continue;
             }
 

@@ -12,21 +12,27 @@ declare(strict_types=1);
 namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 
 use Fisharebest\Webtrees\Auth;
+use Fisharebest\Webtrees\Contracts\UserInterface;
 use Fisharebest\Webtrees\DB;
+use Fisharebest\Webtrees\Factories\CacheFactory;
 use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Repository\OccupationInheritanceRepository;
 use MagicSunday\Webtrees\Statistic\Repository\ParentMapRepository;
 use MagicSunday\Webtrees\Statistic\Repository\PartnershipMapRepository;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\VisibleFamily;
 use MagicSunday\Webtrees\Statistic\Test\Support\Normalization\StubOccupationNormalizer;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\Attributes\Test;
 
+use function array_filter;
 use function array_keys;
 use function array_map;
 use function implode;
 use function range;
 use function sort;
+use function str_contains;
 use function str_replace;
 use function strval;
 
@@ -150,7 +156,7 @@ final class FamilyRecordPrivacyIntegrationTest extends AbstractIntegrationTestCa
     }
 
     /**
-     * @return iterable<string, array{string, string, array{0: string|null, 1: string|null}|null, bool}> The record to restrict, the link, the expected parents and whether the couple stays an edge
+     * @return iterable<string, array{0: string, 1: string, 2: array{0: string|null, 1: string|null}|null, 3: bool, 4?: string}> The record to restrict, the link, the expected parents, whether the couple stays an edge and the line written in place of the link
      */
     public static function restrictedLinks(): iterable
     {
@@ -160,6 +166,9 @@ final class FamilyRecordPrivacyIntegrationTest extends AbstractIntegrationTestCa
         yield 'family link of the husband' => ['P1', '1 FAMS @F1@', [null, 'P2'], false];
         yield 'family link of the wife' => ['P2', '1 FAMS @F1@', ['P1', null], false];
         yield 'family link of the child' => ['C1', '1 FAMC @F1@', null, true];
+        yield 'husband link with trailing text' => ['F1', '1 HUSB @P1@', [null, 'P2'], false, '1 HUSB @P1@ x'];
+        yield 'child link with another letter case' => ['F1', '1 CHIL @C1@', null, true, '1 CHIL @c1@'];
+        yield 'family link of the husband with trailing text' => ['P1', '1 FAMS @F1@', [null, 'P2'], false, '1 FAMS @F1@ x'];
     }
 
     /**
@@ -170,19 +179,24 @@ final class FamilyRecordPrivacyIntegrationTest extends AbstractIntegrationTestCa
      * @param string                                     $link    The restricted link line
      * @param array{0: string|null, 1: string|null}|null $parents The expected parents of the child
      * @param bool                                       $edge    Whether the couple stays an edge
+     * @param string|null                                $written The line written in place of the link
      */
     #[Test]
     #[DataProvider('restrictedLinks')]
-    public function aRestrictedLinkHidesItsRelation(string $record, string $link, ?array $parents, bool $edge): void
+    public function aRestrictedLinkHidesItsRelation(string $record, string $link, ?array $parents, bool $edge, ?string $written = null): void
     {
+        // The sibling and the second family give every restricted tag a second
+        // line that stays open, which must not stand in for the restricted one.
         $records = [
             'C1' => "0 @C1@ INDI\n1 NAME C1 /Test/\n1 FAMC @F1@\n1 DEAT Y\n",
-            'P1' => "0 @P1@ INDI\n1 NAME P1 /Test/\n1 FAMS @F1@\n1 DEAT Y\n",
+            'P1' => "0 @P1@ INDI\n1 NAME P1 /Test/\n1 FAMS @F1@\n1 FAMS @F2@\n1 DEAT Y\n",
             'P2' => "0 @P2@ INDI\n1 NAME P2 /Test/\n1 FAMS @F1@\n1 DEAT Y\n",
-            'F1' => "0 @F1@ FAM\n1 HUSB @P1@\n1 WIFE @P2@\n1 CHIL @C1@\n",
+            'F1' => "0 @F1@ FAM\n1 HUSB @P1@\n1 WIFE @P2@\n1 CHIL @C1@\n1 CHIL @C2@\n",
+            'C2' => "0 @C2@ INDI\n1 NAME C2 /Test/\n1 FAMC @F1@\n1 DEAT Y\n",
+            'F2' => "0 @F2@ FAM\n1 HUSB @P1@\n",
         ];
 
-        $records[$record] = str_replace($link . "\n", $link . "\n2 RESN confidential\n", $records[$record]);
+        $records[$record] = str_replace($link . "\n", ($written ?? $link) . "\n2 RESN confidential\n", $records[$record]);
 
         $tree = $this->importGedcomTree('restricted-link', "0 HEAD\n1 CHAR UTF-8\n" . implode('', $records) . "0 TRLR\n");
         $tree->setPreference('SHOW_PRIVATE_RELATIONSHIPS', '1');
@@ -192,6 +206,113 @@ final class FamilyRecordPrivacyIntegrationTest extends AbstractIntegrationTestCa
 
         self::assertSame($parents, $visible['C1'] ?? null);
         self::assertSame($edge, (new PartnershipMapRepository($tree))->build() !== []);
+    }
+
+    /**
+     * More children and couples than one chunk holds are all resolved, each chunk
+     * reads its family rows with one query, and neither lookup leaves its records
+     * in the cache of the request.
+     */
+    #[Test]
+    public function theLookupsWorkThroughEveryChunk(): void
+    {
+        $count    = VisibleFamily::CHUNK_SIZE + 1;
+        $gedcom   = "0 HEAD\n1 CHAR UTF-8\n";
+        $children = [];
+
+        foreach (range(1, $count) as $number) {
+            $child                  = "0 @C{$number}@ INDI\n1 NAME C /Test/\n1 FAMC @F{$number}@\n1 DEAT Y\n";
+            $children["C{$number}"] = $child;
+            $gedcom .= $child
+                . "0 @H{$number}@ INDI\n1 NAME H /Test/\n1 FAMS @F{$number}@\n1 DEAT Y\n"
+                . "0 @W{$number}@ INDI\n1 NAME W /Test/\n1 FAMS @F{$number}@\n1 DEAT Y\n"
+                . "0 @F{$number}@ FAM\n1 HUSB @H{$number}@\n1 WIFE @W{$number}@\n1 CHIL @C{$number}@\n";
+        }
+
+        $tree = $this->importGedcomTree('chunks', $gedcom . "0 TRLR\n");
+        $this->actAsVisitorWithLivingHidden($tree);
+
+        DB::connection()->flushQueryLog();
+        DB::connection()->enableQueryLog();
+
+        $parents = (new ParentMapRepository($tree))->buildVisible($children);
+        $couples = (new PartnershipMapRepository($tree))->build();
+        $log     = DB::connection()->getQueryLog();
+
+        self::assertCount($count, $parents);
+        self::assertSame(['H1', 'W1'], $parents['C1'] ?? null);
+        self::assertCount(2 * $count, $couples);
+
+        $rowQueries = array_filter(
+            $log,
+            static fn (array $query): bool => str_contains($query['query'], '"f_gedcom"') && str_contains($query['query'], '"f_id" in'),
+        );
+
+        self::assertCount(4, $rowQueries, 'two chunks of each lookup');
+
+        DB::connection()->flushQueryLog();
+        Registry::familyFactory()->make('F1', $tree);
+
+        self::assertNotSame([], DB::connection()->getQueryLog(), 'the family is not in the cache of the request');
+
+        DB::connection()->disableQueryLog();
+    }
+
+    /**
+     * The restriction that a pending change adds to a child record counts for an
+     * editor, who sees the change, as it does for the host.
+     */
+    #[Test]
+    public function aPendingRestrictionOfAChildCountsForAnEditor(): void
+    {
+        $child = "0 @C1@ INDI\n1 NAME C1 /Test/\n1 FAMC @F1@\n1 DEAT Y\n";
+        $tree  = $this->importGedcomTree(
+            'pending-child',
+            "0 HEAD\n1 CHAR UTF-8\n" . $child
+            . "0 @P1@ INDI\n1 NAME P1 /Test/\n1 FAMS @F1@\n1 DEAT Y\n"
+            . "0 @F1@ FAM\n1 HUSB @P1@\n1 CHIL @C1@\n0 TRLR\n",
+        );
+        $this->hideLivingPeople($tree);
+        Auth::logout();
+        $this->loginAsEditor($tree);
+
+        $this->individual($tree, 'C1')->updateRecord($child . "1 RESN confidential\n", false);
+        Registry::cache(new CacheFactory());
+
+        self::assertSame([], (new ParentMapRepository($tree))->buildVisible(['C1' => $child]));
+    }
+
+    /**
+     * A member with relationship privacy sees the family of a relative in the
+     * partnership map, and the host still shows it afterwards.
+     */
+    #[Test]
+    #[RunInSeparateProcess]
+    public function relationshipPrivacyOfTheViewerKeepsWorking(): void
+    {
+        $tree = $this->importGedcomTree(
+            'relationship',
+            "0 HEAD\n1 CHAR UTF-8\n"
+            . "0 @ME@ INDI\n1 NAME Me /Test/\n1 BIRT\n2 DATE 1 JAN 2000\n1 FAMC @F1@\n"
+            . "0 @P1@ INDI\n1 NAME P1 /Test/\n1 BIRT\n2 DATE 1 JAN 1970\n1 FAMS @F1@\n"
+            . "0 @P2@ INDI\n1 NAME P2 /Test/\n1 BIRT\n2 DATE 1 JAN 1970\n1 FAMS @F1@\n"
+            . "0 @F1@ FAM\n1 HUSB @P1@\n1 WIFE @P2@\n1 CHIL @ME@\n0 TRLR\n",
+        );
+        $this->hideLivingPeople($tree);
+        Auth::logout();
+        $this->loginAsMember($tree);
+        $tree->setUserPreference(Auth::user(), UserInterface::PREF_TREE_ACCOUNT_XREF, 'ME');
+        $tree->setUserPreference(Auth::user(), UserInterface::PREF_TREE_PATH_LENGTH, '1');
+
+        $family = Registry::familyFactory()->make('F1', $tree) ?? self::fail('the family exists');
+
+        self::assertTrue($family->canShow(), 'precondition: the host shows the family of a relative');
+
+        $keys = array_map(strval(...), array_keys((new PartnershipMapRepository($tree))->build()));
+        sort($keys);
+
+        self::assertSame(['P1', 'P2'], $keys);
+        self::assertTrue($this->individual($tree, 'P1')->canShow());
     }
 
     /**
