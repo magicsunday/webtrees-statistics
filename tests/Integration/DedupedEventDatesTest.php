@@ -14,6 +14,8 @@ namespace MagicSunday\Webtrees\Statistic\Test\Integration;
 use Fisharebest\Webtrees\DB;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
+use MagicSunday\Webtrees\Statistic\Support\Database\BirthDeathPairsQuery;
+use MagicSunday\Webtrees\Statistic\Support\Database\DateAggregate;
 use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
 use MagicSunday\Webtrees\Statistic\Test\Support\Narrowing\PayloadNarrowing;
@@ -242,6 +244,62 @@ final class DedupedEventDatesTest extends AbstractIntegrationTestCase
         PayloadNarrowing::assertValueAt(1900, $yearByGid, 'I1', 'No off-fact or year-less tie row corrupts the survivor, and the kept Hebrew tie keeps the lower Gregorian-scale year.');
         PayloadNarrowing::assertValueAt(1, $monByGid, 'I1', 'The numeric month minimum wins the Gregorian tie.');
         PayloadNarrowing::assertValueAt('@#DGREGORIAN@', $typeByGid, 'I1', 'The Gregorian calendar wins the cross-calendar type minimum (G < H), so a consumer converts I1 by the native Gregorian year, not the Hebrew julian day.');
+    }
+
+    /**
+     * Two same-day birth facts in two calendars keep one whole row: calendar,
+     * year, month and day come from the same date, in the helper and in the
+     * birth-to-death pairs alike. The Julian 20 DEC 1899 is the Gregorian
+     * 1 JAN 1900, and a mix of both rows would read the year 1899 as Gregorian.
+     */
+    #[Test]
+    public function aSameDayPairInTwoCalendarsKeepsOneWholeRow(): void
+    {
+        $tree = $this->importGedcomTree(
+            'same-day-pair',
+            "0 HEAD\n1 CHAR UTF-8\n0 @I1@ INDI\n1 NAME A /T/\n1 SEX M\n"
+            . "1 BIRT\n2 DATE @#DJULIAN@ 20 DEC 1899\n1 BIRT\n2 DATE 1 JAN 1900\n"
+            . "1 DEAT\n2 DATE 1 JAN 1950\n0 TRLR\n",
+        );
+
+        $expected = ['@#DGREGORIAN@', 1900, 1, 1];
+        $rows     = DedupedEventDates::query($tree, 'BIRT')->get();
+
+        self::assertCount(1, $rows);
+        self::assertSame($expected, $this->calendarYearMonthDay($rows[0], ''));
+
+        $pairs = BirthDeathPairsQuery::for($tree, true)
+            ->groupBy('individuals.i_id')
+            ->select([
+                DateAggregate::min('birth', 'd_type', 'birth_type'),
+                DateAggregate::min('birth', 'd_year', 'birth_year'),
+                DateAggregate::min('birth', 'd_mon', 'birth_mon'),
+                DateAggregate::min('birth', 'd_day', 'birth_day'),
+            ])
+            ->get();
+
+        self::assertCount(1, $pairs);
+        self::assertSame($expected, $this->calendarYearMonthDay($pairs[0], 'birth_'));
+    }
+
+    /**
+     * The calendar, year, month and day of a representative row.
+     *
+     * @param object $row    The row
+     * @param string $prefix The column prefix, `''` for the helper's `d_` columns
+     *
+     * @return array{string, int, int, int}
+     */
+    private function calendarYearMonthDay(object $row, string $prefix): array
+    {
+        $prefix = $prefix === '' ? 'd_' : $prefix;
+
+        return [
+            RowCast::string($row, $prefix . 'type'),
+            RowCast::int($row, $prefix . 'year'),
+            RowCast::int($row, $prefix . 'mon'),
+            RowCast::int($row, $prefix . 'day'),
+        ];
     }
 
     /**

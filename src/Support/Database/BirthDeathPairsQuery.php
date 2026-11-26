@@ -13,7 +13,6 @@ namespace MagicSunday\Webtrees\Statistic\Support\Database;
 
 use Fisharebest\Webtrees\Tree;
 use Illuminate\Database\Query\Builder;
-use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 
 /**
@@ -84,17 +83,12 @@ final readonly class BirthDeathPairsQuery
                     $requireFullDate,
                 );
 
-                // Pin the birth alias to the individual's lower-bound BIRT row,
-                // so a consumer's `MIN(birth.d_year)` / `MIN(birth.d_type)` are
-                // read from ONE coherent row — not column-wise from different
-                // rows — when an individual carries BIRT facts with DISTINCT
-                // julian days in more than one calendar. The residual exact
-                // julian-day cross-calendar tie (e.g. a Gregorian and a Julian
-                // transcription of the same physical day, whose native `d_year`
-                // differ by one) admits both rows and is NOT resolved here; it is
-                // the same documented per-column-MIN limitation as
-                // {@see DedupedEventDates} and is tracked separately.
-                $join->on('birth.d_julianday1', '=', 'birth_rep.min_jd');
+                // Pin the birth alias to the representative rows of the individual,
+                // so a consumer's `MIN(birth.d_year)` and `MIN(birth.d_type)` read
+                // one calendar and not values of two dates.
+                $join
+                    ->on('birth.d_julianday1', '=', 'birth_rep.min_jd')
+                    ->on('birth.d_type', '=', 'birth_rep.min_type');
             })
             ->join('dates AS death', static function (JoinClause $join) use ($requireFullDate): void {
                 DateJoin::on(
@@ -110,29 +104,30 @@ final readonly class BirthDeathPairsQuery
     }
 
     /**
-     * Per-individual lower-bound BIRT row key: `d_file`, `d_gid` and the minimum
-     * resolvable `d_julianday1`. Mirrors the birth alias's own filters (a
-     * resolvable julian day, plus the full-date gate when the caller demands
-     * day-precision) so the representative is drawn from exactly the rows the
-     * birth join keeps.
+     * Per-individual representative BIRT row key, see {@see LowestDateRows}. It
+     * mirrors the birth alias's own filters (a resolvable julian day, plus the
+     * full-date gate when the caller demands day-precision) so the representative
+     * is drawn from exactly the rows the birth join keeps.
      *
      * @param Tree $tree            The tree to scope the birth rows to
      * @param bool $requireFullDate Whether to restrict to day-precise rows (`d_day`/`d_mon` > 0)
      */
     private static function lowerBoundBirth(Tree $tree, bool $requireFullDate): Builder
     {
-        $query = TreeScope::table($tree, 'dates')
-            ->where('d_fact', '=', 'BIRT')
-            ->where('d_julianday1', '>', 0);
+        return LowestDateRows::query(
+            static function (string $prefix) use ($tree, $requireFullDate): Builder {
+                $query = ($prefix === '' ? TreeScope::table($tree, 'dates') : TreeScope::table($tree, 'dates', 'd'))
+                    ->where($prefix . 'd_fact', '=', 'BIRT')
+                    ->where($prefix . 'd_julianday1', '>', 0);
 
-        if ($requireFullDate) {
-            $query
-                ->where('d_day', '>', 0)
-                ->where('d_mon', '>', 0);
-        }
+                if ($requireFullDate) {
+                    $query
+                        ->where($prefix . 'd_day', '>', 0)
+                        ->where($prefix . 'd_mon', '>', 0);
+                }
 
-        return $query
-            ->select(['d_file', 'd_gid', new Expression('MIN(d_julianday1) AS min_jd')])
-            ->groupBy('d_file', 'd_gid');
+                return $query;
+            },
+        );
     }
 }

@@ -15,7 +15,6 @@ use Fisharebest\Webtrees\Tree;
 use Generator;
 use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Query\Builder;
-use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Query\JoinClause;
 use MagicSunday\Webtrees\Statistic\Support\Calc\GregorianDate;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
@@ -41,22 +40,11 @@ use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
  * `BET DEC 1880 AND JAN 1881` record into the non-existent month "January
  * 1880", whereas the lower-bound row is correctly "December 1880".
  *
- * The result is guaranteed exact-once per individual: a `GROUP BY d_gid` over
- * the matched lower-bound rows collapses the rare tie where two same-fact rows
- * share the minimum `d_julianday1` (e.g. a Gregorian and a Julian birth event
- * that map to the same julian day) — without it that individual would surface
- * twice and split across two buckets, the very defect this helper exists to
- * remove. For a single-row individual the `GROUP BY` is a no-op. On a genuine
- * cross-calendar tie the surviving `d_year` / `d_mon` / `d_day` are the
- * per-column minima of the tied rows and may therefore be drawn from different
- * rows. The exact-once cardinality holds regardless — the `GROUP BY` emits one
- * row per individual, so every consumer counts each record once. A consumer
- * that reads a single column (century, year, month) is fully correct; a
- * consumer that combines `d_mon` and `d_day` from the same row (the zodiac
- * card) is also correct for the common range case, where the two bounds carry
- * distinct julian days and the join-back matches one whole row, and on the rare
- * tie could at worst place the still-counted-once individual in an adjacent
- * bucket.
+ * The result is exact-once per individual and taken from one calendar:
+ * {@see LowestDateRows} keeps one calendar among the rows that share the lowest
+ * julian day, so a same-day pair of a Gregorian and a Julian birth does not mix
+ * year, month and calendar of two rows, and the `GROUP BY d_gid` collapses rows
+ * of one calendar and day, which differ only in precision.
  *
  * The returned builder reads like a virtual `event_dates` table with columns
  * `d_gid, d_type, d_year, d_mon, d_day, d_julianday1`; consumers chain their own
@@ -99,15 +87,20 @@ final readonly class DedupedEventDates
      */
     public static function query(Tree $tree, string $fact): Builder
     {
-        $representatives = self::restrictToDatedFact(TreeScope::table($tree, 'dates'), $fact, '')
-            ->select(['d_gid', new Expression('MIN(d_julianday1) AS min_jd')])
-            ->groupBy('d_gid');
+        $representatives = LowestDateRows::query(
+            static fn (string $prefix): Builder => self::restrictToDatedFact(
+                $prefix === '' ? TreeScope::table($tree, 'dates') : TreeScope::table($tree, 'dates', 'd'),
+                $fact,
+                $prefix,
+            ),
+        );
 
         $representativeRows = self::restrictToDatedFact(TreeScope::table($tree, 'dates', 'd'), $fact, 'd.')
             ->joinSub($representatives, 'rep', static function (JoinClause $join): void {
                 $join
                     ->on('rep.d_gid', '=', 'd.d_gid')
-                    ->on('rep.min_jd', '=', 'd.d_julianday1');
+                    ->on('rep.min_jd', '=', 'd.d_julianday1')
+                    ->on('rep.min_type', '=', 'd.d_type');
             })
             ->groupBy('d.d_gid')
             ->select([
