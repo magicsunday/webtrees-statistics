@@ -43,10 +43,10 @@ use function strcmp;
  * exactly the {@see GenerationDepthRepository::summary()} discipline, so the
  * report's xref-to-{@see Individual} step issues a single chunked query rather
  * than one `IndividualFactory::make()` round-trip per person. Privacy follows
- * the same convention: every node stays in place and `Individual::fullName()`
- * substitutes the "Private" placeholder for a non-visible person, so the
- * group and chain counts never shift by viewer. The median year is the exception
- * that follows the viewer on purpose. It is formed over the years of the birth and
+ * two rules. The partnership map holds only the families the viewer may see, so
+ * the group and chain counts follow the viewer. A person of such a family stays
+ * a node, and `Individual::fullName()` substitutes the "Private" placeholder for a
+ * non-visible one. The median year is formed over the years of the birth and
  * death facts (BIRT and DEAT) that the viewer can see on the resolved people, so it
  * does not reflect a year that the wire rows of the same payload withhold. Only a
  * member who can give a year is resolved for it, see {@see membersThatMayHaveYears()}.

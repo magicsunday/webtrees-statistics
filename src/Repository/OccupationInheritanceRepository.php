@@ -68,7 +68,8 @@ use function mb_strtolower;
  * per-flow sample children are routed through the privacy layer as well (see
  * {@see SankeySampleResolver}), and a child the viewer may not see is dropped
  * from the tooltip. The weight and the samples come from the same visible
- * occupations, so a name is not shown next to a withheld occupation.
+ * occupations, so a name is not shown next to a withheld occupation. A child
+ * counts only through a family and a child link that the viewer may see.
  *
  * @author  Rico Sonntag <mail@ricosonntag.de>
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License v3.0
@@ -211,7 +212,18 @@ final readonly class OccupationInheritanceRepository
             $tradesByXref[$xref] = $this->uniqueTrades($occupations, $folds);
         }
 
-        $parentOf = $this->parentMap->build();
+        // A flow counts a child only through a family link the viewer may see.
+        $childGedcoms = [];
+
+        foreach ($rows as $row) {
+            $xref = RowCast::string($row, 'xref');
+
+            if (($tradesByXref[$xref] ?? []) !== []) {
+                $childGedcoms[$xref] = RowCast::string($row, 'gedcom');
+            }
+        }
+
+        $parentOf = $this->parentMap->buildVisible($childGedcoms);
 
         // Count every (parent-occupation → child-occupation) pair once per
         // child, and remember up to SAMPLES_PER_FLOW representative children per

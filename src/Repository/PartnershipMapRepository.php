@@ -14,6 +14,7 @@ namespace MagicSunday\Webtrees\Statistic\Repository;
 use Fisharebest\Webtrees\Tree;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
 use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
+use MagicSunday\Webtrees\Statistic\Support\Gedcom\VisibleFamily;
 
 /**
  * Shared repository that builds the tree-wide partnership-graph adjacency map —
@@ -22,7 +23,7 @@ use MagicSunday\Webtrees\Statistic\Support\Gedcom\RowCast;
  * edge, stored from both sides so the relation is symmetric; a partner that
  * recurs across several families collapses to a single entry. Individuals who
  * are only one side of an incomplete couple (a lone HUSB or WIFE) are absent
- * from the map.
+ * from the map, and so are the edges of a family the viewer may not see.
  *
  * This is the FAMS analogue of {@see ParentMapRepository} (which builds the
  * FAMC parent map): centralising the family-spouse scan here keeps every
@@ -54,10 +55,10 @@ final class PartnershipMapRepository
 
     /**
      * Build an individual-id → spouse-id list map for the configured tree. Only
-     * families recording both spouses contribute; each pair is added in both
-     * directions and de-duplicated, so the result is a symmetric adjacency map
-     * with no repeated spouse XREFs. Result is cached for the lifetime of the
-     * repository instance.
+     * families recording both spouses that the viewer may see contribute; each
+     * pair is added in both directions and de-duplicated, so the result is a
+     * symmetric adjacency map with no repeated spouse XREFs. Result is cached
+     * for the lifetime of the repository instance.
      *
      * The key type is `array-key`, not `string`: a digit-only XREF ("54") is
      * silently coerced to an int the moment it indexes the array, so callers
@@ -73,7 +74,7 @@ final class PartnershipMapRepository
         }
 
         $familyRows = TreeScope::table($this->tree, 'families')
-            ->select(['f_husb AS husb', 'f_wife AS wife'])
+            ->select(['f_id', 'f_husb AS husb', 'f_wife AS wife', 'f_gedcom'])
             ->get();
 
         $adjacency = [];
@@ -100,6 +101,12 @@ final class PartnershipMapRepository
             // malformed data; skip it so the map never grows a self-edge that a
             // downstream chain walk would read as someone married to themselves.
             if ($husb === $wife) {
+                continue;
+            }
+
+            // A family the viewer may not see gives no edge, whether the record
+            // carries a restriction or the host hides it for a private member.
+            if (!VisibleFamily::isShown($this->tree, RowCast::string($row, 'f_id'), RowCast::string($row, 'f_gedcom'))) {
                 continue;
             }
 

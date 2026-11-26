@@ -382,9 +382,10 @@ final class PartnershipReachRepositoryIntegrationTest extends AbstractIntegratio
      * A guest needs no visibility lookup for a person whose own facts carry no
      * date, because such a person cannot give a year to the median. Two groups
      * above both the excerpt cap and the chain bound draw and chain the same
-     * number of people, so the number of queries stays the same when the group
-     * grows. A first run warms the preference cache of the host, which would add
-     * queries to the run that follows it.
+     * number of people, so the number of queries after the partnership map is
+     * built stays the same when the group grows. A first run warms the
+     * preference cache of the host, which would add queries to the run that
+     * follows it.
      */
     #[Test]
     public function guestQueryCountDoesNotGrowWithPeopleWithoutLifeDates(): void
@@ -409,14 +410,29 @@ final class PartnershipReachRepositoryIntegrationTest extends AbstractIntegratio
         $tree = $this->importGedcomTree($name, $this->datelessChainGedcom($people));
         $this->actAsVisitorWithLivingHidden($tree);
 
-        // The import fills the record cache of the host, and a real request starts
-        // with an empty one, so every record that the viewer check needs is a query.
+        // The import fills the record cache of the host, with records that it
+        // looked up before they existed, and a real request starts with an empty
+        // one.
+        Registry::cache(new CacheFactory());
+
+        // The map resolves each family for the viewer, which costs queries that
+        // grow with the tree, so it is built before the count starts.
+        $map = new PartnershipMapRepository($tree);
+        $map->build();
+
+        // The map fills the record cache as well, and without an empty one a
+        // record lookup of the summary would not show as a query.
         Registry::cache(new CacheFactory());
 
         DB::connection()->flushQueryLog();
         DB::connection()->enableQueryLog();
 
-        $report = $this->repository($tree)->summary() ?? self::fail('the chain is a partnership group');
+        $repository = new PartnershipReachRepository(
+            $tree,
+            $map,
+            new GenerationDepthRepository($tree, new ParentMapRepository($tree)),
+        );
+        $report = $repository->summary() ?? self::fail('the chain is a partnership group');
 
         self::assertSame($people, $report->group->totalCount, 'precondition: the whole chain is one group');
 
@@ -461,6 +477,9 @@ final class PartnershipReachRepositoryIntegrationTest extends AbstractIntegratio
 
             if ($index < $people) {
                 $lines[] = '0 @FC' . $index . '@ FAM';
+                // The chain families stay visible to a guest, so the chain is
+                // one group although nothing proves its people dead.
+                $lines[] = '1 RESN none';
                 $lines[] = '1 ' . (($sex === 'M') ? 'HUSB' : 'WIFE') . ' @C' . $index . '@';
                 $lines[] = '1 ' . (($sex === 'M') ? 'WIFE' : 'HUSB') . ' @C' . ($index + 1) . '@';
             }
