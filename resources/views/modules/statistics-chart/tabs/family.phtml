@@ -294,7 +294,7 @@ echo Card::for($module, I18N::translate('Mean age at first child by decade'))
     ->withIllustration(Illustration::Child)
     ->withInfo(
         I18N::translate(
-            'Each point shows the average parental age in full years. The two lines are computed separately for fathers and mothers, as shown by the legend. A decade is only drawn for a given parent if at least five parents of that sex appear in it. Decades with fewer samples are dropped from that line, so a single outlier cannot distort the trend. The other line continues uninterrupted. Hover any point to see how many parents the average is based on.'
+            'Each point shows the average parental age in full years. The two lines are computed separately for fathers and mothers, as shown by the legend. A decade is only drawn for a given parent if at least five parents of that sex appear in it. Decades with fewer samples are dropped from that line, so a single outlier cannot distort the trend. Hover any point to see how many parents the average is based on.'
         )
     )
     ->withSpan(12)
@@ -385,6 +385,7 @@ echo Card::for($module, I18N::translate('Average family size by century'))
     ->withBodyHtml(
         Widget::lineChart($module, 'average-family-size-line')
             ->withData($averageFamilySizeLine)
+            ->with('showArea', false)
             ->withAriaLabel(I18N::translate('Average family size by century'))
             ->render()
     )
@@ -397,15 +398,15 @@ echo Card::for($module, I18N::translate('Multiple-birth rate by century'))
     ->withIllustration(Illustration::Child)
     ->withInfo(
         I18N::translate(
-            'For every fully-dated child in the tree (BIRT carrying both a day and a month) the widget groups siblings in the same FAM whose BIRT julian-days fall within one day of each other into a multiple-birth set. Matching on date proximity rather than the exact day means cross-midnight twins (e.g. 31 December / 1 January) still merge: a single mother cannot place two separate pregnancies a calendar day apart, so the shared family plus the close birth dates are the signal by themselves. The chart draws one series per multiplicity that actually occurs in the tree (twins, triplets, quadruplets, quintuplets and above) — each series shows that multiplicity\'s per-century share of all dated births. Year-only BIRT records (day and month both blank) are intentionally excluded — they would turn every "0 0 1829" sibling group into a phantom multi-birth set. Centuries below 200 fully-dated children are dropped to keep the curve from spiking on small denominators.'
+            'For every fully-dated child in the tree (BIRT carrying both a day and a month) the widget groups siblings in the same FAM whose BIRT julian-days fall within one day of each other into a multiple-birth set. Matching on date proximity rather than the exact day means cross-midnight twins (e.g. 31 December / 1 January) still merge: a single mother cannot place two separate pregnancies a calendar day apart, so the shared family plus the close birth dates are the signal by themselves. The chart draws one series per multiplicity that actually occurs in the tree (twins, triplets, quadruplets, quintuplets and above) — each series shows that multiplicity\'s per-century share of all dated births. Year-only BIRT records (day and month both blank) are intentionally excluded — they would turn every "0 0 1829" sibling group into a phantom multi-birth set. Centuries below 200 fully-dated children carry no value, which keeps the curve from spiking on small denominators.'
         )
     )
     ->withSpan(8)
     ->withBodyHtml(
         Widget::lineChart($module, 'multiple-birth-rate-line')
             ->withData($multipleBirthRate)
+            ->with('showArea', false)
             ->with('yUnit', ' %')
-            ->with('multiSeriesArea', true)
             ->withAriaLabel(I18N::translate('Multiple-birth rate by century'))
             ->render()
     )
@@ -494,6 +495,7 @@ echo Card::for($module, I18N::translate('Divorce rate per marriage cohort'))
     ->withSpan(12)
     ->withBodyHtml(
         Widget::lineChart($module, 'divorce-cohort-line')
+            ->with('showArea', false)
             ->withData([
                 'categories' => $cohortCategories,
                 'series'     => [

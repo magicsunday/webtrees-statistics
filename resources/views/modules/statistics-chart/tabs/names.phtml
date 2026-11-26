@@ -149,7 +149,7 @@ echo Card::for($module, I18N::translate('Same-sex name passdown'))
     ->withBodyHtml(
         Widget::lineChart($module, 'same-sex-name-passdown-line')
             ->withData($namePassdown)
-            ->with('multiSeriesArea', true)
+            ->with('showArea', false)
             ->with('yUnit', ' %')
             ->withAriaLabel(I18N::translate('Same-sex name passdown'))
             ->render()

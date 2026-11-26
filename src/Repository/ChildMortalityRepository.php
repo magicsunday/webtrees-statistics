@@ -82,8 +82,8 @@ final readonly class ChildMortalityRepository
 
     /**
      * Per-birth-century child-mortality breakdown, ordered ascending. Returns
-     * the raw counts + mortality rate per century so the view layer can format
-     * I18N labels and tooltip prose itself.
+     * the raw counts and the mortality rate per century and leaves the I18N
+     * formatting to the consumer.
      *
      * Centuries with fewer than {@see self::MIN_COHORT_SIZE} children are
      * dropped to keep the line from spiking on a single unlucky family; below

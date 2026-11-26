@@ -23,6 +23,7 @@ use MagicSunday\Webtrees\Statistic\Aggregator\TopNAggregator;
 use MagicSunday\Webtrees\Statistic\Enum\Sex;
 use MagicSunday\Webtrees\Statistic\Model\LineChart\LineChartSeries;
 use MagicSunday\Webtrees\Statistic\Payload\LineChartPayload;
+use MagicSunday\Webtrees\Statistic\Support\Calc\CenturySpan;
 use MagicSunday\Webtrees\Statistic\Support\Database\ChildLinkJoin;
 use MagicSunday\Webtrees\Statistic\Support\Database\DedupedEventDates;
 use MagicSunday\Webtrees\Statistic\Support\Database\TreeScope;
@@ -36,7 +37,6 @@ use function array_keys;
 use function array_map;
 use function count;
 use function iterator_to_array;
-use function ksort;
 use function round;
 use function usort;
 
@@ -437,10 +437,10 @@ final class NameRepository
      * systematically miss the passdown signal it tries to measure.
      *
      * Per-century cohorts with fewer than {@see MIN_COHORT_SIZE} parent-child
-     * pairs are suppressed independently per series (value 0 + "no data"
-     * tooltip). A century survives on the X axis as long as at least one of the
-     * two series passes the floor, so the union of the two cohorts defines the
-     * visible span and one sparse series cannot hide the other.
+     * pairs are suppressed independently per series (no value + "no data"
+     * tooltip). The X axis runs from the first to the last century in which at
+     * least one of the two series passes the floor, so one sparse series cannot
+     * hide the other.
      *
      * Two SQL passes (one per parent / child sex pair). The walk is symmetric
      * between the two: father / son uses HUSB + SEX=M, mother / daughter uses
@@ -457,13 +457,14 @@ final class NameRepository
         $fatherSon      = $this->passdownPairsByCentury(Sex::Male->spouseColumn(), Sex::Male->value, $birthYears);
         $motherDaughter = $this->passdownPairsByCentury(Sex::Female->spouseColumn(), Sex::Female->value, $birthYears);
 
-        $allCenturies = $fatherSon + $motherDaughter;
+        $qualifying = [
+            ...$this->centuriesReachingPassdownFloor($fatherSon),
+            ...$this->centuriesReachingPassdownFloor($motherDaughter),
+        ];
 
-        if ($allCenturies === []) {
+        if ($qualifying === []) {
             return new LineChartPayload(categories: [], series: []);
         }
-
-        ksort($allCenturies);
 
         $categories            = [];
         $sonValues             = [];
@@ -473,7 +474,7 @@ final class NameRepository
         $daughterTooltips      = [];
         $daughterTooltipLabels = [];
 
-        foreach (array_keys($allCenturies) as $century) {
+        foreach (CenturySpan::covering($qualifying) as $century) {
             $longLabel = CenturyName::longLabel($century);
 
             $categories[] = CenturyName::compactLabel($century);
@@ -503,6 +504,26 @@ final class NameRepository
                 ),
             ],
         );
+    }
+
+    /**
+     * The centuries of one sex pairing that hold enough pairs for a rate.
+     *
+     * @param array<int, array{matches: int, total: int}> $byCentury Pair counts per century
+     *
+     * @return list<int>
+     */
+    private function centuriesReachingPassdownFloor(array $byCentury): array
+    {
+        $centuries = [];
+
+        foreach ($byCentury as $century => $counts) {
+            if ($counts['total'] >= self::MIN_COHORT_SIZE) {
+                $centuries[] = $century;
+            }
+        }
+
+        return $centuries;
     }
 
     /**
@@ -606,23 +627,22 @@ final class NameRepository
     /**
      * Render one century's `{matches, total}` cell into the `(value, tooltip)`
      * pair the LineChart series consumes. A null counts argument means the
-     * century did not collect any pair for this sex pairing, which also
-     * produces the "no data" placeholder so the other series can still own the
-     * X-axis slot.
+     * century did not collect any pair for this sex pairing, and the point
+     * then carries no value and the "no data" tooltip.
      *
      * @param array{matches: int, total: int}|null $counts
      * @param string                               $kind   'son' or 'daughter' — picks the tooltip wording
      *
-     * @return array{0: int|float, 1: string}
+     * @return array{0: float|null, 1: string}
      */
     private function seriesRow(?array $counts, string $kind): array
     {
         if ($counts === null) {
-            return [0, I18N::translate('no data (n < %s)', I18N::number(self::MIN_COHORT_SIZE))];
+            return [null, I18N::translate('no data (n < %s)', I18N::number(self::MIN_COHORT_SIZE))];
         }
 
         if ($counts['total'] < self::MIN_COHORT_SIZE) {
-            return [0, I18N::translate('no data (n < %s)', I18N::number(self::MIN_COHORT_SIZE))];
+            return [null, I18N::translate('no data (n < %s)', I18N::number(self::MIN_COHORT_SIZE))];
         }
 
         $percentage = round(($counts['matches'] / $counts['total']) * 100, 1);
